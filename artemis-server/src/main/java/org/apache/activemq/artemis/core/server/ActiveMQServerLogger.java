@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.server;
 import javax.naming.NamingException;
 import javax.transaction.xa.Xid;
 import java.io.File;
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -1435,7 +1434,7 @@ public interface ActiveMQServerLogger {
    void noPagefullPolicySet(Object address, Object limitBytes, Object limitMessages);
 
    @LogMessage(id = 224126, value = "Failure during protocol handshake on connection to {} from {}", level = LogMessage.Level.ERROR)
-   void failureDuringProtocolHandshake(SocketAddress localAddress, String remoteAddress, Throwable e);
+   void failureDuringProtocolHandshake(String localAddress, String remoteAddress, Throwable e);
 
    // Note the custom loggerName rather than the overall LogBundle-wide definition used by other methods.
    @LogMessage(id = 224127, value = "Message dispatch from paging is blocked. Address {}/Queue {} will not read any more messages from paging until pending messages are acknowledged. "

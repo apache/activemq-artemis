@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import java.lang.invoke.MethodHandles;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -394,11 +393,11 @@ public class NettyConnection implements Connection {
 
    @Override
    public final String getLocalAddress() {
-      SocketAddress address = channel.localAddress();
+      String address = SocketAddressUtil.toString(channel.localAddress());
       if (address == null) {
          return null;
       }
-      return "tcp://" + IPV6Util.encloseHost(address.toString());
+      return IPV6Util.encloseHost(address);
    }
 
    @Override
@@ -469,7 +468,7 @@ public class NettyConnection implements Connection {
 
    @Override
    public final String toString() {
-      return super.toString() + "[ID=" + getID() + ", local= " + channel.localAddress() + ", remote=" + getRemoteAddress() + "]";
+      return super.toString() + "[ID=" + getID() + ", local= " + getLocalAddress() + ", remote=" + getRemoteAddress() + "]";
    }
 
    private void closeChannel(final Channel channel, boolean inEventLoop) {

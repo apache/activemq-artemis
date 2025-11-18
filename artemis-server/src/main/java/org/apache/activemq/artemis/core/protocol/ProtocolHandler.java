@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.protocol;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -246,7 +245,7 @@ public class ProtocolHandler {
 
          ProtocolManager protocolManagerToUse = protocolMap.get(protocolToUse);
          if (protocolManagerToUse == null) {
-            ActiveMQServerLogger.LOGGER.failedToFindProtocolManager(ctx.channel() == null ? null : ProxyProtocolUtil.getRemoteAddress(ctx.channel()), ctx.channel() == null ? null : Objects.toString(ctx.channel().localAddress(), null), protocolToUse, protocolMap.keySet().toString());
+            ActiveMQServerLogger.LOGGER.failedToFindProtocolManager(ctx.channel() == null ? null : ProxyProtocolUtil.getRemoteAddress(ctx.channel()), ctx.channel() == null ? null : SocketAddressUtil.toString(ctx.channel().localAddress()), protocolToUse, protocolMap.keySet().toString());
             return;
          }
          ConnectionCreator channelHandler = nettyAcceptor.createConnectionCreator();
@@ -264,7 +263,7 @@ public class ProtocolHandler {
       @Override
       public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
          try {
-            ActiveMQServerLogger.LOGGER.failureDuringProtocolHandshake(ctx.channel().localAddress(), ProxyProtocolUtil.getRemoteAddress(ctx.channel()), cause);
+            ActiveMQServerLogger.LOGGER.failureDuringProtocolHandshake(SocketAddressUtil.toString(ctx.channel().localAddress()), ProxyProtocolUtil.getRemoteAddress(ctx.channel()), cause);
          } finally {
             ctx.close();
          }
