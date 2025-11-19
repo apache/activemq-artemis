@@ -66,4 +66,14 @@ public abstract class Pool<T> {
          internalPool.offer(object);
       }
    }
+
+   /**
+    * @return an internal pool size or 0 if internal pool is null
+    */
+   public final int size() {
+      if (internalPool != null) {
+         return internalPool.size();
+      }
+      return 0;
+   }
 }

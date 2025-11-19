@@ -182,9 +182,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private final Object largeMessageLock = new Object();
 
-   private final Pool<NullResponseMessage> poolNullResponse;
-
-   private final Pool<NullResponseMessage_V2> poolNullResponseV2;
+   protected final Pool<NullResponseMessage> poolNullResponse;
 
    private final IntObjectHashMap<String> producers = new IntObjectHashMap<>();
 
@@ -217,8 +215,11 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       // no confirmation window size means no resend cache hence NullResponsePackets
       // won't get cached on it because need confirmation
-      poolNullResponse = new MpscPool<>(this.channel.getConfirmationWindowSize() == -1 ? MAX_CACHED_NULL_RESPONSES : 0, NullResponseMessage::reset, () -> new NullResponseMessage());
-      poolNullResponseV2 = new MpscPool<>(this.channel.getConfirmationWindowSize() == -1 ? MAX_CACHED_NULL_RESPONSES : 0, NullResponseMessage_V2::reset, () -> new NullResponseMessage_V2());
+      if (remotingConnection.isVersionBeforeAsyncResponseChange()) {
+         poolNullResponse = new MpscPool<>(this.channel.getConfirmationWindowSize() == -1 ? MAX_CACHED_NULL_RESPONSES : 0, NullResponseMessage::reset, NullResponseMessage::new);
+      } else {
+         poolNullResponse = new MpscPool<>(this.channel.getConfirmationWindowSize() == -1 ? MAX_CACHED_NULL_RESPONSES : 0, NullResponseMessage::reset, NullResponseMessage_V2::new);
+      }
    }
 
    private void clearLargeMessage() {
@@ -706,31 +707,13 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       return RoutingType.MULTICAST;
    }
 
-   private boolean requireNullResponseMessage_V1(Packet packet) {
-      return channel.getConnection().isVersionBeforeAsyncResponseChange();
-   }
-
-   private NullResponseMessage createNullResponseMessage_V1(Packet packet) {
-      assert requireNullResponseMessage_V1(packet);
-      return  poolNullResponse.borrow();
-   }
-
-   private NullResponseMessage_V2 createNullResponseMessage_V2(Packet packet) {
-      assert !requireNullResponseMessage_V1(packet);
-      NullResponseMessage_V2 response;
-      response = poolNullResponseV2.borrow();
+   private Packet createNullResponseMessage(Packet packet) {
+      NullResponseMessage response = poolNullResponse.borrow();
 
       // this should be already set by the channel too, but let's do it just in case
       response.setCorrelationID(packet.getCorrelationID());
 
       return response;
-   }
-
-   private Packet createNullResponseMessage(Packet packet) {
-      if (requireNullResponseMessage_V1(packet)) {
-         return createNullResponseMessage_V1(packet);
-      }
-      return createNullResponseMessage_V2(packet);
    }
 
    private Packet createSessionXAResponseMessage(Packet packet) {
@@ -744,15 +727,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    }
 
    private void releaseResponse(Packet packet) {
-      if (poolNullResponse == null || poolNullResponseV2 == null) {
-         return;
-      }
       if (packet instanceof NullResponseMessage message) {
          poolNullResponse.release(message);
-         return;
-      }
-      if (packet instanceof NullResponseMessage_V2 v2) {
-         poolNullResponseV2.release(v2);
       }
    }
 
