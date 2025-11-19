@@ -16,15 +16,10 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.concurrent.ScheduledExecutorService;
-
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
@@ -39,7 +34,6 @@ import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.ConsumerInfo;
@@ -48,6 +42,13 @@ import org.apache.activemq.wireformat.WireFormat;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+
+import java.util.concurrent.ScheduledExecutorService;
+
+import static org.apache.activemq.artemis.core.config.WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AMQConsumerTest {
    final OpenWireFormatFactory formatFactory = new OpenWireFormatFactory();
@@ -87,7 +88,10 @@ public class AMQConsumerTest {
       UUID nodeId = UUIDGenerator.getInstance().generateUUID();
       ActiveMQServer coreServer = Mockito.mock(ActiveMQServer.class);
       NodeManager nodeManager = Mockito.mock(NodeManager.class);
+      Configuration configuration = Mockito.mock(Configuration.class);
+      Mockito.when(configuration.getWildcardConfiguration()).thenReturn(DEFAULT_WILDCARD_CONFIGURATION);
       Mockito.when(coreServer.getNodeManager()).thenReturn(nodeManager);
+      Mockito.when(coreServer.getConfiguration()).thenReturn(configuration);
       Mockito.when(nodeManager.getUUID()).thenReturn(nodeId);
 
       ServerSession coreSession = Mockito.mock(ServerSession.class);
@@ -100,7 +104,6 @@ public class AMQConsumerTest {
       Mockito.when(session.getConnection()).thenReturn(Mockito.mock(OpenWireConnection.class));
       Mockito.when(session.getCoreServer()).thenReturn(coreServer);
       Mockito.when(session.getCoreSession()).thenReturn(coreSession);
-      Mockito.when(session.convertWildcard(ArgumentMatchers.any(ActiveMQDestination.class))).thenReturn("");
 
       ConsumerInfo info = new ConsumerInfo();
       info.setPrefetchSize(prefetchSize);
