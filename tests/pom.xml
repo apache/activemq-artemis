@@ -126,6 +126,7 @@
       <module>integration-tests</module>
       <module>integration-tests-isolated</module>
       <module>karaf-client-integration-tests</module>
+      <module>karaf-jakarta-client-integration-tests</module>
       <module>karaf-server-integration-tests</module>
       <module>compatibility-tests</module>
       <module>soak-tests</module>
