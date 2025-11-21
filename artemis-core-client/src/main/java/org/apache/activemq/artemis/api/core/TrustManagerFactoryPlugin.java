@@ -21,8 +21,32 @@ import javax.net.ssl.TrustManagerFactory;
 public interface TrustManagerFactoryPlugin {
 
    /**
+    * Parameters used as input for TrustManagerFactory.
+    */
+   interface Parameters {
+      String getTruststoreProvider();
+
+      String getTruststoreType();
+
+      String getTruststorePath();
+
+      String getTruststorePassword();
+
+      String getCrlPath();
+   }
+
+   /**
     * {@return the TrustManagerFactory used when invoking {@link javax.net.ssl.TrustManagerFactory#getTrustManagers()}
     * to initialize the {@code SSLContext}}
     */
    TrustManagerFactory getTrustManagerFactory();
+
+   /**
+    * @param parameters the parameters to be used to initialize the {@code TrustManagerFactory}
+    * {@return the TrustManagerFactory used when invoking {@link javax.net.ssl.TrustManagerFactory#getTrustManagers()}
+    * to initialize the {@code SSLContext}}
+    */
+   default TrustManagerFactory getTrustManagerFactory(TrustManagerFactoryPlugin.Parameters parameters) {
+      return getTrustManagerFactory();
+   }
 }

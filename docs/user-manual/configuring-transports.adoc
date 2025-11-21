@@ -443,9 +443,13 @@ When used on a `connector` the `sniHost` value is used for the `server_name` ext
 trustManagerFactoryPlugin::
 This is valid on either an `acceptor` or `connector`.
 It defines the name of the class which implements `org.apache.activemq.artemis.api.core.TrustManagerFactoryPlugin`.
-This is a simple interface with a single method which returns a `javax.net.ssl.TrustManagerFactory`.
+This interface provides methods that return a `javax.net.ssl.TrustManagerFactory`.
 The `TrustManagerFactory` will be used when the underlying `javax.net.ssl.SSLContext` is initialized.
 This allows fine-grained customization of who/what the broker & client trusts.
++
+The interface includes a default method `getTrustManagerFactory()` and an optional parametrized method `getTrustManagerFactory(Parameters parameters)`.
+If the plugin implements the parametrized version, it will receive the configured SSL trust parameters (`truststoreProvider`, `truststoreType`, `truststorePath`, `truststorePassword`, `crlPath`) which can be used to initialize the trust manager.
+If only the default method is implemented, the plugin will not receive these parameters.
 +
 This value takes precedence of all other SSL parameters which apply to the trust manager (i.e. `trustAll`, `truststoreProvider`, `truststorePath`, `truststorePassword`, `crlPath`).
 +

@@ -16,14 +16,23 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.ssl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+
+import org.apache.activemq.artemis.api.core.TrustManagerFactoryPlugin;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
@@ -286,5 +295,105 @@ public class SSLSupportTest extends ActiveMQTestBase {
          .setTruststorePassword("bad passord")
          .setTrustAll(true)
          .createContext();
+   }
+
+   @TestTemplate
+   public void testTrustManagerFactoryPlugin() throws Exception {
+      SSLContext context = new SSLSupport()
+         .setKeystoreProvider(storeProvider)
+         .setKeystoreType(storeType)
+         .setKeystorePath(keyStorePath)
+         .setKeystorePassword(keyStorePassword)
+         .setTruststoreProvider(storeProvider)
+         .setTruststoreType(storeType)
+         .setTruststorePath(trustStorePath)
+         .setTruststorePassword(trustStorePassword)
+         .setTrustAll(true) // This should be ignored when plugin is set
+         .setTrustManagerFactoryPlugin(TestTrustManagerFactoryPlugin.class.getName())
+         .createContext();
+
+      assertNotNull(context);
+      assertTrue(TestTrustManagerFactoryPlugin.wasInvoked.get());
+   }
+
+   @TestTemplate
+   public void testParametrizedTrustManagerFactoryPlugin() throws Exception {
+      TestParametrizedTrustManagerFactoryPlugin.reset();
+
+      final String crlPath = "test-crl-path";
+
+      SSLContext context = new SSLSupport()
+         .setKeystoreProvider(storeProvider)
+         .setKeystoreType(storeType)
+         .setKeystorePath(keyStorePath)
+         .setKeystorePassword(keyStorePassword)
+         .setTruststoreProvider(storeProvider)
+         .setTruststoreType(storeType)
+         .setTruststorePath(trustStorePath)
+         .setTruststorePassword(trustStorePassword)
+         .setCrlPath(crlPath)
+         .setTrustAll(true) // This should be ignored when plugin is set
+         .setTrustManagerFactoryPlugin(TestParametrizedTrustManagerFactoryPlugin.class.getName())
+         .createContext();
+
+      assertNotNull(context);
+      assertFalse(TestParametrizedTrustManagerFactoryPlugin.wasInvokedWithoutParameters.get());
+      assertTrue(TestParametrizedTrustManagerFactoryPlugin.wasInvokedWithParameters.get());
+
+      TrustManagerFactoryPlugin.Parameters receivedParameters =
+         TestParametrizedTrustManagerFactoryPlugin.receivedParameters.get();
+      assertNotNull(receivedParameters);
+
+      assertEquals(storeProvider, receivedParameters.getTruststoreProvider());
+      assertEquals(storeType, receivedParameters.getTruststoreType());
+      assertEquals(trustStorePath, receivedParameters.getTruststorePath());
+      assertEquals(trustStorePassword, receivedParameters.getTruststorePassword());
+      assertEquals(crlPath, receivedParameters.getCrlPath());
+   }
+
+   /**
+    * Test implementation of TrustManagerFactoryPlugin without parameters that tracks invocation
+    */
+   public static class TestTrustManagerFactoryPlugin implements TrustManagerFactoryPlugin {
+      public static AtomicBoolean wasInvoked = new AtomicBoolean(false);
+
+      public static void reset() {
+         wasInvoked.set(false);
+      }
+
+      @Override
+      public TrustManagerFactory getTrustManagerFactory() {
+         wasInvoked.set(true);
+         return null;
+      }
+   }
+
+   /**
+    * Test implementation of TrustManagerFactoryPlugin with parameters that tracks invocation
+    */
+   public static class TestParametrizedTrustManagerFactoryPlugin implements TrustManagerFactoryPlugin {
+
+      public static AtomicBoolean wasInvokedWithParameters = new AtomicBoolean(false);
+      public static AtomicBoolean wasInvokedWithoutParameters = new AtomicBoolean(false);
+      public static AtomicReference<Parameters> receivedParameters = new AtomicReference<>(null);
+
+      public static void reset() {
+         wasInvokedWithParameters.set(false);
+         wasInvokedWithoutParameters.set(false);
+         receivedParameters.set(null);
+      }
+
+      @Override
+      public TrustManagerFactory getTrustManagerFactory() {
+         wasInvokedWithoutParameters.set(true);
+         return null;
+      }
+
+      @Override
+      public TrustManagerFactory getTrustManagerFactory(Parameters parameters) {
+         wasInvokedWithParameters.set(true);
+         receivedParameters.set(parameters);
+         return null;
+      }
    }
 }
