@@ -108,6 +108,7 @@ import static org.apache.activemq.artemis.core.message.openmbean.CompositeDataCo
 import static org.apache.activemq.artemis.core.message.openmbean.CompositeDataConstants.STRING_PROPERTIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -2227,6 +2228,109 @@ public class QueueControlTest extends ManagementTestBase {
          clientMessage.acknowledge();
          assertNotNull(clientMessage);
          assertEquals(sampleText, clientMessage.getBodyBuffer().readString());
+      }
+
+      clientConsumer.close();
+
+      //Verify that original queue and DLQ have a memory size of 0
+      assertEquals(0, QueueImplTestAccessor.getQueueMemorySize(q));
+      assertEquals(0, QueueImplTestAccessor.getQueueMemorySize(q2));
+   }
+
+   /**
+    * Test retry messages matching a filter from DLQ to original queue.
+    */
+   @TestTemplate
+   public void testRetryMatchingMessages() throws Exception {
+      final SimpleString dla = SimpleString.of("DLA");
+      final SimpleString qName = SimpleString.of("q1");
+      final SimpleString adName = SimpleString.of("ad1");
+      final SimpleString dlq = SimpleString.of("DLQ1");
+      final String sampleText = "Put me on DLQ";
+
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
+      server.getAddressSettingsRepository().addMatch(adName.toString(), addressSettings);
+
+      session.createQueue(QueueConfiguration.of(dlq).setAddress(dla).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(qName).setAddress(adName).setDurable(durable));
+
+      // Send message to queue.
+      ClientProducer producer = session.createProducer(adName);
+
+      producer.send(createTextMessage(session, sampleText + ":red").putStringProperty("color", "red"));
+      producer.send(createTextMessage(session, sampleText + ":green").putStringProperty("color", "green"));
+      producer.send(createTextMessage(session, sampleText + ":blue").putStringProperty("color", "blue"));
+
+      session.start();
+
+      final LocalQueueBinding binding = (LocalQueueBinding) server.getPostOffice().getBinding(qName);
+      Queue q = binding.getQueue();
+      final LocalQueueBinding binding2 = (LocalQueueBinding) server.getPostOffice().getBinding(dlq);
+      Queue q2 = binding2.getQueue();
+
+      //Verify that original queue has a memory size greater than 0 and DLQ is 0
+      assertTrue(QueueImplTestAccessor.getQueueMemorySize(q) > 0);
+      assertEquals(0, QueueImplTestAccessor.getQueueMemorySize(q2));
+
+      // Read and rollback all messages to DLQ
+      ClientConsumer clientConsumer = session.createConsumer(qName);
+
+      ClientMessage clientMessage = clientConsumer.receive(500);
+      clientMessage.acknowledge();
+      assertNotNull(clientMessage);
+      assertEquals(sampleText + ":red", clientMessage.getBodyBuffer().readString());
+      session.rollback();
+      clientMessage = clientConsumer.receive(500);
+      clientMessage.acknowledge();
+      assertNotNull(clientMessage);
+      assertEquals(sampleText + ":green", clientMessage.getBodyBuffer().readString());
+      session.rollback();
+      clientMessage = clientConsumer.receive(500);
+      clientMessage.acknowledge();
+      assertNotNull(clientMessage);
+      assertEquals(sampleText + ":blue", clientMessage.getBodyBuffer().readString());
+      session.rollback();
+
+      assertNull(clientConsumer.receiveImmediate());
+
+      //Verify that original queue has a memory size of 0 and DLQ is greater than 0 after rollback
+      assertEquals(0, QueueImplTestAccessor.getQueueMemorySize(q));
+      assertTrue(QueueImplTestAccessor.getQueueMemorySize(q2) > 0);
+
+      QueueControl dlqQueueControl = createManagementControl(dla, dlq);
+      assertMessageMetrics(dlqQueueControl, 3, durable);
+
+      // Retry matching messages - i.e. they should go from DLQ to original Queue.
+      assertEquals(1, dlqQueueControl.retryMessages("color = 'green'"));
+
+      // Assert DLQ is not empty...
+      assertMessageMetrics(dlqQueueControl, 2, durable);
+
+      //Verify that original queue has a memory size of greater than 0 and DLQ still has data since the filter only matched one
+      assertTrue(QueueImplTestAccessor.getQueueMemorySize(q) > 0);
+      assertNotEquals(0, QueueImplTestAccessor.getQueueMemorySize(q2));
+
+      // .. and that the message is now on the original queue once more.
+      {
+         ClientMessage retriedMessage = clientConsumer.receive(500);
+         clientMessage.acknowledge();
+         assertNotNull(retriedMessage);
+         assertEquals(sampleText + ":green", retriedMessage.getBodyBuffer().readString());
+      }
+
+      // Retry moving messages without a filter - i.e. all remaining should go from DLQ to original Queue.
+      assertEquals(2, dlqQueueControl.retryMessages(null));
+
+      // .. and that the messages are now on the original queue once more.
+      {
+         ClientMessage retriedMessage = clientConsumer.receive(500);
+         clientMessage.acknowledge();
+         assertNotNull(retriedMessage);
+         assertEquals(sampleText + ":red", retriedMessage.getBodyBuffer().readString());
+         retriedMessage = clientConsumer.receive(500);
+         clientMessage.acknowledge();
+         assertNotNull(retriedMessage);
+         assertEquals(sampleText + ":blue", retriedMessage.getBodyBuffer().readString());
       }
 
       clientConsumer.close();

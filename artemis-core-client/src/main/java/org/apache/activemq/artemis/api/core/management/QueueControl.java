@@ -457,6 +457,15 @@ public interface QueueControl {
    int retryMessages() throws Exception;
 
    /**
+    * Retries all messages that match the given filter on a DLQ to their respective original queues.
+    * This operation is appropriate for Dead letter queues only.
+    *
+    * @return the number of retried messages.
+    */
+   @Operation(desc = "Retry all messages matching the given filter on a DLQ to their respective original queues", impact = MBeanOperationInfo.ACTION)
+   int retryMessages(@Parameter(name = "filter", desc = "A message filter (can be empty)") String filter) throws Exception;
+
+   /**
     * Moves the message corresponding to the specified message ID to the specified other queue.
     *
     * @return {@code true} if the message was moved, {@code false} else
