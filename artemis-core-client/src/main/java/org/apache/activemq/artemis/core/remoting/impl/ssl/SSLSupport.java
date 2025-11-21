@@ -65,7 +65,7 @@ import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
  * by default (see java.security.Security#getProviders()).  The main thing to keep in mind is that PKCS#11 keystores
  * will either use null, and empty string, or NONE for their keystore path.
  */
-public class SSLSupport {
+public class SSLSupport implements TrustManagerFactoryPlugin.Parameters {
 
    public static final String NONE = "NONE";
    private String keystoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
@@ -145,6 +145,7 @@ public class SSLSupport {
       return this;
    }
 
+   @Override
    public String getTruststoreProvider() {
       return truststoreProvider;
    }
@@ -154,6 +155,7 @@ public class SSLSupport {
       return this;
    }
 
+   @Override
    public String getTruststoreType() {
       return truststoreType;
    }
@@ -163,6 +165,7 @@ public class SSLSupport {
       return this;
    }
 
+   @Override
    public String getTruststorePath() {
       return truststorePath;
    }
@@ -172,6 +175,7 @@ public class SSLSupport {
       return this;
    }
 
+   @Override
    public String getTruststorePassword() {
       return truststorePassword;
    }
@@ -181,6 +185,7 @@ public class SSLSupport {
       return this;
    }
 
+   @Override
    public String getCrlPath() {
       return crlPath;
    }
@@ -278,7 +283,7 @@ public class SSLSupport {
 
    private TrustManagerFactory loadTrustManagerFactory() throws Exception {
       if (trustManagerFactoryPlugin != null) {
-         return SecurityManagerShim.doPrivileged((PrivilegedAction<TrustManagerFactory>) () -> ((TrustManagerFactoryPlugin) ClassloadingUtil.newInstanceFromClassLoader(SSLSupport.class, trustManagerFactoryPlugin, TrustManagerFactoryPlugin.class)).getTrustManagerFactory());
+         return SecurityManagerShim.doPrivileged((PrivilegedAction<TrustManagerFactory>) () -> ((TrustManagerFactoryPlugin) ClassloadingUtil.newInstanceFromClassLoader(SSLSupport.class, trustManagerFactoryPlugin, TrustManagerFactoryPlugin.class)).getTrustManagerFactory(this));
       } else if (trustAll) {
          //This is useful for testing but not should be used outside of that purpose
          return InsecureTrustManagerFactory.INSTANCE;

@@ -289,8 +289,31 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    }
 
    @TestTemplate
-   public void testOneWaySSLwithTrustManagerPlugin() throws Exception {
-      createCustomSslServer(null, null, false, null, TestTrustManagerFactoryPlugin.class.getName());
+   public void testOneWaySSLWithTrustManagerPlugin() throws Exception {
+      try {
+         testOneWaySSLWithTrustManagerPlugin(TestTrustManagerFactoryPlugin.class.getName());
+
+         assertTrue(TestTrustManagerFactoryPlugin.triggered.get());
+      } finally {
+         TestTrustManagerFactoryPlugin.triggered.set(false);
+      }
+   }
+
+   @TestTemplate
+   public void testOneWaySSLWithParametrizedTrustManagerPlugin() throws Exception {
+      try {
+         testOneWaySSLWithTrustManagerPlugin(TestParametrizedTrustManagerFactoryPlugin.class.getName());
+
+         assertTrue(TestParametrizedTrustManagerFactoryPlugin.wasInvokedWithParameters.get());
+         assertFalse(TestParametrizedTrustManagerFactoryPlugin.wasInvokedWithoutParameters.get());
+         assertNotNull(TestParametrizedTrustManagerFactoryPlugin.receivedParameters.get());
+      } finally {
+         TestParametrizedTrustManagerFactoryPlugin.reset();
+      }
+   }
+
+   private void testOneWaySSLWithTrustManagerPlugin(String trustManagerFactoryPlugin) throws Exception {
+      createCustomSslServer(null, null, false, null, trustManagerFactoryPlugin);
       String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -301,8 +324,6 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
-
-      assertTrue(TestTrustManagerFactoryPlugin.triggered.get());
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
       session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
