@@ -2888,4 +2888,12 @@ public interface AuditLogger {
 
    @LogMessage(id = 601801, value = "User {} is deleting a address on target resource: {} {}", level = LogMessage.Level.INFO)
    void destroyAddress(String user, Object source, Object... args);
+
+   static void retryMessages(Object source, Object... args) {
+      BASE_LOGGER.retryMessages(getCaller(), source, parametersList(args));
+   }
+
+   @LogMessage(id = 601802, value = "User {} is retry sending messages on target resource: {} {}", level = LogMessage.Level.INFO)
+   void retryMessages(String user, Object source, String args);
+
 }

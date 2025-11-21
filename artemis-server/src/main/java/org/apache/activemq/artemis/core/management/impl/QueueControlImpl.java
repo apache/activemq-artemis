@@ -1325,6 +1325,24 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public int retryMessages(String filter) throws Exception {
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.retryMessages(queue, filter);
+         }
+         checkStarted();
+         clearIO();
+
+         try {
+            return queue.retryMessages(FilterImpl.createFilter(filter));
+         } finally {
+            blockOnIO();
+         }
+      }
+   }
+
+   @Override
    public boolean moveMessage(final long messageID, final String otherQueueName) throws Exception {
       return moveMessage(messageID, otherQueueName, false);
    }

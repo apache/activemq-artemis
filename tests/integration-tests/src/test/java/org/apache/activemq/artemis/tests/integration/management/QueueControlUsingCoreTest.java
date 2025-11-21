@@ -526,6 +526,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public int retryMessages(String filter) throws Exception {
+            return (Integer) proxy.invokeOperation(Integer.class, "retryMessages", filter);
+         }
+
+         @Override
          public int removeMessages(final String filter) throws Exception {
             return (Integer) proxy.invokeOperation(Integer.class, "removeMessages", filter);
          }
