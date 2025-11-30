@@ -589,7 +589,11 @@ public class MQTTSessionState {
       private void update(MqttTopicSubscription newSub, Integer newId) {
          if (newId != null && !newId.equals(id)) {
             if (this.address == null || !subscription.topicFilter().equals(newSub.topicFilter())) {
-               address = new AddressImpl(SimpleString.of(newSub.topicFilter()), MQTTUtil.MQTT_WILDCARD);
+               String topicFilter = newSub.topicFilter();
+               if (MQTTUtil.isSharedSubscription(topicFilter)) {
+                  topicFilter = MQTTUtil.decomposeSharedSubscriptionTopicFilter(newSub.topicFilter()).getB();
+               }
+               address = new AddressImpl(SimpleString.of(topicFilter), MQTTUtil.MQTT_WILDCARD);
             }
          }
          subscription = newSub;
