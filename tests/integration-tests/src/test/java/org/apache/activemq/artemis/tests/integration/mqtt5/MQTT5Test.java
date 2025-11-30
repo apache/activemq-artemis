@@ -498,6 +498,69 @@ public class MQTT5Test extends MQTT5TestSupport {
 
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testSharedSubscriptionIdentifier() throws Exception {
+      final String TOPIC1 = "myTopic1";
+      final String TOPIC2 = "myTopic2";
+      final String SUB_NAME = "mySub";
+      final String[] SHARED_SUBS = new String[]{
+         MQTTUtil.SHARED_SUBSCRIPTION_PREFIX + SUB_NAME + "/" + TOPIC1,
+         MQTTUtil.SHARED_SUBSCRIPTION_PREFIX + SUB_NAME + "/" + TOPIC2
+      };
+      CountDownLatch ackLatch = new CountDownLatch(2);
+
+      MqttAsyncClient consumer = createAsyncPahoClient(getName());
+      consumer.connect().waitForCompletion();
+      consumer.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) throws Exception {
+            if (message.getProperties().getSubscriptionIdentifier() != null) {
+               if ((topic.equals(TOPIC1) && message.getProperties().getSubscriptionIdentifier() == 1) ||
+                  (topic.equals(TOPIC2) && message.getProperties().getSubscriptionIdentifier() == 2)) {
+                  ackLatch.countDown();
+               }
+            }
+         }
+      });
+
+      MqttProperties subscription1Properties = new MqttProperties();
+      subscription1Properties.setSubscriptionIdentifier(1);
+      consumer.subscribe(new MqttSubscription[]{new MqttSubscription(SHARED_SUBS[0], 1)}, null, null, subscription1Properties).waitForCompletion();
+
+      MqttProperties subscription2Properties = new MqttProperties();
+      subscription2Properties.setSubscriptionIdentifier(2);
+      consumer.subscribe(new MqttSubscription[]{new MqttSubscription(SHARED_SUBS[1], 1)}, null, null, subscription2Properties).waitForCompletion();
+
+      assertNotNull(server.getAddressInfo(SimpleString.of(TOPIC1)));
+      Queue q1 = getSharedSubscriptionQueue(SHARED_SUBS[0]);
+      assertNotNull(q1);
+      assertEquals(TOPIC1, q1.getAddress().toString());
+      assertEquals(1, q1.getConsumerCount());
+
+      assertNotNull(server.getAddressInfo(SimpleString.of(TOPIC2)));
+      Queue q2 = getSharedSubscriptionQueue(SHARED_SUBS[1]);
+      assertNotNull(q2);
+      assertEquals(TOPIC2, q2.getAddress().toString());
+      assertEquals(1, q2.getConsumerCount());
+
+      MqttClient producer = createPahoClient("producer");
+      producer.connect();
+      producer.publish(TOPIC1, new byte[0], 1, false);
+      producer.publish(TOPIC2, new byte[0], 1, false);
+      producer.disconnect();
+      producer.close();
+
+      assertTrue(ackLatch.await(2, TimeUnit.SECONDS));
+
+      consumer.unsubscribe(SHARED_SUBS);
+      Wait.assertNull(() -> getSharedSubscriptionQueue(SHARED_SUBS[0]), 1000, 100);
+      Wait.assertNull(() -> getSharedSubscriptionQueue(SHARED_SUBS[1]), 1000, 100);
+
+      consumer.disconnect();
+      consumer.close();
+   }
+
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSharedSubscriptionQueueRemoval() throws Exception {
       final String TOPIC = "myTopic";
       final String SUB_NAME = "myShare";
