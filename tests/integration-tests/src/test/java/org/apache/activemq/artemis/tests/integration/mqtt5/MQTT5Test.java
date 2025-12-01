@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeTestAccessor;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManager;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTPublishManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSessionAccessor;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSessionState;
@@ -378,6 +379,38 @@ public class MQTT5Test extends MQTT5TestSupport {
       server.stop();
       server.start();
       org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> getSubscriptionQueue(topic, clientId) != null, 3000, 10);
+   }
+
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testCleanupOnRestart() throws Exception {
+      String topic = RandomUtil.randomUUIDString();
+      String clientId = RandomUtil.randomUUIDString();
+      CountDownLatch latch = new CountDownLatch(1);
+
+      MqttClient client = createPahoClient(clientId);
+      client.setCallback(new LatchedMqttCallback(latch));
+      MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
+         .sessionExpiryInterval(0L)
+         .build();
+      client.connect(options);
+      client.subscribe(topic, EXACTLY_ONCE);
+      client.publish(topic, new byte[0], EXACTLY_ONCE, true);
+      assertTrue(latch.await(2, TimeUnit.SECONDS));
+      assertNotNull(server.locateQueue(MQTTPublishManager.getQoS2ManagementAddressName(SimpleString.of(clientId))));
+      assertEquals(1, getProtocolManager().getStateManager().getDurableSubscriptionStateCount());
+      server.stop();
+      try {
+         client.disconnect();
+      } catch (MqttException e) {
+         // ignore
+      }
+      client.close();
+      server.start();
+      scanSessions();
+      assertNull(getSubscriptionQueue(topic, clientId));
+      assertNull(server.locateQueue(MQTTPublishManager.getQoS2ManagementAddressName(SimpleString.of(clientId))));
+      assertEquals(0, getProtocolManager().getStateManager().getDurableSubscriptionStateCount());
    }
 
    @Test
