@@ -440,6 +440,25 @@ If the incoming connection doesn't include the `server_name` extension then the 
 +
 When used on a `connector` the `sniHost` value is used for the `server_name` extension on the SSL connection.
 
+crlPath::
+This is valid on either an `acceptor` or `connector`.
+It specifies the path to a Certificate Revocation List (CRL) file for additional certificate validation when using PKIX trust manager.
+The CRL file contains a list of certificates that have been revoked and should no longer be trusted.
+Default is `null`.
+
+crcOptions::
+This is valid on either an `acceptor` or `connector`.
+It specifies a comma-separated list of PKIXRevocationChecker options to configure certificate revocation checking behavior when using PKIX trust manager.
+Available options include: `ONLY_END_ENTITY`, `PREFER_CRLS`, `NO_FALLBACK`, `SOFT_FAIL`.
+For further details about these options, see https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/security/cert/PKIXRevocationChecker.Option.html[PKIXRevocationChecker.Option JavaDoc].
+Default is `null`.
+
+ocspResponderURL::
+This is valid on either an `acceptor` or `connector`.
+It specifies the URL of the OCSP (Online Certificate Status Protocol) responder to use for certificate revocation checking when using PKIX trust manager.
+This overrides the default OCSP responder specified in the certificate's Authority Information Access (AIA) extension.
+Default is `null`.
+
 trustManagerFactoryPlugin::
 This is valid on either an `acceptor` or `connector`.
 It defines the name of the class which implements `org.apache.activemq.artemis.api.core.TrustManagerFactoryPlugin`.
@@ -447,7 +466,7 @@ This is a simple interface with a single method which returns a `javax.net.ssl.T
 The `TrustManagerFactory` will be used when the underlying `javax.net.ssl.SSLContext` is initialized.
 This allows fine-grained customization of who/what the broker & client trusts.
 +
-This value takes precedence of all other SSL parameters which apply to the trust manager (i.e. `trustAll`, `truststoreProvider`, `truststorePath`, `truststorePassword`, `crlPath`).
+This value takes precedence of all other SSL parameters which apply to the trust manager (i.e. `trustAll`, `truststoreProvider`, `truststorePath`, `truststorePassword`, `crlPath`, `crcOptions`, `ocspResponderURL`).
 +
 Any plugin specified will need to be placed on the xref:using-server.adoc#adding-runtime-dependencies[broker's classpath].
 

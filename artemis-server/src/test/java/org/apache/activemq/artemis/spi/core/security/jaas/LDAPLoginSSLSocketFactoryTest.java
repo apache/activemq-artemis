@@ -103,6 +103,8 @@ public class LDAPLoginSSLSocketFactoryTest {
       environment.put("crlPath", "/path/to/crl");
       environment.put("trustAll", "false");
       environment.put("trustManagerFactoryPlugin", "trust.manager.factory.Plugin");
+      environment.put("crcOptions", "ONLY_END_ENTITY,SOFT_FAIL");
+      environment.put("ocspResponderURL", "http://localhost:8080");
 
       LDAPLoginSSLSocketFactory factory = new LDAPLoginSSLSocketFactory(environment);
       SSLContextConfig config = factory.getSSLContextConfig();
@@ -120,6 +122,8 @@ public class LDAPLoginSSLSocketFactoryTest {
       assertEquals("/path/to/crl", config.getCrlPath());
       assertFalse(config.isTrustAll());
       assertEquals("trust.manager.factory.Plugin", config.getTrustManagerFactoryPlugin());
+      assertEquals("ONLY_END_ENTITY,SOFT_FAIL", config.getCrcOptions());
+      assertEquals("http://localhost:8080", config.getOcspResponderURL());
    }
 
    @Test

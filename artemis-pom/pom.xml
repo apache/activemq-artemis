@@ -65,6 +65,41 @@
             <scope>test</scope>
          </dependency>
 
+         <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-netty</artifactId>
+            <version>${mockserver.version}</version>
+            <scope>test</scope>
+            <exclusions>
+               <exclusion>
+                  <groupId>net.minidev</groupId>
+                  <artifactId>json-smart</artifactId>
+               </exclusion>
+            </exclusions>
+         </dependency>
+         <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-core</artifactId>
+            <version>${mockserver.version}</version>
+            <scope>test</scope>
+            <exclusions>
+               <exclusion>
+                  <groupId>net.minidev</groupId>
+                  <artifactId>json-smart</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>javax.servlet</groupId>
+                  <artifactId>javax.servlet-api</artifactId>
+               </exclusion>
+            </exclusions>
+         </dependency>
+         <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-client-java</artifactId>
+            <version>${mockserver.version}</version>
+            <scope>test</scope>
+         </dependency>
+
          <!-- ### For MQTT Tests && Examples -->
          <dependency>
             <groupId>org.eclipse.paho</groupId>

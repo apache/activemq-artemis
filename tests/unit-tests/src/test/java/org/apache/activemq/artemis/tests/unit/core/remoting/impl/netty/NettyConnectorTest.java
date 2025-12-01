@@ -44,6 +44,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -604,6 +605,34 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          closeExecutor.shutdownNow();
          threadPool.shutdownNow();
          scheduledThreadPool.shutdownNow();
+      }
+   }
+
+   @Test
+   public void testCrcOptionsConfig() throws Exception {
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.CRC_OPTIONS_PROP_NAME, "SOFT_FAIL,PREFER_CRLS");
+
+      NettyConnector connector = new NettyConnector(params, (connectionID, buffer) -> { }, listener, null, null, null);
+      try {
+         assertEquals("SOFT_FAIL,PREFER_CRLS", connector.getCrcOptions());
+      } finally {
+         connector.close();
+      }
+   }
+
+   @Test
+   public void testOcspResponderURL() throws Exception {
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.OCSP_RESPONDER_URL_PROP_NAME, "http://localhost:8080");
+
+      NettyConnector connector = new NettyConnector(params, (connectionID, buffer) -> { }, listener, null, null, null);
+      try {
+         assertEquals("http://localhost:8080", connector.getOcspResponderURL());
+      } finally {
+         connector.close();
       }
    }
 }

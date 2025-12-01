@@ -42,6 +42,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
@@ -55,6 +56,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockserver.socket.PortFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -491,6 +493,39 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       extraOptions.put("truststorePassword", "ENC(ssaperuces)");
 
       testLDAPSConnectionWithLDAPLoginSSLSocketFactory(extraOptions, true);
+   }
+
+   @Test
+   public void testLDAPLoginSSLSocketFactoryWithNoFallbackRevocationCheckerAndTruststore() throws Exception {
+      Map<String, Object> extraOptions = new HashMap<>();
+      extraOptions.put("crcOptions", "NO_FALLBACK");
+      extraOptions.put("truststorePath", Objects.requireNonNull(this.getClass().
+         getClassLoader().getResource("server-ca-truststore.jks")).getFile());
+      extraOptions.put("truststorePassword", "securepass");
+
+      try {
+         testLDAPSConnectionWithLDAPLoginSSLSocketFactory(extraOptions, true);
+         fail("Should have thrown CommunicationException");
+      } catch (Exception e) {
+         assertEquals(CommunicationException.class, e.getClass());
+      }
+   }
+
+   @Test
+   public void testLDAPLoginSSLSocketFactoryWithSoftFailRevocationCheckerAndTruststore() throws Exception {
+      Map<String, Object> extraOptions = new HashMap<>();
+      extraOptions.put("crcOptions", "SOFT_FAIL");
+      extraOptions.put("ocspResponderURL", "http://localhost:" + PortFactory.findFreePort());
+      extraOptions.put("truststorePath", Objects.requireNonNull(this.getClass().
+         getClassLoader().getResource("server-ca-truststore.jks")).getFile());
+      extraOptions.put("truststorePassword", "securepass");
+
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
+         testLDAPSConnectionWithLDAPLoginSSLSocketFactory(extraOptions, true);
+
+         assertTrue(loggerHandler.findText("AMQ212081",
+            "[CN=ActiveMQ Artemis Server,OU=Artemis,O=ActiveMQ,L=AMQ,ST=AMQ,C=AMQ]", "Exception"));
+      }
    }
 
    @Test

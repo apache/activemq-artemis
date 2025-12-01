@@ -257,6 +257,10 @@ public class NettyConnector extends AbstractConnector {
 
    private String crlPath;
 
+   private String crcOptions;
+
+   private String ocspResponderURL;
+
    private String enabledCipherSuites;
 
    private String enabledProtocols;
@@ -451,12 +455,18 @@ public class NettyConnector extends AbstractConnector {
          useDefaultSslContext = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME, TransportConstants.DEFAULT_USE_DEFAULT_SSL_CONTEXT, configuration);
 
          trustManagerFactoryPlugin = ConfigurationHelper.getStringProperty(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME, TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN, configuration);
+
+         crcOptions = ConfigurationHelper.getStringProperty(TransportConstants.CRC_OPTIONS_PROP_NAME, TransportConstants.DEFAULT_CRC_OPTIONS, configuration);
+
+         ocspResponderURL = ConfigurationHelper.getStringProperty(TransportConstants.OCSP_RESPONDER_URL_PROP_NAME, TransportConstants.DEFAULT_OCSP_RESPONDER_URL, configuration);
       } else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStoreType = TransportConstants.DEFAULT_KEYSTORE_TYPE;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
          keyStorePassword = TransportConstants.DEFAULT_KEYSTORE_PASSWORD;
          keyStoreAlias = TransportConstants.DEFAULT_KEYSTORE_ALIAS;
+         crcOptions = TransportConstants.DEFAULT_CRC_OPTIONS;
+         ocspResponderURL = TransportConstants.DEFAULT_OCSP_RESPONDER_URL;
          passwordCodecClass = TransportConstants.DEFAULT_PASSWORD_CODEC_CLASS;
          trustStoreProvider = TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER;
          trustStoreType = TransportConstants.DEFAULT_TRUSTSTORE_TYPE;
@@ -520,6 +530,14 @@ public class NettyConnector extends AbstractConnector {
       String serverName = ConfigurationHelper.getStringProperty(TransportConstants.ACTIVEMQ_SERVER_NAME, null, configuration);
       String acceptor = ConfigurationHelper.getStringProperty(TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME, null, configuration);
       return ", activemqServerName=" + serverName + ", httpUpgradeEndpoint=" + acceptor;
+   }
+
+   public String getCrcOptions() {
+      return crcOptions;
+   }
+
+   public String getOcspResponderURL() {
+      return ocspResponderURL;
    }
 
    @Override
@@ -688,6 +706,8 @@ public class NettyConnector extends AbstractConnector {
                   .trustManagerFactoryPlugin(trustManagerFactoryPlugin)
                   .crlPath(crlPath)
                   .trustAll(trustAll)
+                  .crcOptions(crcOptions)
+                  .ocspResponderURL(ocspResponderURL)
                   .build();
 
                final SSLEngine engine;

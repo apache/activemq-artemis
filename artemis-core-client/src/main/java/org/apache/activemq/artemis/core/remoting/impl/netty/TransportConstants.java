@@ -202,6 +202,10 @@ public class TransportConstants {
 
    public static final String SOCKS_REMOTE_DNS_PROP_NAME = "socksRemoteDNS";
 
+   public static final String CRC_OPTIONS_PROP_NAME = "crcOptions";
+
+   public static final String OCSP_RESPONDER_URL_PROP_NAME = "ocspResponderURL";
+
    public static final String AUTO_START = "autoStart";
 
    public static final boolean DEFAULT_AUTO_START = true;
@@ -403,6 +407,10 @@ public class TransportConstants {
 
    public static final String DEFAULT_ROUTER = null;
 
+   public static final String DEFAULT_CRC_OPTIONS = null;
+
+   public static final String DEFAULT_OCSP_RESPONDER_URL = null;
+
    private static int parseDefaultVariable(String variableName, int defaultValue) {
       try {
          String variable = System.getProperty(TransportConstants.class.getName() + "." + variableName);
@@ -484,6 +492,8 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.AUTO_START);
       allowableAcceptorKeys.add(TransportConstants.ROUTER);
       allowableAcceptorKeys.add(TransportConstants.PROXY_PROTOCOL_ENABLED_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.CRC_OPTIONS_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.OCSP_RESPONDER_URL_PROP_NAME);
 
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
@@ -545,6 +555,8 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.HANDSHAKE_TIMEOUT);
       allowableConnectorKeys.add(TransportConstants.CRL_PATH_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.CRC_OPTIONS_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.OCSP_RESPONDER_URL_PROP_NAME);
 
       ALLOWABLE_CONNECTOR_KEYS = Collections.unmodifiableSet(allowableConnectorKeys);
 
