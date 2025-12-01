@@ -91,7 +91,7 @@
       <artemis-console-version>1.3.0</artemis-console-version>
       <karaf.version>4.4.8</karaf.version>
       <pax.exam.version>4.14.0</pax.exam.version>
-      <commons.config.version>2.11.0</commons.config.version>
+      <commons.config.version>2.13.0</commons.config.version>
       <commons.lang.version>3.20.0</commons.lang.version>
       <activemq5-version>5.19.1</activemq5-version>
       <apache.derby.version>10.15.2.0</apache.derby.version>
