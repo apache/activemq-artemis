@@ -1584,11 +1584,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          DuplicateIDCache cache = duplicateIDCaches.remove(address);
          if (cache != null) {
             try {
-                cache.clear();
-                removed++;
-                logger.debug("Removed orphaned duplicate ID cache for: {}", address);
+               cache.clear();
+               removed++;
+               logger.debug("Removed orphaned duplicate ID cache for: {}", address);
             } catch (Exception e) {
-                logger.warn("Error clearing orphaned duplicate ID cache for {}: {}", address, e.getMessage(), e);
+               logger.warn("Error clearing orphaned duplicate ID cache for {}: {}", address, e.getMessage(), e);
             }
          }
       }

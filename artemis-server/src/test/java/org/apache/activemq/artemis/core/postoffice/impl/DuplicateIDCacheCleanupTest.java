@@ -40,8 +40,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test to verify that duplicate ID caches (including BRIDGE.* caches) are properly cleaned up
@@ -87,7 +90,7 @@ public class DuplicateIDCacheCleanupTest {
       MockitoAnnotations.openMocks(this);
       when(addressSettingsRepository.getMatch(anyString())).thenReturn(new AddressSettings());
 
-      // Mock cluster manager to enable BRIDGE.* cache cleanup
+      // Mock cluster manager and bridge setup to enable duplicate detection
       when(server.getClusterManager()).thenReturn(clusterManager);
       when(clusterManager.getClusterConnections()).thenReturn(Collections.singleton(clusterConnection));
       when(clusterConnection.getBridges()).thenReturn(new Bridge[]{bridge});
