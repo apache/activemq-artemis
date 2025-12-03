@@ -318,7 +318,7 @@ For example:
       <jdbc-connection-url>jdbc:derby:data/derby/database-store;create=true</jdbc-connection-url>
       <bindings-table-name>BINDINGS_TABLE</bindings-table-name>
       <message-table-name>MESSAGE_TABLE</message-table-name>
-      <page-store-table-name>MESSAGE_TABLE</page-store-table-name>
+      <page-store-table-name>PAGE_TABLE</page-store-table-name>
       <large-message-table-name>LARGE_MESSAGES_TABLE</large-message-table-name>
       <node-manager-store-table-name>NODE_MANAGER_TABLE</node-manager-store-table-name>
    </database-store>
