@@ -3630,10 +3630,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         Object[] diverts = server.getManagementService().getResources(DivertControl.class);
-         String[] names = new String[diverts.length];
-         for (int i = 0; i < diverts.length; i++) {
-            DivertControl divert = (DivertControl) diverts[i];
+         List<DivertControl> diverts = server.getManagementService().getDivertControls();
+         String[] names = new String[diverts.size()];
+         for (int i = 0; i < diverts.size(); i++) {
+            DivertControl divert = diverts.get(i);
             names[i] = divert.getUniqueName();
          }
 
@@ -3779,10 +3779,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         Object[] bridges = server.getManagementService().getResources(BridgeControl.class);
-         String[] names = new String[bridges.length];
-         for (int i = 0; i < bridges.length; i++) {
-            BridgeControl bridge = (BridgeControl) bridges[i];
+         List<BridgeControl> bridges = server.getManagementService().getBridgeControls();
+         String[] names = new String[bridges.size()];
+         for (int i = 0; i < bridges.size(); i++) {
+            BridgeControl bridge = bridges.get(i);
             names[i] = bridge.getName();
          }
 
