@@ -60,7 +60,7 @@ public class UuidNamespaceTest extends SingleServerTestBase {
       final int RING_SIZE = 10;
 
       if (legacy) {
-         server.getConfiguration().setUuidNamespace(UUID_NAMESPACE);
+         server.getConfiguration().setTemporaryQueueNamespace(UUID_NAMESPACE);
       } else {
          server.getConfiguration().setUuidNamespace(UUID_NAMESPACE);
       }
