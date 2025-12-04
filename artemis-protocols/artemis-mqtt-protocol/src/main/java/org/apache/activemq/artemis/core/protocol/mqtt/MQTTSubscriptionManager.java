@@ -278,10 +278,10 @@ public class MQTTSubscriptionManager {
          // deal with durable state after *all* requested subscriptions have been removed in memory
          if (state.getSubscriptions().size() > 0) {
             // if there are some subscriptions left then update the state
-            stateManager.storeDurableSubscriptionState(state);
+            stateManager.storeDurableSessionState(state);
          } else {
             // if there are no subscriptions left then remove the state entirely
-            stateManager.removeDurableSubscriptionState(state.getClientId());
+            stateManager.removeDurableSessionState(state.getClientId());
          }
       }
 
@@ -343,7 +343,7 @@ public class MQTTSubscriptionManager {
          }
 
          // store state after *all* requested subscriptions have been created in memory
-         stateManager.storeDurableSubscriptionState(state);
+         stateManager.storeDurableSessionState(state);
 
          return qos;
       }

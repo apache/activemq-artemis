@@ -113,12 +113,8 @@ public class MQTTStateManager {
          MQTTSessionState state = entry.getValue();
          logger.debug("Inspecting session: {}", state);
          int sessionExpiryInterval = state.getClientSessionExpiryInterval();
-         if (!state.isAttached()) {
-            if (sessionExpiryInterval == 0) {
-               toRemove.add(entry.getKey());
-            } else if (sessionExpiryInterval > 0 && state.getDisconnectedTime() + (sessionExpiryInterval * 1000) < System.currentTimeMillis()) {
-               toRemove.add(entry.getKey());
-            }
+         if (!state.isAttached() && (sessionExpiryInterval == 0 || (sessionExpiryInterval > 0 && state.getDisconnectedTime() + (sessionExpiryInterval * 1000) < System.currentTimeMillis()))) {
+            toRemove.add(entry.getKey());
          }
          if (state.isWill() && !state.isAttached() && state.isFailed() && state.getWillDelayInterval() > 0 && state.getDisconnectedTime() + (state.getWillDelayInterval() * 1000) < System.currentTimeMillis()) {
             state.getSession().sendWillMessage();
@@ -126,6 +122,7 @@ public class MQTTStateManager {
       }
 
       for (String key : toRemove) {
+         logger.info("Removing expired session: {}", key);
          try {
             MQTTSessionState state = removeSessionState(key);
             if (state != null) {
@@ -171,15 +168,15 @@ public class MQTTStateManager {
       }
       MQTTSessionState removed = sessionStates.remove(clientId);
       if (removed != null && removed.getSubscriptions().size() > 0) {
-         removeDurableSubscriptionState(clientId);
+         removeDurableSessionState(clientId);
       }
       return removed;
    }
 
-   public void removeDurableSubscriptionState(String clientId) throws Exception {
+   public void removeDurableSessionState(String clientId) throws Exception {
       if (subscriptionPersistenceEnabled) {
          int deletedCount = sessionStore.deleteMatchingReferences(FilterImpl.createFilter(new StringBuilder(Message.HDR_LAST_VALUE_NAME).append(" = '").append(clientId).append("'").toString()));
-         logger.debug("Removed {} durable MQTT subscription record(s) for: {}", deletedCount, clientId);
+         logger.debug("Removed {} durable MQTT session record(s) for: {}", deletedCount, clientId);
       }
    }
 
@@ -192,15 +189,15 @@ public class MQTTStateManager {
       return "MQTTSessionStateManager@" + Integer.toHexString(System.identityHashCode(this));
    }
 
-   public void storeDurableSubscriptionState(MQTTSessionState state) throws Exception {
+   public void storeDurableSessionState(MQTTSessionState state) throws Exception {
       if (subscriptionPersistenceEnabled) {
-         logger.debug("Adding durable MQTT subscription record for: {}", state.getClientId());
+         logger.debug("Adding durable MQTT session record for: {}", state.getClientId());
          StorageManager storageManager = server.getStorageManager();
          MQTTUtil.sendMessageDirectlyToQueue(storageManager, server.getPostOffice(), serializeState(state, storageManager.generateID()), sessionStore, null);
       }
    }
 
-   public long getDurableSubscriptionStateCount() {
+   public long getDurableSessionStateCount() {
       if (subscriptionPersistenceEnabled) {
          return sessionStore.getMessageCount();
       } else {
@@ -233,6 +230,8 @@ public class MQTTStateManager {
          buf.writeInt(sub.option().retainHandling().value());
          buf.writeNullableInt(item.getId());
       }
+
+      buf.writeNullableInt(state.getClientSessionExpiryInterval());
 
       return message;
    }

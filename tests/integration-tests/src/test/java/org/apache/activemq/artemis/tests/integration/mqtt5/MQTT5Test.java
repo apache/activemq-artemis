@@ -365,25 +365,17 @@ public class MQTT5Test extends MQTT5TestSupport {
 
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
-   public void testQueueCleanOnRestart() throws Exception {
-      String topic = RandomUtil.randomUUIDString();
-      String clientId = RandomUtil.randomUUIDString();
-
-      MqttClient client = createPahoClient(clientId);
-      MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
-         .sessionExpiryInterval(999L)
-         .cleanStart(true)
-         .build();
-      client.connect(options);
-      client.subscribe(topic, AT_LEAST_ONCE);
-      server.stop();
-      server.start();
-      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> getSubscriptionQueue(topic, clientId) != null, 3000, 10);
+   public void testResourceCleanUpOnRestartWithNonZeroSessionExpiryInterval() throws Exception {
+      testResourceCleanUpOnRestartWithSessionExpiryInterval(2);
    }
 
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
-   public void testCleanupOnRestart() throws Exception {
+   public void testResourceCleanUpOnRestartWithZeroSessionExpiryInterval() throws Exception {
+      testResourceCleanUpOnRestartWithSessionExpiryInterval(0);
+   }
+
+   private void testResourceCleanUpOnRestartWithSessionExpiryInterval(long sessionExpiryInterval) throws Exception {
       String topic = RandomUtil.randomUUIDString();
       String clientId = RandomUtil.randomUUIDString();
       CountDownLatch latch = new CountDownLatch(1);
@@ -391,14 +383,15 @@ public class MQTT5Test extends MQTT5TestSupport {
       MqttClient client = createPahoClient(clientId);
       client.setCallback(new LatchedMqttCallback(latch));
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
-         .sessionExpiryInterval(0L)
+         .sessionExpiryInterval(sessionExpiryInterval)
+         .cleanStart(true)
          .build();
       client.connect(options);
       client.subscribe(topic, EXACTLY_ONCE);
       client.publish(topic, new byte[0], EXACTLY_ONCE, true);
       assertTrue(latch.await(2, TimeUnit.SECONDS));
       assertNotNull(server.locateQueue(MQTTPublishManager.getQoS2ManagementAddressName(SimpleString.of(clientId))));
-      assertEquals(1, getProtocolManager().getStateManager().getDurableSubscriptionStateCount());
+      assertEquals(1, getProtocolManager().getStateManager().getDurableSessionStateCount());
       server.stop();
       try {
          client.disconnect();
@@ -408,9 +401,17 @@ public class MQTT5Test extends MQTT5TestSupport {
       client.close();
       server.start();
       scanSessions();
-      assertNull(getSubscriptionQueue(topic, clientId));
+      if (sessionExpiryInterval > 0) {
+         assertNotNull(getSubscriptionQueue(topic, clientId));
+         Wait.assertNull(() -> {
+            scanSessions();
+            return getSubscriptionQueue(topic, clientId);
+         }, sessionExpiryInterval * 2 * 1000, 25);
+      } else {
+         assertNull(getSubscriptionQueue(topic, clientId));
+      }
       assertNull(server.locateQueue(MQTTPublishManager.getQoS2ManagementAddressName(SimpleString.of(clientId))));
-      assertEquals(0, getProtocolManager().getStateManager().getDurableSubscriptionStateCount());
+      assertEquals(0, getProtocolManager().getStateManager().getDurableSessionStateCount());
    }
 
    @Test
