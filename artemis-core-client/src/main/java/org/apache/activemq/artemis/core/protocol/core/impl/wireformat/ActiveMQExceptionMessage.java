@@ -63,7 +63,7 @@ public class ActiveMQExceptionMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      return super.getPacketString() + ", exception= " + exception;
+      return super.getPacketString() + ", exception=" + exception;
    }
 
    @Override
