@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Predicate;
 
 import javax.management.ObjectName;
 
@@ -27,8 +29,12 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.AcceptorControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.BridgeControl;
+import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
@@ -91,8 +97,6 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
    void registerInJMX(ObjectName objectName, Object managedResource) throws Exception;
 
    void unregisterFromJMX(ObjectName objectName) throws Exception;
-
-   void registerInRegistry(String resourceName, Object managedResource);
 
    void unregisterFromRegistry(String resourceName);
 
@@ -159,4 +163,19 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
 
    Object invokeOperation(String resourceName, String operation, Object[] params, SecurityAuth auth) throws Exception;
 
+   List<QueueControl> getQueueControls(Predicate<QueueControl> predicate);
+
+   List<AddressControl> getAddressControls(Predicate<AddressControl> predicate);
+
+   AddressControl getAddressControl(String resourceName);
+
+   AcceptorControl getAcceptorControl(String resourceName);
+
+   void registerAMQPControl(String amqpResourceName, Object control);
+
+   void unRegisterAMQPControl(String amqpResourceName);
+
+   List<DivertControl> getDivertControls();
+
+   List<BridgeControl> getBridgeControls();
 }
