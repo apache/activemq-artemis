@@ -429,7 +429,7 @@ IMPORTANT: To avoid confusion it is recommended that `address` `name` and `queue
 == Federation
 
 Broker federation allows the local broker to create remote receivers for addresses or queues that have local demand.
-Conversely, the broker connection can send federation configuration to the remote broker causing it to create receivers on the local broker based on remote demand on an address or queue over this same connection.
+Conversely, the broker connection can send connection scoped federation configuration to the remote broker causing it to create receivers on the local broker based on remote demand on an address or queue over this same connection.
 
 Add a `<federation>` element within the `<amqp-connection>` element to configure federation to the broker instance.
 The `<amqp-connection>` contains all the configuration for authentication and reconnection handling.
@@ -461,97 +461,23 @@ The broker connection federation configuration consists of one or more policies 
 </broker-connections>
 ----
 
-=== Local and remote address federation
+=== Address federation
 
-Local or Remote address federation configures the local or remote broker to watch for demand on addresses.
-When demand exists it will create a consumer on the matching address on the opposing broker.
-Because the consumers are created on addresses on the opposing broker, the authentication credentials supplied to the broker connection must have sufficient access to read from (local address federation) or write to the matching address (remote address federation) on the opposing broker.
+Address federation can be thought of as full multicast over a set of loosely coupled brokers. Every message sent to address on `Broker-1` will be delivered to every queue bound to that address on that broker, but also will be delivered to the matching address on `Broker-2`, `Broker-3` ... `Broker-N` and all the queues bound to that address.
 
-An example of address federation configuration is shown below.
-Local and remote address policies have identical configuration parameters, only the policy element names are different.
+.Address Federation
+image::images/amqp-federation-address-concept.png[]
 
-[,xml]
-----
-<broker-connections>
-  <amqp-connection uri="tcp://HOST:PORT" name="federation-example">
-    <federation>
-       <local-address-policy name="example-local-address-policy"
-                             auto-delete="false"
-                             auto-delete-delay="1"
-                             auto-delete-message-count="12"
-                             max-hops="1"
-                             enable-divert-bindings="true">
-         <include address-match="local-address.#" />
-         <exclude address-match="local-address.excluded" />
-       </local-address-policy>
-    </federation>
-  </amqp-connection>
-</broker-connections>
-----
+For further details please see the xref:amqp-address-federation.adoc#address-federation[Address Federation] documentation.
 
-name::
-The name of the policy, these names should be unique within a broker connection's federation policy elements.
-include::
-The address-match pattern to use to match included addresses, multiple of these can be set.
-If none are set all addresses are matched.
-exclude::
-The address-match pattern to use to match excluded addresses, multiple of these can be set, or it can be omitted if no excludes are needed.
-max-hops::
-The maximum number of hops that a message can perform to be federated.
-Default value is `0` and will work for most simple federation deployments.
-However, in certain topologies a higher value may be required to prevent looping.
-auto-delete::
-For address federation, a durable queue is created on the broker from which messages are being federated.
-Set this property to `true` to mark the queue for automatic deletion once the initiating broker disconnects and the delay and message count parameters are met.
-This is a useful option if you want to automate the cleanup of dynamically-created queues.
-The default value is `false`, which means that the queue is not automatically deleted.
-auto-delete-delay::
-The amount of time in milliseconds after the initiating broker has disconnected before the created queue can be eligible for `auto-delete`.
-The default value is `0` when option is omitted.
-auto-delete-message-count::
-After the initiating broker has disconnected, the maximum number of messages allowed in the remote queue for the queue to be eligible for automatic deletion.
-The default value is `0`.
-enable-divert-bindings::
-Setting to `true` enables divert bindings to be listened-to for demand.
-If a divert binding with an address matches the included addresses for the address policy, any queue bindings that match the forwarding address of the divert creates demand. The default value is `false`.
+=== Queue federation
 
-=== Local and remote queue federation
+Queue federation offers a means of load balancing message queues across multiple broker instances. Messages sent to a queue on `Broker-1` will be consumed and sent to the matching queue on `Broker-2` if there is no local consumer available to consume the message.
 
-Local or Remote queue federation configures the local or remote broker to watch for demand on queues and when demand exists it will create a consumer on the matching queue on the opposing broker.
-Because the consumers are created on queues on the opposing broker, the authentication credentials supplied to the broker connection must have sufficient access to read from (local queue federation) or write to the matching queue (remote queue federation) on the opposing broker.
+.Queue Federation
+image::images/amqp-federation-queue-concept.png[]
 
-An example of queue federation configuration is shown below.
-Local and remote queue policies have identical configuration parameters, only the policy element names are different.
-
-[,xml]
-----
-<broker-connections>
-  <amqp-connection uri="tcp://HOST:PORT" name="federation-example">
-    <federation>
-       <local-queue-policy name="example-local-queue-policy">
-         <include address-match="#" queue-match="remote-queue" />
-         <exclude address-match="excluded.#" queue-match="remote-queue-excluded" />
-       </local-queue-policy>
-    </federation>
-  </amqp-connection>
-</broker-connections>
-----
-
-name::
-The name of the policy.
-These names should be unique within a broker connection's federation policy elements.
-include::
-The queue-match pattern to use to match included queues.
-Multiple of these can be set.
-If none are set all queues are matched.
-exclude::
-The queue-match pattern to use to match excluded queues.
-Multiple of these can be set, or it can be omitted if no excludes are needed.
-priority-adjustment::
-When federation consumers are created this value can be used to ensure that those federation consumers have a lower priority value than other local consumers on the same queue.
-The default is `-1`.
-include-federated::
-Controls if consumers on a queue which come from federation instances should be counted when observing a queue for demand, by default this value is `false` and federation consumers are not counted.
+For further details please see the xref:amqp-queue-federation.adoc#queue-federation[Queue Federation] documentation.
 
 == Bridges
 
