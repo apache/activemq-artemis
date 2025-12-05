@@ -1224,6 +1224,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                   return null;
                }
             }
+
+            // In certain circumstances (e.g. JCA use-cases with the ActiveMQ RA) an OpenWire client can "clean up" a
+            // connection by sending a RemoveInfo command (which will "destroy" this broker-side connection) followed
+            // shortly by a ConnectionInfo command. In order to deal with this we "undestroy" the broker-side connection
+            // here. If we do not "undestroy" the connection here then creating the internal Core session will fail.
+            // See org.apache.activemq.ConnectionCleanupTest#testChangeClientID for a test that executes this scenario.
+            destroyed = false;
+
             protocolManager.addConnection(OpenWireConnection.this, info);
          } catch (Exception e) {
             Response resp = new ExceptionResponse(e);
@@ -1238,8 +1246,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             }
             dispatchAsync(command);
          }
-         // During a chanceClientID a disconnect could have been sent by the client, and the client will then re-issue a connect packet
-         destroyed = false;
          return null;
 
       }
