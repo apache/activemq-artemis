@@ -18,10 +18,18 @@ package org.apache.activemq.artemis.cli.factory;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.cli.ConfigurationException;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.dto.BrokerDTO;
+import org.apache.activemq.artemis.dto.JaasSecurityDTO;
+import org.apache.activemq.artemis.dto.PropertyDTO;
+import org.apache.activemq.artemis.dto.SecurityManagerDTO;
 import org.apache.activemq.artemis.dto.ServerDTO;
 import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -44,7 +52,38 @@ public class BrokerFactory {
       } catch (IOException ioe) {
          throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
       }
-      return factory.createBroker(configURI, artemisHome, artemisInstance, artemisURIInstance);
+      BrokerDTO broker = factory.createBroker(configURI, artemisHome, artemisInstance, artemisURIInstance);
+
+      Properties systemProperties = System.getProperties();
+      String systemSecurityJaasPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemSecurityJaasPropertyPrefix();
+      String systemSecurityManagerPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemSecurityManagerPropertyPrefix();
+
+      if (systemProperties.containsKey(systemSecurityJaasPropertyPrefix + "domain")) {
+         JaasSecurityDTO security = broker.security instanceof JaasSecurityDTO ?
+            (JaasSecurityDTO) broker.security : new JaasSecurityDTO();
+
+         security.domain = (String)systemProperties.get(systemSecurityJaasPropertyPrefix + "domain");
+         security.certificateDomain = Optional.ofNullable((String)systemProperties.get(
+            systemSecurityJaasPropertyPrefix + "certificateDomain")).orElse(security.certificateDomain);
+
+         broker.security = security;
+      } else if (systemProperties.containsKey(systemSecurityManagerPropertyPrefix + "className")) {
+         SecurityManagerDTO security = broker.security instanceof SecurityManagerDTO ?
+            (SecurityManagerDTO) broker.security : new SecurityManagerDTO();
+
+         security.className = (String)systemProperties.get(systemSecurityManagerPropertyPrefix + "className");
+         security.properties = Objects.requireNonNullElse(security.properties, new ArrayList<>());
+         systemProperties.forEach((key, value) -> {
+            if (((String)key).startsWith(systemSecurityManagerPropertyPrefix + "properties.")) {
+               security.properties.add(new PropertyDTO(((String)key).substring(
+                  systemSecurityManagerPropertyPrefix.length() + 11), (String)value));
+            }
+         });
+
+         broker.security = security;
+      }
+
+      return broker;
    }
 
    public static BrokerDTO createBrokerConfiguration(String configuration,
