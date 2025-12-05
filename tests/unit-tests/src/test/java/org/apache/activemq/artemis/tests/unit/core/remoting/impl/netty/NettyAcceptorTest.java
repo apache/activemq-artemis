@@ -41,6 +41,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -170,5 +171,27 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
       params.put(TransportConstants.SSL_CONTEXT_PROP_NAME, RandomUtil.randomUUIDString());
       new NettyAcceptor("netty", null, params, null, null, null, null, Map.of(), null, null);
+   }
+
+   @Test
+   public void testValidSSLConfigWithCrcOptions() {
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
+      params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, RandomUtil.randomUUIDString());
+      params.put(TransportConstants.CRC_OPTIONS_PROP_NAME, "SOFT_FAIL");
+      NettyAcceptor acceptor = new NettyAcceptor("netty", null, params, null, null, null, null, Map.of(), null, null);
+
+      assertEquals("SOFT_FAIL", acceptor.getSSLContextConfig().getCrcOptions());
+   }
+
+   @Test
+   public void testValidSSLConfigWithOcspResponderURL() {
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
+      params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, RandomUtil.randomUUIDString());
+      params.put(TransportConstants.OCSP_RESPONDER_URL_PROP_NAME, "http://localhost:8080");
+      NettyAcceptor acceptor = new NettyAcceptor("netty", null, params, null, null, null, null, Map.of(), null, null);
+
+      assertEquals("http://localhost:8080", acceptor.getSSLContextConfig().getOcspResponderURL());
    }
 }

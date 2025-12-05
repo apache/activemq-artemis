@@ -46,6 +46,8 @@ public class LDAPLoginSSLSocketFactory extends SocketFactory {
    private static final String CRL_PATH = "crlPath";
    private static final String TRUST_ALL = "trustAll";
    private static final String TRUST_MANAGER_FACTORY_PLUGIN = "trustManagerFactoryPlugin";
+   private static final String CRC_OPTIONS = "crcOptions";
+   private static final String OCSP_RESPONDER_URL = "ocspResponderURL";
 
    private static final SSLContextFactory sslContextFactory = new CachingSSLContextFactory();
 
@@ -128,6 +130,12 @@ public class LDAPLoginSSLSocketFactory extends SocketFactory {
       }
       if (environment.containsKey(TRUST_MANAGER_FACTORY_PLUGIN)) {
          sslContextConfigBuilder.trustManagerFactoryPlugin(environment.get(TRUST_MANAGER_FACTORY_PLUGIN));
+      }
+      if (environment.containsKey(CRC_OPTIONS)) {
+         sslContextConfigBuilder.crcOptions(environment.get(CRC_OPTIONS));
+      }
+      if (environment.containsKey(OCSP_RESPONDER_URL)) {
+         sslContextConfigBuilder.ocspResponderURL(environment.get(OCSP_RESPONDER_URL));
       }
 
       return sslContextConfigBuilder.build();

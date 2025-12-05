@@ -61,6 +61,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockserver.socket.PortFactory;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
@@ -953,6 +954,65 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
+   }
+
+   @TestTemplate
+   public void testOneWaySSLWithNoFallbackRevocationChecker() throws Exception {
+      createCustomSslServer();
+      String text = RandomUtil.randomUUIDString();
+
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      tc.getParams().put(TransportConstants.CRC_OPTIONS_PROP_NAME, "NO_FALLBACK");
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc)).setCallTimeout(2000);
+      try {
+         createSessionFactory(locator);
+         fail("expecting exception");
+      } catch (Exception e) {
+         assertTrue(ActiveMQNotConnectedException.class.equals(e.getClass()) ||
+            ActiveMQConnectionTimedOutException.class.equals(e.getClass()));
+      }
+   }
+
+   @TestTemplate
+   public void testOneWaySSLWithSoftFailRevocationChecker() throws Exception {
+      createCustomSslServer();
+      String text = RandomUtil.randomUUIDString();
+
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      tc.getParams().put(TransportConstants.CRC_OPTIONS_PROP_NAME, "SOFT_FAIL");
+      tc.getParams().put(TransportConstants.OCSP_RESPONDER_URL_PROP_NAME, "http://localhost:" + PortFactory.findFreePort());
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf;
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
+         sf = addSessionFactory(createSessionFactory(locator));
+
+         assertTrue(loggerHandler.findText("AMQ212081",
+            "[CN=ActiveMQ Artemis Server,OU=Artemis,O=ActiveMQ,L=AMQ,ST=AMQ,C=AMQ]", "Exception"));
+      }
+
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
+      session.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setDurable(false));
+      ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
+
+      ClientMessage message = createTextMessage(session, text);
+      producer.send(message);
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(CoreClientOverOneWaySSLTest.QUEUE));
+      session.start();
+
+      ClientMessage m = consumer.receive(1000);
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
    private void createCustomSslServer() throws Exception {

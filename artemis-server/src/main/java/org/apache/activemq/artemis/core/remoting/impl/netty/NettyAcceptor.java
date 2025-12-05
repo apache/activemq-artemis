@@ -182,6 +182,10 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final String crlPath;
 
+   private final String crcOptions;
+
+   private final String ocspResponderURL;
+
    private SSLContextConfig sslContextConfig;
 
    private final String enabledCipherSuites;
@@ -356,6 +360,10 @@ public class NettyAcceptor extends AbstractAcceptor {
 
          keystoreAlias = ConfigurationHelper.getStringProperty(TransportConstants.KEYSTORE_ALIAS_PROP_NAME, TransportConstants.DEFAULT_KEYSTORE_ALIAS, configuration);
 
+         crcOptions = ConfigurationHelper.getStringProperty(TransportConstants.CRC_OPTIONS_PROP_NAME, TransportConstants.DEFAULT_CRC_OPTIONS, configuration);
+
+         ocspResponderURL = ConfigurationHelper.getStringProperty(TransportConstants.OCSP_RESPONDER_URL_PROP_NAME, TransportConstants.DEFAULT_OCSP_RESPONDER_URL, configuration);
+
          sslContextConfig = SSLContextConfig.builder()
             .keystoreProvider(keyStoreProvider)
             .keystorePath(keyStorePath)
@@ -368,6 +376,8 @@ public class NettyAcceptor extends AbstractAcceptor {
             .truststorePassword(trustStorePassword)
             .trustManagerFactoryPlugin(trustManagerFactoryPlugin)
             .crlPath(crlPath)
+            .crcOptions(crcOptions)
+            .ocspResponderURL(ocspResponderURL)
             .build();
          providerAgnosticSslContext = loadSSLContext();
       } else {
@@ -381,6 +391,8 @@ public class NettyAcceptor extends AbstractAcceptor {
          trustStorePath = TransportConstants.DEFAULT_TRUSTSTORE_PATH;
          trustStorePassword = TransportConstants.DEFAULT_TRUSTSTORE_PASSWORD;
          crlPath = TransportConstants.DEFAULT_CRL_PATH;
+         crcOptions = TransportConstants.DEFAULT_CRC_OPTIONS;
+         ocspResponderURL = TransportConstants.DEFAULT_OCSP_RESPONDER_URL;
          enabledCipherSuites = TransportConstants.DEFAULT_ENABLED_CIPHER_SUITES;
          enabledProtocols = TransportConstants.DEFAULT_ENABLED_PROTOCOLS;
          needClientAuth = TransportConstants.DEFAULT_NEED_CLIENT_AUTH;
@@ -431,6 +443,10 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    public int getTcpReceiveBufferSize() {
       return tcpReceiveBufferSize;
+   }
+
+   public SSLContextConfig getSSLContextConfig() {
+      return sslContextConfig;
    }
 
    @Override

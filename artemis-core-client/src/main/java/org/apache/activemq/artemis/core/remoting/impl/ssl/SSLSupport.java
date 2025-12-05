@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.remoting.impl.ssl;
 import javax.net.ssl.CertPathTrustManagerParameters;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.ManagerFactoryParameters;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -37,14 +38,21 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CRL;
+import java.security.cert.CertPathBuilder;
+import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.PKIXBuilderParameters;
+import java.security.cert.PKIXCertPathChecker;
+import java.security.cert.PKIXRevocationChecker;
 import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -81,6 +89,8 @@ public class SSLSupport {
    private boolean trustAll = TransportConstants.DEFAULT_TRUST_ALL;
    private String trustManagerFactoryPlugin = TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN;
    private String keystoreAlias = TransportConstants.DEFAULT_KEYSTORE_ALIAS;
+   private String crcOptions = TransportConstants.DEFAULT_CRC_OPTIONS;
+   private String ocspResponderURL = TransportConstants.DEFAULT_OCSP_RESPONDER_URL;
 
    public SSLSupport() {
    }
@@ -98,6 +108,8 @@ public class SSLSupport {
       trustAll = config.isTrustAll();
       trustManagerFactoryPlugin = config.getTrustManagerFactoryPlugin();
       keystoreAlias = config.getKeystoreAlias();
+      crcOptions = config.getCrcOptions();
+      ocspResponderURL = config.getOcspResponderURL();
    }
 
    public String getKeystoreProvider() {
@@ -217,6 +229,24 @@ public class SSLSupport {
       return this;
    }
 
+   public String getCrcOptions() {
+      return crcOptions;
+   }
+
+   public SSLSupport setCrcOptions(String crcOptions) {
+      this.crcOptions = crcOptions;
+      return this;
+   }
+
+   public String getOcspResponderURL() {
+      return ocspResponderURL;
+   }
+
+   public SSLSupport setOcspResponderURL(String ocspResponderURL) {
+      this.ocspResponderURL = ocspResponderURL;
+      return this;
+   }
+
    public SSLContext createContext() throws Exception {
       SSLContext context = SSLContext.getInstance("TLS");
       KeyManager[] keyManagers = loadKeyManagers();
@@ -287,11 +317,12 @@ public class SSLSupport {
       } else {
          TrustManagerFactory trustMgrFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
          KeyStore trustStore = SSLSupport.loadKeystore(truststoreProvider, truststoreType, truststorePath, truststorePassword);
-         boolean ocsp = Boolean.valueOf(Security.getProperty("ocsp.enable"));
 
-         boolean initialized = false;
-         if ((ocsp || crlPath != null) && TrustManagerFactory.getDefaultAlgorithm().equalsIgnoreCase("PKIX")) {
+         ManagerFactoryParameters managerFactoryParameters = null;
+         boolean ocsp = Boolean.parseBoolean(Security.getProperty("ocsp.enable"));
+         if ((ocsp || crlPath != null || crcOptions != null || ocspResponderURL != null) && checkPKIXTrustManagerFactory(trustMgrFactory)) {
             PKIXBuilderParameters pkixParams = new PKIXBuilderParameters(trustStore, new X509CertSelector());
+
             if (crlPath != null) {
                pkixParams.setRevocationEnabled(true);
                Collection<? extends CRL> crlList = loadCRL();
@@ -299,15 +330,107 @@ public class SSLSupport {
                   pkixParams.addCertStore(CertStore.getInstance("Collection", new CollectionCertStoreParameters(crlList)));
                }
             }
-            trustMgrFactory.init(new CertPathTrustManagerParameters(pkixParams));
-            initialized = true;
+
+            if (crcOptions != null || ocspResponderURL != null) {
+               addCertPathCheckers(pkixParams);
+            }
+
+            managerFactoryParameters = new CertPathTrustManagerParameters(pkixParams);
          }
 
-         if (!initialized) {
+         if (managerFactoryParameters != null) {
+            trustMgrFactory.init(managerFactoryParameters);
+         } else {
             trustMgrFactory.init(trustStore);
          }
+
          return trustMgrFactory;
       }
+   }
+
+   private boolean checkPKIXTrustManagerFactory(TrustManagerFactory trustMgrFactory) {
+      if (trustMgrFactory.getAlgorithm().equalsIgnoreCase("PKIX")) {
+         return true;
+      }
+
+      if (crlPath != null) {
+         throw new IllegalStateException("The crlPath parameter is not supported with the algorithm "
+            + trustMgrFactory.getAlgorithm());
+      }
+
+      if (crcOptions != null) {
+         throw new IllegalStateException("The crcOptions parameter is not supported with the algorithm "
+            + trustMgrFactory.getAlgorithm());
+      }
+
+      if (ocspResponderURL != null) {
+         throw new IllegalStateException("The ocspResponderURL parameter is not supported with the algorithm "
+            + trustMgrFactory.getAlgorithm());
+      }
+
+      return false;
+   }
+
+   protected void addCertPathCheckers(PKIXBuilderParameters pkixParams) throws Exception {
+      CertPathBuilder certPathBuilder = CertPathBuilder.getInstance("PKIX");
+      PKIXRevocationChecker revocationChecker = (PKIXRevocationChecker) certPathBuilder.getRevocationChecker();
+      if (crcOptions != null) {
+         revocationChecker.setOptions(loadRevocationOptions());
+      }
+      if (ocspResponderURL != null) {
+         revocationChecker.setOcspResponder(new java.net.URI(ocspResponderURL));
+      }
+      pkixParams.addCertPathChecker(revocationChecker);
+
+
+      // Add a certPathChecker to log soft fail exceptions caught by the revocation checker.
+      pkixParams.addCertPathChecker(new  PKIXCertPathChecker() {
+         @Override
+         public void init(boolean forward) throws CertPathValidatorException {
+         }
+
+         @Override
+         public boolean isForwardCheckingSupported() {
+            return revocationChecker.isForwardCheckingSupported();
+         }
+
+         @Override
+         public Set<String> getSupportedExtensions() {
+            return revocationChecker.getSupportedExtensions();
+         }
+
+         @Override
+         public void check(Certificate cert, Collection<String> unresolvedCritExts) throws CertPathValidatorException {
+            List<CertPathValidatorException> softFailExceptions = revocationChecker.getSoftFailExceptions();
+
+            if (softFailExceptions != null) {
+               for (CertPathValidatorException e : softFailExceptions) {
+                  // Filter soft failure exceptions related to cert.
+                  // The check method may be invoked for all certificates in the path and the list of
+                  // the soft failure exceptions is cleared only before the first certificate in the path.
+                  if (e.getIndex() >= 0 && e.getCertPath().getCertificates().get(e.getIndex()).equals(cert)) {
+                     String certSubject = null;
+                     if (cert instanceof X509Certificate) {
+                        certSubject = ((X509Certificate) cert).getSubjectX500Principal().getName();
+                     }
+
+                     ActiveMQClientLogger.LOGGER.softFailException(certSubject, e);
+                  }
+               }
+            }
+         }
+      });
+   }
+
+   protected Set<PKIXRevocationChecker.Option> loadRevocationOptions() {
+      String[] revocationOptionNames = crcOptions.split(",");
+
+      Set<PKIXRevocationChecker.Option>  revocationOptions = new HashSet<>();
+      for (String revocationOptionName : revocationOptionNames) {
+         revocationOptions.add(PKIXRevocationChecker.Option.valueOf(revocationOptionName));
+      }
+
+      return revocationOptions;
    }
 
    private TrustManager[] loadTrustManagers() throws Exception {

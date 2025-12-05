@@ -41,6 +41,8 @@ public final class SSLContextConfig {
       private String trustManagerFactoryPlugin = TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN;
       private boolean trustAll = TransportConstants.DEFAULT_TRUST_ALL;
       private String keystoreAlias = TransportConstants.DEFAULT_KEYSTORE_ALIAS;
+      private String crcOptions = TransportConstants.DEFAULT_CRC_OPTIONS;
+      private String ocspResponderURL = TransportConstants.DEFAULT_OCSP_RESPONDER_URL;
 
       private Builder() {
       }
@@ -60,6 +62,8 @@ public final class SSLContextConfig {
          truststoreProvider = config.getTruststoreProvider();
          trustAll = config.trustAll;
          keystoreAlias = config.keystoreAlias;
+         crcOptions = config.crcOptions;
+         ocspResponderURL = config.ocspResponderURL;
          return this;
       }
 
@@ -67,7 +71,7 @@ public final class SSLContextConfig {
          return new SSLContextConfig(
             keystoreProvider, keystorePath, keystoreType, keystorePassword,
             truststoreProvider, truststorePath, truststoreType, truststorePassword,
-            crlPath, trustManagerFactoryPlugin, trustAll, keystoreAlias
+            crlPath, trustManagerFactoryPlugin, trustAll, keystoreAlias, crcOptions, ocspResponderURL
          );
       }
 
@@ -130,6 +134,16 @@ public final class SSLContextConfig {
          this.trustManagerFactoryPlugin = trustManagerFactoryPlugin;
          return this;
       }
+
+      public Builder crcOptions(final String crcOptions) {
+         this.crcOptions = crcOptions;
+         return this;
+      }
+
+      public Builder ocspResponderURL(final String ocspResponderURL) {
+         this.ocspResponderURL = ocspResponderURL;
+         return this;
+      }
    }
 
    public static  Builder builder() {
@@ -148,6 +162,8 @@ public final class SSLContextConfig {
    private final String crlPath;
    private final boolean trustAll;
    private final String keystoreAlias;
+   private final String crcOptions;
+   private final String ocspResponderURL;
    private final int hashCode;
 
    private SSLContextConfig(final String keystoreProvider,
@@ -161,7 +177,9 @@ public final class SSLContextConfig {
                             final String crlPath,
                             final String trustManagerFactoryPlugin,
                             final boolean trustAll,
-                            final String keystoreAlias) {
+                            final String keystoreAlias,
+                            final String crcOptions,
+                            final String ocspResponderURL) {
       this.keystorePath = keystorePath;
       this.keystoreType = keystoreType;
       this.keystoreProvider = keystoreProvider;
@@ -174,10 +192,12 @@ public final class SSLContextConfig {
       this.crlPath = crlPath;
       this.trustAll = trustAll;
       this.keystoreAlias = keystoreAlias;
+      this.crcOptions = crcOptions;
+      this.ocspResponderURL = ocspResponderURL;
       hashCode = Objects.hash(
          keystorePath, keystoreType, keystoreProvider,
          truststorePath, truststoreType, truststoreProvider,
-         crlPath, trustManagerFactoryPlugin, trustAll, keystoreAlias
+         crlPath, trustManagerFactoryPlugin, trustAll, keystoreAlias, crcOptions, ocspResponderURL
       );
    }
 
@@ -199,7 +219,9 @@ public final class SSLContextConfig {
              Objects.equals(crlPath, other.crlPath) &&
              Objects.equals(trustManagerFactoryPlugin, other.trustManagerFactoryPlugin) &&
              trustAll == other.trustAll &&
-             Objects.equals(keystoreAlias, other.keystoreAlias);
+             Objects.equals(keystoreAlias, other.keystoreAlias) &&
+             Objects.equals(crcOptions, other.crcOptions) &&
+             Objects.equals(ocspResponderURL, other.ocspResponderURL);
    }
 
    public String getCrlPath() {
@@ -255,6 +277,14 @@ public final class SSLContextConfig {
       return keystoreAlias;
    }
 
+   public String getCrcOptions() {
+      return crcOptions;
+   }
+
+   public String getOcspResponderURL() {
+      return ocspResponderURL;
+   }
+
    @Override
    public String toString() {
       return "SSLSupport [" +
@@ -270,6 +300,8 @@ public final class SSLContextConfig {
          ", trustAll=" + trustAll +
          ", trustManagerFactoryPlugin=" + trustManagerFactoryPlugin +
          ", keystoreAlias=" + keystoreAlias +
+         ", crcOptions=" + crcOptions +
+         ", ocspResponderURL=" + ocspResponderURL +
          "]";
    }
 }

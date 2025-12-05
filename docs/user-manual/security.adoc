@@ -889,7 +889,19 @@ Supports xref:masking-passwords.adoc#masking-passwords[password masking].
 Default is `null`.
 
 crlPath::
-The path to the Certificate Revocation List (CRL) file for additional certificate validation.
+The path to a Certificate Revocation List (CRL) file for additional certificate validation when using PKIX trust manager.
+Default is `null`.
+
+crcOptions::
+Comma-separated list of PKIXRevocationChecker options to configure certificate revocation checking behavior when using PKIX trust manager.
+Available options include: `ONLY_END_ENTITY`, `PREFER_CRLS`, `NO_FALLBACK`, `SOFT_FAIL`.
+For further details about these options, see https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/security/cert/PKIXRevocationChecker.Option.html[PKIXRevocationChecker.Option JavaDoc].
+Default is `null`.
+
+ocspResponderURL::
+This is valid on either an `acceptor` or `connector`.
+The URL of the OCSP (Online Certificate Status Protocol) responder to use for certificate revocation checking when using PKIX trust manager.
+This overrides the default OCSP responder specified in the certificate's Authority Information Access (AIA) extension.
 Default is `null`.
 
 trustAll::

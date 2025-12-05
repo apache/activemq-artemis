@@ -287,4 +287,68 @@ public class SSLSupportTest extends ActiveMQTestBase {
          .setTrustAll(true)
          .createContext();
    }
+
+   @TestTemplate
+   public void testContextWithCrcOptions() throws Exception {
+      new SSLSupport()
+         .setKeystoreProvider(storeProvider)
+         .setKeystoreType(storeType)
+         .setKeystorePath(keyStorePath)
+         .setKeystorePassword(keyStorePassword)
+         .setTruststoreProvider(storeProvider)
+         .setTruststoreType(storeType)
+         .setTruststorePath(trustStorePath)
+         .setTruststorePassword(trustStorePassword)
+         .setCrcOptions("SOFT_FAIL")
+         .createContext();
+   }
+
+   @TestTemplate
+   public void testContextWithMultipleCrcOptions() throws Exception {
+      new SSLSupport()
+         .setKeystoreProvider(storeProvider)
+         .setKeystoreType(storeType)
+         .setKeystorePath(keyStorePath)
+         .setKeystorePassword(keyStorePassword)
+         .setTruststoreProvider(storeProvider)
+         .setTruststoreType(storeType)
+         .setTruststorePath(trustStorePath)
+         .setTruststorePassword(trustStorePassword)
+         .setCrcOptions("SOFT_FAIL,PREFER_CRLS,NO_FALLBACK")
+         .createContext();
+   }
+
+   @TestTemplate
+   public void testContextWithInvalidCrcOptions() throws Exception {
+      try {
+         new SSLSupport()
+            .setKeystoreProvider(storeProvider)
+            .setKeystoreType(storeType)
+            .setKeystorePath(keyStorePath)
+            .setKeystorePassword(keyStorePassword)
+            .setTruststoreProvider(storeProvider)
+            .setTruststoreType(storeType)
+            .setTruststorePath(trustStorePath)
+            .setTruststorePassword(trustStorePassword)
+            .setCrcOptions("INVALID_OPTION")
+            .createContext();
+      } catch (IllegalArgumentException e) {
+         // Expected exception
+      }
+   }
+
+   @TestTemplate
+   public void testContextWithOcspResponderURL() throws Exception {
+      new SSLSupport()
+         .setKeystoreProvider(storeProvider)
+         .setKeystoreType(storeType)
+         .setKeystorePath(keyStorePath)
+         .setKeystorePassword(keyStorePassword)
+         .setTruststoreProvider(storeProvider)
+         .setTruststoreType(storeType)
+         .setTruststorePath(trustStorePath)
+         .setTruststorePassword(trustStorePassword)
+         .setOcspResponderURL("http://localhost:8080")
+         .createContext();
+   }
 }

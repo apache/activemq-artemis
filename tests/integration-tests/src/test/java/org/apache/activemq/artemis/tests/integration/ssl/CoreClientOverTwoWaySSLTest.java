@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.ssl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
@@ -48,6 +49,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
@@ -57,6 +59,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import io.netty.handler.ssl.SslHandler;
+import org.mockserver.socket.PortFactory;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
@@ -427,6 +430,67 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
          //ok
       } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
+      }
+   }
+
+   @TestTemplate
+   public void testTwoWaySSLWithNoFallbackRevocationChecker() throws Exception {
+      NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
+      acceptor.getConfiguration().put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+      acceptor.getConfiguration().put(TransportConstants.CRC_OPTIONS_PROP_NAME, "NO_FALLBACK");
+      server.getRemotingService().stop(false);
+      server.getRemotingService().start();
+      server.getRemotingService().startAcceptors();
+
+      //Trust all defaults to false so this should fail with no trust store set
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.SSL_PROVIDER, clientSSLProvider);
+
+      tc.getParams().put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeProvider);
+      tc.getParams().put(TransportConstants.KEYSTORE_TYPE_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, CLIENT_SIDE_KEYSTORE);
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
+
+      server.getRemotingService().addIncomingInterceptor(new MyInterceptor());
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      try {
+         ClientSessionFactory sf = createSessionFactory(locator);
+         fail("Creating a session here should fail due to no fallback revocation checker");
+      } catch (Exception e) {
+         // ignore
+      }
+   }
+
+   @TestTemplate
+   public void testTwoWaySSLWithSoftFailRevocationChecker() throws Exception {
+      NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
+      acceptor.getConfiguration().put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+      acceptor.getConfiguration().put(TransportConstants.CRC_OPTIONS_PROP_NAME, "SOFT_FAIL");
+      acceptor.getConfiguration().put(TransportConstants.OCSP_RESPONDER_URL_PROP_NAME, "http://localhost:" + PortFactory.findFreePort());
+      server.getRemotingService().stop(false);
+      server.getRemotingService().start();
+      server.getRemotingService().startAcceptors();
+
+      //Set trust all so this should work even with no trust store set
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.SSL_PROVIDER, clientSSLProvider);
+      tc.getParams().put(TransportConstants.TRUST_ALL_PROP_NAME, true);
+
+      tc.getParams().put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeProvider);
+      tc.getParams().put(TransportConstants.KEYSTORE_TYPE_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, CLIENT_SIDE_KEYSTORE);
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
+
+      server.getRemotingService().addIncomingInterceptor(new MyInterceptor());
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
+         ClientSessionFactory sf = createSessionFactory(locator);
+         sf.close();
+
+         assertTrue(loggerHandler.findText("AMQ212081",
+            "[CN=ActiveMQ Artemis Client,OU=Artemis,O=ActiveMQ,L=AMQ,ST=AMQ,C=AMQ]", "Exception"));
       }
    }
 

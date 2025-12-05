@@ -260,6 +260,9 @@ public interface ActiveMQClientLogger {
    @LogMessage(id = 212080, value = "Using legacy SSL store provider value: {}. Please use either 'keyStoreType' or 'trustStoreType' instead as appropriate.", level = LogMessage.Level.WARN)
    void oldStoreProvider(String value);
 
+   @LogMessage(id = 212081, value = "Soft failure checking the certificate [{}]: {}", level = LogMessage.Level.WARN)
+   void softFailException(String certSubject, Exception e);
+
    @LogMessage(id = 214000, value = "Failed to call onMessage", level = LogMessage.Level.ERROR)
    void onMessageError(Throwable e);
 
