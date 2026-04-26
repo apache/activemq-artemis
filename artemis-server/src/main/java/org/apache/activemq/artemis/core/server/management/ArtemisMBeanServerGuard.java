@@ -36,12 +36,17 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.List;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private JMXAccessControlList jmxAccessControlList = JMXAccessControlList.createDefaultList();
+
+   private static final String defaultRoleClass = "org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal";
 
    public void init() {
       ArtemisMBeanServerBuilder.setGuard(this);
@@ -165,15 +170,21 @@ public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
       if (paramListIndex > 0) {
          operationName = operationName.substring(0, paramListIndex);
       }
+      Set<String> currentUserRoles = getCurrentUserRoles();
 
-      List<String> requiredRoles = getRequiredRoles(objectName, operationName);
-      for (String role : requiredRoles) {
-         if (currentUserHasRole(role)) {
-            return true;
-         }
+      if (currentUserRoles.isEmpty()) {
+         return false;
       }
-      logger.debug("{} {} false", object, operationName);
-      return false;
+      boolean authorized = authorizeUserForMethod(objectName, operationName, currentUserRoles);
+
+      if (authorized) {
+         logger.debug("{} {} true", object, operationName);
+         return true;
+      } else {
+         logger.debug("{} {} false", object, operationName);
+         return false;
+      }
+
    }
 
    void handleInvoke(ObjectName objectName, String operationName) throws IOException {
@@ -194,6 +205,10 @@ public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
 
    List<String> getRequiredRoles(ObjectName objectName, String methodName) {
       return jmxAccessControlList.getRolesForObject(objectName, methodName);
+   }
+
+   boolean authorizeUserForMethod(ObjectName objectName, String operationName, Set<String> currentUserRoles) {
+      return jmxAccessControlList.authorizeUserForMethod(objectName, operationName, currentUserRoles);
    }
 
    public void setJMXAccessControlList(JMXAccessControlList JMXAccessControlList) {
@@ -224,4 +239,22 @@ public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
       }
       return false;
    }
+
+   public static Set<String> getCurrentUserRoles() {
+      Subject subject = SecurityManagerShim.currentSubject();
+      if (subject == null) {
+         return Collections.emptySet();
+      }
+
+      Set<String> roles = new HashSet<>();
+      for (Principal p : subject.getPrincipals()) {
+         String clazz = p.getClass().getName();
+         roles.add(clazz + ":" + p.getName());
+         if (defaultRoleClass.equals(clazz) && p.getName().indexOf(':') <= 0) {
+            roles.add(p.getName());
+         }
+      }
+      return roles;
+   }
+
 }
