@@ -23,8 +23,6 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactor
 
 public class ActiveMQClientProtocolManagerFactory implements ClientProtocolManagerFactory {
 
-   private static final long serialVersionUID = 1;
-
    ServerLocator locator;
 
    @Override

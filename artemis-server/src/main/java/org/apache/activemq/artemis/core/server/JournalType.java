@@ -23,26 +23,26 @@ public enum JournalType {
    public static final String validValues;
 
    static {
-      StringBuffer stringBuffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       for (JournalType type : JournalType.values()) {
 
-         if (stringBuffer.length() != 0) {
-            stringBuffer.append(",");
+         if (!sb.isEmpty()) {
+            sb.append(",");
          }
 
-         stringBuffer.append(type.name());
+         sb.append(type.name());
       }
 
-      validValues = stringBuffer.toString();
+      validValues = sb.toString();
    }
 
    public static JournalType getType(String type) {
-      switch (type) {
-         case "NIO": return NIO;
-         case "ASYNCIO" : return ASYNCIO;
-         case "MAPPED" : return MAPPED;
-         default: throw new IllegalStateException("Invalid JournalType:" + type + " valid Types: " + validValues);
-      }
+      return switch (type) {
+         case "NIO" -> NIO;
+         case "ASYNCIO" -> ASYNCIO;
+         case "MAPPED" -> MAPPED;
+         default -> throw new IllegalStateException("Invalid JournalType:" + type + " valid Types: " + validValues);
+      };
    }
 
 }

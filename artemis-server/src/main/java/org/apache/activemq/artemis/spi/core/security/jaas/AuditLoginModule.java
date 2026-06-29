@@ -21,15 +21,15 @@ import org.apache.activemq.artemis.logs.AuditLogger;
 import javax.security.auth.Subject;
 import javax.security.auth.spi.LoginModule;
 
-/*
-* This is only to support auditlogging
-* */
+/**
+ * This is only to support auditlogging
+ */
 public interface AuditLoginModule extends LoginModule {
 
    /*
-   * We need this because if authentication fails at the web layer then there is no way to access the unauthenticated
-   * subject as it is removed and the session destroyed and never gets as far as the broker
-   * */
+    * We need this because if authentication fails at the web layer then there is no way to access the unauthenticated
+    * subject as it is removed and the session destroyed and never gets as far as the broker
+    */
    default void registerFailureForAudit(String name) {
       Subject subject = new Subject();
       subject.getPrincipals().add(new UserPrincipal(name));

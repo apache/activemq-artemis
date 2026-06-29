@@ -38,18 +38,14 @@ public interface JMSServerConfigParser {
    /**
     * Parse the topic node as a TopicConfiguration object
     *
-    * @param node
     * @return {@link TopicConfiguration} parsed from the node
-    * @throws Exception
     */
    TopicConfiguration parseTopicConfiguration(Node node) throws Exception;
 
    /**
     * Parse the Queue Configuration node as a QueueConfiguration object
     *
-    * @param node
     * @return {@link JMSQueueConfiguration} parsed from the node
-    * @throws Exception
     */
    JMSQueueConfiguration parseQueueConfiguration(Node node) throws Exception;
 }

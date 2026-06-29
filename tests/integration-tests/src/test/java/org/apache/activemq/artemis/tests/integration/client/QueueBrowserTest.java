@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -27,20 +29,19 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class QueueBrowserTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -60,7 +61,7 @@ public class QueueBrowserTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -76,7 +77,7 @@ public class QueueBrowserTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
 
       consumer.close();
@@ -86,7 +87,7 @@ public class QueueBrowserTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
 
       consumer.close();
@@ -102,7 +103,7 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -110,16 +111,16 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("x"), i);
+         message.putIntProperty(SimpleString.of("x"), i);
          producer.send(message);
       }
 
-      ClientConsumer consumer = session.createConsumer(QUEUE, new SimpleString("x >= 50"), true);
+      ClientConsumer consumer = session.createConsumer(QUEUE, SimpleString.of("x >= 50"), true);
 
       for (int i = 50; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
 
       consumer.close();
@@ -129,7 +130,7 @@ public class QueueBrowserTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
 
       consumer.close();
@@ -144,7 +145,7 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -153,17 +154,17 @@ public class QueueBrowserTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          if (i % 2 == 0) {
-            message.putStringProperty(new SimpleString("color"), new SimpleString("RED"));
+            message.putStringProperty(SimpleString.of("color"), SimpleString.of("RED"));
          }
          producer.send(message);
       }
 
-      ClientConsumer consumer = session.createConsumer(QUEUE, new SimpleString("color = 'RED'"), true);
+      ClientConsumer consumer = session.createConsumer(QUEUE, SimpleString.of("color = 'RED'"), true);
 
       for (int i = 0; i < numMessages; i += 2) {
          ClientMessage message2 = consumer.receive(1000);
 
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
 
       session.close();
@@ -177,7 +178,7 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -194,11 +195,11 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
          message2 = consumer2.receive(1000);
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
          message2 = consumer3.receive(1000);
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
 
       session.close();
@@ -212,7 +213,7 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -220,25 +221,25 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         message.putIntProperty(new SimpleString("x"), i);
+         message.putIntProperty(SimpleString.of("x"), i);
          producer.send(message);
       }
 
-      ClientConsumer consumer = session.createConsumer(QUEUE, new SimpleString("x < 50"), true);
-      ClientConsumer consumer2 = session.createConsumer(QUEUE, new SimpleString("x >= 50"), true);
+      ClientConsumer consumer = session.createConsumer(QUEUE, SimpleString.of("x < 50"), true);
+      ClientConsumer consumer2 = session.createConsumer(QUEUE, SimpleString.of("x >= 50"), true);
       ClientConsumer consumer3 = session.createConsumer(QUEUE, null, true);
 
       for (int i = 0; i < 50; i++) {
          ClientMessage message2 = consumer.receive(1000);
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
       for (int i = 50; i < numMessages; i++) {
          ClientMessage message2 = consumer2.receive(1000);
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer3.receive(1000);
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
 
       session.close();
@@ -260,7 +261,7 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(null, null, false, true, true, preACK, 0);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -276,11 +277,11 @@ public class QueueBrowserTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
       // assert that all the messages are there and none have been acked
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(100, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      assertEquals(100, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
 
@@ -292,7 +293,7 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -310,11 +311,11 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
          message2.acknowledge();
 
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
       // assert that all the messages are there and none have been acked
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(100, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      assertEquals(100, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
 
@@ -328,7 +329,7 @@ public class QueueBrowserTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 

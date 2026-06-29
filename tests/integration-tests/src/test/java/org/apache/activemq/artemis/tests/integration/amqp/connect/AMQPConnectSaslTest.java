@@ -16,50 +16,32 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
+import java.lang.invoke.MethodHandles;
+import java.net.URI;
 import java.util.concurrent.TimeUnit;
-
-import javax.crypto.Mac;
-import javax.security.auth.login.LoginException;
 
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
-import org.apache.activemq.artemis.protocol.amqp.sasl.scram.SCRAMServerSASL;
-import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
-import org.apache.activemq.artemis.spi.core.security.scram.ScramUtils;
-import org.apache.activemq.artemis.spi.core.security.scram.UserData;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
-import org.apache.qpid.proton.engine.Sasl;
-import org.apache.qpid.proton.engine.Sasl.SaslOutcome;
-import org.apache.qpid.proton.engine.Transport;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
-import io.vertx.core.http.ClientAuth;
-import io.vertx.core.net.JksOptions;
-import io.vertx.core.net.NetSocket;
-import io.vertx.proton.ProtonConnection;
-import io.vertx.proton.ProtonServerOptions;
-import io.vertx.proton.sasl.ProtonSaslAuthenticator;
+import org.apache.qpid.protonj2.test.driver.ProtonTestServer;
+import org.apache.qpid.protonj2.test.driver.ProtonTestServerOptions;
+import org.apache.qpid.protonj2.test.driver.codec.security.SaslCode;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
  */
 public class AMQPConnectSaslTest extends AmqpClientTestSupport {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
    private static final int BROKER_PORT_NUM = AMQP_PORT + 1;
 
    private static final String SERVER_KEYSTORE_NAME = "server-keystore.jks";
+   private static final String UNKNOWN_SERVER_KEYSTORE_NAME = "unknown-server-keystore.jks";
    private static final String SERVER_KEYSTORE_PASSWORD = "securepass";
    private static final String CLIENT_KEYSTORE_NAME = "client-keystore.jks";
    private static final String CLIENT_KEYSTORE_PASSWORD = "securepass";
@@ -74,9 +56,8 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
    private static final String PLAIN = "PLAIN";
    private static final String ANONYMOUS = "ANONYMOUS";
    private static final String EXTERNAL = "EXTERNAL";
-
-   private Vertx vertx;
-   private MockServer mockServer;
+   private static final String SCRAM_SHA_512 = "SCRAM-SHA-512";
+   private static final String XOAUTH2 = "XOAUTH2";
 
    @Override
    protected ActiveMQServer createServer() throws Exception {
@@ -85,366 +66,486 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
       return createServer(BROKER_PORT_NUM, false);
    }
 
-   @Before
-   @Override
-   public void setUp() throws Exception {
-      super.setUp();
-      vertx = Vertx.vertx();
-   }
+   @Test
+   @Timeout(20)
+   public void testConnectsWithAnonymous() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect(PLAIN, ANONYMOUS);
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
 
-   @After
-   @Override
-   public void tearDown() throws Exception {
-      try {
-         super.tearDown();
-      } finally {
-         if (mockServer != null) {
-            mockServer.close();
-         }
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
 
-         CountDownLatch closeLatch = new CountDownLatch(1);
-         vertx.close(x -> closeLatch.countDown());
-         assertTrue("Vert.x instant not closed in alotted time", closeLatch.await(5, TimeUnit.SECONDS));
+         // No user or pass given, it will have to select ANONYMOUS even though PLAIN also offered
+         AMQPBrokerConnectConfiguration amqpConnection =
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
       }
    }
 
-   @Test(timeout = 20000)
-   public void testConnectsWithAnonymous() throws Exception {
-      CountDownLatch serverConnectionOpen = new CountDownLatch(1);
-      TestAuthenticator authenticator = new TestAuthenticator(true, PLAIN, ANONYMOUS);
-
-      mockServer = new MockServer(vertx, () -> authenticator, serverConnection -> {
-         serverConnection.openHandler(serverSender -> {
-            serverConnectionOpen.countDown();
-            serverConnection.closeHandler(x -> serverConnection.close());
-            serverConnection.open();
-         });
-      });
-
-      // No user or pass given, it will have to select ANONYMOUS even though PLAIN also offered
-      AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://localhost:" + mockServer.actualPort());
-      amqpConnection.setReconnectAttempts(0);// No reconnects
-
-      server.getConfiguration().addAMQPConnection(amqpConnection);
-
-      server.start();
-
-      boolean awaitConnectionOpen = serverConnectionOpen.await(10, TimeUnit.SECONDS);
-      assertTrue("Broker did not open connection in alotted time", awaitConnectionOpen);
-
-      assertEquals(ANONYMOUS, authenticator.getChosenMech());
-      assertArrayEquals(new byte[0], authenticator.getInitialResponse());
-   }
-
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(20)
    public void testConnectsWithPlain() throws Exception {
-      CountDownLatch serverConnectionOpen = new CountDownLatch(1);
-      TestAuthenticator authenticator = new TestAuthenticator(true, PLAIN, ANONYMOUS);
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLPlainConnect(USER, PASSWD, PLAIN, ANONYMOUS);
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
 
-      mockServer = new MockServer(vertx, () -> authenticator, serverConnection -> {
-         serverConnection.openHandler(serverSender -> {
-            serverConnectionOpen.countDown();
-            serverConnection.closeHandler(x -> serverConnection.close());
-            serverConnection.open();
-         });
-      });
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
 
-      // User and pass are given, it will select PLAIN
-      AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", "tcp://localhost:" + mockServer.actualPort());
-      amqpConnection.setReconnectAttempts(0);// No reconnects
-      amqpConnection.setUser(USER);
-      amqpConnection.setPassword(PASSWD);
+         // User and pass are given, it will select PLAIN
+         AMQPBrokerConnectConfiguration amqpConnection =
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
 
-      server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
 
-      server.start();
-
-      boolean awaitConnectionOpen = serverConnectionOpen.await(10, TimeUnit.SECONDS);
-      assertTrue("Broker did not open connection in alotted time", awaitConnectionOpen);
-
-      assertEquals(PLAIN, authenticator.getChosenMech());
-      assertArrayEquals(expectedPlainInitialResponse(USER, PASSWD), authenticator.getInitialResponse());
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
    }
 
-   @Test(timeout = 200000)
-   public void testConnectsWithSCRAM() throws Exception {
-      CountDownLatch serverConnectionOpen = new CountDownLatch(1);
-      SCRAMTestAuthenticator authenticator = new SCRAMTestAuthenticator(SCRAM.SHA512);
+   @Test
+   @Timeout(20)
+   public void testReconnectAfterSaslFailure() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         // First attempt, refuse
+         peer.expectFailingSASLPlainConnect(SaslCode.SYS_TEMP.getValue().byteValue(), PLAIN, ANONYMOUS);
+         peer.expectConnectionToDrop();
 
-      mockServer = new MockServer(vertx, () -> authenticator, serverConnection -> {
-         serverConnection.openHandler(serverSender -> {
-            serverConnectionOpen.countDown();
-            serverConnection.closeHandler(x -> serverConnection.close());
-            serverConnection.open();
-         });
-      });
+         // Second attempt, succeeds
+         peer.expectSASLPlainConnect(USER, PASSWD, PLAIN, ANONYMOUS);
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
 
-      AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSScramConnect", "tcp://localhost:" + mockServer.actualPort());
-      amqpConnection.setReconnectAttempts(0);// No reconnects
-      amqpConnection.setUser(USER);
-      amqpConnection.setPassword(PASSWD);
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
 
-      server.getConfiguration().addAMQPConnection(amqpConnection);
+         AMQPBrokerConnectConfiguration amqpConnection =
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(1); // Allow 1 reconnect
+         amqpConnection.setRetryInterval(200);
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
 
-      server.start();
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
 
-      boolean awaitConnectionOpen = serverConnectionOpen.await(10, TimeUnit.SECONDS);
-      assertTrue("Broker did not open connection in alotted time", awaitConnectionOpen);
-      assertEquals(SCRAM.SHA512.getName(), authenticator.chosenMech);
-      assertTrue(authenticator.succeeded());
-
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(20)
+   public void testConnectsWithXOauth2() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLHeader().respondWithSASLHeader();
+         peer.remoteSaslMechanisms().withMechanisms(PLAIN, XOAUTH2, ANONYMOUS).queue();
+         peer.expectSaslInit().withMechanism(XOAUTH2).withInitialResponse(peer.saslXOauth2InitialResponse(USER, PASSWD));
+         peer.remoteSaslOutcome().withCode(SaslCode.OK).queue();
+         peer.expectAMQPHeader().respondWithAMQPHeader();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + remoteURI.getPort() + "?saslMechanisms=" + XOAUTH2);
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testXOAuth2NotSelectedWhenUserAndPasswordNotProvided() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect(XOAUTH2, ANONYMOUS);
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+             new AMQPBrokerConnectConfiguration(getTestName(),
+                 "tcp://localhost:" + remoteURI.getPort() + "?saslMechanisms=" + XOAUTH2 + "," + ANONYMOUS);
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testConnectsWithPlainWhenPlainAndXOauth2IsValid() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLPlainConnect(USER, PASSWD, PLAIN, XOAUTH2, ANONYMOUS);
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+             new AMQPBrokerConnectConfiguration(getTestName(),
+                 "tcp://localhost:" + remoteURI.getPort() + "?saslMechanisms=" + XOAUTH2 + "," + PLAIN);
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testConnectionFailsIfFilterExcudesAnyOfferedMechanism() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLHeader().respondWithSASLHeader();
+         peer.remoteSaslMechanisms().withMechanisms(PLAIN, ANONYMOUS).queue();
+         peer.expectConnectionToDrop();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+             new AMQPBrokerConnectConfiguration(getTestName(),
+                 "tcp://localhost:" + remoteURI.getPort() + "?saslMechanisms=" + XOAUTH2);
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testAnonymousSelectedWhenNoCredentialsSupplied() throws Exception {
+      doMechanismSelectedTestImpl(null, null, ANONYMOUS, new String[]{SCRAM_SHA_512, PLAIN, ANONYMOUS});
+   }
+
+   @Test
+   @Timeout(20)
+   public void testSelectsSCRAMWhenCredentialsPresent() throws Exception {
+      doMechanismSelectedTestImpl(USER, PASSWD, SCRAM_SHA_512, new String[]{SCRAM_SHA_512, PLAIN, ANONYMOUS});
+   }
+
+   private void doMechanismSelectedTestImpl(String user, String passwd, String selectedMechanism, String[] offeredMechanisms) throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSaslConnectThatAlwaysFailsAuthentication(offeredMechanisms, selectedMechanism);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(getTestName(),
+               "tcp://localhost:" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         if (user != null) {
+            amqpConnection.setUser(user);
+         }
+         if (passwd != null) {
+            amqpConnection.setPassword(passwd);
+         }
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
    public void testConnectsWithExternal() throws Exception {
       doConnectWithExternalTestImpl(true);
    }
 
-   @Test(timeout = 20000)
+   @Test
+   @Timeout(20)
    public void testExternalIgnoredWhenNoClientCertSupplied() throws Exception {
       doConnectWithExternalTestImpl(false);
    }
 
-   private void doConnectWithExternalTestImpl(boolean requireClientCert) throws ExecutionException,
-                                                                         InterruptedException, Exception {
-      CountDownLatch serverConnectionOpen = new CountDownLatch(1);
-      // The test server always offers EXTERNAL, i.e sometimes mistakenly, to verify that the broker
-      // only selects it when it actually
-      // has a client-cert. Real servers shouldnt actually offer the mechanism to a client that
-      // didnt have to provide a cert.
-      TestAuthenticator authenticator = new TestAuthenticator(true, EXTERNAL, PLAIN);
-
+   private void doConnectWithExternalTestImpl(boolean requireClientCert) throws Exception {
       final String keyStorePath = this.getClass().getClassLoader().getResource(SERVER_KEYSTORE_NAME).getFile();
-      JksOptions jksKeyStoreOptions = new JksOptions().setPath(keyStorePath).setPassword(SERVER_KEYSTORE_PASSWORD);
+      final String trustStorePath = this.getClass().getClassLoader().getResource(CLIENT_TRUSTSTORE_NAME).getFile();
 
-      ProtonServerOptions serverOptions = new ProtonServerOptions();
-      serverOptions.setSsl(true);
-      serverOptions.setKeyStoreOptions(jksKeyStoreOptions);
-
-      if (requireClientCert) {
-         final String trustStorePath = this.getClass().getClassLoader().getResource(CLIENT_TRUSTSTORE_NAME).getFile();
-         JksOptions jksTrustStoreOptions = new JksOptions().setPath(trustStorePath).setPassword(CLIENT_TRUSTSTORE_PASSWORD);
-
-         serverOptions.setTrustStoreOptions(jksTrustStoreOptions);
-         serverOptions.setClientAuth(ClientAuth.REQUIRED);
-      }
-
-      mockServer = new MockServer(vertx, serverOptions, () -> authenticator, serverConnection -> {
-         serverConnection.openHandler(serverSender -> {
-            serverConnectionOpen.countDown();
-            serverConnection.closeHandler(x -> serverConnection.close());
-            serverConnection.open();
-         });
-      });
-
-      String amqpServerConnectionURI = "tcp://localhost:" + mockServer.actualPort() +
-               "?sslEnabled=true;trustStorePath=" + SERVER_TRUSTSTORE_NAME + ";trustStorePassword=" + SERVER_TRUSTSTORE_PASSWORD;
-      if (requireClientCert) {
-         amqpServerConnectionURI +=
-                  ";keyStorePath=" + CLIENT_KEYSTORE_NAME + ";keyStorePassword=" + CLIENT_KEYSTORE_PASSWORD;
-      }
-
-      AMQPBrokerConnectConfiguration amqpConnection =
-               new AMQPBrokerConnectConfiguration("testSimpleConnect", amqpServerConnectionURI);
-      amqpConnection.setReconnectAttempts(0);// No reconnects
-      amqpConnection.setUser(USER); // Wont matter if EXTERNAL is offered and a client-certificate
-                                    // is provided, but will otherwise.
-      amqpConnection.setPassword(PASSWD);
-
-      server.getConfiguration().addAMQPConnection(amqpConnection);
-
-      server.start();
-
-      boolean awaitConnectionOpen = serverConnectionOpen.await(10, TimeUnit.SECONDS);
-      assertTrue("Broker did not open connection in alotted time", awaitConnectionOpen);
+      ProtonTestServerOptions serverOptions = new ProtonTestServerOptions();
+      serverOptions.setSecure(true);
+      serverOptions.setKeyStoreLocation(keyStorePath);
+      serverOptions.setKeyStorePassword(SERVER_KEYSTORE_PASSWORD);
+      serverOptions.setVerifyHost(false);
 
       if (requireClientCert) {
-         assertEquals(EXTERNAL, authenticator.getChosenMech());
-         assertArrayEquals(new byte[0], authenticator.getInitialResponse());
-      } else {
-         assertEquals(PLAIN, authenticator.getChosenMech());
-         assertArrayEquals(expectedPlainInitialResponse(USER, PASSWD), authenticator.getInitialResponse());
-      }
-   }
-
-   private static byte[] expectedPlainInitialResponse(String username, String password) {
-      Objects.requireNonNull(username);
-      Objects.requireNonNull(password);
-      if (username.isEmpty() || password.isEmpty()) {
-         throw new IllegalArgumentException("Must provide at least 1 character in user and pass");
+         serverOptions.setNeedClientAuth(true);
+         serverOptions.setTrustStoreLocation(trustStorePath);
+         serverOptions.setTrustStorePassword(CLIENT_TRUSTSTORE_PASSWORD);
       }
 
-      byte[] usernameBytes = username.getBytes(StandardCharsets.UTF_8);
-      byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
-
-      byte[] data = new byte[usernameBytes.length + passwordBytes.length + 2];
-      System.arraycopy(usernameBytes, 0, data, 1, usernameBytes.length);
-      System.arraycopy(passwordBytes, 0, data, 2 + usernameBytes.length, passwordBytes.length);
-
-      return data;
-   }
-
-   private static final class TestAuthenticator implements ProtonSaslAuthenticator {
-      private Sasl sasl;
-      private final boolean succeed;
-      private final String[] offeredMechs;
-      String chosenMech = null;
-      byte[] initialResponse = null;
-      boolean done = false;
-
-      TestAuthenticator(boolean succeed, String... offeredMechs) {
-         if (offeredMechs.length == 0) {
-            throw new IllegalArgumentException("Must provide at least 1 mechanism to offer");
-         }
-
-         this.offeredMechs = offeredMechs;
-         this.succeed = succeed;
-      }
-
-      @Override
-      public void init(NetSocket socket, ProtonConnection protonConnection, Transport transport) {
-         this.sasl = transport.sasl();
-         sasl.server();
-         sasl.allowSkip(false);
-         sasl.setMechanisms(offeredMechs);
-      }
-
-      @Override
-      public void process(Handler<Boolean> processComplete) {
-         if (!done) {
-            String[] remoteMechanisms = sasl.getRemoteMechanisms();
-            if (remoteMechanisms.length > 0) {
-               chosenMech = remoteMechanisms[0];
-
-               initialResponse = new byte[sasl.pending()];
-               sasl.recv(initialResponse, 0, initialResponse.length);
-               if (succeed) {
-                  sasl.done(SaslOutcome.PN_SASL_OK);
-               } else {
-                  sasl.done(SaslOutcome.PN_SASL_AUTH);
-               }
-
-               done = true;
-            }
-         }
-
-         processComplete.handle(done);
-      }
-
-      @Override
-      public boolean succeeded() {
-         return succeed;
-      }
-
-      public String getChosenMech() {
-         return chosenMech;
-      }
-
-      public byte[] getInitialResponse() {
-         return initialResponse;
-      }
-   }
-
-   private static final class SCRAMTestAuthenticator implements ProtonSaslAuthenticator {
-
-      private final SCRAM mech;
-      private Sasl sasl;
-      private TestSCRAMServerSASL serverSASL;
-      private String chosenMech;
-
-      SCRAMTestAuthenticator(SCRAM mech) {
-         this.mech = mech;
-      }
-
-      @Override
-      public void init(NetSocket socket, ProtonConnection protonConnection, Transport transport) {
-         this.sasl = transport.sasl();
-         sasl.server();
-         sasl.allowSkip(false);
-         sasl.setMechanisms(mech.getName(), PLAIN, ANONYMOUS);
-         try {
-            serverSASL = new TestSCRAMServerSASL(mech);
-         } catch (NoSuchAlgorithmException e) {
-            throw new AssertionError(e);
-         }
-
-      }
-
-      @Override
-      public void process(Handler<Boolean> completionHandler) {
-         String[] remoteMechanisms = sasl.getRemoteMechanisms();
-         int pending = sasl.pending();
-         if (remoteMechanisms.length == 0 || pending == 0) {
-            completionHandler.handle(false);
-            return;
-         }
-         chosenMech = remoteMechanisms[0];
-         byte[] msg = new byte[pending];
-         sasl.recv(msg, 0, msg.length);
-         byte[] result = serverSASL.processSASL(msg);
-         if (result != null) {
-            sasl.send(result, 0, result.length);
-         }
-         boolean ended = serverSASL.isEnded();
-         if (ended) {
-            if (succeeded()) {
-               sasl.done(SaslOutcome.PN_SASL_OK);
-            } else {
-               sasl.done(SaslOutcome.PN_SASL_AUTH);
-            }
-            completionHandler.handle(true);
+      try (ProtonTestServer peer = new ProtonTestServer(serverOptions)) {
+         // The test server always offers EXTERNAL, i.e sometimes mistakenly, to verify that the broker
+         // only selects it when it actually has a client-cert. Real servers shouldn't actually offer
+         // the mechanism to a client that didn't have to provide a cert.
+         peer.expectSASLHeader().respondWithSASLHeader();
+         peer.remoteSaslMechanisms().withMechanisms(EXTERNAL, PLAIN).queue();
+         if (requireClientCert) {
+            peer.expectSaslInit().withMechanism(EXTERNAL).withInitialResponse(new byte[0]);
          } else {
-            completionHandler.handle(false);
+            peer.expectSaslInit().withMechanism(PLAIN).withInitialResponse(peer.saslPlainInitialResponse(USER, PASSWD));
          }
-      }
+         peer.remoteSaslOutcome().withCode(SaslCode.OK).queue();
+         peer.expectAMQPHeader().respondWithAMQPHeader();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
 
-      @Override
-      public boolean succeeded() {
-         SASLResult result = serverSASL.result();
-         return result != null && result.isSuccess() && serverSASL.e == null;
-      }
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
 
+         String amqpServerConnectionURI = "tcp://localhost:" + remoteURI.getPort() +
+                  "?sslEnabled=true;trustStorePath=" + SERVER_TRUSTSTORE_NAME +
+                  ";trustStorePassword=" + SERVER_TRUSTSTORE_PASSWORD;
+         if (requireClientCert) {
+            amqpServerConnectionURI +=
+                     ";keyStorePath=" + CLIENT_KEYSTORE_NAME + ";keyStorePassword=" + CLIENT_KEYSTORE_PASSWORD;
+         }
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+                  new AMQPBrokerConnectConfiguration(getTestName(), amqpServerConnectionURI);
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setUser(USER); // Wont matter if EXTERNAL is offered and a client-certificate
+                                       // is provided, but will otherwise.
+         amqpConnection.setPassword(PASSWD);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
    }
 
-   private static final class TestSCRAMServerSASL extends SCRAMServerSASL {
+   @Test
+   @Timeout(20)
+   public void testReconnectConnectsWithVerifyHostOffOnSecondURI() throws Exception {
+      final String keyStorePath = this.getClass().getClassLoader().getResource(UNKNOWN_SERVER_KEYSTORE_NAME).getFile();
 
-      private Exception e;
+      ProtonTestServerOptions server1Options = new ProtonTestServerOptions();
+      server1Options.setSecure(true);
+      server1Options.setKeyStoreLocation(keyStorePath);
+      server1Options.setKeyStorePassword(SERVER_KEYSTORE_PASSWORD);
+      server1Options.setVerifyHost(false);
 
-      TestSCRAMServerSASL(SCRAM mechanism) throws NoSuchAlgorithmException {
-         super(mechanism);
+      ProtonTestServerOptions server2Options = new ProtonTestServerOptions();
+      server2Options.setSecure(true);
+      server2Options.setKeyStoreLocation(keyStorePath);
+      server2Options.setKeyStorePassword(SERVER_KEYSTORE_PASSWORD);
+      server2Options.setVerifyHost(false);
+
+      try (ProtonTestServer firstPeer = new ProtonTestServer(server1Options);
+           ProtonTestServer secondPeer = new ProtonTestServer(server2Options)) {
+
+         firstPeer.expectConnectionToDrop();
+         firstPeer.start();
+
+         secondPeer.expectSASLHeader().respondWithSASLHeader();
+         secondPeer.remoteSaslMechanisms().withMechanisms(EXTERNAL, PLAIN).queue();
+         secondPeer.expectSaslInit().withMechanism(PLAIN).withInitialResponse(secondPeer.saslPlainInitialResponse(USER, PASSWD));
+         secondPeer.remoteSaslOutcome().withCode(SaslCode.OK).queue();
+         secondPeer.expectAMQPHeader().respondWithAMQPHeader();
+         secondPeer.expectOpen().respond();
+         secondPeer.expectBegin().respond();
+         secondPeer.start();
+
+         final URI firstPeerURI = firstPeer.getServerURI();
+         logger.debug("Connect test started, first peer listening on: {}", firstPeerURI);
+
+         final URI secondPeerURI = secondPeer.getServerURI();
+         logger.debug("Connect test started, second peer listening on: {}", secondPeerURI);
+
+         // First connection fails because we use a server certificate with whose common name
+         // doesn't match the host, second connection should work as we disable host verification
+         String amqpServerConnectionURI =
+            "tcp://localhost:" + firstPeerURI.getPort() + "?verifyHost=true" +
+               ";sslEnabled=true;trustStorePath=" + SERVER_TRUSTSTORE_NAME +
+               ";trustStorePassword=" + SERVER_TRUSTSTORE_PASSWORD +
+            "#tcp://localhost:" + secondPeerURI.getPort() + "?verifyHost=false";
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), amqpServerConnectionURI);
+         amqpConnection.setReconnectAttempts(20); // Allow reconnects
+         amqpConnection.setRetryInterval(100); // Allow reconnects
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+
+         server.start();
+
+         firstPeer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         secondPeer.waitForScriptToComplete(5, TimeUnit.SECONDS);
       }
-
-      @Override
-      public void done() {
-         // nothing to do
-      }
-
-      @Override
-      protected UserData aquireUserData(String userName) throws LoginException {
-         if (!USER.equals(userName)) {
-            throw new LoginException("invalid username");
-         }
-         byte[] salt = new byte[32];
-         new SecureRandom().nextBytes(salt);
-         try {
-            MessageDigest digest = MessageDigest.getInstance(mechanism.getDigest());
-            Mac hmac = Mac.getInstance(mechanism.getHmac());
-            ScramUtils.NewPasswordStringData data =
-                     ScramUtils.byteArrayToStringData(ScramUtils.newPassword(PASSWD, salt, 4096, digest, hmac));
-            return new UserData(data.salt, data.iterations, data.serverKey, data.storedKey);
-         } catch (Exception e) {
-            throw new LoginException(e.getMessage());
-         }
-      }
-
-      @Override
-      protected void failed(Exception e) {
-         this.e = e;
-      }
-
    }
 
+   @Test
+   @Timeout(20)
+   public void testReconnectionUsesConfigurationToReconnectToSecondHostAfterFirstFails() throws Exception {
+      final String keyStore1Path = this.getClass().getClassLoader().getResource(UNKNOWN_SERVER_KEYSTORE_NAME).getFile();
+      final String keyStore2Path = this.getClass().getClassLoader().getResource(SERVER_KEYSTORE_NAME).getFile();
+
+      ProtonTestServerOptions server1Options = new ProtonTestServerOptions();
+      server1Options.setSecure(true);
+      server1Options.setKeyStoreLocation(keyStore1Path);
+      server1Options.setKeyStorePassword(SERVER_KEYSTORE_PASSWORD);
+      server1Options.setVerifyHost(false);
+
+      ProtonTestServerOptions server2Options = new ProtonTestServerOptions();
+      server2Options.setSecure(true);
+      server2Options.setKeyStoreLocation(keyStore2Path);
+      server2Options.setKeyStorePassword(SERVER_KEYSTORE_PASSWORD);
+      server2Options.setVerifyHost(false);
+
+      try (ProtonTestServer firstPeer = new ProtonTestServer(server1Options);
+           ProtonTestServer secondPeer = new ProtonTestServer(server2Options)) {
+
+         firstPeer.expectConnectionToDrop();
+         firstPeer.start();
+
+         secondPeer.expectSASLHeader().respondWithSASLHeader();
+         secondPeer.remoteSaslMechanisms().withMechanisms(EXTERNAL, PLAIN).queue();
+         secondPeer.expectSaslInit().withMechanism(PLAIN)
+                                    .withInitialResponse(secondPeer.saslPlainInitialResponse(USER, PASSWD));
+         secondPeer.remoteSaslOutcome().withCode(SaslCode.OK).queue();
+         secondPeer.expectAMQPHeader().respondWithAMQPHeader();
+         secondPeer.expectOpen().respond();
+         secondPeer.expectBegin().respond();
+         secondPeer.start();
+
+         final URI firstPeerURI = firstPeer.getServerURI();
+         logger.debug("Connect test started, first peer listening on: {}", firstPeerURI);
+
+         final URI secondPeerURI = secondPeer.getServerURI();
+         logger.debug("Connect test started, second peer listening on: {}", secondPeerURI);
+
+         String amqpServerConnectionURI =
+            "tcp://127.0.0.1:" + firstPeerURI.getPort() + "?sslEnabled=true;trustStorePath=" + SERVER_TRUSTSTORE_NAME +
+                                                          ";trustStorePassword=" + SERVER_TRUSTSTORE_PASSWORD +
+            "#tcp://localhost:" + secondPeerURI.getPort();
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), amqpServerConnectionURI);
+         amqpConnection.setReconnectAttempts(20); // Allow reconnects
+         amqpConnection.setRetryInterval(100); // Allow reconnects
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+
+         server.start();
+
+         firstPeer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         secondPeer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testReconnectionUsesHostSpecificConfigurationToReconnectToSecondHostAfterFirstFails() throws Exception {
+      final String keyStore1Path = this.getClass().getClassLoader().getResource(UNKNOWN_SERVER_KEYSTORE_NAME).getFile();
+      final String keyStore2Path = this.getClass().getClassLoader().getResource(SERVER_KEYSTORE_NAME).getFile();
+
+      ProtonTestServerOptions server1Options = new ProtonTestServerOptions();
+      server1Options.setSecure(true);
+      server1Options.setKeyStoreLocation(keyStore1Path);
+      server1Options.setKeyStorePassword(SERVER_KEYSTORE_PASSWORD);
+      server1Options.setVerifyHost(false);
+
+      ProtonTestServerOptions server2Options = new ProtonTestServerOptions();
+      server2Options.setSecure(true);
+      server2Options.setKeyStoreLocation(keyStore2Path);
+      server2Options.setKeyStorePassword(SERVER_KEYSTORE_PASSWORD);
+      server2Options.setVerifyHost(false);
+
+      try (ProtonTestServer firstPeer = new ProtonTestServer(server1Options);
+           ProtonTestServer secondPeer = new ProtonTestServer(server2Options)) {
+
+         firstPeer.expectConnectionToDrop();
+         firstPeer.start();
+
+         secondPeer.expectSASLHeader().respondWithSASLHeader();
+         secondPeer.remoteSaslMechanisms().withMechanisms(EXTERNAL, PLAIN).queue();
+         secondPeer.expectSaslInit().withMechanism(PLAIN)
+                                    .withInitialResponse(secondPeer.saslPlainInitialResponse(USER, PASSWD));
+         secondPeer.remoteSaslOutcome().withCode(SaslCode.OK).queue();
+         secondPeer.expectAMQPHeader().respondWithAMQPHeader();
+         secondPeer.expectOpen().respond();
+         secondPeer.expectBegin().respond();
+         secondPeer.start();
+
+         final URI firstPeerURI = firstPeer.getServerURI();
+         logger.debug("Connect test started, first peer listening on: {}", firstPeerURI);
+
+         final URI secondPeerURI = secondPeer.getServerURI();
+         logger.debug("Connect test started, second peer listening on: {}", secondPeerURI);
+
+         // First connection fails because we use the wrong trust store for the TLS handshake
+         String amqpServerConnectionURI =
+            "tcp://localhost:" + firstPeerURI.getPort() +
+               "?sslEnabled=true;trustStorePath=" + CLIENT_TRUSTSTORE_NAME +
+               ";trustStorePassword=" + CLIENT_TRUSTSTORE_PASSWORD +
+            "#tcp://localhost:" + secondPeerURI.getPort() +
+               "?sslEnabled=true;trustStorePath=" + SERVER_TRUSTSTORE_NAME +
+               ";trustStorePassword=" + SERVER_TRUSTSTORE_PASSWORD;
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), amqpServerConnectionURI);
+         amqpConnection.setReconnectAttempts(20); // Allow reconnects
+         amqpConnection.setRetryInterval(100); // Allow reconnects
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+
+         server.start();
+
+         firstPeer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         secondPeer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
 }

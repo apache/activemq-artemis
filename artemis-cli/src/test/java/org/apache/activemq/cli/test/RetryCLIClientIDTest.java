@@ -17,6 +17,8 @@
 
 package org.apache.activemq.cli.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 
 import org.apache.activemq.artemis.api.core.Pair;
@@ -27,8 +29,7 @@ import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RetryCLIClientIDTest extends CliTestBase {
 
@@ -36,7 +37,7 @@ public class RetryCLIClientIDTest extends CliTestBase {
    public void testWrongUserAndPass() throws Exception {
       try {
          Run.setEmbedded(true);
-         File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
+         File instance1 = new File(temporaryFolder, "instance_user");
          System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
          Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-web", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-stomp-acceptor", "--no-hornetq-acceptor", "--user", "dumb", "--password", "dumber", "--require-login");
          System.setProperty("artemis.instance", instance1.getAbsolutePath());
@@ -48,7 +49,7 @@ public class RetryCLIClientIDTest extends CliTestBase {
          test.setSilentInput(true);
          test.setClientID("someClientID");
          ActiveMQConnectionFactory cf = test.newCF();
-         Assert.assertEquals("someClientID", cf.getClientID());
+         assertEquals("someClientID", cf.getClientID());
 
       } finally {
          stopServer();

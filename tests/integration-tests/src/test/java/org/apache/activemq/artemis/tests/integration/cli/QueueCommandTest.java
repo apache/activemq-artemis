@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cli;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.invoke.MethodHandles;
@@ -38,8 +43,8 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +62,7 @@ public class QueueCommandTest extends JMSTestBase {
       server.getConfiguration().setAddressQueueScanPeriod(100);
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -74,7 +79,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setAnycast(false);
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionFailure(command, "AMQ229203");
-      assertFalse(server.queueQuery(new SimpleString(queueName)).isExists());
+      assertFalse(server.queueQuery(SimpleString.of(queueName)).isExists());
    }
 
    @Test
@@ -87,12 +92,12 @@ public class QueueCommandTest extends JMSTestBase {
       command.setAnycast(false);
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(command);
-      assertNotNull(server.getAddressInfo(new SimpleString(queueName)));
+      assertNotNull(server.getAddressInfo(SimpleString.of(queueName)));
 
-      Queue queue = server.locateQueue(new SimpleString(queueName));
+      Queue queue = server.locateQueue(SimpleString.of(queueName));
       assertEquals(-1, queue.getMaxConsumers());
-      assertEquals(false, queue.isPurgeOnNoConsumers());
-      assertTrue(server.queueQuery(new SimpleString(queueName)).isExists());
+      assertFalse(queue.isPurgeOnNoConsumers());
+      assertTrue(server.queueQuery(SimpleString.of(queueName)).isExists());
    }
 
    @Test
@@ -107,16 +112,16 @@ public class QueueCommandTest extends JMSTestBase {
       command.setAnycast(false);
       command.setAddress(address);
 
-      server.addOrUpdateAddressInfo(new AddressInfo(new SimpleString(address), RoutingType.MULTICAST));
+      server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.of(address), RoutingType.MULTICAST));
 
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(command);
-      assertNotNull(server.getAddressInfo(new SimpleString(address)));
+      assertNotNull(server.getAddressInfo(SimpleString.of(address)));
 
-      Queue queue = server.locateQueue(new SimpleString(queueName));
+      Queue queue = server.locateQueue(SimpleString.of(queueName));
       assertEquals(-1, queue.getMaxConsumers());
-      assertEquals(false, queue.isPurgeOnNoConsumers());
-      assertTrue(server.queueQuery(new SimpleString(queueName)).isExists());
+      assertFalse(queue.isPurgeOnNoConsumers());
+      assertTrue(server.queueQuery(SimpleString.of(queueName)).isExists());
    }
 
    @Test
@@ -133,15 +138,14 @@ public class QueueCommandTest extends JMSTestBase {
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
 
       checkExecutionPassed(command);
-      Queue queue = server.locateQueue(new SimpleString(queueName));
+      Queue queue = server.locateQueue(SimpleString.of(queueName));
       assertNotNull(queue);
-      assertEquals(new SimpleString(filerString), queue.getFilter().getFilterString());
+      assertEquals(SimpleString.of(filerString), queue.getFilter().getFilterString());
    }
 
    @Test
    public void testCreateQueueAlreadyExists() throws Exception {
       String queueName = "queue2";
-      String filerString = "color='green'";
 
       CreateQueue command = new CreateQueue();
       command.setName(queueName);
@@ -156,7 +160,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testDeleteCoreQueue() throws Exception {
-      SimpleString queueName = new SimpleString("deleteQueue");
+      SimpleString queueName = SimpleString.of("deleteQueue");
 
       CreateQueue command = new CreateQueue();
       command.setName(queueName.toString());
@@ -176,7 +180,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testDeleteQueueDoesNotExist() throws Exception {
-      SimpleString queueName = new SimpleString("deleteQueue");
+      SimpleString queueName = SimpleString.of("deleteQueue");
 
       DeleteQueue delete = new DeleteQueue();
       delete.setName(queueName.toString());
@@ -188,7 +192,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testDeleteQueueWithConsumersFails() throws Exception {
-      SimpleString queueName = new SimpleString("deleteQueue");
+      SimpleString queueName = SimpleString.of("deleteQueue");
 
       CreateQueue command = new CreateQueue();
       command.setName(queueName.toString());
@@ -208,7 +212,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testDeleteQueueWithConsumersFailsAndRemoveConsumersTrue() throws Exception {
-      SimpleString queueName = new SimpleString("deleteQueue");
+      SimpleString queueName = SimpleString.of("deleteQueue");
 
       CreateQueue command = new CreateQueue();
       command.setName(queueName.toString());
@@ -229,7 +233,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testAutoDeleteAddress() throws Exception {
-      SimpleString queueName = new SimpleString("deleteQueue");
+      SimpleString queueName = SimpleString.of("deleteQueue");
 
       CreateQueue command = new CreateQueue();
       command.setName(queueName.toString());
@@ -255,15 +259,15 @@ public class QueueCommandTest extends JMSTestBase {
    @Test
    public void testUpdateCoreQueue() throws Exception {
       final String queueName = "updateQueue";
-      final SimpleString queueNameString = new SimpleString(queueName);
+      final SimpleString queueNameString = SimpleString.of(queueName);
       final String addressName = "address";
-      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final SimpleString addressSimpleString = SimpleString.of(addressName);
       final int oldMaxConsumers = -1;
       final RoutingType oldRoutingType = RoutingType.MULTICAST;
       final boolean oldPurgeOnNoConsumers = false;
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
       server.addAddressInfo(addressInfo);
-      server.createQueue(new QueueConfiguration(queueNameString).setAddress(addressSimpleString).setRoutingType(oldRoutingType).setMaxConsumers(oldMaxConsumers).setPurgeOnNoConsumers(oldPurgeOnNoConsumers).setAutoCreateAddress(false));
+      server.createQueue(QueueConfiguration.of(queueNameString).setAddress(addressSimpleString).setRoutingType(oldRoutingType).setMaxConsumers(oldMaxConsumers).setPurgeOnNoConsumers(oldPurgeOnNoConsumers).setAutoCreateAddress(false));
 
       final int newMaxConsumers = 1;
       final RoutingType newRoutingType = RoutingType.ANYCAST;
@@ -279,26 +283,24 @@ public class QueueCommandTest extends JMSTestBase {
       checkExecutionPassed(updateQueue);
 
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
-      assertEquals("maxConsumers", newMaxConsumers, queueQueryResult.getMaxConsumers());
-      assertEquals("routingType", newRoutingType, queueQueryResult.getRoutingType());
-      assertTrue("purgeOnNoConsumers", newPurgeOnNoConsumers == queueQueryResult.isPurgeOnNoConsumers());
+      assertEquals(newMaxConsumers, queueQueryResult.getMaxConsumers(), "maxConsumers");
+      assertEquals(newRoutingType, queueQueryResult.getRoutingType(), "routingType");
+      assertEquals(newPurgeOnNoConsumers, queueQueryResult.isPurgeOnNoConsumers(), "purgeOnNoConsumers");
    }
 
    @Test
    public void testUpdateCoreQueueCannotChangeRoutingType() throws Exception {
       final String queueName = "updateQueue";
-      final SimpleString queueNameString = new SimpleString(queueName);
+      final SimpleString queueNameString = SimpleString.of(queueName);
       final String addressName = "address";
-      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final SimpleString addressSimpleString = SimpleString.of(addressName);
       final int oldMaxConsumers = 10;
       final RoutingType oldRoutingType = RoutingType.MULTICAST;
       final boolean oldPurgeOnNoConsumers = false;
       final Set<RoutingType> supportedRoutingTypes = EnumSet.of(oldRoutingType);
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.copyOf(supportedRoutingTypes));
       server.addAddressInfo(addressInfo);
-      server.createQueue(new QueueConfiguration(queueNameString).setAddress(addressSimpleString).setRoutingType(oldRoutingType).setMaxConsumers(oldMaxConsumers).setPurgeOnNoConsumers(oldPurgeOnNoConsumers).setAutoCreateAddress(false));
-
-      final RoutingType newRoutingType = RoutingType.ANYCAST;
+      server.createQueue(QueueConfiguration.of(queueNameString).setAddress(addressSimpleString).setRoutingType(oldRoutingType).setMaxConsumers(oldMaxConsumers).setPurgeOnNoConsumers(oldPurgeOnNoConsumers).setAutoCreateAddress(false));
       final UpdateQueue updateQueue = new UpdateQueue();
       updateQueue.setName(queueName);
       updateQueue.setAnycast(true);
@@ -309,23 +311,23 @@ public class QueueCommandTest extends JMSTestBase {
       checkExecutionFailure(updateQueue, "AMQ229211");
 
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
-      assertEquals("maxConsumers", oldMaxConsumers, queueQueryResult.getMaxConsumers());
-      assertEquals("routingType", oldRoutingType, queueQueryResult.getRoutingType());
-      assertTrue("purgeOnNoConsumers", oldPurgeOnNoConsumers == queueQueryResult.isPurgeOnNoConsumers());
+      assertEquals(oldMaxConsumers, queueQueryResult.getMaxConsumers(), "maxConsumers");
+      assertEquals(oldRoutingType, queueQueryResult.getRoutingType(), "routingType");
+      assertEquals(oldPurgeOnNoConsumers, queueQueryResult.isPurgeOnNoConsumers(), "purgeOnNoConsumers");
    }
 
    @Test
    public void testUpdateCoreQueueCannotLowerMaxConsumers() throws Exception {
       final String queueName = "updateQueue";
-      final SimpleString queueNameString = new SimpleString(queueName);
+      final SimpleString queueNameString = SimpleString.of(queueName);
       final String addressName = "address";
-      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final SimpleString addressSimpleString = SimpleString.of(addressName);
       final int oldMaxConsumers = 2;
       final RoutingType oldRoutingType = RoutingType.MULTICAST;
       final boolean oldPurgeOnNoConsumers = false;
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, oldRoutingType);
       server.addAddressInfo(addressInfo);
-      server.createQueue(new QueueConfiguration(queueNameString).setAddress(addressSimpleString).setRoutingType(oldRoutingType).setMaxConsumers(oldMaxConsumers).setPurgeOnNoConsumers(oldPurgeOnNoConsumers).setAutoCreateAddress(false));
+      server.createQueue(QueueConfiguration.of(queueNameString).setAddress(addressSimpleString).setRoutingType(oldRoutingType).setMaxConsumers(oldMaxConsumers).setPurgeOnNoConsumers(oldPurgeOnNoConsumers).setAutoCreateAddress(false));
 
       server.locateQueue(queueNameString).addConsumer(new DummyServerConsumer());
       server.locateQueue(queueNameString).addConsumer(new DummyServerConsumer());
@@ -339,12 +341,12 @@ public class QueueCommandTest extends JMSTestBase {
       checkExecutionFailure(updateQueue, "AMQ229210");
 
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
-      assertEquals("maxConsumers", oldMaxConsumers, queueQueryResult.getMaxConsumers());
+      assertEquals(oldMaxConsumers, queueQueryResult.getMaxConsumers(), "maxConsumers");
    }
 
    @Test
    public void testUpdateCoreQueueDoesNotExist() throws Exception {
-      SimpleString queueName = new SimpleString("updateQueue");
+      SimpleString queueName = SimpleString.of("updateQueue");
 
       UpdateQueue updateQueue = new UpdateQueue();
       updateQueue.setName(queueName.toString());
@@ -356,7 +358,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testPurgeQueue() throws Exception {
-      SimpleString queueName = new SimpleString("purgeQueue");
+      SimpleString queueName = SimpleString.of("purgeQueue");
 
       CreateQueue command = new CreateQueue();
       command.setName(queueName.toString());
@@ -372,7 +374,7 @@ public class QueueCommandTest extends JMSTestBase {
 
    @Test
    public void testPurgeQueueDoesNotExist() throws Exception {
-      SimpleString queueName = new SimpleString("purgeQueue");
+      SimpleString queueName = SimpleString.of("purgeQueue");
 
       PurgeQueue purge = new PurgeQueue();
       purge.setName(queueName.toString());
@@ -385,12 +387,12 @@ public class QueueCommandTest extends JMSTestBase {
    private void checkExecutionPassed(ConnectionAbstract command) throws Exception {
       String fullMessage = output.toString();
       logger.debug("output: {}", fullMessage);
-      assertTrue(fullMessage, fullMessage.contains("successfully"));
+      assertTrue(fullMessage.contains("successfully"), fullMessage);
    }
 
    private void checkExecutionFailure(ConnectionAbstract command, String message) throws Exception {
       String fullMessage = error.toString();
       logger.debug("error: {}", fullMessage);
-      assertTrue(fullMessage, fullMessage.contains(message));
+      assertTrue(fullMessage.contains(message), fullMessage);
    }
 }

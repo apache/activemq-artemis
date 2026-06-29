@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -29,16 +32,14 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-/**
- * The test extends the LargeMessageTest and tests
- * the functionality of option avoid-large-messages
- */
-public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
+@ExtendWith(ParameterizedTestExtension.class)
+public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTestBase {
 
    public LargeMessageAvoidLargeMessagesTest(StoreConfiguration.StoreType storeType) {
       super(storeType);
@@ -59,14 +60,8 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
       return super.createFactory(isNetty).setMinLargeMessageSize(10240).setCompressLargeMessage(true);
    }
 
-   @Override
-   @Test
-   public void testDeleteUnreferencedMessage() {
-      // this test makes no sense as it needs to delete a large message and its record
-      Assume.assumeFalse(true);
-   }
 
-   @Test
+   @TestTemplate
    public void testSimpleSendOnAvoid() throws Exception {
       ActiveMQServer server = createServer(true, isNetty());
       server.start();
@@ -75,7 +70,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -96,11 +91,11 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
       ClientConsumer consumer = session.createConsumer(ADDRESS);
 
       ClientMessage msg1 = consumer.receive(1000);
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
 
       for (int i = 0; i < input.getSize(); i++) {
          byte b = msg1.getBodyBuffer().readByte();
-         Assert.assertEquals("incorrect char ", input.getChar(i), b);
+         assertEquals(input.getChar(i), b, "incorrect char ");
       }
       msg1.acknowledge();
       consumer.close();
@@ -109,7 +104,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
    }
 
    //send some messages that can be compressed into regular size.
-   @Test
+   @TestTemplate
    public void testSendRegularAfterCompression() throws Exception {
       ActiveMQServer server = createServer(true, isNetty());
       server.start();
@@ -118,7 +113,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -143,11 +138,11 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
       ClientConsumer consumer = session.createConsumer(ADDRESS);
       for (int j = 0; j < num; j++) {
          ClientMessage msg1 = consumer.receive(1000);
-         Assert.assertNotNull(msg1);
+         assertNotNull(msg1);
 
          for (int i = 0; i < input.getSize(); i++) {
             byte b = msg1.getBodyBuffer().readByte();
-            Assert.assertEquals("incorrect char ", input.getChar(i), b);
+            assertEquals(input.getChar(i), b, "incorrect char ");
          }
          msg1.acknowledge();
       }
@@ -159,7 +154,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
    }
 
    //send some messages that cannot be compressed into regular messages
-   @Test
+   @TestTemplate
    public void testSendLargeAfterUnableToSendRegular() throws Exception {
       ActiveMQServer server = createServer(true, isNetty());
       server.start();
@@ -170,7 +165,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -197,11 +192,11 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
       ClientConsumer consumer = session.createConsumer(ADDRESS);
       for (int j = 0; j < num; j++) {
          ClientMessage msg1 = consumer.receive(1000);
-         Assert.assertNotNull(msg1);
+         assertNotNull(msg1);
 
          for (int i = 0; i < input.getSize(); i++) {
             byte b = msg1.getBodyBuffer().readByte();
-            Assert.assertEquals("incorrect char", input.getChar(i), b);
+            assertEquals(input.getChar(i), b, "incorrect char");
          }
          msg1.acknowledge();
       }
@@ -212,7 +207,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
       session.close();
    }
 
-   @Test
+   @TestTemplate
    public void testMixedCompressionSendReceive() throws Exception {
       ActiveMQServer server = createServer(true, isNetty());
       server.start();
@@ -221,7 +216,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -255,17 +250,17 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
       ClientConsumer consumer = session.createConsumer(ADDRESS);
       for (int j = 0; j < num; j++) {
          ClientMessage msg1 = consumer.receive(1000);
-         Assert.assertNotNull(msg1);
+         assertNotNull(msg1);
 
          if (j % 2 == 0) {
             for (int i = 0; i < regularInput.getSize(); i++) {
                byte b = msg1.getBodyBuffer().readByte();
-               Assert.assertEquals("incorrect char ", regularInput.getChar(i), b);
+               assertEquals(regularInput.getChar(i), b, "incorrect char ");
             }
          } else {
             for (int i = 0; i < largeInput.getSize(); i++) {
                byte b = msg1.getBodyBuffer().readByte();
-               Assert.assertEquals("incorrect char ", largeInput.getChar(i), b);
+               assertEquals(largeInput.getChar(i), b, "incorrect char ");
             }
          }
          msg1.acknowledge();
@@ -279,8 +274,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
    //this test won't leave any large messages in the large-messages dir
    //because after compression, the messages are regulars at server.
-   @Override
-   @Test
+   @TestTemplate
    public void testDLALargeMessage() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
@@ -294,8 +288,8 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
-      session.createQueue(new QueueConfiguration(ADDRESS.concat("-2")).setAddress(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS.concat("-2")).setAddress(ADDRESS));
 
       SimpleString ADDRESS_DLA = ADDRESS.concat("-dla");
 
@@ -303,7 +297,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
 
-      session.createQueue(new QueueConfiguration(ADDRESS_DLA));
+      session.createQueue(QueueConfiguration.of(ADDRESS_DLA));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -319,17 +313,17 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       ClientConsumer consumerRollback = session.createConsumer(ADDRESS);
       ClientMessage msg1 = consumerRollback.receive(1000);
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
       msg1.acknowledge();
       session.rollback();
       consumerRollback.close();
 
       msg1 = consumer.receive(10000);
 
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
 
       for (int i = 0; i < messageSize; i++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       session.close();
@@ -349,10 +343,10 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       msg1 = consumer.receive(10000);
 
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
 
       for (int i = 0; i < messageSize; i++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       msg1.acknowledge();
@@ -366,10 +360,10 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
       msg1 = consumer.receive(10000);
 
-      Assert.assertNotNull(msg1);
+      assertNotNull(msg1);
 
       for (int i = 0; i < messageSize; i++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       msg1.acknowledge();
@@ -379,12 +373,6 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
       session.close();
 
       validateNoFilesOnLargeDir();
-   }
-
-   @Override
-   @Test
-   public void testSendServerMessage() throws Exception {
-      // doesn't make sense as compressed
    }
 
 }

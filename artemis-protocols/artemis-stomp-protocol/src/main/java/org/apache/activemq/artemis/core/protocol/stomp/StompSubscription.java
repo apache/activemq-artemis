@@ -29,13 +29,16 @@ public class StompSubscription {
    // whether or not this subscription follows multicast semantics (e.g. for a JMS topic)
    private final boolean multicast;
 
+   private final boolean noLocal;
+
    private final int consumerWindowSize;
 
-   public StompSubscription(String subID, String ack, SimpleString queueName, boolean multicast, int consumerWindowSize) {
+   public StompSubscription(String subID, String ack, SimpleString queueName, boolean multicast, boolean noLocal, int consumerWindowSize) {
       this.subID = subID;
       this.ack = ack;
       this.queueName = queueName;
       this.multicast = multicast;
+      this.noLocal = noLocal;
       this.consumerWindowSize = consumerWindowSize;
    }
 
@@ -55,13 +58,16 @@ public class StompSubscription {
       return multicast;
    }
 
+   public boolean isNoLocal() {
+      return noLocal;
+   }
+
    public int getConsumerWindowSize() {
       return consumerWindowSize;
    }
 
    @Override
    public String toString() {
-      return "StompSubscription[id=" + subID + ", ack=" + ack + ", queueName=" + queueName + ", multicast=" + multicast + ", consumerWindowSize=" + consumerWindowSize + "]";
+      return "StompSubscription[id=" + subID + ", ack=" + ack + ", queueName=" + queueName + ", multicast=" + multicast + ", noLocal=" + noLocal + ", consumerWindowSize=" + consumerWindowSize + "]";
    }
-
 }

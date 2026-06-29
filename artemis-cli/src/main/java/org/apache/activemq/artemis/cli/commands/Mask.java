@@ -64,8 +64,7 @@ public class Mask extends ActionAbstract {
          Configuration brokerConfiguration = getBrokerConfiguration();
          codec = PasswordMaskingUtil.getCodec(brokerConfiguration.getPasswordCodec());
       } else {
-         codec = PasswordMaskingUtil.getDefaultCodec();
-         codec.init(params);
+         codec = PasswordMaskingUtil.getDefaultCodec(params);
       }
 
       String masked = codec.encode(password);

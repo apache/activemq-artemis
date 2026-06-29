@@ -42,17 +42,13 @@ public class SizeAwareMetric {
    private static final AtomicIntegerFieldUpdater<SizeAwareMetric> flagUpdater = AtomicIntegerFieldUpdater.newUpdater(SizeAwareMetric.class, "flag");
    private volatile int flag = NOT_USED;
 
-   private long maxElements;
+   private long maxElements = -1; // disabled by default
 
    private long lowerMarkElements;
 
-   private long maxSize;
+   private long maxSize = -1; // disabled by default
 
    private long lowerMarkSize;
-
-   private boolean sizeEnabled = false;
-
-   private boolean elementsEnabled = false;
 
    private AddCallback onSizeCallback;
 
@@ -60,10 +56,10 @@ public class SizeAwareMetric {
 
    private Runnable underCallback;
 
-   /** To be used in a case where we just measure elements */
+   /**
+    * To be used in a case where we just measure elements
+    */
    public SizeAwareMetric() {
-      this.sizeEnabled = false;
-      this.elementsEnabled = false;
    }
 
 
@@ -78,8 +74,6 @@ public class SizeAwareMetric {
       this.lowerMarkElements = lowerMarkElements;
       this.maxSize = maxSize;
       this.lowerMarkSize = lowerMarkSize;
-      this.sizeEnabled = maxSize >= 0;
-      this.elementsEnabled = maxElements >= 0;
    }
 
    public boolean isOver() {
@@ -99,12 +93,7 @@ public class SizeAwareMetric {
    }
 
    public boolean isElementsEnabled() {
-      return elementsEnabled;
-   }
-
-   public SizeAwareMetric setElementsEnabled(boolean elementsEnabled) {
-      this.elementsEnabled = elementsEnabled;
-      return this;
+      return maxElements >= 0;
    }
 
    public long getElements() {
@@ -112,12 +101,7 @@ public class SizeAwareMetric {
    }
 
    public boolean isSizeEnabled() {
-      return sizeEnabled;
-   }
-
-   public SizeAwareMetric setSizeEnabled(boolean sizeEnabled) {
-      this.sizeEnabled = sizeEnabled;
-      return this;
+      return maxSize >= 0;
    }
 
    public SizeAwareMetric setOnSizeCallback(AddCallback onSize) {
@@ -163,8 +147,11 @@ public class SizeAwareMetric {
       return addSize(delta, false);
    }
 
-   public final long addSize(final int delta, final boolean sizeOnly) {
+   public final long addSize(final int delta, boolean sizeOnly) {
+      return addSize(delta, sizeOnly, true);
+   }
 
+   public final long addSize(final int delta, final boolean sizeOnly, boolean affectCallbacks) {
       if (delta == 0) {
          if (logger.isDebugEnabled()) {
             logger.debug("SizeAwareMetric ignored with size 0", new Exception("trace"));
@@ -174,7 +161,7 @@ public class SizeAwareMetric {
 
       changeFlag(NOT_USED, FREE);
 
-      if (onSizeCallback != null) {
+      if (onSizeCallback != null && affectCallbacks) {
          try {
             onSizeCallback.add(delta, sizeOnly);
          } catch (Throwable e) {
@@ -214,56 +201,69 @@ public class SizeAwareMetric {
    }
 
    private void checkUnder(long currentElements, long currentSize) {
-      if (sizeEnabled) {
-         if (currentSize <= lowerMarkSize && changeFlag(OVER_SIZE, PENDING_FREE)) {
-            // checking if we need to switch from OVER_SIZE to OVER_ELEMENTS, to avoid calling under needless
-            if (!(elementsEnabled && currentElements >= maxElements && changeFlag(PENDING_FREE, OVER_ELEMENTS))) {
-               try {
-                  under();
-               } finally {
-                  changeFlag(PENDING_FREE, FREE);
-               }
-            }
-            return; // we must return now as we already checked for the elements portion
+      if (isUnderSize(currentSize) && changeFlag(OVER_SIZE, PENDING_FREE)) {
+         if (isOverElements(currentElements) && changeFlag(PENDING_FREE, OVER_ELEMENTS)) {
+            logger.debug("Switch from OVER_SIZE to OVER_ELEMENTS [currentSize={}, currentElements={}, lowerMarkSize={}, maxElements={}]",
+                    currentSize, currentElements, lowerMarkSize, maxElements);
+            return;
+         }
+
+         try {
+            logger.debug("UnderSize [currentSize={}, lowerMarkSize={}]", currentSize, lowerMarkSize);
+            under();
+         } finally {
+            changeFlag(PENDING_FREE, FREE);
          }
       }
 
-      if (elementsEnabled) {
-         if (currentElements <= lowerMarkElements && changeFlag(OVER_ELEMENTS, PENDING_FREE)) {
-            // checking if we need to switch from OVER_ELEMENTS to OVER_SIZE, to avoid calling under needless
-            if (!(sizeEnabled && currentSize >= maxSize && changeFlag(PENDING_FREE, OVER_SIZE))) {
-               // this is checking the other side from size (elements).
-               // on this case we are just switching sides and we should not fire under();
-               try {
-                  under();
-               } finally {
-                  changeFlag(PENDING_FREE, FREE);
-               }
-            }
-            return; // this return here is moot I know. I am keeping it here for consistence with the size portion
-                    //  and in case eventually further checks are added on this method, this needs to be reviewed.
+      if (isUnderElements(currentElements) && changeFlag(OVER_ELEMENTS, PENDING_FREE)) {
+         if (isOverSize(currentSize) && changeFlag(PENDING_FREE, OVER_SIZE)) {
+            logger.debug("Switch from OVER_ELEMENTS to OVER_SIZE [currentElements={}, currentSize={}, lowerMarkElements={}, maxSize={}]",
+                    currentElements, currentSize, lowerMarkElements, maxSize);
+            return;
+         }
+
+         try {
+            logger.debug("UnderElements [currentElements={}, lowerMarkElements={}]", currentElements, lowerMarkElements);
+            under();
+         } finally {
+            changeFlag(PENDING_FREE, FREE);
          }
       }
    }
 
+   private boolean isUnderSize(long currentSize) {
+      return isSizeEnabled() && currentSize < lowerMarkSize;
+   }
+
+   private boolean isOverSize(long currentSize) {
+      return isSizeEnabled() && currentSize >= maxSize;
+   }
+
+   private boolean isUnderElements(long currentElements) {
+      return isElementsEnabled() && currentElements < lowerMarkElements;
+   }
+
+   private boolean isOverElements(long currentElements) {
+      return isElementsEnabled() && currentElements >= 0 && currentElements >= maxElements;
+   }
+
    private void checkOver(long currentElements, long currentSize) {
-      if (sizeEnabled) {
-         if (currentSize >= maxSize && changeFlag(FREE, PENDING_OVER_SIZE)) {
-            try {
-               over();
-            } finally {
-               changeFlag(PENDING_OVER_SIZE, OVER_SIZE);
-            }
+      if (isOverSize(currentSize) && changeFlag(FREE, PENDING_OVER_SIZE)) {
+         try {
+            logger.debug("OverSize [currentSize={}, maxSize={}]", currentSize, maxSize);
+            over();
+         } finally {
+            changeFlag(PENDING_OVER_SIZE, OVER_SIZE);
          }
       }
 
-      if (elementsEnabled && currentElements >= 0) {
-         if (currentElements >= maxElements && changeFlag(FREE, PENDING_OVER_ELEMENTS)) {
-            try {
-               over();
-            } finally {
-               changeFlag(PENDING_OVER_ELEMENTS, OVER_ELEMENTS);
-            }
+      if (isOverElements(currentElements) && changeFlag(FREE, PENDING_OVER_ELEMENTS)) {
+         try {
+            logger.debug("currentElements [currentSize={}, maxElements={}]", currentElements, maxElements);
+            over();
+         } finally {
+            changeFlag(PENDING_OVER_ELEMENTS, OVER_ELEMENTS);
          }
       }
    }

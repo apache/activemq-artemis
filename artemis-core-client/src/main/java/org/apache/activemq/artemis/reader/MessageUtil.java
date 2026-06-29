@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -35,19 +36,19 @@ public class MessageUtil {
 
    public static final String CORRELATIONID_HEADER_NAME_STRING = "JMSCorrelationID";
 
-   public static final SimpleString CORRELATIONID_HEADER_NAME = new SimpleString(CORRELATIONID_HEADER_NAME_STRING);
+   public static final SimpleString CORRELATIONID_HEADER_NAME = SimpleString.of(CORRELATIONID_HEADER_NAME_STRING);
 
-   public static final SimpleString REPLYTO_HEADER_NAME = new SimpleString("JMSReplyTo");
+   public static final SimpleString REPLYTO_HEADER_NAME = SimpleString.of("JMSReplyTo");
 
    public static final String TYPE_HEADER_NAME_STRING = "JMSType";
 
-   public static final SimpleString TYPE_HEADER_NAME = new SimpleString(TYPE_HEADER_NAME_STRING);
+   public static final SimpleString TYPE_HEADER_NAME = SimpleString.of(TYPE_HEADER_NAME_STRING);
 
-   public static final SimpleString JMS = new SimpleString("JMS");
+   public static final SimpleString JMS = SimpleString.of("JMS");
 
-   public static final SimpleString JMSX = new SimpleString("JMSX");
+   public static final SimpleString JMSX = SimpleString.of("JMSX");
 
-   public static final SimpleString JMS_ = new SimpleString("JMS_");
+   public static final SimpleString JMS_ = SimpleString.of("JMS_");
 
    public static final String JMSXDELIVERYCOUNT = "JMSXDeliveryCount";
 
@@ -59,7 +60,7 @@ public class MessageUtil {
 
    public static final String CONNECTION_ID_PROPERTY_NAME_STRING = "__AMQ_CID";
 
-   public static final SimpleString CONNECTION_ID_PROPERTY_NAME = new SimpleString(CONNECTION_ID_PROPERTY_NAME_STRING);
+   public static final SimpleString CONNECTION_ID_PROPERTY_NAME = SimpleString.of(CONNECTION_ID_PROPERTY_NAME_STRING);
 
    //   public static ActiveMQBuffer getBodyBuffer(Message message) {
    //      return message.getBodyBuffer();
@@ -68,15 +69,15 @@ public class MessageUtil {
    public static byte[] getJMSCorrelationIDAsBytes(Message message) {
       Object obj = message.getObjectProperty(CORRELATIONID_HEADER_NAME);
 
-      if (obj instanceof byte[]) {
-         return (byte[]) obj;
+      if (obj instanceof byte[] bytes) {
+         return bytes;
       } else {
          return null;
       }
    }
 
    public static void setJMSType(Message message, String type) {
-      message.putStringProperty(TYPE_HEADER_NAME, new SimpleString(type));
+      message.putStringProperty(TYPE_HEADER_NAME, SimpleString.of(type));
    }
 
    public static String getJMSType(Message message) {
@@ -101,7 +102,7 @@ public class MessageUtil {
       if (correlationID == null) {
          message.removeProperty(CORRELATIONID_HEADER_NAME);
       } else {
-         message.putStringProperty(CORRELATIONID_HEADER_NAME, new SimpleString(correlationID));
+         message.putStringProperty(CORRELATIONID_HEADER_NAME, SimpleString.of(correlationID));
       }
    }
 
@@ -134,7 +135,7 @@ public class MessageUtil {
    }
 
    public static void clearProperties(Message message) {
-      /**
+      /*
        * JavaDoc for this method states:
        *    Clears a message's properties.
        *    The message's header fields and body are not cleared.
@@ -157,7 +158,7 @@ public class MessageUtil {
    }
 
    public static Set<String> getPropertyNames(Message message) {
-      HashSet<String> set = new HashSet<>();
+      Set<String> set = new HashSet<>();
 
       for (SimpleString propName : message.getPropertyNames()) {
          if (propName.equals(Message.HDR_GROUP_ID)) {
@@ -177,7 +178,7 @@ public class MessageUtil {
    }
 
    public static boolean propertyExists(Message message, String name) {
-      return message.containsProperty(new SimpleString(name)) || name.equals(MessageUtil.JMSXDELIVERYCOUNT) ||
+      return message.containsProperty(SimpleString.of(name)) || name.equals(MessageUtil.JMSXDELIVERYCOUNT) ||
          (MessageUtil.JMSXGROUPID.equals(name) && message.containsProperty(Message.HDR_GROUP_ID)) ||
          (MessageUtil.JMSXGROUPSEQ.equals(name) && message.containsProperty(Message.HDR_GROUP_SEQUENCE)) ||
          (MessageUtil.JMSXUSERID.equals(name) && message.containsProperty(Message.HDR_VALIDATED_USER));
@@ -257,13 +258,13 @@ public class MessageUtil {
       }
    }
 
-   public static void setObjectProperty(final Message message,  final String name, final Object value) {
+   public static void setObjectProperty(final Message message, final String name, final Object value) {
       if (MessageUtil.JMSXGROUPID.equals(name)) {
-         message.setGroupID(value == null ? null : value.toString());
+         message.setGroupID(Objects.toString(value, null));
       } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
          message.setGroupSequence(getInteger(value));
       } else if (MessageUtil.JMSXUSERID.equals(name)) {
-         message.setValidatedUserID(value == null ? null : value.toString());
+         message.setValidatedUserID(Objects.toString(value, null));
       } else {
          message.putObjectProperty(name, value);
       }
@@ -272,10 +273,10 @@ public class MessageUtil {
    private static int getInteger(final Object value) {
       Objects.requireNonNull(value);
       final int integer;
-      if (value instanceof Integer) {
-         integer = (Integer) value;
-      } else if (value instanceof Number) {
-         integer = ((Number) value).intValue();
+      if (value instanceof Integer integerValue) {
+         integer = integerValue;
+      } else if (value instanceof Number number) {
+         integer = number.intValue();
       } else {
          integer = Integer.parseInt(value.toString());
       }

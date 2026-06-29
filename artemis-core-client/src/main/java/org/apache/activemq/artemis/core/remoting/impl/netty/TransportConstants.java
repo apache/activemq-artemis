@@ -36,14 +36,30 @@ public class TransportConstants {
 
    public static final String SSL_ENABLED_PROP_NAME = "sslEnabled";
 
+   public static final String SSL_HANDSHAKE_TIMEOUT = "sslHandshakeTimeout";
+
+   public static final int DEFAULT_SSL_HANDSHAKE_TIMEOUT = 10;
+
+   public static final String PROXY_PROTOCOL_ENABLED_PROP_NAME = "proxyProtocolEnabled";
+
+   public static final String SSL_AUTO_RELOAD_PROP_NAME = "sslAutoReload";
+
+   public static final boolean DEFAULT_SSL_AUTO_RELOAD = false;
+
    public static final String HTTP_ENABLED_PROP_NAME = "httpEnabled";
 
+   @Deprecated(forRemoval = true)
    public static final String HTTP_CLIENT_IDLE_PROP_NAME = "httpClientIdleTime";
 
+   @Deprecated(forRemoval = true)
    public static final String HTTP_CLIENT_IDLE_SCAN_PERIOD = "httpClientIdleScanPeriod";
 
+   public static final String NETTY_HTTP_HEADER_PREFIX = "nettyHttpHeader.";
+
+   @Deprecated(forRemoval = true)
    public static final String HTTP_RESPONSE_TIME_PROP_NAME = "httpResponseTime";
 
+   @Deprecated(forRemoval = true)
    public static final String HTTP_SERVER_SCAN_PERIOD_PROP_NAME = "httpServerScanPeriod";
 
    public static final String HTTP_REQUIRES_SESSION_ID = "httpRequiresSessionId";
@@ -62,10 +78,10 @@ public class TransportConstants {
 
    public static final String USE_KQUEUE_PROP_NAME = "useKQueue";
 
-   @Deprecated
    /**
     * @deprecated Use USE_GLOBAL_WORKER_POOL_PROP_NAME
     */
+   @Deprecated
    public static final String USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME = "useNioGlobalWorkerPool";
 
    public static final String USE_GLOBAL_WORKER_POOL_PROP_NAME = "useGlobalWorkerPool";
@@ -99,6 +115,8 @@ public class TransportConstants {
    public static final String KEYSTORE_PATH_PROP_NAME = "keyStorePath";
 
    public static final String KEYSTORE_PASSWORD_PROP_NAME = "keyStorePassword";
+
+   public static final String KEY_PASSWORD_PROP_NAME = "keyPassword";
 
    public static final String KEYSTORE_ALIAS_PROP_NAME = "keyStoreAlias";
 
@@ -139,14 +157,15 @@ public class TransportConstants {
    public static final String NETTY_VERSION;
 
    /**
-    * Disable Nagle's algorithm.<br>
+    * Disable Nagle's algorithm.
+    * <p>
     * Valid for (client) Sockets.
     *
     * @see <a
-    * href="http://design.jboss.org/jbossorg/branding/Javadocs/doc/api/org/jboss/netty/channel/socket/SocketChannelConfig.html#setTcpNoDelay%28boolean%29">
-    * Netty note on this option</a>
-    * @see <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/net/socketOpt.html">Oracle
-    * doc on tcpNoDelay</a>
+    * href="https://netty.io/4.1/api/io/netty/channel/socket/SocketChannelConfig.html#setTcpNoDelay-boolean-">Netty note
+    * on this option</a>
+    * @see <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/net/socketOpt.html">Oracle doc on
+    * tcpNoDelay</a>
     */
    public static final String TCP_NODELAY_PROPNAME = "tcpNoDelay";
 
@@ -154,10 +173,10 @@ public class TransportConstants {
 
    public static final String TCP_RECEIVEBUFFER_SIZE_PROPNAME = "tcpReceiveBufferSize";
 
-   @Deprecated
    /**
     * @deprecated Use REMOTING_THREADS_PROPNAME
     */
+   @Deprecated
    public static final String NIO_REMOTING_THREADS_PROPNAME = "nioRemotingThreads";
 
    public static final String WRITE_BUFFER_LOW_WATER_MARK_PROPNAME = "writeBufferLowWaterMark";
@@ -179,25 +198,31 @@ public class TransportConstants {
 
    public static final int STOMP_DEFAULT_CONSUMER_WINDOW_SIZE = 10 * 1024; // 10K
 
-   public static final String PROXY_ENABLED_PROP_NAME = "socksEnabled";
+   public static final String SOCKS_ENABLED_PROP_NAME = "socksEnabled";
 
-   public static final String PROXY_HOST_PROP_NAME = "socksHost";
+   public static final String SOCKS_HOST_PROP_NAME = "socksHost";
 
-   public static final String PROXY_PORT_PROP_NAME = "socksPort";
+   public static final String SOCKS_PORT_PROP_NAME = "socksPort";
 
-   public static final String PROXY_VERSION_PROP_NAME = "socksVersion";
+   public static final String SOCKS_VERSION_PROP_NAME = "socksVersion";
 
-   public static final String PROXY_USERNAME_PROP_NAME = "socksUsername";
+   public static final String SOCKS_USERNAME_PROP_NAME = "socksUsername";
 
-   public static final String PROXY_PASSWORD_PROP_NAME = "socksPassword";
+   public static final String SOCKS_PASSWORD_PROP_NAME = "socksPassword";
 
-   public static final String PROXY_REMOTE_DNS_PROP_NAME = "socksRemoteDNS";
+   public static final String SOCKS_REMOTE_DNS_PROP_NAME = "socksRemoteDNS";
+
+   public static final String CRC_OPTIONS_PROP_NAME = "crcOptions";
+
+   public static final String OCSP_RESPONDER_URL_PROP_NAME = "ocspResponderURL";
 
    public static final String AUTO_START = "autoStart";
 
    public static final boolean DEFAULT_AUTO_START = true;
 
    public static final boolean DEFAULT_SSL_ENABLED = false;
+
+   public static final boolean DEFAULT_PROXY_PROTOCOL_ENABLED = false;
 
    public static final String DEFAULT_SNIHOST_CONFIG = null;
 
@@ -228,6 +253,8 @@ public class TransportConstants {
    public static final String DEFAULT_KEYSTORE_PATH = null;
 
    public static final String DEFAULT_KEYSTORE_PASSWORD = null;
+
+   public static final String DEFAULT_KEY_PASSWORD = null;
 
    public static final String DEFAULT_TRUSTSTORE_PROVIDER = null;
 
@@ -345,40 +372,56 @@ public class TransportConstants {
 
    public static final int DEFAULT_HANDSHAKE_TIMEOUT = 10;
 
+   /*
+    * Defines if the WS acceptor allows a client to request compression via WS extensions for
+    * per message deflate. By default this is not enabled and the WS upgrade response will not
+    * carry any compression support headers when the client indicates it supports compression.
+    */
+   public static final String WEB_SOCKET_COMPRESSION_SUPPORTED = "webSocketCompressionSupported";
+
+   public static final boolean DEFAULT_WEB_SOCKET_COMPRESSION_SUPPORTED = false;
+
    public static final String QUIET_PERIOD = "quietPeriod";
 
    public static final String DISABLE_STOMP_SERVER_HEADER = "disableStompServerHeader";
 
-   /** We let this to be defined as a System Variable, as we need a different timeout over our testsuite.
-    *  When running on a real server, this is the default we want.
-    *  When running on a test suite, we need it to be 0, You should see a property on the main pom.xml.
+   /**
+    * We let this to be defined as a System Variable, as we need a different timeout over our testsuite. When running on
+    * a real server, this is the default we want. When running on a test suite, we need it to be 0, You should see a
+    * property on the main pom.xml.
     */
    public static final int DEFAULT_QUIET_PERIOD = parseDefaultVariable("DEFAULT_QUIET_PERIOD", 100);
 
    public static final String SHUTDOWN_TIMEOUT = "shutdownTimeout";
 
-   /** We let this to be defined as a System Variable, as we need a different timeout over our testsuite.
-    *  When running on a real server, this is the default we want.
-    *  When running on a test suite, we need it to be 0, You should see a property on the main pom.xml */
+   /**
+    * We let this to be defined as a System Variable, as we need a different timeout over our testsuite. When running on
+    * a real server, this is the default we want. When running on a test suite, we need it to be 0, You should see a
+    * property on the main pom.xml
+    */
    public static final int DEFAULT_SHUTDOWN_TIMEOUT = parseDefaultVariable("DEFAULT_SHUTDOWN_TIMEOUT", 3_000);
 
-   public static final boolean DEFAULT_PROXY_ENABLED = false;
+   public static final boolean DEFAULT_SOCKS_ENABLED = false;
 
-   public static final String DEFAULT_PROXY_HOST = null;
+   public static final String DEFAULT_SOCKS_HOST = null;
 
-   public static final int DEFAULT_PROXY_PORT = 0;
+   public static final int DEFAULT_SOCKS_PORT = 0;
 
-   public static final byte DEFAULT_PROXY_VERSION = SocksVersion.SOCKS5.byteValue();
+   public static final byte DEFAULT_SOCKS_VERSION = SocksVersion.SOCKS5.byteValue();
 
-   public static final String DEFAULT_PROXY_USERNAME = null;
+   public static final String DEFAULT_SOCKS_USERNAME = null;
 
-   public static final String DEFAULT_PROXY_PASSWORD = null;
+   public static final String DEFAULT_SOCKS_PASSWORD = null;
 
-   public static final boolean DEFAULT_PROXY_REMOTE_DNS = false;
+   public static final boolean SOCKS_PROXY_REMOTE_DNS = false;
 
    public static final String ROUTER = "router";
 
    public static final String DEFAULT_ROUTER = null;
+
+   public static final String DEFAULT_CRC_OPTIONS = null;
+
+   public static final String DEFAULT_OCSP_RESPONDER_URL = null;
 
    private static int parseDefaultVariable(String variableName, int defaultValue) {
       try {
@@ -396,6 +439,8 @@ public class TransportConstants {
    static {
       Set<String> allowableAcceptorKeys = new HashSet<>();
       allowableAcceptorKeys.add(TransportConstants.SSL_ENABLED_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.SSL_AUTO_RELOAD_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.SSL_HANDSHAKE_TIMEOUT);
       allowableAcceptorKeys.add(TransportConstants.HTTP_RESPONSE_TIME_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HTTP_SERVER_SCAN_PERIOD_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME);
@@ -413,6 +458,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.KEYSTORE_TYPE_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.KEYSTORE_PATH_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.KEY_PASSWORD_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.KEYSTORE_ALIAS_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME);
@@ -447,6 +493,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.CONNECTIONS_ALLOWED);
       allowableAcceptorKeys.add(TransportConstants.STOMP_MAX_FRAME_PAYLOAD_LENGTH);
       allowableAcceptorKeys.add(TransportConstants.WEB_SOCKET_MAX_FRAME_PAYLOAD_LENGTH);
+      allowableAcceptorKeys.add(TransportConstants.WEB_SOCKET_COMPRESSION_SUPPORTED);
       allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
       allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
       allowableAcceptorKeys.add(TransportConstants.BACKLOG_PROP_NAME);
@@ -459,6 +506,9 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.DISABLE_STOMP_SERVER_HEADER);
       allowableAcceptorKeys.add(TransportConstants.AUTO_START);
       allowableAcceptorKeys.add(TransportConstants.ROUTER);
+      allowableAcceptorKeys.add(TransportConstants.PROXY_PROTOCOL_ENABLED_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.CRC_OPTIONS_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.OCSP_RESPONDER_URL_PROP_NAME);
 
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
@@ -486,6 +536,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.KEYSTORE_TYPE_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.KEYSTORE_PATH_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.KEY_PASSWORD_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.KEYSTORE_ALIAS_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME);
@@ -505,13 +556,13 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.NIO_REMOTING_THREADS_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.REMOTING_THREADS_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.BATCH_DELAY);
-      allowableConnectorKeys.add(TransportConstants.PROXY_ENABLED_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.PROXY_HOST_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.PROXY_PORT_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.PROXY_VERSION_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.PROXY_USERNAME_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.PROXY_PASSWORD_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.PROXY_REMOTE_DNS_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_ENABLED_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_HOST_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_PORT_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_VERSION_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_USERNAME_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_PASSWORD_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_REMOTE_DNS_PROP_NAME);
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
       allowableConnectorKeys.add(TransportConstants.NETTY_CONNECT_TIMEOUT);
@@ -520,6 +571,8 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.HANDSHAKE_TIMEOUT);
       allowableConnectorKeys.add(TransportConstants.CRL_PATH_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.CRC_OPTIONS_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.OCSP_RESPONDER_URL_PROP_NAME);
 
       ALLOWABLE_CONNECTOR_KEYS = Collections.unmodifiableSet(allowableConnectorKeys);
 

@@ -37,21 +37,22 @@ public @interface LogMessage {
       INFO,
 
       /**
-       * @deprecated Typically debug/trace logging will use class-level loggers
-       *             rather than generated loggers with codes. This mostly exists
-       *             for existing historic uses and any unexpected level down-grades.
+       * @deprecated Typically debug/trace logging will use class-level loggers rather than generated loggers with
+       * codes. This mostly exists for existing historic uses and any unexpected level down-grades.
        */
       @Deprecated
       DEBUG,
 
       /**
-       * @deprecated Typically debug/trace logging will use class-level loggers
-       *             rather than generated loggers with codes. This mostly exists
-       *             for existing historic uses and any unexpected level down-grades.
+       * @deprecated Typically debug/trace logging will use class-level loggers rather than generated loggers with
+       * codes. This mostly exists for existing historic uses and any unexpected level down-grades.
        */
       @Deprecated
       TRACE;
    }
 
-
+   /**
+    * Override the default LogBundle-wide logger name for this message.
+    */
+   String loggerName() default "";
 }

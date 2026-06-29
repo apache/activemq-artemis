@@ -141,59 +141,47 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
 
       final Vector<TestConsumer> testConsumers = new Vector<>();
       TestConsumer testConsumer = new TestConsumer(consumerSession, destination, connection);
-      testConsumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message message) {
-            try {
-               LOG.info("onMessage:" + message.getJMSMessageID());
-            } catch (JMSException e) {
-               e.printStackTrace();
-            }
+      testConsumer.setMessageListener(message -> {
+         try {
+            LOG.info("onMessage:" + message.getJMSMessageID());
+         } catch (JMSException e) {
+            e.printStackTrace();
          }
       });
       testConsumers.add(testConsumer);
 
       produceMessage(consumerSession, destination, maxConsumers * prefetch);
 
-      assertTrue("add messages are delivered", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            int totalDelivered = 0;
-            for (TestConsumer testConsumer : testConsumers) {
-               long delivered = testConsumer.deliveredSize();
-               LOG.info(testConsumer.getConsumerId() + " delivered: " + delivered);
-               totalDelivered += delivered;
-            }
-            return totalDelivered == maxConsumers * prefetch;
+      assertTrue("add messages are delivered", Wait.waitFor(() -> {
+         int totalDelivered = 0;
+         for (TestConsumer testConsumer13 : testConsumers) {
+            long delivered = testConsumer13.deliveredSize();
+            LOG.info(testConsumer13.getConsumerId() + " delivered: " + delivered);
+            totalDelivered += delivered;
          }
+         return totalDelivered == maxConsumers * prefetch;
       }));
 
       final CountDownLatch shutdownConsumerAdded = new CountDownLatch(1);
 
-      new Thread() {
-         @Override
-         public void run() {
-            try {
-               LOG.info("add last consumer...");
-               TestConsumer testConsumer = new TestConsumer(consumerSession, destination, connection);
-               testConsumer.setMessageListener(new MessageListener() {
-                  @Override
-                  public void onMessage(Message message) {
-                     try {
-                        LOG.info("onMessage:" + message.getJMSMessageID());
-                     } catch (JMSException e) {
-                        e.printStackTrace();
-                     }
-                  }
-               });
-               testConsumers.add(testConsumer);
-               shutdownConsumerAdded.countDown();
-               LOG.info("done add last consumer");
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+      new Thread(() -> {
+         try {
+            LOG.info("add last consumer...");
+            TestConsumer testConsumer12 = new TestConsumer(consumerSession, destination, connection);
+            testConsumer12.setMessageListener(message -> {
+               try {
+                  LOG.info("onMessage:" + message.getJMSMessageID());
+               } catch (JMSException e) {
+                  e.printStackTrace();
+               }
+            });
+            testConsumers.add(testConsumer12);
+            shutdownConsumerAdded.countDown();
+            LOG.info("done add last consumer");
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      }.start();
+      }).start();
 
       brokerStopLatch.await();
       doByteman.set(false);
@@ -204,17 +192,14 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
       assertTrue("consumer added through failover", shutdownConsumerAdded.await(30, TimeUnit.SECONDS));
 
       // each should again get prefetch messages - all unacked deliveries should be rolledback
-      assertTrue("after restart all messages are re dispatched", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            int totalDelivered = 0;
-            for (TestConsumer testConsumer : testConsumers) {
-               long delivered = testConsumer.deliveredSize();
-               LOG.info(testConsumer.getConsumerId() + " delivered: " + delivered);
-               totalDelivered += delivered;
-            }
-            return totalDelivered == maxConsumers * prefetch;
+      assertTrue("after restart all messages are re dispatched", Wait.waitFor(() -> {
+         int totalDelivered = 0;
+         for (TestConsumer testConsumer1 : testConsumers) {
+            long delivered = testConsumer1.deliveredSize();
+            LOG.info(testConsumer1.getConsumerId() + " delivered: " + delivered);
+            totalDelivered += delivered;
          }
+         return totalDelivered == maxConsumers * prefetch;
       }));
 
       connection.close();
@@ -243,51 +228,42 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
          testConsumers.add(new TestConsumer(consumerSession, destination, connection));
       }
 
-      assureQueueMessages(0, new SimpleString(QUEUE_NAME));
+      assureQueueMessages(0, SimpleString.of(QUEUE_NAME));
 
       produceMessage(consumerSession, destination, maxConsumers * prefetch);
 
-      assertTrue("add messages are dispatched", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            int totalUnconsumed = 0;
-            for (TestConsumer testConsumer : testConsumers) {
-               long unconsumed = testConsumer.unconsumedSize();
-               LOG.info(testConsumer.getConsumerId() + " unconsumed: " + unconsumed);
-               totalUnconsumed += unconsumed;
-            }
-            return totalUnconsumed == (maxConsumers - 1) * prefetch;
+      assertTrue("add messages are dispatched", Wait.waitFor(() -> {
+         int totalUnconsumed = 0;
+         for (TestConsumer testConsumer : testConsumers) {
+            long unconsumed = testConsumer.unconsumedSize();
+            LOG.info(testConsumer.getConsumerId() + " unconsumed: " + unconsumed);
+            totalUnconsumed += unconsumed;
          }
+         return totalUnconsumed == (maxConsumers - 1) * prefetch;
       }));
 
       final CountDownLatch shutdownConsumerAdded = new CountDownLatch(1);
 
-      new Thread() {
-         @Override
-         public void run() {
-            try {
-               LOG.info("add last consumer...");
-               testConsumers.add(new TestConsumer(consumerSession, destination, connection));
-               shutdownConsumerAdded.countDown();
-               LOG.info("done add last consumer");
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+      new Thread(() -> {
+         try {
+            LOG.info("add last consumer...");
+            testConsumers.add(new TestConsumer(consumerSession, destination, connection));
+            shutdownConsumerAdded.countDown();
+            LOG.info("done add last consumer");
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      }.start();
+      }).start();
 
       // verify interrupt
-      assertTrue("add messages dispatched and unconsumed are cleaned up", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            int totalUnconsumed = 0;
-            for (TestConsumer testConsumer : testConsumers) {
-               long unconsumed = testConsumer.unconsumedSize();
-               LOG.info(testConsumer.getConsumerId() + " unconsumed: " + unconsumed);
-               totalUnconsumed += unconsumed;
-            }
-            return totalUnconsumed == 0;
+      assertTrue("add messages dispatched and unconsumed are cleaned up", Wait.waitFor(() -> {
+         int totalUnconsumed = 0;
+         for (TestConsumer testConsumer : testConsumers) {
+            long unconsumed = testConsumer.unconsumedSize();
+            LOG.info(testConsumer.getConsumerId() + " unconsumed: " + unconsumed);
+            totalUnconsumed += unconsumed;
          }
+         return totalUnconsumed == 0;
       }));
 
       brokerStopLatch.await();
@@ -299,17 +275,14 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
       assertTrue("consumer added through failover", shutdownConsumerAdded.await(30, TimeUnit.SECONDS));
 
       // each should again get prefetch messages - all unconsumed deliveries should be rolledback
-      assertTrue("after start all messages are re dispatched", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            int totalUnconsumed = 0;
-            for (TestConsumer testConsumer : testConsumers) {
-               long unconsumed = testConsumer.unconsumedSize();
-               LOG.info(testConsumer.getConsumerId() + " after restart: unconsumed: " + unconsumed);
-               totalUnconsumed += unconsumed;
-            }
-            return totalUnconsumed == (maxConsumers) * prefetch;
+      assertTrue("after start all messages are re dispatched", Wait.waitFor(() -> {
+         int totalUnconsumed = 0;
+         for (TestConsumer testConsumer : testConsumers) {
+            long unconsumed = testConsumer.unconsumedSize();
+            LOG.info(testConsumer.getConsumerId() + " after restart: unconsumed: " + unconsumed);
+            totalUnconsumed += unconsumed;
          }
+         return totalUnconsumed == (maxConsumers) * prefetch;
       }));
 
       connection.close();
@@ -356,17 +329,14 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
       if (doByteman.get()) {
          if (consumerCount.incrementAndGet() == maxConsumers) {
             context.getContext().setDontSendReponse(true);
-            new Thread() {
-               @Override
-               public void run() {
-                  try {
-                     broker.stop();
-                     brokerStopLatch.countDown();
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
+            new Thread(() -> {
+               try {
+                  broker.stop();
+                  brokerStopLatch.countDown();
+               } catch (Exception e) {
+                  e.printStackTrace();
                }
-            }.start();
+            }).start();
          }
       }
    }
@@ -375,18 +345,15 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
       if (doByteman.get()) {
          if (consumerCount.incrementAndGet() == maxConsumers + (watchTopicAdvisories.get() ? 1 : 0)) {
             context.getContext().setDontSendReponse(true);
-            new Thread() {
-               @Override
-               public void run() {
-                  try {
-                     broker.stop();
-                     Assert.assertEquals(1, brokerStopLatch.getCount());
-                     brokerStopLatch.countDown();
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
+            new Thread(() -> {
+               try {
+                  broker.stop();
+                  Assert.assertEquals(1, brokerStopLatch.getCount());
+                  brokerStopLatch.countDown();
+               } catch (Exception e) {
+                  e.printStackTrace();
                }
-            }.start();
+            }).start();
          }
       }
    }

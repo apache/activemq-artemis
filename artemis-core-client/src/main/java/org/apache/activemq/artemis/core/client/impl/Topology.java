@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -35,6 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
+/**
+ * A {@code Topology} describes the other cluster nodes that this server knows about.
+ */
 public final class Topology {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -46,19 +50,15 @@ public final class Topology {
    /**
     * Used to debug operations.
     * <p>
-    * Someone may argue this is not needed. But it's impossible to debug anything related to
-    * topology without knowing what node or what object missed a Topology update. Hence I added some
-    * information to locate debugging here.
+    * Someone may argue this is not needed. But it's impossible to debug anything related to topology without knowing
+    * what node or what object missed a Topology update. Hence I added some information to locate debugging here.
     */
    private volatile Object owner;
 
    private final TopologyManager manager;
 
    /**
-    * topology describes the other cluster nodes that this server knows about:
-    *
-    * keys are node IDs
-    * values are a pair of live/backup transport configurations
+    * Keys are node IDs. Values are a pair of primary/backup transport configurations.
     */
    private final Map<String, TopologyMemberImpl> topology;
 
@@ -84,8 +84,8 @@ public final class Topology {
       }
       this.executor = executor;
       this.owner = owner;
-      if (owner instanceof TopologyManager) {
-         manager = (TopologyManager)owner;
+      if (owner instanceof TopologyManager topologyManager) {
+         manager = topologyManager;
       } else {
          manager = null;
       }
@@ -128,7 +128,7 @@ public final class Topology {
    /**
     * This is called by the server when the node is activated from backup state. It will always succeed
     */
-   public void updateAsLive(final String nodeId, final TopologyMemberImpl memberInput) {
+   public void updateAsPrimary(final String nodeId, final TopologyMemberImpl memberInput) {
       synchronized (this) {
          if (logger.isDebugEnabled()) {
             logger.debug("{}::node {}={}", this, nodeId, memberInput);
@@ -141,9 +141,7 @@ public final class Topology {
    }
 
    /**
-    * After the node is started, it will resend the notifyLive a couple of times to avoid gossip between two servers
-    *
-    * @param nodeId
+    * After the node is started, it will resend the notifyPrimary a couple of times to avoid gossip between two servers
     */
    public void resendNode(final String nodeId) {
       synchronized (this) {
@@ -168,14 +166,14 @@ public final class Topology {
          TopologyMemberImpl currentMember = getMember(nodeId);
          if (currentMember == null) {
             if (logger.isTraceEnabled()) {
-               logger.trace("There's no live to be updated on backup update, node={} memberInput={}", nodeId, memberInput, new Exception("trace"));
+               logger.trace("There's no primary to be updated on backup update, node={} memberInput={}", nodeId, memberInput, new Exception("trace"));
             }
 
             currentMember = memberInput;
             topology.put(nodeId, currentMember);
          }
 
-         TopologyMemberImpl newMember = new TopologyMemberImpl(nodeId, currentMember.getBackupGroupName(), currentMember.getScaleDownGroupName(), currentMember.getLive(), memberInput.getBackup());
+         TopologyMemberImpl newMember = new TopologyMemberImpl(nodeId, currentMember.getBackupGroupName(), currentMember.getScaleDownGroupName(), currentMember.getPrimary(), memberInput.getBackup());
          newMember.setUniqueEventID(System.currentTimeMillis());
          topology.remove(nodeId);
          topology.put(nodeId, newMember);
@@ -186,11 +184,11 @@ public final class Topology {
    }
 
    /**
-    * @param uniqueEventID an unique identifier for when the change was made. We will use current
-    *                      time millis for starts, and a ++ of that number for shutdown.
-    * @param nodeId
-    * @param memberInput
-    * @return {@code true} if an update did take place. Note that backups are *always* updated.
+    * Update a member
+    *
+    * @param uniqueEventID an unique identifier for when the change was made. We will use current time millis for
+    *                      starts, and a ++ of that number for shutdown.
+    * @return {@code true} if an update did take place. Note that backups are *always* updated
     */
    public boolean updateMember(final long uniqueEventID, final String nodeId, final TopologyMemberImpl memberInput) {
 
@@ -220,11 +218,11 @@ public final class Topology {
             sendMemberUp(nodeId, memberInput);
             return true;
          }
-         if (uniqueEventID > currentMember.getUniqueEventID() || (currentMember.getLive() == null && memberInput.getLive() != null)) {
-            TopologyMemberImpl newMember = new TopologyMemberImpl(nodeId, memberInput.getBackupGroupName(), memberInput.getScaleDownGroupName(), memberInput.getLive(), memberInput.getBackup());
+         if (uniqueEventID > currentMember.getUniqueEventID() || (currentMember.getPrimary() == null && memberInput.getPrimary() != null)) {
+            TopologyMemberImpl newMember = new TopologyMemberImpl(nodeId, memberInput.getBackupGroupName(), memberInput.getScaleDownGroupName(), memberInput.getPrimary(), memberInput.getBackup());
 
-            if (newMember.getLive() == null && currentMember.getLive() != null) {
-               newMember.setLive(currentMember.getLive());
+            if (newMember.getPrimary() == null && currentMember.getPrimary() != null) {
+               newMember.setPrimary(currentMember.getPrimary());
             }
 
             if (newMember.getBackup() == null && currentMember.getBackup() != null) {
@@ -259,54 +257,43 @@ public final class Topology {
       }
    }
 
-   /**
-    * @param nodeId
-    * @param memberToSend
-    */
    private void sendMemberUp(final String nodeId, final TopologyMemberImpl memberToSend) {
-      final ArrayList<ClusterTopologyListener> copy = copyListeners();
+      final List<ClusterTopologyListener> copy = copyListeners();
 
       if (logger.isTraceEnabled()) {
          logger.trace("{}::prepare to send {} to {} elements", this, nodeId, copy.size());
       }
 
-      if (copy.size() > 0) {
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               for (ClusterTopologyListener listener : copy) {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace("{} informing {} about node up = {} connector = {}",
-                                  Topology.this, listener, nodeId, memberToSend.getConnector());
-                  }
+      if (!copy.isEmpty()) {
+         executor.execute(() -> {
+            for (ClusterTopologyListener listener : copy) {
+               if (logger.isTraceEnabled()) {
+                  logger.trace("{} informing {} about node up = {} connector = {}", Topology.this, listener, nodeId, memberToSend.getConnector());
+               }
 
-                  try {
-                     listener.nodeUP(memberToSend, false);
-                  } catch (Throwable e) {
-                     ActiveMQClientLogger.LOGGER.errorSendingTopology(e);
-                  }
+               try {
+                  listener.nodeUP(memberToSend, false);
+               } catch (Throwable e) {
+                  ActiveMQClientLogger.LOGGER.errorSendingTopology(e);
                }
             }
          });
       }
    }
 
-   /**
-    * @return
-    */
-   private ArrayList<ClusterTopologyListener> copyListeners() {
-      ArrayList<ClusterTopologyListener> listenersCopy;
+   private List<ClusterTopologyListener> copyListeners() {
+      List<ClusterTopologyListener> listenersCopy;
       synchronized (topologyListeners) {
          listenersCopy = new ArrayList<>(topologyListeners);
       }
       return listenersCopy;
    }
 
-   boolean removeMember(final long uniqueEventID, final String nodeId) {
+   boolean removeMember(final long uniqueEventID, final String nodeId, final boolean disconnect) {
       TopologyMemberImpl member;
 
 
-      if (manager != null && !manager.removeMember(uniqueEventID, nodeId)) {
+      if (manager != null && !manager.removeMember(uniqueEventID, nodeId, disconnect)) {
          logger.debug("TopologyManager rejected the update towards {}", nodeId);
          return false;
       }
@@ -330,7 +317,7 @@ public final class Topology {
       }
 
       if (member != null) {
-         final ArrayList<ClusterTopologyListener> copy = copyListeners();
+         final List<ClusterTopologyListener> copy = copyListeners();
 
          executor.execute(new Runnable() {
             @Override
@@ -354,23 +341,20 @@ public final class Topology {
    public synchronized void sendTopology(final ClusterTopologyListener listener) {
       logger.debug("{} is sending topology to {}", this, listener);
 
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            int count = 0;
+      executor.execute(() -> {
+         int count = 0;
 
-            final Map<String, TopologyMemberImpl> copy;
+         final Map<String, TopologyMemberImpl> copy;
 
-            synchronized (Topology.this) {
-               copy = new HashMap<>(topology);
+         synchronized (Topology.this) {
+            copy = new HashMap<>(topology);
+         }
+
+         for (Entry<String, TopologyMemberImpl> entry : copy.entrySet()) {
+            if (logger.isDebugEnabled()) {
+               logger.debug("{} sending {} / {} to {}", Topology.this, entry.getKey(), entry.getValue().getConnector(), listener);
             }
-
-            for (Map.Entry<String, TopologyMemberImpl> entry : copy.entrySet()) {
-               if (logger.isDebugEnabled()) {
-                  logger.debug("{} sending {} / {} to {}", Topology.this, entry.getKey(), entry.getValue().getConnector(), listener);
-               }
-               listener.nodeUP(entry.getValue(), ++count == copy.size());
-            }
+            listener.nodeUP(entry.getValue(), ++count == copy.size());
          }
       });
    }
@@ -394,7 +378,7 @@ public final class Topology {
    }
 
    public Collection<TopologyMemberImpl> getMembers() {
-      ArrayList<TopologyMemberImpl> members;
+      List<TopologyMemberImpl> members;
       synchronized (this) {
          members = new ArrayList<>(topology.values());
       }
@@ -404,7 +388,7 @@ public final class Topology {
    synchronized int nodes() {
       int count = 0;
       for (TopologyMemberImpl member : topology.values()) {
-         if (member.getLive() != null) {
+         if (member.getPrimary() != null) {
             count++;
          }
          if (member.getBackup() != null) {
@@ -435,9 +419,9 @@ public final class Topology {
    }
 
    /**
-    * The owner exists mainly for debug purposes.
-    * When enabling logging and tracing, the Topology updates will include the owner, what will enable to identify
-    * what instances are receiving the updates, what will enable better debugging.
+    * The owner exists mainly for debug purposes. When enabling logging and tracing, the Topology updates will include
+    * the owner, what will enable to identify what instances are receiving the updates, what will enable better
+    * debugging.
     */
    public void setOwner(final Object owner) {
       this.owner = owner;
@@ -445,7 +429,7 @@ public final class Topology {
 
    public TransportConfiguration getBackupForConnector(final Connector connector) {
       for (TopologyMemberImpl member : topology.values()) {
-         if (member.getLive() != null && connector.isEquivalent(member.getLive().getParams())) {
+         if (member.getPrimary() != null && connector.isEquivalent(member.getPrimary().getParams())) {
             return member.getBackup();
          }
       }

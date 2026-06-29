@@ -20,23 +20,24 @@ package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpTestSupport;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AmqpReplicatedTestSupport extends AmqpTestSupport {
 
-   protected TestableServer liveServer;
+   protected TestableServer primaryServer;
 
    protected TestableServer backupServer;
 
    protected Configuration backupConfig;
 
-   protected Configuration liveConfig;
+   protected Configuration primaryConfig;
 
    protected abstract TransportConfiguration getAcceptorTransportConfiguration(boolean live);
 
@@ -44,6 +45,7 @@ public abstract class AmqpReplicatedTestSupport extends AmqpTestSupport {
 
    protected NodeManager nodeManager;
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -52,14 +54,14 @@ public abstract class AmqpReplicatedTestSupport extends AmqpTestSupport {
    }
 
    protected void createReplicatedConfigs() throws Exception {
-      final TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      final TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
       final TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
       final TransportConfiguration backupAcceptor = getAcceptorTransportConfiguration(false);
 
       backupConfig = createDefaultInVMConfig();
-      liveConfig = createDefaultInVMConfig();
+      primaryConfig = createDefaultInVMConfig();
 
-      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
+      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, null);
 
       backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
 
@@ -68,13 +70,14 @@ public abstract class AmqpReplicatedTestSupport extends AmqpTestSupport {
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
+      primaryConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
-      liveServer = createTestableServer(liveConfig);
+      primaryServer = createTestableServer(primaryConfig);
    }
 
    /**
-    * Override this if is needed a different implementation of {@link NodeManager} to be used into {@link #createReplicatedConfigs()}.
+    * Override this if is needed a different implementation of {@link NodeManager} to be used into
+    * {@link #createReplicatedConfigs()}.
     */
    protected NodeManager createReplicatedBackupNodeManager(Configuration backupConfig) {
       return new InVMNodeManager(true, backupConfig.getJournalLocation());
@@ -90,7 +93,7 @@ public abstract class AmqpReplicatedTestSupport extends AmqpTestSupport {
    }
 
    protected TestableServer createTestableServer(Configuration config, NodeManager nodeManager) throws Exception {
-      boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
+      boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreBackupPolicyConfiguration;
       return new SameProcessActiveMQServer(createInVMFailoverServer(true, config, nodeManager, isBackup ? 2 : 1));
    }
 

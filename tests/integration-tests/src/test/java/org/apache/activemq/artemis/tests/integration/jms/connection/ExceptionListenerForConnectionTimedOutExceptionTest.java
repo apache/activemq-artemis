@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.jms.Connection;
@@ -34,14 +39,15 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTestBase {
 
    private Queue queue;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -49,12 +55,14 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
       queue = createQueue("TestQueue");
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testOnAcknowledge() throws Exception {
       testOnAcknowledge(false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testOnAcknowledgeBlockOnFailover() throws Exception {
       // this is validating a case where failover would block
       // and yet the exception should already happen asynchronously
@@ -103,10 +111,10 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
             Wait.assertTrue(blocked::get);
             unblock();
          }
-         assertTrue(e.getCause() instanceof ActiveMQConnectionTimedOutException);
+         assertInstanceOf(ActiveMQConnectionTimedOutException.class, e.getCause());
          //Ensure JMS Connection ExceptionListener was also invoked
          assertTrue(Wait.waitFor(() -> exceptionOnConnection.get() != null, 2000, 100));
-         assertTrue(exceptionOnConnection.get().getCause() instanceof ActiveMQConnectionTimedOutException);
+         assertInstanceOf(ActiveMQConnectionTimedOutException.class, exceptionOnConnection.get().getCause());
       } finally {
          if (connection != null) {
             connection.close();
@@ -117,12 +125,14 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testOnSend() throws Exception {
       testOnSend(false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testOnSendBlockOnFailover() throws Exception {
       testOnSend(true);
    }
@@ -156,10 +166,10 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
             Wait.assertTrue(blocked::get);
             unblock();
          }
-         assertTrue(e.getCause() instanceof ActiveMQConnectionTimedOutException);
+         assertInstanceOf(ActiveMQConnectionTimedOutException.class, e.getCause());
          //Ensure JMS Connection ExceptionListener was also invoked
          assertTrue(Wait.waitFor(() -> exceptionOnConnection.get() != null, 2000, 100));
-         assertTrue(exceptionOnConnection.get().getCause() instanceof ActiveMQConnectionTimedOutException);
+         assertInstanceOf(ActiveMQConnectionTimedOutException.class, exceptionOnConnection.get().getCause());
 
       } finally {
          if (connection != null) {

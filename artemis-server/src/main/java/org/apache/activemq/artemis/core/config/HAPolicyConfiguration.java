@@ -21,14 +21,14 @@ import java.io.Serializable;
 public interface HAPolicyConfiguration extends Serializable {
 
    enum TYPE {
-      LIVE_ONLY("Live Only"),
-      REPLICATED("Replicated"),
-      REPLICA("Replica"),
-      SHARED_STORE_MASTER("Shared Store Master"),
-      SHARED_STORE_SLAVE("Shared Store Slave"),
+      PRIMARY_ONLY("Primary Only"),
+      REPLICATION_PRIMARY_QUORUM_VOTING("Replication Primary w/quorum voting"),
+      REPLICATION_BACKUP_QUORUM_VOTING("Replication Backup w/quorum voting"),
+      SHARED_STORE_PRIMARY("Shared Store Primary"),
+      SHARED_STORE_BACKUP("Shared Store Backup"),
       COLOCATED("Colocated"),
-      PRIMARY("Primary"),
-      BACKUP("Backup");
+      REPLICATION_PRIMARY_LOCK_MANAGER("Replication Primary w/lock manager"),
+      REPLICATION_BACKUP_LOCK_MANAGER("Replication Backup w/lock manager");
 
       private String name;
 

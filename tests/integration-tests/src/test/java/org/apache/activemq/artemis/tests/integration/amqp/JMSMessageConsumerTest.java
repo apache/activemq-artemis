@@ -23,7 +23,6 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
@@ -45,21 +44,30 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.jms.JmsConnection;
 import org.apache.qpid.jms.policy.JmsDefaultPrefetchPolicy;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSelectorOnTopic() throws Exception {
       doTestSelector(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSelectorOnQueue() throws Exception {
       doTestSelector(false);
    }
@@ -92,18 +100,20 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          TextMessage m = (TextMessage) messageConsumer.receive(5000);
          assertNotNull(m);
          assertEquals("msg:1", m.getText());
-         assertEquals(m.getStringProperty("color"), "RED");
+         assertEquals("RED", m.getStringProperty("color"));
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSelectorsWithJMSTypeOnTopic() throws Exception {
       doTestSelectorsWithJMSType(true);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSelectorsWithJMSTypeOnQueue() throws Exception {
       doTestSelectorsWithJMSType(false);
    }
@@ -137,15 +147,16 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
-         assertEquals("Unexpected JMSType value", type, msg.getJMSType());
-         assertEquals("Unexpected message content", "text + type", ((TextMessage) msg).getText());
+         assertInstanceOf(TextMessage.class, msg);
+         assertEquals(type, msg.getJMSType(), "Unexpected JMSType value");
+         assertEquals("text + type", ((TextMessage) msg).getText(), "Unexpected message content");
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSelectorsWithJMSCorrelationID() throws Exception {
       Connection connection = createConnection();
 
@@ -170,7 +181,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          int count = 0;
          while (enumeration.hasMoreElements()) {
             Message m = (Message) enumeration.nextElement();
-            assertTrue(m instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, m);
             count++;
          }
 
@@ -179,15 +190,16 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          MessageConsumer consumer = session.createConsumer(queue, "JMSCorrelationID = '" + correlationID + "'");
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
-         assertEquals("Unexpected JMSCorrelationID value", correlationID, msg.getJMSCorrelationID());
-         assertEquals("Unexpected message content", "JMSCorrelationID", ((TextMessage) msg).getText());
+         assertInstanceOf(TextMessage.class, msg);
+         assertEquals(correlationID, msg.getJMSCorrelationID(), "Unexpected JMSCorrelationID value");
+         assertEquals("JMSCorrelationID", ((TextMessage) msg).getText(), "Unexpected message content");
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSelectorsWithJMSPriority() throws Exception {
       Connection connection = createConnection();
 
@@ -209,7 +221,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          int count = 0;
          while (enumeration.hasMoreElements()) {
             Message m = (Message) enumeration.nextElement();
-            assertTrue(m instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, m);
             count++;
          }
 
@@ -218,19 +230,21 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          MessageConsumer consumer = session.createConsumer(queue, "JMSPriority > 8");
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          assertEquals("hello + 9", ((TextMessage) msg).getText());
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSelectorsWithJMSXGroupIDOnTopic() throws Exception {
       doTestSelectorsWithJMSXGroupID(true);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSelectorsWithJMSXGroupIDOnQueue() throws Exception {
       doTestSelectorsWithJMSXGroupID(false);
    }
@@ -272,18 +286,19 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          assertEquals("group 1 - 1", ((TextMessage) msg).getText());
          msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          assertEquals("group 1 - 2", ((TextMessage) msg).getText());
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSelectorsWithJMSDeliveryOnQueue() throws Exception {
       final Connection connection = createConnection();
 
@@ -308,15 +323,16 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
-         assertEquals("Unexpected JMSDeliveryMode value", DeliveryMode.PERSISTENT, msg.getJMSDeliveryMode());
-         assertEquals("Unexpected message content", "persistent", ((TextMessage) msg).getText());
+         assertInstanceOf(TextMessage.class, msg);
+         assertEquals(DeliveryMode.PERSISTENT, msg.getJMSDeliveryMode(), "Unexpected JMSDeliveryMode value");
+         assertEquals("persistent", ((TextMessage) msg).getText(), "Unexpected message content");
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSelectorsWithJMSTimestampOnQueue() throws Exception {
       final Connection connection = createConnection();
 
@@ -343,15 +359,16 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
-         assertEquals("Unexpected JMSTimestamp value", message2.getJMSTimestamp(), msg.getJMSTimestamp());
-         assertEquals("Unexpected message content", "expected", ((TextMessage) msg).getText());
+         assertInstanceOf(TextMessage.class, msg);
+         assertEquals(message2.getJMSTimestamp(), msg.getJMSTimestamp(), "Unexpected JMSTimestamp value");
+         assertEquals("expected", ((TextMessage) msg).getText(), "Unexpected message content");
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSelectorsWithJMSExpirationOnQueue() throws Exception {
       final Connection connection = createConnection();
 
@@ -375,15 +392,16 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
-         assertEquals("Unexpected JMSExpiration value", message2.getJMSExpiration(), msg.getJMSExpiration());
-         assertEquals("Unexpected message content", "expected", ((TextMessage) msg).getText());
+         assertInstanceOf(TextMessage.class, msg);
+         assertEquals(message2.getJMSExpiration(), msg.getJMSExpiration(), "Unexpected JMSExpiration value");
+         assertEquals("expected", ((TextMessage) msg).getText(), "Unexpected message content");
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testJMSSelectorFiltersJMSMessageIDOnTopic() throws Exception {
       Connection connection = createConnection();
 
@@ -414,7 +432,8 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testZeroPrefetchWithTwoConsumers() throws Exception {
       JmsConnection connection = (JmsConnection) createConnection();
       ((JmsDefaultPrefetchPolicy) connection.getPrefetchPolicy()).setAll(0);
@@ -432,31 +451,35 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       MessageConsumer consumer2 = session.createConsumer(queue);
       TextMessage answer = (TextMessage) consumer1.receive(5000);
       assertNotNull(answer);
-      assertEquals("Should have received a message!", answer.getText(), "Msg1");
+      assertEquals("Msg1", answer.getText(), "Should have received a message!");
       answer = (TextMessage) consumer2.receive(5000);
       assertNotNull(answer);
-      assertEquals("Should have received a message!", answer.getText(), "Msg2");
+      assertEquals("Msg2", answer.getText(), "Should have received a message!");
 
       answer = (TextMessage) consumer2.receiveNoWait();
-      assertNull("Should have not received a message!", answer);
+      assertNull(answer, "Should have not received a message!");
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testProduceAndConsumeLargeNumbersOfTopicMessagesClientAck() throws Exception {
       doTestProduceAndConsumeLargeNumbersOfMessages(true, Session.CLIENT_ACKNOWLEDGE);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testProduceAndConsumeLargeNumbersOfQueueMessagesClientAck() throws Exception {
       doTestProduceAndConsumeLargeNumbersOfMessages(false, Session.CLIENT_ACKNOWLEDGE);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testProduceAndConsumeLargeNumbersOfTopicMessagesAutoAck() throws Exception {
       doTestProduceAndConsumeLargeNumbersOfMessages(true, Session.AUTO_ACKNOWLEDGE);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testProduceAndConsumeLargeNumbersOfQueueMessagesAutoAck() throws Exception {
       doTestProduceAndConsumeLargeNumbersOfMessages(false, Session.AUTO_ACKNOWLEDGE);
    }
@@ -479,16 +502,12 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       }
 
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-
-         @Override
-         public void onMessage(Message message) {
-            try {
-               message.acknowledge();
-               done.countDown();
-            } catch (JMSException ex) {
-               logger.debug("Caught exception.", ex);
-            }
+      consumer.setMessageListener(message -> {
+         try {
+            message.acknowledge();
+            done.countDown();
+         } catch (JMSException ex) {
+            logger.debug("Caught exception.", ex);
          }
       });
 
@@ -501,10 +520,11 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          producer.send(textMessage);
       }
 
-      assertTrue("Did not receive all messages: " + MSG_COUNT, done.await(15, TimeUnit.SECONDS));
+      assertTrue(done.await(15, TimeUnit.SECONDS), "Did not receive all messages: " + MSG_COUNT);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPrefetchedMessagesAreNotConsumedOnConsumerClose() throws Exception {
       final int NUM_MESSAGES = 10;
 
@@ -544,49 +564,47 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessagesReceivedInParallel() throws Throwable {
       final int numMessages = 50000;
       long time = System.currentTimeMillis();
 
       final ArrayList<Throwable> exceptions = new ArrayList<>();
 
-      Thread t = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            Connection connectionConsumer = null;
-            try {
-               connectionConsumer = createConnection();
-               connectionConsumer.start();
-               Session sessionConsumer = connectionConsumer.createSession(false, Session.AUTO_ACKNOWLEDGE);
-               final javax.jms.Queue queue = sessionConsumer.createQueue(getQueueName());
-               final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
+      Thread t = new Thread(() -> {
+         Connection connectionConsumer = null;
+         try {
+            connectionConsumer = createConnection();
+            connectionConsumer.start();
+            Session sessionConsumer = connectionConsumer.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            final javax.jms.Queue queue = sessionConsumer.createQueue(getQueueName());
+            final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
-               long n = 0;
-               int count = numMessages;
-               while (count > 0) {
-                  try {
-                     if (++n % 1000 == 0) {
-                        logger.debug("received {} messages", n);
-                     }
-
-                     Message m = consumer.receive(5000);
-                     Assert.assertNotNull("Could not receive message count=" + count + " on consumer", m);
-                     count--;
-                  } catch (JMSException e) {
-                     e.printStackTrace();
-                     break;
-                  }
-               }
-            } catch (Throwable e) {
-               exceptions.add(e);
-               e.printStackTrace();
-            } finally {
+            long n = 0;
+            int count = numMessages;
+            while (count > 0) {
                try {
-                  connectionConsumer.close();
-               } catch (Throwable ignored) {
-                  // NO OP
+                  if (++n % 1000 == 0) {
+                     logger.debug("received {} messages", n);
+                  }
+
+                  Message m = consumer.receive(5000);
+                  assertNotNull(m, "Could not receive message count=" + count + " on consumer");
+                  count--;
+               } catch (JMSException e) {
+                  e.printStackTrace();
+                  break;
                }
+            }
+         } catch (Throwable e) {
+            exceptions.add(e);
+            e.printStackTrace();
+         } finally {
+            try {
+               connectionConsumer.close();
+            } catch (Throwable ignored) {
+               // NO OP
             }
          }
       });
@@ -626,7 +644,8 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       logger.debug("{} messages per second", ((int) messagesPerSecond));
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testClientAckMessages() throws Exception {
       final int numMessages = 10;
 
@@ -657,11 +676,11 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          for (int i = 0; i < numMessages; i++) {
             Message msg = consumer.receive(5000);
-            Assert.assertNotNull("" + i, msg);
-            Assert.assertTrue("" + msg, msg instanceof TextMessage);
+            assertNotNull(msg, "" + i);
+            assertInstanceOf(TextMessage.class, msg, "" + msg);
             String text = ((TextMessage) msg).getText();
             // System.out.println("text = " + text);
-            Assert.assertEquals(text, "msg:" + i);
+            assertEquals(text, "msg:" + i);
             msg.acknowledge();
          }
 
@@ -674,7 +693,8 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testTimedOutWaitingForWriteLogOnConsumer() throws Throwable {
       String name = "exampleQueue1";
       // disable auto-delete as it causes thrashing during the test
@@ -699,7 +719,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             queue = session.createQueue(name);
             MessageConsumer c = session.createConsumer(queue);
-            Assert.assertNotNull(c.receive(1000));
+            assertNotNull(c.receive(1000));
             session.close();
          }
 
@@ -707,7 +727,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          queue = session.createQueue(name);
          MessageConsumer c = session.createConsumer(queue);
          for (int i = 0; i < numMessages; i++) {
-            Assert.assertNull(c.receive(1));
+            assertNull(c.receive(1));
          }
          producer.close();
          session.close();
@@ -743,7 +763,8 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       assertFalse(failedToSubscribe.get());
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testBrokerRestartAMQPProducerAMQPConsumer() throws Exception {
       Connection connection = createFailoverConnection(); //AMQP
       Connection connection2 = createFailoverConnection(); //AMQP
@@ -770,8 +791,8 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          Message received = consumer2.receive(100);
 
-         assertNotNull("Should have received a message by now.", received);
-         assertTrue("Should be an instance of TextMessage", received instanceof TextMessage);
+         assertNotNull(received, "Should have received a message by now.");
+         assertInstanceOf(TextMessage.class, received, "Should be an instance of TextMessage");
          assertEquals(DeliveryMode.PERSISTENT, received.getJMSDeliveryMode());
 
 
@@ -786,8 +807,8 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          Message received2 = consumer2.receive(100);
 
-         assertNotNull("Should have received a message by now.", received2);
-         assertTrue("Should be an instance of TextMessage", received2 instanceof TextMessage);
+         assertNotNull(received2, "Should have received a message by now.");
+         assertInstanceOf(TextMessage.class, received2, "Should be an instance of TextMessage");
          assertEquals(DeliveryMode.PERSISTENT, received2.getJMSDeliveryMode());
 
 

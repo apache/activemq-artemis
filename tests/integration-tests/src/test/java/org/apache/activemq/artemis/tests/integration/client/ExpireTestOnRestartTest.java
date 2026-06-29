@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -32,8 +36,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +48,11 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
    ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true);
-      AddressSettings setting = new AddressSettings().setExpiryAddress(SimpleString.toSimpleString("exp")).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setPageSizeBytes(100 * 1024).setMaxSizeBytes(200 * 1024).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
+      AddressSettings setting = new AddressSettings().setExpiryAddress(SimpleString.of("exp")).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setPageSizeBytes(100 * 1024).setMaxSizeBytes(200 * 1024).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
       server.getConfiguration().setJournalSyncNonTransactional(false);
       server.getConfiguration().setMessageExpiryScanPeriod(-1);
       server.getConfiguration().setJournalSyncTransactional(false);
@@ -64,8 +68,8 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(true, true);
 
-      session.createQueue(new QueueConfiguration("test"));
-      session.createQueue(new QueueConfiguration("exp"));
+      session.createQueue(QueueConfiguration.of("test"));
+      session.createQueue(QueueConfiguration.of("exp"));
       ClientProducer prod = session.createProducer("test");
 
       for (int i = 0; i < 10; i++) {
@@ -95,7 +99,7 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      Queue queue = server.locateQueue(SimpleString.toSimpleString("test"));
+      Queue queue = server.locateQueue(SimpleString.of("test"));
 
       factory = locator.createSessionFactory();
       session = factory.createSession(false, false);
@@ -128,7 +132,7 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
          extras++;
       }
 
-      assertEquals("Received extra messages on expire address", 0, extras);
+      assertEquals(0, extras, "Received extra messages on expire address");
 
       session.commit();
 

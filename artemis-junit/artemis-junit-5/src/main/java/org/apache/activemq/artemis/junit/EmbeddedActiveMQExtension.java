@@ -32,12 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A JUnit Extension that embeds an ActiveMQ Artemis server into a test.
+ * A JUnit Extension that embeds an Apache Artemis server into a test.
  * <p>
  * This JUnit Extension is designed to simplify using embedded servers in unit tests. Adding the extension to a test will startup
  * an embedded server, which can then be used by client applications.
  *
- * <pre><code>
+ * <pre>{@code
  * public class SimpleTest {
  *     &#64;RegisterExtension
  *     private EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  *         // Use the embedded server here
  *     }
  * }
- * </code></pre>
+ * }</pre>
  */
 public class EmbeddedActiveMQExtension implements BeforeAllCallback, AfterAllCallback, EmbeddedActiveMQOperations {
 
@@ -100,7 +100,7 @@ public class EmbeddedActiveMQExtension implements BeforeAllCallback, AfterAllCal
    }
 
    /**
-    * Invoked by JUnit to setup the resource - start the embedded ActiveMQ Artemis server
+    * Invoked by JUnit to setup the resource - start the embedded Apache Artemis server
     */
    @Override
    public void beforeAll(ExtensionContext context) throws Exception {
@@ -111,7 +111,7 @@ public class EmbeddedActiveMQExtension implements BeforeAllCallback, AfterAllCal
    }
 
    /**
-    * Invoked by JUnit to tear down the resource - stops the embedded ActiveMQ Artemis server
+    * Invoked by JUnit to tear down the resource - stops the embedded Apache Artemis server
     */
    @Override
    public void afterAll(ExtensionContext context) throws Exception {

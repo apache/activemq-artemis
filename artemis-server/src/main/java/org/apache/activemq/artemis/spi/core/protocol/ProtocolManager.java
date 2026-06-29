@@ -30,17 +30,16 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 /**
- * Info: ProtocolManager is loaded by {@link org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl#loadProtocolManagerFactories(Iterable)}
+ * Info: ProtocolManager is loaded by
+ * {@link
+ * org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl#loadProtocolManagerFactories(Iterable)}
  */
 public interface ProtocolManager<P extends BaseInterceptor, R extends RoutingHandler> {
 
    ProtocolManagerFactory<P> getFactory();
 
    /**
-    * This method will receive all the interceptors on the system and you should filter them out *
-    *
-    * @param incomingInterceptors
-    * @param outgoingInterceptors
+    * This method will receive all the interceptors on the system and you should filter them out
     */
    void updateInterceptors(List<BaseInterceptor> incomingInterceptors, List<BaseInterceptor> outgoingInterceptors);
 
@@ -56,9 +55,9 @@ public interface ProtocolManager<P extends BaseInterceptor, R extends RoutingHan
    boolean isProtocol(byte[] array);
 
    /**
-    * If this protocols accepts connectoins without an initial handshake.
-    * If true this protocol will be the failback case no other connections are made.
-    * New designed protocols should always require a handshake. This is only useful for legacy protocols.
+    * If this protocols accepts connectoins without an initial handshake. If true this protocol will be the failback
+    * case no other connections are made. New designed protocols should always require a handshake. This is only useful
+    * for legacy protocols.
     */
    boolean acceptsNoHandshake();
 

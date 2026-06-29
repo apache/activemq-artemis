@@ -16,8 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createMapMessage;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -36,16 +44,15 @@ import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.UnsignedShort;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createMapMessage;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpManagementTest extends AmqpClientTestSupport {
 
    private static final Binary BINARY_CORRELATION_ID = new Binary("mystring".getBytes(StandardCharsets.UTF_8));
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testManagementQueryOverAMQP() throws Throwable {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -66,13 +73,13 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
 
          sender.send(request);
          AmqpMessage response = receiver.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(response);
+         assertNotNull(response);
          assertNotNull(response);
          Object section = response.getWrappedMessage().getBody();
-         assertTrue(section instanceof AmqpValue);
+         assertInstanceOf(AmqpValue.class, section);
          Object value = ((AmqpValue) section).getValue();
-         assertTrue(value instanceof String);
-         assertTrue(((String) value).length() > 0);
+         assertInstanceOf(String.class, value);
+         assertFalse(((String) value).isEmpty());
          assertTrue(((String) value).contains(destinationAddress));
          response.accept();
       } finally {
@@ -82,58 +89,64 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
 
    /**
     * Some clients use Unsigned types from org.apache.qpid.proton.amqp
-    * @throws Exception
     */
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testUnsignedValues() throws Exception {
       int sequence = 42;
-      LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+      Map<String, Object> map = new LinkedHashMap<>();
       map.put("sequence", new UnsignedInteger(sequence));
       CoreMapMessageWrapper msg = createMapMessage(1, map, null);
-      assertEquals(msg.getInt("sequence"), sequence);
+      assertEquals(sequence, msg.getInt("sequence"));
 
       map.clear();
       map.put("sequence", new UnsignedLong(sequence));
       msg = createMapMessage(1, map, null);
-      assertEquals(msg.getLong("sequence"), sequence);
+      assertEquals(sequence, msg.getLong("sequence"));
 
       map.clear();
       map.put("sequence", new UnsignedShort((short)sequence));
       msg = createMapMessage(1, map, null);
-      assertEquals(msg.getShort("sequence"), sequence);
+      assertEquals(sequence, msg.getShort("sequence"));
 
       map.clear();
       map.put("sequence", new UnsignedByte((byte) sequence));
       msg = createMapMessage(1, map, null);
-      assertEquals(msg.getByte("sequence"), sequence);
+      assertEquals(sequence, msg.getByte("sequence"));
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCorrelationByMessageIDUUID() throws Throwable {
       doTestReplyCorrelation(UUID.randomUUID(), false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCorrelationByMessageIDString() throws Throwable {
       doTestReplyCorrelation("mystring", false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCorrelationByMessageIDBinary() throws Throwable {
       doTestReplyCorrelation(BINARY_CORRELATION_ID, false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCorrelationByCorrelationIDUUID() throws Throwable {
       doTestReplyCorrelation(UUID.randomUUID(), true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCorrelationByCorrelationIDString() throws Throwable {
       doTestReplyCorrelation("mystring", true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCorrelationByCorrelationIDBinary() throws Throwable {
       doTestReplyCorrelation(BINARY_CORRELATION_ID, true);
    }
@@ -163,8 +176,8 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
 
          sender.send(request);
          AmqpMessage response = receiver.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(response);
-         Assert.assertEquals(correlationId, response.getRawCorrelationId());
+         assertNotNull(response);
+         assertEquals(correlationId, response.getRawCorrelationId());
          response.accept();
       } finally {
          connection.close();

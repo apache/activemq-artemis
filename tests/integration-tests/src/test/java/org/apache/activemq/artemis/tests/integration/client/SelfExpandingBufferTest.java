@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -28,14 +30,13 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SelfExpandingBufferTest extends ActiveMQTestBase {
 
    ActiveMQServer service;
 
-   SimpleString ADDRESS = new SimpleString("Address");
+   SimpleString ADDRESS = SimpleString.of("Address");
 
    @Test
    public void testSelfExpandingBufferNettyPersistent() throws Exception {
@@ -70,7 +71,7 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase {
 
       try {
 
-         session.createQueue(new QueueConfiguration(ADDRESS));
+         session.createQueue(QueueConfiguration.of(ADDRESS));
 
          ClientMessage msg = session.createMessage(true);
 
@@ -94,7 +95,7 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase {
 
          ClientMessage msg2 = cons.receive(3000);
 
-         Assert.assertNotNull(msg2);
+         assertNotNull(msg2);
 
          byte[] receivedBytes = new byte[bytes.length];
 
@@ -112,7 +113,7 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase {
 
          msg2 = cons.receive(3000);
 
-         Assert.assertNotNull(msg2);
+         assertNotNull(msg2);
 
          msg2.getBodyBuffer().readBytes(receivedBytes);
 

@@ -79,10 +79,10 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 
 /**
- * ActiveMQ Artemis implementation of a JMS Session.
- * <br>
- * Note that we *do not* support JMS ASF (Application Server Facilities) optional
- * constructs such as ConnectionConsumer
+ * Apache Artemis implementation of a JMS {@link Session}.
+ * <p>
+ * Note that we *do not* support JMS ASF (Application Server Facilities) optional constructs such as
+ * {@code ConnectionConsumer}
  */
 public class ActiveMQSession implements QueueSession, TopicSession {
 
@@ -92,7 +92,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    public static final int TYPE_TOPIC_SESSION = 2;
 
-   private static SimpleString REJECTING_FILTER = new SimpleString("_AMQX=-1");
+   private static SimpleString REJECTING_FILTER = SimpleString.of("_AMQX=-1");
 
    private final ConnectionFactoryOptions options;
 
@@ -151,6 +151,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    // Session implementation ----------------------------------------
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public BytesMessage createBytesMessage() throws JMSException {
       checkClosed();
@@ -164,6 +168,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return message;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public MapMessage createMapMessage() throws JMSException {
       checkClosed();
@@ -177,6 +185,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return message;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public Message createMessage() throws JMSException {
       checkClosed();
@@ -190,6 +202,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return message;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public ObjectMessage createObjectMessage() throws JMSException {
       checkClosed();
@@ -203,6 +219,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return message;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public ObjectMessage createObjectMessage(final Serializable object) throws JMSException {
       checkClosed();
@@ -218,6 +238,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return msg;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public StreamMessage createStreamMessage() throws JMSException {
       checkClosed();
@@ -231,6 +255,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return message;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public TextMessage createTextMessage() throws JMSException {
       checkClosed();
@@ -246,6 +274,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return msg;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public TextMessage createTextMessage(final String text) throws JMSException {
       checkClosed();
@@ -261,6 +293,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return msg;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public boolean getTransacted() throws JMSException {
       checkClosed();
@@ -268,6 +304,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return transacted;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public int getAcknowledgeMode() throws JMSException {
       checkClosed();
@@ -279,6 +319,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return xa;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void commit() throws JMSException {
       if (!transacted) {
@@ -294,6 +338,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void rollback() throws JMSException {
       if (!transacted) {
@@ -310,6 +358,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void close() throws JMSException {
       connection.getThreadAwareContext().assertNotCompletionListenerThread();
@@ -331,6 +383,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       queueCache.clear();
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void recover() throws JMSException {
       if (transacted) {
@@ -346,6 +402,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       recoverCalled = true;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public MessageListener getMessageListener() throws JMSException {
       checkClosed();
@@ -353,15 +413,27 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return null;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void setMessageListener(final MessageListener listener) throws JMSException {
       checkClosed();
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void run() {
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public MessageProducer createProducer(final Destination destination) throws JMSException {
       if (destination != null && !(destination instanceof ActiveMQDestination)) {
@@ -448,17 +520,29 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public MessageConsumer createConsumer(final Destination destination) throws JMSException {
       return createConsumer(destination, null, false);
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public MessageConsumer createConsumer(final Destination destination,
                                          final String messageSelector) throws JMSException {
       return createConsumer(destination, messageSelector, false);
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public MessageConsumer createConsumer(final Destination destination,
                                          final String messageSelector,
@@ -467,11 +551,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          throw new InvalidDestinationException("Cannot create a consumer with a null destination");
       }
 
-      if (!(destination instanceof ActiveMQDestination)) {
+      if (!(destination instanceof ActiveMQDestination jbdest)) {
          throw new InvalidDestinationException("Not an ActiveMQDestination:" + destination);
       }
-
-      ActiveMQDestination jbdest = (ActiveMQDestination) destination;
 
       if (jbdest.isTemporary() && !connection.containsTemporaryQueue(jbdest.getSimpleAddress())) {
          throw new JMSException("Can not create consumer for temporary destination " + destination +
@@ -481,6 +563,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return createConsumer(jbdest, null, messageSelector, noLocal, ConsumerDurability.NON_DURABLE);
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public Queue createQueue(final String queueName) throws JMSException {
       // As per spec. section 4.11
@@ -531,6 +617,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return queue;
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public Topic createTopic(final String topicName) throws JMSException {
       // As per spec. section 4.11
@@ -571,11 +661,17 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public TopicSubscriber createDurableSubscriber(final Topic topic, final String name) throws JMSException {
       return createDurableSubscriber(topic, name, null, false);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public TopicSubscriber createDurableSubscriber(final Topic topic,
                                                   final String name,
@@ -586,14 +682,12 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          throw new IllegalStateException("Cannot create a durable subscriber on a QueueSession");
       }
       checkTopic(topic);
-      if (!(topic instanceof ActiveMQDestination)) {
+      if (!(topic instanceof ActiveMQDestination jbdest)) {
          throw new InvalidDestinationException("Not an ActiveMQTopic:" + topic);
       }
       if ("".equals(messageSelector)) {
          messageSelector = null;
       }
-
-      ActiveMQDestination jbdest = (ActiveMQDestination) topic;
 
       if (jbdest.isQueue()) {
          throw new InvalidDestinationException("Cannot create a subscriber on a queue");
@@ -608,24 +702,16 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public MessageConsumer createSharedConsumer(Topic topic, String sharedSubscriptionName) throws JMSException {
       return createSharedConsumer(topic, sharedSubscriptionName, null);
    }
 
    /**
-    * Note: Needs to throw an exception if a subscriptionName is already in use by another topic, or if the messageSelector is different
-    *
-    * validate multiple subscriptions on the same session.
-    * validate multiple subscriptions on different sessions
-    * validate failure in one connection while another connection stills fine.
-    * Validate different filters in different possible scenarios
-    *
-    * @param topic
-    * @param name
-    * @param messageSelector
-    * @return
-    * @throws JMSException
+    * {@inheritDoc}
     */
    @Override
    public MessageConsumer createSharedConsumer(Topic topic, String name, String messageSelector) throws JMSException {
@@ -634,19 +720,25 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
       checkTopic(topic);
       ActiveMQTopic localTopic;
-      if (topic instanceof ActiveMQTopic) {
-         localTopic = (ActiveMQTopic) topic;
+      if (topic instanceof ActiveMQTopic activeMQTopic) {
+         localTopic = activeMQTopic;
       } else {
          localTopic = new ActiveMQTopic(topic.getTopicName());
       }
       return internalCreateSharedConsumer(localTopic, name, messageSelector, ConsumerDurability.NON_DURABLE);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public MessageConsumer createDurableConsumer(Topic topic, String name) throws JMSException {
       return createDurableConsumer(topic, name, null, false);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public MessageConsumer createDurableConsumer(Topic topic,
                                                 String name,
@@ -657,19 +749,25 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
       checkTopic(topic);
       ActiveMQTopic localTopic;
-      if (topic instanceof ActiveMQTopic) {
-         localTopic = (ActiveMQTopic) topic;
+      if (topic instanceof ActiveMQTopic activeMQTopic) {
+         localTopic = activeMQTopic;
       } else {
          localTopic = new ActiveMQTopic(topic.getTopicName());
       }
       return createConsumer(localTopic, name, messageSelector, noLocal, ConsumerDurability.DURABLE);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public MessageConsumer createSharedDurableConsumer(Topic topic, String name) throws JMSException {
       return createSharedDurableConsumer(topic, name, null);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public MessageConsumer createSharedDurableConsumer(Topic topic,
                                                       String name,
@@ -682,29 +780,36 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       ActiveMQTopic localTopic;
 
-      if (topic instanceof ActiveMQTopic) {
-         localTopic = (ActiveMQTopic) topic;
+      if (topic instanceof ActiveMQTopic activeMQTopic) {
+         localTopic = activeMQTopic;
       } else {
          localTopic = new ActiveMQTopic(topic.getTopicName());
       }
       return internalCreateSharedConsumer(localTopic, name, messageSelector, ConsumerDurability.DURABLE);
    }
 
+   @Deprecated(forRemoval = true)
    public String getDeserializationBlackList() {
-      return connection.getDeserializationBlackList();
+      return getDeserializationDenyList();
    }
 
+   @Deprecated(forRemoval = true)
    public String getDeserializationWhiteList() {
-      return connection.getDeserializationWhiteList();
+      return getDeserializationAllowList();
+   }
+
+   public String getDeserializationDenyList() {
+      return connection.getDeserializationDenyList();
+   }
+
+   public String getDeserializationAllowList() {
+      return connection.getDeserializationAllowList();
    }
 
    enum ConsumerDurability {
       DURABLE, NON_DURABLE;
    }
 
-   /**
-    * This is an internal method for shared consumers
-    */
    private ActiveMQMessageConsumer internalCreateSharedConsumer(final ActiveMQDestination dest,
                                                                 final String subscriptionName,
                                                                 String selectorString,
@@ -726,7 +831,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          SimpleString coreFilterString = null;
 
          if (selectorString != null) {
-            coreFilterString = new SimpleString(SelectorTranslator.convertToActiveMQFilterString(selectorString));
+            coreFilterString = SimpleString.of(SelectorTranslator.convertToActiveMQFilterString(selectorString));
          }
 
          ClientConsumer consumer;
@@ -800,7 +905,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          SimpleString coreFilterString = null;
 
          if (selectorString != null) {
-            coreFilterString = new SimpleString(SelectorTranslator.convertToActiveMQFilterString(selectorString));
+            coreFilterString = SimpleString.of(SelectorTranslator.convertToActiveMQFilterString(selectorString));
          }
 
          ClientConsumer consumer;
@@ -836,15 +941,16 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             SimpleString queueName;
 
             if (subscriptionName == null) {
-               if (durability != ConsumerDurability.NON_DURABLE)
+               if (durability != ConsumerDurability.NON_DURABLE) {
                   throw new RuntimeException("Subscription name cannot be null for durable topic consumer");
+               }
                // Non durable sub
 
 
                if (CompositeAddress.isFullyQualified(dest.getAddress())) {
                   queueName = createFQQNSubscription(dest, coreFilterString, response);
                } else {
-                  queueName = new SimpleString(UUID.randomUUID().toString());
+                  queueName = SimpleString.of(UUID.randomUUID().toString());
                   createTemporaryQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, response);
                }
 
@@ -852,8 +958,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                autoDeleteQueueName = queueName;
             } else {
                // Durable sub
-               if (durability != ConsumerDurability.DURABLE)
+               if (durability != ConsumerDurability.DURABLE) {
                   throw new RuntimeException("Subscription name must be null for non-durable topic consumer");
+               }
                if (connection.getClientID() == null) {
                   throw new IllegalStateException("Cannot create durable subscription - client ID has not been set");
                }
@@ -894,7 +1001,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
                   boolean topicChanged = !oldTopicName.equals(dest.getSimpleAddress());
 
-                  if ((selectorChanged || topicChanged) && !subResponse.isConfigurationManaged()) {
+                  if ((selectorChanged || topicChanged) && !Boolean.TRUE.equals(subResponse.isConfigurationManaged())) {
                      // Delete the old durable sub
                      session.deleteQueue(queueName);
 
@@ -950,8 +1057,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    }
 
    private ClientConsumer createClientConsumer(ActiveMQDestination destination, SimpleString queueName, SimpleString coreFilterString) throws ActiveMQException {
-      QueueAttributes queueAttributes = destination.getQueueAttributes() == null ? new QueueAttributes() : destination.getQueueAttributes();
-      int priority = queueAttributes.getConsumerPriority() == null ? ActiveMQDefaultConfiguration.getDefaultConsumerPriority() : queueAttributes.getConsumerPriority();
+      QueueAttributes queueAttributes = Objects.requireNonNullElseGet(destination.getQueueAttributes(), () -> new QueueAttributes());
+      int priority = Objects.requireNonNullElse(queueAttributes.getConsumerPriority(), ActiveMQDefaultConfiguration.getDefaultConsumerPriority());
       return session.createConsumer(queueName == null ? destination.getSimpleAddress() : queueName, coreFilterString, priority, false);
    }
 
@@ -959,11 +1066,18 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
    }
 
+
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public QueueBrowser createBrowser(final Queue queue) throws JMSException {
       return createBrowser(queue, null);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public QueueBrowser createBrowser(final Queue queue, String filterString) throws JMSException {
       // As per spec. section 4.11
@@ -973,7 +1087,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       if (queue == null) {
          throw new InvalidDestinationException("Cannot create a browser with a null queue");
       }
-      if (!(queue instanceof ActiveMQDestination)) {
+      if (!(queue instanceof ActiveMQDestination activeMQDestination)) {
          throw new InvalidDestinationException("Not an ActiveMQQueue:" + queue);
       }
       if ("".equals(filterString)) {
@@ -986,17 +1100,15 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             SelectorParser.parse(filterString.trim());
          }
       } catch (FilterException e) {
-         throw JMSExceptionHelper.convertFromActiveMQException(ActiveMQJMSClientBundle.BUNDLE.invalidFilter(new SimpleString(filterString), e));
+         throw JMSExceptionHelper.convertFromActiveMQException(ActiveMQJMSClientBundle.BUNDLE.invalidFilter(SimpleString.of(filterString), e));
       }
-
-      ActiveMQDestination activeMQDestination = (ActiveMQDestination) queue;
 
       if (!activeMQDestination.isQueue()) {
          throw new InvalidDestinationException("Cannot create a browser on a topic");
       }
 
       try {
-         AddressQuery response = session.addressQuery(new SimpleString(activeMQDestination.getAddress()));
+         AddressQuery response = session.addressQuery(SimpleString.of(activeMQDestination.getAddress()));
          if (!response.isExists()) {
             if (response.isAutoCreateQueues()) {
                createQueue(activeMQDestination, RoutingType.ANYCAST, activeMQDestination.getSimpleAddress(), null, true, true, response);
@@ -1012,6 +1124,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public TemporaryQueue createTemporaryQueue() throws JMSException {
       // As per spec. section 4.11
@@ -1022,14 +1137,14 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       try {
          final ActiveMQTemporaryQueue queue;
          if (enable1xPrefixes) {
-            queue  = ActiveMQDestination.createTemporaryQueue(this, PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString());
+            queue = ActiveMQDestination.createTemporaryQueue(this, PacketImpl.OLD_TEMP_QUEUE_PREFIX.toString());
          } else {
-            queue  = ActiveMQDestination.createTemporaryQueue(this);
+            queue = ActiveMQDestination.createTemporaryQueue(this);
          }
 
          SimpleString simpleAddress = queue.getSimpleAddress();
 
-         session.createQueue(new QueueConfiguration(simpleAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false).setTemporary(true));
+         session.createQueue(QueueConfiguration.of(simpleAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false).setTemporary(true));
 
          connection.addTemporaryQueue(simpleAddress);
 
@@ -1041,6 +1156,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public TemporaryTopic createTemporaryTopic() throws JMSException {
       // As per spec. section 4.11
@@ -1051,9 +1169,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       try {
          final ActiveMQTemporaryTopic topic;
          if (enable1xPrefixes) {
-            topic  = ActiveMQDestination.createTemporaryTopic(this, PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString());
+            topic = ActiveMQDestination.createTemporaryTopic(this, PacketImpl.OLD_TEMP_TOPIC_PREFIX.toString());
          } else {
-            topic  = ActiveMQDestination.createTemporaryTopic(this);
+            topic = ActiveMQDestination.createTemporaryTopic(this);
          }
 
          SimpleString simpleAddress = topic.getSimpleAddress();
@@ -1063,7 +1181,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          // does not exist - otherwise we would not be able to distinguish from a non existent topic and one with no
          // subscriptions - core has no notion of a topic
 
-         session.createQueue(new QueueConfiguration(simpleAddress).setAddress(simpleAddress).setFilterString(ActiveMQSession.REJECTING_FILTER).setDurable(false).setTemporary(true));
+         session.createQueue(QueueConfiguration.of(simpleAddress).setAddress(simpleAddress).setFilterString(ActiveMQSession.REJECTING_FILTER).setDurable(false).setTemporary(true));
 
          connection.addTemporaryQueue(simpleAddress);
 
@@ -1073,6 +1191,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void unsubscribe(final String name) throws JMSException {
       // As per spec. section 4.11
@@ -1117,16 +1238,25 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    // QueueSession implementation
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public QueueReceiver createReceiver(final Queue queue, final String messageSelector) throws JMSException {
       return (QueueReceiver) createConsumer(queue, messageSelector);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public QueueReceiver createReceiver(final Queue queue) throws JMSException {
       return (QueueReceiver) createConsumer(queue);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public QueueSender createSender(final Queue queue) throws JMSException {
       return (QueueSender) createProducer(queue);
@@ -1140,11 +1270,17 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    // TopicSession implementation
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public TopicPublisher createPublisher(final Topic topic) throws JMSException {
       return (TopicPublisher) createProducer(topic);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public TopicSubscriber createSubscriber(final Topic topic,
                                            final String messageSelector,
@@ -1152,6 +1288,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return (TopicSubscriber) createConsumer(topic, messageSelector, noLocal);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public TopicSubscriber createSubscriber(final Topic topic) throws JMSException {
       return (TopicSubscriber) createConsumer(topic);
@@ -1162,7 +1301,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public TopicSession getTopicSession() throws JMSException {
       return (TopicSession) getSession();
    }
-
 
    @Override
    public String toString() {
@@ -1282,19 +1420,19 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    }
 
    void createTemporaryQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, ClientSession.AddressQuery addressQuery) throws ActiveMQException {
-      QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? new QueueConfiguration(queueName) : destination.getQueueConfiguration();
+      QueueConfiguration queueConfiguration = Objects.requireNonNullElse(destination.getQueueConfiguration(), QueueConfiguration.of(queueName));
       AutoCreateUtil.setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, false);
       session.createQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setDurable(false).setTemporary(true));
    }
 
    void createSharedQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, ClientSession.AddressQuery addressQuery) throws ActiveMQException {
-      QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? new QueueConfiguration(queueName) : destination.getQueueConfiguration();
+      QueueConfiguration queueConfiguration = Objects.requireNonNullElseGet(destination.getQueueConfiguration(), () -> QueueConfiguration.of(queueName));
       AutoCreateUtil.setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, durable);
       session.createSharedQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setDurable(durable));
    }
 
    void createQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, boolean autoCreated, ClientSession.AddressQuery addressQuery) throws ActiveMQException {
-      QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? new QueueConfiguration(queueName) : destination.getQueueConfiguration();
+      QueueConfiguration queueConfiguration = Objects.requireNonNullElseGet(destination.getQueueConfiguration(), () -> QueueConfiguration.of(queueName));
       AutoCreateUtil.setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, durable);
       session.createQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setAutoCreated(autoCreated).setDurable(durable));
    }

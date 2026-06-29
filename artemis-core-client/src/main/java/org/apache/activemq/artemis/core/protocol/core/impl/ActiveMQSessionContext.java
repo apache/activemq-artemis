@@ -16,6 +16,20 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.lang.invoke.MethodHandles;
+import java.security.PrivilegedAction;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -25,27 +39,6 @@ import org.apache.activemq.artemis.api.core.QueueAttributes;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_CONSUMER;
-import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.EXCEPTION;
-import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_CONTINUATION;
-import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_LARGE_MSG;
-import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_MSG;
-
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -135,9 +128,15 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_CONSUMER;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.EXCEPTION;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_CONTINUATION;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_LARGE_MSG;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_MSG;
 
 public class ActiveMQSessionContext extends SessionContext {
 
@@ -303,7 +302,7 @@ public class ActiveMQSessionContext extends SessionContext {
                                  Boolean purgeOnNoConsumers,
                                  Boolean exclusive,
                                  Boolean lastValue) throws ActiveMQException {
-      createSharedQueue(new QueueConfiguration(queueName)
+      createSharedQueue(QueueConfiguration.of(queueName)
                            .setAddress(address)
                            .setRoutingType(routingType)
                            .setFilterString(filterString)
@@ -334,7 +333,7 @@ public class ActiveMQSessionContext extends SessionContext {
                                  RoutingType routingType,
                                  SimpleString filterString,
                                  boolean durable) throws ActiveMQException {
-      createSharedQueue(new QueueConfiguration(queueName)
+      createSharedQueue(QueueConfiguration.of(queueName)
                            .setAddress(address)
                            .setRoutingType(routingType)
                            .setFilterString(filterString)
@@ -347,7 +346,7 @@ public class ActiveMQSessionContext extends SessionContext {
                                  SimpleString queueName,
                                  SimpleString filterString,
                                  boolean durable) throws ActiveMQException {
-      createSharedQueue(new QueueConfiguration(queueName)
+      createSharedQueue(QueueConfiguration.of(queueName)
                            .setAddress(address)
                            .setFilterString(filterString)
                            .setDurable(durable));
@@ -400,7 +399,8 @@ public class ActiveMQSessionContext extends SessionContext {
                                                 int ackBatchSize,
                                                 boolean browseOnly,
                                                 Executor executor,
-                                                Executor flowControlExecutor) throws ActiveMQException {
+                                                Executor flowControlExecutor,
+                                                int onMessageCloseTimeout) throws ActiveMQException {
       long consumerID = idGenerator.generateID();
 
       ActiveMQConsumerContext consumerContext = new ActiveMQConsumerContext(consumerID);
@@ -420,7 +420,7 @@ public class ActiveMQSessionContext extends SessionContext {
       // The value we send is just a hint
       final int consumerWindowSize = windowSize == ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE ? this.getDefaultConsumerWindowSize(queueInfo) : windowSize;
 
-      return new ClientConsumerImpl(session, consumerContext, queueName, filterString, priority, browseOnly, consumerWindowSize, calcWindowSize(consumerWindowSize), ackBatchSize, maxRate > 0 ? new TokenBucketLimiterImpl(maxRate, false) : null, executor, flowControlExecutor, this, queueInfo.toQueueQuery(), lookupTCCL());
+      return new ClientConsumerImpl(session, consumerContext, queueName, filterString, priority, browseOnly, consumerWindowSize, calcWindowSize(consumerWindowSize), ackBatchSize, maxRate > 0 ? new TokenBucketLimiterImpl(maxRate, false) : null, executor, flowControlExecutor, this, queueInfo.toQueueQuery(), lookupTCCL(), onMessageCloseTimeout);
    }
 
    @Override
@@ -552,9 +552,7 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    /**
-    * ActiveMQ Artemis does support large messages
-    *
-    * @return
+    * Apache Artemis does support large messages
     */
    @Override
    public boolean supportsLargeMessage() {
@@ -609,7 +607,7 @@ public class ActiveMQSessionContext extends SessionContext {
                                     int reconnectID,
                                     int senderID,
                                     SendAcknowledgementHandler messageHandler) throws ActiveMQException {
-      return sendSessionSendContinuationMessage(this.sessionChannel, msgI, messageBodySize, sendBlocking, lastChunk, chunk, senderID,  messageHandler);
+      return sendSessionSendContinuationMessage(this.sessionChannel, msgI, messageBodySize, sendBlocking, lastChunk, chunk, senderID, messageHandler);
    }
 
    @Override
@@ -685,14 +683,14 @@ public class ActiveMQSessionContext extends SessionContext {
       Xid[] xidArray = xids.toArray(new Xid[xids.size()]);
 
       if (logger.isTraceEnabled()) {
-         StringBuffer buffer = new StringBuffer();
+         StringBuilder builder = new StringBuilder();
          for (int i = 0; i < xidArray.length; i++) {
-            buffer.append(xidArray[i].toString());
+            builder.append(xidArray[i].toString());
             if (i + 1 < xidArray.length) {
-               buffer.append(",");
+               builder.append(",");
             }
          }
-         logger.trace("xaScan returning {} xids = [{}]", xidArray.length, buffer.toString());
+         logger.trace("xaScan returning {} xids = [{}]", xidArray.length, builder.toString());
       }
 
       return xidArray;
@@ -770,7 +768,7 @@ public class ActiveMQSessionContext extends SessionContext {
                            boolean durable,
                            boolean temp,
                            boolean autoCreated) throws ActiveMQException {
-      createQueue(new QueueConfiguration(queueName)
+      createQueue(QueueConfiguration.of(queueName)
                      .setAddress(address)
                      .setFilterString(filterString)
                      .setDurable(durable)
@@ -806,7 +804,7 @@ public class ActiveMQSessionContext extends SessionContext {
                            boolean autoCreated,
                            Boolean exclusive,
                            Boolean lastValue) throws ActiveMQException {
-      createQueue(new QueueConfiguration(queueName)
+      createQueue(QueueConfiguration.of(queueName)
                      .setAddress(address)
                      .setTemporary(temp)
                      .setAutoCreated(autoCreated)
@@ -830,7 +828,7 @@ public class ActiveMQSessionContext extends SessionContext {
                            int maxConsumers,
                            boolean purgeOnNoConsumers,
                            boolean autoCreated) throws ActiveMQException {
-      createQueue(new QueueConfiguration(queueName)
+      createQueue(QueueConfiguration.of(queueName)
                      .setAddress(address)
                      .setRoutingType(routingType)
                      .setFilterString(filterString)
@@ -963,7 +961,6 @@ public class ActiveMQSessionContext extends SessionContext {
 
          sendPacketWithoutLock(sessionChannel, packet);
       } else {
-         // https://jira.jboss.org/browse/HORNETQ-522
          SessionConsumerFlowCreditMessage packet = new SessionConsumerFlowCreditMessage(getConsumerID(consumerInternal), 1);
          sendPacketWithoutLock(sessionChannel, packet);
       }
@@ -993,7 +990,7 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
-   public void resetMetadata(HashMap<String, String> metaDataToSend) {
+   public void resetMetadata(Map<String, String> metaDataToSend) {
       // Resetting the metadata after failover
       for (Map.Entry<String, String> entries : metaDataToSend.entrySet()) {
          sendPacketWithoutLock(sessionChannel, new SessionAddMetaDataMessageV2(entries.getKey(), entries.getValue(), false));
@@ -1002,9 +999,8 @@ public class ActiveMQSessionContext extends SessionContext {
 
    @Override
    public int getDefaultConsumerWindowSize(SessionQueueQueryResponseMessage response) throws ActiveMQException {
-      if (response instanceof SessionQueueQueryResponseMessage_V3) {
-         final Integer defaultConsumerWindowSize = ((SessionQueueQueryResponseMessage_V3) response).getDefaultConsumerWindowSize();
-         return defaultConsumerWindowSize != null ? defaultConsumerWindowSize : ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE;
+      if (response instanceof SessionQueueQueryResponseMessage_V3 v3) {
+         return Objects.requireNonNullElse(v3.getDefaultConsumerWindowSize(), ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE);
       } else {
          return ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE;
       }
@@ -1019,9 +1015,7 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    /**
-    * This doesn't apply to other protocols probably, so it will be an ActiveMQ Artemis exclusive feature
-    *
-    * @throws ActiveMQException
+    * This doesn't apply to other protocols probably, so it will be an Apache Artemis exclusive feature
     */
    private void handleConsumerDisconnected(DisconnectConsumerMessage packet) throws ActiveMQException {
       DisconnectConsumerMessage message = packet;
@@ -1108,7 +1102,7 @@ public class ActiveMQSessionContext extends SessionContext {
          }
          return chunkPacket.getPacketSize();
       } catch (Throwable e) {
-         throw new ActiveMQException(e.getMessage());
+         throw new ActiveMQException(e.getMessage(), e);
       }
    }
 
@@ -1180,12 +1174,7 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    protected ClassLoader lookupTCCL() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         @Override
-         public ClassLoader run() {
-            return Thread.currentThread().getContextClassLoader();
-         }
-      });
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ClassLoader>) () -> Thread.currentThread().getContextClassLoader());
 
    }
 

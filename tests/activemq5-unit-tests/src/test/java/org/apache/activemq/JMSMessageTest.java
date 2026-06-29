@@ -32,6 +32,7 @@ import javax.jms.TextMessage;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import junit.framework.Test;
@@ -267,7 +268,7 @@ public class JMSMessageTest extends JmsTestSupport {
       private long expiration;
       private int priority;
       private String text;
-      private final HashMap<String, Object> props = new HashMap<>();
+      private final Map<String, Object> props = new HashMap<>();
 
       @Override
       public String getJMSMessageID() throws JMSException {
@@ -491,6 +492,25 @@ public class JMSMessageTest extends JmsTestSupport {
       @Override
       public String getText() throws JMSException {
          return text;
+      }
+
+      @Override
+      public long getJMSDeliveryTime() throws JMSException {
+         return 0;
+      }
+
+      @Override
+      public void setJMSDeliveryTime(long deliveryTime) throws JMSException {
+      }
+
+      @Override
+      public <T> T getBody(Class<T> c) throws JMSException {
+         throw new UnsupportedOperationException("Test class does not implement getBody");
+      }
+
+      @Override
+      public boolean isBodyAssignableTo(Class c) throws JMSException {
+         throw new UnsupportedOperationException("Test class does not implement isBodyAssignableTo");
       }
    }
 

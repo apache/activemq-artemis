@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 public final class ActiveMQThreadFactory implements ThreadFactory {
 
@@ -37,13 +37,13 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
 
    private final ClassLoader tccl;
 
-   private final AccessControlContext acc;
+   private final Object acc;
 
    private final String prefix;
 
    /**
-    * Construct a new instance.  The access control context of the calling thread will be the one used to create
-    * new threads if a security manager is installed.
+    * Construct a new instance.  The access control context of the calling thread will be the one used to create new
+    * threads if a security manager is installed.
     *
     * @param groupName the name of the thread group to assign threads to by default
     * @param daemon    whether the created threads should be daemon threads
@@ -54,15 +54,15 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
    }
 
    /**
-    * Construct a new instance.  The access control context of the calling thread will be the one used to create
-    * new threads if a security manager is installed.
+    * Construct a new instance.  The access control context of the calling thread will be the one used to create new
+    * threads if a security manager is installed.
     *
     * @param groupName the name of the thread group to assign threads to by default
     * @param daemon    whether the created threads should be daemon threads
     * @param tccl      the context class loader of newly created threads
     */
    public ActiveMQThreadFactory(final String groupName, String prefix, final boolean daemon, final ClassLoader tccl) {
-      this.groupName = groupName;
+      this.groupName = "activemq-" + StringUtil.convertPascalCaseToKebabCase(groupName);
 
       this.prefix = prefix;
 
@@ -72,14 +72,14 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
 
       this.daemon = daemon;
 
-      this.acc = AccessController.getContext();
+      this.acc = SecurityManagerShim.getAccessControlContext();
    }
 
    @Override
    public Thread newThread(final Runnable command) {
       // create a thread in a privileged block if running with Security Manager
       if (acc != null) {
-         return AccessController.doPrivileged(new ThreadCreateAction(command), acc);
+         return SecurityManagerShim.doPrivileged(new ThreadCreateAction(command), acc);
       } else {
          return createThread(command);
       }
@@ -99,7 +99,9 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
       }
    }
 
-   /** It will wait all threads to finish */
+   /**
+    * It will wait all threads to finish
+    */
    public boolean join(int timeout, TimeUnit timeUnit) {
       try {
          return active.await(timeout, timeUnit);
@@ -123,7 +125,14 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
       };
       t.setDaemon(daemon);
       t.setPriority(threadPriority);
-      t.setContextClassLoader(tccl);
+      if (acc != null) {
+         SecurityManagerShim.doPrivileged((PrivilegedAction<Void>) () -> {
+            t.setContextClassLoader(tccl);
+            return null; // nothing to return
+         });
+      } else {
+         t.setContextClassLoader(tccl);
+      }
       return t;
    }
 

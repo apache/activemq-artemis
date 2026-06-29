@@ -21,16 +21,17 @@ import java.util.UUID;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-public class JdbcSharedStateManagerTest extends ActiveMQTestBase {
+public class JdbcSharedStateManagerTest extends ServerTestBase {
 
    private DatabaseStorageConfiguration dbConf;
    private SQLProvider sqlProvider;
 
-   @Before
+   @BeforeEach
    public void configure() {
       dbConf = createDefaultDatabaseStorageConfiguration();
       sqlProvider = JDBCUtils.getSQLProvider(
@@ -55,7 +56,8 @@ public class JdbcSharedStateManagerTest extends ActiveMQTestBase {
          sqlProvider);
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void shouldStartIfTableNotExist() throws Exception {
       final JdbcSharedStateManager sharedStateManager = createSharedStateManager();
       try {
@@ -65,7 +67,8 @@ public class JdbcSharedStateManagerTest extends ActiveMQTestBase {
       }
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void shouldStartIfTableExistEmpty() throws Exception {
       final TestJDBCDriver fakeDriver = createFakeDriver(false);
       fakeDriver.start();
@@ -78,7 +81,8 @@ public class JdbcSharedStateManagerTest extends ActiveMQTestBase {
       }
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void shouldStartIfTableExistInitialized() throws Exception {
       final TestJDBCDriver fakeDriver = createFakeDriver(true);
       fakeDriver.start();
@@ -91,7 +95,8 @@ public class JdbcSharedStateManagerTest extends ActiveMQTestBase {
       }
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void shouldStartTwoIfTableNotExist() throws Exception {
       final JdbcSharedStateManager liveSharedStateManager = createSharedStateManager();
       final JdbcSharedStateManager backupSharedStateManager = createSharedStateManager();

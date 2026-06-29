@@ -16,21 +16,20 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.StampedLock;
 
+import org.apache.activemq.artemis.utils.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkArgument;
 
 /**
  * Concurrent hash set for primitive longs
- *
+ * <p>
  * Provides similar methods as a ConcurrentSet&lt;Long&gt; but since it's an open hash map with linear probing, no node
  * allocations are required to store the values.
  * <p>
@@ -63,7 +62,7 @@ public class ConcurrentLongHashSet {
    }
 
    public ConcurrentLongHashSet(int expectedItems, final int numSections) {
-      checkArgument(numSections > 0);
+      Preconditions.checkArgument(numSections > 0);
       if (expectedItems < numSections) {
          expectedItems = numSections;
       }
@@ -136,7 +135,6 @@ public class ConcurrentLongHashSet {
    /**
     * Remove an existing entry if found
     *
-    * @param item
     * @return true if removed or false if item was not present
     */
    public boolean remove(long item) {

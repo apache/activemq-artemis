@@ -22,7 +22,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class MessageBodyTestCase extends ActiveMQServerTestCase {
 
@@ -36,7 +36,7 @@ public abstract class MessageBodyTestCase extends ActiveMQServerTestCase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

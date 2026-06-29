@@ -22,6 +22,7 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -64,6 +65,11 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
    @Parameter(defaultValue = "${localRepository}")
    protected ArtifactRepository localRepository;
 
+   @Parameter
+   protected String[] extraRepositories;
+
+   List<RemoteRepository> inUseRepositories;
+
    @Override
    public void execute() throws MojoExecutionException, MojoFailureException {
       if (isIgnore()) {
@@ -88,9 +94,24 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
       return Files.exists(artemisScript, LinkOption.NOFOLLOW_LINKS);
    }
 
-   protected abstract boolean isIgnore();
+   protected File findArtemisHome(final File home, final File alternateHome) throws MojoExecutionException {
+      if (isArtemisHome(home.toPath())) {
+         return home;
+      }
 
-   protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
+      if (isArtemisHome(alternateHome.toPath())) {
+         return alternateHome;
+      }
+
+      getLog().error("********************************************************************************************");
+      getLog().error("Could not locate suitable Artemis.home on either " + home + " or " + alternateHome);
+      getLog().error("Use the binary distribution or build the distribution before running the examples");
+      getLog().error("********************************************************************************************");
+
+      throw new MojoExecutionException("Couldn't find artemis.home");
+   }
+
+   protected abstract boolean isIgnore();
 
    protected Artifact newArtifact(String artifactID) throws MojoFailureException {
       Artifact artifact;
@@ -100,6 +121,26 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
          throw new MojoFailureException(e.getMessage(), e);
       }
       return artifact;
+   }
+
+   protected void doExecute() throws MojoExecutionException, MojoFailureException {
+      int repositories = 0;
+      if (extraRepositories != null) {
+         inUseRepositories = new ArrayList<>();
+         for (String strRepo: extraRepositories) {
+            RemoteRepository repo = new RemoteRepository.Builder("repo" + (repositories++), "default", strRepo).build();
+            inUseRepositories.add(repo);
+            remoteRepos.add(repo);
+         }
+      }
+   }
+
+   protected void done() {
+      if (inUseRepositories != null) {
+         inUseRepositories.forEach(r -> remoteRepos.remove(r));
+         inUseRepositories.clear(); // give a help to GC
+      }
+      inUseRepositories = null;
    }
 
    protected File resolveArtifactFile(Artifact artifact) throws MojoExecutionException, DependencyCollectionException {

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -26,73 +28,75 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailoverTestBase {
 
-   @Parameterized.Parameter
+   @Parameter(index = 0)
    public HAType haType;
 
-   @Parameterized.Parameters(name = "ha={0}")
+   @Parameters(name = "ha={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{HAType.SharedNothingReplication}, {HAType.PluggableQuorumReplication}});
    }
 
-   @Test
-   public void testStartLiveFirst() throws Exception {
-      for (TestableServer liveServer : liveServers) {
+   @TestTemplate
+   public void testStartPrimaryFirst() throws Exception {
+      for (TestableServer liveServer : primaryServers) {
          liveServer.start();
       }
       for (TestableServer backupServer : backupServers) {
          backupServer.start();
       }
-      waitForTopology(liveServers.get(0).getServer(), liveServers.size(), backupServers.size());
+      waitForTopology(primaryServers.get(0).getServer(), primaryServers.size(), backupServers.size());
       sendCrashReceive();
    }
 
-   @Test
+   @TestTemplate
    public void testStartBackupFirst() throws Exception {
       for (TestableServer backupServer : backupServers) {
          backupServer.start();
       }
-      for (TestableServer liveServer : liveServers) {
+      for (TestableServer liveServer : primaryServers) {
          liveServer.start();
       }
-      waitForTopology(liveServers.get(0).getServer(), liveServers.size(), liveServers.size());
+      waitForTopology(primaryServers.get(0).getServer(), primaryServers.size(), primaryServers.size());
       sendCrashReceive();
    }
 
    protected void sendCrashReceive() throws Exception {
-      ServerLocator[] locators = new ServerLocator[liveServers.size()];
+      ServerLocator[] locators = new ServerLocator[primaryServers.size()];
       try {
          for (int i = 0; i < locators.length; i++) {
             locators[i] = getServerLocator(i);
          }
 
-         ClientSessionFactory[] factories = new ClientSessionFactory[liveServers.size()];
+         ClientSessionFactory[] factories = new ClientSessionFactory[primaryServers.size()];
          for (int i = 0; i < factories.length; i++) {
             factories[i] = createSessionFactory(locators[i]);
          }
 
-         ClientSession[] sessions = new ClientSession[liveServers.size()];
+         ClientSession[] sessions = new ClientSession[primaryServers.size()];
          for (int i = 0; i < factories.length; i++) {
             sessions[i] = createSession(factories[i], true, true);
-            sessions[i].createQueue(new QueueConfiguration(ADDRESS));
+            sessions[i].createQueue(QueueConfiguration.of(ADDRESS));
          }
 
          //make sure bindings are ready before sending messages
-         for (int i = 0; i < liveServers.size(); i++) {
-            this.waitForBindings(liveServers.get(i).getServer(), ADDRESS.toString(), true, 1, 0, 2000);
-            this.waitForBindings(liveServers.get(i).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+         for (int i = 0; i < primaryServers.size(); i++) {
+            this.waitForBindings(primaryServers.get(i).getServer(), ADDRESS.toString(), true, 1, 0, 2000);
+            this.waitForBindings(primaryServers.get(i).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
          }
 
          ClientProducer producer = sessions[0].createProducer(ADDRESS);
 
-         for (int i = 0; i < liveServers.size() * 100; i++) {
+         for (int i = 0; i < primaryServers.size() * 100; i++) {
             ClientMessage message = sessions[0].createMessage(true);
 
             setBody(i, message);
@@ -104,14 +108,14 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
 
          producer.close();
 
-         for (TestableServer liveServer : liveServers) {
+         for (TestableServer liveServer : primaryServers) {
             waitForDistribution(ADDRESS, liveServer.getServer(), 100);
          }
 
-         for (TestableServer liveServer : liveServers) {
+         for (TestableServer liveServer : primaryServers) {
             liveServer.crash();
          }
-         ClientConsumer[] consumers = new ClientConsumer[liveServers.size()];
+         ClientConsumer[] consumers = new ClientConsumer[primaryServers.size()];
          for (int i = 0; i < factories.length; i++) {
             consumers[i] = sessions[i].createConsumer(ADDRESS);
             sessions[i].start();
@@ -120,7 +124,7 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
          for (int i = 0; i < 100; i++) {
             for (ClientConsumer consumer : consumers) {
                ClientMessage message = consumer.receive(1000);
-               assertNotNull("expecting durable msg " + i, message);
+               assertNotNull(message, "expecting durable msg " + i);
                message.acknowledge();
             }
 
@@ -139,13 +143,13 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
    }
 
    @Override
-   public int getLiveServerCount() {
-      return 2;
+   public int getPrimaryServerCount() {
+      return 6;
    }
 
    @Override
    public int getBackupServerCount() {
-      return 2;
+      return 6;
    }
 
    @Override

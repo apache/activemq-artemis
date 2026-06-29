@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
@@ -43,33 +45,28 @@ public class SessionQueueQueryMessage extends QueueAbstractPacket {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(queueName);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", queueName=" + queueName);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", queueName=" + queueName);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionQueueQueryMessage))
+      }
+      if (!(obj instanceof SessionQueueQueryMessage other)) {
          return false;
-      SessionQueueQueryMessage other = (SessionQueueQueryMessage) obj;
-      if (queueName == null) {
-         if (other.queueName != null)
-            return false;
-      } else if (!queueName.equals(other.queueName))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(queueName, other.queueName);
    }
 }

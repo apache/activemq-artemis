@@ -16,18 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SharedStoreScaleDownBackupTest extends ClusterTestBase {
 
@@ -36,21 +39,21 @@ public class SharedStoreScaleDownBackupTest extends ClusterTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
-      setupLiveServer(0, isFileStorage(), HAType.SharedStore, isNetty(), false);
-      setupLiveServer(1, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(0, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(1, isFileStorage(), HAType.SharedStore, isNetty(), false);
       setupBackupServer(2, 0, isFileStorage(), HAType.SharedStore, isNetty());
 
       setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
       setupClusterConnection("cluster1", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0);
       setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 2, 1);
 
-      ((SharedStoreMasterPolicyConfiguration)getServer(0).getConfiguration().getHAPolicyConfiguration()).
+      ((SharedStorePrimaryPolicyConfiguration)getServer(0).getConfiguration().getHAPolicyConfiguration()).
          setFailoverOnServerShutdown(true);
-      ((SharedStoreSlavePolicyConfiguration)getServer(2).getConfiguration().getHAPolicyConfiguration()).
+      ((SharedStoreBackupPolicyConfiguration)getServer(2).getConfiguration().getHAPolicyConfiguration()).
          setFailoverOnServerShutdown(true).
          setRestartBackup(true).
          setScaleDownConfiguration(new ScaleDownConfiguration().setEnabled(true).addConnector(
@@ -85,14 +88,14 @@ public class SharedStoreScaleDownBackupTest extends ClusterTestBase {
       // consume a message from queue 2
       addConsumer(1, 0, queueName2, null, false);
       ClientMessage clientMessage = consumers[1].getConsumer().receive(250);
-      Assert.assertNotNull(clientMessage);
+      assertNotNull(clientMessage);
       clientMessage.acknowledge();
       consumers[1].getSession().commit();
       //      removeConsumer(1);
 
       // at this point on node 0 there should be 2 messages in testQueue1 and 1 message in testQueue2
-      Assert.assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
-      Assert.assertEquals(TEST_SIZE - 1, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
+      assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName1))).getQueue()));
+      assertEquals(TEST_SIZE - 1, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName2))).getQueue()));
 
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();
@@ -100,26 +103,26 @@ public class SharedStoreScaleDownBackupTest extends ClusterTestBase {
       // get the 2 messages from queue 1
       addConsumer(0, 1, queueName1, null);
       clientMessage = consumers[0].getConsumer().receive(250);
-      Assert.assertNotNull(clientMessage);
+      assertNotNull(clientMessage);
       clientMessage.acknowledge();
       clientMessage = consumers[0].getConsumer().receive(250);
-      Assert.assertNotNull(clientMessage);
+      assertNotNull(clientMessage);
       clientMessage.acknowledge();
 
       // ensure there are no more messages on queue 1
       clientMessage = consumers[0].getConsumer().receive(250);
-      Assert.assertNull(clientMessage);
+      assertNull(clientMessage);
       removeConsumer(0);
 
       // get the 1 message from queue 2
       addConsumer(0, 1, queueName2, null);
       clientMessage = consumers[0].getConsumer().receive(250);
-      Assert.assertNotNull(clientMessage);
+      assertNotNull(clientMessage);
       clientMessage.acknowledge();
 
       // ensure there are no more messages on queue 1
       clientMessage = consumers[0].getConsumer().receive(250);
-      Assert.assertNull(clientMessage);
+      assertNull(clientMessage);
       removeConsumer(0);
    }
 }

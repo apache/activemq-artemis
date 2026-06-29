@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -37,13 +36,19 @@ import picocli.CommandLine.Parameters;
 
 public class InstallAbstract extends InputAbstract {
 
+   protected static final String LOG_DIRNAME = "log";
+   protected static final String OOM_DUMP_FILENAME = "oom_dump.hprof";
+
    @Parameters(description = "The instance directory to hold the broker's configuration and data. Path must be writable.")
    protected File directory;
 
-   @Option(names = "--etc", description = "Directory where ActiveMQ configuration is located. Paths can be absolute or relative to artemis.instance directory. Default: etc.")
+   @Option(names = "--etc", description = "Directory where Apache Artemis configuration is located. Paths can be absolute or relative to artemis.instance directory. Default: etc.")
    protected String etc = "etc";
 
-   @Option(names = "--home", description = "Directory where ActiveMQ Artemis is installed.")
+   @Option(names = "--data", description = "Directory where Apache Artemis data is stored. Paths can be absolute or relative to artemis.instance directory. Default: data.")
+   protected String data = "data";
+
+   @Option(names = "--home", description = "Directory where Apache Artemis is installed.")
    protected File home;
 
    @Option(names = "--encoding", description = "The encoding that text files should use. Default: UTF-8.")
@@ -58,13 +63,29 @@ public class InstallAbstract extends InputAbstract {
    @Option(names = "--java-options", description = "Extra Java options to be passed to the profile.")
    protected List<String> javaOptions;
 
+   @Option(names = "--java-utility-options", description = "Extra Java options to be passed to the utility profile.")
+   protected List<String> javaUtilityOptions;
+
    @Option(names = "--java-memory", description = "Define the -Xmx memory parameter for the broker. Default: 2G.")
    protected String javaMemory = "2G";
+
+   // "calculated" during run
+   protected boolean IS_WINDOWS;
+   // "calculated" during run
+   protected boolean IS_NIX;
 
    protected String getJavaOptions() {
       StringBuilder builder = new StringBuilder();
       if (javaOptions != null) {
          javaOptions.forEach(s -> builder.append(s).append(" "));
+      }
+      return builder.toString();
+   }
+
+   protected String getJavaUtilityOptions() {
+      StringBuilder builder = new StringBuilder();
+      if (javaUtilityOptions != null) {
+         javaUtilityOptions.forEach(s -> builder.append(s).append(" "));
       }
       return builder.toString();
    }
@@ -92,8 +113,32 @@ public class InstallAbstract extends InputAbstract {
       return home;
    }
 
-   protected boolean IS_WINDOWS;
-   protected boolean IS_NIX;
+   public File getDirectory() {
+      return directory;
+   }
+
+   public InstallAbstract setDirectory(File directory) {
+      this.directory = directory;
+      return this;
+   }
+
+   public boolean isWindows() {
+      return windows;
+   }
+
+   public InstallAbstract setWindows(boolean windows) {
+      this.windows = windows;
+      return this;
+   }
+
+   public boolean isNix() {
+      return nix;
+   }
+
+   public InstallAbstract setNix(boolean nix) {
+      this.nix = nix;
+      return this;
+   }
 
    public Object run(ActionContext context) throws Exception {
       IS_NIX = false;
@@ -143,7 +188,7 @@ public class InstallAbstract extends InputAbstract {
 
    protected void write(String source,
                       File target,
-                      HashMap<String, String> filters,
+                      Map<String, String> filters,
                       boolean unixTarget, boolean force) throws Exception {
       if (target.exists() && !force) {
          throw new CLIException(String.format("The file '%s' already exists.  Use --force to overwrite.", target));
@@ -157,7 +202,7 @@ public class InstallAbstract extends InputAbstract {
 
       // and then writing out in the new target encoding..  Let's also replace \n with the values
       // that is correct for the current platform.
-      String separator = unixTarget && IS_NIX ? "\n" : System.getProperty("line.separator");
+      String separator = unixTarget && IS_NIX ? "\n" : System.lineSeparator();
       content = content.replaceAll("\\r?\\n", Matcher.quoteReplacement(separator));
       ByteArrayInputStream in = new ByteArrayInputStream(content.getBytes(encoding));
       try (FileOutputStream fout = new FileOutputStream(target)) {

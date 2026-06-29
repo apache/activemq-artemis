@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
@@ -26,9 +29,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SessionCreateConsumerTest extends ActiveMQTestBase {
 
@@ -40,7 +42,7 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase {
    private ClientSessionFactory cf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       locator = createInVMNonHALocator();
       super.setUp();
@@ -54,16 +56,16 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testCreateConsumer() throws Exception {
-      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       ClientConsumer consumer = clientSession.createConsumer(queueName);
-      Assert.assertNotNull(consumer);
+      assertNotNull(consumer);
    }
 
    @Test
    public void testCreateConsumerNoQ() throws Exception {
       try {
          clientSession.createConsumer(queueName);
-         Assert.fail("should throw exception");
+         fail("should throw exception");
       } catch (ActiveMQNonExistentQueueException neqe) {
          //ok
       } catch (ActiveMQException e) {
@@ -73,17 +75,17 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testCreateConsumerWithFilter() throws Exception {
-      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       ClientConsumer consumer = clientSession.createConsumer(queueName, "foo=bar");
-      Assert.assertNotNull(consumer);
+      assertNotNull(consumer);
    }
 
    @Test
    public void testCreateConsumerWithInvalidFilter() throws Exception {
-      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       try {
          clientSession.createConsumer(queueName, "this is not valid filter");
-         Assert.fail("should throw exception");
+         fail("should throw exception");
       } catch (ActiveMQInvalidFilterExpressionException ifee) {
          //ok
       } catch (ActiveMQException e) {
@@ -93,16 +95,16 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testCreateConsumerWithBrowseOnly() throws Exception {
-      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       ClientConsumer consumer = clientSession.createConsumer(queueName, null, true);
-      Assert.assertNotNull(consumer);
+      assertNotNull(consumer);
    }
 
    @Test
    public void testCreateConsumerWithOverrides() throws Exception {
-      clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       ClientConsumer consumer = clientSession.createConsumer(queueName, null, 100, 100, false);
-      Assert.assertNotNull(consumer);
+      assertNotNull(consumer);
    }
 
 }

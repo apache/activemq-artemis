@@ -30,20 +30,19 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
-import org.apache.activemq.artemis.core.postoffice.impl.AddressMapVisitor;
 import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.WildcardAddressManager;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WildcardAddressManagerPerfTest {
 
    @Test
-   @Ignore
+   @Disabled
    public void testConcurrencyAndEfficiency() throws Exception {
 
       System.out.println("Type so we can go on..");
@@ -60,7 +59,7 @@ public class WildcardAddressManagerPerfTest {
       final int partitions = 2;
       ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
 
-      for (int i = 0; i < numSubs; i++ ) {
+      for (int i = 0; i < numSubs; i++) {
          final int id = i;
 
          executorService.submit(() -> {
@@ -72,13 +71,13 @@ public class WildcardAddressManagerPerfTest {
                }
 
                // subscribe as wildcard
-               ad.addBinding(new BindingFake(SimpleString.toSimpleString("Topic1." +  id % partitions +  ".>"), SimpleString.toSimpleString("" + id), id));
+               ad.addBinding(new BindingFake(SimpleString.of("Topic1." + id % partitions + ".>"), SimpleString.of("" + id), id));
 
-               SimpleString pubAddr = SimpleString.toSimpleString("Topic1." +  id % partitions + "." + id );
+               SimpleString pubAddr = SimpleString.of("Topic1." + id % partitions + "." + id);
 
 
                if (id != 0 && id % 1000 == 0) {
-                  System.err.println("0. pub for: " + id );
+                  System.err.println("0. pub for: " + id);
                }
 
                // publish
@@ -104,17 +103,14 @@ public class WildcardAddressManagerPerfTest {
       }
 
       executorService.shutdown();
-      assertTrue("finished on time", executorService.awaitTermination(10, TimeUnit.MINUTES));
+      assertTrue(executorService.awaitTermination(10, TimeUnit.MINUTES), "finished on time");
 
 
       final AtomicLong addresses = new AtomicLong();
       final AtomicLong bindings = new AtomicLong();
-      ad.getAddressMap().visitMatchingWildcards(SimpleString.toSimpleString(">"), new AddressMapVisitor<Bindings>() {
-         @Override
-         public void visit(Bindings value) {
-            addresses.incrementAndGet();
-            bindings.addAndGet(value.getBindings().size());
-         }
+      ad.getAddressMap().visitMatchingWildcards(SimpleString.of(">"), value -> {
+         addresses.incrementAndGet();
+         bindings.addAndGet(value.getBindings().size());
       });
       System.err.println("Total: Addresses: " + addresses.get() + ", bindings: " + bindings.get());
 

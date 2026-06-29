@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
+import static org.apache.activemq.artemis.api.core.management.ManagementHelper.HDR_CLIENT_ID;
+import static org.apache.activemq.artemis.api.core.management.ManagementHelper.HDR_CONSUMER_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
@@ -34,31 +40,29 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.api.core.management.ManagementHelper.HDR_CLIENT_ID;
-import static org.apache.activemq.artemis.api.core.management.ManagementHelper.HDR_CONSUMER_NAME;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class JMSNotificationTest extends MultiprotocolJMSClientTestSupport {
 
    private ClientConsumer notificationConsumer;
    private String clientID;
 
-   @Before
-   public void setClientID() {
-      clientID = RandomUtil.randomString();
-   }
+   @BeforeEach
+   @Override
+   public void setUp() throws Exception {
+      super.setUp();
 
-   @Before
-   public void createNotificationConsumer() throws Exception {
+      clientID = RandomUtil.randomUUIDString();
+
       ServerLocator locator = addServerLocator(createInVMNonHALocator());
       ClientSessionFactory sf = addSessionFactory(locator.createSessionFactory());
       ClientSession session = addClientSession(sf.createSession(false, true, true));
       session.start();
-      SimpleString notificationQueue = RandomUtil.randomSimpleString();
-      session.createQueue(new QueueConfiguration(notificationQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
+      SimpleString notificationQueue = RandomUtil.randomUUIDSimpleString();
+      session.createQueue(QueueConfiguration.of(notificationQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
       notificationConsumer = addClientConsumer(session.createConsumer(notificationQueue));
    }
 
@@ -75,17 +79,20 @@ public class JMSNotificationTest extends MultiprotocolJMSClientTestSupport {
       server.getConfiguration().addAcceptorConfiguration("invm", "vm://0");
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testConsumerNotificationAMQP() throws Exception {
       testConsumerNotifications(createConnection(getBrokerQpidJMSConnectionURI(), null, null, clientID, true));
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testConsumerNotificationCore() throws Exception {
       testConsumerNotifications(createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, clientID, true));
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testConsumerNotificationOpenWire() throws Exception {
       testConsumerNotifications(createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, clientID, true));
    }
@@ -124,17 +131,20 @@ public class JMSNotificationTest extends MultiprotocolJMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSessionNotificationAMQP() throws Exception {
       testSessionNotification(createConnection(getBrokerQpidJMSConnectionURI(), null, null, clientID, true));
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSessionNotificationCore() throws Exception {
       testSessionNotification(createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, clientID, true));
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSessionNotificationOpenWire() throws Exception {
       testSessionNotification(createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, clientID, true));
    }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.config;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,7 +27,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JMSServerPropertyConfigTest extends ActiveMQTestBase {
 

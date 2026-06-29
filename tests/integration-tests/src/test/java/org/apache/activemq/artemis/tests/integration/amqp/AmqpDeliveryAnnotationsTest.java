@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
@@ -26,7 +29,8 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Test around the handling of Deliver Annotations in messages sent and received.
@@ -35,7 +39,8 @@ public class AmqpDeliveryAnnotationsTest extends AmqpClientTestSupport {
 
    private final String DELIVERY_ANNOTATION_NAME = "TEST-DELIVERY-ANNOTATION";
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDeliveryAnnotationsStrippedFromIncoming() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

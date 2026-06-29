@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.CompletionListener;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -43,13 +46,10 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.tests.message.SimpleJMSMessage;
 import org.apache.activemq.artemis.jms.tests.message.SimpleJMSTextMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class MessageProducerTest extends JMSTestCase {
 
@@ -82,9 +82,6 @@ public class MessageProducerTest extends JMSTestCase {
 
    private static class SimpleDestination implements Destination, Serializable {
 
-      /**
-       *
-       */
       private static final long serialVersionUID = -2553676986492799801L;
    }
 
@@ -269,14 +266,11 @@ public class MessageProducerTest extends JMSTestCase {
 
          final MessageProducer anonProducer = ps.createProducer(null);
 
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  anonProducer.send(ActiveMQServerTestCase.topic2, m1);
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
-               }
+         new Thread(() -> {
+            try {
+               anonProducer.send(ActiveMQServerTestCase.topic2, m1);
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "Producer Thread").start();
 
@@ -713,12 +707,12 @@ public class MessageProducerTest extends JMSTestCase {
 
    @Test
    public void testSendToQueueOnlyWhenTopicWithSameAddress() throws Exception {
-      SimpleString addr = SimpleString.toSimpleString("testAddr");
+      SimpleString addr = SimpleString.of("testAddr");
 
       EnumSet<RoutingType> supportedRoutingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
 
       servers.get(0).getActiveMQServer().addAddressInfo(new AddressInfo(addr, supportedRoutingTypes));
-      servers.get(0).getActiveMQServer().createQueue(new QueueConfiguration(addr).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      servers.get(0).getActiveMQServer().createQueue(QueueConfiguration.of(addr).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       Connection pconn = createConnection();
       pconn.start();

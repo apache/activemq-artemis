@@ -20,6 +20,7 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.Map;
+import java.util.Objects;
 
 public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper {
 
@@ -36,11 +37,8 @@ public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper 
 
    /**
     * Creates a new XAResourceWrapper.  PRODUCT_NAME, productVersion and jndiName are useful for log output in the
-    * Transaction Manager.  For ActiveMQ Artemis only the resourceManagerID is required to allow Transaction Manager to recover
-    * from relevant recovery scenarios.
-    *
-    * @param xaResource
-    * @param properties
+    * Transaction Manager.  For Apache Artemis only the resourceManagerID is required to allow Transaction Manager to
+    * recover from relevant recovery scenarios.
     */
    public ActiveMQXAResourceWrapperImpl(XAResource xaResource, Map<String, Object> properties) {
       this.xaResource = xaResource;
@@ -52,7 +50,7 @@ public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper 
       String jndiName = (String) properties.get(ACTIVEMQ_JNDI_NAME);
       String nodeId = "NodeId:" + properties.get(ACTIVEMQ_NODE_ID);
 
-      this.jndiNameNodeId = jndiName == null ? nodeId : jndiName + " " + nodeId;
+      this.jndiNameNodeId = Objects.requireNonNullElse(jndiName, nodeId) + " " + nodeId;
    }
 
    public XAResource getResource() {

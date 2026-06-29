@@ -16,36 +16,37 @@
  */
 package org.apache.activemq.artemis.tests.smoke.console;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.smoke.console.pages.LoginPage;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.openqa.selenium.MutableCapabilities;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.WEB_URL_PATH;
+//Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 
 public class LoginTest extends ConsoleTest {
 
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
-
-   private static final String DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE = "/activemq-branding/plugin/img/activemq.png";
-
-   public LoginTest(MutableCapabilities browserOptions) {
-      super(browserOptions);
+   public LoginTest(String browser, String serverName) {
+      super(browser, serverName);
    }
 
-   @Test
+   @TestTemplate
    public void testLogin() {
-      driver.get(webServerUrl + "/console");
+      driver.get(webServerUrl + WEB_URL_PATH);
       LoginPage loginPage = new LoginPage(driver);
       loginPage.loginValidUser(SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
    }
 
-   @Test
+   @TestTemplate
    public void testLoginBrand() {
-      String expectedBrandImage = webServerUrl + System.getProperty(
+      String expectedBrandImage = webServerUrl + WEB_URL_PATH + System.getProperty(
          "artemis.console.login.brand.image", DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE);
 
-      driver.get(webServerUrl + "/console");
+      driver.get(webServerUrl + WEB_URL_PATH);
       LoginPage loginPage = new LoginPage(driver);
       assertEquals(expectedBrandImage, loginPage.getBrandImage(DEFAULT_TIMEOUT));
    }

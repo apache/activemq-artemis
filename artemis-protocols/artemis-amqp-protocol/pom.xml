@@ -19,13 +19,13 @@
 
    <parent>
       <artifactId>artemis-protocols</artifactId>
-      <groupId>org.apache.activemq</groupId>
-      <version>2.31.0-SNAPSHOT</version>
+      <groupId>org.apache.artemis</groupId>
+      <version>2.56.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>artemis-amqp-protocol</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis AMQP Protocol</name>
+   <name>Apache Artemis AMQP Protocol</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
@@ -33,23 +33,20 @@
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-selector</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <!-- logging -->
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-log-annotation-processor</artifactId>
          <version>${project.version}</version>
          <scope>provided</scope>
@@ -62,27 +59,30 @@
       </dependency>
       <dependency>
          <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-slf4j-impl</artifactId>
+         <artifactId>log4j-slf4j2-impl</artifactId>
          <scope>test</scope>
       </dependency>
 
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-journal</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>proton-j</artifactId>
       </dependency>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-api</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -107,7 +107,12 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.mockito</groupId>
+         <artifactId>mockito-junit-jupiter</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>

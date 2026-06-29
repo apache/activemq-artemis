@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 
@@ -23,15 +25,14 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class AIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase {
 
-   @BeforeClass
+   @BeforeAll
    public static void hasAIO() {
-      org.junit.Assume.assumeTrue("Test case needs AIO to run", AIOSequentialFileFactory.isSupported());
+      org.junit.jupiter.api.Assumptions.assumeTrue(AIOSequentialFileFactory.isSupported(), "Test case needs AIO to run");
    }
 
    @Override
@@ -49,7 +50,7 @@ public class AIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
       SequentialFile file = factory.createSequentialFile("filtetmp.log");
       file.open();
       ByteBuffer buff = factory.newBuffer(10);
-      Assert.assertEquals(factory.getAlignment(), buff.limit());
+      assertEquals(factory.getAlignment(), buff.limit());
       file.close();
       factory.releaseBuffer(buff);
    }

@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -122,15 +121,11 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
       this.connectionId = CONNECTION_ID_GENERATOR.generateId();
       this.remoteURI = transport.getRemoteLocation();
 
-      this.serializer = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
-
-         @Override
-         public Thread newThread(Runnable runner) {
-            Thread serial = new Thread(runner);
-            serial.setDaemon(true);
-            serial.setName(toString());
-            return serial;
-         }
+      this.serializer = new ScheduledThreadPoolExecutor(1, runner -> {
+         Thread serial = new Thread(runner);
+         serial.setDaemon(true);
+         serial.setName(toString());
+         return serial;
       });
 
       // Ensure timely shutdown
@@ -146,40 +141,37 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
          transport.connect();
 
          final ClientFuture future = new ClientFuture();
-         serializer.execute(new Runnable() {
-            @Override
-            public void run() {
-               if (!noContainerID) {
-                  getEndpoint().setContainer(safeGetContainerId());
-               }
-               getEndpoint().setHostname(remoteURI.getHost());
-               if (!getDesiredCapabilities().isEmpty()) {
-                  getEndpoint().setDesiredCapabilities(getDesiredCapabilities().toArray(new Symbol[0]));
-               }
-               if (!getOfferedCapabilities().isEmpty()) {
-                  getEndpoint().setOfferedCapabilities(getOfferedCapabilities().toArray(new Symbol[0]));
-               }
-               if (!getOfferedProperties().isEmpty()) {
-                  getEndpoint().setProperties(getOfferedProperties());
-               }
-
-               if (getIdleTimeout() > 0) {
-                  protonTransport.setIdleTimeout(getIdleTimeout());
-               }
-               protonTransport.setMaxFrameSize(getMaxFrameSize());
-               protonTransport.setChannelMax(getChannelMax());
-               protonTransport.setEmitFlowEventOnSend(false);
-               protonTransport.bind(getEndpoint());
-               Sasl sasl = protonTransport.sasl();
-               if (sasl != null) {
-                  sasl.client();
-               }
-               authenticator = new SaslAuthenticator(sasl, username, password, authzid, mechanismRestriction);
-               ((TransportImpl) protonTransport).setProtocolTracer(new AmqpProtocolTracer(AmqpConnection.this));
-               open(future);
-
-               pumpToProtonTransport(future);
+         serializer.execute(() -> {
+            if (!noContainerID) {
+               getEndpoint().setContainer(safeGetContainerId());
             }
+            getEndpoint().setHostname(remoteURI.getHost());
+            if (!getDesiredCapabilities().isEmpty()) {
+               getEndpoint().setDesiredCapabilities(getDesiredCapabilities().toArray(new Symbol[0]));
+            }
+            if (!getOfferedCapabilities().isEmpty()) {
+               getEndpoint().setOfferedCapabilities(getOfferedCapabilities().toArray(new Symbol[0]));
+            }
+            if (!getOfferedProperties().isEmpty()) {
+               getEndpoint().setProperties(getOfferedProperties());
+            }
+
+            if (getIdleTimeout() > 0) {
+               protonTransport.setIdleTimeout(getIdleTimeout());
+            }
+            protonTransport.setMaxFrameSize(getMaxFrameSize());
+            protonTransport.setChannelMax(getChannelMax());
+            protonTransport.setEmitFlowEventOnSend(false);
+            protonTransport.bind(getEndpoint());
+            Sasl sasl = protonTransport.sasl();
+            if (sasl != null) {
+               sasl.client();
+            }
+            authenticator = new SaslAuthenticator(sasl, username, password, authzid, mechanismRestriction);
+            ((TransportImpl) protonTransport).setProtocolTracer(new AmqpProtocolTracer(AmqpConnection.this));
+            open(future);
+
+            pumpToProtonTransport(future);
          });
 
          try {
@@ -209,28 +201,24 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    public void close() {
       if (closed.compareAndSet(false, true)) {
          final ClientFuture request = new ClientFuture();
-         serializer.execute(new Runnable() {
+         serializer.execute(() -> {
+            try {
 
-            @Override
-            public void run() {
-               try {
-
-                  // If we are not connected then there is nothing we can do now
-                  // just signal success.
-                  if (!transport.isConnected()) {
-                     request.onSuccess();
-                  }
-
-                  if (getEndpoint() != null) {
-                     close(request);
-                  } else {
-                     request.onSuccess();
-                  }
-
-                  pumpToProtonTransport(request);
-               } catch (Exception e) {
-                  logger.debug("Caught exception while closing proton connection");
+               // If we are not connected then there is nothing we can do now
+               // just signal success.
+               if (!transport.isConnected()) {
+                  request.onSuccess();
                }
+
+               if (getEndpoint() != null) {
+                  close(request);
+               } else {
+                  request.onSuccess();
+               }
+
+               pumpToProtonTransport(request);
+            } catch (Exception e) {
+               logger.debug("Caught exception while closing proton connection");
             }
          });
 
@@ -263,10 +251,9 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    }
 
    /**
-    * Creates a new Session instance used to create AMQP resources like
-    * senders and receivers.
+    * Creates a new Session instance used to create AMQP resources like senders and receivers.
     *
-    * @return a new AmqpSession that can be used to create links.
+    * @return a new AmqpSession that can be used to create links
     * @throws Exception if an error occurs during creation.
     */
    public AmqpSession createSession() throws Exception {
@@ -275,18 +262,14 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
       final AmqpSession session = new AmqpSession(AmqpConnection.this, getNextSessionId());
       final ClientFuture request = new ClientFuture();
 
-      serializer.execute(new Runnable() {
-
-         @Override
-         public void run() {
-            checkClosed();
-            Session protonSession = getEndpoint().session();
-            protonSession.setIncomingCapacity(sessionIncomingCapacity);
-            session.setEndpoint(protonSession);
-            session.setStateInspector(getStateInspector());
-            session.open(request);
-            pumpToProtonTransport(request);
-         }
+      serializer.execute(() -> {
+         checkClosed();
+         Session protonSession = getEndpoint().session();
+         protonSession.setIncomingCapacity(sessionIncomingCapacity);
+         session.setEndpoint(protonSession);
+         session.setStateInspector(getStateInspector());
+         session.open(request);
+         pumpToProtonTransport(request);
       });
 
       request.sync();
@@ -297,14 +280,14 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    //----- Configuration accessors ------------------------------------------//
 
    /**
-    * @return the user name that was used to authenticate this connection.
+    * {@return the user name that was used to authenticate this connection}
     */
    public String getUsername() {
       return username;
    }
 
    /**
-    * @return the password that was used to authenticate this connection.
+    * {@return the password that was used to authenticate this connection}
     */
    public String getPassword() {
       return password;
@@ -319,22 +302,22 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    }
 
    /**
-    * @return the URI of the remote peer this connection attached to.
+    * {@return the URI of the remote peer this connection attached to}
     */
    public URI getRemoteURI() {
       return remoteURI;
    }
 
    /**
-    * @return the container ID that will be set as the container Id.
+    * {@return the container ID that will be set as the container Id}
     */
    public String getContainerId() {
       return this.containerId;
    }
 
    /**
-    * Sets the container Id that will be configured on the connection prior to
-    * connecting to the remote peer.  Calling this after connect has no effect.
+    * Sets the container Id that will be configured on the connection prior to connecting to the remote peer.  Calling
+    * this after connect has no effect.
     *
     * @param containerId the container Id to use on the connection.
     */
@@ -343,7 +326,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    }
 
    /**
-    * @return the currently set Max Frame Size value.
+    * {@return the currently set Max Frame Size value}
     */
    public int getMaxFrameSize() {
       return maxFrameSize;
@@ -544,36 +527,32 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
       // We need to retain until the serializer gets around to processing it.
       ReferenceCountUtil.retain(incoming);
 
-      serializer.execute(new Runnable() {
+      serializer.execute(() -> {
+         ByteBuffer source = incoming.nioBuffer();
+         logger.trace("Client Received from Broker {} bytes:", source.remaining());
 
-         @Override
-         public void run() {
-            ByteBuffer source = incoming.nioBuffer();
-            logger.trace("Client Received from Broker {} bytes:", source.remaining());
-
-            if (protonTransport.isClosed()) {
-               logger.debug("Ignoring incoming data because transport is closed");
-               return;
-            }
-
-            do {
-               ByteBuffer buffer = protonTransport.getInputBuffer();
-               int limit = Math.min(buffer.remaining(), source.remaining());
-               ByteBuffer duplicate = source.duplicate();
-               duplicate.limit(source.position() + limit);
-               buffer.put(duplicate);
-               protonTransport.processInput();
-               source.position(source.position() + limit);
-            }
-            while (source.hasRemaining());
-
-            ReferenceCountUtil.release(incoming);
-
-            // Process the state changes from the latest data and then answer back
-            // any pending updates to the Broker.
-            processUpdates();
-            pumpToProtonTransport();
+         if (protonTransport.isClosed()) {
+            logger.debug("Ignoring incoming data because transport is closed");
+            return;
          }
+
+         do {
+            ByteBuffer buffer = protonTransport.getInputBuffer();
+            int limit = Math.min(buffer.remaining(), source.remaining());
+            ByteBuffer duplicate = source.duplicate();
+            duplicate.limit(source.position() + limit);
+            buffer.put(duplicate);
+            protonTransport.processInput();
+            source.position(source.position() + limit);
+         }
+         while (source.hasRemaining());
+
+         ReferenceCountUtil.release(incoming);
+
+         // Process the state changes from the latest data and then answer back
+         // any pending updates to the Broker.
+         processUpdates();
+         pumpToProtonTransport();
       });
    }
 

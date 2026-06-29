@@ -18,7 +18,6 @@ package org.objectweb.jtests.jms.conform.connection;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
@@ -35,8 +34,8 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 public class ConnectionTest extends PTPTestCase {
 
    /**
-    * Test that invoking the <code>acknowledge()</code> method of a received message
-    * from a closed connection's session must throw an <code>IllegalStateException</code>.
+    * Test that invoking the {@code acknowledge()} method of a received message from a closed connection's session must
+    * throw an {@code IllegalStateException}.
     */
    @Test
    public void testAcknowledge() {
@@ -45,7 +44,7 @@ public class ConnectionTest extends PTPTestCase {
          receiverSession = receiverConnection.createQueueSession(false, Session.CLIENT_ACKNOWLEDGE);
          receiver.close(); // Before assigning a new receiver, we need to close the old one...
          // Not closing it could cause load balancing between receivers.
-         // Not having this close might be valid for JORAM or JBossMQ, but it's not valid for ActiveMQ Artemis (and still legal)
+         // Not having this close might be valid for JORAM or JBossMQ, but it's not valid for Apache Artemis (and still legal)
 
          receiver = receiverSession.createReceiver(receiverQueue);
          receiverConnection.start();
@@ -67,8 +66,9 @@ public class ConnectionTest extends PTPTestCase {
    }
 
    /**
-    * Test that an attempt to use a <code>Connection</code> which has been closed
-    * throws a <code>javax.jms.IllegalStateException</code>.
+    * Test that an attempt to use a {@code Connection} which has been closed
+    *
+    * @throws a {@code javax.jms.IllegalStateException}.
     */
    @Test
    public void testUseClosedConnection() {
@@ -85,8 +85,7 @@ public class ConnectionTest extends PTPTestCase {
    }
 
    /**
-    * Test that a <code>MessageProducer</code> can send messages while a
-    * <code>Connection</code> is stopped.
+    * Test that a {@code MessageProducer} can send messages while a {@code Connection} is stopped.
     */
    @Test
    public void testMessageSentWhenConnectionClosed() {
@@ -155,15 +154,12 @@ public class ConnectionTest extends PTPTestCase {
       try {
          receiverConnection.stop();
 
-         receiver.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(final Message m) {
-               try {
-                  Assert.fail("The message must not be received, the consumer connection is stopped");
-                  Assert.assertEquals("test", ((TextMessage) m).getText());
-               } catch (JMSException e) {
-                  fail(e);
-               }
+         receiver.setMessageListener(m -> {
+            try {
+               Assert.fail("The message must not be received, the consumer connection is stopped");
+               Assert.assertEquals("test", ((TextMessage) m).getText());
+            } catch (JMSException e) {
+               fail(e);
             }
          });
 

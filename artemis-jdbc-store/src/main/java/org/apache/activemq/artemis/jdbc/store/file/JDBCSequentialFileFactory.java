@@ -20,9 +20,6 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
@@ -32,10 +29,11 @@ import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
-import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveMQComponent {
 
@@ -43,29 +41,48 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
 
    private boolean started;
 
-   private final Set<JDBCSequentialFile> files = new ConcurrentHashSet<>();
-
    private final Executor executor;
-
-   private final Map<String, Object> fileLocks = new ConcurrentHashMap<>();
 
    private JDBCSequentialFileFactoryDriver dbDriver;
 
+   private volatile int countOpen = 0;
+
+   private static final AtomicIntegerFieldUpdater<JDBCSequentialFileFactory> countOpenUpdater = AtomicIntegerFieldUpdater.newUpdater(JDBCSequentialFileFactory.class, "countOpen");
+
    private final IOCriticalErrorListener criticalErrorListener;
+
+   private final long syncDelay;
+
+   private final ScheduledExecutorService scheduledExecutorService;
+
 
    public JDBCSequentialFileFactory(final JDBCConnectionProvider connectionProvider,
                                     final SQLProvider sqlProvider,
                                     Executor executor,
+                                    ScheduledExecutorService scheduledExecutorService,
+                                    long syncDelay,
                                     IOCriticalErrorListener criticalErrorListener) throws Exception {
 
       this.executor = executor;
       this.criticalErrorListener = criticalErrorListener;
+      this.scheduledExecutorService = scheduledExecutorService;
+      this.syncDelay = syncDelay;
 
       try {
          this.dbDriver = JDBCFileUtils.getDBFileDriver(connectionProvider, sqlProvider);
       } catch (SQLException e) {
-         criticalErrorListener.onIOException(e, "Failed to start JDBC Driver", null);
+         logger.warn(e.getMessage(), e);
+         if (criticalErrorListener != null) {
+            criticalErrorListener.onIOException(e, "Failed to start JDBC Driver", null);
+         } else {
+            throw new RuntimeException(e.getMessage(), e);
+         }
       }
+   }
+
+   @Override
+   public boolean supportsIndividualContext() {
+      return true;
    }
 
    public JDBCSequentialFileFactoryDriver getDbDriver() {
@@ -113,9 +130,8 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
    @Override
    public SequentialFile createSequentialFile(String fileName) {
       try {
-         fileLocks.putIfAbsent(fileName, new Object());
-         JDBCSequentialFile file = new JDBCSequentialFile(this, fileName, executor, dbDriver, fileLocks.get(fileName));
-         files.add(file);
+         JDBCSequentialFile file = new JDBCSequentialFile(this, fileName, executor, scheduledExecutorService, syncDelay, dbDriver);
+         countOpenUpdater.incrementAndGet(this);
          return file;
       } catch (Exception e) {
          criticalErrorListener.onIOException(e, "Error whilst creating JDBC file", null);
@@ -124,11 +140,11 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
    }
 
    public void sequentialFileClosed(SequentialFile file) {
-      files.remove(file);
+      countOpenUpdater.decrementAndGet(this);
    }
 
    public int getNumberOfOpenFiles() {
-      return files.size();
+      return countOpenUpdater.get(this);
    }
 
    @Override
@@ -223,6 +239,13 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
       return null;
    }
 
+
+   @Override
+   public String getDirectoryName() {
+      return dbDriver.getSqlProvider().getTableName();
+   }
+
+
    @Override
    public boolean isStarted() {
       return started;
@@ -234,13 +257,6 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
 
    @Override
    public void flush() {
-      for (SequentialFile file : files) {
-         try {
-            file.sync();
-         } catch (Exception e) {
-            criticalErrorListener.onIOException(e, "Error during JDBC file sync.", file.getFileName());
-         }
-      }
    }
 
    public synchronized void destroy() throws SQLException {

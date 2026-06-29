@@ -20,9 +20,10 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Ordered collection of (T, int, int) tuples with positive integers and not null T.<br>
- * This isn't supposed to be a generic collection, but with some effort can became one and
- * could be moved into commons utils.
+ * Ordered collection of (T, int, int) tuples with positive integers and not null T.
+ * <p>
+ * This isn't supposed to be a generic collection, but with some effort can became one and could be moved into commons
+ * utils.
  */
 final class ObjIntIntArrayList<T> {
 

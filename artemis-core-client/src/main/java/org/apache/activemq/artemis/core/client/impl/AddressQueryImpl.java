@@ -26,7 +26,7 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
 
    private final boolean exists;
 
-   private final ArrayList<SimpleString> queueNames;
+   private final List<SimpleString> queueNames;
 
    private final boolean autoCreateQueues;
 

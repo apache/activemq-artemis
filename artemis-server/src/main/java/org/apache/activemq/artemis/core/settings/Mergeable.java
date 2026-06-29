@@ -21,5 +21,9 @@ package org.apache.activemq.artemis.core.settings;
  */
 public interface Mergeable<T> {
 
+   // Merge two object instances in one instance
    void merge(T merged);
+
+   // Merge two object instances in a new instance
+   T mergeCopy(T merged);
 }

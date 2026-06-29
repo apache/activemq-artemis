@@ -16,11 +16,16 @@
  */
 package org.apache.activemq.artemis.core.server.group.impl;
 
-import javax.management.ObjectName;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+
+import javax.management.ObjectName;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -28,9 +33,19 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.AcceptorControl;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.BaseBroadcastGroupControl;
+import org.apache.activemq.artemis.api.core.management.BridgeControl;
+import org.apache.activemq.artemis.api.core.management.BrokerConnectionControl;
+import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
+import org.apache.activemq.artemis.api.core.management.ConnectionRouterControl;
+import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.RemoteBrokerConnectionControl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
@@ -40,38 +55,40 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
-import org.apache.activemq.artemis.core.server.routing.ConnectionRouter;
+import org.apache.activemq.artemis.core.server.RemoteBrokerConnection;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuard;
+import org.apache.activemq.artemis.core.server.management.GuardInvocationHandler;
+import org.apache.activemq.artemis.core.server.management.HawtioSecurityControl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
+import org.apache.activemq.artemis.core.server.routing.ConnectionRouter;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * this is testing the case for resending notifications from RemotingGroupHandler
- * There is a small window where you could receive notifications wrongly
- * this test will make sure the component would play well with that notification
+ * this is testing the case for resending notifications from RemotingGroupHandler There is a small window where you
+ * could receive notifications wrongly this test will make sure the component would play well with that notification
  */
-public class ClusteredResetMockTest extends ActiveMQTestBase {
+public class ClusteredResetMockTest extends ServerTestBase {
 
-   public static final SimpleString ANYCLUSTER = SimpleString.toSimpleString("anycluster");
+   public static final SimpleString ANYCLUSTER = SimpleString.of("anycluster");
 
    @Test
    public void testMultipleSenders() throws Throwable {
@@ -80,7 +97,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       ReusableLatch latchSends = new ReusableLatch(NUMBER_OF_SENDERS);
 
       FakeManagement fake = new FakeManagement(latchSends);
-      RemoteGroupingHandler handler = new RemoteGroupingHandler(fake, SimpleString.toSimpleString("tst1"), SimpleString.toSimpleString("tst2"), 50000, 499);
+      RemoteGroupingHandler handler = new RemoteGroupingHandler(fake, SimpleString.of("tst1"), SimpleString.of("tst2"), 50000, 499);
       handler.start();
 
       Sender[] sn = new Sender[NUMBER_OF_SENDERS];
@@ -93,7 +110,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       try {
 
          // Waiting two requests to arrive
-         Assert.assertTrue(latchSends.await(1, TimeUnit.MINUTES));
+         assertTrue(latchSends.await(1, TimeUnit.MINUTES));
 
          // we will ask a resend.. need to add 2 back
          for (int i = 0; i < NUMBER_OF_SENDERS; i++) {
@@ -107,7 +124,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
 
          assertTrue(latchSends.await(10, TimeUnit.SECONDS));
 
-         HashSet<SimpleString> codesAsked = new HashSet<>();
+         Set<SimpleString> codesAsked = new HashSet<>();
 
          for (Notification notification : fake.pendingNotifications) {
             codesAsked.add(notification.getProperties().getSimpleStringProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID));
@@ -148,7 +165,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
 
       Sender(String code, RemoteGroupingHandler handler) {
          super("Sender::" + code);
-         this.code = SimpleString.toSimpleString(code);
+         this.code = SimpleString.of(code);
          this.handler = handler;
       }
 
@@ -224,6 +241,96 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       }
 
       @Override
+      public AddressControl getAddressControl(String name) {
+         return null;
+      }
+
+      @Override
+      public List<String> getAddressControlNames() {
+         return List.of();
+      }
+
+      @Override
+      public AcceptorControl getAcceptorControl(String name) {
+         return null;
+      }
+
+      @Override
+      public ConnectionRouterControl getConnectionRouterControl(String name) {
+         return null;
+      }
+
+      @Override
+      public void registerUntypedControl(String name, Object control, ObjectName objectName) {
+
+      }
+
+      @Override
+      public void unregisterUntypedControl(String name, ObjectName objectName) {
+
+      }
+
+      @Override
+      public List<DivertControl> getDivertControls() {
+         return List.of();
+      }
+
+      @Override
+      public List<String> getDivertControlNames() {
+         return List.of();
+      }
+
+      @Override
+      public List<BridgeControl> getBridgeControls() {
+         return List.of();
+      }
+
+      @Override
+      public List<String> getBridgeControlNames() {
+         return List.of();
+      }
+
+      @Override
+      public int getBridgeControlCount() {
+         return 0;
+      }
+
+      @Override
+      public BrokerConnectionControl getBrokerConnectionControl(String name) {
+         return null;
+      }
+
+      @Override
+      public RemoteBrokerConnectionControl getRemoteBrokerConnectionControl(String name) {
+         return null;
+      }
+
+      @Override
+      public Object getUntypedControl(String name) {
+         return null;
+      }
+
+      @Override
+      public List<Object> getUntypedControls(Class<?> resourceType) {
+         return List.of();
+      }
+
+      @Override
+      public Object getResource(String resourceName) {
+         return null;
+      }
+
+      @Override
+      public Object[] getResources(Class<?> resourceType) {
+         return new Object[0];
+      }
+
+      @Override
+      public ActiveMQServerControl getServerControl() {
+         return null;
+      }
+
+      @Override
       public void unregisterServer() throws Exception {
 
       }
@@ -239,22 +346,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void registerInRegistry(String resourceName, Object managedResource) {
-
-      }
-
-      @Override
-      public void unregisterFromRegistry(String resourceName) {
-
-      }
-
-      @Override
       public void registerAddress(AddressInfo addressInfo) throws Exception {
-
-      }
-
-      @Override
-      public void registerAddressMeters(AddressInfo addressInfo, AddressControl addressControl) throws Exception {
 
       }
 
@@ -279,8 +371,18 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void unregisterAcceptor(String name) {
+
+      }
+
+      @Override
       public void unregisterAcceptors() {
 
+      }
+
+      @Override
+      public List<AcceptorControl> getAcceptorControls() {
+         return List.of();
       }
 
       @Override
@@ -305,6 +407,11 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       }
 
       @Override
+      public List<BaseBroadcastGroupControl> getBroadcastGroupControls() {
+         return List.of();
+      }
+
+      @Override
       public void registerBridge(Bridge bridge) throws Exception {
 
       }
@@ -326,6 +433,16 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       }
 
       @Override
+      public List<ClusterConnectionControl> getClusterConnectionControls() {
+         return List.of();
+      }
+
+      @Override
+      public List<String> getClusterConnectionControlNames() {
+         return List.of();
+      }
+
+      @Override
       public void registerConnectionRouter(ConnectionRouter router) throws Exception {
 
       }
@@ -336,22 +453,17 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       }
 
       @Override
-      public Object getResource(String resourceName) {
+      public List<ConnectionRouterControl> getConnectionRouterControls() {
+         return List.of();
+      }
+
+      @Override
+      public ICoreMessage handleMessage(SecurityAuth auth, Message message) throws Exception {
          return null;
       }
 
       @Override
-      public Object[] getResources(Class<?> resourceType) {
-         return new Object[0];
-      }
-
-      @Override
-      public ICoreMessage handleMessage(Message message) throws Exception {
-         return null;
-      }
-
-      @Override
-      public void registerHawtioSecurity(ArtemisMBeanServerGuard securityMBean) throws Exception {
+      public void registerHawtioSecurity(GuardInvocationHandler securityMBean) throws Exception {
 
       }
 
@@ -361,13 +473,73 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       }
 
       @Override
-      public Object getAttribute(String resourceName, String attribute) {
+      public HawtioSecurityControl getHawtioSecurity() {
          return null;
       }
 
       @Override
-      public Object invokeOperation(String resourceName, String operation, Object[] params) throws Exception {
+      public Object getAttribute(String resourceName, String attribute, SecurityAuth auth) {
          return null;
+      }
+
+      @Override
+      public Object invokeOperation(String resourceName, String operation, Object[] params, SecurityAuth auth) throws Exception {
+         return null;
+      }
+
+      @Override
+      public int getQueueControlCount() {
+         return 0;
+      }
+
+      @Override
+      public List<QueueControl> getQueueControls() {
+         return List.of();
+      }
+
+      @Override
+      public List<QueueControl> getQueueControls(Predicate<QueueControl> predicate) {
+         return List.of();
+      }
+
+      @Override
+      public QueueControl getQueueControl(String name) {
+         return null;
+      }
+
+      @Override
+      public List<String> getQueueControlNames() {
+         return List.of();
+      }
+
+      @Override
+      public int getAddressControlCount() {
+         return 0;
+      }
+
+      @Override
+      public List<AddressControl> getAddressControls() {
+         return List.of();
+      }
+
+      @Override
+      public List<AddressControl> getAddressControls(Predicate<AddressControl> predicate) {
+         return List.of();
+      }
+
+      @Override
+      public void registerBrokerConnection(BrokerConnection brokerConnection) {
+
+      }
+
+      @Override
+      public void unregisterBrokerConnection(String name) {
+
+      }
+
+      @Override
+      public List<BrokerConnectionControl> getBrokerConnectionControls() {
+         return List.of();
       }
 
       @Override
@@ -405,6 +577,20 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       public void removeNotificationListener(NotificationListener listener) {
 
       }
-   }
 
+      @Override
+      public void registerRemoteBrokerConnection(RemoteBrokerConnection brokerConnection) throws Exception {
+
+      }
+
+      @Override
+      public void unregisterRemoteBrokerConnection(String nodeId, String name) throws Exception {
+
+      }
+
+      @Override
+      public List<RemoteBrokerConnectionControl> getRemoteBrokerConnectionControls() {
+         return List.of();
+      }
+   }
 }

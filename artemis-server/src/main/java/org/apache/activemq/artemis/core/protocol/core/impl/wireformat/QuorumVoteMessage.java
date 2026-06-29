@@ -20,8 +20,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteHandler;
-import org.apache.activemq.artemis.core.server.cluster.qourum.Vote;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumVoteHandler;
+import org.apache.activemq.artemis.core.server.cluster.quorum.Vote;
 
 public class QuorumVoteMessage extends PacketImpl {
 
@@ -60,6 +60,10 @@ public class QuorumVoteMessage extends PacketImpl {
       return handler;
    }
 
+   public void setHandler(SimpleString handler) {
+      this.handler = handler;
+   }
+
    public Vote getVote() {
       return vote;
    }
@@ -70,9 +74,9 @@ public class QuorumVoteMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", vote=" + vote);
-      buff.append(", handler=" + handler);
-      return buff.toString();
+      StringBuilder builder = new StringBuilder(super.getPacketString());
+      builder.append(", vote=" + vote);
+      builder.append(", handler=" + handler);
+      return builder.toString();
    }
 }

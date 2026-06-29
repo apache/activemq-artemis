@@ -136,7 +136,7 @@ public class BeanSupport {
    }
 
    public static void setData(URI uri,
-                              HashMap<String, Object> properties,
+                              Map<String, Object> properties,
                               Set<String> allowableProperties,
                               Map<String, String> query,
                               Map<String, Object> extraProps) {

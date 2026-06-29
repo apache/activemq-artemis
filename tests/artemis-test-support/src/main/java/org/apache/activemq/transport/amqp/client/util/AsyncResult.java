@@ -22,25 +22,20 @@ package org.apache.activemq.transport.amqp.client.util;
 public interface AsyncResult {
 
    /**
-    * If the operation fails this method is invoked with the Exception
-    * that caused the failure.
+    * If the operation fails this method is invoked with the Exception that caused the failure.
     *
     * @param result The error that resulted in this asynchronous operation failing.
     */
    void onFailure(Throwable result);
 
    /**
-    * If the operation succeeds the resulting value produced is set to null and
-    * the waiting parties are signaled.
+    * If the operation succeeds the resulting value produced is set to null and the waiting parties are signaled.
     */
    void onSuccess();
 
    /**
-    * Returns true if the AsyncResult has completed.  The task is considered complete
-    * regardless if it succeeded or failed.
-    *
-    * @return returns true if the asynchronous operation has completed.
+    * {@return {@code true} if the {@code AsyncResult} has completed.  The task is considered complete regardless if it
+    * succeeded or failed}
     */
    boolean isComplete();
-
 }

@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
+import java.nio.ByteBuffer;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -98,7 +101,7 @@ public final class OpenWireMessageConverter {
 
       final String type = messageSend.getType();
       if (type != null) {
-         coreMessage.putStringProperty(OpenWireConstants.JMS_TYPE_PROPERTY, new SimpleString(type));
+         coreMessage.putStringProperty(OpenWireConstants.JMS_TYPE_PROPERTY, SimpleString.of(type));
       }
       coreMessage.setDurable(messageSend.isPersistent());
       coreMessage.setExpiration(messageSend.getExpiration());
@@ -159,7 +162,7 @@ public final class OpenWireMessageConverter {
       coreMessage.putIntProperty(OpenWireConstants.AMQ_MSG_COMMAND_ID, messageSend.getCommandId());
       final String corrId = messageSend.getCorrelationId();
       if (corrId != null) {
-         coreMessage.putStringProperty(OpenWireConstants.JMS_CORRELATION_ID_PROPERTY, new SimpleString(corrId));
+         coreMessage.setCorrelationID(corrId);
       }
       final DataStructure ds = messageSend.getDataStructure();
       if (ds != null) {
@@ -173,28 +176,28 @@ public final class OpenWireMessageConverter {
 
       final MessageId messageId = messageSend.getMessageId();
       if (messageId != null) {
-         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_MESSAGE_ID, SimpleString.toSimpleString(messageId.toString()));
+         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_MESSAGE_ID, SimpleString.of(messageId.toString()));
       }
 
       coreMessage.setUserID(UUIDGenerator.getInstance().generateUUID());
 
       final ProducerId producerId = messageSend.getProducerId();
       if (producerId != null) {
-         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_PRODUCER_ID, SimpleString.toSimpleString(producerId.toString()));
+         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_PRODUCER_ID, SimpleString.of(producerId.toString()));
       }
 
       putMsgProperties(messageSend, coreMessage);
 
       final ActiveMQDestination replyTo = messageSend.getReplyTo();
       if (replyTo != null) {
-         if (replyTo instanceof TemporaryQueue) {
-            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX + (((TemporaryQueue) replyTo).getQueueName()));
-         } else if (replyTo instanceof TemporaryTopic) {
-            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX + (((TemporaryTopic) replyTo).getTopicName()));
-         } else if (replyTo instanceof Queue) {
-            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + (((Queue) replyTo).getQueueName()));
-         } else if (replyTo instanceof Topic) {
-            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + (((Topic) replyTo).getTopicName()));
+         if (replyTo instanceof TemporaryQueue temporaryQueue) {
+            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX + (temporaryQueue.getQueueName()));
+         } else if (replyTo instanceof TemporaryTopic temporaryTopic) {
+            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX + (temporaryTopic.getTopicName()));
+         } else if (replyTo instanceof Queue queue) {
+            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + (queue.getQueueName()));
+         } else if (replyTo instanceof Topic topic) {
+            MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + (topic.getTopicName()));
          } else {
             // it should not happen
             MessageUtil.setJMSReplyTo(coreMessage, org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + (((Queue) replyTo).getQueueName()));
@@ -203,7 +206,7 @@ public final class OpenWireMessageConverter {
 
       final String userId = messageSend.getUserID();
       if (userId != null) {
-         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_USER_ID, new SimpleString(userId));
+         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_USER_ID, SimpleString.of(userId));
       }
       coreMessage.putBooleanProperty(OpenWireConstants.AMQ_MSG_DROPPABLE, messageSend.isDroppable());
 
@@ -213,8 +216,8 @@ public final class OpenWireMessageConverter {
       }
 
       final Object scheduledDelay = messageSend.getProperties().get(ScheduledMessage.AMQ_SCHEDULED_DELAY);
-      if (scheduledDelay instanceof Long) {
-         coreMessage.putLongProperty(org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME, System.currentTimeMillis() + ((Long) scheduledDelay));
+      if (scheduledDelay instanceof Long scheduledDelayMillis) {
+         coreMessage.putLongProperty(org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME, System.currentTimeMillis() + scheduledDelayMillis);
          // this property may have already been copied, but we don't need it anymore
          coreMessage.removeProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY);
       }
@@ -232,7 +235,7 @@ public final class OpenWireMessageConverter {
       DataInputStream tdataIn = new DataInputStream(tis);
       String text = MarshallingSupport.readUTF8(tdataIn);
       tdataIn.close();
-      body.writeNullableSimpleString(new SimpleString(text));
+      body.writeNullableSimpleString(SimpleString.of(text));
    }
 
    private static void writeMapType(final ByteSequence contents,
@@ -406,7 +409,7 @@ public final class OpenWireMessageConverter {
             builder.append(','); //is this separator safe?
          }
       }
-      coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_BROKER_PATH, new SimpleString(builder.toString()));
+      coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_BROKER_PATH, SimpleString.of(builder.toString()));
    }
 
    private static void putMsgCluster(final BrokerId[] cluster, final CoreMessage coreMessage) {
@@ -417,7 +420,7 @@ public final class OpenWireMessageConverter {
             builder.append(','); //is this separator safe?
          }
       }
-      coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_CLUSTER, new SimpleString(builder.toString()));
+      coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_CLUSTER, SimpleString.of(builder.toString()));
    }
 
    private static void putMsgDataStructure(final DataStructure ds,
@@ -448,7 +451,7 @@ public final class OpenWireMessageConverter {
 
    private static void loadMapIntoProperties(TypedProperties props, Map<String, Object> map) {
       for (Entry<String, Object> entry : map.entrySet()) {
-         SimpleString key = new SimpleString(entry.getKey());
+         SimpleString key = SimpleString.of(entry.getKey());
          Object value = entry.getValue();
          if (value instanceof UTF8Buffer) {
             value = value.toString();
@@ -458,38 +461,31 @@ public final class OpenWireMessageConverter {
    }
 
    public static byte toCoreType(byte amqType) {
-      switch (amqType) {
-         case CommandTypes.ACTIVEMQ_BLOB_MESSAGE:
-            throw new IllegalStateException("We don't support BLOB type yet!");
-         case CommandTypes.ACTIVEMQ_BYTES_MESSAGE:
-            return org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
-         case CommandTypes.ACTIVEMQ_MAP_MESSAGE:
-            return org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
-         case CommandTypes.ACTIVEMQ_OBJECT_MESSAGE:
-            return org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE;
-         case CommandTypes.ACTIVEMQ_STREAM_MESSAGE:
-            return org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
-         case CommandTypes.ACTIVEMQ_TEXT_MESSAGE:
-            return org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
-         case CommandTypes.ACTIVEMQ_MESSAGE:
-            return org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
-         default:
-            throw new IllegalStateException("Unknown ActiveMQ Artemis message type: " + amqType);
-      }
+      return switch (amqType) {
+         case CommandTypes.ACTIVEMQ_BLOB_MESSAGE -> throw new IllegalStateException("We don't support BLOB type yet!");
+         case CommandTypes.ACTIVEMQ_BYTES_MESSAGE -> org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
+         case CommandTypes.ACTIVEMQ_MAP_MESSAGE -> org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
+         case CommandTypes.ACTIVEMQ_OBJECT_MESSAGE -> org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE;
+         case CommandTypes.ACTIVEMQ_STREAM_MESSAGE -> org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
+         case CommandTypes.ACTIVEMQ_TEXT_MESSAGE -> org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
+         case CommandTypes.ACTIVEMQ_MESSAGE -> org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
+         default -> throw new IllegalStateException("Unknown ActiveMQ Artemis message type: " + amqType);
+      };
    }
 
    public static MessageDispatch createMessageDispatch(MessageReference reference,
                                                        ICoreMessage message,
                                                        WireFormat marshaller,
-                                                       AMQConsumer consumer, UUID serverNodeUUID) throws IOException {
+                                                       AMQConsumer consumer,
+                                                       UUID serverNodeUUID,
+                                                       long consumerDeliverySequenceId) throws IOException {
       ActiveMQMessage amqMessage = toAMQMessage(reference, message, marshaller, consumer, serverNodeUUID);
 
-      //we can use core message id for sequenceId
-      amqMessage.getMessageId().setBrokerSequenceId(message.getMessageID());
+      amqMessage.getMessageId().setBrokerSequenceId(consumerDeliverySequenceId);
       MessageDispatch md = new MessageDispatch();
       md.setConsumerId(consumer.getId());
       md.setRedeliveryCounter(reference.getDeliveryCount() - 1);
-      md.setDeliverySequenceId(amqMessage.getMessageId().getBrokerSequenceId());
+      md.setDeliverySequenceId(consumerDeliverySequenceId);
       md.setMessage(amqMessage);
       ActiveMQDestination destination = amqMessage.getDestination();
       md.setDestination(destination);
@@ -514,38 +510,36 @@ public final class OpenWireMessageConverter {
       final byte coreType = coreMessage.getType();
       final Boolean compressProp = getObjectProperty(coreMessage, Boolean.class, OpenWireConstants.AMQ_MSG_COMPRESSED);
       final boolean isCompressed = compressProp != null && compressProp;
-      final byte[] bytes;
       final ActiveMQBuffer buffer = coreMessage.getDataBuffer();
       buffer.resetReaderIndex();
 
-      switch (coreType) {
-         case org.apache.activemq.artemis.api.core.Message.BYTES_TYPE:
+      final byte[] bytes = switch (coreType) {
+         case org.apache.activemq.artemis.api.core.Message.BYTES_TYPE -> {
             amqMsg = new EagerActiveMQBytesMessage(0);
-            bytes = toAMQMessageBytesType(buffer, isCompressed);
-            break;
-         case org.apache.activemq.artemis.api.core.Message.MAP_TYPE:
+            yield toAMQMessageBytesType(buffer, isCompressed);
+         }
+         case org.apache.activemq.artemis.api.core.Message.MAP_TYPE -> {
             amqMsg = new ActiveMQMapMessage();
-            bytes = toAMQMessageMapType(buffer, isCompressed);
-            break;
-         case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE:
+            yield toAMQMessageMapType(buffer, isCompressed);
+         }
+         case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE -> {
             amqMsg = new ActiveMQObjectMessage();
-            bytes = toAMQMessageObjectType(buffer, isCompressed);
-            break;
-         case org.apache.activemq.artemis.api.core.Message.STREAM_TYPE:
+            yield toAMQMessageObjectType(buffer, isCompressed);
+         }
+         case org.apache.activemq.artemis.api.core.Message.STREAM_TYPE -> {
             amqMsg = new ActiveMQStreamMessage();
-            bytes = toAMQMessageStreamType(buffer, isCompressed);
-            break;
-         case org.apache.activemq.artemis.api.core.Message.TEXT_TYPE:
+            yield toAMQMessageStreamType(buffer, isCompressed);
+         }
+         case org.apache.activemq.artemis.api.core.Message.TEXT_TYPE -> {
             amqMsg = new ActiveMQTextMessage();
-            bytes = toAMQMessageTextType(buffer, isCompressed);
-            break;
-         case org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE:
+            yield toAMQMessageTextType(buffer, isCompressed);
+         }
+         case org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE -> {
             amqMsg = new ActiveMQMessage();
-            bytes = toAMQMessageDefaultType(buffer, isCompressed);
-            break;
-         default:
-            throw new IllegalStateException("Unknown message type: " + coreMessage.getType());
-      }
+            yield toAMQMessageDefaultType(buffer, isCompressed);
+         }
+         default -> throw new IllegalStateException("Unknown message type: " + coreMessage.getType());
+      };
 
       final String type = getObjectProperty(coreMessage, String.class, OpenWireConstants.JMS_TYPE_PROPERTY);
       if (type != null) {
@@ -574,12 +568,12 @@ public final class OpenWireMessageConverter {
       amqMsg.setArrival(arrival);
 
       final SimpleString brokerPath = getObjectProperty(coreMessage, SimpleString.class, OpenWireConstants.AMQ_MSG_BROKER_PATH);
-      if (brokerPath != null && brokerPath.length() > 0) {
+      if (brokerPath != null && !brokerPath.isEmpty()) {
          setAMQMsgBrokerPath(amqMsg, brokerPath.toString());
       }
 
       final SimpleString clusterPath = getObjectProperty(coreMessage, SimpleString.class, OpenWireConstants.AMQ_MSG_CLUSTER);
-      if (clusterPath != null && clusterPath.length() > 0) {
+      if (clusterPath != null && !clusterPath.isEmpty()) {
          setAMQMsgClusterPath(amqMsg, clusterPath.toString());
       }
 
@@ -589,9 +583,15 @@ public final class OpenWireMessageConverter {
       }
       amqMsg.setCommandId(commandId);
 
-      final SimpleString corrId = getObjectProperty(coreMessage, SimpleString.class, OpenWireConstants.JMS_CORRELATION_ID_PROPERTY);
-      if (corrId != null) {
-         amqMsg.setCorrelationId(corrId.toString());
+      final Object correlationID = coreMessage.getCorrelationID();
+      if (correlationID instanceof String || correlationID instanceof SimpleString) {
+         amqMsg.setCorrelationId(correlationID.toString());
+      } else if (correlationID instanceof byte[] correlationIdBytes) {
+         try {
+            amqMsg.setCorrelationId(StandardCharsets.UTF_8.newDecoder().decode(ByteBuffer.wrap(correlationIdBytes)).toString());
+         } catch (MalformedInputException e) {
+            ActiveMQServerLogger.LOGGER.unableToDecodeCorrelationId(e.getMessage());
+         }
       }
 
       final byte[] dsBytes = getObjectProperty(coreMessage, byte[].class, OpenWireConstants.AMQ_MSG_DATASTRUCTURE);
@@ -613,8 +613,8 @@ public final class OpenWireMessageConverter {
       final MessageId messageId;
       if (messageIdValue instanceof SimpleString) {
          messageId = new MessageId(messageIdValue.toString());
-      } else if (messageIdValue instanceof byte[]) {
-         ByteSequence midSeq = new ByteSequence((byte[]) messageIdValue);
+      } else if (messageIdValue instanceof byte[] messageIdBytes) {
+         ByteSequence midSeq = new ByteSequence(messageIdBytes);
          messageId = (MessageId) marshaller.unmarshal(midSeq);
       } else {
          //  ARTEMIS-3776 due to AMQ-6431 some older clients will not be able to receive messages
@@ -628,16 +628,16 @@ public final class OpenWireMessageConverter {
       final Object origDestValue = getObjectProperty(coreMessage, Object.class, OpenWireConstants.AMQ_MSG_ORIG_DESTINATION);
       if (origDestValue instanceof SimpleString) {
          amqMsg.setOriginalDestination(ActiveMQDestination.createDestination(origDestValue.toString(), QUEUE_TYPE));
-      } else if (origDestValue instanceof byte[]) {
-         ActiveMQDestination origDest = (ActiveMQDestination) marshaller.unmarshal(new ByteSequence((byte[]) origDestValue));
+      } else if (origDestValue instanceof byte[] origDestValueBytes) {
+         ActiveMQDestination origDest = (ActiveMQDestination) marshaller.unmarshal(new ByteSequence(origDestValueBytes));
          amqMsg.setOriginalDestination(origDest);
       }
 
       final Object producerIdValue = getObjectProperty(coreMessage, Object.class, OpenWireConstants.AMQ_MSG_PRODUCER_ID);
-      if (producerIdValue instanceof SimpleString && ((SimpleString) producerIdValue).length() > 0) {
+      if (producerIdValue instanceof SimpleString simpleString && !simpleString.isEmpty()) {
          amqMsg.setProducerId(new ProducerId(producerIdValue.toString()));
-      } else if (producerIdValue instanceof byte[]) {
-         ProducerId producerId = (ProducerId) marshaller.unmarshal(new ByteSequence((byte[]) producerIdValue));
+      } else if (producerIdValue instanceof byte[] producerIdBytes) {
+         ProducerId producerId = (ProducerId) marshaller.unmarshal(new ByteSequence(producerIdBytes));
          amqMsg.setProducerId(producerId);
       }
 
@@ -646,13 +646,13 @@ public final class OpenWireMessageConverter {
       final Object replyToValue = getObjectProperty(coreMessage, Object.class, OpenWireConstants.AMQ_MSG_REPLY_TO);
       if (replyToValue instanceof SimpleString) {
          amqMsg.setReplyTo(ActiveMQDestination.createDestination(replyToValue.toString(), QUEUE_TYPE));
-      } else if (replyToValue instanceof byte[]) {
-         ActiveMQDestination replyTo = (ActiveMQDestination) marshaller.unmarshal(new ByteSequence((byte[]) replyToValue));
+      } else if (replyToValue instanceof byte[] replyToBytes) {
+         ActiveMQDestination replyTo = (ActiveMQDestination) marshaller.unmarshal(new ByteSequence(replyToBytes));
          amqMsg.setReplyTo(replyTo);
       }
 
       final SimpleString userId = getObjectProperty(coreMessage, SimpleString.class, OpenWireConstants.AMQ_MSG_USER_ID);
-      if (userId != null && userId.length() > 0) {
+      if (userId != null && !userId.isEmpty()) {
          amqMsg.setUserID(userId.toString());
       }
 
@@ -937,22 +937,23 @@ public final class OpenWireMessageConverter {
                                                  final Set<SimpleString> props) throws IOException {
       for (SimpleString s : props) {
          final String keyStr = s.toString();
-         if (keyStr.length() == 0) {
+         if (keyStr.isEmpty()) {
             logger.debug("ignoring property with empty key name");
             continue;
          }
          if (!coreMessage.containsProperty(ManagementHelper.HDR_NOTIFICATION_TYPE) && (keyStr.startsWith("_AMQ") || keyStr.startsWith("__HDR_"))) {
+            continue;
+         } else if (s.equals(OpenWireConstants.JMS_CORRELATION_ID_PROPERTY)) {
             continue;
          }
          final Object prop = coreMessage.getObjectProperty(s);
          try {
             if (prop instanceof SimpleString) {
                amqMsg.setObjectProperty(keyStr, prop.toString());
-            } else if (prop instanceof byte[]) {
-               amqMsg.setObjectProperty(keyStr, ByteUtil.bytesToHex((byte[])prop));
-            } else if (keyStr.equals(MessageUtil.JMSXDELIVERYCOUNT) && prop instanceof Long) {
-               Long l = (Long) prop;
-               amqMsg.setObjectProperty(keyStr, l.intValue());
+            } else if (prop instanceof byte[] propBytes) {
+               amqMsg.setObjectProperty(keyStr, ByteUtil.bytesToHex(propBytes));
+            } else if (keyStr.equals(MessageUtil.JMSXDELIVERYCOUNT) && prop instanceof Long longValue) {
+               amqMsg.setObjectProperty(keyStr, longValue.intValue());
             } else {
                amqMsg.setObjectProperty(keyStr, prop);
             }

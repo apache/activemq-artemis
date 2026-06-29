@@ -16,178 +16,49 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 
+public abstract class ActiveMQFilterPredicate<T, V extends PredicateFilterPart<T>> implements Predicate<T> {
 
-public class ActiveMQFilterPredicate<T> implements Predicate<T> {
-
-   enum Operation {
-      CONTAINS, NOT_CONTAINS, EQUALS, GREATER_THAN, LESS_THAN;
+   public enum Operation {
+      CONTAINS, NOT_CONTAINS, EQUALS, NOT_EQUALS, GREATER_THAN, LESS_THAN;
    }
 
-   protected String field;
-
-   protected String value;
-
-   protected Operation operation;
-
-   public static boolean contains(String field, String value) {
-      return field.contains(value);
-   }
+   private final List<V> filterParts = new ArrayList<>();
 
    public ActiveMQFilterPredicate() {
    }
 
    @Override
    public boolean test(T input) {
-      return true;
-   }
-
-   public String getField() {
-      return field;
-   }
-
-   public void setField(String field) {
-      this.field = field;
-   }
-
-   public String getValue() {
-      return value;
-   }
-
-   public void setValue(String value) {
-      this.value = value;
-   }
-
-   public Operation getOperation() {
-      return operation;
-   }
-
-   public void setOperation(String operation) {
-      if (operation != null && !operation.equals("")) {
-         this.operation = Operation.valueOf(operation);
+      if (filterParts.isEmpty()) {
+         return true;
       }
-   }
-
-   public boolean matches(Object field) {
-      if (operation != null) {
-         switch (operation) {
-            case EQUALS:
-               return equals(field, value);
-            case CONTAINS:
-               return contains(field, value);
-            case NOT_CONTAINS:
-               return !contains(field, value);
-            case GREATER_THAN:
-               return false;
-            case LESS_THAN:
-               return false;
+      try {
+         boolean matches = true;
+         for (V filterPart : filterParts) {
+            matches = filter(input, filterPart);
+            if (!matches) {
+               return matches;
+            }
          }
+         return matches;
+      } catch (Exception e) {
+         return true;
       }
-      return true;
    }
 
-   public boolean matchAny(Collection objects) {
-      for (Object o : objects) {
-         if (matches(o))
-            return true;
-      }
-      return false;
+   public void addFilterParts(List<V> filterParts) {
+      this.filterParts.addAll(filterParts);
    }
 
-   public boolean matches(long field) {
-      long longValue;
-      if (operation != null) {
-
-         try {
-            longValue = Long.parseLong(value);
-         } catch (NumberFormatException ex) {
-            //cannot compare
-            return false;
-         }
-
-         switch (operation) {
-            case EQUALS:
-               return field == longValue;
-            case CONTAINS:
-               return false;
-            case NOT_CONTAINS:
-               return false;
-            case LESS_THAN:
-               return field < longValue;
-            case GREATER_THAN:
-               return field > longValue;
-         }
-      }
-      return true;
+   public void addFilterPart(V filterPart) {
+      this.filterParts.add(filterPart);
    }
 
-   public boolean matches(int field) {
-      int intValue;
-      if (operation != null) {
+   protected abstract boolean filter(T input, V filterPart) throws Exception;
 
-         try {
-            intValue = Integer.parseInt(value);
-         } catch (NumberFormatException ex) {
-            //cannot compare
-            return false;
-         }
-
-         switch (operation) {
-            case EQUALS:
-               return field == intValue;
-            case CONTAINS:
-               return false;
-            case NOT_CONTAINS:
-               return false;
-            case LESS_THAN:
-               return field < intValue;
-            case GREATER_THAN:
-               return field > intValue;
-         }
-      }
-      return true;
-   }
-
-   public boolean matches(float field) {
-      float floatValue;
-      if (operation != null) {
-
-         try {
-            floatValue = Float.parseFloat(value);
-         } catch (NumberFormatException ex) {
-            //cannot compare
-            return false;
-         }
-
-         switch (operation) {
-            case EQUALS:
-               return field == floatValue;
-            case CONTAINS:
-               return false;
-            case NOT_CONTAINS:
-               return false;
-            case LESS_THAN:
-               return field < floatValue;
-            case GREATER_THAN:
-               return field > floatValue;
-         }
-      }
-      return true;
-   }
-
-   private boolean equals(Object field, Object value) {
-      if (field == null) {
-         return (value == null || value.equals(""));
-      }
-      return field.toString().equals(value);
-   }
-
-   private boolean contains(Object field, Object value) {
-      if (field == null) {
-         return (value == null || value.equals(""));
-      }
-      return field.toString().contains(value.toString());
-   }
+   public abstract V createFilterPart(String field, String operation, String value);
 }

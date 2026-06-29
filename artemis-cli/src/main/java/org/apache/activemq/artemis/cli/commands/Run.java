@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.cli.Artemis;
-import org.apache.activemq.artemis.cli.Shell;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.cli.factory.BrokerFactory;
 import org.apache.activemq.artemis.cli.factory.jmx.ManagementFactory;
@@ -39,6 +38,7 @@ import org.apache.activemq.artemis.dto.ManagementContextDTO;
 import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -61,13 +61,15 @@ public class Run extends LockAbstract {
    private Timer shutdownTimer;
 
    /**
-    * This will disable the System.exit at the end of the server.stop, as that means there are other things
-    * happening on the same VM.
-    *
-    * @param embedded
+    * This will disable the System.exit at the end of the server.stop, as that means there are other things happening on
+    * the same VM.
     */
    public static void setEmbedded(boolean embedded) {
       Run.embedded = true;
+   }
+
+   public static boolean getEmbedded() {
+      return Run.embedded;
    }
 
    private Broker server;
@@ -139,8 +141,7 @@ public class Run extends LockAbstract {
             "system-" + systemWebPropertyPrefix, System.getProperties(), systemWebPropertyPrefix);
 
          for (ComponentDTO componentDTO : broker.components) {
-            Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
-            ExternalComponent component = (ExternalComponent) clazz.getDeclaredConstructor(null).newInstance();
+            ExternalComponent component = (ExternalComponent) ClassloadingUtil.getInstanceWithTypeCheck(componentDTO.componentClassName, ExternalComponent.class, this.getClass().getClassLoader());
             component.configure(componentDTO, getBrokerInstance(), getBrokerHome());
             server.getServer().addExternalComponent(component, true);
             assert component.isStarted();
@@ -156,22 +157,11 @@ public class Run extends LockAbstract {
          return serverActivationFailed.get();
       }
 
-      if (Shell.inShell()) {
-         while (server.getServer().isStarted()) {
-            try {
-               Thread.sleep(1000);
-            } catch (InterruptedException ignored) {
-            }
-         }
-      }
-
       return new Pair<>(managementContext, server.getServer());
    }
 
    /**
     * Add a simple shutdown hook to stop the server.
-    *
-    * @param configurationDir
     */
    private void addShutdownHook(File configurationDir) {
 
@@ -189,13 +179,13 @@ public class Run extends LockAbstract {
          }
       }
 
-      shutdownTimer = new Timer("ActiveMQ Artemis Server Shutdown Timer", true);
+      shutdownTimer = new Timer("activemq-shutdown-timer", true);
       shutdownTimer.scheduleAtFixedRate(new TimerTask() {
          @Override
          public void run() {
             if (allowKill && fileKill.exists()) {
                try {
-                  System.err.println("Halting by user request");
+                  getActionContext().err.println("Halting by user request");
                   fileKill.delete();
                } catch (Throwable ignored) {
                }
@@ -243,15 +233,15 @@ public class Run extends LockAbstract {
    }
 
 
-   public static void verifyOlderLogging(File etc) throws Exception {
+   public void verifyOlderLogging(File etc) {
       File newLogging = new File(etc, Create.ETC_LOG4J2_PROPERTIES);
       File oldLogging = new File(etc, Upgrade.OLD_LOGGING_PROPERTIES);
 
       if (oldLogging.exists() && !newLogging.exists()) {
-         System.out.println("******************************************************************************************************************************************************************************");
-         System.out.println("Your system has the older logging file " + Upgrade.OLD_LOGGING_PROPERTIES + ", but not the new " + Create.ETC_LOG4J2_PROPERTIES);
-         System.out.println("It appears you did not complete the migration on this artemis instance properly. Please check all the settings or run the './artemis upgrade' command from the new artemis home");
-         System.out.println("******************************************************************************************************************************************************************************");
+         getActionContext().out.println("******************************************************************************************************************************************************************************");
+         getActionContext().out.println("Your system has the older logging file " + Upgrade.OLD_LOGGING_PROPERTIES + ", but not the new " + Create.ETC_LOG4J2_PROPERTIES);
+         getActionContext().out.println("It appears you did not complete the migration on this artemis instance properly. Please check all the settings or run the './artemis upgrade' command from the new artemis home");
+         getActionContext().out.println("******************************************************************************************************************************************************************************");
       }
    }
 

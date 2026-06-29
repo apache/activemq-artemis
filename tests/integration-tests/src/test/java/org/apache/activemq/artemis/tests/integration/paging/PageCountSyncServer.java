@@ -20,9 +20,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 
 /**
- * This is a sub process of the test {@link PageCountSyncOnNonTXTest}
- * The System.out calls here are meant to be here as they will appear on the process output and test output.
- * It helps to identify what happened on the test in case of failures.
+ * This is a sub process of the test {@link PageCountSyncOnNonTXTest}. The System.out calls here are meant to be here as
+ * they will appear on the process output and test output. It helps to identify what happened on the test in case of
+ * failures.
  */
 public class PageCountSyncServer extends SpawnedServerSupport {
 

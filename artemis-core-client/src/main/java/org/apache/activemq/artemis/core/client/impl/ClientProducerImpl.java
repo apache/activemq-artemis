@@ -37,9 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/**
- * The client-side Producer.
- */
 public class ClientProducerImpl implements ClientProducerInternal {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -53,8 +50,6 @@ public class ClientProducerImpl implements ClientProducerInternal {
    private final SessionContext sessionContext;
 
    private volatile boolean closed;
-
-   // For rate throttling
 
    private final TokenBucketLimiter rateLimiter;
 
@@ -131,7 +126,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
    @Override
    public void send(final String address1, final Message message) throws ActiveMQException {
-      send(SimpleString.toSimpleString(address1), message);
+      send(SimpleString.of(address1), message);
    }
 
    @Override
@@ -141,7 +136,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
       checkClosed();
 
       if (handler != null) {
-         handler =  session.wrap(handler);
+         handler = session.wrap(handler);
       }
 
       doSend(address1, message, handler);
@@ -313,11 +308,6 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
    // Methods to send Large Messages----------------------------------------------------------------
 
-   /**
-    * @param msgI
-    * @param handler
-    * @throws ActiveMQException
-    */
    private void largeMessageSend(final boolean sendBlocking,
                                  final ICoreMessage msgI,
                                  final ClientProducerCredits credits,
@@ -357,13 +347,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
    }
 
    /**
-    * Used to send serverMessages through the bridges. No need to validate compression here since
-    * the message is only compressed at the client
-    *
-    * @param sendBlocking
-    * @param msgI
-    * @param handler
-    * @throws ActiveMQException
+    * Used to send serverMessages through the bridges. No need to validate compression here since the message is only
+    * compressed at the client
     */
    private void largeMessageSendServer(final boolean sendBlocking,
                                        final ICoreMessage msgI,
@@ -402,12 +387,6 @@ public class ClientProducerImpl implements ClientProducerInternal {
       }
    }
 
-   /**
-    * @param sendBlocking
-    * @param msgI
-    * @param handler
-    * @throws ActiveMQException
-    */
    private void largeMessageSendBuffered(final boolean sendBlocking,
                                          final ICoreMessage msgI,
                                          final ClientProducerCredits credits,
@@ -416,15 +395,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
       largeMessageSendStreamed(sendBlocking, msgI, new ActiveMQBufferInputStream(msgI.getBodyBuffer()), credits, handler);
    }
 
-   /**
-    * @param sendBlocking
-    * @param msgI
-    * @param inputStreamParameter
-    * @param credits
-    * @throws ActiveMQException
-    */
    private void largeMessageSendStreamed(final boolean sendBlocking,
-                                         final ICoreMessage msgI,
+                                         ICoreMessage msgI,
                                          final InputStream inputStreamParameter,
                                          final ClientProducerCredits credits,
                                          SendAcknowledgementHandler handler) throws ActiveMQException {
@@ -439,14 +411,12 @@ public class ClientProducerImpl implements ClientProducerInternal {
       DeflaterReader deflaterReader = null;
 
       if (session.isCompressLargeMessages()) {
+         // We need to change properties the compressed message as we send it
+         msgI = msgI.copy();
          msgI.putBooleanProperty(Message.HDR_LARGE_COMPRESSED, true);
          deflaterReader = new DeflaterReader(inputStreamParameter, messageSize);
          deflaterReader.setLevel(session.getCompressionLevel());
          input = deflaterReader;
-      } else if (msgI.getBooleanProperty(Message.HDR_LARGE_COMPRESSED)) {
-         //This needs to be false if we do not intend to compress the message
-         //and the header already exists
-         msgI.putBooleanProperty(Message.HDR_LARGE_COMPRESSED, false);
       }
 
       long totalSize = 0;

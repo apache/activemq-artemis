@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.service.extensions;
 
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,6 +27,7 @@ import org.apache.activemq.artemis.service.extensions.transactions.TransactionMa
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactoryImpl;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 public class ServiceUtils {
 
@@ -66,35 +66,30 @@ public class ServiceUtils {
    }
 
    /**
-    * Find the <em>first</em> transaction manager loaded from the {@code TransactionManagerLocator} service or {@code null} if none is loaded.
+    * Find the <em>first</em> transaction manager loaded from the {@code TransactionManagerLocator} service or
+    * {@code null} if none is loaded.
     */
    private static TransactionManager findTransactionManager() {
-      return AccessController.doPrivileged(new PrivilegedAction<TransactionManager>() {
-         @Override
-         public TransactionManager run() {
-            Iterator<TransactionManagerLocator> it = ServiceLoader.load(TransactionManagerLocator.class, ServiceUtils.class.getClassLoader()).iterator();
-            while (it.hasNext() && transactionManager == null) {
-               transactionManager = it.next().getTransactionManager();
-            }
-            return transactionManager;
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<TransactionManager>) () -> {
+         Iterator<TransactionManagerLocator> it = ServiceLoader.load(TransactionManagerLocator.class, ServiceUtils.class.getClassLoader()).iterator();
+         while (it.hasNext() && transactionManager == null) {
+            transactionManager = it.next().getTransactionManager();
          }
+         return transactionManager;
       });
    }
 
    /**
-    * Find the <em>first</em> wrapper factory loaded from the {@code ActiveMQXAResourceWrapperFactory} service or
-    * use the default {@code ActiveMQXAResourceWrapperFactoryImpl} if none is loaded.
+    * Find the <em>first</em> wrapper factory loaded from the {@code ActiveMQXAResourceWrapperFactory} service or use
+    * the default {@code ActiveMQXAResourceWrapperFactoryImpl} if none is loaded.
     */
    private static ActiveMQXAResourceWrapperFactory findActiveMQXAResourceWrapperFactory() {
-      return AccessController.doPrivileged(new PrivilegedAction<ActiveMQXAResourceWrapperFactory>() {
-         @Override
-         public ActiveMQXAResourceWrapperFactory run() {
-            Iterator<ActiveMQXAResourceWrapperFactory> iterator = ServiceLoader.load(ActiveMQXAResourceWrapperFactory.class, ServiceUtils.class.getClassLoader()).iterator();
-            if (iterator.hasNext()) {
-               return iterator.next();
-            } else {
-               return new ActiveMQXAResourceWrapperFactoryImpl();
-            }
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ActiveMQXAResourceWrapperFactory>) () -> {
+         Iterator<ActiveMQXAResourceWrapperFactory> iterator = ServiceLoader.load(ActiveMQXAResourceWrapperFactory.class, ServiceUtils.class.getClassLoader()).iterator();
+         if (iterator.hasNext()) {
+            return iterator.next();
+         } else {
+            return new ActiveMQXAResourceWrapperFactoryImpl();
          }
       });
    }

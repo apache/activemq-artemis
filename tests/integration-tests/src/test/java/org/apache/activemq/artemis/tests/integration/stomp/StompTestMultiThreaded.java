@@ -24,15 +24,17 @@ import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
 
-@RunWith(Parameterized.class)
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 public class StompTestMultiThreaded extends StompTestBase {
 
-   private static final SimpleString QUEUE = new SimpleString("x");
+   private static final SimpleString QUEUE = SimpleString.of("x");
+
+   public StompTestMultiThreaded() {
+      super("tcp+v10.stomp");
+   }
 
    class SomeConsumer extends Thread {
 
@@ -83,7 +85,7 @@ public class StompTestMultiThreaded extends StompTestBase {
 
          for (SomeConsumer consumer : consumers) {
             consumer.join();
-            Assert.assertFalse(consumer.failed);
+            assertFalse(consumer.failed);
          }
 
          // delete queue here so it can be auto-created again during the next loop iteration

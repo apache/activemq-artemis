@@ -173,8 +173,8 @@
          <xsd:element type="bodyType" name="body">
             <xsd:annotation>
                <xsd:documentation>
-                  the body of the message (Base64 encoded using the Base64.DONT_BREAK_LINES and Base64.URL_SAFE options;
-                  see org.apache.activemq.artemis.utils.Base64.encodeBytes(byte[], int, int, int)); stored in a CDATA
+                  the body of the message (Base64 URL-safe encoded;
+                  see java.util.Base64.getUrlEncoder().encodeToString(String); stored in a CDATA
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

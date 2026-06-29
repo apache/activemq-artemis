@@ -26,14 +26,9 @@ import java.io.Serializable;
 
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-/**
- * ObjectMessageDeliveryTest
- */
 public class ObjectMessageDeliveryTest extends ActiveMQServerTestCase {
-
-
 
    static class TestObject implements Serializable {
 
@@ -42,9 +37,6 @@ public class ObjectMessageDeliveryTest extends ActiveMQServerTestCase {
       String text;
    }
 
-   /**
-    *
-    */
    @Test
    public void testTopic() throws Exception {
       TopicConnection conn = getTopicConnectionFactory().createTopicConnection();

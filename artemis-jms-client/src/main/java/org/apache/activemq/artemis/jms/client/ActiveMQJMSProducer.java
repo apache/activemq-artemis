@@ -41,10 +41,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
 /**
- * NOTE: this class forwards {@link #setDisableMessageID(boolean)} and
- * {@link #setDisableMessageTimestamp(boolean)} calls their equivalent at the
- * {@link MessageProducer}. IF the user is using the producer in async mode, this may lead to races.
- * We allow/tolerate this because these are just optional optimizations.
+ * NOTE: this class forwards {@link #setDisableMessageID(boolean)} and {@link #setDisableMessageTimestamp(boolean)}
+ * calls their equivalent at the {@link MessageProducer}. IF the user is using the producer in async mode, this may lead
+ * to races. We allow/tolerate this because these are just optional optimizations.
  */
 public final class ActiveMQJMSProducer implements JMSProducer {
 
@@ -87,8 +86,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
          if (jmsHeaderType != null) {
             message.setJMSType(jmsHeaderType);
          }
-         // XXX HORNETQ-1209 "JMS 2.0" can this be a foreign msg?
-         // if so, then "SimpleString" properties will trigger an error.
+         // Can this be a foreign msg? If so, then "SimpleString" properties will trigger an error.
          setProperties(message);
          if (completionListener != null) {
             CompletionListener wrapped = new CompletionListenerWrapper(completionListener);
@@ -104,9 +102,6 @@ public final class ActiveMQJMSProducer implements JMSProducer {
 
    /**
     * Sets all properties we carry onto the message.
-    *
-    * @param message
-    * @throws JMSException
     */
    private void setProperties(Message message) throws JMSException {
       properties.forEach((k, v) -> {
@@ -133,27 +128,26 @@ public final class ActiveMQJMSProducer implements JMSProducer {
             for (Entry<String, Object> entry : body.entrySet()) {
                final String name = entry.getKey();
                final Object v = entry.getValue();
-               if (v instanceof String) {
-                  message.setString(name, (String) v);
-               } else if (v instanceof Long) {
-                  message.setLong(name, (Long) v);
-               } else if (v instanceof Double) {
-                  message.setDouble(name, (Double) v);
-               } else if (v instanceof Integer) {
-                  message.setInt(name, (Integer) v);
-               } else if (v instanceof Character) {
-                  message.setChar(name, (Character) v);
-               } else if (v instanceof Short) {
-                  message.setShort(name, (Short) v);
-               } else if (v instanceof Boolean) {
-                  message.setBoolean(name, (Boolean) v);
-               } else if (v instanceof Float) {
-                  message.setFloat(name, (Float) v);
-               } else if (v instanceof Byte) {
-                  message.setByte(name, (Byte) v);
-               } else if (v instanceof byte[]) {
-                  byte[] array = (byte[]) v;
-                  message.setBytes(name, array, 0, array.length);
+               if (v instanceof String string) {
+                  message.setString(name, string);
+               } else if (v instanceof Long longValue) {
+                  message.setLong(name, longValue);
+               } else if (v instanceof Double doubleValue) {
+                  message.setDouble(name, doubleValue);
+               } else if (v instanceof Integer integer) {
+                  message.setInt(name, integer);
+               } else if (v instanceof Character character) {
+                  message.setChar(name, character);
+               } else if (v instanceof Short shortValue) {
+                  message.setShort(name, shortValue);
+               } else if (v instanceof Boolean booleanValue) {
+                  message.setBoolean(name, booleanValue);
+               } else if (v instanceof Float floatValue) {
+                  message.setFloat(name, floatValue);
+               } else if (v instanceof Byte byteValue) {
+                  message.setByte(name, byteValue);
+               } else if (v instanceof byte[] bytes) {
+                  message.setBytes(name, bytes, 0, bytes.length);
                } else {
                   message.setObject(name, v);
                }
@@ -332,57 +326,57 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public JMSProducer setProperty(String name, boolean value) {
       checkName(name);
-      properties.putBooleanProperty(new SimpleString(name), value);
+      properties.putBooleanProperty(SimpleString.of(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, byte value) {
       checkName(name);
-      properties.putByteProperty(new SimpleString(name), value);
+      properties.putByteProperty(SimpleString.of(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, short value) {
       checkName(name);
-      properties.putShortProperty(new SimpleString(name), value);
+      properties.putShortProperty(SimpleString.of(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, int value) {
       checkName(name);
-      properties.putIntProperty(new SimpleString(name), value);
+      properties.putIntProperty(SimpleString.of(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, long value) {
       checkName(name);
-      properties.putLongProperty(new SimpleString(name), value);
+      properties.putLongProperty(SimpleString.of(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, float value) {
       checkName(name);
-      properties.putFloatProperty(new SimpleString(name), value);
+      properties.putFloatProperty(SimpleString.of(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, double value) {
       checkName(name);
-      properties.putDoubleProperty(new SimpleString(name), value);
+      properties.putDoubleProperty(SimpleString.of(name), value);
       return this;
    }
 
    @Override
    public JMSProducer setProperty(String name, String value) {
       checkName(name);
-      SimpleString key = new SimpleString(name);
-      properties.putSimpleStringProperty(key, new SimpleString(value));
+      SimpleString key = SimpleString.of(name);
+      properties.putSimpleStringProperty(key, SimpleString.of(value));
       stringPropertyNames.add(key);
       return this;
    }
@@ -391,7 +385,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public JMSProducer setProperty(String name, Object value) {
       checkName(name);
       try {
-         TypedProperties.setObjectProperty(new SimpleString(name), value, properties);
+         TypedProperties.setObjectProperty(SimpleString.of(name), value, properties);
       } catch (ActiveMQPropertyConversionException amqe) {
          throw new MessageFormatRuntimeException(amqe.getMessage());
       } catch (RuntimeException e) {
@@ -413,13 +407,13 @@ public final class ActiveMQJMSProducer implements JMSProducer {
 
    @Override
    public boolean propertyExists(String name) {
-      return properties.containsProperty(new SimpleString(name));
+      return properties.containsProperty(SimpleString.of(name));
    }
 
    @Override
    public boolean getBooleanProperty(String name) {
       try {
-         return properties.getBooleanProperty(new SimpleString(name));
+         return properties.getBooleanProperty(SimpleString.of(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       } catch (RuntimeException e) {
@@ -430,7 +424,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public byte getByteProperty(String name) {
       try {
-         return properties.getByteProperty(new SimpleString(name));
+         return properties.getByteProperty(SimpleString.of(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -439,7 +433,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public short getShortProperty(String name) {
       try {
-         return properties.getShortProperty(new SimpleString(name));
+         return properties.getShortProperty(SimpleString.of(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -448,7 +442,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public int getIntProperty(String name) {
       try {
-         return properties.getIntProperty(new SimpleString(name));
+         return properties.getIntProperty(SimpleString.of(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -457,7 +451,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public long getLongProperty(String name) {
       try {
-         return properties.getLongProperty(new SimpleString(name));
+         return properties.getLongProperty(SimpleString.of(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -466,7 +460,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public float getFloatProperty(String name) {
       try {
-         return properties.getFloatProperty(new SimpleString(name));
+         return properties.getFloatProperty(SimpleString.of(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -475,7 +469,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public double getDoubleProperty(String name) {
       try {
-         return properties.getDoubleProperty(new SimpleString(name));
+         return properties.getDoubleProperty(SimpleString.of(name));
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -484,9 +478,10 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public String getStringProperty(String name) {
       try {
-         SimpleString prop = properties.getSimpleStringProperty(new SimpleString(name));
-         if (prop == null)
+         SimpleString prop = properties.getSimpleStringProperty(SimpleString.of(name));
+         if (prop == null) {
             return null;
+         }
          return prop.toString();
       } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
@@ -498,7 +493,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    @Override
    public Object getObjectProperty(String name) {
       try {
-         SimpleString key = new SimpleString(name);
+         SimpleString key = SimpleString.of(name);
          Object property = properties.getProperty(key);
          if (stringPropertyNames.contains(key)) {
             property = property.toString();
@@ -573,7 +568,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
       if (name == null) {
          throw ActiveMQJMSClientBundle.BUNDLE.nameCannotBeNull();
       }
-      if (name.equals("")) {
+      if (name.isEmpty()) {
          throw ActiveMQJMSClientBundle.BUNDLE.nameCannotBeEmpty();
       }
    }

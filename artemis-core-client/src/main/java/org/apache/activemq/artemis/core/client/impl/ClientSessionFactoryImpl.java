@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.ref.WeakReference;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiPredicate;
 
 import org.apache.activemq.artemis.api.config.ServerLocatorConfig;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -70,12 +71,12 @@ import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import java.util.function.BiPredicate;
 
 public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, ClientConnectionLifeCycleListener {
 
@@ -117,7 +118,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final ScheduledExecutorService scheduledThreadPool;
 
-   private final Executor closeExecutor;
+   private final ArtemisExecutor closeExecutor;
+
+   private final Executor flowControlExecutor;
 
    private RemotingConnection connection;
 
@@ -152,18 +155,14 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private volatile boolean closed;
 
-   public final Exception createTrace;
-
-   public static final Set<CloseRunnable> CLOSE_RUNNABLES = Collections.synchronizedSet(new HashSet<CloseRunnable>());
+   public static final Set<CloseRunnable> CLOSE_RUNNABLES = Collections.synchronizedSet(new HashSet<>());
 
    private final ConfirmationWindowWarning confirmationWindowWarning;
 
-   private String liveNodeID;
+   private String primaryNodeID;
 
    // We need to cache this value here since some listeners may be registered after connectionReadyForWrites was called.
    private boolean connectionReadyForWrites;
-
-   private final Object connectionReadyLock = new Object();
 
    private final TransportConfiguration[] connectorConfigs;
 
@@ -173,24 +172,27 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                    final int reconnectAttempts,
                                    final Executor threadPool,
                                    final ScheduledExecutorService scheduledThreadPool,
+                                   final Executor flowControlThreadPool,
                                    final List<Interceptor> incomingInterceptors,
                                    final List<Interceptor> outgoingInterceptors) {
       this(serverLocator, new Pair<>(connectorConfig, null),
                locatorConfig, reconnectAttempts, threadPool,
-               scheduledThreadPool, incomingInterceptors, outgoingInterceptors);
+               scheduledThreadPool, flowControlThreadPool, incomingInterceptors, outgoingInterceptors);
    }
 
+
    ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
-      final Pair<TransportConfiguration, TransportConfiguration> connectorConfig,
-      final ServerLocatorConfig locatorConfig,
-      final int reconnectAttempts,
-      final Executor threadPool,
-      final ScheduledExecutorService scheduledThreadPool,
-      final List<Interceptor> incomingInterceptors,
-      final List<Interceptor> outgoingInterceptors) {
+                            final Pair<TransportConfiguration, TransportConfiguration> connectorConfig,
+                            final ServerLocatorConfig locatorConfig,
+                            final int reconnectAttempts,
+                            final Executor threadPool,
+                            final ScheduledExecutorService scheduledThreadPool,
+                            final Executor flowControlThreadPool,
+                            final List<Interceptor> incomingInterceptors,
+                            final List<Interceptor> outgoingInterceptors) {
       this(serverLocator, connectorConfig,
-         locatorConfig, reconnectAttempts, threadPool,
-         scheduledThreadPool, incomingInterceptors, outgoingInterceptors, null);
+           locatorConfig, reconnectAttempts, threadPool,
+           scheduledThreadPool, flowControlThreadPool, incomingInterceptors, outgoingInterceptors, null);
    }
 
    ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
@@ -199,11 +201,10 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                           final int reconnectAttempts,
                           final Executor threadPool,
                           final ScheduledExecutorService scheduledThreadPool,
+                          final Executor flowControlThreadPool,
                           final List<Interceptor> incomingInterceptors,
                           final List<Interceptor> outgoingInterceptors,
                           final TransportConfiguration[] connectorConfigs) {
-      createTrace = new Exception();
-
       this.serverLocator = serverLocator;
 
       this.clientProtocolManager = serverLocator.newProtocolManager();
@@ -222,7 +223,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       this.callFailoverTimeout = locatorConfig.callFailoverTimeout;
 
-      // HORNETQ-1314 - if this in an in-vm connection then disable connection monitoring
+      // If this in an in-vm connection then disable connection monitoring
       if (connectorFactory.isReliable() &&
          locatorConfig.clientFailureCheckPeriod == ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD &&
          locatorConfig.connectionTTL == ActiveMQClient.DEFAULT_CONNECTION_TTL) {
@@ -249,6 +250,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       this.threadPool = threadPool;
 
       orderedExecutorFactory = new OrderedExecutorFactory(threadPool);
+
+      flowControlExecutor = new OrderedExecutorFactory(flowControlThreadPool).getExecutor();
 
       closeExecutor = orderedExecutorFactory.getExecutor();
 
@@ -301,7 +304,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    @Override
-   public void setBackupConnector(final TransportConfiguration live, final TransportConfiguration backUp) {
+   public void setBackupConnector(final TransportConfiguration primary, final TransportConfiguration backUp) {
       Connector localConnector = connector;
 
       // if the connector has never been used (i.e. the getConnection hasn't been called yet), we will need
@@ -311,15 +314,15 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          localConnector = connectorFactory.createConnector(currentConnectorConfig.getCombinedParams(), new DelegatingBufferHandler(), this, closeExecutor, threadPool, scheduledThreadPool, clientProtocolManager);
       }
 
-      if (localConnector.isEquivalent(live.getParams()) && backUp != null && !localConnector.isEquivalent(backUp.getParams())
+      if (localConnector.isEquivalent(primary.getParams()) && backUp != null && !localConnector.isEquivalent(backUp.getParams())
          // check if a server is trying to set its cluster connector config as backup connector config
          && !(serverLocator.getClusterTransportConfiguration() != null && serverLocator.getClusterTransportConfiguration().isSameParams(backUp))) {
-         logger.debug("Setting up backup config = {} for live = {}", backUp, live);
+         logger.debug("Setting up backup config = {} for primary = {}", backUp, primary);
          backupConnectorConfig = backUp;
       } else {
          if (logger.isDebugEnabled()) {
-            logger.debug("ClientSessionFactoryImpl received backup update for live/backup pair = {} / {}  but it didn't belong to {}",
-                         live, backUp, currentConnectorConfig);
+            logger.debug("ClientSessionFactoryImpl received backup update for primary/backup pair = {} / {}  but it didn't belong to {}",
+                         primary, backUp, currentConnectorConfig);
          }
       }
    }
@@ -404,19 +407,14 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    @Override
-   public void connectionDestroyed(final Object connectionID) {
+   public void connectionDestroyed(final Object connectionID, boolean failed) {
       // The exception has to be created in the same thread where it's being called
       // as to avoid a different stack trace cause
       final ActiveMQException ex = ActiveMQClientMessageBundle.BUNDLE.channelDisconnected();
 
       // It has to use the same executor as the disconnect message is being sent through
 
-      closeExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            handleConnectionFailure(connectionID, ex);
-         }
-      });
+      closeExecutor.execute(() -> handleConnectionFailure(connectionID, ex));
 
    }
 
@@ -475,22 +473,19 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    private void interruptConnectAndCloseAllSessions(boolean close) {
+      //release all threads waiting for topology
+      latchFinalTopology.countDown();
+
       clientProtocolManager.stop();
 
       synchronized (createSessionLock) {
          closeCleanSessions(close);
          closed = true;
       }
-
-      //release all threads waiting for topology
-      latchFinalTopology.countDown();
    }
 
-   /**
-    * @param close
-    */
    private void closeCleanSessions(boolean close) {
-      HashSet<ClientSessionInternal> sessionsToClose;
+      Set<ClientSessionInternal> sessionsToClose;
       synchronized (sessions) {
          sessionsToClose = new HashSet<>(sessions);
       }
@@ -498,10 +493,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       // called
       for (ClientSessionInternal session : sessionsToClose) {
          try {
-            if (close)
+            if (close) {
                session.close();
-            else
+            } else {
                session.cleanUp(false);
+            }
          } catch (Exception e1) {
             ActiveMQClientLogger.LOGGER.unableToCloseSession(e1);
          }
@@ -536,7 +532,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          return latchFinalTopology.await(timeout, unit) && topologyReady;
       } catch (InterruptedException e) {
          Thread.currentThread().interrupt();
-         ActiveMQClientLogger.LOGGER.unableToReceiveClusterTopology(e);
+         if (!isClosed()) {
+            ActiveMQClientLogger.LOGGER.unableToReceiveClusterTopology(e);
+         }
          return false;
       }
    }
@@ -577,9 +575,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    /**
     * TODO: Maybe this belongs to ActiveMQClientProtocolManager
-    *
-    * @param connectionID
-    * @param me
     */
    private void failoverOrReconnect(final Object connectionID,
                                     final ActiveMQException me,
@@ -588,8 +583,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       for (ClientSessionInternal session : sessions) {
          SessionContext context = session.getSessionContext();
-         if (context instanceof ActiveMQSessionContext) {
-            ActiveMQSessionContext sessionContext = (ActiveMQSessionContext) context;
+         if (context instanceof ActiveMQSessionContext sessionContext) {
             if (sessionContext.isKilled()) {
                setReconnectAttempts(0);
             }
@@ -597,8 +591,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
 
       Set<ClientSessionInternal> sessionsToClose = null;
-      if (!clientProtocolManager.isAlive())
+      if (!clientProtocolManager.isAlive()) {
          return;
+      }
       Lock localFailoverLock = lockFailover();
       try {
          if (connection == null || !connection.getID().equals(connectionID) || !clientProtocolManager.isAlive()) {
@@ -673,7 +668,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                connector = null;
 
-               HashSet<ClientSessionInternal> sessionsToFailover;
+               Set<ClientSessionInternal> sessionsToFailover;
                synchronized (sessions) {
                   sessionsToFailover = new HashSet<>(sessions);
                }
@@ -759,7 +754,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                      failoverRetries++;
                      if (failoverRetryPredicate.test(false, failoverRetries)) {
                         waitForRetry(failoverRetryInterval);
-                        failoverRetryInterval = getNextRetryInterval(failoverRetryInterval);
+                        failoverRetryInterval = serverLocator.getNextRetryInterval(failoverRetryInterval, retryIntervalMultiplier, maxRetryInterval);
                      }
                   }
                }
@@ -791,7 +786,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                sessionsToClose = new HashSet<>(sessions);
             }
             callFailoverListeners(FailoverEventType.FAILOVER_FAILED);
-            callSessionFailureListeners(me, true, false, scaleDownTargetNodeID);
          }
       } finally {
          localFailoverLock.unlock();
@@ -800,7 +794,10 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       // This needs to be outside the failover lock to prevent deadlock
       if (connection != null) {
          callSessionFailureListeners(me, true, true);
+      } else {
+         callSessionFailureListeners(me, true, false, scaleDownTargetNodeID);
       }
+
       if (sessionsToClose != null) {
          // If connection is null it means we didn't succeed in failing over or reconnecting
          // so we close all the sessions, so they will throw exceptions when attempted to be used
@@ -836,12 +833,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       SessionContext context = createSessionChannel(name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, clientID);
 
-      ClientSessionInternal session = new ClientSessionImpl(this, name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, serverLocator.isBlockOnAcknowledge(), serverLocator.isAutoGroup(), ackBatchSize, serverLocator.getConsumerWindowSize(), serverLocator.getConsumerMaxRate(), serverLocator.getConfirmationWindowSize(), serverLocator.getProducerWindowSize(), serverLocator.getProducerMaxRate(), serverLocator.isBlockOnNonDurableSend(), serverLocator.isBlockOnDurableSend(), serverLocator.isCacheLargeMessagesClient(), serverLocator.getMinLargeMessageSize(), serverLocator.isCompressLargeMessage(), serverLocator.getCompressionLevel(), serverLocator.getInitialMessagePacketSize(), serverLocator.getGroupID(), context, orderedExecutorFactory.getExecutor(), orderedExecutorFactory.getExecutor(), orderedExecutorFactory.getExecutor(), orderedExecutorFactory.getExecutor());
+      ClientSessionInternal session = new ClientSessionImpl(this, name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, serverLocator.isBlockOnAcknowledge(), serverLocator.isAutoGroup(), ackBatchSize, serverLocator.getConsumerWindowSize(), serverLocator.getConsumerMaxRate(), serverLocator.getConfirmationWindowSize(), serverLocator.getProducerWindowSize(), serverLocator.getProducerMaxRate(), serverLocator.isBlockOnNonDurableSend(), serverLocator.isBlockOnDurableSend(), serverLocator.isCacheLargeMessagesClient(), serverLocator.getMinLargeMessageSize(), serverLocator.isCompressLargeMessage(), serverLocator.getCompressionLevel(), serverLocator.getInitialMessagePacketSize(), serverLocator.getGroupID(), serverLocator.getOnMessageCloseTimeout(), context, orderedExecutorFactory.getExecutor(), orderedExecutorFactory.getExecutor(), flowControlExecutor, orderedExecutorFactory.getExecutor());
 
       synchronized (sessions) {
          if (closed || !clientProtocolManager.isAlive()) {
             session.close();
-            return null;
+            throw ActiveMQClientMessageBundle.BUNDLE.unableToCreateSession();
          }
          sessions.add(session);
       }
@@ -893,16 +890,14 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
    }
 
-   /*
-    * Re-attach sessions all pre-existing sessions to the new remoting connection
-    */
+   // Re-attach sessions all pre-existing sessions to the new remoting connection
    private boolean reconnectSessions(final Set<ClientSessionInternal> sessionsToFailover,
                                      final RemotingConnection oldConnection,
                                      final ActiveMQException cause) {
       if (connection == null) {
-         if (!clientProtocolManager.isAlive())
+         if (!clientProtocolManager.isAlive()) {
             ActiveMQClientLogger.LOGGER.failedToConnectToServer();
-
+         }
          return false;
       }
 
@@ -940,8 +935,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    private int getConnectionWithRetry(final int reconnectAttempts, RemotingConnection oldConnection) {
-      if (!clientProtocolManager.isAlive())
+      if (!clientProtocolManager.isAlive()) {
          return 0;
+      }
       if (logger.isTraceEnabled()) {
          logger.trace("getConnectionWithRetry::{} with retryInterval = {} multiplier = {}",
                       reconnectAttempts, retryInterval, retryIntervalMultiplier, new Exception("trace"));
@@ -957,9 +953,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          }
 
          if (getConnection() != null) {
-            if (oldConnection != null && oldConnection instanceof CoreRemotingConnection) {
+            if (oldConnection != null && oldConnection instanceof CoreRemotingConnection oldRemotingConnection) {
                // transferring old connection version into the new connection
-               ((CoreRemotingConnection)connection).setChannelVersion(((CoreRemotingConnection)oldConnection).getChannelVersion());
+               ((CoreRemotingConnection)connection).setChannelVersion(oldRemotingConnection.getChannelVersion());
             }
             logger.debug("Reconnection successful");
             return count;
@@ -981,10 +977,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                   logger.trace("Waiting {} milliseconds before next retry. RetryInterval={} and multiplier={}", interval, retryInterval, retryIntervalMultiplier);
                }
 
-               if (waitForRetry(interval))
+               if (waitForRetry(interval)) {
                   return count;
+               }
 
-               interval = getNextRetryInterval(interval);
+               interval = serverLocator.getNextRetryInterval(interval, retryIntervalMultiplier, maxRetryInterval);
             } else {
                logger.debug("Could not connect to any server. Didn't have reconnection configured on the ClientSessionFactory");
                return count;
@@ -995,17 +992,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       return count;
    }
 
-   private long getNextRetryInterval(long retryInterval) {
-      // Exponential back-off
-      long nextRetryInterval = (long) (retryInterval * retryIntervalMultiplier);
-
-      if (nextRetryInterval > maxRetryInterval) {
-         nextRetryInterval = maxRetryInterval;
-      }
-
-      return nextRetryInterval;
-   }
-
    @Override
    public boolean waitForRetry(long interval) {
       try {
@@ -1013,7 +999,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             return true;
          }
       } catch (InterruptedException ignore) {
-         throw new ActiveMQInterruptedException(createTrace);
+         throw new ActiveMQInterruptedException(ignore);
       }
       return false;
    }
@@ -1035,7 +1021,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       RemotingConnection connectionInUse = connection;
       Connector connectorInUse = connector;
 
-      if (connectionInUse != null && sessions.size() == 0) {
+      if (connectionInUse != null && sessions.isEmpty()) {
          cancelScheduledTasks();
 
          try {
@@ -1062,10 +1048,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    //updated properly.
    @Override
    public RemotingConnection getConnection() {
-      if (closed)
+      if (closed) {
          throw new IllegalStateException("ClientSessionFactory is closed!");
-      if (!clientProtocolManager.isAlive())
+      }
+      if (!clientProtocolManager.isAlive()) {
          return null;
+      }
       synchronized (connectionLock) {
          if (connection != null) {
             // a connection already exists, so returning the same one
@@ -1078,9 +1066,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             //we check if we can actually connect.
             // we do it here as to receive the reply connection has to be not null
             //make sure to reset this.connection == null
-            if (connection != null && liveNodeID != null) {
+            if (connection != null && primaryNodeID != null) {
                try {
-                  if (!clientProtocolManager.checkForFailover(liveNodeID)) {
+                  if (!clientProtocolManager.checkForFailover(primaryNodeID)) {
                      connection.destroy();
                      this.connection = null;
                      return null;
@@ -1140,12 +1128,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
       // else... we will try to instantiate a new one
 
-      return AccessController.doPrivileged(new PrivilegedAction<ConnectorFactory>() {
-         @Override
-         public ConnectorFactory run() {
-            return (ConnectorFactory) ClassloadingUtil.newInstanceFromClassLoader(ClientSessionFactoryImpl.class, connectorFactoryClassName);
-         }
-      });
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ConnectorFactory>) () -> (ConnectorFactory) ClassloadingUtil.newInstanceFromClassLoader(ClientSessionFactoryImpl.class, connectorFactoryClassName, ConnectorFactory.class));
    }
 
    public class CloseRunnable implements Runnable {
@@ -1225,8 +1208,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    protected Connector createConnector(ConnectorFactory connectorFactory, TransportConfiguration configuration) {
       Connector connector = connectorFactory.createConnector(configuration.getCombinedParams(), new DelegatingBufferHandler(), this, closeExecutor, threadPool, scheduledThreadPool, clientProtocolManager);
-      if (connector instanceof NettyConnector) {
-         NettyConnector nettyConnector = (NettyConnector) connector;
+      if (connector instanceof NettyConnector nettyConnector) {
          if (nettyConnector.getConnectTimeoutMillis() < 0) {
             nettyConnector.setConnectTimeoutMillis((int)serverLocator.getConnectionTTL());
          }
@@ -1240,10 +1222,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    /**
-    * It will connect to either live or backup accordingly to the current configurations
-    * it will also switch to backup case it can't connect to live and there's a backup configured
-    *
-    * @return
+    * It will connect to either primary or backup accordingly to the current configurations it will also switch to
+    * backup case it can't connect to primary and there's a backup configured
     */
    protected Connection createTransportConnection() {
       Connection transportConnection = null;
@@ -1301,13 +1281,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
          ActiveMQClientLogger.LOGGER.createConnectorException(cause);
 
-         if (transportConnection != null) {
-            try {
-               transportConnection.close();
-            } catch (Throwable t) {
-            }
-         }
-
          if (connector != null) {
             try {
                connector.close();
@@ -1355,12 +1328,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                theConn.bufferReceived(connectionID, buffer);
             } catch (final RuntimeException e) {
                ActiveMQClientLogger.LOGGER.disconnectOnErrorDecoding(e);
-               threadPool.execute(new Runnable() {
-                  @Override
-                  public void run() {
-                     theConn.fail(new ActiveMQException(e.getMessage()));
-                  }
-               });
+               threadPool.execute(() -> theConn.fail(new ActiveMQException(e.getMessage())));
             }
          } else {
             logger.debug("TheConn == null on ClientSessionFactoryImpl::DelegatingBufferHandler, ignoring packet");
@@ -1376,12 +1344,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                theConn.endOfBatch(connectionID);
             } catch (final RuntimeException e) {
                ActiveMQClientLogger.LOGGER.disconnectOnErrorDecoding(e);
-               threadPool.execute(new Runnable() {
-                  @Override
-                  public void run() {
-                     theConn.fail(new ActiveMQException(e.getMessage()));
-                  }
-               });
+               threadPool.execute(() -> theConn.fail(new ActiveMQException(e.getMessage())));
             }
          } else {
             logger.debug("TheConn == null on ClientSessionFactoryImpl::DelegatingBufferHandler, ignoring packet");
@@ -1462,13 +1425,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                cancelled = true;
 
-               threadPool.execute(new Runnable() {
-                  // Must be executed on different thread
-                  @Override
-                  public void run() {
-                     connectionInUse.fail(me);
-                  }
-               });
+               // Must be executed on different thread
+               threadPool.execute(() -> connectionInUse.fail(me));
 
                return;
             } else {
@@ -1479,11 +1437,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          send();
       }
 
-      /**
-       *
-       */
       public void send() {
-
          clientProtocolManager.ping(connectionTTL);
       }
 
@@ -1496,7 +1450,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       Connection transportConnection = createTransportConnection();
 
       if (transportConnection == null) {
-         logger.trace("Neither backup or live were active, will just give up now");
+         logger.trace("Neither backup or primary were active, will just give up now");
          return null;
       }
 
@@ -1525,8 +1479,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    @Override
-   public String getLiveNodeId() {
-      return liveNodeID;
+   public String getPrimaryNodeId() {
+      return primaryNodeID;
    }
 
    class SessionFactoryTopologyHandler implements TopologyResponseHandler {
@@ -1539,7 +1493,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                          serverLocator, nodeID, reason, new Exception("trace"));
          }
 
-         serverLocator.notifyNodeDown(System.currentTimeMillis(), nodeID);
+         serverLocator.notifyNodeDown(System.currentTimeMillis(), nodeID, true);
 
          if (reason.isRedirect()) {
             if (serverLocator.isHA()) {
@@ -1572,9 +1526,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                boolean isLast) {
 
          try {
-            // if it is our connector then set the live id used for failover
+            // if it is our connector then set the primary id used for failover
             if (connectorPair.getA() != null && TransportConfigurationUtil.isSameHost(connectorPair.getA(), currentConnectorConfig)) {
-               liveNodeID = nodeID;
+               primaryNodeID = nodeID;
             }
 
             serverLocator.notifyNodeUp(uniqueEventID, nodeID, backupGroupName, scaleDownGroupName, connectorPair, isLast);
@@ -1588,8 +1542,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
 
       @Override
-      public void notifyNodeDown(long eventTime, String nodeID) {
-         serverLocator.notifyNodeDown(eventTime, nodeID);
+      public void notifyNodeDown(long eventTime, String nodeID, boolean disconnect) {
+         serverLocator.notifyNodeDown(eventTime, nodeID, disconnect);
       }
+   }
+
+   public void flushCloseExecutor(int time, TimeUnit unit) {
+      closeExecutor.flush(time, unit);
    }
 }

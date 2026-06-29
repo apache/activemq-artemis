@@ -16,9 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.asyncio;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,28 +35,30 @@ import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * you need to define -Djava.library.path=${project-root}/native/src/.libs when calling the JVM
+ * You need to define {@literal -Djava.library.path=${project-root}/native/src/.libs} when calling the JVM
  * If you are running this test in eclipse you should do:
- * I - Run->Open Run Dialog
- * II - Find the class on the list (you will find it if you already tried running this testcase before)
- * III - Add -Djava.library.path=<your project place>/native/src/.libs
+ * <ol>
+ * <li>Run->Open Run Dialog
+ * <li>Find the class on the list (you will find it if you already tried running this testcase before)
+ * <li>Add {@literal -Djava.library.path=${project-root}/native/src/.libs}
+ * </ol>
  */
 public class MultiThreadAsynchronousFileTest extends AIOTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @BeforeClass
+   @BeforeAll
    public static void hasAIO() {
-      org.junit.Assume.assumeTrue("Test case needs AIO to run", AIOSequentialFileFactory.isSupported());
+      org.junit.jupiter.api.Assumptions.assumeTrue(AIOSequentialFileFactory.isSupported(), "Test case needs AIO to run");
    }
 
    AtomicInteger position = new AtomicInteger(0);
@@ -67,7 +74,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
    ExecutorService pollerExecutor;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       pollerExecutor = Executors.newCachedThreadPool(new ActiveMQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this), false, this.getClass().getClassLoader()));
@@ -75,7 +82,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       executor.shutdown();
       pollerExecutor.shutdown();
@@ -110,7 +117,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
 
          CountDownLatch latchStart = new CountDownLatch(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS + 1);
 
-         ArrayList<ThreadProducer> list = new ArrayList<>(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS);
+         List<ThreadProducer> list = new ArrayList<>(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS);
          for (int i = 0; i < MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS; i++) {
             ThreadProducer producer = new ThreadProducer("Thread " + i, latchStart, file, sync);
             list.add(producer);

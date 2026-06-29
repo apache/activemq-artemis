@@ -48,8 +48,8 @@ AddressSettings addressSettings = new AddressSettings();
 addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)
         .setMaxSizeBytes(10 * 1024)
         .setPageSizeBytes(1024)
-        .setDeadLetterAddress(SimpleString.toSimpleString("DLA"))
-        .setExpiryAddress(SimpleString.toSimpleString("Expiry"));
+        .setDeadLetterAddress(SimpleString.of("DLA"))
+        .setExpiryAddress(SimpleString.of("Expiry"));
 
 if (!(type.startsWith("ARTEMIS-1") || type.startsWith("HORNETQ"))) {
     addressSettings.setAutoCreateAddresses(false);
@@ -61,8 +61,8 @@ addressSettings = new AddressSettings();
 addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
         .setMaxSizeBytes(1024 * 1024 * 1024)
         .setPageSizeBytes(1024)
-        .setDeadLetterAddress(SimpleString.toSimpleString("DLA"))
-        .setExpiryAddress(SimpleString.toSimpleString("Expiry"));
+        .setDeadLetterAddress(SimpleString.of("DLA"))
+        .setExpiryAddress(SimpleString.of("Expiry"));
 
 if (!(type.startsWith("ARTEMIS-1") || type.startsWith("HORNETQ"))) {
     addressSettings.setAutoCreateAddresses(false);
@@ -82,8 +82,8 @@ server.start();
 if (type.startsWith("ARTEMIS-1") || type.startsWith("HORNETQ")) {
     server.getJMSServerManager().createQueue(true, queueName, null, true, null);
 } else {
-    server.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queueAddress), RoutingType.ANYCAST));
-    server.getActiveMQServer().createQueue(SimpleString.toSimpleString(queueAddress), RoutingType.ANYCAST, SimpleString.toSimpleString(queueAddress), null, true, false);
+    server.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.of(queueAddress), RoutingType.ANYCAST));
+    server.getActiveMQServer().createQueue(SimpleString.of(queueAddress), RoutingType.ANYCAST, SimpleString.of(queueAddress), null, true, false);
 
-    server.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topicAddress), RoutingType.MULTICAST));
+    server.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.of(topicAddress), RoutingType.MULTICAST));
 }

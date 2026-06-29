@@ -22,11 +22,13 @@ import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+// Parameters set by super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest {
 
 
@@ -35,8 +37,19 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       extraProducers = 1;
    }
 
+
+   @Disabled
    @Override
-   @Ignore
+   @TestTemplate
+   public void testListConnectionsCoreClientID() throws Exception {
+      // noise from the connector itself could affect test results,
+      // hence this test is being disabled
+   }
+
+
+   @Disabled
+   @Override
+   @TestTemplate
    public void testListProducersAgainstServer() throws Exception {
       // testListProducersAgainstServer is measuring the number of producers in the server
       // however the management controller itself will include producers
@@ -44,15 +57,23 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       // hence this test needs to be ignored when using the core protocol for management
    }
 
+   @Disabled
    @Override
-   @Ignore
+   @TestTemplate
    public void testListProducersMessageCounts() throws Exception {
       // invalid test when using core protocol (noise from itself)
    }
 
-
-   @Ignore
+   @Disabled
    @Override
+   @TestTemplate
+   public void testListAllConsumersAsJSON() throws Exception {
+      // invalid test when using core protocol (noise from itself)
+   }
+
+   @Disabled
+   @Override
+   @TestTemplate
    public void testListSessions() throws Exception {
       // similarly to testListProducersAgainstServer test,
       // this test will have different objects created when running over core,
@@ -60,32 +81,37 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       // for that reason this test is ignored on the UsingCoreTest
    }
 
-   @Ignore
+   @Disabled
    @Override
+   @TestTemplate
    public void testScaleDownWithOutConnector() throws Exception {
       // test would be invalid over core protocol
    }
 
+   @Disabled
    @Override
-   @Ignore
+   @TestTemplate
    public void testScaleDownWithConnector() throws Exception {
       // test would be invalid over core protocol
    }
 
-   @Ignore
+   @Disabled
    @Override
+   @TestTemplate
    public void testRestartEmbeddedWebServerException() throws Exception {
       // test would be invalid over core protocol
    }
 
-   @Ignore
+   @Disabled
    @Override
+   @TestTemplate
    public void testRestartEmbeddedWebServerTimeout() throws Exception {
       // test would be invalid over core protocol
    }
 
-   @Ignore
+   @Disabled
    @Override
+   @TestTemplate
    public void testListProducersMessageCountsJMSCore() throws Exception {
       // test would be invalid over core protocol
    }
@@ -300,7 +326,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
-         public void createQueue(String address,String name, String filter, boolean durable, String routingType) throws Exception {
+         public void createQueue(String address, String name, String filter, boolean durable, String routingType) throws Exception {
             proxy.invokeOperation("createQueue", address, name, filter, durable, routingType);
          }
 
@@ -383,6 +409,16 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public long getTotalConnectionCount() {
             return (Long) proxy.retrieveAttributeValue("totalConnectionCount", Long.class);
+         }
+
+         @Override
+         public int getSessionCount() {
+            return (Integer) proxy.retrieveAttributeValue("sessionCount", Integer.class);
+         }
+
+         @Override
+         public long getTotalSessionCount() {
+            return (Long) proxy.retrieveAttributeValue("totalSessionCount", Long.class);
          }
 
          @Override
@@ -538,6 +574,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public String[] getOutgoingInterceptorClassNames() {
             return (String[]) proxy.retrieveAttributeValue("outgoingInterceptorClassNames", String.class);
+         }
+
+         @Override
+         public String[] getBrokerPluginClassNames() {
+            return (String[]) proxy.retrieveAttributeValue("brokerPluginClassNames", String.class);
          }
 
          @Override
@@ -948,9 +989,30 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                          String deleteNonDurableQueueRoles,
                                          String manageRoles,
                                          String browseRoles,
+                                         String createAddressRoles,
+                                         String deleteAddressRoles) throws Exception {
+
+            proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddressRoles, deleteAddressRoles);
+         }
+
+         @Override
+         public void addSecuritySettings(String addressMatch,
+                                         String sendRoles,
+                                         String consumeRoles,
+                                         String createDurableQueueRoles,
+                                         String deleteDurableQueueRoles,
+                                         String createNonDurableQueueRoles,
+                                         String deleteNonDurableQueueRoles,
+                                         String manageRoles,
+                                         String browseRoles,
                                          String createAddress,
-                                         String deleteAddress) throws Exception {
-            proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddress, deleteAddress);
+                                         String deleteAddress, String viewRoles, String editRoles) throws Exception {
+            proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddress, deleteAddress, viewRoles, editRoles);
+         }
+
+         @Override
+         public void addSecuritySettings(String addressMatch, String securitySettingsAsJson) throws Exception {
+            proxy.invokeOperation("addSecuritySettings", addressMatch, securitySettingsAsJson);
          }
 
          @Override
@@ -1409,6 +1471,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public String addAddressSettings(String address, String addressSettingsAsJson) throws Exception {
+            return (String) proxy.invokeOperation("addAddressSettings", address, addressSettingsAsJson);
+         }
+
+         @Override
          public String listNetworkTopology() throws Exception {
             return (String) proxy.invokeOperation("listNetworkTopology");
          }
@@ -1478,6 +1545,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void createDivert(String divertConfiguration) throws Exception {
+            proxy.invokeOperation("createDivert", divertConfiguration);
+         }
+
+         @Override
          public void updateDivert(String name,
                                   String forwardingAddress,
                                   String filterString,
@@ -1485,6 +1557,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                   Map<String, String> transformerProperties,
                                   String routingType) throws Exception {
             proxy.invokeOperation("updateDivert", name, forwardingAddress, filterString, transformerClassName, transformerProperties, routingType);
+         }
+
+         @Override
+         public void updateDivert(String divertConfiguration) throws Exception {
+            proxy.invokeOperation("updateDivert", divertConfiguration);
          }
 
          @Override
@@ -1523,7 +1600,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             proxy.invokeOperation("forceFailover");
          }
 
-         public String getLiveConnectorName() throws Exception {
+         public String getPrimaryConnectorName() throws Exception {
             return (String) proxy.retrieveAttributeValue("liveConnectorName");
          }
 
@@ -1773,6 +1850,47 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public void clearAuthorizationCache() throws Exception {
             proxy.invokeOperation("clearAuthorizationCache");
+         }
+
+         @Override
+         public long getAuthenticationSuccessCount() {
+            return (long) proxy.retrieveAttributeValue("authenticationSuccessCount");
+         }
+
+         @Override
+         public long getAuthenticationFailureCount() {
+            return (long) proxy.retrieveAttributeValue("authenticationFailureCount");
+         }
+
+         @Override
+         public long getAuthorizationSuccessCount() {
+            return (long) proxy.retrieveAttributeValue("authorizationSuccessCount");
+         }
+
+         @Override
+         public long getAuthorizationFailureCount() {
+            return (long) proxy.retrieveAttributeValue("authorizationFailureCount");
+         }
+
+
+         @Override
+         public int getPendingMirrorAcks() {
+            return ((Number) proxy.retrieveAttributeValue("pendingMirrorAcks")).intValue();
+         }
+
+         @Override
+         public void exportConfigAsProperties() throws Exception {
+            proxy.invokeOperation("exportConfigAsProperties");
+         }
+
+         @Override
+         public String listLockCoordinatorsAsJSON() {
+            try {
+               return (String) proxy.invokeOperation("listLockCoordinatorsAsJSON");
+            } catch (Throwable throwable) {
+               throwable.printStackTrace();
+               return null;
+            }
          }
       };
    }

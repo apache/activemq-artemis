@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -45,32 +48,24 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * -- https://issues.jboss.org/browse/HORNETQ-746
- * Stress test using netty with NIO and many JMS clients concurrently, to try
- * and induce a deadlock.
- * <br>
- * A large number of JMS clients are started concurrently. Some produce to queue
- * 1 over one connection, others consume from queue 1 and produce to queue 2
- * over a second connection, and others consume from queue 2 over a third
+ * Stress test using netty with NIO and many JMS clients concurrently, to try and induce a deadlock.
+ * <p>
+ * A large number of JMS clients are started concurrently. Some produce to queue 1 over one connection, others consume
+ * from queue 1 and produce to queue 2 over a second connection, and others consume from queue 2 over a third
  * connection.
- * <br>
- * Each operation is done in a JMS transaction, sending/consuming one message
- * per transaction.
- * <br>
- * The server is set up with netty, with only one NIO worker and 1 activemq
- * server worker. This increases the chance for the deadlock to occur.
- * <br>
- * If the deadlock occurs, all threads will block/die. A simple transaction
- * counting strategy is used to verify that the count has reached the expected
- * value.
+ * <p>
+ * Each operation is done in a JMS transaction, sending/consuming one message per transaction.
+ * <p>
+ * The server is set up with netty, with only one NIO worker and 1 activemq server worker. This increases the chance for
+ * the deadlock to occur.
+ * <p>
+ * If the deadlock occurs, all threads will block/die. A simple transaction counting strategy is used to verify that the
+ * count has reached the expected value.
  */
 public class JmsNettyNioStressTest extends ActiveMQTestBase {
-
-
 
    // Remove this method to re-enable those tests
    @Test
@@ -134,15 +129,15 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       // create the 2 queues used in the test
       ClientSessionFactory sf = locator.createSessionFactory(transpConf);
       ClientSession session = sf.createTransactedSession();
-      session.createAddress(SimpleString.toSimpleString("queue"), RoutingType.ANYCAST, false);
-      session.createAddress(SimpleString.toSimpleString("queue2"), RoutingType.ANYCAST, false);
+      session.createAddress(SimpleString.of("queue"), RoutingType.ANYCAST, false);
+      session.createAddress(SimpleString.of("queue2"), RoutingType.ANYCAST, false);
 
-      Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue")).isExists());
-      Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue2")).isExists());
-      session.createQueue(new QueueConfiguration("queue").setRoutingType(RoutingType.ANYCAST));
-      session.createQueue(new QueueConfiguration("queue2").setRoutingType(RoutingType.ANYCAST));
-      Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue")).isExists());
-      Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue2")).isExists());
+      assertTrue(session.addressQuery(SimpleString.of("queue")).isExists());
+      assertTrue(session.addressQuery(SimpleString.of("queue2")).isExists());
+      session.createQueue(QueueConfiguration.of("queue").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("queue2").setRoutingType(RoutingType.ANYCAST));
+      assertTrue(session.addressQuery(SimpleString.of("queue")).isExists());
+      assertTrue(session.addressQuery(SimpleString.of("queue2")).isExists());
       session.commit();
       sf.close();
       session.close();
@@ -162,118 +157,109 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       session.close();
       // these threads produce messages on the the first queue
       for (int i = 0; i < numProducers; i++) {
-         new Thread() {
-            @Override
-            public void run() {
+         new Thread(() -> {
 
-               Session session = null;
-               try {
-                  session = connectionProducer.createSession(true, Session.SESSION_TRANSACTED);
-                  MessageProducer messageProducer = session.createProducer(ActiveMQDestination.createQueue("queue"));
-                  messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+            Session session1 = null;
+            try {
+               session1 = connectionProducer.createSession(true, Session.SESSION_TRANSACTED);
+               MessageProducer messageProducer = session1.createProducer(ActiveMQDestination.createQueue("queue"));
+               messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-                  for (int i = 0; i < numberOfMessages; i++) {
-                     BytesMessage message = session.createBytesMessage();
-                     message.writeBytes(new byte[3000]);
-                     message.setStringProperty("Service", "LoadShedService");
-                     message.setStringProperty("Action", "testAction");
+               for (int i1 = 0; i1 < numberOfMessages; i1++) {
+                  BytesMessage message = session1.createBytesMessage();
+                  message.writeBytes(new byte[3000]);
+                  message.setStringProperty("Service", "LoadShedService");
+                  message.setStringProperty("Action", "testAction");
 
-                     messageProducer.send(message);
-                     session.commit();
+                  messageProducer.send(message);
+                  session1.commit();
 
-                     totalCount.incrementAndGet();
-                  }
-               } catch (Exception e) {
-                  throw new RuntimeException(e);
-               } finally {
-                  if (session != null) {
-                     try {
-                        session.close();
-                     } catch (Exception e) {
-                        e.printStackTrace();
-                     }
+                  totalCount.incrementAndGet();
+               }
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            } finally {
+               if (session1 != null) {
+                  try {
+                     session1.close();
+                  } catch (Exception e) {
+                     e.printStackTrace();
                   }
                }
             }
-         }.start();
+         }).start();
       }
 
       // these threads just consume from the one and produce on a second queue
       for (int i = 0; i < numConsumerProducers; i++) {
-         new Thread() {
-            @Override
-            public void run() {
-               Session session = null;
-               try {
-                  session = connectionConsumerProducer.createSession(true, Session.SESSION_TRANSACTED);
-                  MessageConsumer consumer = session.createConsumer(ActiveMQDestination.createQueue("queue"));
-                  MessageProducer messageProducer = session.createProducer(ActiveMQDestination.createQueue("queue2"));
-                  messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-                  for (int i = 0; i < numberOfMessages; i++) {
-                     BytesMessage message = (BytesMessage) consumer.receive(5000);
-                     if (message == null) {
-                        return;
-                     }
-                     message = session.createBytesMessage();
-                     message.writeBytes(new byte[3000]);
-                     message.setStringProperty("Service", "LoadShedService");
-                     message.setStringProperty("Action", "testAction");
-                     messageProducer.send(message);
-                     session.commit();
-
-                     totalCount.incrementAndGet();
+         new Thread(() -> {
+            Session session13 = null;
+            try {
+               session13 = connectionConsumerProducer.createSession(true, Session.SESSION_TRANSACTED);
+               MessageConsumer consumer = session13.createConsumer(ActiveMQDestination.createQueue("queue"));
+               MessageProducer messageProducer = session13.createProducer(ActiveMQDestination.createQueue("queue2"));
+               messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+               for (int i13 = 0; i13 < numberOfMessages; i13++) {
+                  BytesMessage message = (BytesMessage) consumer.receive(5000);
+                  if (message == null) {
+                     return;
                   }
-               } catch (Exception e) {
-                  throw new RuntimeException(e);
-               } finally {
-                  if (session != null) {
-                     try {
-                        session.close();
-                     } catch (Exception e) {
-                        e.printStackTrace();
-                     }
+                  message = session13.createBytesMessage();
+                  message.writeBytes(new byte[3000]);
+                  message.setStringProperty("Service", "LoadShedService");
+                  message.setStringProperty("Action", "testAction");
+                  messageProducer.send(message);
+                  session13.commit();
+
+                  totalCount.incrementAndGet();
+               }
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            } finally {
+               if (session13 != null) {
+                  try {
+                     session13.close();
+                  } catch (Exception e) {
+                     e.printStackTrace();
                   }
                }
             }
-         }.start();
+         }).start();
       }
 
       // these threads consume from the second queue
       for (int i = 0; i < numConsumers; i++) {
-         new Thread() {
-            @Override
-            public void run() {
-               Session session = null;
-               try {
-                  session = connectionConsumer.createSession(true, Session.SESSION_TRANSACTED);
-                  MessageConsumer consumer = session.createConsumer(ActiveMQDestination.createQueue("queue2"));
-                  for (int i = 0; i < numberOfMessages; i++) {
-                     BytesMessage message = (BytesMessage) consumer.receive(5000);
-                     if (message == null) {
-                        return;
-                     }
-                     session.commit();
-
-                     totalCount.incrementAndGet();
+         new Thread(() -> {
+            Session session12 = null;
+            try {
+               session12 = connectionConsumer.createSession(true, Session.SESSION_TRANSACTED);
+               MessageConsumer consumer = session12.createConsumer(ActiveMQDestination.createQueue("queue2"));
+               for (int i12 = 0; i12 < numberOfMessages; i12++) {
+                  BytesMessage message = (BytesMessage) consumer.receive(5000);
+                  if (message == null) {
+                     return;
                   }
-               } catch (Exception e) {
-                  throw new RuntimeException(e);
-               } finally {
-                  if (session != null) {
-                     try {
-                        session.close();
-                     } catch (Exception e) {
-                        e.printStackTrace();
-                     }
+                  session12.commit();
+
+                  totalCount.incrementAndGet();
+               }
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            } finally {
+               if (session12 != null) {
+                  try {
+                     session12.close();
+                  } catch (Exception e) {
+                     e.printStackTrace();
                   }
                }
             }
-         }.start();
+         }).start();
       }
 
       Wait.waitFor(() -> totalExpectedCount == totalCount.get(), 60000, 100);
 
-      Assert.assertEquals("Possible deadlock", totalExpectedCount, totalCount.get());
+      assertEquals(totalExpectedCount, totalCount.get(), "Possible deadlock");
 
       // attempt cleaning up (this is not in a finally, still needs some work)
       connectionProducer.close();

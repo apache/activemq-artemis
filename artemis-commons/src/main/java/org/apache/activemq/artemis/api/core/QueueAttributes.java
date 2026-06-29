@@ -71,7 +71,7 @@ public class QueueAttributes implements Serializable {
          if (key.equals(ROUTING_TYPE)) {
             setRoutingType(RoutingType.valueOf(value.toUpperCase()));
          } else if (key.equals(FILTER_STRING)) {
-            setFilterString(SimpleString.toSimpleString(value));
+            setFilterString(SimpleString.of(value));
          } else if (key.equals(DURABLE)) {
             setDurable(Boolean.valueOf(value));
          } else if (key.equals(MAX_CONSUMERS)) {
@@ -81,7 +81,7 @@ public class QueueAttributes implements Serializable {
          } else if (key.equals(LAST_VALUE)) {
             setLastValue(Boolean.valueOf(value));
          } else if (key.equals(LAST_VALUE_KEY)) {
-            setLastValueKey(SimpleString.toSimpleString(value));
+            setLastValueKey(SimpleString.of(value));
          } else if (key.equals(NON_DESTRUCTIVE)) {
             setNonDestructive(Boolean.valueOf(value));
          } else if (key.equals(PURGE_ON_NO_CONSUMERS)) {
@@ -99,7 +99,7 @@ public class QueueAttributes implements Serializable {
          } else if (key.equals(GROUP_BUCKETS)) {
             setGroupBuckets(Integer.valueOf(value));
          } else if (key.equals(GROUP_FIRST_KEY)) {
-            setGroupFirstKey(SimpleString.toSimpleString(value));
+            setGroupFirstKey(SimpleString.of(value));
          } else if (key.equals(AUTO_DELETE)) {
             setAutoDelete(Boolean.valueOf(value));
          } else if (key.equals(AUTO_DELETE_DELAY)) {
@@ -115,7 +115,7 @@ public class QueueAttributes implements Serializable {
    }
 
    public QueueConfiguration toQueueConfiguration() {
-      return new QueueConfiguration("")
+      return QueueConfiguration.of("")
          .setDurable(this.getDurable())
          .setRoutingType(this.getRoutingType())
          .setExclusive(this.getExclusive())

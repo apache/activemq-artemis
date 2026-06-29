@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -31,8 +33,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.Test;
 
 public class JMSLVQTest extends MultiprotocolJMSClientTestSupport {
 
@@ -47,7 +49,7 @@ public class JMSLVQTest extends MultiprotocolJMSClientTestSupport {
       server.getConfiguration().setMessageExpiryScanPeriod(1000);
       server.getAddressSettingsRepository().addMatch(NORMAL_QUEUE_NAME, new AddressSettings());
       server.getAddressSettingsRepository().addMatch(LVQ_QUEUE_NAME, new AddressSettings().setDefaultLastValueQueue(true));
-      server.getAddressSettingsRepository().addMatch(LVQ_CUSTOM_KEY_QUEUE_NAME, new AddressSettings().setDefaultLastValueQueue(true).setDefaultLastValueKey(SimpleString.toSimpleString(CUSTOM_KEY)));
+      server.getAddressSettingsRepository().addMatch(LVQ_CUSTOM_KEY_QUEUE_NAME, new AddressSettings().setDefaultLastValueQueue(true).setDefaultLastValueKey(SimpleString.of(CUSTOM_KEY)));
    }
 
    @Override
@@ -55,17 +57,17 @@ public class JMSLVQTest extends MultiprotocolJMSClientTestSupport {
       super.createAddressAndQueues(server);
 
       //Add Standard Queue
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NORMAL_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(NORMAL_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(NORMAL_QUEUE_NAME), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(NORMAL_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
 
       //Add LVQ using Default Message.HDR_LAST_VALUE_NAME
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(LVQ_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(LVQ_QUEUE_NAME), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(LVQ_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
 
       //Add LVQ using Custom Key
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(LVQ_CUSTOM_KEY_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(LVQ_CUSTOM_KEY_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(LVQ_CUSTOM_KEY_QUEUE_NAME), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(LVQ_CUSTOM_KEY_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
    }
 
 
@@ -173,9 +175,9 @@ public class JMSLVQTest extends MultiprotocolJMSClientTestSupport {
 
    @Test
    public void testNonDestructiveWithSelector() throws Exception {
-      final String MY_QUEUE = RandomUtil.randomString();
+      final String MY_QUEUE = RandomUtil.randomUUIDString();
       final boolean NON_DESTRUCTIVE = true;
-      server.createQueue(new QueueConfiguration(MY_QUEUE).setRoutingType(RoutingType.ANYCAST).setNonDestructive(NON_DESTRUCTIVE).setLastValue(true));
+      server.createQueue(QueueConfiguration.of(MY_QUEUE).setRoutingType(RoutingType.ANYCAST).setNonDestructive(NON_DESTRUCTIVE).setLastValue(true));
 
       ConnectionSupplier connectionSupplier = CoreConnection;
 

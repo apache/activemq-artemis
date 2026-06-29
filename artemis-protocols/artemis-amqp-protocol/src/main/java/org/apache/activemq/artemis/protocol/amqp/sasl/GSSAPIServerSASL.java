@@ -16,27 +16,24 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.sasl;
 
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 import javax.security.sasl.AuthorizeCallback;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
-import java.io.IOException;
-import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionException;
 
-/*
- * delegate the the jdk GSSAPI support
- */
+// delegate the the jdk GSSAPI support
 public class GSSAPIServerSASL implements ServerSASL {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -62,26 +59,25 @@ public class GSSAPIServerSASL implements ServerSASL {
          }
 
          if (saslServer == null) {
-            saslServer = Subject.doAs(jaasId, (PrivilegedExceptionAction<SaslServer>) () -> Sasl.createSaslServer(NAME, null, null, new HashMap<String, String>(), new CallbackHandler() {
-               @Override
-               public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-                  for (Callback callback : callbacks) {
-                     if (callback instanceof AuthorizeCallback) {
-                        AuthorizeCallback authorizeCallback = (AuthorizeCallback) callback;
-                        // only ok to authenticate as self
-                        authorizeCallback.setAuthorized(authorizeCallback.getAuthenticationID().equals(authorizeCallback.getAuthorizationID()));
-                     }
+            saslServer = SecurityManagerShim.callAs(jaasId, (Callable<SaslServer>) () -> Sasl.createSaslServer(NAME, null, null, new HashMap<String, String>(), callbacks -> {
+               for (Callback callback : callbacks) {
+                  if (callback instanceof AuthorizeCallback authorizeCallback) {
+                     // only ok to authenticate as self
+                     authorizeCallback.setAuthorized(authorizeCallback.getAuthenticationID().equals(authorizeCallback.getAuthorizationID()));
                   }
                }
             }));
          }
 
-         byte[] challenge = Subject.doAs(jaasId, (PrivilegedExceptionAction<byte[]>) () -> saslServer.evaluateResponse(bytes));
+         byte[] challenge = SecurityManagerShim.callAs(jaasId, (Callable<byte[]>) () -> saslServer.evaluateResponse(bytes));
          if (saslServer.isComplete()) {
             result = new PrincipalSASLResult(true, new KerberosPrincipal(saslServer.getAuthorizationID()));
          }
          return challenge;
-
+      } catch (CompletionException ce) {
+         Throwable cause = ce.getCause();
+         logger.info("Error on sasl input: {}", String.valueOf(cause), cause);
+         result = new PrincipalSASLResult(false, null);
       } catch (Exception outOfHere) {
          logger.info("Error on sasl input: {}", outOfHere.toString(), outOfHere);
          result = new PrincipalSASLResult(false, null);

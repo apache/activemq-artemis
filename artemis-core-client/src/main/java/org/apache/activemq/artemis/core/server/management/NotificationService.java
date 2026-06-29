@@ -21,11 +21,11 @@ public interface NotificationService {
    /**
     * the message corresponding to a notification will always contain the properties:
     * <ul>
-    * <li><code>ManagementHelper.HDR_NOTIFICATION_TYPE</code> - the type of notification (SimpleString)</li>
-    * <li><code>ManagementHelper.HDR_NOTIFICATION_MESSAGE</code> - a message contextual to the notification (SimpleString)</li>
-    * <li><code>ManagementHelper.HDR_NOTIFICATION_TIMESTAMP</code> - the timestamp when the notification occurred (long)</li>
+    * <li>{@code ManagementHelper.HDR_NOTIFICATION_TYPE} - the type of notification (SimpleString)</li>
+    * <li>{@code ManagementHelper.HDR_NOTIFICATION_MESSAGE} - a message contextual to the notification (SimpleString)</li>
+    * <li>{@code ManagementHelper.HDR_NOTIFICATION_TIMESTAMP} - the timestamp when the notification occurred (long)</li>
     * </ul>
-    * in addition to the properties defined in <code>props</code>
+    * in addition to the properties defined in {@code props}
     *
     * @see org.apache.activemq.artemis.api.core.management.ManagementHelper
     */

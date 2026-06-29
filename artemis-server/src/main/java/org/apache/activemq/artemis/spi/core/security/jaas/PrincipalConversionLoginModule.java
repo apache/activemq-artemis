@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * populate an empty (no UserPrincipal) subject with UserPrincipal seeded from existing principal
- * Useful when a third party login module generated principal needs to be accepted as-is by the broker
+ * populate an empty (no UserPrincipal) subject with UserPrincipal seeded from existing principal Useful when a third
+ * party login module generated principal needs to be accepted as-is by the broker
  */
 public class PrincipalConversionLoginModule implements AuditLoginModule {
 

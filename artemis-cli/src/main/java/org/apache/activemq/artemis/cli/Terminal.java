@@ -19,7 +19,8 @@ package org.apache.activemq.artemis.cli;
 
 public class Terminal {
 
-   public static String RED_UNICODE = "\u001B[31m";
-   public static String YELLOW_UNICODE = "\u001B[33m";
+   public static String WARNING_COLOR_UNICODE = "\u001B[31m";
+   public static String INPUT_COLOR_UNICODE = "\u001B[32m";
+   public static String INFO_COLOR_UNICODE = "\u001B[33m";
    public static String CLEAR_UNICODE = "\u001B[0m";
 }

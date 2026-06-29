@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.transport.amqp.client;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.qpid.proton.amqp.Binary;
@@ -30,8 +31,7 @@ import org.apache.qpid.proton.amqp.transport.Open;
 import org.apache.qpid.proton.amqp.transport.Transfer;
 
 /**
- * Abstract base for a validation hook that is used in tests to check
- * the values of incoming or outgoing AMQP frames.
+ * Abstract base for a validation hook that is used in tests to check the values of incoming or outgoing AMQP frames.
  */
 public class AmqpFrameValidator {
 
@@ -86,9 +86,7 @@ public class AmqpFrameValidator {
    }
 
    protected final boolean markAsInvalid(String message) {
-      if (message == null) {
-         throw new NullPointerException("Provided error message cannot be null!");
-      }
+      Objects.requireNonNull(message, "Provided error message cannot be null!");
 
       return errorMessage.compareAndSet(null, message);
    }

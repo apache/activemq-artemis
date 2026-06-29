@@ -25,13 +25,13 @@ import org.objectweb.jtests.jms.framework.JMSTestCase;
 // FIXME include in TestSuite @RunWith(Suite.class)@Suite.SuiteClasses(...)
 
 /**
- * Test the default constants of the <code>javax.jms.Message</code> interface.
+ * Test the default constants of the {@code javax.jms.Message} interface.
  */
 public class MessageDefaultTest extends JMSTestCase {
 
    /**
-    * test that the <code>DEFAULT_ROUTING_TYPE</code> of <code>javax.jms.Message</code>
-    * corresponds to <code>javax.jms.Delivery.PERSISTENT</code>.
+    * test that the {@code DEFAULT_ROUTING_TYPE} of {@code javax.jms.Message} corresponds to
+    * {@code javax.jms.Delivery.PERSISTENT}.
     */
    @Test
    public void testDEFAULT_DELIVERY_MODE() {
@@ -39,8 +39,7 @@ public class MessageDefaultTest extends JMSTestCase {
    }
 
    /**
-    * test that the <code>DEFAULT_PRIORITY</code> of <code>javax.jms.Message</code>
-    * corresponds to 4.
+    * test that the {@code DEFAULT_PRIORITY} of {@code javax.jms.Message} corresponds to 4.
     */
    @Test
    public void testDEFAULT_PRIORITY() {

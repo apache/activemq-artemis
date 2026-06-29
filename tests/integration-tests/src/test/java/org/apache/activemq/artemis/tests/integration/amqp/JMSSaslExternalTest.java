@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -56,9 +59,10 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.sasl.ExternalMechanism;
 import org.apache.qpid.proton.amqp.Symbol;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
@@ -79,9 +83,14 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
    private ActiveMQServer server;
    private final boolean debug = false;
 
-   @Before
-   public void setUpDebug() throws Exception {
+   @BeforeEach
+   public void initialise() throws Exception {
+      setUpDebug();
 
+      startServer();
+   }
+
+   protected void setUpDebug() throws Exception {
       if (debug) {
          for (java.util.logging.Logger logger : new java.util.logging.Logger[] {java.util.logging.Logger.getLogger("javax.security.sasl"), java.util.logging.Logger.getLogger("org.apache.qpid.proton")}) {
             logger.setLevel(java.util.logging.Level.FINEST);
@@ -93,8 +102,7 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
       }
    }
 
-   @Before
-   public void startServer() throws Exception {
+   protected void startServer() throws Exception {
       ConfigurationImpl configuration = createBasicConfig(0).setJMXManagementEnabled(false);
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
       server = addServer(ActiveMQServers.newActiveMQServer(configuration.setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
@@ -114,7 +122,7 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
 
       // role mapping via CertLogin - TextFileCertificateLoginModule
       final String roleName = "widgets";
-      Role role = new Role(roleName, true, true, true, true, true, true, true, true, true, true);
+      Role role = new Role(roleName, true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch("TEST", roles);
@@ -122,12 +130,13 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
       server.start();
    }
 
-   @After
+   @AfterEach
    public void stopServer() throws Exception {
       server.stop();
    }
 
-   @Test(timeout = 600000)
+   @Test
+   @Timeout(60)
    public void testConnection() throws Exception {
 
       final String keystore = this.getClass().getClassLoader().getResource("other-client-keystore.jks").getFile();
@@ -150,7 +159,7 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
          MessageConsumer consumer = session.createConsumer(queue);
          MessageProducer producer = session.createProducer(queue);
 
-         final String text = RandomUtil.randomString();
+         final String text = RandomUtil.randomUUIDString();
          producer.send(session.createTextMessage(text));
 
          TextMessage m = (TextMessage) consumer.receive(1000);
@@ -190,27 +199,24 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
          }
       };
 
-      final ClientSASLFactory clientSASLFactory = new ClientSASLFactory() {
-         @Override
-         public ClientSASL chooseMechanism(String[] availableMechanims) {
-            ExternalMechanism externalMechanism = new ExternalMechanism();
-            return new ClientSASL() {
-               @Override
-               public String getName() {
-                  return externalMechanism.getName();
-               }
+      final ClientSASLFactory clientSASLFactory = availableMechanims -> {
+         ExternalMechanism externalMechanism = new ExternalMechanism();
+         return new ClientSASL() {
+            @Override
+            public String getName() {
+               return externalMechanism.getName();
+            }
 
-               @Override
-               public byte[] getInitialResponse() {
-                  return externalMechanism.getInitialResponse();
-               }
+            @Override
+            public byte[] getInitialResponse() {
+               return externalMechanism.getInitialResponse();
+            }
 
-               @Override
-               public byte[] getResponse(byte[] challenge) {
-                  return new byte[0];
-               }
-            };
-         }
+            @Override
+            public byte[] getResponse(byte[] challenge) {
+               return new byte[0];
+            }
+         };
       };
 
 

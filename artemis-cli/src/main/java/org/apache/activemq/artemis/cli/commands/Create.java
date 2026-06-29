@@ -24,6 +24,7 @@ import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -34,6 +35,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.utils.FileUtil;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -57,6 +59,8 @@ public class Create extends InstallAbstract {
 
    private static final Integer MQTT_PORT = 1883;
 
+   public static final Integer DEFAULT_MAX_HOPS = 1;
+
    /*  **********************************************************************************
     *  Note for developers: These are tested at StreamClassPathTest on the unit test.
     *  This is to make sure maven or something else is not hiding these resources.
@@ -71,12 +75,15 @@ public class Create extends InstallAbstract {
    public static final String ARTEMIS_SERVICE_XML = "artemis-service.xml";
    public static final String BIN_ARTEMIS_SERVICE_XML = "bin/" + ARTEMIS_SERVICE_XML;
    public static final String ETC_ARTEMIS_PROFILE_CMD = "artemis.profile.cmd";
+   public static final String ETC_ARTEMIS_UTILITY_PROFILE_CMD = "artemis-utility.profile.cmd";
    public static final String ARTEMIS = "artemis";
    public static final String BIN_ARTEMIS = "bin/" + ARTEMIS;
    public static final String ARTEMIS_SERVICE = "artemis-service";
    public static final String BIN_ARTEMIS_SERVICE = "bin/" + ARTEMIS_SERVICE;
    public static final String ETC_ARTEMIS_PROFILE = "artemis.profile";
+   public static final String ETC_ARTEMIS_UTILITY_PROFILE = "artemis-utility.profile";
    public static final String ETC_LOG4J2_PROPERTIES = "log4j2.properties";
+   public static final String ETC_LOG4J2_UTILITY_PROPERTIES = "log4j2-utility.properties";
    public static final String ETC_BOOTSTRAP_XML = "bootstrap.xml";
    public static final String ETC_MANAGEMENT_XML = "management.xml";
    public static final String ETC_BROKER_XML = "broker.xml";
@@ -86,8 +93,8 @@ public class Create extends InstallAbstract {
    private static final String ETC_LOGIN_CONFIG = "login.config";
    private static final String ETC_LOGIN_CONFIG_WITH_GUEST = "etc/login-with-guest.config";
    private static final String ETC_LOGIN_CONFIG_WITHOUT_GUEST = "etc/login-without-guest.config";
-   public static final String ETC_REPLICATED_MASTER_SETTINGS_TXT = "etc/replicated-master-settings.txt";
-   public static final String ETC_REPLICATED_SLAVE_SETTINGS_TXT = "etc/replicated-slave-settings.txt";
+   public static final String ETC_REPLICATED_PRIMARY_SETTINGS_TXT = "etc/replicated-primary-settings.txt";
+   public static final String ETC_REPLICATED_BACKUP_SETTINGS_TXT = "etc/replicated-backup-settings.txt";
    public static final String ETC_SHARED_STORE_SETTINGS_TXT = "etc/shared-store-settings.txt";
    public static final String ETC_CLUSTER_SECURITY_SETTINGS_TXT = "etc/cluster-security-settings.txt";
    public static final String ETC_CLUSTER_SETTINGS_TXT = "etc/cluster-settings.txt";
@@ -152,14 +159,14 @@ public class Create extends InstallAbstract {
    @Option(names = "--force", description = "Overwrite configuration at destination directory.")
    private boolean force;
 
-   @Option(names = "--data", description = "Directory where ActiveMQ data are stored. Paths can be absolute or relative to artemis.instance directory. Default: data.")
-   private String data = "data";
+   @Option(names = "--purge-page-folders", description = "Paged folders should be removed upon leaving page state.")
+   private boolean purgePageFolders;
 
    @Option(names = "--clustered", description = "Enable clustering.")
    private boolean clustered = false;
 
    @Option(names = "--max-hops", description = "Number of hops on the cluster configuration.")
-   private int maxHops = 0;
+   private int maxHops = DEFAULT_MAX_HOPS;
 
    @Option(names = "--message-load-balancing", description = "Message load balancing policy for cluster. Default: ON_DEMAND. Valid values: ON_DEMAND, STRICT, OFF, OFF_WITH_REDISTRIBUTION.")
    private MessageLoadBalancingType messageLoadBalancing = MessageLoadBalancingType.ON_DEMAND;
@@ -170,8 +177,12 @@ public class Create extends InstallAbstract {
    @Option(names = "--shared-store", description = "Enable broker shared store.")
    private boolean sharedStore = false;
 
-   @Option(names = "--slave", description = "Be a slave broker. Valid for shared store or replication.")
+   @Deprecated(forRemoval = true)
+   @Option(names = "--slave", description = "Deprecated for removal. Use 'backup' instead.", hidden = true)
    private boolean slave;
+
+   @Option(names = "--backup", description = "Be a backup broker. Valid for shared store or replication.")
+   private boolean backup;
 
    @Option(names = "--failover-on-shutdown", description = "Whether broker shutdown will trigger failover for clients using the core protocol. Valid only for shared store. Default: false.")
    private boolean failoverOnShutodwn;
@@ -292,6 +303,9 @@ public class Create extends InstallAbstract {
    @Option(names = "--security-manager", description = "Which security manager to use - jaas or basic. Default: jaas.")
    private String securityManager = "jaas";
 
+   @Option(names = "--journal-max-io", description = "The journal-max-io value to use when also using the ASYNCIO journal-type. When using NIO or MAPPED this value is always '1'. Default: 4096")
+   private int journalMaxIo = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio();
+
    @Option(names = "--jdbc-bindings-table-name", description = "Name of the jdbc bindings table.")
    private String jdbcBindings = ActiveMQDefaultConfiguration.getDefaultBindingsTableName();
 
@@ -349,6 +363,14 @@ public class Create extends InstallAbstract {
       }
 
       return host;
+   }
+
+   public boolean isPurgePageFolders() {
+      return purgePageFolders;
+   }
+
+   public void setPurgePageFolders(boolean purgePageFolders) {
+      this.purgePageFolders = purgePageFolders;
    }
 
    public void setHost(String host) {
@@ -418,21 +440,35 @@ public class Create extends InstallAbstract {
 
    private String getClusterUser() {
       if (clusterUser == null) {
-         clusterUser = input("--cluster-user", "What is the cluster user?", "cluster-admin");
+         clusterUser = input("--cluster-user", "What is the cluster user?", ActiveMQDefaultConfiguration.getDefaultClusterUser());
       }
       return clusterUser;
    }
 
-   private String getClusterPassword() {
+   protected void setClusterPassword(String clusterPassword) {
+      this.clusterPassword = clusterPassword;
+   }
+
+   protected String getClusterPassword() {
       if (clusterPassword == null) {
-         clusterPassword = inputPassword("--cluster-password", "What is the cluster password?", "password-admin");
+         clusterPassword = inputPassword("--cluster-password", "What is the cluster password?");
+      }
+      if (!PasswordMaskingUtil.isEncMasked(clusterPassword)) {
+         try {
+            clusterPassword = PasswordMaskingUtil.wrap(PasswordMaskingUtil.getDefaultCodec().encode(clusterPassword));
+            getActionContext().out.println("Using masked cluster-password: " + clusterPassword);
+         } catch (Exception e) {
+            getActionContext().err.println("Warning: Failed to mask password.");
+            getActionContext().err.println("Reason: " + e.getMessage());
+            e.printStackTrace();
+         }
       }
       return clusterPassword;
    }
 
    private String getSslKeyPassword() {
       if (sslKeyPassword == null) {
-         sslKeyPassword = inputPassword("--ssl-key-password", "What is the keystore password?", "password");
+         sslKeyPassword = inputPassword("--ssl-key-password", "What is the keystore password?");
       }
       return sslKeyPassword;
    }
@@ -446,7 +482,7 @@ public class Create extends InstallAbstract {
 
    private String getSslTrustPassword() {
       if (sslTrustPassword == null) {
-         sslTrustPassword = inputPassword("--ssl-key-password", "What is the keystore password?", "password");
+         sslTrustPassword = inputPassword("--ssl-key-password", "What is the keystore password?");
       }
       return sslTrustPassword;
    }
@@ -463,12 +499,13 @@ public class Create extends InstallAbstract {
    }
 
    public String getPassword() {
-
       if (password == null) {
-         password = inputPassword("--password", "What is the default password?", "admin");
+         password = inputPassword("--password", "What is the default password?");
       }
 
-      password = HashUtil.tryHash(getActionContext(), password);
+      if (!PasswordMaskingUtil.isEncMasked(password)) {
+         password = HashUtil.tryHash(getActionContext(), password);
+      }
 
       return password;
    }
@@ -496,8 +533,32 @@ public class Create extends InstallAbstract {
       this.role = role;
    }
 
-   private boolean isSlave() {
-      return slave;
+   public int getJournalMaxIo() {
+      return journalMaxIo;
+   }
+
+   public void setJournalMaxIo(int journalMaxIo) {
+      this.journalMaxIo = journalMaxIo;
+   }
+
+   public boolean isAio() {
+      return aio;
+   }
+
+   public void setAio(boolean aio) {
+      this.aio = aio;
+   }
+
+   public boolean isNio() {
+      return nio;
+   }
+
+   public void setNio(boolean nio) {
+      this.nio = nio;
+   }
+
+   private boolean isBackup() {
+      return slave || backup;
    }
 
    private boolean isFailoverOnShutodwn() {
@@ -550,9 +611,9 @@ public class Create extends InstallAbstract {
          allowAnonymous = Boolean.FALSE;
       }
 
-      context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
+      context.out.println(String.format("Creating Apache Artemis instance at: %s", directory.getCanonicalPath()));
 
-      HashMap<String, String> filters = new LinkedHashMap<>();
+      Map<String, String> filters = new LinkedHashMap<>();
 
       if (journalDeviceBlockSize % 512 != 0) {
          // This will generate a CLI error
@@ -562,11 +623,13 @@ public class Create extends InstallAbstract {
 
       filters.put("${device-block-size}", Integer.toString(journalDeviceBlockSize));
 
-      filters.put("${master-slave}", isSlave() ? "slave" : "master");
+      filters.put("${primary-backup}", isBackup() ? "backup" : "primary");
 
       filters.put("${failover-on-shutdown}", isFailoverOnShutodwn() ? "true" : "false");
 
       filters.put("${persistence-enabled}", isDisablePersistence() ? "false" : "true");
+
+      filters.put("${purge-page-folders}", isPurgePageFolders() ? "true" : "false");
 
       if (ping != null && !ping.isEmpty()) {
          filters.put("${ping}", ping);
@@ -581,7 +644,7 @@ public class Create extends InstallAbstract {
 
       if (replicated) {
          clustered = true;
-         filters.put("${replicated.settings}", readTextFile(isSlave() ? ETC_REPLICATED_SLAVE_SETTINGS_TXT : ETC_REPLICATED_MASTER_SETTINGS_TXT, filters));
+         filters.put("${replicated.settings}", readTextFile(isBackup() ? ETC_REPLICATED_BACKUP_SETTINGS_TXT : ETC_REPLICATED_PRIMARY_SETTINGS_TXT, filters));
       } else {
          filters.put("${replicated.settings}", "");
       }
@@ -630,7 +693,7 @@ public class Create extends InstallAbstract {
 
       filters.put("${global-max-messages}", Long.toString(globalMaxMessages));
 
-      if (globalMaxSize == null || globalMaxSize.trim().equals("")) {
+      if (globalMaxSize == null || globalMaxSize.trim().isEmpty()) {
          filters.put("${global-max-section}", readTextFile(ETC_GLOBAL_MAX_DEFAULT_TXT, filters));
       } else {
          filters.put("${global-max-size}", globalMaxSize);
@@ -709,12 +772,13 @@ public class Create extends InstallAbstract {
       new File(directory, "tmp").mkdirs();
       new File(directory, "lib").mkdirs();
       File dataFolder = createDirectory(data, directory);
-      File logFolder = createDirectory("log", directory);
-      File oomeDumpFile = new File(logFolder, "oom_dump.hprof");
+      File logFolder = createDirectory(LOG_DIRNAME, directory);
+      File oomeDumpFile = new File(logFolder, OOM_DUMP_FILENAME);
 
       String processedJavaOptions = getJavaOptions();
+      String processedJavaUtilityOptions = getJavaUtilityOptions();
 
-      addScriptFilters(filters, getHome(), getInstance(), etcFolder, dataFolder, oomeDumpFile, javaMemory, processedJavaOptions, role);
+      addScriptFilters(filters, getHome(), getInstance(), etcFolder, dataFolder, oomeDumpFile, javaMemory, processedJavaOptions, processedJavaUtilityOptions, role);
 
       boolean allowAnonymous = isAllowAnonymous();
 
@@ -727,12 +791,19 @@ public class Create extends InstallAbstract {
             retentionTag = "<journal-retention-directory period=\"" + retentionDays + "\" unit=\"DAYS\">" + data + "/retention</journal-retention-directory>";
          }
       } else {
-         retentionTag =  "\n" +
-            "      <!-- if you want to retain your journal uncomment this following configuration.\n\n" +
-            "      This will allow your system to keep 7 days of your data, up to 10G. Tweak it accordingly to your use case and capacity.\n\n" +
-            "      it is recommended to use a separate storage unit from the journal for performance considerations.\n\n" +
-            "      <journal-retention-directory period=\"7\" unit=\"DAYS\" storage-limit=\"10G\">data/retention</journal-retention-directory>\n\n" +
-            "      You can also enable retention by using the argument journal-retention on the `artemis create` command -->\n\n";
+         retentionTag = """
+
+                  <!-- if you want to retain your journal uncomment this following configuration.
+
+                  This will allow your system to keep 7 days of your data, up to 10G. Tweak it accordingly to your use case and capacity.
+
+                  it is recommended to use a separate storage unit from the journal for performance considerations.
+
+                  <journal-retention-directory period="7" unit="DAYS" storage-limit="10G">data/retention</journal-retention-directory>
+
+                  You can also enable retention by using the argument journal-retention on the `artemis create` command -->
+
+            """;
       }
 
       filters.put("${journal-retention}", retentionTag);
@@ -754,6 +825,7 @@ public class Create extends InstallAbstract {
          write(BIN_ARTEMIS_SERVICE_EXE_CONFIG, force);
          write(BIN_ARTEMIS_SERVICE_XML, filters, false);
          writeEtc(ETC_ARTEMIS_PROFILE_CMD, etcFolder, filters, false);
+         writeEtc(ETC_ARTEMIS_UTILITY_PROFILE_CMD, etcFolder, filters, false);
       }
 
       if (IS_NIX) {
@@ -762,9 +834,11 @@ public class Create extends InstallAbstract {
          write(BIN_ARTEMIS_SERVICE, filters, true);
          makeExec(BIN_ARTEMIS_SERVICE);
          writeEtc(ETC_ARTEMIS_PROFILE, etcFolder, filters, true);
+         writeEtc(ETC_ARTEMIS_UTILITY_PROFILE, etcFolder, filters, true);
       }
 
       writeEtc(ETC_LOG4J2_PROPERTIES, etcFolder, null, false);
+      writeEtc(ETC_LOG4J2_UTILITY_PROPERTIES, etcFolder, null, false);
 
       if (noWeb) {
          filters.put("${bootstrap-web-settings}", "");
@@ -781,7 +855,7 @@ public class Create extends InstallAbstract {
       if (noMqttAcceptor) {
          filters.put("${mqtt-acceptor}", "");
       } else {
-         filters.put("${mqtt-acceptor}",readTextFile(ETC_MQTT_ACCEPTOR_TXT, filters));
+         filters.put("${mqtt-acceptor}", readTextFile(ETC_MQTT_ACCEPTOR_TXT, filters));
       }
 
       if (noStompAcceptor) {
@@ -845,7 +919,7 @@ public class Create extends InstallAbstract {
       context.out.println(String.format("   \"%s\" run", path(new File(directory, "bin/artemis"))));
 
       File service = new File(directory, BIN_ARTEMIS_SERVICE);
-      context.out.println("");
+      context.out.println();
 
       if (IS_NIX) {
          context.out.println("Or you can run the broker in the background using:");
@@ -871,35 +945,34 @@ public class Create extends InstallAbstract {
       return null;
    }
 
-   protected static void addScriptFilters(HashMap<String, String> filters,
-                          File home,
-                          File directory,
-                          File etcFolder,
-                          File dataFolder,
-                          File oomeDumpFile,
-                          String javaMemory,
-                          String javaOptions,
-                          String role) throws IOException {
+   protected static void addScriptFilters(Map<String, String> filters,
+                                          File home,
+                                          File directory,
+                                          File etcFolder,
+                                          File dataFolder,
+                                          File oomeDumpFile,
+                                          String javaMemory,
+                                          String javaOptions,
+                                          String javaUtilityOptions,
+                                          String role) throws IOException {
       filters.put("${artemis.home}", path(home));
       // I am using a different replacing pattern here, for cases where want an actual ${artemis.instance} in the output
       // so that's just to make a distinction
       filters.put("@artemis.instance@", path(directory));
-      filters.put("${artemis.instance.uri}", directory.toURI().toString());
-      filters.put("${artemis.instance.uri.windows}", directory.toURI().toString().replaceAll("%", "%%"));
       filters.put("${artemis.instance.name}", directory.getName());
       filters.put("${java.home}", path(System.getProperty("java.home")));
 
       filters.put("${artemis.instance.etc.uri}", etcFolder.toURI().toString());
-      filters.put("${artemis.instance.etc.uri.windows}", etcFolder.toURI().toString().replaceAll("%", "%%"));
       filters.put("${artemis.instance.etc}", path(etcFolder));
       filters.put("${artemis.instance.oome.dump}", path(oomeDumpFile));
       filters.put("${artemis.instance.data}", path(dataFolder));
       filters.put("${java-memory}", javaMemory);
       filters.put("${java-opts}", javaOptions);
+      filters.put("${java-utility-opts}", javaUtilityOptions);
       filters.put("${role}", role);
    }
 
-   private String getConnectors(HashMap<String, String> filters) throws IOException {
+   private String getConnectors(Map<String, String> filters) throws IOException {
       if (staticNode != null) {
          StringWriter stringWriter = new StringWriter();
          PrintWriter printer = new PrintWriter(stringWriter);
@@ -918,16 +991,12 @@ public class Create extends InstallAbstract {
    }
 
    private void printStar(String message) {
-      int size = Math.min(message.length(), 80);
-      StringBuffer buffer = new StringBuffer(size);
-      for (int i = 0; i < size; i++) {
-         buffer.append("*");
-      }
-      getActionContext().out.println(buffer.toString());
+      String separator = "*".repeat(Math.min(message.length(), 80));
+      getActionContext().out.println(separator);
       getActionContext().out.println();
       getActionContext().out.println(message);
       getActionContext().out.println();
-      getActionContext().out.println(buffer.toString());
+      getActionContext().out.println(separator);
    }
 
    private void setupJournalType() {
@@ -967,7 +1036,9 @@ public class Create extends InstallAbstract {
       int count = 0;
 
       for (boolean itemB : b) {
-         if (itemB) count++;
+         if (itemB) {
+            count++;
+         }
       }
 
       return count;
@@ -976,7 +1047,7 @@ public class Create extends InstallAbstract {
    /**
     * It will create the address and queue configurations
     */
-   private void applyAddressesAndQueues(HashMap<String, String> filters) {
+   private void applyAddressesAndQueues(Map<String, String> filters) {
       StringWriter writer = new StringWriter();
       PrintWriter printWriter = new PrintWriter(writer);
       printWriter.println();
@@ -990,7 +1061,7 @@ public class Create extends InstallAbstract {
             RoutingType.valueOf(routingType.toUpperCase());
          } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Invalid routing type: " + routingType);
+            getActionContext().err.println("Invalid routing type: " + routingType);
          }
          printWriter.println("         <address name=\"" + name + "\">");
          printWriter.println("            <" + routingType + ">");
@@ -1007,7 +1078,7 @@ public class Create extends InstallAbstract {
             RoutingType.valueOf(routingType.toUpperCase());
          } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Invalid routing type: " + routingType);
+            getActionContext().err.println("Invalid routing type: " + routingType);
          }
          printWriter.println("         <address name=\"" + name + "\">");
          printWriter.println("            <" + routingType + "/>");
@@ -1016,7 +1087,7 @@ public class Create extends InstallAbstract {
       filters.put("${address-queue.settings}", writer.toString());
    }
 
-   private void performAutoTune(HashMap<String, String> filters, JournalType journalType, File dataFolder) {
+   private void performAutoTune(Map<String, String> filters, JournalType journalType, File dataFolder) {
       if (noAutoTune) {
          filters.put("${journal-buffer.settings}", "");
          filters.put("${page-sync.settings}", "");
@@ -1027,10 +1098,10 @@ public class Create extends InstallAbstract {
             getActionContext().out.println("Auto tuning journal ...");
 
             if (mapped && noJournalSync) {
-               HashMap<String, String> syncFilter = new HashMap<>();
+               Map<String, String> syncFilter = new HashMap<>();
                syncFilter.put("${nanoseconds}", "0");
                syncFilter.put("${writesPerMillisecond}", "0");
-               syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
+               syncFilter.put("${maxaio}", "1");
 
                getActionContext().out.println("...Since you disabled sync and are using MAPPED journal, we are diabling buffer times");
 
@@ -1038,16 +1109,16 @@ public class Create extends InstallAbstract {
 
                filters.put("${page-sync.settings}", readTextFile(ETC_PAGE_SYNC_SETTINGS, syncFilter));
             } else {
-               long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, false, "journal-test.tmp", ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), journalType);
-               long nanoseconds = SyncCalculation.toNanos(time, writes, verbose);
+               long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, false, "journal-test.tmp", ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), journalType, getActionContext());
+               long nanoseconds = SyncCalculation.toNanos(time, writes, verbose, getActionContext());
                double writesPerMillisecond = (double) writes / (double) time;
 
                String writesPerMillisecondStr = new DecimalFormat("###.##").format(writesPerMillisecond);
 
-               HashMap<String, String> syncFilter = new HashMap<>();
+               Map<String, String> syncFilter = new HashMap<>();
                syncFilter.put("${nanoseconds}", Long.toString(nanoseconds));
                syncFilter.put("${writesPerMillisecond}", writesPerMillisecondStr);
-               syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
+               syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + journalMaxIo : "1");
 
                getActionContext().out.println("done! Your system can make " + writesPerMillisecondStr +
                                                  " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
@@ -1057,8 +1128,8 @@ public class Create extends InstallAbstract {
                if (noJournalSync) {
                   syncFilter.put("${nanoseconds}", "0");
                } else if (journalType != JournalType.NIO) {
-                  long nioTime = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, false, "journal-test.tmp", ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), JournalType.NIO);
-                  long nioNanoseconds = SyncCalculation.toNanos(nioTime, writes, verbose);
+                  long nioTime = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, false, "journal-test.tmp", ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), JournalType.NIO, getActionContext());
+                  long nioNanoseconds = SyncCalculation.toNanos(nioTime, writes, verbose, getActionContext());
                   syncFilter.put("${nanoseconds}", Long.toString(nioNanoseconds));
                }
 
@@ -1071,7 +1142,7 @@ public class Create extends InstallAbstract {
             filters.put("${journal-buffer.settings}", "");
             filters.put("${page-sync.settings}", "");
             e.printStackTrace();
-            System.err.println("Couldn't perform sync calculation, using default values");
+            getActionContext().err.println("Couldn't perform sync calculation, using default values");
          }
       }
    }
@@ -1092,7 +1163,7 @@ public class Create extends InstallAbstract {
             }
             tmpFile.delete();
             if (!supportsLibaio) {
-               System.err.println("The filesystem used on " + directory + " doesn't support libAIO and O_DIRECT files, switching journal-type to NIO");
+               getActionContext().err.println("The filesystem used on " + directory + " doesn't support libAIO and O_DIRECT files, switching journal-type to NIO");
             }
             return supportsLibaio;
          }
@@ -1129,11 +1200,11 @@ public class Create extends InstallAbstract {
       return value.getCanonicalPath();
    }
 
-   private void write(String source, HashMap<String, String> filters, boolean unixTarget) throws Exception {
+   private void write(String source, Map<String, String> filters, boolean unixTarget) throws Exception {
       write(source, new File(directory, source), filters, unixTarget, force);
    }
 
-   private void writeEtc(String source, File etcFolder, HashMap<String, String> filters, boolean unixTarget) throws Exception {
+   private void writeEtc(String source, File etcFolder, Map<String, String> filters, boolean unixTarget) throws Exception {
       write("etc/" + source, new File(etcFolder, source), filters, unixTarget, force);
    }
 
@@ -1142,14 +1213,11 @@ public class Create extends InstallAbstract {
 
       public static SecurityManagerType getType(String type) {
          type = type.toLowerCase();
-         switch (type) {
-            case "jaas":
-               return JAAS;
-            case "basic":
-               return BASIC;
-            default:
-               return null;
-         }
+         return switch (type) {
+            case "jaas" -> JAAS;
+            case "basic" -> BASIC;
+            default -> null;
+         };
       }
    }
 }

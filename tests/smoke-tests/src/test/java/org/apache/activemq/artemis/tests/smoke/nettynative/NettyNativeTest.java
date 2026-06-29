@@ -16,12 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.smoke.nettynative;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -31,6 +37,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.File;
+import java.util.Arrays;
 
 public class NettyNativeTest extends SmokeTestBase {
 
@@ -38,7 +45,23 @@ public class NettyNativeTest extends SmokeTestBase {
    protected static final String SERVER_ADMIN_USERNAME = "admin";
    protected static final String SERVER_ADMIN_PASSWORD = "admin";
 
-   @Before
+
+   @BeforeAll
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(false).setNoWeb(true).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/nettynative");
+         cliCreateServer.createServer();
+      }
+   }
+
+
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME);
       disableCheckThread();
@@ -62,16 +85,18 @@ public class NettyNativeTest extends SmokeTestBase {
             connection.start();
 
             TextMessage txt = (TextMessage) consumer.receive(10000);
-            Assert.assertNotNull(txt);
-            Assert.assertEquals("TEST", txt.getText());
+            assertNotNull(txt);
+            assertEquals("TEST", txt.getText());
 
             session.commit();
          }
       }
 
       File artemisLog = new File("target/" + SERVER_NAME + "/log/artemis.log");
-      checkLogRecord(artemisLog, true, "Acceptor using native");
-      checkLogRecord(artemisLog, false, "Acceptor using nio");
+      for (String protocol : Arrays.asList("artemis", "amqp", "stomp", "hornetq", "mqtt")) {
+         assertTrue(findLogRecord(artemisLog, "Acceptor " + protocol + " using native"));
+         assertFalse(findLogRecord(artemisLog, "Acceptor " + protocol + " using nio"));
+      }
    }
 
 }

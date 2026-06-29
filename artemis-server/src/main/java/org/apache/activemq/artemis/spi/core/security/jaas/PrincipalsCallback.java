@@ -29,6 +29,7 @@ public class PrincipalsCallback implements Callback {
 
    /**
     * Setter for peer Principals.
+    *
     * @param principal The certificates to be returned.
     */
    public void setPeerPrincipals(Principal[] principal) {
@@ -37,7 +38,8 @@ public class PrincipalsCallback implements Callback {
 
    /**
     * Getter for peer Principals.
-    * @return The principal being carried.
+    *
+    * @return The principal being carried
     */
    public Principal[] getPeerPrincipals() {
       return peerPrincipals;

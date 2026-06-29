@@ -16,25 +16,29 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.DeliveryMode;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JMSConsumer12Test extends BasicOpenWireTest {
 
-   @Parameterized.Parameters(name = "deliveryMode={0} destinationType={1}")
+   @Parameters(name = "deliveryMode={0} destinationType={1}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TOPIC_TYPE}});
    }
@@ -47,7 +51,7 @@ public class JMSConsumer12Test extends BasicOpenWireTest {
       this.destinationType = destinationType;
    }
 
-   @Test
+   @TestTemplate
    public void testDontStart() throws Exception {
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -61,7 +65,7 @@ public class JMSConsumer12Test extends BasicOpenWireTest {
       assertNull(consumer.receive(1000));
    }
 
-   @Test
+   @TestTemplate
    public void testStartAfterSend() throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, destinationType);

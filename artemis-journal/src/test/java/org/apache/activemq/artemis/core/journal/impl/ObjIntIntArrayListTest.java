@@ -16,13 +16,17 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class ObjIntIntArrayListTest {
 
@@ -52,29 +56,35 @@ public class ObjIntIntArrayListTest {
          aList.add(a);
          bList.add(b);
          cList.add(c);
-         Assert.assertSame(expectedArg, arg);
+         assertSame(expectedArg, arg);
       }, expectedArg);
       assertEquals(expectedAList, aList);
       assertEquals(expectedBList, bList);
       assertEquals(expectedCList, cList);
    }
 
-   @Test(expected = NullPointerException.class)
+   @Test
    public void addShouldFailAppendNull() {
-      ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
-      list.add(null, 1, 2);
+      assertThrows(NullPointerException.class, () -> {
+         ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
+         list.add(null, 1, 2);
+      });
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void addShouldFailAppendNegativeA() {
-      ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
-      list.add(0, -1, 1);
+      assertThrows(IllegalArgumentException.class, () -> {
+         ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
+         list.add(0, -1, 1);
+      });
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void addShouldFailAppendNegativeB() {
-      ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
-      list.add(0, 1, -1);
+      assertThrows(IllegalArgumentException.class, () -> {
+         ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
+         list.add(0, 1, -1);
+      });
    }
 
    @Test
@@ -85,7 +95,7 @@ public class ObjIntIntArrayListTest {
       list.clear();
       assertEquals(0, list.size());
       list.forEach((a, b, c, ignored) -> {
-         Assert.fail("the list should be empty");
+         fail("the list should be empty");
       }, null);
    }
 
@@ -94,11 +104,11 @@ public class ObjIntIntArrayListTest {
       ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
       Integer e = 1;
       list.add(e, 2, 3);
-      Assert.assertFalse(list.addToIntsIfMatch(0, 2, 1, 1));
+      assertFalse(list.addToIntsIfMatch(0, 2, 1, 1));
       list.forEach((a, b, c, ignored) -> {
-         Assert.assertEquals(e, a);
-         Assert.assertEquals(2, b);
-         Assert.assertEquals(3, c);
+         assertEquals(e, a);
+         assertEquals(2, b);
+         assertEquals(3, c);
       }, null);
    }
 
@@ -107,11 +117,11 @@ public class ObjIntIntArrayListTest {
       ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
       Integer e = 1;
       list.add(e, Integer.MAX_VALUE, 3);
-      Assert.assertFalse(list.addToIntsIfMatch(0, e, Integer.MAX_VALUE, 1));
+      assertFalse(list.addToIntsIfMatch(0, e, Integer.MAX_VALUE, 1));
       list.forEach((a, b, c, ignored) -> {
-         Assert.assertEquals(e, a);
-         Assert.assertEquals(Integer.MAX_VALUE, b);
-         Assert.assertEquals(3, c);
+         assertEquals(e, a);
+         assertEquals(Integer.MAX_VALUE, b);
+         assertEquals(3, c);
       }, null);
    }
 
@@ -120,47 +130,57 @@ public class ObjIntIntArrayListTest {
       ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
       Integer e = 1;
       list.add(e, 2, Integer.MAX_VALUE);
-      Assert.assertFalse(list.addToIntsIfMatch(0, e, 1, Integer.MAX_VALUE));
+      assertFalse(list.addToIntsIfMatch(0, e, 1, Integer.MAX_VALUE));
       list.forEach((a, b, c, ignored) -> {
-         Assert.assertEquals(e, a);
-         Assert.assertEquals(2, b);
-         Assert.assertEquals(Integer.MAX_VALUE, c);
+         assertEquals(e, a);
+         assertEquals(2, b);
+         assertEquals(Integer.MAX_VALUE, c);
       }, null);
    }
 
-   @Test(expected = IndexOutOfBoundsException.class)
+   @Test
    public void updateIfMatchShouldFailOnNegativeIndex() {
-      ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
-      list.addToIntsIfMatch(-1, 1, 1, 1);
+      assertThrows(IndexOutOfBoundsException.class, () -> {
+         ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
+         list.addToIntsIfMatch(-1, 1, 1, 1);
+      });
    }
 
-   @Test(expected = IndexOutOfBoundsException.class)
+   @Test
    public void updateIfMatchShouldFailBeyondSize() {
-      ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
-      list.addToIntsIfMatch(0, 1, 1, 1);
+      assertThrows(IndexOutOfBoundsException.class, () -> {
+         ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
+         list.addToIntsIfMatch(0, 1, 1, 1);
+      });
    }
 
-   @Test(expected = NullPointerException.class)
+   @Test
    public void updateIfMatchShouldFailOnNull() {
-      ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
-      list.add(1, 2, 3);
-      list.addToIntsIfMatch(0, null, 1, 1);
+      assertThrows(NullPointerException.class, () -> {
+         ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
+         list.add(1, 2, 3);
+         list.addToIntsIfMatch(0, null, 1, 1);
+      });
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void updateIfMatchShouldFailOnNegativeDeltaA() {
-      ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
-      Integer e = 1;
-      list.add(1, 2, 3);
-      list.addToIntsIfMatch(0, e, -1, 1);
+      assertThrows(IllegalArgumentException.class, () -> {
+         ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
+         Integer e = 1;
+         list.add(1, 2, 3);
+         list.addToIntsIfMatch(0, e, -1, 1);
+      });
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void updateIfMatchShouldFailOnNegativeDeltaB() {
-      ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
-      Integer e = 1;
-      list.add(e, 2, 3);
-      list.addToIntsIfMatch(0, e, 1, -1);
+      assertThrows(IllegalArgumentException.class, () -> {
+         ObjIntIntArrayList<Integer> list = new ObjIntIntArrayList<>(0);
+         Integer e = 1;
+         list.add(e, 2, 3);
+         list.addToIntsIfMatch(0, e, 1, -1);
+      });
    }
 
    @Test
@@ -169,10 +189,10 @@ public class ObjIntIntArrayListTest {
       list.add(1, 2, 3);
       list.add(2, 3, 4);
       list.add(3, 4, 5);
-      Assert.assertTrue(list.addToIntsIfMatch(0, 1, 1, 1));
-      Assert.assertTrue(list.addToIntsIfMatch(1, 2, 1, 1));
-      Assert.assertTrue(list.addToIntsIfMatch(2, 3, 1, 1));
-      Assert.assertEquals(3, list.size());
+      assertTrue(list.addToIntsIfMatch(0, 1, 1, 1));
+      assertTrue(list.addToIntsIfMatch(1, 2, 1, 1));
+      assertTrue(list.addToIntsIfMatch(2, 3, 1, 1));
+      assertEquals(3, list.size());
       List<Integer> eList = new ArrayList<>();
       List<Integer> aList = new ArrayList<>();
       List<Integer> bList = new ArrayList<>();
@@ -181,17 +201,17 @@ public class ObjIntIntArrayListTest {
          aList.add(a);
          bList.add(b);
       }, null);
-      Assert.assertEquals(3, eList.size());
-      Assert.assertEquals(3, aList.size());
-      Assert.assertEquals(3, bList.size());
+      assertEquals(3, eList.size());
+      assertEquals(3, aList.size());
+      assertEquals(3, bList.size());
       for (int i = 0; i < 3; i++) {
          final int index = i;
          final Integer expectedE = index + 1;
          final Integer expectedA = expectedE + 2;
          final Integer expectedB = expectedE + 3;
-         Assert.assertEquals(expectedE, eList.get(index));
-         Assert.assertEquals(expectedA, aList.get(index));
-         Assert.assertEquals(expectedB, bList.get(index));
+         assertEquals(expectedE, eList.get(index));
+         assertEquals(expectedA, aList.get(index));
+         assertEquals(expectedB, bList.get(index));
       }
    }
 

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.web;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Properties;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -28,8 +32,7 @@ import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class WebServerDTOConfigTest {
 
@@ -46,14 +49,18 @@ public class WebServerDTOConfigTest {
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "customizer", "customizerTest");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "rootRedirectLocation", "locationTest");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "webContentEnabled", "true");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "scanPeriod", "1234");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + INVALID_ATTRIBUTE_NAME, "true");
       Configuration configuration = new ConfigurationImpl();
       String systemWebPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix();
       configuration.parsePrefixedProperties(webServer, "system-" + systemWebPropertyPrefix, properties, systemWebPropertyPrefix);
 
-      Assert.assertEquals("customizerTest", webServer.getCustomizer());
-      Assert.assertEquals("locationTest", webServer.getRootRedirectLocation());
-      Assert.assertEquals(true, webServer.getWebContentEnabled());
+      assertEquals("customizerTest", webServer.getCustomizer());
+      assertEquals("locationTest", webServer.getRootRedirectLocation());
+      Boolean webContentEnabled = webServer.getWebContentEnabled();
+      assertNotNull(webContentEnabled);
+      assertTrue(webContentEnabled);
+      assertEquals(Integer.valueOf(1234), webServer.getScanPeriod());
 
       testStatus(configuration.getStatus(), "system-" + systemWebPropertyPrefix, "");
    }
@@ -92,6 +99,8 @@ public class WebServerDTOConfigTest {
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".passwordCodec", "test-passwordCodec");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".keyStorePath", "test-keyStorePath");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".trustStorePath", "test-trustStorePath");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".keyStoreType", "test-keyStoreType");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".trustStoreType", "test-trustStoreType");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".includedTLSProtocols", "test-includedTLSProtocols,0");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".excludedTLSProtocols", "test-excludedTLSProtocols,1");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".includedCipherSuites", "test-includedCipherSuites,2");
@@ -100,25 +109,31 @@ public class WebServerDTOConfigTest {
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".trustStorePassword", "test-trustStorePassword");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".sniHostCheck", !WebServerComponent.DEFAULT_SNI_HOST_CHECK_VALUE);
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".sniRequired", !WebServerComponent.DEFAULT_SNI_REQUIRED_VALUE);
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".sslAutoReload", !WebServerComponent.DEFAULT_SNI_REQUIRED_VALUE);
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + "." + INVALID_ATTRIBUTE_NAME, "true");
       Configuration configuration = new ConfigurationImpl();
       String systemWebPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix();
       configuration.parsePrefixedProperties(webServer, "system-" + systemWebPropertyPrefix, properties, systemWebPropertyPrefix);
 
       BindingDTO testBinding = webServer.getAllBindings().stream().filter(binding -> bindingName.equals(binding.getName())).findFirst().get();
-      Assert.assertEquals(BINDING_TEST_URL, testBinding.getUri());
-      Assert.assertEquals(true, testBinding.getClientAuth());
-      Assert.assertEquals("test-passwordCodec", testBinding.getPasswordCodec());
-      Assert.assertEquals("test-keyStorePath", testBinding.getKeyStorePath());
-      Assert.assertEquals("test-trustStorePath", testBinding.getTrustStorePath());
-      Assert.assertEquals("test-includedTLSProtocols,0", String.join(",", testBinding.getIncludedTLSProtocols()));
-      Assert.assertEquals("test-excludedTLSProtocols,1", String.join(",", testBinding.getExcludedTLSProtocols()));
-      Assert.assertEquals("test-includedCipherSuites,2", String.join(",", testBinding.getIncludedCipherSuites()));
-      Assert.assertEquals("test-excludedCipherSuites,3", String.join(",", testBinding.getExcludedCipherSuites()));
-      Assert.assertEquals("test-keyStorePassword", testBinding.getKeyStorePassword());
-      Assert.assertEquals("test-trustStorePassword", testBinding.getTrustStorePassword());
-      Assert.assertEquals(!WebServerComponent.DEFAULT_SNI_HOST_CHECK_VALUE, testBinding.getSniHostCheck());
-      Assert.assertEquals(!WebServerComponent.DEFAULT_SNI_REQUIRED_VALUE, testBinding.getSniRequired());
+      assertEquals(BINDING_TEST_URL, testBinding.getUri());
+      Boolean getClientAuth = testBinding.getClientAuth();
+      assertNotNull(getClientAuth);
+      assertTrue(getClientAuth);
+      assertEquals("test-passwordCodec", testBinding.getPasswordCodec());
+      assertEquals("test-keyStorePath", testBinding.getKeyStorePath());
+      assertEquals("test-trustStorePath", testBinding.getTrustStorePath());
+      assertEquals("test-keyStoreType", testBinding.getKeyStoreType());
+      assertEquals("test-trustStoreType", testBinding.getTrustStoreType());
+      assertEquals("test-includedTLSProtocols,0", String.join(",", testBinding.getIncludedTLSProtocols()));
+      assertEquals("test-excludedTLSProtocols,1", String.join(",", testBinding.getExcludedTLSProtocols()));
+      assertEquals("test-includedCipherSuites,2", String.join(",", testBinding.getIncludedCipherSuites()));
+      assertEquals("test-excludedCipherSuites,3", String.join(",", testBinding.getExcludedCipherSuites()));
+      assertEquals("test-keyStorePassword", testBinding.getKeyStorePassword());
+      assertEquals("test-trustStorePassword", testBinding.getTrustStorePassword());
+      assertEquals(!WebServerComponent.DEFAULT_SNI_HOST_CHECK_VALUE, testBinding.getSniHostCheck());
+      assertEquals(!WebServerComponent.DEFAULT_SNI_REQUIRED_VALUE, testBinding.getSniRequired());
+      assertEquals(!WebServerComponent.DEFAULT_SSL_AUTO_RELOAD_VALUE, testBinding.getSslAutoReload());
 
       testStatus(configuration.getStatus(), "system-" + systemWebPropertyPrefix, "bindings." + bindingName + ".");
    }
@@ -156,6 +171,35 @@ public class WebServerDTOConfigTest {
       testSetWebBindingAppProperties(webServer, BINDING_TEST_NAME, APP_TEST_URL);
    }
 
+   @Test
+   public void testSetRequestLogProperties() throws Throwable {
+      WebServerDTO webServer = new WebServerDTO();
+      Properties properties = new Properties();
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog.filename", "filenameTest");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog.append", "true");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog.extended", "true");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog.filenameDateFormat", "filenameDateFormatTest");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog.retainDays", "3");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog.ignorePaths", "ignorePathTest0,ignorePathTest1,ignorePathTest2");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "requestLog." + INVALID_ATTRIBUTE_NAME, "true");
+      Configuration configuration = new ConfigurationImpl();
+      String systemWebPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix();
+      configuration.parsePrefixedProperties(webServer, "system-" + systemWebPropertyPrefix, properties, systemWebPropertyPrefix);
+
+      assertEquals("filenameTest", webServer.getRequestLog().getFilename());
+      Boolean getAppend = webServer.getRequestLog().getAppend();
+      assertNotNull(getAppend);
+      assertTrue(getAppend);
+      Boolean getExtended = webServer.getRequestLog().getExtended();
+      assertNotNull(getExtended);
+      assertTrue(getExtended);
+      assertEquals("filenameDateFormatTest", webServer.getRequestLog().getFilenameDateFormat());
+      assertEquals(Integer.valueOf(3), webServer.getRequestLog().getRetainDays());
+      assertEquals("ignorePathTest0,ignorePathTest1,ignorePathTest2", webServer.getRequestLog().getIgnorePaths());
+
+      testStatus(configuration.getStatus(), "system-" + systemWebPropertyPrefix, "requestLog.");
+   }
+
    private void testSetWebBindingAppProperties(WebServerDTO webServer, String bindingName, String appName) throws Throwable {
       Properties properties = new Properties();
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".apps." + appName + ".url", APP_TEST_URL);
@@ -167,22 +211,22 @@ public class WebServerDTOConfigTest {
 
       BindingDTO testBinding = webServer.getAllBindings().stream().filter(binding -> bindingName.equals(binding.getName())).findFirst().get();
       AppDTO testApp = testBinding.getApps().stream().filter(app -> appName.equals(app.getName())).findFirst().get();
-      Assert.assertEquals("test-url", testApp.getUrl());
-      Assert.assertEquals("test-war", testApp.getWar());
+      assertEquals("test-url", testApp.getUrl());
+      assertEquals("test-war", testApp.getWar());
 
       testStatus(configuration.getStatus(), "system-" + systemWebPropertyPrefix, "bindings." + bindingName + ".apps." + appName + ".");
    }
 
    private void testStatus(String status, String name, String prefix) {
-      Assert.assertNotNull(status);
+      assertNotNull(status);
       JsonObject statusJsonObject = JsonUtil.readJsonObject(status);
-      Assert.assertNotNull(statusJsonObject);
+      assertNotNull(statusJsonObject);
       JsonObject propertiesJsonObject = statusJsonObject.getJsonObject("properties");
-      Assert.assertNotNull(propertiesJsonObject);
+      assertNotNull(propertiesJsonObject);
       JsonObject systemWebPropertiesJsonObject = propertiesJsonObject.getJsonObject(name);
-      Assert.assertNotNull(systemWebPropertiesJsonObject);
+      assertNotNull(systemWebPropertiesJsonObject);
       JsonArray errorsJsonObject = systemWebPropertiesJsonObject.getJsonArray("errors");
-      Assert.assertNotNull(errorsJsonObject);
-      Assert.assertEquals(prefix + INVALID_ATTRIBUTE_NAME + "=true", errorsJsonObject.getJsonObject(0).getString("value"));
+      assertNotNull(errorsJsonObject);
+      assertEquals(prefix + INVALID_ATTRIBUTE_NAME + "=true", errorsJsonObject.getJsonObject(0).getString("value"));
    }
 }

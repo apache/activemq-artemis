@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.api.core;
 /**
  * An operation failed because an address exists on the server.
  */
-public final class ActiveMQDeleteAddressException extends ActiveMQException {
+public class ActiveMQDeleteAddressException extends ActiveMQException {
 
    public ActiveMQDeleteAddressException() {
       super(ActiveMQExceptionType.DELETE_ADDRESS_ERROR);

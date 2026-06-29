@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -39,9 +43,8 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageAuthorizationTest extends ActiveMQTestBase {
 
@@ -57,28 +60,28 @@ public class MessageAuthorizationTest extends ActiveMQTestBase {
    }
 
    private ActiveMQServer server;
-   private SimpleString QUEUE = new SimpleString("TestQueue");
-   private SimpleString TOPIC = new SimpleString("TestTopic");
+   private SimpleString QUEUE = SimpleString.of("TestQueue");
+   private SimpleString TOPIC = SimpleString.of("TestTopic");
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultNettyConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, true));
       server.getConfiguration().setPopulateValidatedUser(true);
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true));
-      roles.add(new Role("a", false, true, true, true, true, false, false, false, true, true));
-      roles.add(new Role("b", false, true, true, true, true, false, false, false, true, true));
+      roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true, false, false));
+      roles.add(new Role("a", false, true, true, true, true, false, false, false, true, true, false, false));
+      roles.add(new Role("b", false, true, true, true, true, false, false, false, true, true, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
 
       BrokerMessageAuthorizationPlugin plugin = new BrokerMessageAuthorizationPlugin();
       plugin.init(Collections.emptyMap());
       server.registerBrokerPlugin(plugin);
       server.start();
-      server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST).setDurable(true));
-      server.createQueue(new QueueConfiguration(TOPIC).setRoutingType(RoutingType.MULTICAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(TOPIC).setRoutingType(RoutingType.MULTICAST).setDurable(true));
    }
 
    @Test
@@ -107,12 +110,12 @@ public class MessageAuthorizationTest extends ActiveMQTestBase {
       connection.close();
 
       Message aMsg = aConsumer.receiveNoWait();
-      Assert.assertNotNull(aMsg);
-      Assert.assertEquals("a", aMsg.getStringProperty("requiredRole"));
+      assertNotNull(aMsg);
+      assertEquals("a", aMsg.getStringProperty("requiredRole"));
 
       Message bMsg = bConsumer.receiveNoWait();
-      Assert.assertNotNull(bMsg);
-      Assert.assertEquals("b", bMsg.getStringProperty("requiredRole"));
+      assertNotNull(bMsg);
+      assertEquals("b", bMsg.getStringProperty("requiredRole"));
 
       aConnection.close();
       bConnection.close();
@@ -136,7 +139,7 @@ public class MessageAuthorizationTest extends ActiveMQTestBase {
       producer.send(bMessage);
       connection.close();
 
-      Assert.assertNull(aConsumer.receiveNoWait());
+      assertNull(aConsumer.receiveNoWait());
 
       aConnection.close();
    }
@@ -167,14 +170,14 @@ public class MessageAuthorizationTest extends ActiveMQTestBase {
       connection.close();
 
       Message bMsg = bConsumer.receiveNoWait();
-      Assert.assertNotNull(bMsg);
-      Assert.assertEquals("b", bMsg.getStringProperty("requiredRole"));
-      Assert.assertNull(bConsumer.receiveNoWait());
+      assertNotNull(bMsg);
+      assertEquals("b", bMsg.getStringProperty("requiredRole"));
+      assertNull(bConsumer.receiveNoWait());
 
       Message aMsg = aConsumer.receiveNoWait();
-      Assert.assertNotNull(aMsg);
-      Assert.assertEquals("a", aMsg.getStringProperty("requiredRole"));
-      Assert.assertNull(aConsumer.receiveNoWait());
+      assertNotNull(aMsg);
+      assertEquals("a", aMsg.getStringProperty("requiredRole"));
+      assertNull(aConsumer.receiveNoWait());
 
       aConnection.close();
       bConnection.close();
@@ -199,7 +202,7 @@ public class MessageAuthorizationTest extends ActiveMQTestBase {
       producer.send(bMessage);
       connection.close();
 
-      Assert.assertNull(aConsumer.receiveNoWait());
+      assertNull(aConsumer.receiveNoWait());
 
       aConnection.close();
    }

@@ -20,9 +20,6 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.test.JmsTopicSendReceiveWithTwoConnectionsTest;
 
-/**
- * @version
- */
 public class UdpSendReceiveWithTwoConnectionsTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
 
    protected String brokerURI = "udp://localhost:8891";

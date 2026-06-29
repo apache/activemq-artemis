@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -38,18 +43,17 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
-
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JMSOrderTest extends JMSTestBase {
 
    String protocol;
@@ -61,27 +65,27 @@ public class JMSOrderTest extends JMSTestBase {
       this.exclusive = exclusive;
    }
 
-   @Before
+   @BeforeEach
    public void setupCF() {
       protocolCF = createConnectionFactory(protocol, "tcp://localhost:61616");
    }
 
-   @Parameterized.Parameters(name = "protocol={0}&exclusive={1}")
+   @Parameters(name = "protocol={0}&exclusive={1}")
    public static Collection getParameters() {
-      return Arrays.asList(new Object[][]{{"AMQP", true}, {"AMQP", false}, {"OPENWIRE", true},  {"OPENWIRE", false}, {"CORE", true}, {"CORE", false}});
+      return Arrays.asList(new Object[][]{{"AMQP", true}, {"AMQP", false}, {"OPENWIRE", true}, {"OPENWIRE", false}, {"CORE", true}, {"CORE", false}});
    }
 
    @Override
    protected void extraServerConfig(ActiveMQServer server) {
       if (exclusive) {
-         server.getConfiguration().getAddressSettings().put("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setDefaultExclusiveQueue(true));
+         server.getConfiguration().getAddressSettings().put("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")).setDefaultExclusiveQueue(true));
       }
    }
 
    protected void sendToAmqQueue(int count) throws Exception {
       Connection activemqConnection = protocolCF.createConnection();
       Session amqSession = activemqConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Queue amqTestQueue = amqSession.createQueue(name.getMethodName());
+      Queue amqTestQueue = amqSession.createQueue(name);
       sendMessages(activemqConnection, amqTestQueue, count);
       activemqConnection.close();
    }
@@ -101,7 +105,8 @@ public class JMSOrderTest extends JMSTestBase {
 
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testReceiveSomeThenRollback() throws Exception {
       Connection connection = protocolCF.createConnection();
       try {
@@ -113,13 +118,13 @@ public class JMSOrderTest extends JMSTestBase {
          sendToAmqQueue(totalCount);
 
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-         Queue queue = session.createQueue(name.getMethodName());
+         Queue queue = session.createQueue(name);
          MessageConsumer consumer = session.createConsumer(queue);
 
          for (int i = 1; i <= consumeBeforeRollback; i++) {
             Message message = consumer.receive(3000);
             assertNotNull(message);
-            assertEquals("Unexpected message number", i, message.getIntProperty("nr"));
+            assertEquals(i, message.getIntProperty("nr"), "Unexpected message number");
          }
 
          session.rollback();
@@ -129,16 +134,16 @@ public class JMSOrderTest extends JMSTestBase {
          List<Integer> messageNumbers = new ArrayList<>();
          for (int i = 1; i <= totalCount; i++) {
             Message message = consumer.receive(3000);
-            assertNotNull("Failed to receive message: " + i, message);
+            assertNotNull(message, "Failed to receive message: " + i);
             int msgNum = message.getIntProperty("nr");
             messageNumbers.add(msgNum);
          }
 
          session.commit();
 
-         assertEquals("Unexpected size of list", totalCount, messageNumbers.size());
+         assertEquals(totalCount, messageNumbers.size(), "Unexpected size of list");
          for (int i = 0; i < messageNumbers.size(); i++) {
-            assertEquals("Unexpected order of messages: " + messageNumbers, Integer.valueOf(i + 1), messageNumbers.get(i));
+            assertEquals(Integer.valueOf(i + 1), messageNumbers.get(i), "Unexpected order of messages: " + messageNumbers);
          }
       } finally {
          connection.close();
@@ -146,7 +151,8 @@ public class JMSOrderTest extends JMSTestBase {
 
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testReceiveSomeThenClose() throws Exception {
       Connection connection = protocolCF.createConnection();
       try {
@@ -158,19 +164,19 @@ public class JMSOrderTest extends JMSTestBase {
          sendToAmqQueue(totalCount);
 
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-         Queue queue = session.createQueue(name.getMethodName());
+         Queue queue = session.createQueue(name);
          MessageConsumer consumer = session.createConsumer(queue);
 
          for (int i = 1; i <= consumeBeforeRollback; i++) {
             Message message = consumer.receive(3000);
             assertNotNull(message);
-            assertEquals("Unexpected message number", i, message.getIntProperty("nr"));
+            assertEquals(i, message.getIntProperty("nr"), "Unexpected message number");
          }
 
          session.close();
 
          session = connection.createSession(true, Session.SESSION_TRANSACTED);
-         queue = session.createQueue(name.getMethodName());
+         queue = session.createQueue(name);
          consumer = session.createConsumer(queue);
 
          // Consume again.. the previously consumed messages should get delivered
@@ -178,16 +184,16 @@ public class JMSOrderTest extends JMSTestBase {
          List<Integer> messageNumbers = new ArrayList<>();
          for (int i = 1; i <= totalCount; i++) {
             Message message = consumer.receive(3000);
-            assertNotNull("Failed to receive message: " + i, message);
+            assertNotNull(message, "Failed to receive message: " + i);
             int msgNum = message.getIntProperty("nr");
             messageNumbers.add(msgNum);
          }
 
          session.commit();
 
-         assertEquals("Unexpected size of list", totalCount, messageNumbers.size());
+         assertEquals(totalCount, messageNumbers.size(), "Unexpected size of list");
          for (int i = 0; i < messageNumbers.size(); i++) {
-            assertEquals("Unexpected order of messages: " + messageNumbers, Integer.valueOf(i + 1), messageNumbers.get(i));
+            assertEquals(Integer.valueOf(i + 1), messageNumbers.get(i), "Unexpected order of messages: " + messageNumbers);
          }
       } finally {
          connection.close();
@@ -195,12 +201,100 @@ public class JMSOrderTest extends JMSTestBase {
 
    }
 
-   @Test
+   protected void sendToAmqQueueOutOfOrder(int totalCount) throws Exception {
+      Connection activemqConnection = protocolCF.createConnection();
+      Session amqSession = activemqConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue amqTestQueue = amqSession.createQueue(name);
+
+      for (int i = 1; i <= totalCount; i += 2) {
+         Session sessionA = activemqConnection.createSession(true, Session.SESSION_TRANSACTED);
+         Session sessionB = activemqConnection.createSession(true, Session.SESSION_TRANSACTED);
+         MessageProducer pA = sessionA.createProducer(amqTestQueue);
+         MessageProducer pB = sessionB.createProducer(amqTestQueue);
+
+         TextMessage message = sessionA.createTextMessage();
+         // this is sent/committed second
+         message.setText("TextMessage: " + i + 1);
+         message.setIntProperty("nr", i + 1);
+         pA.send(message);
+
+         message = sessionB.createTextMessage();
+         message.setText("TextMessage: " + i);
+         message.setIntProperty("nr", i);
+         pB.send(message);
+
+         // commit in reverse to get sequenceId out of order on the queue.
+         sessionB.commit();
+         sessionA.commit();
+
+         sessionA.close();
+         sessionB.close();
+      }
+      activemqConnection.close();
+   }
+
+
+   @TestTemplate
+   @Timeout(30)
+   public void testReceiveOutOfOrderProducers() throws Exception {
+      Connection connection = protocolCF.createConnection();
+      try {
+         connection.start();
+
+         int totalCount = 4;
+         int consumeBeforeRollback = 2;
+
+         sendToAmqQueueOutOfOrder(totalCount);
+
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         Queue queue = session.createQueue(name);
+         MessageConsumer consumer = session.createConsumer(queue);
+
+         List<Integer> messageNumbers = new ArrayList<>();
+
+         for (int i = 1; i <= consumeBeforeRollback; i++) {
+            Message message = consumer.receive(3000);
+            assertNotNull(message);
+            assertEquals(i, message.getIntProperty("nr"), "Unexpected message number");
+            messageNumbers.add(message.getIntProperty("nr"));
+         }
+
+         for (int i = 0; i < messageNumbers.size(); i++) {
+            assertEquals(Integer.valueOf(i + 1), messageNumbers.get(i), "Unexpected order of messages: " + messageNumbers);
+         }
+         session.close();
+
+         session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         queue = session.createQueue(name);
+         consumer = session.createConsumer(queue);
+
+         // Consume again.. the previously consumed messages should get delivered
+         // again after the rollback and then the remainder should follow
+         messageNumbers = new ArrayList<>();
+         for (int i = 1; i <= totalCount; i++) {
+            Message message = consumer.receive(3000);
+            assertNotNull(message, "Failed to receive message: " + i);
+            int msgNum = message.getIntProperty("nr");
+            messageNumbers.add(msgNum);
+         }
+
+         session.commit();
+
+         assertEquals(totalCount, messageNumbers.size(), "Unexpected size of list");
+         for (int i = 0; i < messageNumbers.size(); i++) {
+            assertEquals(Integer.valueOf(i + 1), messageNumbers.get(i), "Unexpected order of messages: " + messageNumbers);
+         }
+      } finally {
+         connection.close();
+      }
+   }
+
+   @TestTemplate
    public void testMultipleConsumersRollback() throws Exception {
       internalMultipleConsumers(true);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleConsumersClose() throws Exception {
       internalMultipleConsumers(false);
    }
@@ -208,7 +302,7 @@ public class JMSOrderTest extends JMSTestBase {
    private void internalMultipleConsumers(final boolean rollback) throws Exception {
 
 
-      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       int numberOfMessages = 100;
       int numberOfConsumers = 3;
@@ -271,7 +365,7 @@ public class JMSOrderTest extends JMSTestBase {
          t.join();
       }
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
       Wait.assertEquals(numberOfMessages, serverQueue::getMessageCount);
 
@@ -282,11 +376,11 @@ public class JMSOrderTest extends JMSTestBase {
 
          for (int i = 0; i < numberOfMessages; i++) {
             TextMessage message = (TextMessage) cs.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(i, message.getIntProperty("i"));
+            assertNotNull(message);
+            assertEquals(i, message.getIntProperty("i"));
          }
 
-         Assert.assertNull(cs.receiveNoWait());
+         assertNull(cs.receiveNoWait());
       }
 
    }

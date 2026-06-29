@@ -19,8 +19,11 @@ package org.apache.activemq.artemis.selector;
 import org.apache.activemq.artemis.selector.filter.BooleanExpression;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SelectorTest {
 
@@ -101,12 +104,20 @@ public class SelectorTest {
 
    @Test
    public void testDottedProperty() throws Exception {
-      MockMessage message = createMessage();
-      message.setJMSType("selector-test");
-      message.setStringProperty("a.test", "value");
-      message.setJMSMessageID("id:test:1:1:1:1");
+      testQuotedProperty('.');
+   }
 
-      assertSelector(message, "\"a.test\" = 'value'", true);
+   @Test
+   public void testHyphenatedProperty() throws Exception {
+      testQuotedProperty('-');
+   }
+
+   private void testQuotedProperty(char c) throws Exception {
+      final String value = "value";
+      final String key = "a" + c + "test";
+      MockMessage message = createMessage();
+      message.setStringProperty(key, value);
+      assertSelector(message, "\"" + key + "\" = '" + value + "'", true);
    }
 
    @Test
@@ -261,9 +272,6 @@ public class SelectorTest {
       assertSelector(message, "modelClassId LIKE 'com.whatever.something.%' AND modelInstanceId = '170' AND (modelRequestError IS NULL OR modelCorrelatedClientId = 'whatever')", true);
    }
 
-   /**
-    * Test cases from Mats Henricson
-    */
    @Test
    public void testMatsHenricsonUseCases() throws Exception {
       MockMessage message = createMessage();
@@ -289,45 +297,18 @@ public class SelectorTest {
    @Test
    public void testFloatComparisons() throws Exception {
       MockMessage message = createMessage();
-
-      // JMS 1.1 Section 3.8.1.1 : Approximate literals use the Java
-      // floating-point literal syntax.
-      // We will use the java varible x to demo valid floating point syntaxs.
-      double x;
-
-      // test decimals like x.x
-      x = 1.0;
-      x = -1.1;
-      x = 1.0E1;
-      x = 1.1E1;
-      x = -1.1E1;
       assertSelector(message, "1.0 < 1.1", true);
       assertSelector(message, "-1.1 < 1.0", true);
       assertSelector(message, "1.0E1 < 1.1E1", true);
       assertSelector(message, "-1.1E1 < 1.0E1", true);
-
-      // test decimals like x.
-      x = 1.;
-      x = 1.E1;
       assertSelector(message, "1. < 1.1", true);
       assertSelector(message, "-1.1 < 1.", true);
       assertSelector(message, "1.E1 < 1.1E1", true);
       assertSelector(message, "-1.1E1 < 1.E1", true);
-
-      // test decimals like .x
-      x = .5;
-      x = -.5;
-      x = .5E1;
       assertSelector(message, ".1 < .5", true);
       assertSelector(message, "-.5 < .1", true);
       assertSelector(message, ".1E1 < .5E1", true);
       assertSelector(message, "-.5E1 < .1E1", true);
-
-      // test exponents
-      x = 4E10;
-      x = -4E10;
-      x = 5E+10;
-      x = 5E-10;
       assertSelector(message, "4E10 < 5E10", true);
       assertSelector(message, "5E8 < 5E10", true);
       assertSelector(message, "-4E10 < 2E10", true);
@@ -419,16 +400,16 @@ public class SelectorTest {
    protected void assertInvalidSelector(MockMessage message, String text) {
       try {
          SelectorParser.parse(text);
-         Assert.fail("Created a valid selector");
+         fail("Created a valid selector");
       } catch (FilterException e) {
       }
    }
 
    protected void assertSelector(MockMessage message, String text, boolean expected) throws FilterException {
       BooleanExpression selector = SelectorParser.parse(text);
-      Assert.assertTrue("Created a valid selector", selector != null);
+      assertNotNull(selector, "Created a valid selector");
       boolean value = selector.matches(message);
-      Assert.assertEquals("Selector for: " + text, expected, value);
+      assertEquals(expected, value, "Selector for: " + text);
    }
 
    protected MockMessage createMessage(String subject) {

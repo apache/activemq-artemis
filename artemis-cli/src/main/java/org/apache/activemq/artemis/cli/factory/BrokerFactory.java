@@ -16,18 +16,30 @@
  */
 package org.apache.activemq.artemis.cli.factory;
 
-import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.ServiceLoader;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.cli.ConfigurationException;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.dto.BrokerDTO;
+import org.apache.activemq.artemis.dto.JaasSecurityDTO;
+import org.apache.activemq.artemis.dto.PropertyDTO;
+import org.apache.activemq.artemis.dto.SecurityManagerDTO;
 import org.apache.activemq.artemis.dto.ServerDTO;
 import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.artemis.utils.FactoryFinder;
 
 public class BrokerFactory {
+
+   private static final String SECURITY_JAAS_DOMAIN_PROP_NAME = "domain";
+   private static final String SECURITY_JAAS_CERTIFICATE_DOMAIN_PROP_NAME = "certificateDomain";
+   private static final String SECURITY_MANAGER_CLASS_NAME_PROP_NAME = "className";
+   private static final String SECURITY_MANAGER_PROPERTIES_PREFIX = "properties.";
 
    private static BrokerDTO createBrokerConfiguration(URI configURI,
                                                       String artemisHome,
@@ -37,14 +49,53 @@ public class BrokerFactory {
          throw new ConfigurationException("Invalid configuration URI, no scheme specified: " + configURI);
       }
 
+      ServiceLoader<BrokerFactoryHandler> loader = ServiceLoader.load(BrokerFactoryHandler.class, BrokerFactory.class.getClassLoader());
       BrokerFactoryHandler factory = null;
-      try {
-         FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/");
-         factory = (BrokerFactoryHandler) finder.newInstance(configURI.getScheme());
-      } catch (IOException ioe) {
+      for (BrokerFactoryHandler handler : loader) {
+         if (handler.getName().equals(configURI.getScheme())) {
+            factory = handler;
+            break;
+         }
+      }
+      if (factory == null) {
          throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
       }
-      return factory.createBroker(configURI, artemisHome, artemisInstance, artemisURIInstance);
+      BrokerDTO broker = factory.createBroker(configURI, artemisHome, artemisInstance, artemisURIInstance);
+
+      populateSecurityWithSystemProperties(broker);
+
+      return broker;
+   }
+
+   private static void populateSecurityWithSystemProperties(BrokerDTO broker) {
+      Properties systemProperties = System.getProperties();
+      String systemSecurityJaasPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemSecurityJaasPropertyPrefix();
+      String systemSecurityManagerPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemSecurityManagerPropertyPrefix();
+
+      if (systemProperties.containsKey(systemSecurityJaasPropertyPrefix + SECURITY_JAAS_DOMAIN_PROP_NAME)) {
+         broker.security = broker.security instanceof JaasSecurityDTO ?
+            (JaasSecurityDTO) broker.security : new JaasSecurityDTO();
+      } else if (systemProperties.containsKey(systemSecurityManagerPropertyPrefix + SECURITY_MANAGER_CLASS_NAME_PROP_NAME)) {
+         broker.security = broker.security instanceof SecurityManagerDTO ?
+            (SecurityManagerDTO) broker.security : new SecurityManagerDTO();
+      }
+
+      if (broker.security instanceof JaasSecurityDTO security) {
+         security.domain = Optional.ofNullable((String)systemProperties.get(
+            systemSecurityJaasPropertyPrefix + SECURITY_JAAS_DOMAIN_PROP_NAME)).orElse(security.domain);
+         security.certificateDomain = Optional.ofNullable((String)systemProperties.get(
+            systemSecurityJaasPropertyPrefix + SECURITY_JAAS_CERTIFICATE_DOMAIN_PROP_NAME)).orElse(security.certificateDomain);
+      } else if (broker.security instanceof SecurityManagerDTO security) {
+         security.className = Optional.ofNullable((String)systemProperties.get(
+            systemSecurityManagerPropertyPrefix + SECURITY_MANAGER_CLASS_NAME_PROP_NAME)).orElse(security.className);
+         security.properties = Objects.requireNonNullElse(security.properties, new ArrayList<>());
+         systemProperties.forEach((key, value) -> {
+            if (((String)key).startsWith(systemSecurityManagerPropertyPrefix + SECURITY_MANAGER_PROPERTIES_PREFIX)) {
+               security.properties.add(new PropertyDTO(((String)key).substring(
+                  systemSecurityManagerPropertyPrefix.length() + SECURITY_MANAGER_PROPERTIES_PREFIX.length()), (String)value));
+            }
+         });
+      }
    }
 
    public static BrokerDTO createBrokerConfiguration(String configuration,
@@ -56,13 +107,17 @@ public class BrokerFactory {
 
    public static Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security, ActivateCallback activateCallback) throws Exception {
       if (brokerDTO.configuration != null) {
-         BrokerHandler handler;
          URI configURI = brokerDTO.getConfigurationURI();
 
-         try {
-            FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/server/");
-            handler = (BrokerHandler) finder.newInstance(configURI.getScheme());
-         } catch (IOException ioe) {
+         ServiceLoader<BrokerHandler> loader = ServiceLoader.load(BrokerHandler.class, BrokerFactory.class.getClassLoader());
+         BrokerHandler handler = null;
+         for (BrokerHandler h : loader) {
+            if (h.getName().equals(configURI.getScheme())) {
+               handler = h;
+               break;
+            }
+         }
+         if (handler == null) {
             throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
          }
 

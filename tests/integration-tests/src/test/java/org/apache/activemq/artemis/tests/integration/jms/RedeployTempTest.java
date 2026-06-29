@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -41,8 +44,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RedeployTempTest extends ActiveMQTestBase {
 
@@ -102,7 +104,7 @@ public class RedeployTempTest extends ActiveMQTestBase {
 
          MessageConsumer messageConsumerProducer = session.createConsumer(replyTo);
          Message message2 = messageConsumerProducer.receive(1000);
-         Assert.assertNotNull(message2);
+         assertNotNull(message2);
          assertEquals("hi there", ((TextMessage) message2).getText());
 
       } finally {
@@ -120,17 +122,17 @@ public class RedeployTempTest extends ActiveMQTestBase {
    }
 
    private AddressInfo getAddressInfo(EmbeddedActiveMQ embeddedActiveMQ, String address) {
-      return embeddedActiveMQ.getActiveMQServer().getPostOffice().getAddressInfo(SimpleString.toSimpleString(address));
+      return embeddedActiveMQ.getActiveMQServer().getPostOffice().getAddressInfo(SimpleString.of(address));
    }
 
    private org.apache.activemq.artemis.core.server.Queue getQueue(EmbeddedActiveMQ embeddedActiveMQ,
                                                                   String queueName) throws Exception {
-      QueueBinding queueBinding = (QueueBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString(queueName));
+      QueueBinding queueBinding = (QueueBinding) embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.of(queueName));
       return queueBinding == null ? null : queueBinding.getQueue();
    }
 
    private List<String> listQueuesNamesForAddress(EmbeddedActiveMQ embeddedActiveMQ, String address) throws Exception {
-      return embeddedActiveMQ.getActiveMQServer().getPostOffice().listQueuesForAddress(SimpleString.toSimpleString(address)).stream().map(org.apache.activemq.artemis.core.server.Queue::getName).map(SimpleString::toString).collect(Collectors.toList());
+      return embeddedActiveMQ.getActiveMQServer().getPostOffice().listQueuesForAddress(SimpleString.of(address)).stream().map(org.apache.activemq.artemis.core.server.Queue::getName).map(SimpleString::toString).collect(Collectors.toList());
    }
 
 }

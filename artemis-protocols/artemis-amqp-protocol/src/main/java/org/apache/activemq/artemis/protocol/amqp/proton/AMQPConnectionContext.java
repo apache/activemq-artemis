@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -29,13 +32,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
@@ -44,20 +48,23 @@ import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
-import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExecutorNettyAdapter;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
 import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASLFactory;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
+import org.apache.activemq.artemis.protocol.amqp.sasl.TokenSASLResult;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.VersionLoader;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
@@ -74,17 +81,36 @@ import org.apache.qpid.proton.engine.Session;
 import org.apache.qpid.proton.engine.Transport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_BASE_VALIDATION_ADDRESS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_QUEUE_RECEIVER;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.FAILOVER_SERVER_LIST;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.HOSTNAME;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NETWORK_HOST;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PORT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEME;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyDesiredCapability;
 
 public class AMQPConnectionContext extends ProtonInitializable implements EventHandler {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   public void disableAutoRead() {
+      handler.requireHandler();
+      connectionCallback.getTransportConnection().setAutoRead(false);
+      handler.setReadable(false);
+   }
+
+   public void enableAutoRead() {
+      handler.requireHandler();
+      connectionCallback.getTransportConnection().setAutoRead(true);
+      getHandler().setReadable(true);
+      flush();
+   }
 
    public static final Symbol CONNECTION_OPEN_FAILED = Symbol.valueOf("amqp:connection-establishment-failed");
    public static final String AMQP_CONTAINER_ID = "amqp-container-id";
@@ -97,9 +123,11 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    private final boolean isIncomingConnection;
    private final ClientSASLFactory saslClientFactory;
    private final Map<Symbol, Object> connectionProperties = new HashMap<>();
+   private final Symbol[] offeredCapabilities;
+   private final Symbol[] desiredCapabilities;
    private final ScheduledExecutorService scheduledPool;
-
-   private LinkCloseListener linkCloseListener;
+   private final Map<String, LinkCloseListener> linkCloseListeners = new ConcurrentHashMap<>();
+   private final Set<Consumer<AMQPConnectionContext>> remoteOpenedListeners = new ConcurrentHashSet<>();
 
    private final Map<Session, AMQPSessionContext> sessions = new ConcurrentHashMap<>();
 
@@ -107,11 +135,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    private final boolean useCoreSubscriptionNaming;
 
-   /** Outgoing means created by the AMQP Bridge */
-   private final boolean bridgeConnection;
+   private final boolean brokerConnection;
 
    private final ScheduleOperator scheduleOp = new ScheduleOperator(new ScheduleRunnable());
-   private final AtomicReference<Future<?>> scheduledFutureRef = new AtomicReference(VOID_FUTURE);
+   private final AtomicReference<Future<?>> scheduledFutureRef = new AtomicReference<>(VOID_FUTURE);
 
    private String user;
    private String password;
@@ -127,8 +154,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
                                 ScheduledExecutorService scheduledPool,
                                 boolean isIncomingConnection,
                                 ClientSASLFactory saslClientFactory,
-                                Map<Symbol, Object> connectionProperties) {
-      this(protocolManager, connectionSP, containerId, idleTimeout, maxFrameSize, channelMax, useCoreSubscriptionNaming, scheduledPool, isIncomingConnection, saslClientFactory, connectionProperties, false);
+                                Map<Symbol, Object> connectionProperties,
+                                Symbol[] offeredCapabilities,
+                                Symbol[] desiredCapabilities) {
+      this(protocolManager, connectionSP, containerId, idleTimeout, maxFrameSize, channelMax, useCoreSubscriptionNaming, scheduledPool, isIncomingConnection, saslClientFactory, connectionProperties, offeredCapabilities, desiredCapabilities, false);
    }
 
    public AMQPConnectionContext(ProtonProtocolManager protocolManager,
@@ -142,9 +171,11 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
                                 boolean isIncomingConnection,
                                 ClientSASLFactory saslClientFactory,
                                 Map<Symbol, Object> connectionProperties,
-                                boolean bridgeConnection) {
+                                Symbol[] offeredCapabilities,
+                                Symbol[] desiredCapabilities,
+                                boolean brokerConnection) {
       this.protocolManager = protocolManager;
-      this.bridgeConnection = bridgeConnection;
+      this.brokerConnection = brokerConnection;
       this.connectionCallback = connectionSP;
       this.useCoreSubscriptionNaming = useCoreSubscriptionNaming;
       this.containerId = (containerId != null) ? containerId : UUID.randomUUID().toString();
@@ -158,14 +189,21 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          this.connectionProperties.putAll(connectionProperties);
       }
 
+      if (offeredCapabilities != null && offeredCapabilities.length > 0) {
+         this.offeredCapabilities = Arrays.copyOf(offeredCapabilities, offeredCapabilities.length);
+      } else {
+         this.offeredCapabilities = null;
+      }
+
+      if (desiredCapabilities != null && desiredCapabilities.length > 0) {
+         this.desiredCapabilities = Arrays.copyOf(desiredCapabilities, desiredCapabilities.length);
+      } else {
+         this.desiredCapabilities = null;
+      }
+
       this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
-      EventLoop nettyExecutor;
-      if (connectionCallback.getTransportConnection() instanceof NettyConnection) {
-         nettyExecutor = ((NettyConnection) connectionCallback.getTransportConnection()).getNettyChannel().eventLoop();
-      } else {
-         nettyExecutor = new ExecutorNettyAdapter(protocolManager.getServer().getExecutorFactory().getExecutor());
-      }
+      EventLoop nettyExecutor = connectionCallback.getTransportConnection().getEventLoop();
       this.handler = new ProtonHandler(nettyExecutor, protocolManager.getServer().getExecutorFactory().getExecutor(), isIncomingConnection && saslClientFactory == null);
       handler.addEventHandler(this);
       Transport transport = handler.getTransport();
@@ -182,17 +220,47 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       }
    }
 
-   public LinkCloseListener getLinkCloseListener() {
-      return linkCloseListener;
+   public boolean isLargeMessageSync() {
+      return connectionCallback.isLargeMessageSync();
    }
 
-   public AMQPConnectionContext setLinkCloseListener(LinkCloseListener linkCloseListener) {
-      this.linkCloseListener = linkCloseListener;
+   @Override
+   public void initialize() throws Exception {
+      initialized = true;
+   }
+
+   /**
+    * Adds a listener that will be invoked any time an AMQP link is remotely closed before having been closed on this
+    * end of the connection.
+    *
+    * @param id                A unique ID assigned to the listener used to later remove it if needed.
+    * @param linkCloseListener The instance of a closed listener.
+    * @return this connection context instance
+    */
+   public AMQPConnectionContext addLinkRemoteCloseListener(String id, LinkCloseListener linkCloseListener) {
+      linkCloseListeners.put(id, linkCloseListener);
       return this;
    }
 
-   public boolean isBridgeConnection() {
-      return bridgeConnection;
+   /**
+    * Remove the link remote close listener that is identified by the given ID.
+    *
+    * @param id The unique ID assigned to the listener when it was added.
+    */
+   public void removeLinkRemoteCloseListener(String id) {
+      linkCloseListeners.remove(id);
+   }
+
+   /**
+    * Clear all link remote close listeners, usually done before connection termination to avoid any remote close events
+    * triggering processing after the connection shutdown has already started.
+    */
+   public void clearLinkRemoteCloseListeners() {
+      linkCloseListeners.clear();
+   }
+
+   public boolean isBrokerConnection() {
+      return brokerConnection;
    }
 
    public void requireInHandler() {
@@ -280,9 +348,9 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    public void close(ErrorCondition errorCondition) {
       Future<?> scheduledFuture = scheduledFutureRef.getAndSet(null);
 
-      if (scheduledPool instanceof ThreadPoolExecutor && scheduledFuture != null &&
-         scheduledFuture != VOID_FUTURE && scheduledFuture instanceof Runnable) {
-         if (!((ThreadPoolExecutor) scheduledPool).remove((Runnable) scheduledFuture) &&
+      if (scheduledPool instanceof ThreadPoolExecutor executor && scheduledFuture != null &&
+         scheduledFuture != VOID_FUTURE && scheduledFuture instanceof Runnable runnable) {
+         if (!executor.remove(runnable) &&
             !scheduledFuture.isCancelled() && !scheduledFuture.isDone()) {
             ActiveMQAMQPProtocolLogger.LOGGER.cantRemovingScheduledTask();
          }
@@ -294,7 +362,6 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    public AMQPSessionContext getSessionExtension(Session realSession) throws ActiveMQAMQPException {
       AMQPSessionContext sessionExtension = sessions.get(realSession);
       if (sessionExtension == null) {
-         // how this is possible? Log a warn here
          sessionExtension = newSessionExtension(realSession);
          realSession.setContext(sessionExtension);
          sessions.put(realSession, sessionExtension);
@@ -342,89 +409,133 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    }
 
    protected void remoteLinkOpened(Link link) throws Exception {
+      final AMQPSessionContext protonSession = getSessionExtension(link.getSession());
 
-      AMQPSessionContext protonSession = getSessionExtension(link.getSession());
+      // The operation context is needed in case there are auto-created destinations.
+      // We need to ensure the binding storage operation is complete before sending the remoteLinkOpened response.
+      OperationContext oldContext = protonSession.sessionSPI.recoverContext();
 
-      Runnable runnable = link.attachments().get(Runnable.class, Runnable.class);
-      if (runnable != null) {
-         link.attachments().set(Runnable.class, Runnable.class, null);
-         runnable.run();
-         return;
-      }
+      try {
 
-      if (link.getLocalState() ==  EndpointState.ACTIVE) { // if already active it's probably from the AMQP bridge and hence we just ignore it
-         return;
-      }
+         final Runnable runnable = link.attachments().get(AMQP_LINK_INITIALIZER_KEY, Runnable.class);
+         if (runnable != null) {
+            link.attachments().set(AMQP_LINK_INITIALIZER_KEY, Runnable.class, null);
+            runnable.run();
+            return;
+         }
 
-      link.setSource(link.getRemoteSource());
-      link.setTarget(link.getRemoteTarget());
-      if (link instanceof Receiver) {
-         Receiver receiver = (Receiver) link;
-         if (link.getRemoteTarget() instanceof Coordinator) {
-            Coordinator coordinator = (Coordinator) link.getRemoteTarget();
-            protonSession.addTransactionHandler(coordinator, receiver);
-         } else {
-            if (isReplicaTarget(receiver)) {
-               try {
-                  try {
-                     protonSession.getSessionSPI().check(SimpleString.toSimpleString(link.getTarget().getAddress()), CheckType.SEND, getSecurityAuth());
-                  } catch (ActiveMQSecurityException e) {
-                     throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingProducer(e.getMessage());
-                  }
+         if (link.getLocalState() == EndpointState.ACTIVE) { // if already active it's probably from the AMQP bridge and hence we just ignore it
+            return;
+         }
 
-                  if (!verifyDesiredCapabilities(receiver, AMQPMirrorControllerSource.MIRROR_CAPABILITY)) {
-                     throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingDesiredCapability(AMQPMirrorControllerSource.MIRROR_CAPABILITY.toString());
-                  }
-               } catch (ActiveMQAMQPException e) {
-                  logger.warn(e.getMessage(), e);
+         link.setSource(link.getRemoteSource());
+         link.setTarget(link.getRemoteTarget());
 
-                  link.setTarget(null);
-                  link.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
-                  link.close();
-
-                  return;
-               }
-
-               receiver.setOfferedCapabilities(new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY});
-               protonSession.addReplicaTarget(receiver);
+         if (link instanceof Receiver receiver) {
+            if (link.getRemoteTarget() instanceof Coordinator coordinator) {
+               protonSession.addTransactionHandler(coordinator, receiver);
+            } else if (isReplicaTarget(receiver)) {
+               handleReplicaTargetLinkOpened(protonSession, receiver);
+            } else if (isFederationControlLink(receiver)) {
+               handleFederationControlLinkOpened(protonSession, receiver);
+            } else if (isFederationEventLink(receiver)) {
+               protonSession.addFederationEventProcessor(receiver);
             } else {
                protonSession.addReceiver(receiver);
             }
+         } else {
+            final Sender sender = (Sender) link;
+            if (isFederationAddressReceiver(sender)) {
+               protonSession.addFederationAddressSender(sender);
+            } else if (isFederationQueueReceiver(sender)) {
+               protonSession.addFederationQueueSender(sender);
+            } else if (isFederationEventLink(sender)) {
+               protonSession.addFederationEventDispatcher(sender);
+            } else {
+               protonSession.addSender(sender);
+            }
          }
-      } else {
-         Sender sender = (Sender) link;
-         protonSession.addSender(sender);
+      } finally {
+         protonSession.sessionSPI.resetContext(oldContext);
       }
    }
 
-
-   protected boolean verifyDesiredCapabilities(Receiver reciever, Symbol s) {
-
-      if (reciever.getRemoteDesiredCapabilities() == null) {
-         return false;
-      }
-
-      boolean foundS = false;
-      for (Symbol b : reciever.getRemoteDesiredCapabilities()) {
-         if (b.equals(s)) {
-            foundS = true;
-            break;
+   private void handleReplicaTargetLinkOpened(AMQPSessionContext protonSession, Receiver receiver) throws Exception {
+      try {
+         try {
+            protonSession.getSessionSPI().check(SimpleString.of(receiver.getTarget().getAddress()), CheckType.SEND, getSecurityAuth());
+         } catch (ActiveMQSecurityException e) {
+            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingProducer(e.getMessage());
          }
-      }
-      if (!foundS) {
-         return false;
+
+         if (!verifyDesiredCapability(receiver, AMQPMirrorControllerSource.MIRROR_CAPABILITY)) {
+            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingDesiredCapability(AMQPMirrorControllerSource.MIRROR_CAPABILITY.toString());
+         }
+      } catch (ActiveMQAMQPException e) {
+         logger.warn(e.getMessage(), e);
+
+         receiver.setTarget(null);
+         receiver.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
+         receiver.close();
+
+         return;
       }
 
-      return true;
+      protonSession.addReplicaTarget(receiver);
    }
 
+   private void handleFederationControlLinkOpened(AMQPSessionContext protonSession, Receiver receiver) throws Exception {
+      try {
+         try {
+            protonSession.getSessionSPI().check(SimpleString.of(FEDERATION_BASE_VALIDATION_ADDRESS), CheckType.SEND, getSecurityAuth());
+         } catch (ActiveMQSecurityException e) {
+            throw new ActiveMQAMQPSecurityException(
+               "User does not have permission to attach to the federation control address");
+         }
 
-   private boolean isReplicaTarget(Link link) {
+         protonSession.addFederationCommandProcessor(receiver);
+      } catch (ActiveMQAMQPException e) {
+         logger.warn(e.getMessage(), e);
+
+         receiver.setTarget(null);
+         receiver.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
+         receiver.close();
+
+         return;
+      }
+   }
+
+   private static boolean isReplicaTarget(Link link) {
       return link != null && link.getTarget() != null && link.getTarget().getAddress() != null && link.getTarget().getAddress().startsWith(ProtonProtocolManager.MIRROR_ADDRESS);
    }
 
-   public Symbol[] getConnectionCapabilitiesOffered() {
-      URI tc = connectionCallback.getFailoverList();
+   private static boolean isFederationControlLink(Receiver receiver) {
+      return verifyDesiredCapability(receiver, FEDERATION_CONTROL_LINK);
+   }
+
+   private static boolean isFederationEventLink(Sender sender) {
+      return verifyDesiredCapability(sender, FEDERATION_EVENT_LINK);
+   }
+
+   private static boolean isFederationEventLink(Receiver receiver) {
+      return verifyDesiredCapability(receiver, FEDERATION_EVENT_LINK);
+   }
+
+   private static boolean isFederationQueueReceiver(Sender sender) {
+      return verifyDesiredCapability(sender, FEDERATION_QUEUE_RECEIVER);
+   }
+
+   private static boolean isFederationAddressReceiver(Sender sender) {
+      return verifyDesiredCapability(sender, FEDERATION_ADDRESS_RECEIVER);
+   }
+
+   private Symbol[] getOfferedCapabilitiesForResponse() {
+      return offeredCapabilities != null ? offeredCapabilities : ExtCapability.getCapabilities();
+   }
+
+   private Map<Symbol, Object> getConnectionPropertiesForResponse() {
+      final URI tc = connectionCallback.getFailoverList();
+
       if (tc != null) {
          Map<Symbol, Object> hostDetails = new HashMap<>();
          hostDetails.put(NETWORK_HOST, tc.getHost());
@@ -439,11 +550,12 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
          connectionProperties.put(FAILOVER_SERVER_LIST, Arrays.asList(hostDetails));
       }
-      return ExtCapability.getCapabilities();
+
+      return Collections.unmodifiableMap(connectionProperties);
    }
 
    public void open() {
-      handler.open(containerId, connectionProperties);
+      handler.open(containerId, connectionProperties, offeredCapabilities, desiredCapabilities);
    }
 
    public String getContainer() {
@@ -541,6 +653,20 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       return connectionCallback.getTransportConnection().getRemoteAddress();
    }
 
+   public AMQPConnectionContext addRemoteOpenedListener(Consumer<AMQPConnectionContext> listener) {
+      if (handler.getConnection() != null && EndpointState.ACTIVE.equals(handler.getConnection().getRemoteState())) {
+         try {
+            listener.accept(this);
+         } catch (Exception e) {
+            logger.debug("Caught exception from remote opened handler", e);
+         }
+      } else {
+         remoteOpenedListeners.add(listener);
+      }
+
+      return this;
+   }
+
    @Override
    public void onRemoteOpen(Connection connection) throws Exception {
       handler.requireHandler();
@@ -555,17 +681,23 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          connection.close();
       } else {
          connection.setContext(AMQPConnectionContext.this);
-         connection.setContainer(containerId);
-         connection.setProperties(connectionProperties);
-         connection.setOfferedCapabilities(getConnectionCapabilitiesOffered());
-         connection.open();
+         // An outgoing connection would have already configured the connection and opened or is in the
+         // processing of doing so when a simultaneous open occurred so we protect against altering the
+         // sent values or preventing the in process open from configuring the values it wants.
+         if (isIncomingConnection) {
+            connection.setContainer(containerId);
+            connection.setProperties(getConnectionPropertiesForResponse());
+            connection.setOfferedCapabilities(getOfferedCapabilitiesForResponse());
+            connection.setDesiredCapabilities(desiredCapabilities);
+            connection.open();
+         }
       }
       initialize();
 
       /*
-       * This can be null which is in effect an empty map, also we really don't need to check this for in bound connections
-       * but its here in case we add support for outbound connections.
-       * */
+       * This can be null which is in effect an empty map, also we really don't need to check this for in bound
+       * connections but its here in case we add support for outbound connections.
+       */
       if (connection.getRemoteProperties() == null || !connection.getRemoteProperties().containsKey(CONNECTION_OPEN_FAILED)) {
          long nextKeepAliveTime = handler.tick(true);
 
@@ -574,6 +706,16 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
             scheduledFutureRef.getAndUpdate(scheduleOp);
          }
+
+         remoteOpenedListeners.forEach(consumer -> {
+            try {
+               consumer.accept(this);
+            } catch (Exception e) {
+               logger.debug("Caught exception from remote opened handler", e);
+            }
+         });
+
+         remoteOpenedListeners.clear();
       }
    }
 
@@ -585,18 +727,20 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       SASLResult saslResult = getSASLResult();
       if (saslResult != null) {
          user = saslResult.getUser();
-         if (saslResult instanceof PlainSASLResult) {
-            password = ((PlainSASLResult) saslResult).getPassword();
+         if (saslResult instanceof PlainSASLResult plainSASLResult) {
+            password = plainSASLResult.getPassword();
+         } else if (saslResult instanceof TokenSASLResult tokenSASLResult) {
+            password = tokenSASLResult.getToken();
          }
       }
 
-      if (isIncomingConnection() && saslClientFactory == null && !isBridgeConnection()) {
+      if (isIncomingConnection() && saslClientFactory == null && !isBrokerConnection()) {
          try {
             validatedUser = protocolManager.getServer().validateUser(user, password, connectionCallback.getProtonConnectionDelegate(), protocolManager.getSecurityDomain());
          } catch (ActiveMQSecurityException e) {
             ErrorCondition error = new ErrorCondition();
             error.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
-            error.setDescription(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
+            error.setDescription(Objects.requireNonNullElse(e.getMessage(), e.getClass().getSimpleName()));
             connection.setCondition(error);
             connection.setProperties(Collections.singletonMap(AmqpSupport.CONNECTION_OPEN_FAILED, true));
 
@@ -660,6 +804,40 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    }
 
    @Override
+   public void onTransportError(Transport transport) throws Exception {
+      final String errorMessage = transport.getCondition() != null && transport.getCondition().getDescription() != null ?
+         transport.getCondition().getDescription() : "Unknown Internal Error";
+
+      // Cleanup later after the any pending work gets sent to the remote via an IO flush.
+      runLater(() -> connectionCallback.getProtonConnectionDelegate().fail(new ActiveMQAMQPInternalErrorException(errorMessage)));
+   }
+
+   @Override
+   public void onLocalClose(Connection connection) {
+      handler.requireHandler();
+
+      // If the connection delegate is marked as destroyed the IO connection is closed
+      // or closing and will never hear back from the remote with a matching Close
+      // performative from the peer on the other side. In this case we should allow the
+      // sessions a chance to clean up any local sender or receiver bindings.
+      if (connectionCallback.getProtonConnectionDelegate().isDestroyed()) {
+         for (AMQPSessionContext protonSession : sessions.values()) {
+            try {
+               protonSession.close();
+            } catch (Exception e) {
+               // We are closing so ignore errors from attempts to cleanup
+               logger.trace("Caught error while handling local connection close: ", e);
+            }
+         }
+
+         sessions.clear();
+
+         // Try and flush any pending work if the IO hasn't yet been closed.
+         handler.flushBytes();
+      }
+   }
+
+   @Override
    public void onRemoteClose(Connection connection) {
       handler.requireHandler();
       connection.close();
@@ -679,7 +857,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    public void onLocalOpen(Session session) throws Exception {
       AMQPSessionContext sessionContext = getSessionExtension(session);
 
-      if (bridgeConnection) {
+      if (brokerConnection) {
          sessionContext.initialize();
       }
    }
@@ -730,14 +908,22 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    public void onRemoteClose(Link link) throws Exception {
       handler.requireHandler();
 
-      if (linkCloseListener != null) {
-         linkCloseListener.onClose(link);
-      }
+      final AtomicReference<Exception> handlerThrew = new AtomicReference<>();
+
+      linkCloseListeners.forEach((k, v) -> {
+         try {
+            v.onClose(link);
+         } catch (Exception e) {
+            handlerThrew.compareAndSet(null, e);
+         }
+      });
 
       ProtonDeliveryHandler linkContext = (ProtonDeliveryHandler) link.getContext();
       if (linkContext != null) {
          try {
             linkContext.close(true);
+         } catch (ActiveMQAMQPSecurityException e) {
+            throw e;
          } catch (Exception e) {
             logger.error(e.getMessage(), e);
          }
@@ -746,6 +932,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       link.close();
       link.free();
       flush();
+
+      if (handlerThrew.get() != null) {
+         throw handlerThrew.get();
+      }
    }
 
    @Override
@@ -765,8 +955,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    public void onLocalDetach(Link link) throws Exception {
       handler.requireHandler();
       Object context = link.getContext();
-      if (context instanceof ProtonServerSenderContext) {
-         ProtonServerSenderContext senderContext = (ProtonServerSenderContext) context;
+      if (context instanceof ProtonServerSenderContext senderContext) {
          senderContext.close(false);
       }
    }
@@ -781,7 +970,6 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          logger.warn("Handler is null, can't delivery {}", delivery, new Exception("tracing location"));
       }
    }
-
 
    private class LocalSecurity implements SecurityAuth {
       @Override
@@ -800,8 +988,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          String password = null;
          SASLResult saslResult = getSASLResult();
          if (saslResult != null) {
-            if (saslResult instanceof PlainSASLResult) {
-               password = ((PlainSASLResult) saslResult).getPassword();
+            if (saslResult instanceof PlainSASLResult plainSASLResult) {
+               password = plainSASLResult.getPassword();
+            } else if (saslResult instanceof TokenSASLResult tokenSASLResult) {
+               password = tokenSASLResult.getToken();
             }
          }
 
@@ -818,5 +1008,4 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          return getProtocolManager().getSecurityDomain();
       }
    }
-
 }

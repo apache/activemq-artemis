@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -61,26 +63,22 @@ public class SessionConsumerFlowCreditMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
-      result = prime * result + credits;
-      return result;
+      return Objects.hash(super.hashCode(), consumerID, credits);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionConsumerFlowCreditMessage))
+      }
+      if (!(obj instanceof SessionConsumerFlowCreditMessage other)) {
          return false;
-      SessionConsumerFlowCreditMessage other = (SessionConsumerFlowCreditMessage) obj;
-      if (consumerID != other.consumerID)
-         return false;
-      if (credits != other.credits)
-         return false;
-      return true;
+      }
+
+      return consumerID == other.consumerID &&
+             credits == other.credits;
    }
 }

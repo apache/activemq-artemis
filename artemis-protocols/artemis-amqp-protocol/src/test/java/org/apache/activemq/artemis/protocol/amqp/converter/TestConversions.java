@@ -16,6 +16,20 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter;
 
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_NULL;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_DELIVERY_ANNOTATION_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_FOOTER_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ORIGINAL_ENCODING;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -52,19 +66,11 @@ import org.apache.qpid.proton.codec.EncoderImpl;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_NULL;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_DELIVERY_ANNOTATION_PREFIX;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_FOOTER_PREFIX;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ENCODED_MESSAGE_ANNOTATION_PREFIX;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ORIGINAL_ENCODING;
-
-public class TestConversions extends Assert {
+public class TestConversions {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -119,12 +125,12 @@ public class TestConversions extends Assert {
 
       bytesMessage.readBytes(newBodyBytes);
 
-      Assert.assertArrayEquals(bodyBytes, newBodyBytes);
+      assertArrayEquals(bodyBytes, newBodyBytes);
    }
 
    private void verifyProperties(CoreMessageWrapper message) throws Exception {
-      assertEquals(true, message.getBooleanProperty("true"));
-      assertEquals(false, message.getBooleanProperty("false"));
+      assertTrue(message.getBooleanProperty("true"));
+      assertFalse(message.getBooleanProperty("false"));
       assertEquals("bar", message.getStringProperty("foo"));
    }
 
@@ -139,9 +145,9 @@ public class TestConversions extends Assert {
 
    private TypedProperties createTypedPropertiesMap() {
       TypedProperties typedProperties = new TypedProperties();
-      typedProperties.putBooleanProperty(new SimpleString("true"), Boolean.TRUE);
-      typedProperties.putBooleanProperty(new SimpleString("false"), Boolean.FALSE);
-      typedProperties.putSimpleStringProperty(new SimpleString("foo"), new SimpleString("bar"));
+      typedProperties.putBooleanProperty(SimpleString.of("true"), Boolean.TRUE);
+      typedProperties.putBooleanProperty(SimpleString.of("false"), Boolean.FALSE);
+      typedProperties.putSimpleStringProperty(SimpleString.of("foo"), SimpleString.of("bar"));
       return typedProperties;
    }
 
@@ -154,7 +160,7 @@ public class TestConversions extends Assert {
 
       Map<String, Object> mapValues = new HashMap<>();
       mapValues.put("somestr", "value");
-      mapValues.put("someint", Integer.valueOf(1));
+      mapValues.put("someint", 1);
 
       message.setBody(new AmqpValue(mapValues));
 
@@ -183,7 +189,7 @@ public class TestConversions extends Assert {
       message.setApplicationProperties(properties);
 
       List<Object> objects = new LinkedList<>();
-      objects.add(Integer.valueOf(10));
+      objects.add(10);
       objects.add("10");
 
       message.setBody(new AmqpSequence(objects));
@@ -233,7 +239,7 @@ public class TestConversions extends Assert {
 
       AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
       TypedProperties extraProperties = createTypedPropertiesMap();
-      extraProperties.putBytesProperty(new SimpleString("bytesProp"), "value".getBytes());
+      extraProperties.putBytesProperty(SimpleString.of("bytesProp"), "value".getBytes());
       encodedMessage.setExtraProperties(extraProperties);
 
       ICoreMessage serverMessage = encodedMessage.toCore();
@@ -269,7 +275,7 @@ public class TestConversions extends Assert {
 
       Map<String, Object> mapValues = new HashMap<>();
       mapValues.put("somestr", "value");
-      mapValues.put("someint", Integer.valueOf(1));
+      mapValues.put("someint", 1);
 
       message.setMessageAnnotations(messageAnnotations);
       message.setBody(new AmqpValue(mapValues));
@@ -295,7 +301,7 @@ public class TestConversions extends Assert {
       assertNotNull(newAMQP.getMessageAnnotations().getValue());
       assertTrue(newAMQP.getMessageAnnotations().getValue().containsKey(annotationNameSymbol));
       Object result = newAMQP.getMessageAnnotations().getValue().get(annotationNameSymbol);
-      assertTrue(result instanceof Map);
+      assertInstanceOf(Map.class, result);
       assertEquals(embeddedMap, (Map<String, String>) result);
    }
 
@@ -321,7 +327,7 @@ public class TestConversions extends Assert {
 
       Map<String, Object> mapValues = new HashMap<>();
       mapValues.put("somestr", "value");
-      mapValues.put("someint", Integer.valueOf(1));
+      mapValues.put("someint", 1);
 
       message.setFooter(messageFooter);
       message.setBody(new AmqpValue(mapValues));
@@ -347,7 +353,7 @@ public class TestConversions extends Assert {
       assertNotNull(newAMQP.getFooter().getValue());
       assertTrue(newAMQP.getFooter().getValue().containsKey(footerNameSymbol));
       Object result = newAMQP.getFooter().getValue().get(footerNameSymbol);
-      assertTrue(result instanceof Map);
+      assertInstanceOf(Map.class, result);
       assertEquals(embeddedMap, (Map<String, String>) result);
    }
 
@@ -377,7 +383,7 @@ public class TestConversions extends Assert {
       assertNotNull(newAMQP.getDeliveryAnnotations().getValue());
       assertTrue(newAMQP.getDeliveryAnnotations().getValue().containsKey(annotationNameSymbol));
       Object result = newAMQP.getDeliveryAnnotations().getValue().get(annotationNameSymbol);
-      assertTrue(result instanceof Map);
+      assertInstanceOf(Map.class, result);
       assertEquals(embeddedMap, (Map<String, String>) result);
    }
 
@@ -414,7 +420,7 @@ public class TestConversions extends Assert {
 
       AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
       TypedProperties extraProperties = new TypedProperties();
-      encodedMessage.setAddress(SimpleString.toSimpleString("xxxx.v1.queue"));
+      encodedMessage.setAddress(SimpleString.of("xxxx.v1.queue"));
 
       for (int i = 0; i < 10; i++) {
          if (logger.isDebugEnabled()) {
@@ -423,7 +429,7 @@ public class TestConversions extends Assert {
 
          encodedMessage.messageChanged();
          AmqpValue value = (AmqpValue) encodedMessage.getProtonMessage().getBody();
-         Assert.assertEquals(text, (String) value.getValue());
+         assertEquals(text, (String) value.getValue());
 
          // this line is needed to force a failure
          ICoreMessage coreMessage = encodedMessage.toCore();
@@ -448,14 +454,14 @@ public class TestConversions extends Assert {
 
       AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
       TypedProperties extraProperties = new TypedProperties();
-      encodedMessage.setAddress(SimpleString.toSimpleString("xxxx.v1.queue"));
+      encodedMessage.setAddress(SimpleString.of("xxxx.v1.queue"));
 
       for (int i = 0; i < 100; i++) {
          encodedMessage.putStringProperty("another" + i, "value" + i);
          encodedMessage.messageChanged();
          encodedMessage.reencode();
          AmqpValue value = (AmqpValue) encodedMessage.getProtonMessage().getBody();
-         Assert.assertEquals(text, (String) value.getValue());
+         assertEquals(text, (String) value.getValue());
          ICoreMessage coreMessage = encodedMessage.toCore();
          logger.debug("Converted message: {}", coreMessage);
 
@@ -492,14 +498,14 @@ public class TestConversions extends Assert {
 
       AMQPMessage encodedMessage = encodeAndCreateAMQPMessage(message);
       TypedProperties extraProperties = new TypedProperties();
-      encodedMessage.setAddress(SimpleString.toSimpleString("xxxx.v1.queue"));
+      encodedMessage.setAddress(SimpleString.of("xxxx.v1.queue"));
 
       for (int i = 0; i < 100; i++) {
          encodedMessage.setMessageID(333L);
          if (i % 3 == 0) {
-            encodedMessage.referenceOriginalMessage(encodedMessage, SimpleString.toSimpleString("SOME-OTHER-QUEUE-DOES-NOT-MATTER-WHAT"));
+            encodedMessage.referenceOriginalMessage(encodedMessage, SimpleString.of("SOME-OTHER-QUEUE-DOES-NOT-MATTER-WHAT"));
          } else {
-            encodedMessage.referenceOriginalMessage(encodedMessage, SimpleString.toSimpleString("XXX"));
+            encodedMessage.referenceOriginalMessage(encodedMessage, SimpleString.of("XXX"));
          }
          encodedMessage.putStringProperty("another " + i, "value " + i);
          encodedMessage.messageChanged();

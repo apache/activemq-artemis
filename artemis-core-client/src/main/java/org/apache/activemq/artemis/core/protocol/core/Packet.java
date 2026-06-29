@@ -26,8 +26,8 @@ public interface Packet {
    int INITIAL_PACKET_SIZE = 1500;
 
    /**
-    * Sets the channel id that should be used once the packet has been successfully decoded it is
-    * sent to the correct channel.
+    * Sets the channel id that should be used once the packet has been successfully decoded it is sent to the correct
+    * channel.
     *
     * @param channelID the id of the channel to handle the packet
     */
@@ -35,7 +35,6 @@ public interface Packet {
 
    /**
     * This will return the expected packet size for the encoding
-    * @return
     */
    default int expectedEncodeSize() {
       return INITIAL_PACKET_SIZE;
@@ -50,25 +49,17 @@ public interface Packet {
    void setCorrelationID(long correlationID);
 
    /**
-    * Returns the channel id of the channel that should handle this packet.
-    *
-    * @return the id of the channel
+    * {@return the channel id of the channel that should handle this packet}
     */
    long getChannelID();
 
    /**
-    * returns true if this packet is being sent in response to a previously received packet
-    *
-    * @return true if a response
+    * {@return true if this packet is being sent in response to a previously received packet}
     */
    boolean isResponse();
 
    /**
-    * returns the type of the packet.
-    * <p>
-    * This is needed when decoding the packet
-    *
-    * @return the packet type
+    * {@return the type of the packet; needed when decoding the packet}
     */
    byte getType();
 
@@ -88,23 +79,20 @@ public interface Packet {
    void decode(ActiveMQBuffer buffer);
 
    /**
-    * returns the size needed to encode this packet.
-    *
-    * @return The size of the entire packet including headers, and extra data
+    * {@return The size of the entire packet including headers, and extra data; i.e. the size
+    * needed to encode this packet}
     */
    int getPacketSize();
 
    /**
-    * returns true if a confirmation should be sent on receipt of this packet.
-    *
-    * @return true if confirmation is required
+    * {@return true if a confirmation should be sent on receipt of this packet}
     */
    boolean isRequiresConfirmations();
 
-
-
-   /** The packe wasn't used because the stream is closed,
-    * this gives a chance to sub classes to cleanup anything that won't be used. */
+   /**
+    * The packet wasn't used because the stream is closed. This gives a chance to sub classes to cleanup anything that
+    * won't be used.
+    */
    default void release() {
    }
 }

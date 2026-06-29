@@ -18,15 +18,10 @@ package org.apache.activemq.transport.reliable;
 
 import java.net.SocketAddress;
 
-/**
- *
- *
- */
 public interface DropCommandStrategy {
 
    /**
-    * Returns true if the command should be dropped for
-    * the given command ID and address
+    * {@return {@code true} if the command should be dropped for the given command ID and address}
     */
    boolean shouldDropCommand(int commandId, SocketAddress address, boolean redelivery);
 

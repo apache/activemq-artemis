@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.DisconnectReason;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -87,22 +89,17 @@ public class DisconnectMessage_V3 extends DisconnectMessage {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buf = new StringBuffer(super.getPacketString());
-      buf.append(", nodeID=" + nodeID);
-      buf.append(", reason=" + reason);
-      buf.append(", targetNodeID=" + targetNodeID);
-      buf.append(", targetConnector=" + targetConnector);
-      return buf.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", nodeID=" + nodeID);
+      sb.append(", reason=" + reason);
+      sb.append(", targetNodeID=" + targetNodeID);
+      sb.append(", targetConnector=" + targetConnector);
+      return sb.toString();
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (reason.getType());
-      result = prime * result + ((targetNodeID == null) ? 0 : targetNodeID.hashCode());
-      result = prime * result + ((targetConnector == null) ? 0 : targetConnector.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), reason.getType(), targetNodeID, targetConnector);
    }
 
    @Override
@@ -113,22 +110,11 @@ public class DisconnectMessage_V3 extends DisconnectMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof DisconnectMessage_V3)) {
+      if (!(obj instanceof DisconnectMessage_V3 other)) {
          return false;
       }
-      DisconnectMessage_V3 other = (DisconnectMessage_V3) obj;
-      if (reason == null) {
-         if (other.reason != null)
-            return false;
-      } else if (!reason.equals(other.reason))
-         return false;
-      if (targetNodeID == null) {
-         if (other.targetNodeID != null) {
-            return false;
-         }
-      } else if (!targetNodeID.equals(other.targetNodeID)) {
-         return false;
-      }
-      return true;
+
+      return Objects.equals(reason, other.reason) &&
+             Objects.equals(targetNodeID, other.targetNodeID);
    }
 }

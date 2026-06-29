@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 
@@ -25,8 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class InitialConnectionTest extends ActiveMQTestBase {
 
@@ -36,18 +39,15 @@ public class InitialConnectionTest extends ActiveMQTestBase {
 
       ActiveMQServer server = createServer(false, true);
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               Thread.sleep(500);
-               server.start();
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
-            }
+      Thread t = new Thread(() -> {
+         try {
+            Thread.sleep(500);
+            server.start();
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+      });
       t.start();
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("(tcp://localhost:61618,tcp://localhost:61616,tcp://localhost:61610)?ha=true&retryInterval=100&retryIntervalMultiplier=1.0&reconnectAttempts=-1&initialConnectAttempts=-1&useTopologyForLoadBalancing=true");
       connectionFactory.createConnection().close();
@@ -56,7 +56,7 @@ public class InitialConnectionTest extends ActiveMQTestBase {
 
       t.join();
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
 
@@ -72,8 +72,46 @@ public class InitialConnectionTest extends ActiveMQTestBase {
          // expected
          failed = true;
       }
-      Assert.assertTrue(failed);
+      assertTrue(failed);
       long timeEnd = System.currentTimeMillis();
-      Assert.assertTrue("3 connectors, at 100 milliseconds each try, initialConnectAttempt=2, it should have waited at least 600 (- 100 from the last try that we don't actually wait, just throw ) milliseconds", timeEnd - timeStart >= 500);
+      assertTrue(timeEnd - timeStart >= 500, "3 connectors, at 100 milliseconds each try, initialConnectAttempt=2, it should have waited at least 600 (- 100 from the last try that we don't actually wait, just throw ) milliseconds");
+   }
+
+   @Test
+   public void testRetryIntervalMultiplier() {
+      int interval = 100;
+      double multiplier = 10.0;
+      int attempts = 3;
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61610?retryInterval=" + interval + "&retryIntervalMultiplier=" + multiplier + "&initialConnectAttempts=" + attempts);
+      long timeStart = System.currentTimeMillis();
+      try {
+         connectionFactory.createConnection();
+         fail("Creating connection here should have failed");
+      } catch (JMSException e) {
+         // expected
+      }
+      long duration = System.currentTimeMillis() - timeStart;
+      long toWait = 1100;
+      assertTrue(duration >= toWait, "Waited only " + duration + "ms, but should have waiting " + toWait);
+   }
+
+   @Test
+   public void testMaxRetryInterval() {
+      int interval = 100;
+      double multiplier = 50.0;
+      int attempts = 3;
+      int maxInterval = 1000;
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61610?retryInterval=" + interval + "&retryIntervalMultiplier=" + multiplier + "&initialConnectAttempts=" + attempts + "&maxRetryInterval=" + maxInterval);
+      long timeStart = System.currentTimeMillis();
+      try {
+         connectionFactory.createConnection();
+         fail("Creating connection here should have failed");
+      } catch (JMSException e) {
+         // expected
+      }
+      long duration = System.currentTimeMillis() - timeStart;
+      long toWait = 1100;
+      assertTrue(duration >= toWait, "Waited only " + duration + "ms, but should have waited " + toWait);
+      assertTrue(duration <= toWait + 500, "Waited " + duration + "ms, but should have only waited " + (toWait + 500));
    }
 }

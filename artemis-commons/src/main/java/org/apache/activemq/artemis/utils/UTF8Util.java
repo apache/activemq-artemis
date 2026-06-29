@@ -29,7 +29,7 @@ import java.lang.invoke.MethodHandles;
 
 /**
  * A UTF8Util
- *
+ * <p>
  * This class will write UTFs directly to the ByteOutput (through the MessageBuffer interface)
  */
 public final class UTF8Util {
@@ -69,7 +69,7 @@ public final class UTF8Util {
          saveUTF(buffer, val);
       } else {
          // Store as SimpleString, since can't store utf > 0xffff in length
-         SimpleString.writeSimpleString(buffer, new SimpleString(val));
+         SimpleString.writeSimpleString(buffer, SimpleString.of(val));
       }
    }
 

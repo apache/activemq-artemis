@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
 import java.security.Principal;
+import java.util.Objects;
 
 public class RolePrincipal implements Principal {
 
@@ -36,21 +37,15 @@ public class RolePrincipal implements Principal {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof RolePrincipal other)) {
          return false;
       }
 
-      final RolePrincipal that = (RolePrincipal) o;
-
-      if (!name.equals(that.name)) {
-         return false;
-      }
-
-      return true;
+      return Objects.equals(name, other.name);
    }
 
    @Override

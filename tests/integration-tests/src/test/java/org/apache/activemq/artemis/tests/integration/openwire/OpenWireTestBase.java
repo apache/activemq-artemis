@@ -31,8 +31,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class OpenWireTestBase extends ActiveMQTestBase {
 
@@ -53,7 +53,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
    protected MBeanServer mbeanServer;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = this.createServer(realStore, true);
@@ -73,23 +73,23 @@ public class OpenWireTestBase extends ActiveMQTestBase {
          securityManager.getConfiguration().addRole("openwireSender", "sender");
          securityManager.getConfiguration().addUser("openwireSender", "SeNdEr");
          //sender cannot receive
-         Role senderRole = new Role("sender", true, false, false, false, true, true, false, false, true, true);
+         Role senderRole = new Role("sender", true, false, false, false, true, true, false, false, true, true, false, false);
 
          securityManager.getConfiguration().addRole("openwireReceiver", "receiver");
          securityManager.getConfiguration().addUser("openwireReceiver", "ReCeIvEr");
          //receiver cannot send
-         Role receiverRole = new Role("receiver", false, true, false, false, true, true, false, true, false, false);
+         Role receiverRole = new Role("receiver", false, true, false, false, true, true, false, true, false, false, false, false);
 
          securityManager.getConfiguration().addRole("openwireGuest", "guest");
          securityManager.getConfiguration().addUser("openwireGuest", "GuEsT");
 
          //guest cannot do anything
-         Role guestRole = new Role("guest", false, false, false, false, false, false, false, false, false, false);
+         Role guestRole = new Role("guest", false, false, false, false, false, false, false, false, false, false, false, false);
 
          securityManager.getConfiguration().addRole("openwireDestinationManager", "manager");
          securityManager.getConfiguration().addUser("openwireDestinationManager", "DeStInAtIoN");
 
-         Role destRole = new Role("manager", false, false, false, false, true, true, false, false, true, false);
+         Role destRole = new Role("manager", false, false, false, false, true, true, false, false, true, false, false, false);
 
          Set<Role> roles = new HashSet<>();
          roles.add(senderRole);
@@ -101,7 +101,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
          // advisory addresses, anyone can create/consume
          // broker can produce
-         Role advisoryReceiverRole = new Role("advisoryReceiver", false, true, false, false, true, true, false, true, true, false);
+         Role advisoryReceiverRole = new Role("advisoryReceiver", false, true, false, false, true, true, false, true, true, false, false, false);
 
          roles = new HashSet<>();
          roles.add(advisoryReceiverRole);
@@ -118,11 +118,11 @@ public class OpenWireTestBase extends ActiveMQTestBase {
       addServer(server);
       server.start();
 
-      coreCf = ActiveMQJMSClient.createConnectionFactory("vm://0?reconnectAttempts=-1","cf");
+      coreCf = ActiveMQJMSClient.createConnectionFactory("vm://0?reconnectAttempts=-1", "cf");
    }
 
    protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {
-      addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAutoCreateAddresses(true));
+      addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")).setAutoCreateAddresses(true));
    }
 
    //override this to add extra server configs
@@ -130,7 +130,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       mbeanServer = null;
       server.stop();

@@ -138,7 +138,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
    @Override
    public List<PersistedBindings> recoverPersistedBindings() throws Exception {
-      ArrayList<PersistedBindings> list = new ArrayList<>(mapBindings.values());
+      List<PersistedBindings> list = new ArrayList<>(mapBindings.values());
       return list;
    }
 
@@ -185,7 +185,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
       currentBindings.deleteBinding(address);
 
-      if (currentBindings.getBindings().size() == 0) {
+      if (currentBindings.getBindings().isEmpty()) {
          mapBindings.remove(key);
       } else {
          long newId = idGenerator.generateID();
@@ -241,7 +241,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
       List<RecordInfo> data = new ArrayList<>();
 
-      ArrayList<PreparedTransactionInfo> list = new ArrayList<>();
+      List<PreparedTransactionInfo> list = new ArrayList<>();
 
       jmsJournal.load(data, list, null);
 

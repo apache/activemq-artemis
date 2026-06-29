@@ -23,7 +23,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.utils.Preconditions;
 
 public class FederationPolicySet implements FederationPolicy<FederationPolicySet>, Serializable {
 
@@ -63,12 +62,16 @@ public class FederationPolicySet implements FederationPolicy<FederationPolicySet
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof FederationPolicySet)) return false;
-      FederationPolicySet that = (FederationPolicySet) o;
-      return Objects.equals(name, that.name) &&
-            Objects.equals(policyRefs, that.policyRefs);
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof FederationPolicySet other)) {
+         return false;
+      }
+
+      return Objects.equals(name, other.name) &&
+             Objects.equals(policyRefs, other.policyRefs);
    }
 
    @Override
@@ -78,7 +81,7 @@ public class FederationPolicySet implements FederationPolicy<FederationPolicySet
 
    @Override
    public void encode(ActiveMQBuffer buffer) {
-      Preconditions.checkArgument(name != null, "name can not be null");
+      Objects.requireNonNull(name, "name can not be null");
       buffer.writeString(name);
 
       buffer.writeInt(policyRefs == null ? 0 : policyRefs.size());

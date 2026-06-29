@@ -20,11 +20,10 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 /**
  * Informs the Backup trying to start replicating of an error.
@@ -43,7 +42,7 @@ public final class BackupReplicationStartFailedMessage extends PacketImpl {
       }
 
       static {
-         HashMap<Integer, BackupRegistrationProblem> map = new HashMap<>();
+         Map<Integer, BackupRegistrationProblem> map = new HashMap<>();
          for (BackupRegistrationProblem type : EnumSet.allOf(BackupRegistrationProblem.class)) {
             map.put(type.code, type);
          }
@@ -59,10 +58,7 @@ public final class BackupReplicationStartFailedMessage extends PacketImpl {
 
    public BackupReplicationStartFailedMessage(BackupRegistrationProblem registrationProblem) {
       super(BACKUP_REGISTRATION_FAILED);
-
-      checkNotNull(registrationProblem);
-
-      problem = registrationProblem;
+      problem = Objects.requireNonNull(registrationProblem);
    }
 
    public BackupReplicationStartFailedMessage() {
@@ -84,27 +80,23 @@ public final class BackupReplicationStartFailedMessage extends PacketImpl {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!super.equals(o))
+      }
+      if (!(obj instanceof BackupReplicationStartFailedMessage other)) {
          return false;
+      }
 
-      BackupReplicationStartFailedMessage that = (BackupReplicationStartFailedMessage) o;
-
-      if (problem != that.problem)
-         return false;
-
-      return true;
+      return Objects.equals(problem, other.problem);
    }
 
    @Override
    public int hashCode() {
-      int result = super.hashCode();
-      result = 31 * result + (problem != null ? problem.hashCode() : 0);
-      return result;
+      return super.hashCode() + Objects.hashCode(problem);
    }
 
    @Override

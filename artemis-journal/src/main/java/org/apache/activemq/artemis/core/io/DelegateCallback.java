@@ -26,12 +26,20 @@ public final class DelegateCallback implements IOCallback {
 
    private final Collection<? extends IOCallback> delegates;
 
+   public static DelegateCallback wrap(final Collection<? extends IOCallback> delegates) {
+      if (delegates == null) {
+         return null;
+      } else {
+         return new DelegateCallback(delegates);
+      }
+   }
+
    /**
     * It doesn't copy defensively the given {@code delegates}.
     *
     * @throws NullPointerException if {@code delegates} is {@code null}
     */
-   public DelegateCallback(final Collection<? extends IOCallback> delegates) {
+   private DelegateCallback(final Collection<? extends IOCallback> delegates) {
       Objects.requireNonNull(delegates, "delegates cannot be null!");
       this.delegates = delegates;
    }

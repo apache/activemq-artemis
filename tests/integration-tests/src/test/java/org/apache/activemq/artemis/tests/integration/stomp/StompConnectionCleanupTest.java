@@ -21,7 +21,11 @@ import javax.jms.MessageConsumer;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class StompConnectionCleanupTest extends StompTest {
 
@@ -68,8 +72,8 @@ public class StompConnectionCleanupTest extends StompTest {
 
       ClientStompFrame frame = conn.receiveFrame(10000);
 
-      assertTrue(frame.getCommand().equals("MESSAGE"));
-      assertTrue(frame.getHeader("destination").equals(getQueuePrefix() + getQueueName()));
+      assertEquals("MESSAGE", frame.getCommand());
+      assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader("destination"));
 
       // Now we wait until the connection is cleared on the server, which will happen some time after ttl, since no data
       // is being sent

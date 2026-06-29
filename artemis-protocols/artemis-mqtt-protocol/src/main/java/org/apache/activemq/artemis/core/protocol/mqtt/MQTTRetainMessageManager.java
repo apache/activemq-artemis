@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -48,25 +49,26 @@ public class MQTTRetainMessageManager {
     * the retained queue and the previous retain message consumed to remove it from the queue.
     */
    void handleRetainedMessage(Message messageParameter, String address, boolean reset, Transaction tx) throws Exception {
-      SimpleString retainAddress = new SimpleString(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, address, session.getWildcardConfiguration()));
+      String retainAddress = MQTTUtil.getCoreRetainAddressFromMqttTopic(address, session.getWildcardConfiguration());
 
       Queue queue = session.getServer().locateQueue(retainAddress);
       if (queue == null) {
-         queue = session.getServer().createQueue(new QueueConfiguration(retainAddress).setAutoCreated(true));
+         queue = session.getServer().createQueue(QueueConfiguration.of(retainAddress).setAutoCreated(true));
       }
 
       queue.deleteAllReferences();
 
       if (!reset) {
-         Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, session.getServer().getStorageManager());
-         sendToQueue(message.copy(session.getServer().getStorageManager().generateID()), queue, tx);
+         StorageManager storageManager = session.getServer().getStorageManager();
+         Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, storageManager);
+         MQTTUtil.sendMessageDirectlyToQueue(storageManager, session.getServer().getPostOffice(), message.copy(storageManager.generateID()), queue, tx);
       }
    }
 
    void addRetainedMessagesToQueue(Queue queue, String address) throws Exception {
       // The address filter that matches all retained message queues.
-      String retainAddress = MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, address, session.getWildcardConfiguration());
-      BindingQueryResult bindingQueryResult = session.getServerSession().executeBindingQuery(new SimpleString(retainAddress));
+      String retainAddress = MQTTUtil.getCoreRetainAddressFromMqttTopic(address, session.getWildcardConfiguration());
+      BindingQueryResult bindingQueryResult = session.getServerSession().executeBindingQuery(SimpleString.of(retainAddress));
 
       // Iterate over all matching retain queues and add the queue
       Transaction tx = session.getServerSession().newTransaction();
@@ -84,7 +86,7 @@ public class MQTTRetainMessageManager {
                   }
                   Message message = ref.getMessage().copy(session.getServer().getStorageManager().generateID());
                   message.putStringProperty(MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY, (String) null);
-                  sendToQueue(message, queue, tx);
+                  MQTTUtil.sendMessageDirectlyToQueue(session.getServer().getStorageManager(), session.getServer().getPostOffice(), message, queue, tx);
                }
             }
          }

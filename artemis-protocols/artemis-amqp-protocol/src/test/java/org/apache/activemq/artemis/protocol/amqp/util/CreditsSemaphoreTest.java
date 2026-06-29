@@ -16,12 +16,15 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CreditsSemaphoreTest {
 
@@ -33,32 +36,29 @@ public class CreditsSemaphoreTest {
 
    final CountDownLatch waiting = new CountDownLatch(1);
 
-   Thread thread = new Thread() {
-      @Override
-      public void run() {
-         try {
-            for (int i = 0; i < 12; i++) {
-               if (!semaphore.tryAcquire()) {
-                  waiting.countDown();
-                  semaphore.acquire();
-               }
-               acquired.incrementAndGet();
+   Thread thread = new Thread(() -> {
+      try {
+         for (int i = 0; i < 12; i++) {
+            if (!semaphore.tryAcquire()) {
+               waiting.countDown();
+               semaphore.acquire();
             }
-         } catch (Throwable e) {
-            e.printStackTrace();
-            errors.incrementAndGet();
+            acquired.incrementAndGet();
          }
+      } catch (Throwable e) {
+         e.printStackTrace();
+         errors.incrementAndGet();
       }
-   };
+   });
 
    @Test
    public void testSetAndRelease() throws Exception {
       thread.start();
 
       // 5 seconds would be an eternity here
-      Assert.assertTrue(waiting.await(5, TimeUnit.SECONDS));
+      assertTrue(waiting.await(5, TimeUnit.SECONDS));
 
-      Assert.assertEquals(0, semaphore.getCredits());
+      assertEquals(0, semaphore.getCredits());
 
       validateQueuedThreads();
 
@@ -66,9 +66,9 @@ public class CreditsSemaphoreTest {
 
       thread.join();
 
-      Assert.assertEquals(12, acquired.get());
+      assertEquals(12, acquired.get());
 
-      Assert.assertFalse(semaphore.hasQueuedThreads());
+      assertFalse(semaphore.hasQueuedThreads());
    }
 
    private void validateQueuedThreads() throws InterruptedException {
@@ -83,7 +83,7 @@ public class CreditsSemaphoreTest {
          Thread.sleep(10);
       }
 
-      Assert.assertTrue(hasQueueThreads);
+      assertTrue(hasQueueThreads);
    }
 
    @Test
@@ -91,9 +91,9 @@ public class CreditsSemaphoreTest {
       thread.start();
 
       // 5 seconds would be an eternity here
-      Assert.assertTrue(waiting.await(5, TimeUnit.SECONDS));
+      assertTrue(waiting.await(5, TimeUnit.SECONDS));
 
-      Assert.assertEquals(0, semaphore.getCredits());
+      assertEquals(0, semaphore.getCredits());
 
       // TODO: Wait.assertTrue is not available at this package. So, this is making what we would be doing with a Wait Clause
       //       we could replace this next block with a Wait clause on hasQueuedThreads
@@ -102,15 +102,15 @@ public class CreditsSemaphoreTest {
          Thread.sleep(10);
       }
 
-      Assert.assertTrue(i < 1000);
+      assertTrue(i < 1000);
 
       semaphore.release(2);
 
       thread.join();
 
-      Assert.assertEquals(12, acquired.get());
+      assertEquals(12, acquired.get());
 
-      Assert.assertFalse(semaphore.hasQueuedThreads());
+      assertFalse(semaphore.hasQueuedThreads());
    }
 
    @Test
@@ -120,21 +120,21 @@ public class CreditsSemaphoreTest {
       thread.start();
 
       // 5 seconds would be an eternity here
-      Assert.assertTrue(waiting.await(5, TimeUnit.SECONDS));
+      assertTrue(waiting.await(5, TimeUnit.SECONDS));
 
-      Assert.assertEquals(0, semaphore.getCredits());
+      assertEquals(0, semaphore.getCredits());
 
       validateQueuedThreads();
 
-      Assert.assertEquals(0, acquired.get());
+      assertEquals(0, acquired.get());
 
       semaphore.setCredits(12);
 
       thread.join();
 
-      Assert.assertEquals(12, acquired.get());
+      assertEquals(12, acquired.get());
 
-      Assert.assertFalse(semaphore.hasQueuedThreads());
+      assertFalse(semaphore.hasQueuedThreads());
    }
 
 }

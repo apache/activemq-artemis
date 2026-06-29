@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -59,10 +61,7 @@ public class PacketsConfirmedMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + commandID;
-      return result;
+      return super.hashCode() + Objects.hashCode(commandID);
    }
 
    @Override
@@ -73,13 +72,10 @@ public class PacketsConfirmedMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof PacketsConfirmedMessage)) {
+      if (!(obj instanceof PacketsConfirmedMessage other)) {
          return false;
       }
-      PacketsConfirmedMessage other = (PacketsConfirmedMessage) obj;
-      if (commandID != other.commandID) {
-         return false;
-      }
-      return true;
+
+      return commandID == other.commandID;
    }
 }

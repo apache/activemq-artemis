@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -59,42 +61,32 @@ public final class ReplicationDeleteMessage extends PacketImpl {
       id = buffer.readLong();
    }
 
-   /**
-    * @return the id
-    */
    public long getId() {
       return id;
    }
 
-   /**
-    * @return the journalID
-    */
    public byte getJournalID() {
       return journalID;
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (id ^ (id >>> 32));
-      result = prime * result + journalID;
-      return result;
+      return Objects.hash(super.hashCode(), id, journalID);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReplicationDeleteMessage))
+      }
+      if (!(obj instanceof ReplicationDeleteMessage other)) {
          return false;
-      ReplicationDeleteMessage other = (ReplicationDeleteMessage) obj;
-      if (id != other.id)
-         return false;
-      if (journalID != other.journalID)
-         return false;
-      return true;
+      }
+
+      return id == other.id &&
+             journalID == other.journalID;
    }
 }

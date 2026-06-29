@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -54,30 +56,28 @@ public class SessionXASetTimeoutResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (ok ? 1231 : 1237);
-      return result;
+      return super.hashCode() + Objects.hashCode(ok);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", ok=" + ok);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", ok=" + ok);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionXASetTimeoutResponseMessage))
+      }
+      if (!(obj instanceof SessionXASetTimeoutResponseMessage other)) {
          return false;
-      SessionXASetTimeoutResponseMessage other = (SessionXASetTimeoutResponseMessage) obj;
-      if (ok != other.ok)
-         return false;
-      return true;
+      }
+
+      return ok == other.ok;
    }
 }

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -102,19 +103,15 @@ public class SessionBindingQueryResponseMessage_V5 extends SessionBindingQueryRe
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (supportsMulticast ? 1231 : 1237);
-      result = prime * result + (supportsAnycast ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), supportsMulticast, supportsAnycast);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", supportsMulticast=" + supportsMulticast);
-      buff.append(", supportsAnycast=" + supportsAnycast);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", supportsMulticast=" + supportsMulticast);
+      sb.append(", supportsAnycast=" + supportsAnycast);
+      return sb.toString();
    }
 
    @Override
@@ -125,16 +122,11 @@ public class SessionBindingQueryResponseMessage_V5 extends SessionBindingQueryRe
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof SessionBindingQueryResponseMessage_V5)) {
+      if (!(obj instanceof SessionBindingQueryResponseMessage_V5 other)) {
          return false;
       }
-      SessionBindingQueryResponseMessage_V5 other = (SessionBindingQueryResponseMessage_V5) obj;
-      if (supportsMulticast != other.supportsMulticast) {
-         return false;
-      }
-      if (supportsAnycast != other.supportsAnycast) {
-         return false;
-      }
-      return true;
+
+      return supportsMulticast == other.supportsMulticast &&
+             supportsAnycast == other.supportsAnycast;
    }
 }

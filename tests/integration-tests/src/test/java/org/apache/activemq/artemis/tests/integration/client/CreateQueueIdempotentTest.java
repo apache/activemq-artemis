@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -28,16 +31,15 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CreateQueueIdempotentTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), true));
@@ -46,7 +48,7 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase {
 
    @Test
    public void testSequentialCreateQueueIdempotency() throws Exception {
-      final SimpleString QUEUE = new SimpleString("SequentialCreateQueueIdempotency");
+      final SimpleString QUEUE = SimpleString.of("SequentialCreateQueueIdempotency");
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -54,10 +56,10 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE));
+      session.createQueue(QueueConfiguration.of(QUEUE));
 
       try {
-         session.createQueue(new QueueConfiguration(QUEUE));
+         session.createQueue(QueueConfiguration.of(QUEUE));
          fail("Expected exception, queue already exists");
       } catch (ActiveMQQueueExistsException qee) {
          //ok
@@ -94,8 +96,8 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase {
       // re-starting the server appears to be an unreliable guide
       server.start();
 
-      Assert.assertEquals(1, queuesCreated.intValue());
-      Assert.assertEquals(NUM_THREADS - 1, failedAttempts.intValue());
+      assertEquals(1, queuesCreated.intValue());
+      assertEquals(NUM_THREADS - 1, failedAttempts.intValue());
    }
 
    class QueueCreator extends Thread {
@@ -119,8 +121,8 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase {
             locator = createInVMNonHALocator();
             ClientSessionFactory sf = createSessionFactory(locator);
             session = sf.createSession(false, true, true);
-            final SimpleString QUEUE = new SimpleString(queueName);
-            session.createQueue(new QueueConfiguration(QUEUE));
+            final SimpleString QUEUE = SimpleString.of(queueName);
+            session.createQueue(QueueConfiguration.of(QUEUE));
             queuesCreated.incrementAndGet();
          } catch (ActiveMQQueueExistsException qne) {
             failedAttempts.incrementAndGet();

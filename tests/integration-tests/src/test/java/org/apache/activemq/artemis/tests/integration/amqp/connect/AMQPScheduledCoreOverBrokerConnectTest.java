@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -35,8 +37,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AMQPScheduledCoreOverBrokerConnectTest extends AmqpClientTestSupport {
 
@@ -59,8 +60,8 @@ public class AMQPScheduledCoreOverBrokerConnectTest extends AmqpClientTestSuppor
       String queueName = "withScheduled";
       server.setIdentity("targetServer");
       server.start();
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(queueName), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       server_2 = createServer(AMQP_PORT_2, false);
 
@@ -68,7 +69,7 @@ public class AMQPScheduledCoreOverBrokerConnectTest extends AmqpClientTestSuppor
       amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setType(AMQPBrokerConnectionAddressType.MIRROR));
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
       server_2.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(queueName).addRoutingType(RoutingType.ANYCAST));
-      server_2.getConfiguration().addQueueConfiguration(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server_2.getConfiguration().addQueueConfiguration(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       server_2.setIdentity("serverWithBridge");
 
       server_2.start();
@@ -88,6 +89,6 @@ public class AMQPScheduledCoreOverBrokerConnectTest extends AmqpClientTestSuppor
       connection2.start();
 
       MessageConsumer consumer = session2.createConsumer(session2.createQueue(queueName));
-      Assert.assertNull(consumer.receive(500));
+      assertNull(consumer.receive(500));
    }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -55,14 +57,14 @@ public class SessionCreateConsumerMessage extends QueueAbstractPacket {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", queueName=" + queueName);
-      buff.append(", filterString=" + filterString);
-      buff.append(", id=" + id);
-      buff.append(", browseOnly=" + browseOnly);
-      buff.append(", requiresResponse=" + requiresResponse);
-      buff.append(", priority=" + priority);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", queueName=" + queueName);
+      sb.append(", filterString=" + filterString);
+      sb.append(", id=" + id);
+      sb.append(", browseOnly=" + browseOnly);
+      sb.append(", requiresResponse=" + requiresResponse);
+      sb.append(", priority=" + priority);
+      return sb.toString();
    }
 
    public long getID() {
@@ -132,44 +134,26 @@ public class SessionCreateConsumerMessage extends QueueAbstractPacket {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (browseOnly ? 1231 : 1237);
-      result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
-      result = prime * result + (int) (id ^ (id >>> 32));
-      result = prime * result + priority;
-      result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
-      result = prime * result + (requiresResponse ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), browseOnly, filterString, id, priority, queueName, requiresResponse);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionCreateConsumerMessage))
+      }
+      if (!(obj instanceof SessionCreateConsumerMessage other)) {
          return false;
-      SessionCreateConsumerMessage other = (SessionCreateConsumerMessage) obj;
-      if (browseOnly != other.browseOnly)
-         return false;
-      if (filterString == null) {
-         if (other.filterString != null)
-            return false;
-      } else if (!filterString.equals(other.filterString))
-         return false;
-      if (priority != other.priority)
-         return false;
-      if (id != other.id)
-         return false;
-      if (queueName == null) {
-         if (other.queueName != null)
-            return false;
-      } else if (!queueName.equals(other.queueName))
-         return false;
-      if (requiresResponse != other.requiresResponse)
-         return false;
-      return true;
+      }
+
+      return browseOnly == other.browseOnly &&
+             Objects.equals(filterString, other.filterString) &&
+             priority == other.priority &&
+             id == other.id &&
+             Objects.equals(queueName, other.queueName) &&
+             requiresResponse == other.requiresResponse;
    }
 }

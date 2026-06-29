@@ -21,8 +21,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Deque;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -34,10 +36,9 @@ import org.apache.logging.log4j.core.config.Property;
 
 /**
  * This class contains a tool where programs could intercept for LogMessage
- *
+ * <p>
  * Be careful with this use as this is intended for testing only (such as testcases)
  */
-
 public class AssertionLoggerHandler extends AbstractAppender implements Closeable {
 
    private final Deque<LogEntry> messages = new ConcurrentLinkedDeque<>();
@@ -60,11 +61,14 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
       LogEntry logEntry = new LogEntry();
       logEntry.message = event.getMessage().getFormattedMessage();
       logEntry.level = event.getLevel();
+      logEntry.loggerName = event.getLoggerName();
+
       if (captureStackTrace && event.getThrown() != null) {
          StringWriter stackOutput = new StringWriter();
          event.getThrown().printStackTrace(new PrintWriter(stackOutput));
          logEntry.stackTrace = stackOutput.toString();
       }
+
       messages.addFirst(logEntry);
    }
 
@@ -75,16 +79,43 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
    }
 
    /**
-    * is there any record matching Level?
+    * Determines whether there is any log entry matching the specified log level.
     *
-    * @param level
-    * @return
+    * @param level the log level to check for in the log entries
+    * @return true if a log entry matches the specified log level; otherwise, false
     */
    public boolean hasLevel(LogLevel level) {
+      return hasLevel(level, null);
+   }
+
+   /**
+    * Determines whether there is any log entry matching the specified log level while optionally ignoring messages that
+    * contain specified substrings.
+    *
+    * @param level   the log level to check for in the log entries
+    * @param ignores a list of substrings; log messages containing any of these substrings will be ignored during the
+    *                check
+    * @return true if a log entry matches the specified log level and does not contain any of the ignored substrings;
+    * otherwise, false
+    */
+   public boolean hasLevel(LogLevel level, List<String> ignores) {
       Level implLevel = level.toImplLevel();
       for (LogEntry logEntry : messages) {
          if (implLevel == logEntry.level) {
-            return true;
+            if (ignores != null) {
+               boolean ignoreFound = false;
+               for (String ignore : ignores) {
+                  if (logEntry.message.contains(ignore)) {
+                     ignoreFound = true;
+                     break;
+                  }
+               }
+               if (!ignoreFound) {
+                  return true;
+               }
+            } else {
+               return true;
+            }
          }
       }
 
@@ -106,9 +137,6 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
 
    /**
     * Find a line that contains the parameters passed as an argument
-    *
-    * @param text
-    * @return
     */
    public boolean findText(final String... text) {
       for (LogEntry logEntry : messages) {
@@ -131,11 +159,11 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
 
    /**
     * Find a stacktrace that contains the parameters passed as an argument
-    *
-    * @param trace
-    * @return
     */
    public boolean findTrace(final String trace) {
+      if (!captureStackTrace) {
+         throw new IllegalStateException("captureStackTrace must be enabled to use this method");
+      }
       for (LogEntry logEntry : messages) {
          if (logEntry.stackTrace != null && logEntry.stackTrace.contains(trace)) {
             return true;
@@ -198,9 +226,43 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
       }
    }
 
-   private static class LogEntry {
-      String message;
-      String stackTrace;
-      Level level;
+   public void clear() {
+      messages.clear();
+   }
+
+   public List<LogEntry> getLogEntries() {
+      return messages.stream().collect(Collectors.toList());
+   }
+
+   public int getNumberOfMessages() {
+      return messages.size();
+   }
+
+   public static class LogEntry {
+      private String message;
+      private String stackTrace;
+      private Level level;
+      private String loggerName;
+
+      public String getMessage() {
+         return message;
+      }
+
+      public LogLevel getLogLevel() {
+         return LogLevel.fromImplLevel(level);
+      }
+
+      public String getLoggerName() {
+         return loggerName;
+      }
+
+      /**
+       * Only useful if {@link AssertionLoggerHandler} was created with
+       * {@link AssertionLoggerHandler#AssertionLoggerHandler(boolean captureStackTrace)} to enable StackTrace
+       * collection.
+       */
+      public String getStackTrace() {
+         return stackTrace;
+      }
    }
 }

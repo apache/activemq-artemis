@@ -19,7 +19,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-	<feature name="artemis" version="${pom.version}" description="Full ActiveMQ Artemis broker with default configuration">
+	<feature name="artemis" version="${pom.version}" description="Full Apache Artemis broker with default configuration">
 		<feature>artemis-core</feature>
 		<feature>artemis-amqp</feature>
 		<feature>artemis-stomp</feature>
@@ -35,6 +35,7 @@
 		<bundle>mvn:io.netty/netty-buffer/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-codec-socks/${netty.version}</bundle>
+		<bundle>mvn:io.netty/netty-codec-haproxy/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-codec-http/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-handler/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-handler-proxy/${netty.version}</bundle>
@@ -46,7 +47,7 @@
 		<bundle>mvn:io.netty/netty-transport-native-unix-common/${netty.version}</bundle>
 	</feature>
 
-	<feature name="artemis-common" version="${pom.version}" description="ActiveMQ Artemis Common libraries">
+	<feature name="artemis-common" version="${pom.version}" description="Apache Artemis Common libraries">
 		<feature prerequisite="true">wrap</feature>
 		<feature>transaction</feature>
 		<feature>netty-core</feature>
@@ -56,11 +57,11 @@
 		<bundle dependency="true">wrap:mvn:org.jgroups/jgroups/${jgroups.version}$Import-Package=org.jboss.byteman.*;resolution:=&quot;optional&quot;</bundle>
 	</feature>
 
-	<feature name="artemis-core" version="${pom.version}" description="ActiveMQ Artemis broker libraries">
+	<feature name="artemis-core" version="${pom.version}" description="Apache Artemis broker libraries">
 		<feature>artemis-common</feature>
 		<feature>scr</feature>
-		<configfile finalname="etc/org.apache.activemq.artemis.cfg">mvn:org.apache.activemq/artemis-features/${pom.version}/cfg</configfile>
-		<configfile finalname="etc/artemis.xml">mvn:org.apache.activemq/artemis-features/${pom.version}/xml/artemis</configfile>
+		<configfile finalname="etc/org.apache.activemq.artemis.cfg">mvn:org.apache.artemis/artemis-features/${pom.version}/cfg</configfile>
+		<configfile finalname="etc/artemis.xml">mvn:org.apache.artemis/artemis-features/${pom.version}/xml/artemis</configfile>
 
 		<!-- this is here because commons-configuration2 requires the package javax.mail.internet from version 2.7 -->
 		<bundle dependency="true">mvn:com.sun.activation/javax.activation/1.2.0</bundle>
@@ -69,6 +70,7 @@
 		<bundle dependency="true">mvn:jakarta.jms/jakarta.jms-api/${jakarta.jms-api.version}</bundle>
 		<bundle dependency="true">mvn:jakarta.transaction/jakarta.transaction-api/${jakarta.transaction-api.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-configuration2/${commons.config.version}</bundle>
+		<bundle dependency="true">mvn:commons-io/commons-io/${commons.io.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-text/${commons.text.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons.lang.version}</bundle>
 		<bundle dependency="true">mvn:org.jctools/jctools-core/${jctools.version}</bundle>
@@ -78,24 +80,33 @@
 		<bundle dependency="true">mvn:org.apache.commons/commons-pool2/${commons.pool2.version}</bundle>
 		<!-- Micrometer can't be included until it supports OSGi. It is currently an "optional" Maven dependency. -->
 		<!--bundle dependency="true">mvn:io.micrometer/micrometer-core/${version.micrometer}</bundle-->
+		<bundle dependency="true">mvn:com.nimbusds/nimbus-jose-jwt/${nimbus.jwt.version}</bundle>
+
+		<bundle dependency="true">mvn:org.snakeyaml/snakeyaml-engine/${snakeyaml-engine.version}</bundle>
 
 		<bundle>mvn:org.apache.activemq/activemq-artemis-native/${activemq-artemis-native-version}</bundle>
-		<bundle>mvn:org.apache.activemq/artemis-quorum-api/${pom.version}</bundle>
-		<bundle>mvn:org.apache.activemq/artemis-server-osgi/${pom.version}</bundle>
+		<bundle>mvn:org.apache.artemis/artemis-lockmanager-api/${pom.version}</bundle>
+		<bundle>mvn:org.apache.artemis/artemis-server-osgi/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-core-client" version="${pom.version}" description="ActiveMQ Artemis Core Client libraries">
+	<feature name="artemis-core-client" version="${pom.version}" description="Apache Artemis Core Client libraries">
 		<feature>artemis-common</feature>
-		<bundle>mvn:org.apache.activemq/artemis-core-client-osgi/${pom.version}</bundle>
+		<bundle>mvn:org.apache.artemis/artemis-core-client-osgi/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-jms-client" version="${pom.version}" description="ActiveMQ Artemis JMS Client libraries">
+	<feature name="artemis-jms-client" version="${pom.version}" description="Apache Artemis JMS Client libraries">
 		<feature>artemis-common</feature>
 		<bundle dependency="true">mvn:jakarta.jms/jakarta.jms-api/${jakarta.jms-api.version}</bundle>
-		<bundle>mvn:org.apache.activemq/artemis-jms-client-osgi/${pom.version}</bundle>
+		<bundle>mvn:org.apache.artemis/artemis-jms-client-osgi/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-amqp-client" version="${pom.version}" description="ActiveMQ Artemis AMQP Client libraries">
+	<feature name="artemis-jakarta-client" version="${pom.version}" description="Apache Artemis Jakarta Messaging Client libraries">
+		<feature>artemis-common</feature>
+		<bundle dependency="true">mvn:jakarta.jms/jakarta.jms-api/${jakarta.jms-api.version.alt}</bundle>
+		<bundle>mvn:org.apache.artemis/artemis-jakarta-client-osgi/${pom.version}</bundle>
+	</feature>
+
+	<feature name="artemis-amqp-client" version="${pom.version}" description="Apache Artemis AMQP Client libraries">
 		<feature>transaction</feature>
 		<feature>netty-core</feature>
 		<bundle dependency="true">mvn:jakarta.jms/jakarta.jms-api/${jakarta.jms-api.version}</bundle>
@@ -103,42 +114,42 @@
 		<bundle>mvn:org.apache.qpid/qpid-jms-client/${qpid.jms.version}</bundle>
 	</feature>
 
-	<feature name="artemis-amqp" version="${pom.version}" description="ActiveMQ Artemis AMQP protocol libraries">
+	<feature name="artemis-amqp" version="${pom.version}" description="Apache Artemis AMQP protocol libraries">
 		<feature>artemis-core</feature>
 		<bundle>mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
 		<bundle>mvn:org.apache.qpid/qpid-jms-client/${qpid.jms.version}</bundle>
-		<bundle>mvn:org.apache.activemq/artemis-amqp-protocol/${pom.version}</bundle>
+		<bundle>mvn:org.apache.artemis/artemis-amqp-protocol/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-stomp" version="${pom.version}" description="ActiveMQ Artemis Stomp protocol libraries">
+	<feature name="artemis-stomp" version="${pom.version}" description="Apache Artemis Stomp protocol libraries">
 		<feature>artemis-core</feature>
-		<bundle>mvn:org.apache.activemq/artemis-stomp-protocol/${pom.version}</bundle>
+		<bundle>mvn:org.apache.artemis/artemis-stomp-protocol/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-mqtt" version="${pom.version}" description="ActiveMQ Artemis MQTT protocol libraries">
+	<feature name="artemis-mqtt" version="${pom.version}" description="Apache Artemis MQTT protocol libraries">
 		<feature>artemis-core</feature>
 		<bundle dependency="true">mvn:io.netty/netty-codec-mqtt/${netty.version}</bundle>
-		<bundle>mvn:org.apache.activemq/artemis-mqtt-protocol/${pom.version}</bundle>
+		<bundle>mvn:org.apache.artemis/artemis-mqtt-protocol/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-hornetq" version="${pom.version}" description="ActiveMQ Artemis HornetQ protocol libraries">
+	<feature name="artemis-hornetq" version="${pom.version}" description="Apache Artemis HornetQ protocol libraries">
 		<feature>artemis-core</feature>
-		<bundle>mvn:org.apache.activemq/artemis-hqclient-protocol/${pom.version}</bundle>
-		<bundle>mvn:org.apache.activemq/artemis-hornetq-protocol/${pom.version}</bundle>
+		<bundle>mvn:org.apache.artemis/artemis-hqclient-protocol/${pom.version}</bundle>
+		<bundle>mvn:org.apache.artemis/artemis-hornetq-protocol/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-openwire" version="${pom.version}" description="ActiveMQ Artemis Openwire protocol libraries">
+	<feature name="artemis-openwire" version="${pom.version}" description="Apache Artemis Openwire protocol libraries">
 		<feature>artemis-core</feature>
 		<bundle dependency="true">mvn:org.fusesource.hawtbuf/hawtbuf/1.11</bundle>
 		<bundle>mvn:jakarta.ejb/jakarta.ejb-api/${jakarta.ejb-api.version}</bundle>
 		<bundle>mvn:jakarta.management.j2ee/jakarta.management.j2ee-api/${jakarta.management.j2ee-api.version}</bundle>
-		<bundle>mvn:org.apache.activemq/artemis-openwire-protocol/${pom.version}</bundle>
+		<bundle>mvn:org.apache.artemis/artemis-openwire-protocol/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-openwire-client" version="${pom.version}" description="ActiveMQ Artemis Openwire Client libraries">
+	<feature name="artemis-openwire-client" version="${pom.version}" description="Apache Artemis Openwire Client libraries">
 		<feature>transaction</feature>
+		<bundle dependency="true">mvn:jakarta.jms/jakarta.jms-api/${jakarta.jms-api.version}</bundle>
 		<bundle dependency="true">mvn:org.fusesource.hawtbuf/hawtbuf/${hawtbuff.version}</bundle>
-		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
 		<bundle>mvn:jakarta.ejb/jakarta.ejb-api/${jakarta.ejb-api.version}</bundle>
 		<bundle>mvn:jakarta.transaction/jakarta.transaction-api/${jakarta.transaction-api.version}</bundle>
 		<bundle>mvn:jakarta.management.j2ee/jakarta.management.j2ee-api/${jakarta.management.j2ee-api.version}</bundle>

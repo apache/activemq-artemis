@@ -16,23 +16,23 @@
  */
 package org.apache.activemq.artemis.component;
 
-import org.apache.activemq.artemis.logs.AuditLogger;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
-
 import javax.security.auth.Subject;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-/*
-* This filter intercepts the login and audits its results
-* */
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpSession;
+import org.apache.activemq.artemis.logs.AuditLogger;
+import org.eclipse.jetty.ee9.nested.Request;
+import org.eclipse.jetty.ee9.nested.Response;
+
+/**
+ * This filter intercepts the login and audits its results
+ */
 public class AuthenticationFilter implements Filter {
    @Override
    public void init(FilterConfig filterConfig) {
@@ -49,7 +49,7 @@ public class AuthenticationFilter implements Filter {
             //the hawtio logout servlet cleans the session and redirects to the login servlet
             HttpSession session = ((Request) servletRequest).getSession(false);
             if (session != null) {
-               AuditLogger.userSuccesfullyAuthenticatedInAudit(session != null ? (Subject) session.getAttribute("subject") : null);
+               AuditLogger.userSuccesfullyAuthenticatedInAudit((Subject) session.getAttribute("subject"));
             }
          } else if (status >= 400 && status < 599) {
             //Client error responses (400 – 499)

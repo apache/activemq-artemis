@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.api.core;
 import static org.apache.activemq.artemis.utils.uri.URISupport.appendParameters;
 import static org.apache.activemq.artemis.utils.uri.URISupport.parseQuery;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.activemq.artemis.utils.uri.URISupport;
@@ -27,7 +28,7 @@ public class ParameterisedAddress {
 
    public static SimpleString toParameterisedAddress(SimpleString address, Map<String, String> parameters) {
       if (parameters != null && !parameters.isEmpty()) {
-         return SimpleString.toSimpleString(toParameterisedAddress(address.toString(), parameters));
+         return SimpleString.of(toParameterisedAddress(address.toString(), parameters));
       } else {
          return address;
       }
@@ -70,11 +71,11 @@ public class ParameterisedAddress {
 
    @Deprecated
    public ParameterisedAddress(String address, QueueAttributes queueAttributes) {
-      this(SimpleString.toSimpleString(address), queueAttributes.toQueueConfiguration());
+      this(SimpleString.of(address), queueAttributes.toQueueConfiguration());
    }
 
    public ParameterisedAddress(String address, QueueConfiguration queueConfiguration) {
-      this(SimpleString.toSimpleString(address), queueConfiguration);
+      this(SimpleString.of(address), queueConfiguration);
    }
 
    public ParameterisedAddress(SimpleString address) {
@@ -84,11 +85,11 @@ public class ParameterisedAddress {
    public ParameterisedAddress(String address) {
       int index = address.indexOf('?');
       if (index == -1) {
-         this.address = SimpleString.toSimpleString(address);
+         this.address = SimpleString.of(address);
          this.queueConfiguration = null;
       } else {
-         this.address = SimpleString.toSimpleString(address.substring(0, index));
-         QueueConfiguration queueConfiguration = new QueueConfiguration(address);
+         this.address = SimpleString.of(address.substring(0, index));
+         QueueConfiguration queueConfiguration = QueueConfiguration.of(address);
          parseQuery(address).forEach(queueConfiguration::set);
          this.queueConfiguration = queueConfiguration;
       }
@@ -106,4 +107,42 @@ public class ParameterisedAddress {
       return URISupport.containsQuery(address);
    }
 
+   public static SimpleString extractAddress(SimpleString address) {
+      return SimpleString.of(extractAddress(address.toString()));
+   }
+
+   /**
+    * Given an address string, extract only the query portion if the address is parameterized, otherwise return an empty
+    * {@link Map}.
+    *
+    * @param address The address to operate on.
+    * @return a {@link Map} containing the parameters associated with the given address
+    */
+   @SuppressWarnings("unchecked")
+   public static Map<String, String> extractParameters(String address) {
+      final int index = address != null ? address.indexOf('?') : -1;
+
+      if (index == -1) {
+         return Collections.emptyMap();
+      } else {
+         return parseQuery(address);
+      }
+   }
+
+   /**
+    * Given an address string, extract only the address portion if the address is parameterized, otherwise just return
+    * the provided address.
+    *
+    * @param address The address to operate on.
+    * @return the original address minus any appended parameters
+    */
+   public static String extractAddress(String address) {
+      final int index = address != null ? address.indexOf('?') : -1;
+
+      if (index == -1) {
+         return address;
+      } else {
+         return address.substring(0, index);
+      }
+   }
 }

@@ -25,16 +25,17 @@ import javax.jms.Session;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MultipleProducersTest extends JMSTestBase {
 
@@ -43,16 +44,16 @@ public class MultipleProducersTest extends JMSTestBase {
    public Queue queueTwo = null;
    public Session session = null;
 
-   public SimpleString dlq = new SimpleString("DLQ");
-   public SimpleString expiryQueue = new SimpleString("ExpiryQueue");
+   public SimpleString dlq = SimpleString.of("DLQ");
+   public SimpleString expiryQueue = SimpleString.of("ExpiryQueue");
 
-   public SimpleString queueOneName = new SimpleString("queueOne");
-   public SimpleString queueTwoName = new SimpleString("queueTwo");
+   public SimpleString queueOneName = SimpleString.of("queueOne");
+   public SimpleString queueTwoName = SimpleString.of("queueTwo");
    public QueueControl control = null;
    public long queueOneMsgCount = 0;
    public long queueTwoMsgCount = 0;
 
-   @Before
+   @BeforeEach
    public void iniTest() throws Exception {
 
    }
@@ -113,7 +114,7 @@ public class MultipleProducersTest extends JMSTestBase {
       // result an exception
       try {
          sendMessage(queueOne, session);
-         Assert.fail("Exception expected");
+         fail("Exception expected");
       } catch (Exception t) {
       }
 
@@ -127,7 +128,7 @@ public class MultipleProducersTest extends JMSTestBase {
       // after draining queueOne send 5 message to queueOne
       queueTwoMsgCount = server.locateQueue(queueTwoName).getMessageCount();
 
-      control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queueOne.getQueueName());
+      control = server.getManagementService().getQueueControl(queueOne.getQueueName());
 
       control.removeMessages(null);
 
@@ -148,8 +149,8 @@ public class MultipleProducersTest extends JMSTestBase {
 
       queueTwoMsgCount = server.locateQueue(queueTwoName).getMessageCount();
 
-      Assert.assertEquals("queueTwo message count", 5, queueTwoMsgCount);
-      Assert.assertEquals("queueOne message count", 5, queueOneMsgCount);
+      assertEquals(5, queueTwoMsgCount, "queueTwo message count");
+      assertEquals(5, queueOneMsgCount, "queueOne message count");
 
    }
 

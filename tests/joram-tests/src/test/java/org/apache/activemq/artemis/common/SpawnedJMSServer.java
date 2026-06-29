@@ -85,7 +85,7 @@ public class SpawnedJMSServer {
          // disable server persistence since JORAM tests do not restart server
          server = ActiveMQServers.newActiveMQServer(config, useFiles);
          // set DLA and expiry to avoid spamming the log with warnings
-         server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+         server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("DLA")).setExpiryAddress(SimpleString.of("Expiry")));
 
          server.start();
       }

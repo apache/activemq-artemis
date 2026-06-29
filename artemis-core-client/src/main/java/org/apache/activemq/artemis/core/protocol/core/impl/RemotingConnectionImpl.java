@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
 
 public class RemotingConnectionImpl extends AbstractRemotingConnection implements CoreRemotingConnection {
 
@@ -80,7 +81,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    private final SimpleString nodeID;
 
-   /*
+   /**
     * Create a client side connection
     */
    public RemotingConnectionImpl(final PacketDecoder packetDecoder,
@@ -93,10 +94,10 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       this(packetDecoder, transportConnection, blockingCallTimeout, blockingCallFailoverTimeout, incomingInterceptors, outgoingInterceptors, true, null, connectionExecutor);
    }
 
-   /*
+   /**
     * Create a server side connection
     */
-   RemotingConnectionImpl(final PacketDecoder packetDecoder,
+   public RemotingConnectionImpl(final PacketDecoder packetDecoder,
                           final Connection transportConnection,
                           final List<Interceptor> incomingInterceptors,
                           final List<Interceptor> outgoingInterceptors,
@@ -141,17 +142,11 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       return "RemotingConnectionImpl [ID=" + getID() + ", clientID=" + getClientID() + ", nodeID=" + nodeID + ", transportConnection=" + getTransportConnection() + "]";
    }
 
-   /**
-    * @return the channelVersion
-    */
    @Override
    public int getChannelVersion() {
       return channelVersion;
    }
 
-   /**
-    * @param clientVersion the channelVersion to set
-    */
    @Override
    public void setChannelVersion(int clientVersion) {
       this.channelVersion = clientVersion;
@@ -198,27 +193,36 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          destroyed = true;
       }
 
-      if (!(me instanceof ActiveMQRemoteDisconnectException) && !(me instanceof ActiveMQRoutingException)) {
-         ActiveMQClientLogger.LOGGER.connectionFailureDetected(transportConnection.getRemoteAddress(), me.getMessage(), me.getType());
+      if (!(me instanceof ActiveMQRemoteDisconnectException) && !(me instanceof ActiveMQRoutingException) && !(me instanceof ActiveMQDisconnectedException)) {
+         ActiveMQClientLogger.LOGGER.connectionFailureDetected(transportConnection.getProtocolConnection().getProtocolName(), transportConnection.getRemoteAddress(), me.getMessage(), me.getType());
+      } else if (me instanceof ActiveMQDisconnectedException) {
+         ActiveMQClientLogger.LOGGER.connectionClosureDetected(transportConnection.getRemoteAddress(), me.getMessage(), me.getType());
       }
 
+      // Then call the listeners
+      callFailureListeners(me, scaleDownTargetNodeID);
+
+      close();
+
+      for (Channel channel : channels.values()) {
+         channel.returnBlocking(me);
+      }
+   }
+
+
+   @Override
+   public void close() {
       try {
          transportConnection.forceClose();
       } catch (Throwable e) {
          ActiveMQClientLogger.LOGGER.failedForceClose(e);
       }
 
-      // Then call the listeners
-      callFailureListeners(me, scaleDownTargetNodeID);
-
       callClosingListeners();
 
       internalClose();
-
-      for (Channel channel : channels.values()) {
-         channel.returnBlocking(me);
-      }
    }
+
 
    @Override
    public void destroy() {
@@ -278,7 +282,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       Packet disconnect;
 
       if (channel0.supports(PacketImpl.DISCONNECT_V3)) {
-         disconnect = new DisconnectMessage_V3(nodeID, reason, SimpleString.toSimpleString(targetNodeID), targetConnector);
+         disconnect = new DisconnectMessage_V3(nodeID, reason, SimpleString.of(targetNodeID), targetConnector);
       } else if (channel0.supports(PacketImpl.DISCONNECT_V2)) {
          disconnect = new DisconnectMessage_V2(nodeID, reason.isScaleDown() ? targetNodeID : null);
       } else {
@@ -358,11 +362,6 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       return true;
    }
 
-   /**
-    * Returns the name of the protocol for this Remoting Connection
-    *
-    * @return
-    */
    @Override
    public String getProtocolName() {
       return ActiveMQClient.DEFAULT_CORE_PROTOCOL;
@@ -376,7 +375,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          final Packet packet = packetDecoder.decode(buffer, this);
 
          if (logger.isTraceEnabled()) {
-            logger.trace("RemotingConnectionID={} handling packet {}",  getID(), packet);
+            logger.trace("RemotingConnectionID={} handling packet {}", getID(), packet);
          }
 
          doBufferReceived(packet);

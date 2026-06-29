@@ -146,12 +146,15 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    /**
     * The max size record that can be stored in the journal
-    *
-    * @return
     */
    @Override
    public long getMaxRecordSize() {
       return sqlProvider.getMaxBlobSize();
+   }
+
+   @Override
+   public long getWarningRecordSize() {
+      return sqlProvider.getMaxBlobSize() - 2048;
    }
 
    @Override
@@ -176,8 +179,9 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    public synchronized void stop(boolean sync) throws SQLException {
       if (started) {
-         if (sync)
+         if (sync) {
             sync();
+         }
          started = false;
          super.stop();
       }
@@ -274,7 +278,9 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       }
    }
 
-   /** public for tests only, not through API */
+   /**
+    * public for tests only, not through API
+    */
    public void handleException(List<JDBCJournalRecord> recordRef, Throwable e) {
       logger.warn(e.getMessage(), e);
       failed.set(true);
@@ -287,8 +293,10 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       }
    }
 
-   /* We store Transaction reference in memory (once all records associated with a Tranascation are Deleted,
-      we remove the Tx Records (i.e. PREPARE, COMMIT). */
+   /*
+    * We store Transaction reference in memory (once all records associated with a Transaction are Deleted, we remove
+    * the Tx Records (i.e. PREPARE, COMMIT).
+    */
    private synchronized boolean cleanupTxRecords(List<Long> deletedRecords, List<Long> committedTx,
                                                  PreparedStatement deleteJournalTxRecords) throws SQLException {
       List<RecordInfo> iterableCopy;
@@ -322,15 +330,12 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    private void executeCallbacks(final List<JDBCJournalRecord> records, final boolean success) {
-      Runnable r = new Runnable() {
-         @Override
-         public void run() {
-            for (JDBCJournalRecord record : records) {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Calling callback {} with success = {}", record, success);
-               }
-               record.complete(success);
+      Runnable r = () -> {
+         for (JDBCJournalRecord record : records) {
+            if (logger.isTraceEnabled()) {
+               logger.trace("Calling callback {} with success = {}", record, success);
             }
+            record.complete(success);
          }
       };
       completeExecutor.execute(r);
@@ -343,12 +348,16 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    private void checkStatus(IOCompletion callback) throws Exception {
       if (!started) {
-         if (callback != null) callback.onError(-1, "JDBC Journal is not loaded");
+         if (callback != null) {
+            callback.onError(-1, "JDBC Journal is not loaded");
+         }
          throw new ActiveMQShutdownException("JDBCJournal is not loaded");
       }
 
       if (failed.get()) {
-         if (callback != null) callback.onError(-1, "JDBC Journal failed");
+         if (callback != null) {
+            callback.onError(-1, "JDBC Journal failed");
+         }
          throw new ActiveMQException("JDBCJournal Failed");
       }
    }
@@ -386,7 +395,9 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       }
 
       syncTimer.delay();
-      if (callback != null) callback.waitCompletion();
+      if (callback != null) {
+         callback.waitCompletion();
+      }
    }
 
    private synchronized void addTxRecord(JDBCJournalRecord record) throws Exception {

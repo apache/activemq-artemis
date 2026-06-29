@@ -28,21 +28,16 @@ import org.apache.activemq.command.XATransactionId;
 
 public class OpenWireUtil {
 
-   public static class OpenWireWildcardConfiguration extends WildcardConfiguration {
-      public OpenWireWildcardConfiguration() {
-         setDelimiter('.');
-         setSingleWord('*');
-         setAnyWords('>');
-      }
-   }
-
-   public static final WildcardConfiguration OPENWIRE_WILDCARD = new OpenWireWildcardConfiguration();
+   public static final WildcardConfiguration OPENWIRE_WILDCARD = new WildcardConfiguration().setDelimiter('.').setAnyWords('>').setSingleWord('*');
 
    public static final String SELECTOR_AWARE_OPTION = "selectorAware";
 
    public static String extractFilterStringOrNull(final ConsumerInfo info, final ActiveMQDestination openWireDest) {
+      if (openWireDest.isTopic()) {
+         return info.getSelector();
+      }
       if (info.getSelector() != null) {
-         if (openWireDest.getOptions()  != null) {
+         if (openWireDest.getOptions() != null) {
             if (Boolean.valueOf(openWireDest.getOptions().get(SELECTOR_AWARE_OPTION))) {
                return info.getSelector();
             }

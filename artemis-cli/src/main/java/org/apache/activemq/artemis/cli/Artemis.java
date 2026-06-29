@@ -29,6 +29,7 @@ import java.util.Objects;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.AutoCompletion;
+import org.apache.activemq.artemis.cli.commands.Completion;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.Disconnect;
 import org.apache.activemq.artemis.cli.commands.HelpAction;
@@ -36,6 +37,7 @@ import org.apache.activemq.artemis.cli.commands.InputAbstract;
 import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;
 import org.apache.activemq.artemis.cli.commands.Kill;
 import org.apache.activemq.artemis.cli.commands.Mask;
+import org.apache.activemq.artemis.cli.commands.PWD;
 import org.apache.activemq.artemis.cli.commands.PrintVersion;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.Stop;
@@ -43,6 +45,7 @@ import org.apache.activemq.artemis.cli.commands.Upgrade;
 import org.apache.activemq.artemis.cli.commands.activation.ActivationGroup;
 import org.apache.activemq.artemis.cli.commands.address.AddressGroup;
 import org.apache.activemq.artemis.cli.commands.check.CheckGroup;
+import org.apache.activemq.artemis.cli.commands.lock.LockGroup;
 import org.apache.activemq.artemis.cli.commands.messages.Browse;
 import org.apache.activemq.artemis.cli.commands.Connect;
 import org.apache.activemq.artemis.cli.commands.messages.Consumer;
@@ -51,7 +54,7 @@ import org.apache.activemq.artemis.cli.commands.messages.Transfer;
 import org.apache.activemq.artemis.cli.commands.messages.perf.PerfGroup;
 import org.apache.activemq.artemis.cli.commands.queue.QueueGroup;
 import org.apache.activemq.artemis.cli.commands.tools.DataGroup;
-import org.apache.activemq.artemis.cli.commands.tools.cluster.ClusterGroup;
+import org.apache.activemq.artemis.cli.commands.tools.config.ExportProperties;
 import org.apache.activemq.artemis.cli.commands.tools.journal.PerfJournal;
 import org.apache.activemq.artemis.cli.commands.user.UserGroup;
 import org.apache.activemq.artemis.dto.ManagementContextDTO;
@@ -61,17 +64,17 @@ import picocli.CommandLine.Command;
 
 /**
  * Artemis is the main CLI entry point for managing/running a broker.
- *
- * Want to start or debug a broker from an IDE?  This is probably the best class to
- * run.  Make sure set the -Dartemis.instance=path/to/instance system property.
- * You should also use the 'apache-artemis' module for the class path since that
- * includes all artemis modules.
- *
- * Notice that this class should not use any logging as it's part of the bootstrap and using logging here could
- *        disrupt the order of bootstrapping on certain components (e.g. JMX being started from log4j)
+ * <p>
+ * Want to start or debug a broker from an IDE?  This is probably the best class to run.  Make sure set the
+ * -Dartemis.instance=path/to/instance system property. You should also use the 'apache-artemis' module for the class
+ * path since that includes all artemis modules.
+ * <p>
+ * Notice that this class should not use any logging as it's part of the bootstrap and using logging here could disrupt
+ * the order of bootstrapping on certain components (e.g. JMX being started from log4j)
  */
-@Command(name = "artemis", description = "ActiveMQ Artemis Command Line")
+@Command(name = "artemis", description = "Apache Artemis Command Line")
 public class Artemis implements Runnable {
+
 
    CommandLine commandLine;
 
@@ -109,7 +112,10 @@ public class Artemis implements Runnable {
 
       verifyManagementDTO(fileBrokerETC);
 
-      execute(true, true, fileHome, fileInstance, fileBrokerETC, args);
+      Object result = execute(true, true, true, fileHome, fileInstance, fileBrokerETC, args);
+      if (!Run.getEmbedded() && result instanceof Exception) {
+         System.exit(1);
+      }
    }
 
 
@@ -132,14 +138,14 @@ public class Artemis implements Runnable {
    }
 
    public static Object internalExecute(String... args) throws Exception {
-      return internalExecute(null, null, null, args);
+      return internalExecute(false, null, null, null, args);
    }
 
    public static Object execute(File artemisHome, File artemisInstance, File etcFolder, List<String> args) throws Exception {
-      return execute(false, false, artemisHome, artemisInstance, etcFolder, args.toArray(new String[args.size()]));
+      return execute(false, false, false, artemisHome, artemisInstance, etcFolder, args.toArray(new String[args.size()]));
    }
 
-   public static Object execute(boolean inputEnabled, boolean useSystemOut, File artemisHome, File artemisInstance, File etcFolder, String... args) throws Exception {
+   public static Object execute(boolean inputEnabled, boolean useSystemOut, boolean shellEnabled, File artemisHome, File artemisInstance, File etcFolder, String... args) throws Exception {
 
       // using a default etc in case that is not set in the variables
       if (etcFolder == null && artemisInstance != null) {
@@ -163,7 +169,7 @@ public class Artemis implements Runnable {
       ActionContext.setSystem(context);
 
       try {
-         return internalExecute(artemisHome, artemisInstance, etcFolder, args, context);
+         return internalExecute(shellEnabled, artemisHome, artemisInstance, etcFolder, args, context);
       } catch (ConfigurationException configException) {
          context.err.println(configException.getMessage());
          context.out.println();
@@ -181,7 +187,7 @@ public class Artemis implements Runnable {
       } catch (RuntimeException | InvalidOptionsError re) {
          context.err.println(re.getMessage());
          context.out.println();
-         HelpAction.help(buildCommand(true, true), "help");
+         HelpAction.help(buildCommand(true, true, shellEnabled), "help");
          return re;
       } finally {
          ActionContext.setSystem(new ActionContext());
@@ -189,24 +195,22 @@ public class Artemis implements Runnable {
    }
 
    /**
-    * This method is used to validate exception returns.
-    * Useful on test cases
+    * This method is used to validate exception returns. Useful on test cases.
     */
-   private static Object internalExecute(File artemisHome, File artemisInstance, File etcFolder, String[] args) throws Exception {
-      return internalExecute(artemisHome, artemisInstance, etcFolder, args, new ActionContext());
+   private static Object internalExecute(boolean shellEnabled, File artemisHome, File artemisInstance, File etcFolder, String[] args) throws Exception {
+      return internalExecute(shellEnabled, artemisHome, artemisInstance, etcFolder, args, new ActionContext());
    }
 
-   public static Object internalExecute(File artemisHome, File artemisInstance, File etcFolder, String[] args, ActionContext context) throws Exception {
+   public static Object internalExecute(boolean shellEnabled, File artemisHome, File artemisInstance, File etcFolder, String[] args, ActionContext context) throws Exception {
       boolean isInstance = artemisInstance != null || System.getProperty("artemis.instance") != null;
-      CommandLine commandLine = buildCommand(isInstance, !isInstance);
+      CommandLine commandLine = buildCommand(isInstance, !isInstance, shellEnabled);
 
       Object userObject = parseAction(commandLine, args);
 
       Objects.requireNonNull(userObject, "Picocli action command should never be null");
       assert userObject != null;
 
-      if (userObject instanceof Action) {
-         Action action = (Action) userObject;
+      if (userObject instanceof Action action) {
          action.setHomeValues(artemisHome, artemisInstance, etcFolder);
          if (action.isVerbose()) {
             context.out.print("Executing " + action.getClass().getName() + " ");
@@ -219,8 +223,8 @@ public class Artemis implements Runnable {
 
          return action.execute(context);
       } else {
-         if (userObject instanceof Runnable) {
-            ((Runnable) userObject).run();
+         if (userObject instanceof Runnable runnable) {
+            runnable.run();
          } else {
             throw new IllegalArgumentException(userObject.getClass() + " should implement either " + Action.class.getName() + " or " + Runnable.class.getName());
          }
@@ -247,12 +251,7 @@ public class Artemis implements Runnable {
       return parseResult.commandSpec().userObject();
    }
 
-   public static CommandLine buildCommand(boolean includeInstanceCommands, boolean includeHomeCommands) {
-      return buildCommand(includeInstanceCommands, includeHomeCommands, false);
-
-   }
-
-   public static CommandLine buildCommand(boolean includeInstanceCommands, boolean includeHomeCommands, boolean fromShell) {
+   public static CommandLine buildCommand(boolean includeInstanceCommands, boolean includeHomeCommands, boolean shellEnabled) {
       Artemis artemis = new Artemis();
 
       CommandLine commandLine = new CommandLine(artemis);
@@ -262,10 +261,12 @@ public class Artemis implements Runnable {
       help.setCommandLine(commandLine);
       commandLine.addSubcommand(help);
 
+      commandLine.addSubcommand(new PWD());
+
       commandLine.addSubcommand(new AutoCompletion());
 
       // we don't include the shell in the shell
-      if (!fromShell) {
+      if (shellEnabled) {
          commandLine.addSubcommand(new Shell(commandLine));
       }
 
@@ -276,17 +277,22 @@ public class Artemis implements Runnable {
       commandLine.addSubcommand(new QueueGroup(commandLine));
       commandLine.addSubcommand(new AddressGroup(commandLine));
 
-      if (fromShell) {
+      if (Shell.inShell()) {
          commandLine.addSubcommand(new Connect());
          commandLine.addSubcommand(new Disconnect());
       }
 
       if (includeInstanceCommands) {
+         commandLine.addSubcommand(new LockGroup(commandLine));
+         commandLine.addSubcommand(new ExportProperties());
          commandLine.addSubcommand(new ActivationGroup(commandLine));
          commandLine.addSubcommand(new DataGroup(commandLine));
          commandLine.addSubcommand(new UserGroup(commandLine));
 
-         commandLine.addSubcommand(new Run());
+         if (!Shell.inShell()) {
+            commandLine.addSubcommand(new Run());
+         }
+
          commandLine.addSubcommand(new Stop());
          commandLine.addSubcommand(new Kill());
          commandLine.addSubcommand(new PerfJournal());
@@ -301,7 +307,7 @@ public class Artemis implements Runnable {
          commandLine.addSubcommand(new Upgrade());
       }
 
-      commandLine.addSubcommand(new ClusterGroup(commandLine));
+      commandLine.addSubcommand(new Completion());
 
       return commandLine;
    }
@@ -312,16 +318,17 @@ public class Artemis implements Runnable {
 
 
    public static String getNameFromBanner() throws Exception {
-      InputStream inputStream = Artemis.class.getResourceAsStream("banner.txt");
-      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-      String lastLine = "";
-      while (reader.ready()) {
-         String line = reader.readLine();
-         if (!line.trim().isEmpty()) {
-            lastLine = line;
+      try (InputStream inputStream = Artemis.class.getResourceAsStream("banner.txt")) {
+         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+         String lastLine = "";
+         while (reader.ready()) {
+            String line = reader.readLine();
+            if (!line.trim().isEmpty()) {
+               lastLine = line;
+            }
          }
+         return lastLine.trim();
       }
-      return lastLine.trim();
    }
 
    private static long copy(InputStream in, OutputStream out) throws Exception {

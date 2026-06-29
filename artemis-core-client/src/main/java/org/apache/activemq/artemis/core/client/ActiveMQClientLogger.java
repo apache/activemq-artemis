@@ -26,9 +26,9 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 import org.w3c.dom.Node;
 
 /**
- * Logger Code 21
+ * Logger Codes 210000 - 218999
  */
-@LogBundle(projectCode = "AMQ", regexID = "21[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "21[0-8][0-9]{3}", retiredIDs = {211001, 211002, 211003, 212000, 212006, 212029, 212074, 212078, 214012, 214023, 214024, 214026, 214027, 214028, 214029})
 public interface ActiveMQClientLogger {
 
    ActiveMQClientLogger LOGGER = BundleFactory.newBundle(ActiveMQClientLogger.class, ActiveMQClientLogger.class.getPackage().getName());
@@ -36,8 +36,8 @@ public interface ActiveMQClientLogger {
    @LogMessage(id = 212001, value = "Error on clearing messages", level = LogMessage.Level.WARN)
    void errorClearingMessages(Throwable e);
 
-   @LogMessage(id = 212002, value = "Timed out waiting for handler to complete processing", level = LogMessage.Level.WARN)
-   void timeOutWaitingForProcessing();
+   @LogMessage(id = 212002, value = "Timed out after waiting {}ms for handler to complete processing", level = LogMessage.Level.WARN)
+   void timeOutWaitingForProcessing(long duration);
 
    @LogMessage(id = 212003, value = "Unable to close session", level = LogMessage.Level.WARN)
    void unableToCloseSession(Exception e);
@@ -124,7 +124,7 @@ public interface ActiveMQClientLogger {
    @LogMessage(id = 212033, value = "unable to send notification when discovery group is stopped", level = LogMessage.Level.WARN)
    void errorSendingNotifOnDiscoveryStop(Throwable e);
 
-   @LogMessage(id = 212034, value = "There are more than one servers on the network broadcasting the same node id. " + "You will see this message exactly once (per node) if a node is restarted, in which case it can be safely " + "ignored. But if it is logged continuously it means you really do have more than one node on the same network " + "active concurrently with the same node id. This could occur if you have a backup node active at the same time as " + "its live node. nodeID={}", level = LogMessage.Level.WARN)
+   @LogMessage(id = 212034, value = "There are more than one servers on the network broadcasting the same node id. You will see this message exactly once (per node) if a node is restarted, in which case it can be safely ignored. But if it is logged continuously it means you really do have more than one node on the same network active concurrently with the same node id. This could occur if you have a backup node active at the same time as its primary node. nodeID={}", level = LogMessage.Level.WARN)
    void multipleServersBroadcastingSameNode(String nodeId);
 
    @LogMessage(id = 212035, value = "error receiving packet in discovery", level = LogMessage.Level.WARN)
@@ -133,8 +133,8 @@ public interface ActiveMQClientLogger {
    @LogMessage(id = 212036, value = "Can not find packet to clear: {} last received command id first stored command id {}", level = LogMessage.Level.WARN)
    void cannotFindPacketToClear(Integer lastReceivedCommandID, Integer firstStoredCommandID);
 
-   @LogMessage(id = 212037, value = "Connection failure to {} has been detected: {} [code={}]", level = LogMessage.Level.WARN)
-   void connectionFailureDetected(String remoteAddress, String message, ActiveMQExceptionType type);
+   @LogMessage(id = 212037, value = "{} connection failure to {} has been detected: {} [code={}]", level = LogMessage.Level.WARN)
+   void connectionFailureDetected(String protocol, String remoteAddress, String message, ActiveMQExceptionType type);
 
    @LogMessage(id = 212038, value = "Failure in calling interceptor: {}", level = LogMessage.Level.WARN)
    void errorCallingInterceptor(Interceptor interceptor, Throwable e);
@@ -179,10 +179,9 @@ public interface ActiveMQClientLogger {
    void packetOutOfOrder(Object obj, Throwable t);
 
    /**
-    * Warns about usage of {@link org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler} or JMS's {@code CompletionWindow} with
-    * confirmations disabled (confirmationWindowSize=-1).
+    * Warns about usage of {@link org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler} or JMS's
+    * {@code CompletionWindow} with confirmations disabled (confirmationWindowSize=-1).
     */
-
    @LogMessage(id = 212053, value = "CompletionListener/SendAcknowledgementHandler used with confirmationWindowSize=-1. Enable confirmationWindowSize to receive acks from server!", level = LogMessage.Level.WARN)
    void confirmationWindowDisabledWarning();
 
@@ -261,6 +260,9 @@ public interface ActiveMQClientLogger {
    @LogMessage(id = 212080, value = "Using legacy SSL store provider value: {}. Please use either 'keyStoreType' or 'trustStoreType' instead as appropriate.", level = LogMessage.Level.WARN)
    void oldStoreProvider(String value);
 
+   @LogMessage(id = 212081, value = "Soft failure checking the certificate [{}]: {}", level = LogMessage.Level.WARN)
+   void softFailException(String certSubject, Exception e);
+
    @LogMessage(id = 214000, value = "Failed to call onMessage", level = LogMessage.Level.ERROR)
    void onMessageError(Throwable e);
 
@@ -330,9 +332,6 @@ public interface ActiveMQClientLogger {
    @LogMessage(id = 214025, value = "Invalid type {}, Using default connection factory at {}", level = LogMessage.Level.ERROR)
    void invalidCFType(String type, String uri);
 
-   @LogMessage(id = 214029, value = "Unexpected response from HTTP server: {}", level = LogMessage.Level.ERROR)
-   void unexpectedResponseFromHttpServer(Object response);
-
    @LogMessage(id = 214030, value = "Failed to bind {}={}", level = LogMessage.Level.ERROR)
    void failedToBind(String p1, String p2, Throwable cause);
 
@@ -347,4 +346,10 @@ public interface ActiveMQClientLogger {
 
    @LogMessage(id = 214034, value = "{} has negative counts {}\n{}", level = LogMessage.Level.ERROR)
    void negativeRefCount(String message, String count, String debugString);
+
+   @LogMessage(id = 214035, value = "Couldn't finish the client globalFlowControlThreadPool in less than 10 seconds, interrupting it now", level = LogMessage.Level.WARN)
+   void unableToProcessGlobalFlowControlThreadPoolIn10Sec();
+
+   @LogMessage(id = 214036, value = "Connection closure to {} has been detected: {} [code={}]", level = LogMessage.Level.INFO)
+   void connectionClosureDetected(String remoteAddress, String message, ActiveMQExceptionType type);
 }

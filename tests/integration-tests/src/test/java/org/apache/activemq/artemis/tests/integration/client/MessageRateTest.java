@@ -23,22 +23,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MessageRateTest extends ActiveMQTestBase {
 
 
-   private final SimpleString ADDRESS = new SimpleString("ADDRESS");
+   private final SimpleString ADDRESS = SimpleString.of("ADDRESS");
 
    private ServerLocator locator;
 
@@ -54,7 +53,7 @@ public class MessageRateTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
       long start = System.currentTimeMillis();
@@ -63,7 +62,7 @@ public class MessageRateTest extends ActiveMQTestBase {
       }
       long end = System.currentTimeMillis();
 
-      Assert.assertTrue("TotalTime = " + (end - start), end - start >= 1000);
+      assertTrue(end - start >= 1000, "TotalTime = " + (end - start));
 
       session.close();
    }
@@ -79,7 +78,7 @@ public class MessageRateTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -99,7 +98,7 @@ public class MessageRateTest extends ActiveMQTestBase {
 
       long end = System.currentTimeMillis();
 
-      Assert.assertTrue("TotalTime = " + (end - start), end - start >= 1000);
+      assertTrue(end - start >= 1000, "TotalTime = " + (end - start));
 
       session.close();
    }
@@ -114,7 +113,7 @@ public class MessageRateTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -134,7 +133,7 @@ public class MessageRateTest extends ActiveMQTestBase {
 
       long end = System.currentTimeMillis();
 
-      Assert.assertTrue("TotalTime = " + (end - start), end - start >= 1000);
+      assertTrue(end - start >= 1000, "TotalTime = " + (end - start));
 
       session.close();
    }
@@ -150,7 +149,7 @@ public class MessageRateTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -164,33 +163,28 @@ public class MessageRateTest extends ActiveMQTestBase {
 
       final CountDownLatch messages = new CountDownLatch(12);
 
-      consumer.setMessageHandler(new MessageHandler() {
-
-         @Override
-         public void onMessage(final ClientMessage message) {
-            try {
-               message.acknowledge();
-               messages.countDown();
-            } catch (Exception e) {
-               e.printStackTrace(); // Hudson report
-               failures.incrementAndGet();
-            }
+      consumer.setMessageHandler(message -> {
+         try {
+            message.acknowledge();
+            messages.countDown();
+         } catch (Exception e) {
+            e.printStackTrace(); // Hudson report
+            failures.incrementAndGet();
          }
-
       });
 
       long start = System.currentTimeMillis();
       session.start();
-      Assert.assertTrue(messages.await(5, TimeUnit.SECONDS));
+      assertTrue(messages.await(5, TimeUnit.SECONDS));
       long end = System.currentTimeMillis();
 
-      Assert.assertTrue("TotalTime = " + (end - start), end - start >= 1000);
+      assertTrue(end - start >= 1000, "TotalTime = " + (end - start));
 
       session.close();
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

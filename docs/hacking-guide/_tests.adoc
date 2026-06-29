@@ -26,23 +26,24 @@ Even complex test-cases involving multiple clustered brokers are relatively easy
 Almost every test in the  test-suite follows this pattern - configure broker, start broker, test functionality, stop broker.
 
 The test-suite uses JUnit to manage test execution and life-cycle.
-Most tests extend https://github.com/apache/activemq-artemis/blob/main/artemis-server/src/test/java/org/apache/activemq/artemis/tests/util/ActiveMQTestBase.java[`org.apache.activemq.artemis.tests.util.ActiveMQTestBase`] which contains JUnit setup and tear-down methods as well as a wealth of utility functions to configure, start, manage, and stop brokers as well as perform other common tasks.
+Most tests extend https://github.com/apache/artemis/blob/main/artemis-server/src/test/java/org/apache/activemq/artemis/tests/util/ActiveMQTestBase.java[`org.apache.activemq.artemis.tests.util.ActiveMQTestBase`] which contains JUnit setup and tear-down methods as well as a wealth of utility functions to configure, start, manage, and stop brokers as well as perform other common tasks.
 
-Check out https://github.com/apache/activemq-artemis/blob/main/tests/integration-tests/src/test/java/org/apache/activemq/artemis/tests/integration/SimpleTest.java[`org.apache.activemq.artemis.tests.integration.SimpleTest`].
+Check out https://github.com/apache/artemis/blob/main/tests/integration-tests/src/test/java/org/apache/activemq/artemis/tests/integration/SimpleTest.java[`org.apache.activemq.artemis.tests.integration.SimpleTest`].
 It's a very simple test-case that extends `org.apache.activemq.artemis.tests.util.ActiveMQTestBase` and uses its methods to configure a server, run a test, and then `super.tearDown()` cleans it up once the test completes.
 The test-case  includes comments to explain everything.
 As the name implies, this is a simple test-case that demonstrates the most basic functionality of the test-suite.
 A simple test like this takes less than a second to run on modern hardware.
 
-Although `org.apache.activemq.artemis.tests.integration.SimpleTest` is simple it could be simpler still by extending https://github.com/apache/activemq-artemis/blob/main/artemis-server/src/test/java/org/apache/activemq/artemis/tests/util/SingleServerTestBase.java[`org.apache.activemq.artemis.tests.util.SingleServerTestBase`].
+Although `org.apache.activemq.artemis.tests.integration.SimpleTest` is simple it could be simpler still by extending https://github.com/apache/artemis/blob/main/artemis-server/src/test/java/org/apache/activemq/artemis/tests/util/SingleServerTestBase.java[`org.apache.activemq.artemis.tests.util.SingleServerTestBase`].
 This class does all the setup of a simple server automatically and provides the test-case with a `ServerLocator`,  `ClientSessionFactory`, and `ClientSession` instance.
-https://github.com/apache/activemq-artemis/blob/main//tests/integration-tests/src/test/java/org/apache/activemq/artemis/tests/integration/SingleServerSimpleTest.java[`org.apache.activemq.artemis.tests.integration.SingleServerSimpleTest`] is an example based on `org.apache.activemq.artemis.tests.integration.SimpleTest` but extends `org.apache.activemq.artemis.tests.util.SingleServerTestBase` which eliminates all the setup and class variables which are provided by `SingleServerTestBase` itself.
+https://github.com/apache/artemis/blob/main/tests/integration-tests/src/test/java/org/apache/activemq/artemis/tests/integration/SingleServerSimpleTest.java[`org.apache.activemq.artemis.tests.integration.SingleServerSimpleTest`] is an example based on `org.apache.activemq.artemis.tests.integration.SimpleTest` but extends `org.apache.activemq.artemis.tests.util.SingleServerTestBase` which eliminates all the setup and class variables which are provided by `SingleServerTestBase` itself.
 
 == Writing Web Tests
 
 The broker has a web console based on https://github.com/hawtio/hawtio[hawtio] and the `smoke-tests` are used to test it.
-For instance, the https://github.com/apache/activemq-artemis/blob/main/tests/smoke-tests/src/test/java/org/apache/activemq/artemis/tests/smoke/console/ConsoleTest.java[ConsoleTest] checks the web console using the https://github.com/SeleniumHQ/selenium[selenium framework].
-The tests can be executed using a remote server, local browsers or https://www.testcontainers.org/modules/webdriver_containers[testcontainers].
+For instance, the https://github.com/apache/artemis/blob/main/tests/smoke-tests/src/test/java/org/apache/activemq/artemis/tests/smoke/console/ConsoleTest.java[ConsoleTest] checks the web console using the https://github.com/SeleniumHQ/selenium[selenium framework].
+The tests can be executed on the Chrome and Firefox browsers by using a remote server, local browsers or https://www.testcontainers.org/modules/webdriver_containers[testcontainers].
+To configure the browsers on which execute the tests set the `webdriver.browsers` property with the comma-separated list of the browsers, i.e. `-Dwebdriver.browsers=chrome,firefox`.
 To use a remote server set the `webdriver.remote.server` property with the URL of the server, ie -Dwebdriver.remote.server=http://localhost:4444/wd/hub To use your local Google Chrome browser download the https://chromedriver.chromium.org/[WebDriver for Chrome] and set the `webdriver.chrome.driver` property with the WebDriver path, ie `-Dwebdriver.chrome.driver=/home/artemis/chromedriver_linux64/chromedriver`.
 To use your local Firefox browser download the https://github.com/mozilla/geckodriver/[WebDriver for Firefox] and set the `webdriver.gecko.driver` property with the WebDriver path, ie `-Dwebdriver.gecko.driver=/home/artemis/geckodriver-linux64/geckodriver`.
 To use https://www.testcontainers.org/modules/webdriver_containers[testcontainers] install docker.
@@ -78,7 +79,7 @@ An important task for any test-case is to clean up all the resources it creates 
 This includes the server instance itself and any resources created to connect to it (e.g. instances of `ServerLocator`, `ClientSessionFactory`, `ClientSession`, etc.).
 This task is typically completed in the test's `tearDown()` method.
 However, `ActiveMQTestBase`  (and other classes which extend it) simplifies this process.
-As https://github.com/apache/activemq-artemis/blob/main/tests/integration-tests/src/test/java/org/apache/activemq/artemis/tests/integration/SimpleTest.java[`org.apache.activemq.artemis.tests.integration.SimpleTest`] demonstrates, there are several methods you can use when creating your test which will ensure proper clean up _automatically_ when the test is torn down.
+As https://github.com/apache/artemis/blob/main/tests/integration-tests/src/test/java/org/apache/activemq/artemis/tests/integration/SimpleTest.java[`org.apache.activemq.artemis.tests.integration.SimpleTest`] demonstrates, there are several methods you can use when creating your test which will ensure proper clean up _automatically_ when the test is torn down.
 These include:
 
 * All the overloaded `org.apache.activemq.artemis.tests.util.ActiveMQTestBase.createServer(..)` methods.

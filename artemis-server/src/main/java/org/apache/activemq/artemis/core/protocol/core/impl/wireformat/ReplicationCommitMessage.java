@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -72,39 +74,30 @@ public final class ReplicationCommitMessage extends PacketImpl {
       return txId;
    }
 
-   /**
-    * @return the journalID
-    */
    public byte getJournalID() {
       return journalID;
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + journalID;
-      result = prime * result + (rollback ? 1231 : 1237);
-      result = prime * result + (int) (txId ^ (txId >>> 32));
-      return result;
+      return Objects.hash(super.hashCode(), journalID, rollback, txId);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReplicationCommitMessage))
+      }
+      if (!(obj instanceof ReplicationCommitMessage other)) {
          return false;
-      ReplicationCommitMessage other = (ReplicationCommitMessage) obj;
-      if (journalID != other.journalID)
-         return false;
-      if (rollback != other.rollback)
-         return false;
-      if (txId != other.txId)
-         return false;
-      return true;
+      }
+
+      return journalID == other.journalID &&
+             rollback == other.rollback &&
+             txId == other.txId;
    }
 
    @Override

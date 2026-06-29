@@ -29,62 +29,29 @@ public interface JournalReaderCallback {
    default void onReadAddRecord(RecordInfo info) throws Exception {
    }
 
-   /**
-    * @param recordInfo
-    * @throws Exception
-    */
    default void onReadUpdateRecord(RecordInfo recordInfo) throws Exception {
    }
 
-   /**
-    * @param recordID
-    */
    default void onReadDeleteRecord(long recordID) throws Exception {
    }
 
 
-   /**
-    * @param transactionID
-    * @param recordInfo
-    * @throws Exception
-    */
    default void onReadAddRecordTX(long transactionID, RecordInfo recordInfo) throws Exception {
    }
 
-   /**
-    * @param transactionID
-    * @param recordInfo
-    * @throws Exception
-    */
    default void onReadUpdateRecordTX(long transactionID, RecordInfo recordInfo) throws Exception {
 
    }
 
-   /**
-    * @param transactionID
-    * @param recordInfo
-    */
    default void onReadDeleteRecordTX(long transactionID, RecordInfo recordInfo) throws Exception {
    }
 
-   /**
-    * @param transactionID
-    * @param extraData
-    * @param numberOfRecords
-    */
    default void onReadPrepareRecord(long transactionID, byte[] extraData, int numberOfRecords) throws Exception {
    }
 
-   /**
-    * @param transactionID
-    * @param numberOfRecords
-    */
    default void onReadCommitRecord(long transactionID, int numberOfRecords) throws Exception {
    }
 
-   /**
-    * @param transactionID
-    */
    default void onReadRollbackRecord(long transactionID) throws Exception {
    }
 

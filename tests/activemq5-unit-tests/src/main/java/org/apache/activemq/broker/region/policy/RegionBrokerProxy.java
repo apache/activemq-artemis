@@ -403,6 +403,11 @@ public class RegionBrokerProxy implements Broker {
    }
 
    @Override
+   public void messageDispatched(ConnectionContext context, Subscription sub, MessageReference messageReference) {
+      throw new UnsupportedOperationException("Not implemented yet");
+   }
+
+   @Override
    public void nowMasterBroker() {
       throw new UnsupportedOperationException("Not implemented yet");
    }

@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.cli.test;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.cli.commands.messages.perf.PerfClientCommand;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 
@@ -29,7 +30,7 @@ public class CliPerfClientTest extends CliTestBase {
    private Connection connection;
    private ActiveMQConnectionFactory cf;
 
-   @Before
+   @BeforeEach
    @Override
    public void setup() throws Exception {
       setupAuth();
@@ -39,7 +40,7 @@ public class CliPerfClientTest extends CliTestBase {
       connection = cf.createConnection("admin", "admin");
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       closeConnection(cf, connection);
@@ -48,19 +49,19 @@ public class CliPerfClientTest extends CliTestBase {
 
    @Test
    public void testNonDurableStarts() throws Exception {
-      new PerfClientCommand().setDurableSubscription(false).setMessageCount(1).setUser("admin").setPassword("admin").setClientID("perfClientTest").execute(new TestActionContext());
+      new PerfClientCommand().setDurableSubscription(false).setMessageCount(1).setClientID("perfClientTest").setUser("admin").setPassword("admin").execute(new TestActionContext());
    }
 
    @Test
    public void testDurableStarts() throws Exception {
-      new PerfClientCommand().setDurableSubscription(true).setMessageCount(1).setUser("admin").setPassword("admin").setClientID("perfClientTest").execute(new TestActionContext());
+      new PerfClientCommand().setDurableSubscription(true).setMessageCount(1).setClientID("perfClientTest").setUser("admin").setPassword("admin").execute(new TestActionContext());
    }
 
    @Test
    public void testDurableNoClientIDSet() throws Exception {
       try {
          new PerfClientCommand().setDurableSubscription(true).setMessageCount(1).setUser("admin").setPassword("admin").execute(new TestActionContext());
-         Assert.fail("Exception expected");
+         fail("Exception expected");
       } catch (IllegalArgumentException cliExpected) {
       }
    }

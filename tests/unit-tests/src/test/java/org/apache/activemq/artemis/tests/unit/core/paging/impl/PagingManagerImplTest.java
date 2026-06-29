@@ -18,8 +18,9 @@ package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -30,6 +31,7 @@ import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -38,14 +40,17 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PagingManagerImplTest extends ActiveMQTestBase {
-
-   private final ReadLock lock = new ReentrantReadWriteLock().readLock();
 
    @Test
    public void testPagingManager() throws Exception {
@@ -53,9 +58,14 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
       HierarchicalRepository<AddressSettings> addressSettings = new HierarchicalObjectRepository<>();
       addressSettings.setDefault(new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE));
 
-      final StorageManager storageManager = new NullStorageManager();
+      OrderedExecutorFactory orderedExecutorFactory = getOrderedExecutor();
 
-      PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, getPageDirFile(), 100, null, getOrderedExecutor(), getOrderedExecutor(), true, null);
+      final StorageManager storageManager = new NullStorageManager().setContextSupplier(() -> OperationContextImpl.getContext(orderedExecutorFactory));
+
+      ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+      runAfter(scheduledExecutorService::shutdownNow);
+
+      PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, getPageDirFile(), 100, scheduledExecutorService, orderedExecutorFactory, true, null);
 
       PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings);
 
@@ -63,18 +73,19 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       runAfter(managerImpl::stop);
 
-      PagingStore store = managerImpl.getPageStore(new SimpleString("simple-test"));
+      PagingStore store = managerImpl.getPageStore(SimpleString.of("simple-test"));
 
-      ICoreMessage msg = createMessage(1L, new SimpleString("simple-test"), createRandomBuffer(10));
+      ICoreMessage msg = createMessage(1L, SimpleString.of("simple-test"), createRandomBuffer(10));
 
       final RoutingContextImpl ctx = new RoutingContextImpl(null);
-      Assert.assertFalse(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
+      assertFalse(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
 
       store.startPaging();
 
-      Assert.assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
+      assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
+      syncOperationContext();
 
-      Page page = store.depage();
+      Page page = depageOnExecutor(store);
 
       page.open(true);
 
@@ -82,21 +93,21 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       page.close(false, false);
 
-      Assert.assertEquals(1, msgs.size());
+      assertEquals(1, msgs.size());
 
       ActiveMQTestBase.assertEqualsByteArrays(msg.getBodyBuffer().writerIndex(), msg.getBodyBuffer().toByteBuffer().array(), (msgs.get(0).getMessage()).toCore().getBodyBuffer().toByteBuffer().array());
 
-      Assert.assertTrue(store.isPaging());
+      assertTrue(store.isPaging());
 
-      Assert.assertNull(store.depage());
+      assertNull(depageOnExecutor(store));
 
       final RoutingContextImpl ctx2 = new RoutingContextImpl(null);
-      Assert.assertFalse(store.page(msg, ctx2.getTransaction(), ctx2.getContextListing(store.getStoreName())));
+      assertFalse(store.page(msg, ctx2.getTransaction(), ctx2.getContextListing(store.getStoreName())));
 
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       File fileJournalDir = new File(getJournalDir());
@@ -125,5 +136,12 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
          buffer.put(RandomUtil.randomByte());
       }
       return buffer;
+   }
+
+   /**
+    * depage is now done within the page's executor. This unit test needs to call the depage within that executor
+    */
+   protected Page depageOnExecutor(final PagingStore store) throws Exception {
+      return callOnExecutor(store.getExecutor(), () -> store.depage(), 10, TimeUnit.SECONDS);
    }
 }

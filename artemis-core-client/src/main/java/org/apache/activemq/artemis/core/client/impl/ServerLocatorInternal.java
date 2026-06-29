@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.cluster.DiscoveryListener;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 
 public interface ServerLocatorInternal extends ServerLocator {
@@ -35,9 +36,11 @@ public interface ServerLocatorInternal extends ServerLocator {
 
    ServerLocatorInternal setAfterConnectionInternalListener(AfterConnectInternalListener listener);
 
+   ServerLocatorInternal setDiscoveryListener(DiscoveryListener listener);
+
    /**
     * Used to better identify Cluster Connection Locators on logs. To facilitate eventual debugging.
-    *
+    * <p>
     * This method used to be on tests interface, but I'm now making it part of the public interface since
     */
    ServerLocatorInternal setIdentity(String identity);
@@ -55,8 +58,6 @@ public interface ServerLocatorInternal extends ServerLocator {
 
    /**
     * Like {@link #connect()} but it does not log warnings if it fails to connect.
-    *
-    * @throws ActiveMQException
     */
    ClientSessionFactoryInternal connectNoWarnings() throws ActiveMQException;
 
@@ -68,10 +69,15 @@ public interface ServerLocatorInternal extends ServerLocator {
                      boolean last);
 
    /**
+    * Notify this about a node down event.
+    *
     * @param uniqueEventID 0 means get the previous ID +1
-    * @param nodeID
     */
-   void notifyNodeDown(long uniqueEventID, String nodeID);
+   default void notifyNodeDown(long uniqueEventID, String nodeID) {
+      notifyNodeDown(uniqueEventID, nodeID, false);
+   }
+
+   void notifyNodeDown(long uniqueEventID, String nodeID, boolean disconnect);
 
    ServerLocatorInternal setClusterConnection(boolean clusterConnection);
 
@@ -91,4 +97,6 @@ public interface ServerLocatorInternal extends ServerLocator {
    int getConnectorsSize();
 
    Pair<TransportConfiguration, TransportConfiguration> selectNextConnectorPair();
+
+   long getNextRetryInterval(long retryInterval, double retryIntervalMultiplier, long maxRetryInterval);
 }

@@ -428,7 +428,7 @@ public abstract class ArtemisBrokerBase implements Broker {
    }
 
    protected final ActiveMQServer createServer(final boolean realFiles, final boolean netty) throws Exception {
-      return createServer(realFiles, createDefaultConfig(netty), -1, -1, new HashMap<String, AddressSettings>());
+      return createServer(realFiles, createDefaultConfig(netty), -1, -1, new HashMap<>());
    }
 
    protected final ActiveMQServer createServer(final boolean realFiles,
@@ -464,9 +464,9 @@ public abstract class ArtemisBrokerBase implements Broker {
 
    protected Configuration createDefaultConfig(final boolean netty) throws Exception {
       if (netty) {
-         return createDefaultConfig(new HashMap<String, Object>(), NETTY_ACCEPTOR_FACTORY);
+         return createDefaultConfig(new HashMap<>(), NETTY_ACCEPTOR_FACTORY);
       } else {
-         return createDefaultConfig(new HashMap<String, Object>(), INVM_ACCEPTOR_FACTORY);
+         return createDefaultConfig(new HashMap<>(), INVM_ACCEPTOR_FACTORY);
       }
    }
 

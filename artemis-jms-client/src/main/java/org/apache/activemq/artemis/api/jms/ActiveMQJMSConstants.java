@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.api.jms;
 
 /**
- * Constants for ActiveMQ Artemis for property keys used for ActiveMQ Artemis specific extensions to JMS.
+ * Constants for Apache Artemis for property keys used for Apache Artemis specific extensions to JMS.
  */
 public class ActiveMQJMSConstants {
 

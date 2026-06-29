@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import java.util.function.ToIntFunction;
 
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -35,8 +33,12 @@ public interface PageSubscription {
    // To be called before the server is down
    void stop();
 
-   /** Save a snapshot of the current counter value in the journal */
+   /**
+    * Save a snapshot of the current counter value in the journal
+    */
    void counterSnapshot();
+
+   void deleteCursorInfo();
 
    /**
     * This is a callback to inform the PageSubscription that something was routed, so the empty flag can be cleared
@@ -62,6 +64,8 @@ public interface PageSubscription {
     */
    boolean isPaging();
 
+   boolean isStorePaging();
+
    PageIterator iterator();
 
    PageIterator iterator(boolean browsing);
@@ -84,34 +88,26 @@ public interface PageSubscription {
 
    boolean contains(PagedReference ref) throws Exception;
 
+   boolean isAcked(PagedMessage pagedMessage);
+
    // for internal (cursor) classes
    void confirmPosition(PagePosition ref) throws Exception;
 
-   void ackTx(Transaction tx, PagedReference position) throws Exception;
+   void ackTx(Transaction tx, PagedReference position, boolean fromDelivery) throws Exception;
 
+   default void ackTx(Transaction tx, PagedReference position) throws Exception {
+      ackTx(tx, position, true);
+   }
    // for internal (cursor) classes
-   void confirmPosition(Transaction tx, PagePosition position) throws Exception;
+   void confirmPosition(Transaction tx, PagePosition position, boolean fromDelivery) throws Exception;
 
    /**
-    * This method will schedule scanning over Paging, however a retry should be done before the scanning.
-    * @param retryBeforeScan if this function is called and returns true, the scan for this element will not be called. It would be caller's responsibility to call found.
-    * @param scanFunction
-    * @param found
-    * @param notFound
+    * {@return the first page in use or MAX_LONG if none is in use}
     */
-   void scanAck(BooleanSupplier retryBeforeScan, ToIntFunction<PagedReference> scanFunction, Runnable found, Runnable notFound);
-
-
-      /**
-       * @return the first page in use or MAX_LONG if none is in use
-       */
    long getFirstPage();
 
    // Reload operations
 
-   /**
-    * @param position
-    */
    void reloadACK(PagePosition position);
 
    boolean reloadPageCompletion(PagePosition position) throws Exception;
@@ -120,8 +116,6 @@ public interface PageSubscription {
 
    /**
     * To be called when the cursor decided to ignore a position.
-    *
-    * @param position
     */
    void positionIgnored(PagePosition position);
 
@@ -129,8 +123,6 @@ public interface PageSubscription {
 
    /**
     * To be used to avoid a redelivery of a prepared ACK after load
-    *
-    * @param position
     */
    void reloadPreparedACK(Transaction tx, PagePosition position);
 
@@ -142,19 +134,12 @@ public interface PageSubscription {
 
    void printDebug();
 
-   /**
-    * @param page
-    * @return
-    */
    boolean isComplete(long page);
 
    void forEachConsumedPage(Consumer<ConsumedPage> pageCleaner);
 
    /**
     * To be used to requery the reference
-    *
-    * @param pos
-    * @return
     */
    PagedMessage queryMessage(PagePosition pos);
 
@@ -162,17 +147,7 @@ public interface PageSubscription {
 
    Queue getQueue();
 
-   /**
-    * @param deletedPage
-    * @throws Exception
-    */
    void onDeletePage(Page deletedPage) throws Exception;
-
-   long getDeliveredCount();
-
-   long getDeliveredSize();
-
-   void incrementDeliveredSize(long size);
 
    void removePendingDelivery(PagedMessage pagedMessage);
 

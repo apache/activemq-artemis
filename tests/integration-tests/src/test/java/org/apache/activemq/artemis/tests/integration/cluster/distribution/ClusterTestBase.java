@@ -16,10 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -27,8 +35,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +47,7 @@ import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
@@ -57,14 +64,14 @@ import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -74,7 +81,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFa
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -84,30 +90,28 @@ import org.apache.activemq.artemis.core.server.cluster.impl.BridgeMetrics;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionMetrics;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
+import org.apache.activemq.artemis.core.server.cluster.quorum.SharedNothingBackupQuorum;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
-import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
+import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
+import org.apache.activemq.artemis.tests.extensions.PortCheckExtension;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.PortCheckRule;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final int[] PORTS = {TransportConstants.DEFAULT_PORT, TransportConstants.DEFAULT_PORT + 1, TransportConstants.DEFAULT_PORT + 2, TransportConstants.DEFAULT_PORT + 3, TransportConstants.DEFAULT_PORT + 4, TransportConstants.DEFAULT_PORT + 5, TransportConstants.DEFAULT_PORT + 6, TransportConstants.DEFAULT_PORT + 7, TransportConstants.DEFAULT_PORT + 8, TransportConstants.DEFAULT_PORT + 9,};
+   private static final int[] PORTS = {TransportConstants.DEFAULT_PORT, TransportConstants.DEFAULT_PORT + 1, TransportConstants.DEFAULT_PORT + 2, TransportConstants.DEFAULT_PORT + 3, TransportConstants.DEFAULT_PORT + 4, TransportConstants.DEFAULT_PORT + 5, TransportConstants.DEFAULT_PORT + 6, TransportConstants.DEFAULT_PORT + 7, TransportConstants.DEFAULT_PORT + 8, TransportConstants.DEFAULT_PORT + 9};
 
-   @ClassRule
-   public static PortCheckRule rule = new PortCheckRule(PORTS);
+   @RegisterExtension
+   public static PortCheckExtension portCheckExtension = new PortCheckExtension(PORTS);
 
    protected int getLargeMessageSize() {
       return 500;
@@ -119,9 +123,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    private static final long TIMEOUT_START_SERVER = 10;
 
-   private static final SimpleString COUNT_PROP = new SimpleString("count_prop");
+   protected static final SimpleString COUNT_PROP = SimpleString.of("count_prop");
 
-   protected static final SimpleString FILTER_PROP = new SimpleString("animal");
+   protected static final SimpleString FILTER_PROP = SimpleString.of("animal");
 
    private static final int MAX_SERVERS = 10;
 
@@ -137,18 +141,20 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    protected ServerLocator[] locators;
 
+   protected AtomicInteger nodeCount = new AtomicInteger();
+
    protected boolean isForceUniqueStorageManagerIds() {
       return true;
    }
 
-   private DistributedPrimitiveManagerConfiguration pluggableQuorumConfiguration = null;
+   private DistributedLockManagerConfiguration pluggableQuorumConfiguration = null;
 
-   private DistributedPrimitiveManagerConfiguration getOrCreatePluggableQuorumConfiguration() {
+   private DistributedLockManagerConfiguration getOrCreatePluggableQuorumConfiguration() {
       if (pluggableQuorumConfiguration != null) {
          return pluggableQuorumConfiguration;
       }
       try {
-         pluggableQuorumConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
+         pluggableQuorumConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", newFolder(temporaryFolder, "manager" + nodeCount.incrementAndGet()).toString()));
       } catch (IOException ioException) {
          logger.error(ioException.getMessage(), ioException);
          return null;
@@ -157,11 +163,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-
-      forceGC();
 
       consumers = new ConsumerHolder[ClusterTestBase.MAX_CONSUMERS];
 
@@ -189,15 +193,12 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       return HAType.SharedNothingReplication;
    }
 
-   /**
-    * Whether the servers share the storage or not.
-    */
    protected final boolean isSharedStore() {
       return HAType.SharedStore.equals(haType());
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       logTopologyDiagram();
       for (int i = 0; i < MAX_SERVERS; i++) {
@@ -282,7 +283,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       ActiveMQServer server = servers[bNode];
 
       if (logger.isDebugEnabled()) {
-         logger.debug("waiting for {} on the topology for server = {}",  Arrays.toString(nodes), server);
+         logger.debug("waiting for {} on the topology for server = {}", Arrays.toString(nodes), server);
       }
 
       long start = System.currentTimeMillis();
@@ -342,7 +343,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       }
 
       try {
-         StringBuffer topologyDiagram = new StringBuffer();
+         StringBuilder topologyDiagram = new StringBuilder();
          for (ActiveMQServer activeMQServer : servers) {
             if (activeMQServer != null) {
                topologyDiagram.append("\n").append(activeMQServer.getIdentity()).append("\n");
@@ -354,29 +355,29 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                      Collection<TopologyMemberImpl> members = clusterConnection.getTopology().getMembers();
                      for (TopologyMemberImpl member : members) {
                         String nodeId = member.getNodeId();
-                        String liveServer = null;
+                        String primaryServer = null;
                         String backupServer = null;
                         for (ActiveMQServer server : servers) {
                            if (server != null && server.getNodeID() != null && server.isActive() && server.getNodeID().toString().equals(nodeId)) {
                               if (server.isActive()) {
-                                 liveServer = server.getIdentity();
-                                 if (member.getLive() != null) {
-                                    liveServer += "(notified)";
+                                 primaryServer = server.getIdentity();
+                                 if (member.getPrimary() != null) {
+                                    primaryServer += "(notified)";
                                  } else {
-                                    liveServer += "(not notified)";
+                                    primaryServer += "(not notified)";
                                  }
                               } else {
                                  backupServer = server.getIdentity();
                                  if (member.getBackup() != null) {
-                                    liveServer += "(notified)";
+                                    primaryServer += "(notified)";
                                  } else {
-                                    liveServer += "(not notified)";
+                                    primaryServer += "(not notified)";
                                  }
                               }
                            }
                         }
 
-                        topologyDiagram.append("\t").append("|\n").append("\t->").append(liveServer).append("/").append(backupServer).append("\n");
+                        topologyDiagram.append("\t").append("|\n").append("\t->").append(primaryServer).append("/").append(backupServer).append("\n");
                      }
                   } else {
                      topologyDiagram.append("-> no cluster connections\n");
@@ -426,8 +427,8 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       long waitTimeout = ActiveMQTestBase.WAIT_TIMEOUT;
       if (!isSharedStore()) {
          //it should be greater than
-         //QuorumManager.WAIT_TIME_AFTER_FIRST_LIVE_STOPPING_MSG (60 sec)
-         waitTimeout = 1000 * (SharedNothingBackupQuorum.WAIT_TIME_AFTER_FIRST_LIVE_STOPPING_MSG + 5);
+         //QuorumManager.WAIT_TIME_AFTER_FIRST_PRIMARY_STOPPING_MSG (60 sec)
+         waitTimeout = 1000 * (SharedNothingBackupQuorum.WAIT_TIME_AFTER_FIRST_PRIMARY_STOPPING_MSG + 5);
       }
       if (!servers[node].waitForActivation(waitTimeout, TimeUnit.MILLISECONDS)) {
          String msg = "Timed out waiting for server starting = " + node;
@@ -461,7 +462,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       }
 
       PostOffice po = server.getPostOffice();
-      Bindings bindings = po.getBindingsForAddress(new SimpleString(address));
+      Bindings bindings = po.getBindingsForAddress(SimpleString.of(address));
 
       logger.debug("=======================================================================");
       logger.debug("Binding information for address = {} on node {}", address, node);
@@ -512,7 +513,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       if (po == null) {
          return "server is shutdown";
       }
-      Bindings bindings = po.getBindingsForAddress(new SimpleString(address));
+      Bindings bindings = po.getBindingsForAddress(SimpleString.of(address));
 
       out.println("=======================================================================");
       out.println("Binding information for address = " + address + " on " + server);
@@ -579,7 +580,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       logger.debug("Creating {} , address {} on {}", queueName, address, servers[node]);
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filterString).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filterString).setDurable(durable));
 
       session.close();
    }
@@ -589,7 +590,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                     final RoutingType routingType,
                                     final int defaulMaxConsumers,
                                     boolean defaultPurgeOnNoConsumers) throws Exception {
-      AddressInfo addressInfo = new AddressInfo(new SimpleString(address));
+      AddressInfo addressInfo = new AddressInfo(SimpleString.of(address));
       addressInfo.addRoutingType(routingType);
       servers[node].addOrUpdateAddressInfo(addressInfo);
    }
@@ -687,8 +688,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    protected void closeAllConsumers() {
-      if (consumers == null)
+      if (consumers == null) {
          return;
+      }
       for (int i = 0; i < consumers.length; i++) {
          ConsumerHolder holder = consumers[i];
 
@@ -763,12 +765,12 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             ClientMessage message = session.createMessage(durable);
 
             if (filterVal != null) {
-               message.putStringProperty(ClusterTestBase.FILTER_PROP, new SimpleString(filterVal));
+               message.putStringProperty(ClusterTestBase.FILTER_PROP, SimpleString.of(filterVal));
             }
 
             if (duplicateDetectionSeq != null) {
                String str = Integer.toString(duplicateDetectionSeq.incrementAndGet());
-               message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString(str));
+               message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.of(str));
             }
 
             if (routingType != null) {
@@ -851,7 +853,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                     final int timeout,
                                     final long groupTimeout,
                                     final long reaperPeriod) {
-      servers[node].getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString("grouparbitrator")).setType(type).setAddress(new SimpleString("queues")).setTimeout(timeout).setGroupTimeout(groupTimeout).setReaperPeriod(reaperPeriod));
+      servers[node].getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(SimpleString.of("grouparbitrator")).setType(type).setAddress(SimpleString.of("queues")).setTimeout(timeout).setGroupTimeout(groupTimeout).setReaperPeriod(reaperPeriod));
    }
 
    protected void setUpGroupHandler(final GroupingHandler groupingHandler, final int node) {
@@ -915,7 +917,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                                         final int msgStart,
                                                         final int msgEnd,
                                                         final int... consumerIDs) throws Exception {
-      HashMap<SimpleString, Integer> groupIdsReceived = new HashMap<>();
+      Map<SimpleString, Integer> groupIdsReceived = new HashMap<>();
       for (int i = 0; i < consumerIDs.length; i++) {
          ConsumerHolder holder = consumers[consumerIDs[i]];
 
@@ -931,7 +933,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
                dumpConsumers();
 
-               Assert.assertNotNull("consumer " + consumerIDs[i] + " did not receive message " + j, message);
+               assertNotNull(message, "consumer " + consumerIDs[i] + " did not receive message " + j);
             }
 
             if (ack) {
@@ -939,7 +941,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             }
 
             if (firstReceiveTime != -1) {
-               Assert.assertTrue("Message received too soon", System.currentTimeMillis() >= firstReceiveTime);
+               assertTrue(System.currentTimeMillis() >= firstReceiveTime, "Message received too soon");
             }
 
             SimpleString id = (SimpleString) message.getObjectProperty(Message.HDR_GROUP_ID);
@@ -947,7 +949,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             if (groupIdsReceived.get(id) == null) {
                groupIdsReceived.put(id, i);
             } else if (groupIdsReceived.get(id) != i) {
-               Assert.fail("consumer " + groupIdsReceived.get(id) +
+               fail("consumer " + groupIdsReceived.get(id) +
                               " already bound to groupid " +
                               id +
                               " received on consumer " +
@@ -978,7 +980,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                message = holder.consumer.receive(2000);
 
                if (message == null) {
-                  Assert.fail("consumer " + i + " did not receive all messages");
+                  fail("consumer " + i + " did not receive all messages");
                }
 
                if (ack) {
@@ -1015,7 +1017,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
                dumpConsumers();
 
-               Assert.fail("consumer " + consumerID + " did not receive message " + j);
+               fail("consumer " + consumerID + " did not receive message " + j);
             }
 
             if (isLargeMessage()) {
@@ -1027,7 +1029,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             }
 
             if (firstReceiveTime != -1) {
-               Assert.assertTrue("Message received too soon", System.currentTimeMillis() >= firstReceiveTime);
+               assertTrue(System.currentTimeMillis() >= firstReceiveTime, "Message received too soon");
             }
 
             if (j != (Integer) message.getObjectProperty(ClusterTestBase.COUNT_PROP)) {
@@ -1042,7 +1044,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          }
       }
 
-      Assert.assertFalse("Messages were consumed out of order::" + firstOutOfOrderMessage, outOfOrder);
+      assertFalse(outOfOrder, "Messages were consumed out of order::" + firstOutOfOrderMessage);
    }
 
    private void dumpConsumers() throws Exception {
@@ -1125,9 +1127,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
             ClientMessage message = holder.consumer.receive(WAIT_TIMEOUT);
 
-            Assert.assertNotNull("consumer " + consumerIDs[count] + " did not receive message " + i, message);
+            assertNotNull(message, "consumer " + consumerIDs[count] + " did not receive message " + i);
 
-            Assert.assertEquals("consumer " + consumerIDs[count] + " message " + i, i, message.getObjectProperty(ClusterTestBase.COUNT_PROP));
+            assertEquals(i, message.getObjectProperty(ClusterTestBase.COUNT_PROP), "consumer " + consumerIDs[count] + " message " + i);
 
             message.acknowledge();
 
@@ -1185,7 +1187,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
          ClientMessage msg = holder.consumer.receive(10000);
 
-         Assert.assertNotNull("msg must exist", msg);
+         assertNotNull(msg, "msg must exist");
 
          int count = msg.getIntProperty(ClusterTestBase.COUNT_PROP);
 
@@ -1224,7 +1226,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          for (OrderedConsumerHolder holder : sorted) {
             ClientMessage msg = holder.consumer.consumer.receive(10000);
 
-            Assert.assertNotNull("msg must exist", msg);
+            assertNotNull(msg, "msg must exist");
 
             int p = msg.getIntProperty(ClusterTestBase.COUNT_PROP);
 
@@ -1246,91 +1248,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       }
    }
 
-   protected void verifyReceiveRoundRobinInSomeOrderWithCounts(final boolean ack,
-                                                               final int[] messageCounts,
-                                                               final int... consumerIDs) throws Exception {
-      List<LinkedList<Integer>> receivedCounts = new ArrayList<>();
-
-      Set<Integer> counts = new HashSet<>();
-
-      for (int consumerID : consumerIDs) {
-         ConsumerHolder holder = consumers[consumerID];
-
-         if (holder == null) {
-            throw new IllegalArgumentException("No consumer at " + consumerID);
-         }
-
-         LinkedList<Integer> list = new LinkedList<>();
-
-         receivedCounts.add(list);
-
-         ClientMessage message;
-         do {
-            message = holder.consumer.receive(1000);
-
-            if (message != null) {
-               int count = (Integer) message.getObjectProperty(ClusterTestBase.COUNT_PROP);
-
-               checkMessageBody(message);
-
-               // logger.debug("consumer {} received message {}", consumerIDs[i], count);
-
-               Assert.assertFalse(counts.contains(count));
-
-               counts.add(count);
-
-               list.add(count);
-
-               if (ack) {
-                  message.acknowledge();
-               }
-            }
-         }
-         while (message != null);
-      }
-
-      for (int messageCount : messageCounts) {
-         Assert.assertTrue(counts.contains(messageCount));
-      }
-
-      @SuppressWarnings("unchecked")
-      LinkedList<Integer>[] lists = new LinkedList[consumerIDs.length];
-
-      for (int i = 0; i < messageCounts.length; i++) {
-         for (LinkedList<Integer> list : receivedCounts) {
-            int elem = list.get(0);
-
-            if (elem == messageCounts[i]) {
-               lists[i] = list;
-
-               break;
-            }
-         }
-      }
-      int index = 0;
-
-      for (int messageCount : messageCounts) {
-         LinkedList<Integer> list = lists[index];
-
-         Assert.assertNotNull(list);
-
-         int elem = list.poll();
-
-         Assert.assertEquals(messageCount, elem);
-
-         index++;
-
-         if (index == consumerIDs.length) {
-            index = 0;
-         }
-      }
-
-   }
-
-   /**
-    * @param message
-    */
-   private void checkMessageBody(ClientMessage message) {
+   protected void checkMessageBody(ClientMessage message) {
       if (isLargeMessage()) {
          for (int posMsg = 0; posMsg < getLargeMessageSize(); posMsg++) {
             assertEquals(getSamplebyte(posMsg), message.getBodyBuffer().readByte());
@@ -1421,7 +1339,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             throw new IllegalArgumentException("No consumer at " + consumerIDs[i]);
          }
 
-         Assert.assertNull("consumer " + i + " received message", holder.consumer.receiveImmediate());
+         assertNull(holder.consumer.receiveImmediate(), "consumer " + i + " received message");
       }
    }
 
@@ -1510,7 +1428,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       locators[node] = addServerLocator(ActiveMQClient.createServerLocatorWithHA(serverToTC)).setRetryInterval(100).setRetryIntervalMultiplier(1d).setReconnectAttempts(300).setBlockOnNonDurableSend(blocking).setBlockOnDurableSend(blocking);
 
-      final String identity = "TestClientConnector,live=" + node + ",backup=" + backupNode;
+      final String identity = "TestClientConnector,primary=" + node + ",backup=" + backupNode;
       ((ServerLocatorInternal) locators[node]).setIdentity(identity);
 
       ClientSessionFactory sf = createSessionFactory(locators[node]);
@@ -1530,34 +1448,34 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    protected void setupServer(final int node, final boolean fileStorage, final boolean netty) throws Exception {
-      setupLiveServer(node, fileStorage, HAType.SharedNothingReplication, netty, false);
+      setupPrimaryServer(node, fileStorage, HAType.SharedNothingReplication, netty, false);
    }
 
-   protected void setupLiveServer(final int node,
-                                  final boolean fileStorage,
-                                  final boolean netty,
-                                  boolean isLive) throws Exception {
-      setupLiveServer(node, fileStorage, HAType.SharedNothingReplication, netty, isLive);
+   protected void setupPrimaryServer(final int node,
+                                     final boolean fileStorage,
+                                     final boolean netty,
+                                     boolean isPrimary) throws Exception {
+      setupPrimaryServer(node, fileStorage, HAType.SharedNothingReplication, netty, isPrimary);
    }
 
    protected boolean isResolveProtocols() {
       return false;
    }
 
-   protected void setupLiveServer(final int node,
-                                  final boolean fileStorage,
-                                  final HAType haType,
-                                  final boolean netty,
-                                  boolean liveOnly) throws Exception {
+   protected void setupPrimaryServer(final int node,
+                                     final boolean fileStorage,
+                                     final HAType haType,
+                                     final boolean netty,
+                                     boolean primaryOnly) throws Exception {
       if (servers[node] != null) {
          throw new IllegalArgumentException("Already a server at node " + node);
       }
 
       final HAPolicyConfiguration haPolicyConfiguration;
-      if (liveOnly) {
-         haPolicyConfiguration = new LiveOnlyPolicyConfiguration();
+      if (primaryOnly) {
+         haPolicyConfiguration = new PrimaryOnlyPolicyConfiguration();
       } else {
-         haPolicyConfiguration = haPolicyLiveConfiguration(haType);
+         haPolicyConfiguration = haPolicyPrimaryConfiguration(haType);
       }
 
       Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).setThreadPoolMaxSize(10).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, generateParams(node, netty))).setHAPolicyConfiguration(haPolicyConfiguration).setResolveProtocols(isResolveProtocols());
@@ -1582,41 +1500,30 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       server.addProtocolManagerFactory(new CoreProtocolManagerFactory());
 
-      server.setIdentity(this.getClass().getSimpleName() + "/Live(" + node + ")");
+      server.setIdentity(this.getClass().getSimpleName() + "/Primary(" + node + ")");
       servers[node] = addServer(server);
    }
 
-   private HAPolicyConfiguration haPolicyLiveConfiguration(HAType haType) {
-      switch (haType) {
-         case SharedStore:
-            return new SharedStoreMasterPolicyConfiguration();
-         case SharedNothingReplication:
-            return new ReplicatedPolicyConfiguration();
-         case PluggableQuorumReplication:
-            return ReplicationPrimaryPolicyConfiguration.withDefault()
-               .setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration());
-         default:
-            throw new AssertionError("Unsupported haType = " + haType);
-      }
+   private HAPolicyConfiguration haPolicyPrimaryConfiguration(HAType haType) {
+      return switch (haType) {
+         case SharedStore -> new SharedStorePrimaryPolicyConfiguration();
+         case SharedNothingReplication -> new ReplicatedPolicyConfiguration();
+         case PluggableQuorumReplication ->
+            ReplicationPrimaryPolicyConfiguration.withDefault().setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration());
+         default -> throw new AssertionError("Unsupported haType = " + haType);
+      };
    }
 
    /**
-    * Server lacks a {@link ClusterConnectionConfiguration} necessary for the remote (replicating)
-    * backup case.
-    * <br>
+    * Server lacks a {@link ClusterConnectionConfiguration} necessary for the remote (replicating) backup case.
+    * <p>
     * Use
-    * {@link #setupClusterConnectionWithBackups(String, String, org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType, int, boolean, int, int[])}
-    * to add it.
-    *
-    * @param node
-    * @param liveNode
-    * @param fileStorage
-    * @param haType
-    * @param netty
-    * @throws Exception
+    * {@link #setupClusterConnectionWithBackups(String, String,
+    * org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType, int, boolean, int, int[])} to add
+    * it.
     */
    protected void setupBackupServer(final int node,
-                                    final int liveNode,
+                                    final int primaryNode,
                                     final boolean fileStorage,
                                     final HAType haType,
                                     final boolean netty) throws Exception {
@@ -1624,47 +1531,42 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          throw new IllegalArgumentException("Already a server at node " + node);
       }
 
-      TransportConfiguration liveConfig = createTransportConfiguration(netty, false, generateParams(liveNode, netty));
+      TransportConfiguration primaryConfig = createTransportConfiguration(netty, false, generateParams(primaryNode, netty));
       TransportConfiguration backupConfig = createTransportConfiguration(netty, false, generateParams(node, netty));
       TransportConfiguration acceptorConfig = createTransportConfiguration(netty, true, generateParams(node, netty));
 
       final boolean sharedStorage = HAType.SharedStore.equals(haType);
 
-      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(acceptorConfig).addConnectorConfiguration(liveConfig.getName(), liveConfig).addConnectorConfiguration(backupConfig.getName(), backupConfig).setHAPolicyConfiguration(haPolicyBackupConfiguration(haType));
+      Configuration configuration = createBasicConfig(sharedStorage ? primaryNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(acceptorConfig).addConnectorConfiguration(primaryConfig.getName(), primaryConfig).addConnectorConfiguration(backupConfig.getName(), backupConfig).setHAPolicyConfiguration(haPolicyBackupConfiguration(haType));
 
       ActiveMQServer server;
 
       if (sharedStorage) {
-         server = createInVMFailoverServer(true, configuration, nodeManagers[liveNode], liveNode);
+         server = createInVMFailoverServer(true, configuration, nodeManagers[primaryNode], primaryNode);
       } else {
          boolean enablePersistency = fileStorage ? true : configuration.isPersistenceEnabled();
          server = addServer(ActiveMQServers.newActiveMQServer(configuration, enablePersistency));
       }
-      server.setIdentity(this.getClass().getSimpleName() + "/Backup(" + node + " of live " + liveNode + ")");
+      server.setIdentity(this.getClass().getSimpleName() + "/Backup(" + node + " of primary " + primaryNode + ")");
       servers[node] = addServer(server);
    }
 
    private HAPolicyConfiguration haPolicyBackupConfiguration(HAType haType) {
-      switch (haType) {
-
-         case SharedStore:
-            return new SharedStoreSlavePolicyConfiguration();
-         case SharedNothingReplication:
-            return new ReplicaPolicyConfiguration();
-         case PluggableQuorumReplication:
-            return ReplicationBackupPolicyConfiguration.withDefault()
-               .setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration());
-         default:
-            throw new AssertionError("Unsupported ha type = " + haType);
-      }
+      return switch (haType) {
+         case SharedStore -> new SharedStoreBackupPolicyConfiguration();
+         case SharedNothingReplication -> new ReplicaPolicyConfiguration();
+         case PluggableQuorumReplication ->
+            ReplicationBackupPolicyConfiguration.withDefault().setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration());
+         default -> throw new AssertionError("Unsupported ha type = " + haType);
+      };
    }
 
-   protected void setupLiveServerWithDiscovery(final int node,
-                                               final String groupAddress,
-                                               final int port,
-                                               final boolean fileStorage,
-                                               final boolean netty,
-                                               final boolean sharedStorage) throws Exception {
+   protected void setupPrimaryServerWithDiscovery(final int node,
+                                                  final String groupAddress,
+                                                  final int port,
+                                                  final boolean fileStorage,
+                                                  final boolean netty,
+                                                  final boolean sharedStorage) throws Exception {
       if (servers[node] != null) {
          throw new IllegalArgumentException("Already a server at node " + node);
       }
@@ -1682,7 +1584,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName("dg1").setRefreshTimeout(1000).setDiscoveryInitialWaitTimeout(1000).setBroadcastEndpointFactory(endpoint);
 
-      Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, params)).addConnectorConfiguration(connector.getName(), connector).addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration());
+      Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, params)).addConnectorConfiguration(connector.getName(), connector).addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStorePrimaryPolicyConfiguration() : new ReplicatedPolicyConfiguration());
 
       ActiveMQServer server;
       if (fileStorage) {
@@ -1704,7 +1606,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    protected void setupBackupServerWithDiscovery(final int node,
-                                                 final int liveNode,
+                                                 final int primaryNode,
                                                  final String groupAddress,
                                                  final int port,
                                                  final boolean fileStorage,
@@ -1727,11 +1629,11 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName("dg1").setRefreshTimeout(5000).setDiscoveryInitialWaitTimeout(5000).setBroadcastEndpointFactory(endpoint);
 
-      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, params)).addConnectorConfiguration(connector.getName(), connector).addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreSlavePolicyConfiguration() : new ReplicatedPolicyConfiguration());
+      Configuration configuration = createBasicConfig(sharedStorage ? primaryNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, params)).addConnectorConfiguration(connector.getName(), connector).addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreBackupPolicyConfiguration() : new ReplicatedPolicyConfiguration());
 
       ActiveMQServer server;
       if (sharedStorage) {
-         server = createInVMFailoverServer(fileStorage, configuration, nodeManagers[liveNode], liveNode);
+         server = createInVMFailoverServer(fileStorage, configuration, nodeManagers[primaryNode], primaryNode);
       } else {
          boolean enablePersistency = fileStorage ? configuration.isPersistenceEnabled() : false;
          server = addServer(ActiveMQServers.newActiveMQServer(configuration, enablePersistency));
@@ -1782,7 +1684,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       }
       Configuration config = serverFrom.getConfiguration();
 
-      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(name).setRetryInterval(100).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(1024).setStaticConnectors(pairs).setAllowDirectConnectionsOnly(allowDirectConnectionsOnly);
+      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(name).setRetryInterval(100).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(1024).setStaticConnectors(pairs).setAllowDirectConnectionsOnly(allowDirectConnectionsOnly).setCallTimeout(100);
 
       config.getClusterConfigurations().add(clusterConf);
    }
@@ -1948,7 +1850,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          .setName(name)
          .setAddress(address)
          .setConnectorName(connectorFrom.getName())
-         .setRetryInterval(250)
+         .setRetryInterval(250).setCallFailoverTimeout(100).setCallTimeout(100)
          .setMessageLoadBalancingType(messageLoadBalancingType)
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(1024)
@@ -2063,8 +1965,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             }
          }
       }
-      if (exception != null)
+      if (exception != null) {
          throw exception;
+      }
    }
 
    protected boolean isFileStorage() {
@@ -2082,5 +1985,13 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    public interface ClusterConfigCallback {
       void configure(ClusterConnectionConfiguration config);
+   }
+
+   private static File newFolder(File root, String subFolder) throws IOException {
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

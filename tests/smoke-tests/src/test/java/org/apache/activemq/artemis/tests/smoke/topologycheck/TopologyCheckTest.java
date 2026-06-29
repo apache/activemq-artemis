@@ -17,20 +17,26 @@
 
 package org.apache.activemq.artemis.tests.smoke.topologycheck;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.File;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.tools.cluster.ClusterVerifier;
+import org.apache.activemq.artemis.cli.commands.check.ClusterNodeVerifier;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonString;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,11 +54,108 @@ public class TopologyCheckTest extends SmokeTestBase {
    private static final String URI_3 = "tcp://localhost:61618";
    private static final String URI_4 = "tcp://localhost:61619";
 
+   /*
+                 <execution>
+                  <phase>test-compile</phase>
+                  <id>create-topology-check-one</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <clustered>true</clustered>
+                     <instance>${basedir}/target/topology-check/broker1</instance>
+                     <configuration>${basedir}/target/classes/servers/topology-check/broker1</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-topology-check-two</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <portOffset>1</portOffset>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <clustered>true</clustered>
+                     <instance>${basedir}/target/topology-check/broker2</instance>
+                     <configuration>${basedir}/target/classes/servers/topology-check/broker2</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-topology-check-three</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <portOffset>2</portOffset>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <clustered>true</clustered>
+                     <instance>${basedir}/target/topology-check/broker3</instance>
+                     <configuration>${basedir}/target/classes/servers/topology-check/broker3</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-topology-check-four</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <portOffset>3</portOffset>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <clustered>true</clustered>
+                     <instance>${basedir}/target/topology-check/broker4</instance>
+                     <configuration>${basedir}/target/classes/servers/topology-check/broker4</configuration>
+                  </configuration>
+               </execution>
+
+    */
+
+
+   @BeforeAll
+   public static void createServers() throws Exception {
+
+      for (int i = 1; i <= 4; i++) {
+         String serverConfigName = "topology-check/broker" + i;
+
+         File server0Location = getFileServerLocation(serverConfigName);
+         deleteDirectory(server0Location);
+
+         {
+            HelperCreate cliCreateServer = helperCreate();
+            cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
+               setConfiguration("./src/main/resources/servers/" + serverConfigName);
+            cliCreateServer.createServer();
+         }
+
+      }
+
+   }
+
+
    Process[] process = new Process[4];
    String[] URLS = new String[]{URI_1, URI_2, URI_3, URI_4};
    String[] SERVER_NAMES = new String[]{SERVER_NAME_1, SERVER_NAME_2, SERVER_NAME_3, SERVER_NAME_4};
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_1);
       cleanupData(SERVER_NAME_2);
@@ -124,18 +227,18 @@ public class TopologyCheckTest extends SmokeTestBase {
          Wait.assertEquals(validNodes.length, () -> simpleManagement.listNetworkTopology().size(), 500, 5000);
 
          JsonArray topologyArray = simpleManagement.listNetworkTopology();
-         Assert.assertNotNull(topologyArray);
+         assertNotNull(topologyArray);
 
          for (int j : validNodes) {
             JsonObject itemTopology = findTopologyNode(nodeIDs[j], topologyArray);
-            Assert.assertNotNull(itemTopology);
+            assertNotNull(itemTopology);
             JsonString jsonString = (JsonString) itemTopology.get("live");
-            Assert.assertEquals(uris[j], "tcp://" + jsonString.getString());
+            assertEquals(uris[j], "tcp://" + jsonString.getString());
          }
       }
 
-      ClusterVerifier clusterVerifier = new ClusterVerifier(uris[validNodes[0]], "admin", "admin");
-      Assert.assertTrue(clusterVerifier.verify(new ActionContext()));
+      ClusterNodeVerifier clusterVerifier = new ClusterNodeVerifier(uris[validNodes[0]], "admin", "admin");
+      assertTrue(clusterVerifier.verify(new ActionContext()));
    }
 
    JsonObject findTopologyNode(String nodeID, JsonArray topologyArray) {

@@ -16,16 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -36,22 +38,22 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AutoDeleteAddressTest extends ActiveMQTestBase {
 
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString queueA = SimpleString.of("queueA");
 
    private ServerLocator locator;
    private ActiveMQServer server;
    private ClientSessionFactory cf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
@@ -65,7 +67,7 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
    @Test
    public void testAutoDeleteAutoCreatedAddress() throws Exception {
       // auto-delete-addresses defaults to true
-      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
+      server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
       assertNotNull(server.getAddressInfo(addressA));
       cf.createSession().createConsumer(queueA).close();
       PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
@@ -73,9 +75,22 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testDuplicateIdCacheDeletedWithAddress() throws Exception {
+      // auto-delete-addresses defaults to true
+      server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
+      // this will create a duplicate ID cache for this address without actually having to send a message with a duplicate ID
+      server.getPostOffice().getDuplicateIDCache(addressA);
+      assertNotNull(((PostOfficeImpl) server.getPostOffice()).getDuplicateIDCaches().get(addressA));
+      assertNotNull(server.getAddressInfo(addressA));
+      cf.createSession().createConsumer(queueA).close();
+      PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
+      Wait.assertNull(() -> ((PostOfficeImpl) server.getPostOffice()).getDuplicateIDCaches().get(addressA), 500, 50);
+   }
+
+   @Test
    public void testNegativeAutoDeleteAutoCreatedAddress() throws Exception {
       server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoDeleteAddresses(false));
-      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
+      server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
       assertNotNull(server.getAddressInfo(addressA));
       cf.createSession().createConsumer(queueA).close();
       PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
@@ -103,15 +118,13 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
       String prefix = "topic";
       server.getAddressSettingsRepository().addMatch(prefix + ".#", new AddressSettings().setAutoDeleteAddresses(true).setAutoDeleteAddressesSkipUsageCheck(true));
       String wildcardAddress = prefix + ".#";
-      String queue = RandomUtil.randomString();
+      String queue = RandomUtil.randomUUIDString();
       final int MESSAGE_COUNT = 10;
-      final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(wildcardAddress).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(wildcardAddress).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
 
       ClientSession consumerSession = cf.createSession();
       ClientConsumer consumer = consumerSession.createConsumer(queue);
-      consumer.setMessageHandler(message -> latch.countDown());
       consumerSession.start();
 
       ClientSession producerSession = cf.createSession();
@@ -119,25 +132,37 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
 
       List<String> addresses = new ArrayList<>();
       for (int i = 0; i < MESSAGE_COUNT; i++) {
-         String address = prefix + "." + RandomUtil.randomString();
+         String address = prefix + "." + RandomUtil.randomUUIDString();
          addresses.add(address);
          server.addAddressInfo(new AddressInfo(address).setAutoCreated(true));
          producer.send(address, producerSession.createMessage(false));
       }
       producerSession.close();
 
-      assertTrue(latch.await(2, TimeUnit.SECONDS));
+      PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
 
       for (String address : addresses) {
-         assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(address)));
-         Wait.assertEquals(true, () -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.toSimpleString(address)), 2000, 100);
+         assertNotNull(server.getAddressInfo(SimpleString.of(address)));
+         Wait.assertTrue(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.of(address)), 2000, 100);
+      }
+
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         ClientMessage message = consumer.receive(3000);
+         assertNotNull(message);
+         message.acknowledge();
+      }
+      consumer.close();
+
+      for (String address : addresses) {
+         assertNotNull(server.getAddressInfo(SimpleString.of(address)));
+         Wait.assertTrue(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.of(address)), 2000, 100);
       }
 
       PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
 
       for (String address : addresses) {
-         assertNull(server.getAddressInfo(SimpleString.toSimpleString(address)));
-         Wait.assertEquals(false, () -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.toSimpleString(address)), 2000, 100);
+         assertNull(server.getAddressInfo(SimpleString.of(address)));
+         Wait.assertFalse(() -> Arrays.asList(server.getPagingManager().getStoreNames()).contains(SimpleString.of(address)), 2000, 100);
       }
 
       consumerSession.close();

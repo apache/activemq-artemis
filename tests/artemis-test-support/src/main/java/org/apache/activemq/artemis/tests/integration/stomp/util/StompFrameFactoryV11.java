@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 /**
  * 1.1 frames
- * <br>
+ * <p>
  * 1. CONNECT/STOMP(new)
  * 2. CONNECTED
  * 3. SEND
@@ -43,7 +43,7 @@ public class StompFrameFactoryV11 extends StompFrameFactoryV10 {
       String[] result = header.split(":");
 
       for (int j = 0; j < result.length; j++) {
-         StringBuffer decodedHeader = new StringBuffer();
+         StringBuilder decodedHeader = new StringBuilder();
          boolean isEsc = false;
 
          for (int i = 0; i < result[j].length(); i++) {

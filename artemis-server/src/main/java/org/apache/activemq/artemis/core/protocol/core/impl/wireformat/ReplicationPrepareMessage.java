@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -78,29 +79,17 @@ public final class ReplicationPrepareMessage extends PacketImpl {
       return txId;
    }
 
-   /**
-    * @return the journalID
-    */
    public byte getJournalID() {
       return journalID;
    }
 
-   /**
-    * @return the recordData
-    */
    public byte[] getRecordData() {
       return recordData;
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((encodingData == null) ? 0 : encodingData.hashCode());
-      result = prime * result + journalID;
-      result = prime * result + Arrays.hashCode(recordData);
-      result = prime * result + (int) (txId ^ (txId >>> 32));
-      return result;
+      return Objects.hash(super.hashCode(), encodingData, journalID, Arrays.hashCode(recordData), txId);
    }
 
    @Override
@@ -111,26 +100,13 @@ public final class ReplicationPrepareMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ReplicationPrepareMessage)) {
+      if (!(obj instanceof ReplicationPrepareMessage other)) {
          return false;
       }
-      ReplicationPrepareMessage other = (ReplicationPrepareMessage) obj;
-      if (encodingData == null) {
-         if (other.encodingData != null) {
-            return false;
-         }
-      } else if (!encodingData.equals(other.encodingData)) {
-         return false;
-      }
-      if (journalID != other.journalID) {
-         return false;
-      }
-      if (!Arrays.equals(recordData, other.recordData)) {
-         return false;
-      }
-      if (txId != other.txId) {
-         return false;
-      }
-      return true;
+
+      return Objects.equals(encodingData, other.encodingData) &&
+             journalID == other.journalID &&
+             Arrays.equals(recordData, other.recordData) &&
+             txId == other.txId;
    }
 }

@@ -23,7 +23,9 @@ import java.util.zip.Deflater;
 
 /**
  * A DeflaterReader
+ * <p>
  * The reader takes an inputstream and compress it.
+ * <p>
  * Not for concurrent use.
  */
 public class DeflaterReader extends InputStream {
@@ -55,12 +57,11 @@ public class DeflaterReader extends InputStream {
    }
 
    /**
-    * Try to fill the buffer with compressed bytes. Except the last effective read,
-    * this method always returns with a full buffer of compressed data.
+    * Try to fill the buffer with compressed bytes. Except the last effective read, this method always returns with a
+    * full buffer of compressed data.
     *
     * @param buffer the buffer to fill compressed bytes
-    * @return the number of bytes really filled, -1 indicates end.
-    * @throws IOException
+    * @return the number of bytes really filled, -1 indicates end
     */
    @Override
    public int read(final byte[] buffer, int offset, int len) throws IOException {

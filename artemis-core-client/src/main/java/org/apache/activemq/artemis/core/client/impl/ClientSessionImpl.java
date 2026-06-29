@@ -144,6 +144,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    private final String groupID;
 
+   private volatile int onMessageCloseTimeout;
+
    private volatile boolean inClose;
 
    private volatile boolean mayAttemptToFailover = true;
@@ -189,6 +191,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                      final int compressionLevel,
                      final int initialMessagePacketSize,
                      final String groupID,
+                     final int onMessageCloseTimeout,
                      final SessionContext sessionContext,
                      final Executor executor,
                      final Executor confirmationExecutor,
@@ -246,6 +249,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       this.groupID = groupID;
 
+      this.onMessageCloseTimeout = onMessageCloseTimeout;
+
       producerCreditManager = new ClientProducerCreditManagerImpl(this, producerWindowSize);
 
       this.sessionContext = sessionContext;
@@ -276,7 +281,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void createQueue(final String address,
                            final String queueName,
                            final boolean durable) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), durable);
+      createQueue(SimpleString.of(address), SimpleString.of(queueName), durable);
    }
 
    @Override
@@ -346,9 +351,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                            final String queueName,
                            final String filterString,
                            final boolean durable) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address),
-                  SimpleString.toSimpleString(queueName),
-                  SimpleString.toSimpleString(filterString),
+      createQueue(SimpleString.of(address),
+                  SimpleString.of(queueName),
+                  SimpleString.of(filterString),
                   durable);
    }
 
@@ -367,7 +372,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                            final String filterString,
                            final boolean durable,
                            final boolean autoCreated) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString), durable, autoCreated);
+      createQueue(SimpleString.of(address), SimpleString.of(queueName), SimpleString.of(filterString), durable, autoCreated);
    }
 
    @Override
@@ -377,7 +382,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createTemporaryQueue(final String address, final String queueName) throws ActiveMQException {
-      createTemporaryQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName));
+      createTemporaryQueue(SimpleString.of(address), SimpleString.of(queueName));
    }
 
    @Override
@@ -391,12 +396,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void createTemporaryQueue(final String address,
                                     final String queueName,
                                     final String filter) throws ActiveMQException {
-      createTemporaryQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter));
+      createTemporaryQueue(SimpleString.of(address), SimpleString.of(queueName), SimpleString.of(filter));
    }
-
-
-   /** New Queue API **/
-
 
    @Deprecated
    @Override
@@ -421,10 +422,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public void createQueue(final String address, final RoutingType routingType, final String queueName, final String filterString,
                            final boolean durable, final boolean autoCreated) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address),
+      createQueue(SimpleString.of(address),
                   routingType,
-                  SimpleString.toSimpleString(queueName),
-                  SimpleString.toSimpleString(filterString),
+                  SimpleString.of(queueName),
+                  SimpleString.of(filterString),
                   durable,
                   autoCreated);
    }
@@ -493,10 +494,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public void createQueue(final String address, final RoutingType routingType, final String queueName, final String filterString,
                            final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean purgeOnNoConsumers, Boolean exclusive, Boolean lastValue) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address),
+      createQueue(SimpleString.of(address),
                   routingType,
-                  SimpleString.toSimpleString(queueName),
-                  SimpleString.toSimpleString(filterString),
+                  SimpleString.of(queueName),
+                  SimpleString.of(filterString),
                   durable,
                   autoCreated,
                   maxConsumers,
@@ -514,7 +515,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createTemporaryQueue(final String address, final RoutingType routingType, final String queueName) throws ActiveMQException {
-      createTemporaryQueue(SimpleString.toSimpleString(address), routingType, SimpleString.toSimpleString(queueName));
+      createTemporaryQueue(SimpleString.of(address), routingType, SimpleString.of(queueName));
    }
 
    @Deprecated
@@ -564,18 +565,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createTemporaryQueue(final String address, final RoutingType routingType, final String queueName, final String filter) throws ActiveMQException {
-      createTemporaryQueue(SimpleString.toSimpleString(address), routingType, SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter));
+      createTemporaryQueue(SimpleString.of(address), routingType, SimpleString.of(queueName), SimpleString.of(filter));
    }
 
-   /**
-    * Creates a <em>non-temporary</em> queue.
-    *
-    * @param address      the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
-    * @param queueName    the name of the queue
-    * @param durable      whether the queue is durable or not
-    * @throws ActiveMQException in an exception occurs while creating the queue
-    */
    @Deprecated
    @Override
    public void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, boolean durable) throws ActiveMQException {
@@ -591,54 +583,17 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                   .setMaxConsumers(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers()));
    }
 
-   /**
-    * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is closed the queue will be deleted
-    * <p>
-    * Notice: you will get an exception if the address or the filter doesn't match to an already existent queue
-    *
-    * @param address      the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
-    * @param queueName    the name of the queue
-    * @param durable      if the queue is durable
-    * @throws ActiveMQException in an exception occurs while creating the queue
-    */
    @Override
    public void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, boolean durable) throws ActiveMQException {
       createSharedQueue(address, routingType, queueName, null, durable);
    }
 
-   /**
-    * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is closed the queue will be deleted
-    * <p>
-    * Notice: you will get an exception if the address or the filter doesn't match to an already existent queue
-    *
-    * @param address      the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
-    * @param queueName    the name of the queue
-    * @param filter       whether the queue is durable or not
-    * @param durable      if the queue is durable
-    * @throws ActiveMQException in an exception occurs while creating the queue
-    */
    @Override
    public void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                                  boolean durable) throws ActiveMQException {
       createSharedQueue(address, routingType, queueName, filter, durable, null, null, null, null);
    }
 
-   /**
-    * Creates Shared queue. A queue that will exist as long as there are consumers or is durable.
-    *
-    * @param address      the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
-    * @param queueName    the name of the queue
-    * @param filter       whether the queue is durable or not
-    * @param durable      if the queue is durable
-    * @param maxConsumers how many concurrent consumers will be allowed on this queue
-    * @param purgeOnNoConsumers whether to delete the contents of the queue when the last consumer disconnects
-    * @param exclusive    if the queue is exclusive queue
-    * @param lastValue    if the queue is last value queue
-    * @throws ActiveMQException in an exception occurs while creating the queue
-    */
    @Deprecated
    @Override
    public void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
@@ -654,47 +609,22 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       createSharedQueue(address, queueName, queueAttributes);
    }
 
-   /**
-    * Creates Shared queue. A queue that will exist as long as there are consumers or is durable.
-    *
-    * @param address      the queue will be bound to this address
-    * @param queueName    the name of the queue
-    * @param queueAttributes attributes for the queue
-    * @throws ActiveMQException in an exception occurs while creating the queue
-    */
    @Deprecated
    @Override
    public void createSharedQueue(SimpleString address, SimpleString queueName, QueueAttributes queueAttributes) throws ActiveMQException {
       createSharedQueue(queueAttributes.toQueueConfiguration().setName(queueName).setAddress(address));
    }
 
-   /**
-    * Creates a <em>non-temporary</em> queue.
-    *
-    * @param address      the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
-    * @param queueName    the name of the queue
-    * @param durable      whether the queue is durable or not
-    * @throws ActiveMQException in an exception occurs while creating the queue
-    */
    @Override
    public void createQueue(String address, RoutingType routingType, String queueName, boolean durable) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address), routingType, SimpleString.toSimpleString(queueName), durable);
+      createQueue(SimpleString.of(address), routingType, SimpleString.of(queueName), durable);
    }
 
-   /**
-    * Creates a <em>non-temporary</em> queue <em>non-durable</em> queue.
-    *
-    * @param address      the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
-    * @param queueName    the name of the queue
-    * @throws ActiveMQException in an exception occurs while creating the queue
-    */
    @Deprecated
    @Override
    public void createQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException {
-      internalCreateQueue(SimpleString.toSimpleString(address),
-                          SimpleString.toSimpleString(queueName),
+      internalCreateQueue(SimpleString.of(address),
+                          SimpleString.of(queueName),
                           false,
                           false,
                           new QueueAttributes()
@@ -705,14 +635,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                   .setMaxConsumers(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers()));
    }
 
-   /**
-    * Creates a <em>non-temporary</em> queue <em>non-durable</em> queue.
-    *
-    * @param address      the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
-    * @param queueName    the name of the queue
-    * @throws ActiveMQException in an exception occurs while creating the queue
-    */
    @Deprecated
    @Override
    public void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName) throws ActiveMQException {
@@ -728,16 +650,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                   .setMaxConsumers(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers()));
    }
 
-   /**
-    * Creates a <em>non-temporary</em> queue.
-    *
-    * @param address      the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
-    * @param queueName    the name of the queue
-    * @param filter       only messages which match this filter will be put in the queue
-    * @param durable      whether the queue is durable or not
-    * @throws ActiveMQException in an exception occurs while creating the queue
-    */
    @Deprecated
    @Override
    public void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
@@ -754,22 +666,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                   .setMaxConsumers(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers()));
    }
 
-   /**
-    * Creates a <em>non-temporary</em>queue.
-    *
-    * @param address      the queue will be bound to this address
-    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
-    * @param queueName    the name of the queue
-    * @param filter       only messages which match this filter will be put in the queue
-    * @param durable      whether the queue is durable or not
-    * @throws ActiveMQException in an exception occurs while creating the queue
-    */
    @Override
    public void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address), routingType, SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter),
+      createQueue(SimpleString.of(address), routingType, SimpleString.of(queueName), SimpleString.of(filter),
                   durable);
    }
-
 
    @Override
    public void deleteQueue(final SimpleString queueName) throws ActiveMQException {
@@ -785,7 +686,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void deleteQueue(final String queueName) throws ActiveMQException {
-      deleteQueue(SimpleString.toSimpleString(queueName));
+      deleteQueue(SimpleString.of(queueName));
    }
 
    @Override
@@ -815,7 +716,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public ClientConsumer createConsumer(final String queueName) throws ActiveMQException {
-      return createConsumer(SimpleString.toSimpleString(queueName));
+      return createConsumer(SimpleString.of(queueName));
    }
 
    @Override
@@ -826,12 +727,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createQueue(final String address, final String queueName) throws ActiveMQException {
-      createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName));
+      createQueue(SimpleString.of(address), SimpleString.of(queueName));
    }
 
    @Override
    public ClientConsumer createConsumer(final String queueName, final String filterString) throws ActiveMQException {
-      return createConsumer(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString));
+      return createConsumer(SimpleString.of(queueName), SimpleString.of(filterString));
    }
 
    @Override
@@ -859,12 +760,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public ClientConsumer createConsumer(final String queueName,
                                         final String filterString,
                                         final boolean browseOnly) throws ActiveMQException {
-      return createConsumer(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString), browseOnly);
+      return createConsumer(SimpleString.of(queueName), SimpleString.of(filterString), browseOnly);
    }
 
    @Override
    public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws ActiveMQException {
-      return createConsumer(SimpleString.toSimpleString(queueName), null, browseOnly);
+      return createConsumer(SimpleString.of(queueName), null, browseOnly);
    }
 
    @Override
@@ -882,14 +783,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    /**
-    * Note, we DO NOT currently support direct consumers (i.e. consumers where delivery occurs on
-    * the remoting thread).
+    * Note, we DO NOT currently support direct consumers (i.e. consumers where delivery occurs on the remoting thread).
     * <p>
-    * Direct consumers have issues with blocking and failover. E.g. if direct then inside
-    * MessageHandler call a blocking method like rollback or acknowledge (blocking) This can block
-    * until failover completes, which disallows the thread to be used to deliver any responses to
-    * the client during that period, so failover won't occur. If we want direct consumers we need to
-    * rethink how they work.
+    * Direct consumers have issues with blocking and failover. E.g. if direct then inside MessageHandler call a blocking
+    * method like rollback or acknowledge (blocking) This can block until failover completes, which disallows the thread
+    * to be used to deliver any responses to the client during that period, so failover won't occur. If we want direct
+    * consumers we need to rethink how they work.
     */
    @Override
    public ClientConsumer createConsumer(final SimpleString queueName,
@@ -907,7 +806,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                         final int windowSize,
                                         final int maxRate,
                                         final boolean browseOnly) throws ActiveMQException {
-      return createConsumer(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString), windowSize, maxRate, browseOnly);
+      return createConsumer(SimpleString.of(queueName), SimpleString.of(filterString), windowSize, maxRate, browseOnly);
    }
 
    @Override
@@ -922,7 +821,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public ClientProducer createProducer(final String address) throws ActiveMQException {
-      return createProducer(SimpleString.toSimpleString(address));
+      return createProducer(SimpleString.of(address));
    }
 
    @Override
@@ -931,7 +830,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    public ClientProducer createProducer(final String address, final int rate) throws ActiveMQException {
-      return createProducer(SimpleString.toSimpleString(address), rate);
+      return createProducer(SimpleString.of(address), rate);
    }
 
    @Override
@@ -960,18 +859,16 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       logger.trace("Sending commit");
 
-      /*
-      * we have failed over since any work was done so we should rollback
-      * */
+      // we have failed over since any work was done so we should rollback
       if (rollbackOnly) {
          rollbackOnFailover(true);
       }
 
       flushAcks();
       /*
-      * if we have failed over whilst flushing the acks then we should rollback and throw exception before attempting to
-      * commit as committing might actually commit something but we we wouldn't know and rollback after the commit
-      * */
+       * if we have failed over whilst flushing the acks then we should rollback and throw exception before attempting to
+       * commit as committing might actually commit something but we we wouldn't know and rollback after the commit
+       */
       if (rollbackOnly) {
          rollbackOnFailover(true);
       }
@@ -1175,7 +1072,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public String getNodeId() {
-      return sessionFactory.getLiveNodeId();
+      return sessionFactory.getPrimaryNodeId();
    }
 
    // ClientSessionInternal implementation
@@ -1196,9 +1093,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return compressionLevel;
    }
 
-   /**
-    * @return the cacheLargeMessageClient
-    */
    @Override
    public boolean isCacheLargeMessageClient() {
       return cacheLargeMessageClient;
@@ -1209,9 +1103,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return name;
    }
 
-   /**
-    * Acknowledges all messages received by the consumer so far.
-    */
    @Override
    public void acknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException {
       // if we're pre-acknowledging then we don't need to do anything
@@ -1327,14 +1218,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       final ClientConsumerInternal consumer = getConsumer(context);
 
       if (consumer != null) {
-         closeExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  consumer.close();
-               } catch (ActiveMQException e) {
-                  ActiveMQClientLogger.LOGGER.unableToCloseConsumer(e);
-               }
+         closeExecutor.execute(() -> {
+            try {
+               consumer.close();
+            } catch (ActiveMQException e) {
+               ActiveMQClientLogger.LOGGER.unableToCloseConsumer(e);
             }
          });
       }
@@ -1512,7 +1400,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             }
          }
 
-         HashMap<String, String> metaDataToSend;
+         Map<String, String> metaDataToSend;
 
          synchronized (metadata) {
             metaDataToSend = new HashMap<>(metadata);
@@ -1766,14 +1654,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          return false;
       }
 
-      String liveNodeId = sessionFactory.getLiveNodeId();
-      String otherLiveNodeId = ((ClientSessionFactoryInternal) other.getSessionFactory()).getLiveNodeId();
+      String primaryNodeId = sessionFactory.getPrimaryNodeId();
+      String otherPrimaryNodeId = ((ClientSessionFactoryInternal) other.getSessionFactory()).getPrimaryNodeId();
 
-      if (liveNodeId != null && otherLiveNodeId != null) {
-         return liveNodeId.equals(otherLiveNodeId);
+      if (primaryNodeId != null && otherPrimaryNodeId != null) {
+         return primaryNodeId.equals(otherPrimaryNodeId);
       }
 
-      //we shouldn't get here, live node id should always be set
+      //we shouldn't get here, primary node id should always be set
       return sessionFactory == other.getSessionFactory();
    }
 
@@ -1781,10 +1669,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       if (xares == null) {
          return null;
       }
-      if (xares instanceof ClientSessionInternal) {
-         return (ClientSessionInternal) xares;
-      } else if (xares instanceof ActiveMQXAResource) {
-         return getSessionInternalFromXAResource(((ActiveMQXAResource) xares).getResource());
+      if (xares instanceof ClientSessionInternal clientSessionInternal) {
+         return clientSessionInternal;
+      } else if (xares instanceof ActiveMQXAResource activeMQXAResource) {
+         return getSessionInternalFromXAResource(activeMQXAResource.getResource());
       }
       return null;
    }
@@ -1901,18 +1789,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          workDone = false;
       } catch (XAException xae) {
          throw xae;
-      } catch (ActiveMQException e) {
-         if (e.getType() == ActiveMQExceptionType.UNBLOCKED || e.getType() == ActiveMQExceptionType.CONNECTION_TIMEDOUT || e.getType() == ActiveMQExceptionType.SHUTDOWN_ERROR) {
-            // Unblocked on failover
-            throw new XAException(XAException.XA_RETRY);
-         }
-
-         // This should never occur
-         XAException xaException = new XAException(XAException.XAER_RMFAIL);
-         xaException.initCause(e);
-         throw xaException;
       } catch (Throwable t) {
-         // This could occur if the TM interrupts the thread
+         if (logger.isTraceEnabled()) {
+            logger.trace("Rollback failed:: {}", convert(xid), t);
+         }
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
          throw xaException;
@@ -2007,14 +1887,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          Integer.toHexString(hashCode());
    }
 
-   /**
-    * @param queueName
-    * @param filterString
-    * @param windowSize
-    * @param browseOnly
-    * @return
-    * @throws ActiveMQException
-    */
    private ClientConsumer internalCreateConsumer(final SimpleString queueName,
                                                  final SimpleString filterString,
                                                  final int priority,
@@ -2023,7 +1895,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                                  final boolean browseOnly) throws ActiveMQException {
       checkClosed();
 
-      ClientConsumerInternal consumer = sessionContext.createConsumer(queueName, filterString, priority, windowSize, maxRate, ackBatchSize, browseOnly, executor, flowControlExecutor);
+      ClientConsumerInternal consumer = sessionContext.createConsumer(queueName, filterString, priority, windowSize, maxRate, ackBatchSize, browseOnly, executor, flowControlExecutor, onMessageCloseTimeout);
 
       addConsumer(consumer);
 
@@ -2048,7 +1920,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                                                       maxRate == -1 ? null : new TokenBucketLimiterImpl(maxRate, false),
                                                                       autoCommitSends && blockOnNonDurableSend,
                                                                       autoCommitSends && blockOnDurableSend,
-                                                                      autoGroup, groupID == null ? null : new SimpleString(groupID),
+                                                                      autoGroup, groupID == null ? null : SimpleString.of(groupID),
                                                                       minLargeMessageSize,
                                                                       sessionContext,
                                                                       producerIDs.incrementAndGet());
@@ -2131,8 +2003,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    /**
     * Not part of the interface, used on tests only
-    *
-    * @return
     */
    public Set<ClientProducerInternal> cloneProducers() {
       Set<ClientProducerInternal> producersClone;
@@ -2145,8 +2015,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    /**
     * Not part of the interface, used on tests only
-    *
-    * @return
     */
    public Set<ClientConsumerInternal> cloneConsumers() {
       synchronized (consumers) {
@@ -2181,14 +2049,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    /**
-    * If you ever tried to debug XIDs you will know what this is about.
-    * This will serialize and deserialize the XID to the same way it's going to be printed on server logs
-    * or print-data.
+    * If you ever tried to debug XIDs you will know what this is about. This will serialize and deserialize the XID to
+    * the same way it's going to be printed on server logs or print-data.
     * <p>
     * This will convert to the same XID deserialized on the Server, hence we will be able to debug eventual stuff
-    *
-    * @param xid
-    * @return
     */
    public static Object convert(Xid xid) {
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(200);

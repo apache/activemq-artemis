@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.File;
-import java.security.AccessController;
+import java.io.IOException;
 import java.security.PrivilegedAction;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.utils.TokenBucketLimiter;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -55,11 +56,9 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final long CLOSE_TIMEOUT_MILLISECONDS = 10000;
-
    private static final int NUM_PRIORITIES = 10;
 
-   public static final SimpleString FORCED_DELIVERY_MESSAGE = new SimpleString("_hornetq.forced.delivery.seq");
+   public static final SimpleString FORCED_DELIVERY_MESSAGE = SimpleString.of("_hornetq.forced.delivery.seq");
 
    private final ClientSessionInternal session;
 
@@ -136,6 +135,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    private final ClassLoader contextClassLoader;
    private volatile boolean manualFlowManagement;
 
+   private final int onMessageCloseTimeout;
+
    public ClientConsumerImpl(final ClientSessionInternal session,
                              final ConsumerContext consumerContext,
                              final SimpleString queueName,
@@ -150,7 +151,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                              final Executor flowControlExecutor,
                              final SessionContext sessionContext,
                              final ClientSession.QueueQuery queueInfo,
-                             final ClassLoader contextClassLoader) {
+                             final ClassLoader contextClassLoader,
+                             final int onMessageCloseTimeout) {
       this.consumerContext = consumerContext;
 
       this.queueName = queueName;
@@ -180,6 +182,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       this.contextClassLoader = contextClassLoader;
 
       this.flowControlExecutor = flowControlExecutor;
+
+      this.onMessageCloseTimeout = onMessageCloseTimeout;
 
       if (logger.isTraceEnabled()) {
          logger.trace("{}:: being created at", this, new Exception("trace"));
@@ -300,7 +304,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
             if (callForceDelivery) {
                logger.trace("{}::Forcing delivery", this);
-               // JBPAPP-6030 - Calling forceDelivery outside of the lock to avoid distributed dead locks
+               // Calling forceDelivery outside of the lock to avoid distributed dead locks
                sessionContext.forceDelivery(this, forceDeliveryCount.getAndIncrement());
                callForceDelivery = false;
                deliveryForced = true;
@@ -454,7 +458,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
     * To be used by MDBs to stop any more handling of messages.
     *
     * @param future the future to run once the onMessage Thread has completed
-    * @throws ActiveMQException
     */
    @Override
    public Thread prepareForClose(final FutureLatch future) throws ActiveMQException {
@@ -463,12 +466,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       resetLargeMessageController();
 
       //execute the future after the last onMessage call
-      sessionExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            future.run();
-         }
-      });
+      sessionExecutor.execute(future::run);
 
       return onMessageThread;
    }
@@ -576,7 +574,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       }
 
       if (message.getBooleanProperty(Message.HDR_LARGE_COMPRESSED)) {
-         handleCompressedMessage(message);
+         handleCompressedMessageSentAsRegular(message);
       } else {
          handleRegularMessage(message);
       }
@@ -610,26 +608,24 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    }
 
    /**
-    * This method deals with messages arrived as regular message but its contents are compressed.
-    * Such messages come from message senders who are configured to compress large messages, and
-    * if some of the messages are compressed below the min-large-message-size limit, they are sent
-    * as regular messages.
-    * <br>
-    * However when decompressing the message, we are not sure how large the message could be..
-    * for that reason we fake a large message controller that will deal with the message as it was a large message
-    * <br>
+    * This method deals with messages arrived as regular message but its contents are compressed. Such messages come
+    * from message senders who are configured to compress large messages, and if some of the messages are compressed
+    * below the min-large-message-size limit, they are sent as regular messages.
+    * <p>
+    * However when decompressing the message, we are not sure how large the message could be.. for that reason we fake a
+    * large message controller that will deal with the message as it was a large message
+    * <p>
     * Say that you sent a 1G message full of spaces. That could be just bellow 100K compressed but you wouldn't have
     * enough memory to decompress it
     */
-   private void handleCompressedMessage(final ClientMessageInternal clMessage) throws Exception {
+   private void handleCompressedMessageSentAsRegular(final ClientMessageInternal clMessage) throws Exception {
       ClientLargeMessageImpl largeMessage = new ClientLargeMessageImpl();
       largeMessage.retrieveExistingData(clMessage);
 
       File largeMessageCache = null;
 
       if (session.isCacheLargeMessageClient()) {
-         largeMessageCache = File.createTempFile("tmp-large-message-" + largeMessage.getMessageID() + "-", ".tmp");
-         largeMessageCache.deleteOnExit();
+         largeMessageCache = createLargeMessageCache(largeMessage.getMessageID());
       }
 
       ClientSessionFactory sf = session.getSessionFactory();
@@ -637,7 +633,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       long callTimeout = locator.getCallTimeout();
 
       currentLargeMessageController = new LargeMessageControllerImpl(this, largeMessage.getLargeMessageSize(), callTimeout, largeMessageCache);
-      currentLargeMessageController.setLocal(true);
+      currentLargeMessageController.setOriginallyRegular(true);
 
       //sets the packet
       ActiveMQBuffer qbuff = clMessage.toCore().getBodyBuffer();
@@ -645,9 +641,22 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       final byte[] body = new byte[bytesToRead];
       qbuff.readBytes(body);
       largeMessage.setLargeMessageController(new CompressedLargeMessageControllerImpl(currentLargeMessageController));
-      currentLargeMessageController.addPacket(body, body.length, false);
+      // this is refeeding the packet after decompressed, hence the flow control must be 0
+      currentLargeMessageController.addPacket(body, 0, false);
+      currentLargeMessageController = null;
 
       handleRegularMessage(largeMessage);
+   }
+
+   private File createLargeMessageCache(long messageId) throws IOException {
+      File largeMessageCache = File.createTempFile("tmp-large-message-" + messageId + "-", ".tmp");
+      largeMessageCache.setReadable(false, false);
+      largeMessageCache.setExecutable(false, false);
+      largeMessageCache.setWritable(false, false);
+      largeMessageCache.setReadable(true, true);
+      largeMessageCache.setWritable(true, true);
+      largeMessageCache.deleteOnExit();
+      return largeMessageCache;
    }
 
    @Override
@@ -662,8 +671,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       File largeMessageCache = null;
 
       if (session.isCacheLargeMessageClient()) {
-         largeMessageCache = File.createTempFile("tmp-large-message-" + clientLargeMessage.getMessageID() + "-", ".tmp");
-         largeMessageCache.deleteOnExit();
+         largeMessageCache = createLargeMessageCache(clientLargeMessage.getMessageID());
       }
 
       ClientSessionFactory sf = session.getSessionFactory();
@@ -799,10 +807,11 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    }
 
    /**
-    * LargeMessageBuffer will call flowcontrol here, while other handleMessage will also be calling flowControl.
-    * So, this operation needs to be atomic.
+    * LargeMessageBuffer will call flowcontrol here, while other handleMessage will also be calling flowControl. So,
+    * this operation needs to be atomic.
     *
-    * @param discountSlowConsumer When dealing with slowConsumers, we need to discount one credit that was pre-sent when the first receive was called. For largeMessage that is only done at the latest packet
+    * @param discountSlowConsumer When dealing with slowConsumers, we need to discount one credit that was pre-sent when
+    *                             the first receive was called. For largeMessage that is only done at the latest packet
     */
    @Override
    public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException {
@@ -865,12 +874,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
          // If resetting a slow consumer, we need to wait the execution
          final CountDownLatch latch = new CountDownLatch(1);
-         flowControlExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-               latch.countDown();
-            }
-         });
+         flowControlExecutor.execute(latch::countDown);
 
          try {
             latch.await(10, TimeUnit.SECONDS);
@@ -891,19 +895,13 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       sessionExecutor.execute(runner);
    }
 
-   /**
-    * @param credits
-    */
    private void sendCredits(final int credits) {
       pendingFlowControl.countUp();
-      flowControlExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               sessionContext.sendConsumerCredits(ClientConsumerImpl.this, credits);
-            } finally {
-               pendingFlowControl.countDown();
-            }
+      flowControlExecutor.execute(() -> {
+         try {
+            sessionContext.sendConsumerCredits(ClientConsumerImpl.this, credits);
+         } finally {
+            pendingFlowControl.countDown();
          }
       });
    }
@@ -922,10 +920,12 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
       sessionExecutor.execute(future);
 
-      boolean ok = future.await(ClientConsumerImpl.CLOSE_TIMEOUT_MILLISECONDS);
-
-      if (!ok) {
-         ActiveMQClientLogger.LOGGER.timeOutWaitingForProcessing();
+      if (onMessageCloseTimeout == -1) {
+         future.await();
+      } else {
+         if (!future.await(onMessageCloseTimeout)) {
+            ActiveMQClientLogger.LOGGER.timeOutWaitingForProcessing(onMessageCloseTimeout);
+         }
       }
    }
 
@@ -992,11 +992,16 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
                logger.trace("{}::Handler.onMessage done", this);
 
-               if (message.isLargeMessage()) {
-                  message.discardBody();
-               }
             } else {
+               theHandler.onMessageExpired(message);
+
+               logger.trace("{}::Handler.onMessageExpired done", this);
+
                session.expire(this, message);
+            }
+
+            if (message.isLargeMessage()) {
+               message.discardBody();
             }
 
             // If slow consumer, we need to send 1 credit to make sure we get another message
@@ -1018,21 +1023,21 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    }
 
    private ClassLoader safeInstallContextClassLoader() {
-      if (System.getSecurityManager() == null) {
+      if (!SecurityManagerShim.isSecurityManagerEnabled()) {
          try {
             return unsafeInstallContextClassLoader();
          } catch (SecurityException ignored) {
             // racy security manager set
          }
       }
-      return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) this::unsafeInstallContextClassLoader);
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ClassLoader>) this::unsafeInstallContextClassLoader);
    }
 
    private void safeRestoreContextClassLoader(final ClassLoader originalClassLoader) {
       if (Objects.equals(originalClassLoader, contextClassLoader)) {
          return;
       }
-      if (System.getSecurityManager() == null) {
+      if (!SecurityManagerShim.isSecurityManagerEnabled()) {
          try {
             Thread.currentThread().setContextClassLoader(originalClassLoader);
             return;
@@ -1040,16 +1045,12 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
             // racy security manager set
          }
       }
-      AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+      SecurityManagerShim.doPrivileged((PrivilegedAction<Void>) () -> {
          Thread.currentThread().setContextClassLoader(originalClassLoader);
          return null;
       });
    }
 
-   /**
-    * @param message
-    * @throws ActiveMQException
-    */
    private void flowControlBeforeConsumption(final ClientMessageInternal message) throws ActiveMQException {
       if (manualFlowManagement) {
          return;
@@ -1057,7 +1058,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       // Chunk messages will execute the flow control while receiving the chunks
       if (message.getFlowControlSize() != 0) {
          // on large messages we should discount 1 on the first packets as we need continuity until the last packet
-         flowControl(message.getFlowControlSize(), !message.isLargeMessage());
+         flowControl(message.getFlowControlSize(), !message.isLargeMessage() || message.isOriginallyRegular());
       }
    }
 

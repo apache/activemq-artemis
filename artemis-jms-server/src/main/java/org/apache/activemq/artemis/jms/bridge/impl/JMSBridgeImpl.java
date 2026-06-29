@@ -36,7 +36,6 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionRolledbackException;
 import javax.transaction.xa.XAResource;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -73,6 +72,7 @@ import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistry;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -198,9 +198,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
    private long abortedMessageCount = 0;
 
-   /*
-    * Constructor for MBean
-    */
+   // Constructor for MBean
    public JMSBridgeImpl() {
       messages = new LinkedList<>();
       executor = createExecutor();
@@ -347,12 +345,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          stopping = false;
       }
 
-      moduleTccl = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         @Override
-         public ClassLoader run() {
-            return Thread.currentThread().getContextClassLoader();
-         }
-      });
+      moduleTccl = SecurityManagerShim.doPrivileged((PrivilegedAction<ClassLoader>) () -> Thread.currentThread().getContextClassLoader());
 
       locateRecoveryRegistry();
 
@@ -406,6 +399,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       if (ok) {
          connectedSource = true;
          connectedTarget = true;
+         failed = false;
          startSource();
       } else {
          ActiveMQJMSBridgeLogger.LOGGER.errorStartingBridge(bridgeName);
@@ -499,8 +493,9 @@ public final class JMSBridgeImpl implements JMSBridge {
 
    private void stop(boolean isFailureHandler) throws Exception {
       synchronized (stoppingGuard) {
-         if (stopping)
+         if (stopping) {
             return;
+         }
          stopping = true;
       }
 
@@ -600,7 +595,7 @@ public final class JMSBridgeImpl implements JMSBridge {
                }
             }
 
-            if (messages.size() > 0) {
+            if (!messages.isEmpty()) {
                // Clear outstanding messages so they don't get retransmitted and duplicated on the other side of the bridge
                logger.trace("Clearing up messages before stopping...");
                messages.clear();
@@ -797,7 +792,7 @@ public final class JMSBridgeImpl implements JMSBridge {
    @Override
    public synchronized void setMaxRetries(final int retries) {
       checkBridgeNotStarted();
-      JMSBridgeImpl.checkValidValue(retries, "MaxRetries");
+      JMSBridgeImpl.checkValidValue(retries, "MaxRetries", true);
 
       maxRetries = retries;
    }
@@ -921,7 +916,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       checkNotNull(sourceDestinationFactory, "sourceDestinationFactory");
       checkNotNull(targetDestinationFactory, "targetDestinationFactory");
       checkValidValue(failureRetryInterval, "failureRetryInterval");
-      checkValidValue(maxRetries, "maxRetries");
+      checkValidValue(maxRetries, "maxRetries", true);
       if (failureRetryInterval == -1 && maxRetries > 0) {
          throw new IllegalArgumentException("If failureRetryInterval == -1 maxRetries must be set to -1");
       }
@@ -953,11 +948,23 @@ public final class JMSBridgeImpl implements JMSBridge {
    }
 
    /**
-    * Check that value is either equals to -1 or greater than 0
+    * Check that value is either equals to -1 or > 0
     *
     * @throws IllegalArgumentException if the value is not valid
     */
    private static void checkValidValue(final long value, final String name) {
+      checkValidValue(value, name, false);
+   }
+
+   /**
+    * Check that value is either equals to -1 or >= 0
+    *
+    * @throws IllegalArgumentException if the value is not valid
+    */
+   private static void checkValidValue(final long value, final String name, boolean allowZero) {
+      if (value == 0 && allowZero) {
+         return;
+      }
       if (!(value == -1 || value > 0)) {
          throw new IllegalArgumentException(name + " must be > 0 or -1");
       }
@@ -1042,8 +1049,8 @@ public final class JMSBridgeImpl implements JMSBridge {
 
          Object cf = cff.createConnectionFactory();
 
-         if (cf instanceof ActiveMQConnectionFactory && registry != null) {
-            registry.register(XARecoveryConfig.newConfig((ActiveMQConnectionFactory) cf, username, password, null));
+         if (cf instanceof ActiveMQConnectionFactory factory && registry != null) {
+            registry.register(XARecoveryConfig.newConfig(factory, username, password, null));
          }
 
          if (qualityOfServiceMode == QualityOfServiceMode.ONCE_AND_ONLY_ONCE && !(cf instanceof XAConnectionFactory)) {
@@ -1075,12 +1082,11 @@ public final class JMSBridgeImpl implements JMSBridge {
          boolean ha = false;
          BridgeFailoverListener failoverListener = null;
 
-         if (conn instanceof ActiveMQConnection) {
+         if (conn instanceof ActiveMQConnection activeMQConn) {
             ActiveMQConnectionFactory activeMQCF = (ActiveMQConnectionFactory) cf;
             ha = activeMQCF.isHA();
 
             if (ha) {
-               ActiveMQConnection activeMQConn = (ActiveMQConnection) conn;
                failoverListener = new BridgeFailoverListener(isSource);
                activeMQConn.setFailoverListener(failoverListener);
             }
@@ -1131,7 +1137,6 @@ public final class JMSBridgeImpl implements JMSBridge {
     *
     * When bridging a batch, we make sure to manually acknowledge the consuming session, if it is CLIENT_ACKNOWLEDGE
     * *before* the batch has been sent
-    *
     */
    private boolean setupJMSObjects() {
       try {
@@ -1296,7 +1301,8 @@ public final class JMSBridgeImpl implements JMSBridge {
    }
 
    /**
-    * Pause the calling thread for the given {@code millis}: it returns {@code true} if not interrupted, {@code false} otherwise.
+    * Pause the calling thread for the given {@code millis}: it returns {@code true} if not interrupted, {@code false}
+    * otherwise.
     */
    private static boolean pause(final long millis) {
       assert millis >= 0;
@@ -1515,7 +1521,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
          logger.trace("Sending message {}", msg);
 
-         // Make sure the correct time to live gets propagated
+         // Make sure the correct time-to-live gets propagated
 
          long timeToLive = msg.getJMSExpiration();
 
@@ -1570,7 +1576,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       if (val == null) {
          val = msg.getJMSMessageID();
       } else {
-         StringBuffer sb = new StringBuffer(val);
+         StringBuilder sb = new StringBuilder(val);
 
          sb.append(",").append(msg.getJMSMessageID());
 
@@ -1610,18 +1616,18 @@ public final class JMSBridgeImpl implements JMSBridge {
             Object val = entry.getValue();
 
             if (val instanceof byte[] == false) {
-               //Can't set byte[] array props through the JMS API - if we're bridging an ActiveMQ Artemis message it might have such props
+               //Can't set byte[] array props through the JMS API - if we're bridging an Apache Artemis message it might have such props
                msg.setObjectProperty(propName, entry.getValue());
-            } else if (msg instanceof ActiveMQMessage) {
-               ((ActiveMQMessage) msg).getCoreMessage().putBytesProperty(propName, (byte[]) val);
+            } else if (msg instanceof ActiveMQMessage activeMQMessage) {
+               activeMQMessage.getCoreMessage().putBytesProperty(propName, (byte[]) val);
             }
          }
       }
    }
 
    /**
-    * Creates a 3-sized thread pool executor (1 thread for the sourceReceiver, 1 for the timeChecker
-    * and 1 for the eventual failureHandler)
+    * Creates a 3-sized thread pool executor (1 thread for the sourceReceiver, 1 for the timeChecker and 1 for the
+    * eventual failureHandler)
     */
    private ExecutorService createExecutor() {
       ExecutorService service = Executors.newFixedThreadPool(3, new ThreadFactory() {
@@ -1632,12 +1638,9 @@ public final class JMSBridgeImpl implements JMSBridge {
          public Thread newThread(Runnable r) {
             final Thread thr = new Thread(group, r);
             if (moduleTccl != null) {
-               AccessController.doPrivileged(new PrivilegedAction() {
-                  @Override
-                  public Object run() {
-                     thr.setContextClassLoader(moduleTccl);
-                     return null;
-                  }
+               SecurityManagerShim.doPrivileged((PrivilegedAction<Object>) () -> {
+                  thr.setContextClassLoader(moduleTccl);
+                  return null;
                });
             }
             return thr;
@@ -1647,9 +1650,8 @@ public final class JMSBridgeImpl implements JMSBridge {
    }
 
    /**
-    * We use a Thread which polls the sourceDestination instead of a MessageListener
-    * to ensure that message delivery does not happen concurrently with
-    * transaction enlistment of the XAResource (see HORNETQ-27)
+    * We use a Thread which polls the sourceDestination instead of a MessageListener to ensure that message delivery
+    * does not happen concurrently with transaction enlistment of the XAResource
     */
    private final class SourceReceiver implements Runnable {
 
@@ -1680,10 +1682,10 @@ public final class JMSBridgeImpl implements JMSBridge {
                   try {
                      msg = sourceConsumer.receive(1000);
 
-                     if (msg instanceof ActiveMQMessage) {
+                     if (msg instanceof ActiveMQMessage activeMQMessage) {
                         // We need to check the buffer mainly in the case of LargeMessages
                         // As we need to reconstruct the buffer before resending the message
-                        ((ActiveMQMessage) msg).checkBuffer();
+                        activeMQMessage.checkBuffer();
                      }
                   } catch (JMSException jmse) {
                      if (logger.isTraceEnabled()) {
@@ -1732,8 +1734,8 @@ public final class JMSBridgeImpl implements JMSBridge {
    private class FailureHandler implements Runnable {
 
       /**
-       * Start the source connection - note the source connection must not be started before
-       * otherwise messages will be received and ignored
+       * Start the source connection - note the source connection must not be started before otherwise messages will be
+       * received and ignored
        */
       protected void startSourceConnection() {
          try {
@@ -2026,9 +2028,7 @@ public final class JMSBridgeImpl implements JMSBridge {
             return false;
          }
 
-         /*
-          * make sure we reset the connected flags
-          * */
+         // make sure we reset the connected flags
          if (result == FailoverEventType.FAILOVER_COMPLETED) {
             if (isSource) {
                connectedSource = true;

@@ -28,8 +28,8 @@ public interface ClientProtocolManagerFactory {
    ServerLocator getLocator();
 
    /**
-    * Adapt the transport configuration passed in parameter and return an adapted one that is suitable to use with ClientProtocolManager
-    * created by this factory.
+    * Adapt the transport configuration passed in parameter and return an adapted one that is suitable to use with
+    * ClientProtocolManager created by this factory.
     *
     * @param tc the original TransportConfiguration
     * @return the adapted TransportConfiguration

@@ -17,10 +17,11 @@
 package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.TemporaryQueue;
+import java.util.Objects;
 
 /**
- * ActiveMQ Artemis implementation of a JMS TemporaryQueue.
- * <br>
+ * Apache Artemis implementation of a JMS TemporaryQueue.
+ * <p>
  * This class can be instantiated directly.
  */
 public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQueue {
@@ -35,10 +36,6 @@ public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQu
       this(null, null);
    }
 
-   /**
-    * @param address
-    * @param session
-    */
    public ActiveMQTemporaryQueue(String address, ActiveMQSession session) {
       super(address, true, session);
    }
@@ -49,18 +46,15 @@ public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQu
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (!(o instanceof ActiveMQTemporaryQueue)) {
+      if (!(obj instanceof ActiveMQTemporaryQueue other)) {
          return false;
       }
 
-      ActiveMQTemporaryQueue that = (ActiveMQTemporaryQueue) o;
-
-      return super.getAddress().equals(that.getAddress());
+      return Objects.equals(super.getAddress(), other.getAddress());
    }
 
    @Override

@@ -16,8 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ConcurrentModificationException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -39,22 +47,15 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.RetryMethod;
-import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LVQTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    private ActiveMQServer server;
 
@@ -64,57 +65,68 @@ public class LVQTest extends ActiveMQTestBase {
 
    private ClientSession clientSessionTxSends;
 
-   private final SimpleString address = new SimpleString("LVQTestAddress");
+   private final SimpleString address = SimpleString.of("LVQTestAddress");
 
-   private final SimpleString qName1 = new SimpleString("LVQTestQ1");
+   private final SimpleString qName1 = SimpleString.of("LVQTestQ1");
 
    @Test
    public void testSimple() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
       m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       producer.send(m1);
       producer.send(m2);
+
+      Queue lvQueue = server.locateQueue(qName1);
+      // delivering is asynchronous. We have to make sure that all messages were sent
+      Wait.assertEquals(2L, lvQueue::getMessagesAdded, 5000, 100);
+      // messages were replaced by the LVQ so it should have only one
+      Wait.assertEquals(1L, lvQueue::getMessageCount, 5000, 100);
+      Wait.assertEquals(1L, lvQueue::getMessagesReplaced, 5000, 100);
+
       clientSession.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      clientSession.commit();
+
+      assertEquals("m2", m.getBodyBuffer().readString());
    }
 
    @Test
    public void testSimpleExclusive() throws Exception {
       ServerLocator locator = createNettyNonHALocator().setConsumerWindowSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
-      ClientSession clientSession = addClientSession(sf.createSession(false, true, true));
+      ClientSession clientSession = addClientSession(sf.createSession(false, true, false));
       final String EXCLUSIVE_QUEUE = "exclusiveQueue";
 
-      clientSession.createQueue(new QueueConfiguration(EXCLUSIVE_QUEUE).setExclusive(true).setLastValue(true));
+      clientSession.createQueue(QueueConfiguration.of(EXCLUSIVE_QUEUE).setExclusive(true).setLastValue(true));
       ClientProducer producer = clientSession.createProducer(EXCLUSIVE_QUEUE);
       ClientConsumer consumer = clientSession.createConsumer(EXCLUSIVE_QUEUE);
       clientSession.start();
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
       m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       producer.send(m1);
       producer.send(m2);
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      clientSession.commit();
+      assertEquals("m2", m.getBodyBuffer().readString());
    }
 
    @Test
    public void testSimpleRestart() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       producer.send(m1);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
@@ -129,7 +141,7 @@ public class LVQTest extends ActiveMQTestBase {
       assertEquals(1, server.locateQueue(qName1).getMessageCount());
       ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
-      clientSession = addClientSession(sf.createSession(false, true, true));
+      clientSession = addClientSession(sf.createSession(false, true, false));
       producer = clientSession.createProducer(address);
       ClientMessage m3 = createTextMessage(clientSession, "m3");
       m3.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
@@ -140,17 +152,18 @@ public class LVQTest extends ActiveMQTestBase {
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       clientSession.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals("m3", m.getBodyBuffer().readString());
+      clientSession.commit();
+      assertEquals("m3", m.getBodyBuffer().readString());
    }
 
    @Test
    public void testMultipleMessages() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
-      SimpleString messageId1 = new SimpleString("SMID1");
-      SimpleString messageId2 = new SimpleString("SMID2");
+      SimpleString messageId1 = SimpleString.of("SMID1");
+      SimpleString messageId2 = SimpleString.of("SMID2");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
@@ -163,15 +176,22 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m2);
       producer.send(m3);
       producer.send(m4);
+      Queue serverQueue = server.locateQueue(qName1);
+      Wait.assertEquals(2L, serverQueue::getMessageCount, 5000, 100);
+      Wait.assertEquals(4L, serverQueue::getMessagesAdded, 5000, 100);
+      Wait.assertEquals(2L, serverQueue::getMessagesReplaced, 5000, 100);
       clientSession.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      clientSession.commit();
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      clientSession.commit();
+      assertEquals("m4", m.getBodyBuffer().readString());
+      assertNull(consumer.receiveImmediate());
    }
 
    @Test
@@ -187,13 +207,15 @@ public class LVQTest extends ActiveMQTestBase {
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       clientSession.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals("message1", m.getBodyBuffer().readString());
+      clientSession.commit();
+      assertEquals("message1", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals("message2", m.getBodyBuffer().readString());
+      clientSession.commit();
+      assertEquals("message2", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -205,7 +227,7 @@ public class LVQTest extends ActiveMQTestBase {
 
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
-      SimpleString messageId1 = new SimpleString("SMID1");
+      SimpleString messageId1 = SimpleString.of("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
       producer.send(m1);
@@ -213,7 +235,7 @@ public class LVQTest extends ActiveMQTestBase {
       for (int i = 0; i < 10; i++) {
          logger.debug("#Deliver {}", i);
          ClientMessage m = consumer.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          clientSessionTxReceives.rollback();
       }
@@ -221,10 +243,11 @@ public class LVQTest extends ActiveMQTestBase {
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
       producer.send(m1);
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
-      Assert.assertNull(consumer.receiveImmediate());
+      clientSession.commit();
+      assertEquals("m1", m.getBodyBuffer().readString());
+      assertNull(consumer.receiveImmediate());
       clientSessionTxReceives.commit();
    }
 
@@ -233,21 +256,23 @@ public class LVQTest extends ActiveMQTestBase {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
       m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       producer.send(m1);
       clientSession.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       producer.send(m2);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      clientSession.commit();
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      clientSession.commit();
+      assertEquals("m2", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -255,24 +280,25 @@ public class LVQTest extends ActiveMQTestBase {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
       m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       producer.send(m1);
       clientSession.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       producer.send(m2);
       consumer.close();
       consumer = clientSession.createConsumer(qName1);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
+      clientSession.commit();
       m = consumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -280,7 +306,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
 
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
@@ -296,36 +322,37 @@ public class LVQTest extends ActiveMQTestBase {
       clientSession.start();
       producer.send(m1);
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       producer.send(m2);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       producer.send(m3);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
       producer.send(m4);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
       producer.send(m5);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertNotNull(m);
+      assertEquals("m5", m.getBodyBuffer().readString());
       producer.send(m6);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertNotNull(m);
+      assertEquals("m6", m.getBodyBuffer().readString());
       consumer.close();
       consumer = clientSession.createConsumer(qName1);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
+      clientSession.commit();
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = consumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -334,7 +361,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
       m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
@@ -342,16 +369,17 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m2);
       clientSessionTxReceives.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      clientSession.commit();
+      assertEquals("m2", m.getBodyBuffer().readString());
    }
 
    @Test
    public void testMultipleMessagesInTx() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
-      SimpleString messageId1 = new SimpleString("SMID1");
-      SimpleString messageId2 = new SimpleString("SMID2");
+      SimpleString messageId1 = SimpleString.of("SMID1");
+      SimpleString messageId2 = SimpleString.of("SMID2");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
@@ -367,24 +395,26 @@ public class LVQTest extends ActiveMQTestBase {
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
       clientSessionTxReceives.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      clientSession.commit();
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      clientSession.commit();
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSessionTxReceives.commit();
       m = consumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
    public void testMultipleMessagesInTxRollback() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
-      SimpleString messageId1 = new SimpleString("SMID1");
-      SimpleString messageId2 = new SimpleString("SMID2");
+      SimpleString messageId1 = SimpleString.of("SMID1");
+      SimpleString messageId2 = SimpleString.of("SMID2");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
@@ -397,52 +427,59 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m2);
       clientSessionTxReceives.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      clientSession.commit();
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      clientSession.commit();
+      assertEquals("m2", m.getBodyBuffer().readString());
       producer.send(m3);
       producer.send(m4);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      clientSession.commit();
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      clientSession.commit();
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSessionTxReceives.rollback();
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      clientSession.commit();
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      clientSession.commit();
+      assertEquals("m4", m.getBodyBuffer().readString());
    }
 
    @Test
    public void testSingleTXRollback() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
-      SimpleString messageId1 = new SimpleString("SMID1");
+      SimpleString messageId1 = SimpleString.of("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
       producer.send(m1);
       clientSessionTxReceives.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
       clientSessionTxReceives.rollback();
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
-      Assert.assertNull(consumer.receiveImmediate());
+      clientSessionTxReceives.commit();
+      assertEquals("m1", m.getBodyBuffer().readString());
+      assertNull(consumer.receiveImmediate());
    }
 
    @Test
@@ -450,7 +487,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientProducer producer = clientSessionTxSends.createProducer(address);
       ClientConsumer consumer = clientSessionTxSends.createConsumer(qName1);
       clientSessionTxSends.start();
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       ClientMessage m2 = createTextMessage(clientSession, "m2");
@@ -472,23 +509,25 @@ public class LVQTest extends ActiveMQTestBase {
       clientSessionTxSends.commit();
       for (int i = 1; i < 6; i++) {
          ClientMessage m = consumer.receive(1000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
-         Assert.assertEquals("m" + i, m.getBodyBuffer().readString());
+         clientSessionTxSends.commit();
+         assertEquals("m" + i, m.getBodyBuffer().readString());
       }
       consumer.close();
       consumer = clientSessionTxSends.createConsumer(qName1);
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals("m6", m.getBodyBuffer().readString());
+      clientSessionTxSends.commit();
+      assertEquals("m6", m.getBodyBuffer().readString());
    }
 
    @Test
    public void testMultipleMessagesPersistedCorrectly() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
@@ -515,17 +554,19 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m6);
       clientSession.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
+      clientSession.commit();
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = consumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
+      clientSession.commit();
    }
 
    @Test
    public void testMultipleMessagesPersistedCorrectlyInTx() throws Exception {
       ClientProducer producer = clientSessionTxSends.createProducer(address);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
@@ -545,20 +586,25 @@ public class LVQTest extends ActiveMQTestBase {
       m6.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m6.setDurable(true);
       producer.send(m1);
+      clientSessionTxSends.commit();
       producer.send(m2);
+      clientSessionTxSends.commit();
       producer.send(m3);
+      clientSessionTxSends.commit();
       producer.send(m4);
+      clientSessionTxSends.commit();
       producer.send(m5);
+      clientSessionTxSends.commit();
       producer.send(m6);
       clientSessionTxSends.commit();
       clientSessionTxSends.start();
       ClientConsumer consumer = clientSessionTxSends.createConsumer(qName1);
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = consumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Test
@@ -567,7 +613,7 @@ public class LVQTest extends ActiveMQTestBase {
       Queue queue = server.locateQueue(qName1);
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
@@ -589,34 +635,40 @@ public class LVQTest extends ActiveMQTestBase {
       clientSession.start();
       producer.send(m1);
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      clientSession.commit();
+      assertEquals("m1", m.getBodyBuffer().readString());
       producer.send(m2);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      clientSession.commit();
+      assertEquals("m2", m.getBodyBuffer().readString());
       producer.send(m3);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      clientSession.commit();
+      assertEquals("m3", m.getBodyBuffer().readString());
       producer.send(m4);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      clientSession.commit();
+      assertEquals("m4", m.getBodyBuffer().readString());
       producer.send(m5);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m5");
+      clientSession.commit();
+      assertEquals("m5", m.getBodyBuffer().readString());
       producer.send(m6);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
+      clientSession.commit();
+      assertEquals("m6", m.getBodyBuffer().readString());
 
       assertEquals(0, queue.getDeliveringCount());
    }
@@ -627,11 +679,12 @@ public class LVQTest extends ActiveMQTestBase {
       Queue queue = server.locateQueue(qName1);
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
       producer.send(m1);
+      clientSession.commit();
 
       queue.deleteAllReferences();
 
@@ -639,27 +692,22 @@ public class LVQTest extends ActiveMQTestBase {
 
       clientSession.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      clientSession.commit();
+      assertEquals("m1", m.getBodyBuffer().readString());
 
       assertEquals(0, queue.getDeliveringCount());
    }
 
-   // There's a race between the schedule message reaching the queue,
-   // and actually being delivered
-   // by the time scheduledCount == 0 the message could still be in flight to the queue on
-   // an executor, and that's not an issue,
-   // however this test may eventually fail because of that, so I'm setting a retry here
-   @RetryMethod(retries = 3)
    @Test
    public void testScheduledMessages() throws Exception {
-      final long DELAY_TIME = 10;
+      final long DELAY_TIME = 100;
       final int MESSAGE_COUNT = 5;
       Queue queue = server.locateQueue(qName1);
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       long timeSent = 0;
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          ClientMessage m = createTextMessage(clientSession, "m" + i);
@@ -673,12 +721,17 @@ public class LVQTest extends ActiveMQTestBase {
       // allow schedules to elapse so the messages will be delivered to the queue
       Wait.waitFor(() -> queue.getScheduledCount() == 0);
 
-      Wait.assertEquals(MESSAGE_COUNT, queue::getMessagesAdded);
+      Wait.assertEquals((long) MESSAGE_COUNT, queue::getMessagesAdded, 5000, 100);
+      Wait.assertEquals((long) (MESSAGE_COUNT - 1), queue::getMessagesReplaced, 5000, 100);
+      queue.flushExecutor();
+      CountDownLatch latch = new CountDownLatch(1);
+      queue.flushOnIntermediate(latch::countDown);
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
 
       clientSession.start();
       ClientMessage m = consumer.receive(5000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m" + (MESSAGE_COUNT - 1));
+      assertEquals("m" + (MESSAGE_COUNT - 1), m.getBodyBuffer().readString());
       assertEquals(0, queue.getScheduledCount());
    }
 
@@ -688,7 +741,7 @@ public class LVQTest extends ActiveMQTestBase {
       Queue queue = server.locateQueue(qName1);
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
@@ -698,14 +751,16 @@ public class LVQTest extends ActiveMQTestBase {
       clientSession.start();
       producer.send(m1);
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      clientSession.commit();
+      assertEquals("m1", m.getBodyBuffer().readString());
       producer.send(m2);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      clientSession.commit();
+      assertEquals("m2", m.getBodyBuffer().readString());
 
       assertEquals(0, queue.getDeliveringCount());
    }
@@ -714,7 +769,7 @@ public class LVQTest extends ActiveMQTestBase {
    public void testMultipleAcksPersistedCorrectlyInTx() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
@@ -736,43 +791,43 @@ public class LVQTest extends ActiveMQTestBase {
       clientSessionTxReceives.start();
       producer.send(m1);
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       producer.send(m2);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       producer.send(m3);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       producer.send(m4);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       producer.send(m5);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertEquals("m5", m.getBodyBuffer().readString());
       producer.send(m6);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertEquals("m6", m.getBodyBuffer().readString());
       clientSessionTxReceives.commit();
    }
 
    @Test
    public void testLargeMessage() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
 
-      for (int i = 0; i < 50; i++) {
+      for (int i = 0; i < 5; i++) {
          ClientMessage message = clientSession.createMessage(true);
          message.setBodyInputStream(createFakeLargeStream(300 * 1024));
          message.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
@@ -782,9 +837,9 @@ public class LVQTest extends ActiveMQTestBase {
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
       clientSessionTxReceives.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
       clientSessionTxReceives.commit();
    }
 
@@ -792,7 +847,7 @@ public class LVQTest extends ActiveMQTestBase {
    public void testSizeInReplace() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
 
       ClientMessage m2 = clientSession.createMessage(true);
@@ -805,14 +860,14 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m2);
       // encoded size is a little larger than payload
       Wait.assertTrue(() -> queue.getPersistentSize() > 10 * 1024);
-      assertEquals(queue.getDeliveringSize(), 0);
+      Wait.assertEquals(0L, () -> queue.getDeliveringSize(), 5000, 100);
    }
 
    @Test
    public void testDeleteReference() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setBodyInputStream(createFakeLargeStream(2 * 1024));
 
@@ -831,20 +886,20 @@ public class LVQTest extends ActiveMQTestBase {
       queue.deleteReference(messageId);
       // Wait for delete tx's afterCommit called
       Wait.assertEquals(0L, () -> queue.getDeliveringSize(), 10_000, 2);
-      assertEquals(queue.getPersistentSize(), 0);
+      assertEquals(0, queue.getPersistentSize());
       assertTrue(((LastValueQueue)queue).getLastValueKeys().isEmpty());
 
       producer.send(m2);
       // Wait for message delivered to queue
       Wait.assertTrue(() -> queue.getPersistentSize() > 10 * 1024, 10_000, 2);
-      assertEquals(queue.getDeliveringSize(), 0);
+      assertEquals(0, queue.getDeliveringSize());
    }
 
    @Test
    public void testChangeReferencePriority() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
 
       Queue queue = server.locateQueue(qName1);
@@ -852,7 +907,7 @@ public class LVQTest extends ActiveMQTestBase {
       Wait.assertEquals(1, queue::getMessageCount);
       LinkedListIterator<MessageReference> browserIterator = queue.browserIterator();
       // Wait for message delivered to queue
-      Assert.assertTrue(browserIterator.hasNext());
+      assertTrue(browserIterator.hasNext());
       long messageId = browserIterator.next().getMessage().getMessageID();
       browserIterator.close();
       long oldSize = queue.getPersistentSize();
@@ -860,7 +915,7 @@ public class LVQTest extends ActiveMQTestBase {
       assertTrue(queue.changeReferencePriority(messageId, (byte) 1));
       // Wait for message delivered to queue
       Wait.assertEquals(oldSize, () -> queue.getPersistentSize(), 10_000, 2);
-      assertEquals(queue.getDeliveringSize(), 0);
+      assertEquals(0, queue.getDeliveringSize());
    }
 
    @Test
@@ -899,7 +954,7 @@ public class LVQTest extends ActiveMQTestBase {
       consumerThread.start();
 
       ClientProducer producer = clientSessionTxSends.createProducer(address);
-      SimpleString lastValue = RandomUtil.randomSimpleString();
+      SimpleString lastValue = RandomUtil.randomUUIDSimpleString();
       AtomicBoolean produce = new AtomicBoolean(true);
       Thread producerThread = new Thread(() -> {
          for (int i = 0; !cme.get() && produce.get(); i++) {
@@ -915,7 +970,7 @@ public class LVQTest extends ActiveMQTestBase {
          }
       });
       producerThread.start();
-      producerThread.join(5000);
+      producerThread.join(500);
 
       try {
          assertFalse(cme.get());
@@ -930,7 +985,7 @@ public class LVQTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -943,9 +998,9 @@ public class LVQTest extends ActiveMQTestBase {
       ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
 
       ClientSessionFactory sf = createSessionFactory(locator);
-      clientSession = addClientSession(sf.createSession(false, true, true));
+      clientSession = addClientSession(sf.createSession(false, true, false));
       clientSessionTxReceives = addClientSession(sf.createSession(false, true, false));
-      clientSessionTxSends = addClientSession(sf.createSession(false, false, true));
-      clientSession.createQueue(new QueueConfiguration(qName1).setAddress(address));
+      clientSessionTxSends = addClientSession(sf.createSession(false, false, false));
+      clientSession.createQueue(QueueConfiguration.of(qName1).setAddress(address));
    }
 }

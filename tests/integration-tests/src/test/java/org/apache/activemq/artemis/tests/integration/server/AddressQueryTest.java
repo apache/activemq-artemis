@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSContext;
 import java.util.UUID;
@@ -28,15 +32,15 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AddressQueryTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false);
@@ -45,7 +49,7 @@ public class AddressQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressQueryDefaultsOnStaticAddress() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
       server.addAddressInfo(new AddressInfo(addressName));
       AddressQueryResult addressQueryResult = server.addressQuery(addressName);
       assertTrue(addressQueryResult.isExists());
@@ -60,8 +64,8 @@ public class AddressQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressQueryOnStaticAddressWithFQQN() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString fqqn = addressName.concat("::").concat(SimpleString.toSimpleString(UUID.randomUUID().toString()));
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString fqqn = addressName.concat("::").concat(SimpleString.of(UUID.randomUUID().toString()));
       server.addAddressInfo(new AddressInfo(fqqn));
       assertEquals(addressName, server.addressQuery(addressName).getName());
       assertEquals(addressName, server.addressQuery(fqqn).getName());
@@ -69,7 +73,7 @@ public class AddressQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressQueryNonExistentAddress() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
       AddressQueryResult addressQueryResult = server.addressQuery(addressName);
       assertFalse(addressQueryResult.isExists());
       assertEquals(addressName, addressQueryResult.getName());
@@ -77,8 +81,8 @@ public class AddressQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressQueryNonExistentAddressWithFQQN() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString fqqn = addressName.concat("::").concat(SimpleString.toSimpleString(UUID.randomUUID().toString()));
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString fqqn = addressName.concat("::").concat(SimpleString.of(UUID.randomUUID().toString()));
       AddressQueryResult addressQueryResult = server.addressQuery(fqqn);
       assertFalse(addressQueryResult.isExists());
       assertEquals(addressName, addressQueryResult.getName());
@@ -86,7 +90,7 @@ public class AddressQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressQueryNonDefaultsOnStaticAddress() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setAutoCreateAddresses(false).setDefaultMaxConsumers(1).setDefaultPurgeOnNoConsumers(true));
       server.addAddressInfo(new AddressInfo(addressName).addRoutingType(RoutingType.ANYCAST));
       AddressQueryResult addressQueryResult = server.addressQuery(addressName);
@@ -102,7 +106,7 @@ public class AddressQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressQueryDefaultsOnAutoCreatedAddress() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings());
       ConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
       JMSContext c = cf.createContext();
@@ -120,8 +124,8 @@ public class AddressQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressQueryOnAutoCreatedAddressWithFQQN() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString fqqn = addressName.concat("::").concat(SimpleString.toSimpleString(UUID.randomUUID().toString()));
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString fqqn = addressName.concat("::").concat(SimpleString.of(UUID.randomUUID().toString()));
       ConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
       JMSContext c = cf.createContext();
       c.createProducer().send(c.createTopic(fqqn.toString()), c.createMessage());
@@ -131,7 +135,7 @@ public class AddressQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressQueryNonDefaultsOnAutoCreatedAddress() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setAutoCreateAddresses(true).setDefaultMaxConsumers(1).setDefaultPurgeOnNoConsumers(true));
       ConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
       JMSContext c = cf.createContext();

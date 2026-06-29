@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +156,7 @@ public class ClusterRestartTest extends ClusterTestBase {
 
    private void printBindings(final int num) throws Exception {
       for (int i = 0; i < num; i++) {
-         Collection<Binding> bindings0 = getServer(i).getPostOffice().getBindingsForAddress(new SimpleString("queues.testaddress")).getBindings();
+         Collection<Binding> bindings0 = getServer(i).getPostOffice().getBindingsForAddress(SimpleString.of("queues.testaddress")).getBindings();
          for (Binding binding : bindings0) {
             logger.debug("{} on node {} at {}", binding, i, binding.getID());
          }

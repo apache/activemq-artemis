@@ -28,7 +28,8 @@ import org.apache.activemq.artemis.utils.DataConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** This MessageDecoder is based on LengthFieldBasedFrameDecoder.
+/**
+ * This MessageDecoder is based on LengthFieldBasedFrameDecoder.
  *  When OpenWire clients send a Large Message (large in the context of size only as openwire does not support message chunk streaming).
  *  In that context the server will transfer the huge frame to a Heap Buffer, instead of keeping a really large native buffer.
  *

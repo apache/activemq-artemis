@@ -16,15 +16,27 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.TemporaryQueue;
+import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 import java.io.PrintStream;
 import java.net.URI;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -45,7 +57,7 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.StringPrintStream;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -54,10 +66,9 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -69,30 +80,30 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
    ActiveMQServer server_2;
    private AssertionLoggerHandler loggerHandler;
 
-   @After
+   @AfterEach
    public void stopServer1() throws Exception {
       if (server != null) {
          server.stop();
       }
    }
 
-   @After
+   @AfterEach
    public void stopServer2() throws Exception {
       if (server_2 != null) {
          server_2.stop();
       }
    }
 
-   @Before
+   @BeforeEach
    public void startLogging() {
       loggerHandler = new AssertionLoggerHandler();
 
    }
 
-   @After
+   @AfterEach
    public void stopLogging() throws Exception {
       try {
-         Assert.assertFalse(loggerHandler.findText("AMQ222214"));
+         assertFalse(loggerHandler.findText("AMQ222214"));
       } finally {
          loggerHandler.close();
       }
@@ -107,7 +118,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
    public void testSyncOnCreateQueues() throws Exception {
       server.setIdentity("Server1");
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(3).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
@@ -117,7 +128,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.setIdentity("Server2");
 
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
@@ -125,13 +136,13 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo("sometest").setAutoCreated(false));
-      server_2.createQueue(new QueueConfiguration("sometest").setDurable(true));
+      server_2.createQueue(QueueConfiguration.of("sometest").setDurable(true));
 
       Wait.assertTrue(() -> server_2.locateQueue("sometest") != null);
       Wait.assertTrue(() -> server.locateQueue("sometest") != null);
 
       server.addAddressInfo(new AddressInfo("OnServer1").setAutoCreated(false));
-      server.createQueue(new QueueConfiguration("OnServer1").setDurable(true));
+      server.createQueue(QueueConfiguration.of("OnServer1").setDurable(true));
 
       Wait.assertTrue(() -> server.locateQueue("OnServer1") != null);
       Wait.assertTrue("Sync is not working on the way back", () -> server_2.locateQueue("OnServer1") != null, 2000);
@@ -141,8 +152,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       for (int i = 0; i < 10; i++) {
          final int queueID = i;
-         server_2.createQueue(new QueueConfiguration("test2_" + i).setDurable(true));
-         server.createQueue(new QueueConfiguration("test1_" + i).setDurable(true));
+         server_2.createQueue(QueueConfiguration.of("test2_" + i).setDurable(true));
+         server.createQueue(QueueConfiguration.of("test1_" + i).setDurable(true));
          Wait.assertTrue(() -> server.locateQueue("test2_" + queueID) != null);
          Wait.assertTrue(() -> server.locateQueue("test1_" + queueID) != null);
          Wait.assertTrue(() -> server_2.locateQueue("test2_" + queueID) != null);
@@ -153,12 +164,25 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server.stop();
    }
 
-
    @Test
    public void testSingleMessage() throws Exception {
+      testSingleMessage("AMQP");
+   }
+
+   @Test
+   public void testSingleMessageCore() throws Exception {
+      testSingleMessage("CORE");
+   }
+
+   @Test
+   public void testSingleMessageOpenWire() throws Exception {
+      testSingleMessage("OPENWIRE");
+   }
+
+   public void testSingleMessage(String protocol) throws Exception {
       server.setIdentity("Server1");
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(3).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
@@ -168,7 +192,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.setIdentity("Server2");
 
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
@@ -176,17 +200,17 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
       Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null);
 
-      ConnectionFactory cf1 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+      ConnectionFactory cf1 = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + AMQP_PORT);
       Connection connection1 = cf1.createConnection();
       Session session1 = connection1.createSession(true, Session.SESSION_TRANSACTED);
       connection1.start();
 
-      ConnectionFactory cf2 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT_2);
+      ConnectionFactory cf2 = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + AMQP_PORT_2);
       Connection connection2 = cf2.createConnection();
       Session session2 = connection2.createSession(true, Session.SESSION_TRANSACTED);
       connection2.start();
@@ -204,8 +228,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server.locateQueue(getQueueName());
       org.apache.activemq.artemis.core.server.Queue queueOnServer2 = server_2.locateQueue(getQueueName());
-      Assert.assertNotNull(queueOnServer1);
-      Assert.assertNotNull(queueOnServer2);
+      assertNotNull(queueOnServer1);
+      assertNotNull(queueOnServer2);
 
       Wait.assertEquals(1, queueOnServer1::getMessageCount);
       Wait.assertEquals(1, queueOnServer2::getMessageCount);
@@ -223,18 +247,176 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       Wait.assertEquals(2, queueOnServer1::getMessageCount);
       Wait.assertEquals(2, queueOnServer2::getMessageCount);
 
+
+      connection2.start();
+      try (MessageConsumer consumer = session2.createConsumer(queue)) {
+         javax.jms.Message receivedMessage = consumer.receive(5000);
+         assertNotNull(message);
+         checkProperties(connection2, receivedMessage);
+         session2.commit();
+      }
+
+      Wait.assertEquals(1L, queueOnServer1::getMessageCount, 5000, 100);
+      Wait.assertEquals(1L, queueOnServer2::getMessageCount, 5000, 100);
+
+      connection1.start();
+      try (MessageConsumer consumer = session1.createConsumer(queue)) {
+         javax.jms.Message receivedMessage = consumer.receive(5000);
+         assertNotNull(message);
+         checkProperties(connection1, receivedMessage);
+         session1.commit();
+      }
+
       connection1.close();
       connection2.close();
 
+      Wait.assertEquals(0L, queueOnServer1::getMessageCount, 5000, 100);
+      Wait.assertEquals(0L, queueOnServer2::getMessageCount, 5000, 100);
+
       server_2.stop();
       server.stop();
+   }
+
+   @Test
+   public void testNoTemporaryAddressesOrQueues() throws Exception {
+      final String snfOnServer1Name = "$ACTIVEMQ_ARTEMIS_MIRROR_connectTowardsServer2";
+
+      server.getConfiguration().setAddressQueueScanPeriod(100);
+      server.setIdentity("Server1");
+      {
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(300).setRetryInterval(100);
+         amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+      }
+
+      server.start();
+      server.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+
+      server_2 = createServer(AMQP_PORT_2, false);
+      server_2.setIdentity("Server2");
+
+      {
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(300).setRetryInterval(100);
+         amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
+         server_2.getConfiguration().addAMQPConnection(amqpConnection);
+      }
+      server_2.start();
+      server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+
+
+      Wait.waitFor(() -> server.locateQueue(snfOnServer1Name) != null);
+
+      ConnectionFactory factoryServer1 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+      // exercising a legal mirror operation to make sure things are working properly
+      try (Connection connection = factoryServer1.createConnection()) {
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         Queue queue = session.createQueue(getQueueName());
+         MessageProducer producer = session.createProducer(queue);
+         MessageConsumer consumer = session.createConsumer(queue);
+         connection.start();
+         producer.send(session.createMessage());
+         session.commit();
+         assertNotNull(consumer.receive(5000));
+         session.commit();
+      }
+
+      org.apache.activemq.artemis.core.server.Queue snfOnServer1 = server.locateQueue(snfOnServer1Name);
+      Wait.assertEquals(0L, snfOnServer1::getMessageCount, 5000, 100);
+
+
+      // stopping the server to let things accumulate so we can assert the SNF
+      server_2.stop();
+
+      tempAddressSendAndReceive(factoryServer1, snfOnServer1, true);
+      tempAddressSendAndReceive(factoryServer1, snfOnServer1, false);
+
+      server_2.stop();
+      server.stop();
+   }
+
+   private void tempAddressSendAndReceive(ConnectionFactory factoryServer1, org.apache.activemq.artemis.core.server.Queue snfQueue, boolean useTopic) throws Exception {
+      String addressName;
+      try (Connection connectionServer1 = factoryServer1.createConnection()) {
+         Session session = connectionServer1.createSession(true, Session.SESSION_TRANSACTED);
+         Destination destination;
+
+         if (useTopic) {
+            TemporaryTopic topic = session.createTemporaryTopic();
+            destination = topic;
+            addressName = topic.getTopicName();
+         } else {
+            TemporaryQueue queue = session.createTemporaryQueue();
+            destination = queue;
+            addressName = queue.getQueueName();
+         }
+
+
+         MessageConsumer consumer = session.createConsumer(destination);
+
+         connectionServer1.start();
+
+         MessageProducer producer = session.createProducer(destination);
+         producer.send(session.createTextMessage());
+         session.commit();
+
+         assertNotNull(consumer.receive(5000));
+
+         session.commit();
+
+         Wait.assertEquals(0L, snfQueue::getMessageCount, 5000, 100);
+
+         // stopping the server to validate things are not accumulating
+
+         for (int i = 0; i < 100; i++) {
+            // sends should not make into the SNF either
+            producer.send(session.createTextMessage());
+         }
+         session.commit();
+         // no temporary sends
+         Wait.assertEquals(0L, snfQueue::getMessageCount, 5000, 100);
+
+         for (int i = 0; i < 100; i++) {
+            assertNotNull(consumer.receive(5000));
+         }
+         session.commit();
+
+         // no temporary acks
+         Wait.assertEquals(0L, snfQueue::getMessageCount, 5000, 100);
+      }
+
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.of(addressName)) == null, 5000, 100);
+      Wait.assertEquals(0L, snfQueue::getMessageCount, 5000, 100);
+   }
+
+   private void checkProperties(Connection connection, javax.jms.Message message) throws Exception {
+      try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
+         TemporaryQueue temporaryQueue = session.createTemporaryQueue();
+         MessageProducer producer = session.createProducer(temporaryQueue);
+         producer.send(message);
+         connection.start();
+         MessageConsumer consumer = session.createConsumer(temporaryQueue);
+         javax.jms.Message receivedMessage = consumer.receive(5000);
+         assertNotNull(receivedMessage);
+
+         // The cleanup for x-opt happens on server's side.
+         // we may receive if coming directly from a mirrored queue,
+         // however we should cleanup on the next send to avoid invalid IDs on the server
+         Enumeration propertyNames = receivedMessage.getPropertyNames();
+         while (propertyNames.hasMoreElements()) {
+            String property = String.valueOf(propertyNames.nextElement());
+            assertFalse(property.startsWith("x-opt"));
+         }
+      }
    }
 
 
    private org.apache.activemq.artemis.core.server.Queue locateQueueWithWait(ActiveMQServer server, String queueName) throws Exception {
       Wait.assertTrue(() -> server.locateQueue(queueName) != null);
       org.apache.activemq.artemis.core.server.Queue queue = server.locateQueue(queueName);
-      Assert.assertNotNull(queue);
+      assertNotNull(queue);
       return queue;
    }
 
@@ -251,15 +433,15 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
    private void internalExpiry(boolean useReaper) throws Exception {
       server.setIdentity("Server1");
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(3).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server.getConfiguration().addAddressSetting("#", new AddressSettings().setExpiryAddress(SimpleString.toSimpleString("expiryQueue")));
+      server.getConfiguration().addAddressSetting("#", new AddressSettings().setExpiryAddress(SimpleString.of("expiryQueue")));
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("expiryQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("expiryQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("expiryQueue").setRoutingType(RoutingType.ANYCAST));
       if (!useReaper) {
          server.getConfiguration().setMessageExpiryScanPeriod(-1);
       }
@@ -269,7 +451,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2 = createServer(AMQP_PORT_2, false);
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("expiryQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("expiryQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("expiryQueue").setRoutingType(RoutingType.ANYCAST));
       if (!useReaper) {
          server_2.getConfiguration().setMessageExpiryScanPeriod(-1);
       }
@@ -277,12 +459,12 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.setIdentity("Server2");
 
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setExpiryAddress(SimpleString.toSimpleString("expiryQueue")));
+      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setExpiryAddress(SimpleString.of("expiryQueue")));
 
       server_2.start();
 
@@ -292,7 +474,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       org.apache.activemq.artemis.core.server.Queue expiry2 = locateQueueWithWait(server_2, "expiryQueue");
 
       server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = locateQueueWithWait(server, getQueueName());
       org.apache.activemq.artemis.core.server.Queue queueOnServer2 = locateQueueWithWait(server_2, getQueueName());
@@ -355,15 +537,15 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
    public void testDLA() throws Exception {
       server.setIdentity("Server1");
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(3).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("deadLetterQueue")).setMaxDeliveryAttempts(2));
+      server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
       server.getConfiguration().setMessageExpiryScanPeriod(-1);
 
       server.start();
@@ -371,18 +553,18 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2 = createServer(AMQP_PORT_2, false);
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
       server_2.getConfiguration().setMessageExpiryScanPeriod(-1);
 
       server_2.setIdentity("Server2");
 
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("deadLetterQueue")).setMaxDeliveryAttempts(2));
+      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
 
       server_2.start();
 
@@ -392,7 +574,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       org.apache.activemq.artemis.core.server.Queue dlq2 = locateQueueWithWait(server_2, "deadLetterQueue");
 
       server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = locateQueueWithWait(server, getQueueName());
       org.apache.activemq.artemis.core.server.Queue queueOnServer2 = locateQueueWithWait(server_2, getQueueName());
@@ -418,11 +600,11 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       for (int i = 0; i < 2; i++) {
          TextMessage messageToCancel = (TextMessage) consumer1.receive(1000);
-         Assert.assertNotNull(messageToCancel);
+         assertNotNull(messageToCancel);
          session1.rollback();
       }
 
-      Assert.assertNull(consumer1.receiveNoWait());
+      assertNull(consumer1.receiveNoWait());
 
       Wait.assertEquals(0L, queueOnServer1::getMessageCount, 1000, 100);
       Wait.assertEquals(0L, queueOnServer2::getMessageCount, 1000, 100);
@@ -449,7 +631,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
          @Override
          public SimpleString getFilterString() {
-            return SimpleString.toSimpleString("Test");
+            return SimpleString.of("Test");
          }
       });
 
@@ -468,26 +650,18 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
 
    @Test
-   public void testLVQ() throws Exception {
-      AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
-      runAfter(() -> loggerHandler.close());
-
+   public void testCreateInternalQueue() throws Exception {
       server.setIdentity("Server1");
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(3).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("deadLetterQueue")).setMaxDeliveryAttempts(2));
+      server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
-
-      String lvqName = "testLVQ_" + RandomUtil.randomString();
-
-      server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(lvqName));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration(lvqName).setRoutingType(RoutingType.ANYCAST).setLastValue(true).setLastValueKey("KEY"));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
       server.getConfiguration().setMessageExpiryScanPeriod(-1);
 
       server.start();
@@ -495,55 +669,122 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2 = createServer(AMQP_PORT_2, false);
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
       server_2.getConfiguration().setMessageExpiryScanPeriod(-1);
 
       server_2.setIdentity("Server2");
 
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("deadLetterQueue")).setMaxDeliveryAttempts(2));
+      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
+
+      server_2.start();
+
+      org.apache.activemq.artemis.core.server.Queue to1 = locateQueueWithWait(server_2, "$ACTIVEMQ_ARTEMIS_MIRROR_to_1");
+      assertNotNull(to1);
+
+      long messagesAddedOnS2 = to1.getMessagesAdded();
+
+      String internalQueueName = getQueueName() + "Internal";
+
+      server.addAddressInfo(new AddressInfo(internalQueueName).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST).setInternal(true));
+      server.createQueue(QueueConfiguration.of(internalQueueName).setDurable(true).setRoutingType(RoutingType.ANYCAST).setInternal(true));
+
+      server.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+
+      Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null, 5000);
+      assertNull(server_2.getAddressInfo(SimpleString.of(internalQueueName)));
+      assertNull(server_2.locateQueue(internalQueueName));
+
+      assertEquals(messagesAddedOnS2, to1.getMessagesAdded());
+
+      server_2.stop();
+      server.stop();
+   }
+
+
+
+
+   @Test
+   public void testLVQ() throws Exception {
+      AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
+      runAfter(() -> loggerHandler.close());
+
+      server.setIdentity("Server1");
+      {
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(300).setRetryInterval(100);
+         amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+      }
+
+      server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
+
+      server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
+
+      String lvqName = "testLVQ_" + RandomUtil.randomUUIDString();
+
+      server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(lvqName));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of(lvqName).setRoutingType(RoutingType.ANYCAST).setLastValue(true).setLastValueKey("KEY"));
+      server.getConfiguration().setMessageExpiryScanPeriod(-1);
+
+      server.start();
+
+      server_2 = createServer(AMQP_PORT_2, false);
+
+      server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
+      server_2.getConfiguration().setMessageExpiryScanPeriod(-1);
+
+      server_2.setIdentity("Server2");
+
+      {
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("to_1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(300).setRetryInterval(100);
+         amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
+         server_2.getConfiguration().addAMQPConnection(amqpConnection);
+      }
+
+      server_2.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("deadLetterQueue")).setMaxDeliveryAttempts(2));
       server_2.start();
 
       org.apache.activemq.artemis.core.server.Queue lvqQueue1 = locateQueueWithWait(server, lvqName);
       org.apache.activemq.artemis.core.server.Queue lvqQueue2 = locateQueueWithWait(server, lvqName);
 
-      Assert.assertTrue(lvqQueue1.isLastValue());
-      Assert.assertTrue(lvqQueue2.isLastValue());
-      Assert.assertTrue(lvqQueue1 instanceof LastValueQueue);
-      Assert.assertTrue(lvqQueue2 instanceof LastValueQueue);
-      Assert.assertEquals("KEY", lvqQueue1.getQueueConfiguration().getLastValueKey().toString());
-      Assert.assertEquals("KEY", lvqQueue2.getQueueConfiguration().getLastValueKey().toString());
+      assertTrue(lvqQueue1.isLastValue());
+      assertTrue(lvqQueue2.isLastValue());
+      assertInstanceOf(LastValueQueue.class, lvqQueue1);
+      assertInstanceOf(LastValueQueue.class, lvqQueue2);
+      assertEquals("KEY", lvqQueue1.getQueueConfiguration().getLastValueKey().toString());
+      assertEquals("KEY", lvqQueue2.getQueueConfiguration().getLastValueKey().toString());
 
       ConnectionFactory cf1 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
-      Connection connection1 = cf1.createConnection();
-      Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      connection1.start();
-
-      Queue queue = session1.createQueue(lvqName);
-
-      MessageProducer producerServer1 = session1.createProducer(queue);
-
-      for (int i = 0; i < 1000; i++) {
-         TextMessage message = session1.createTextMessage("test");
-         message.setIntProperty("i", 0);
-         message.setStringProperty("KEY", "" + (i % 10));
-         producerServer1.send(message);
+      try (Connection connection1 = cf1.createConnection()) {
+         Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session1.createQueue(lvqName);
+         MessageProducer producerServer1 = session1.createProducer(queue);
+         connection1.start();
+         for (int i = 0; i < 1000; i++) {
+            TextMessage message = session1.createTextMessage("test");
+            message.setIntProperty("i", 0);
+            message.setStringProperty("KEY", "" + (i % 10));
+            producerServer1.send(message);
+         }
       }
+      assertFalse(loggerHandler.findText("AMQ222214"));
 
       Wait.assertEquals(10L, lvqQueue1::getMessageCount, 2000, 100);
       Wait.assertEquals(10L, lvqQueue2::getMessageCount, 2000, 100);
 
-      connection1.close();
 
       server_2.stop();
       server.stop();
 
-      Assert.assertFalse(loggerHandler.findText("AMQ222153"));
+      assertFalse(loggerHandler.findText("AMQ222153"));
    }
 
 
@@ -552,7 +793,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       int NUMBER_OF_MESSAGES = 100;
       server.setIdentity("Server1");
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(3).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
@@ -562,7 +803,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.setIdentity("Server2");
 
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
@@ -570,7 +811,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
       Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null);
@@ -600,8 +841,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server.locateQueue(getQueueName());
       org.apache.activemq.artemis.core.server.Queue queueOnServer2 = server_2.locateQueue(getQueueName());
-      Assert.assertNotNull(queueOnServer1);
-      Assert.assertNotNull(queueOnServer2);
+      assertNotNull(queueOnServer1);
+      assertNotNull(queueOnServer2);
 
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount);
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer2::getMessageCount);
@@ -625,9 +866,9 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       for (int i = 0; i < NUMBER_OF_MESSAGES * 2; i++) {
          TextMessage message = (TextMessage) consumerOn1.receive(5000);
          logger.debug("### Client acking message({}) on server 1, a message that was original sent on {} text = {}", i, message.getStringProperty("server"), message.getText());
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getIntProperty("i"));
-         Assert.assertEquals("test " + i, message.getText());
+         assertNotNull(message);
+         assertEquals(i, message.getIntProperty("i"));
+         assertEquals("test " + i, message.getText());
          session1.commit();
       }
 
@@ -641,23 +882,23 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       if (logger.isDebugEnabled() && !bothConsumed) {
          debugData();
-         Assert.fail("q1 = " + queueOnServer1.getMessageCount() + ", q2 = " + queueOnServer2.getMessageCount());
+         fail("q1 = " + queueOnServer1.getMessageCount() + ", q2 = " + queueOnServer2.getMessageCount());
       }
 
-      Assert.assertEquals(0, queueOnServer1.getMessageCount());
-      Assert.assertEquals(0, queueOnServer2.getConsumerCount());
+      assertEquals(0, queueOnServer1.getMessageCount());
+      assertEquals(0, queueOnServer2.getConsumerCount());
 
       System.out.println("Queue on Server 1 = " + queueOnServer1.getMessageCount());
       System.out.println("Queue on Server 2 = " + queueOnServer2.getMessageCount());
 
-      Assert.assertEquals(0, queueOnServer1.getDeliveringCount());
-      Assert.assertEquals(0, queueOnServer2.getDeliveringCount());
-      Assert.assertEquals(0, queueOnServer1.getDurableDeliveringCount());
-      Assert.assertEquals(0, queueOnServer2.getDurableDeliveringCount());
-      Assert.assertEquals(0, queueOnServer1.getDurableDeliveringSize());
-      Assert.assertEquals(0, queueOnServer2.getDurableDeliveringSize());
-      Assert.assertEquals(0, queueOnServer1.getDeliveringSize());
-      Assert.assertEquals(0, queueOnServer2.getDeliveringSize());
+      assertEquals(0, queueOnServer1.getDeliveringCount());
+      assertEquals(0, queueOnServer2.getDeliveringCount());
+      assertEquals(0, queueOnServer1.getDurableDeliveringCount());
+      assertEquals(0, queueOnServer2.getDurableDeliveringCount());
+      assertEquals(0, queueOnServer1.getDurableDeliveringSize());
+      assertEquals(0, queueOnServer2.getDurableDeliveringSize());
+      assertEquals(0, queueOnServer1.getDeliveringSize());
+      assertEquals(0, queueOnServer2.getDeliveringSize());
 
       server_2.stop();
       server.stop();
@@ -670,7 +911,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       int NUMBER_OF_MESSAGES = 1;
       server.setIdentity("Server1");
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(3).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
@@ -680,7 +921,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.setIdentity("Server2");
 
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
@@ -688,10 +929,10 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
-      Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null);
+      Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null, 5000);
 
       ConnectionFactory cf1 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
       Connection connection1 = cf1.createConnection();
@@ -718,36 +959,35 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server.locateQueue(getQueueName());
       org.apache.activemq.artemis.core.server.Queue queueOnServer2 = server_2.locateQueue(getQueueName());
-      Assert.assertNotNull(queueOnServer1);
-      Assert.assertNotNull(queueOnServer2);
+      assertNotNull(queueOnServer1);
+      assertNotNull(queueOnServer2);
 
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount);
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer2::getMessageCount);
 
-      Assert.assertEquals(0, queueOnServer1.getDeliveringSize());
-      Assert.assertEquals(0, queueOnServer2.getDeliveringSize());
+      assertEquals(0, queueOnServer1.getDeliveringSize());
+      assertEquals(0, queueOnServer2.getDeliveringSize());
 
       MessageConsumer consumerOn1 = session1.createConsumer(queue);
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          TextMessage message = (TextMessage) consumerOn1.receive(5000);
          logger.debug("### Client acking message({}) on server 1, a message that was original sent on {} text = {}", i, message.getStringProperty("server"), message.getText());
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getIntProperty("i"));
-         Assert.assertEquals("test " + i, message.getText());
+         assertNotNull(message);
+         assertEquals(i, message.getIntProperty("i"));
+         assertEquals("test " + i, message.getText());
          session1.commit();
-         int fi = i;
       }
 
       Wait.assertEquals(0L, queueOnServer1::getMessageCount, 2000, 100);
       Wait.assertEquals(0L, queueOnServer2::getMessageCount, 2000, 100);
-      Assert.assertEquals(0, queueOnServer1.getDeliveringCount());
-      Assert.assertEquals(0, queueOnServer2.getDeliveringCount());
-      Assert.assertEquals(0, queueOnServer1.getDurableDeliveringCount());
-      Assert.assertEquals(0, queueOnServer2.getDurableDeliveringCount());
-      Assert.assertEquals(0, queueOnServer1.getDurableDeliveringSize());
-      Assert.assertEquals(0, queueOnServer2.getDurableDeliveringSize());
-      Assert.assertEquals(0, queueOnServer1.getDeliveringSize());
-      Assert.assertEquals(0, queueOnServer2.getDeliveringSize());
+      assertEquals(0, queueOnServer1.getDeliveringCount());
+      assertEquals(0, queueOnServer2.getDeliveringCount());
+      assertEquals(0, queueOnServer1.getDurableDeliveringCount());
+      assertEquals(0, queueOnServer2.getDurableDeliveringCount());
+      assertEquals(0, queueOnServer1.getDurableDeliveringSize());
+      assertEquals(0, queueOnServer2.getDurableDeliveringSize());
+      assertEquals(0, queueOnServer1.getDeliveringSize());
+      assertEquals(0, queueOnServer2.getDeliveringSize());
 
       server_2.stop();
       server.stop();
@@ -779,7 +1019,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server.setIdentity("Server1");
 
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(3).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
@@ -789,7 +1029,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.setIdentity("Server2");
 
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
@@ -797,7 +1037,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo(getQueueName()).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
       Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null);
@@ -824,8 +1064,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       org.apache.activemq.artemis.core.server.Queue queueOnServer1 = server.locateQueue(getQueueName());
       org.apache.activemq.artemis.core.server.Queue queueOnServer2 = server_2.locateQueue(getQueueName());
-      Assert.assertNotNull(queueOnServer1);
-      Assert.assertNotNull(queueOnServer2);
+      assertNotNull(queueOnServer1);
+      assertNotNull(queueOnServer2);
 
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer1::getMessageCount);
       Wait.assertEquals(NUMBER_OF_MESSAGES, queueOnServer2::getMessageCount);
@@ -844,9 +1084,9 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       consumerOn1.flow(NUMBER_OF_MESSAGES * 2 + 1);
       for (int i = 0; i < NUMBER_OF_MESSAGES * 2; i++) {
          AmqpMessage message = consumerOn1.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.accept();
-         Assert.assertEquals(i, (int) message.getApplicationProperty("i"));
+         assertEquals(i, (int) message.getApplicationProperty("i"));
       }
 
       Wait.assertEquals(0, queueOnServer1::getMessageCount);
@@ -866,7 +1106,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       String queueName = "testSyncLargeMessage";
       server.setIdentity("Server1");
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(3).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server.getConfiguration().addAMQPConnection(amqpConnection);
       }
@@ -876,7 +1116,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.setIdentity("Server2");
 
       {
-         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+         AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer1", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(300).setRetryInterval(100);
          amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setDurable(true));
          server_2.getConfiguration().addAMQPConnection(amqpConnection);
       }
@@ -884,19 +1124,12 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.start();
 
       server_2.addAddressInfo(new AddressInfo(queueName).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      server_2.createQueue(new QueueConfiguration(queueName).setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server_2.createQueue(QueueConfiguration.of(queueName).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(queueName) != null);
       Wait.assertTrue(() -> server.locateQueue(queueName) != null);
 
-      String bigString;
-      {
-         StringBuffer bigStringBuffer = new StringBuffer();
-         while (bigStringBuffer.length() < 200 * 1024) {
-            bigStringBuffer.append("This is a big string ");
-         }
-         bigString = bigStringBuffer.toString();
-      }
+      String bigString = RandomUtil.randomAlphaNumericString(200 * 1024);
 
       ConnectionFactory factory1 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
       ConnectionFactory factory2 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT_2);
@@ -917,8 +1150,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          MessageConsumer consumer = session.createConsumer(queue);
          connection.start();
          TextMessage message = (TextMessage)consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(bigString, message.getText());
+         assertNotNull(message);
+         assertEquals(bigString, message.getText());
          Wait.assertEquals(0, () -> getNumberOfFiles(server_2.getConfiguration().getLargeMessagesLocation()), 5000, 100);
       }
 
@@ -932,7 +1165,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          MessageConsumer consumer = session.createConsumer(queue);
          connection.start();
          TextMessage message = (TextMessage)consumer.receiveNoWait();
-         Assert.assertNull(message);
+         assertNull(message);
          server.stop();
          server_2.stop();
          Wait.assertEquals(0, () -> getNumberOfFiles(server.getConfiguration().getLargeMessagesLocation()), 1000, 100);

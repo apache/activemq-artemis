@@ -23,7 +23,6 @@ import java.util.function.Supplier;
 
 /**
  * A simple encapsulation to provide a pool of objects.
- * @param <T>
  */
 public abstract class Pool<T> {
 
@@ -40,7 +39,9 @@ public abstract class Pool<T> {
 
    abstract Queue<T> createQueue(int maxSize);
 
-   /** Use this to instantiate or return objects from the pool */
+   /**
+    * Use this to instantiate or return objects from the pool
+    */
    public final T borrow() {
       if (internalPool == null) {
          return supplier.get();
@@ -57,10 +58,22 @@ public abstract class Pool<T> {
       return returnObject;
    }
 
-   /** Return objects to the pool, they will be either reused or ignored by the max size */
+   /**
+    * Return objects to the pool, they will be either reused or ignored by the max size
+    */
    public final void release(T object) {
       if (internalPool != null) {
          internalPool.offer(object);
       }
+   }
+
+   /**
+    * @return an internal pool size or 0 if internal pool is null
+    */
+   public final int size() {
+      if (internalPool != null) {
+         return internalPool.size();
+      }
+      return 0;
    }
 }

@@ -18,8 +18,10 @@ package org.apache.activemq.artemis.core.config.routing;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 public class NamedPropertyConfiguration implements Serializable {
+
    private String name;
 
    private Map<String, String> properties;
@@ -40,5 +42,23 @@ public class NamedPropertyConfiguration implements Serializable {
    public NamedPropertyConfiguration setProperties(Map<String, String> properties) {
       this.properties = properties;
       return this;
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(name, properties);
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+
+      if (obj instanceof NamedPropertyConfiguration other) {
+         return Objects.equals(name, other.name) && Objects.equals(properties, other.properties);
+      }
+
+      return false;
    }
 }

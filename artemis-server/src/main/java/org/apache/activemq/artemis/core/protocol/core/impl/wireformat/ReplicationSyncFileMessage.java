@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
@@ -28,8 +29,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
- * Message is used to sync {@link org.apache.activemq.artemis.core.io.SequentialFile}s to a backup server. The {@link FileType} controls
- * which extra information is sent.
+ * Message is used to sync {@link org.apache.activemq.artemis.core.io.SequentialFile}s to a backup server. The
+ * {@link FileType} controls which extra information is sent.
  */
 public final class ReplicationSyncFileMessage extends PacketImpl {
 
@@ -38,8 +39,8 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
     */
    private AbstractJournalStorageManager.JournalContent journalType;
    /**
-    * This value refers to {@link org.apache.activemq.artemis.core.journal.impl.JournalFile#getFileID()}, or the
-    * message id if we are sync'ing a large-message.
+    * This value refers to {@link org.apache.activemq.artemis.core.journal.impl.JournalFile#getFileID()}, or the message
+    * id if we are sync'ing a large-message.
     */
    private long fileId;
    private int dataSize;
@@ -59,13 +60,13 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       }
 
       /**
-       * @param readByte
-       * @return {@link FileType} corresponding to the byte code.
+       * @return {@link FileType} corresponding to the byte code
        */
       public static FileType getFileType(byte readByte) {
          for (FileType type : ALL_OF) {
-            if (type.code == readByte)
+            if (type.code == readByte) {
                return type;
+            }
          }
          throw new InternalError("Unsupported byte value for " + FileType.class);
       }
@@ -104,8 +105,9 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       int size = PACKET_HEADERS_SIZE +
                  DataConstants.SIZE_LONG; // buffer.writeLong(fileId);
 
-      if (fileId == -1)
+      if (fileId == -1) {
          return size;
+      }
 
       size += DataConstants.SIZE_BYTE; // buffer.writeByte(fileType.code);
       switch (fileType) {
@@ -134,8 +136,9 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeLong(fileId);
-      if (fileId == -1)
+      if (fileId == -1) {
          return;
+      }
       buffer.writeByte(fileType.code);
       switch (fileType) {
          case JOURNAL: {
@@ -219,16 +222,8 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + Arrays.hashCode(byteArray);
-      result = prime * result + ((byteBuffer == null) ? 0 : byteBuffer.hashCode());
-      result = prime * result + dataSize;
-      result = prime * result + (int) (fileId ^ (fileId >>> 32));
-      result = prime * result + ((fileType == null) ? 0 : fileType.hashCode());
-      result = prime * result + ((journalType == null) ? 0 : journalType.hashCode());
-      result = prime * result + ((pageStoreName == null) ? 0 : pageStoreName.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), Arrays.hashCode(byteArray), byteBuffer, dataSize, fileId, fileType,
+                          journalType, pageStoreName);
    }
 
    @Override
@@ -239,40 +234,17 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ReplicationSyncFileMessage)) {
+      if (!(obj instanceof ReplicationSyncFileMessage other)) {
          return false;
       }
-      ReplicationSyncFileMessage other = (ReplicationSyncFileMessage) obj;
-      if (!Arrays.equals(byteArray, other.byteArray)) {
-         return false;
-      }
-      if (byteBuffer == null) {
-         if (other.byteBuffer != null) {
-            return false;
-         }
-      } else if (!byteBuffer.equals(other.byteBuffer)) {
-         return false;
-      }
-      if (dataSize != other.dataSize) {
-         return false;
-      }
-      if (fileId != other.fileId) {
-         return false;
-      }
-      if (fileType != other.fileType) {
-         return false;
-      }
-      if (journalType != other.journalType) {
-         return false;
-      }
-      if (pageStoreName == null) {
-         if (other.pageStoreName != null) {
-            return false;
-         }
-      } else if (!pageStoreName.equals(other.pageStoreName)) {
-         return false;
-      }
-      return true;
+
+      return Arrays.equals(byteArray, other.byteArray) &&
+             Objects.equals(byteBuffer, other.byteBuffer) &&
+             dataSize == other.dataSize &&
+             fileId == other.fileId &&
+             fileType == other.fileType &&
+             journalType == other.journalType &&
+             Objects.equals(pageStoreName, other.pageStoreName);
    }
 
    @Override

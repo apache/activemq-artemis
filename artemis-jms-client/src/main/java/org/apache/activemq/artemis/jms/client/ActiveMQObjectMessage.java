@@ -31,8 +31,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 
 /**
- * ActiveMQ Artemis implementation of a JMS ObjectMessage.
- * <br>
+ * Apache Artemis implementation of a JMS ObjectMessage.
+ * <p>
  * Don't used ObjectMessage if you want good performance!
  * <p>
  * Serialization is slooooow!
@@ -137,13 +137,13 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
       }
 
       try (ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(data))) {
-         String blackList = getDeserializationBlackList();
-         if (blackList != null) {
-            ois.setBlackList(blackList);
+         String denyList = getDeserializationDenyList();
+         if (denyList != null) {
+            ois.setDenyList(denyList);
          }
-         String whiteList = getDeserializationWhiteList();
-         if (whiteList != null) {
-            ois.setWhiteList(whiteList);
+         String allowList = getDeserializationAllowList();
+         if (allowList != null) {
+            ois.setAllowList(allowList);
          }
          Serializable object = (Serializable) ois.readObject();
          return object;
@@ -172,8 +172,9 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
 
    @Override
    public boolean isBodyAssignableTo(Class c) {
-      if (data == null) // we have no body
+      if (data == null) { // we have no body
          return true;
+      }
       try {
          return Serializable.class == c || Object.class == c || c.isInstance(getObject());
       } catch (JMSException e) {
@@ -181,19 +182,19 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
       }
    }
 
-   private String getDeserializationBlackList() {
+   private String getDeserializationDenyList() {
       if (options == null) {
          return null;
       } else {
-         return options.getDeserializationBlackList();
+         return options.getDeserializationDenyList();
       }
    }
 
-   private String getDeserializationWhiteList() {
+   private String getDeserializationAllowList() {
       if (options == null) {
          return null;
       } else {
-         return options.getDeserializationWhiteList();
+         return options.getDeserializationAllowList();
       }
    }
 }

@@ -18,17 +18,18 @@ package org.apache.activemq.artemis.core.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
@@ -38,9 +39,8 @@ import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ByteUtil;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractSequentialFile implements SequentialFile {
 
@@ -59,19 +59,14 @@ public abstract class AbstractSequentialFile implements SequentialFile {
    protected TimedBuffer timedBuffer;
 
    /**
-    * Instead of having AIOSequentialFile implementing the Observer, I have done it on an inner class.
-    * This is the class returned to the factory when the file is being activated.
+    * Instead of having AIOSequentialFile implementing the Observer, I have done it on an inner class. This is the class
+    * returned to the factory when the file is being activated.
     */
    protected final TimedBufferObserver timedBufferObserver = createTimedBufferObserver();
 
-   /**
-    * @param file
-    * @param directory
-    */
    public AbstractSequentialFile(final File directory,
                                  final String file,
-                                 final SequentialFileFactory factory,
-                                 final Executor writerExecutor) {
+                                 final SequentialFileFactory factory) {
       super();
       this.file = new File(directory, file);
       this.directory = directory;
@@ -169,8 +164,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
    }
 
    /**
-    * @throws IOException       we declare throwing IOException because sub-classes need to do it
-    * @throws ActiveMQException
+    * @throws IOException we declare throwing IOException because sub-classes need to do it
     */
    @Override
    public synchronized void close() throws IOException, InterruptedException, ActiveMQException {
@@ -272,6 +266,11 @@ public abstract class AbstractSequentialFile implements SequentialFile {
    protected class LocalBufferObserver implements TimedBufferObserver {
 
       @Override
+      public boolean supportSync() {
+         return factory.isSyncSupported();
+      }
+
+      @Override
       public void flushBuffer(final ByteBuf byteBuf, final boolean requestedSync, final List<IOCallback> callbacks) {
          final int bytes = byteBuf.readableBytes();
          if (bytes > 0) {
@@ -285,9 +284,26 @@ public abstract class AbstractSequentialFile implements SequentialFile {
                ByteUtil.zeros(buffer, bytes, missingNonZeroedBytes);
             }
             buffer.flip();
-            writeDirect(buffer, requestedSync, new DelegateCallback(callbacks));
+            writeDirect(buffer, requestedSync, DelegateCallback.wrap(callbacks));
          } else {
             IOCallback.done(callbacks);
+         }
+      }
+
+      @Override
+      public void checkSync(boolean syncRequested, List<IOCallback> callbacks) {
+         if (syncRequested) {
+            try {
+               sync();
+            } catch (Throwable e) {
+               logger.warn(e.getMessage(), e);
+               if (callbacks != null) {
+                  callbacks.forEach(c -> c.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during checkSync on " + file.getPath() + ": " + e.getMessage()));
+               }
+            }
+         }
+         if (callbacks != null) {
+            callbacks.forEach(c -> c.done());
          }
       }
 

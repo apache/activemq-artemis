@@ -20,8 +20,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -34,22 +32,16 @@ import org.apache.activemq.artemis.boot.Artemis;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-@Mojo(name = "create", defaultPhase = LifecyclePhase.VERIFY)
+@Mojo(name = "create", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
    @Parameter
    String name;
-
-   /**
-    * The plugin descriptor
-    */
-   private PluginDescriptor descriptor;
 
    /**
     * Directory to replace the configuration with
@@ -100,7 +92,11 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    private boolean clustered;
 
    @Parameter(defaultValue = "false")
+   @Deprecated(forRemoval = true)
    private boolean slave;
+
+   @Parameter(defaultValue = "false")
+   private boolean backup;
 
    @Parameter
    private String staticCluster;
@@ -124,7 +120,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
     * For extra stuff not covered by the properties
     */
    @Parameter
-   ArrayList<String> args = new ArrayList<>();
+   List<String> args = new ArrayList<>();
 
    /**
     * Deprecated, use dependencyList and individualList
@@ -140,6 +136,12 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
    @Parameter
    private String[] webListWithDeps;
+
+   /**
+    * Folders with libs to be copied into target
+    */
+   @Parameter()
+   private String[] libFolders;
 
    @Parameter(defaultValue = "${localRepository}")
    private org.apache.maven.artifact.repository.ArtifactRepository localRepository;
@@ -165,18 +167,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
       getLog().debug("Local " + localRepository);
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
-      if (!isArtemisHome(home.toPath())) {
-         if (isArtemisHome(alternateHome.toPath())) {
-            home = alternateHome;
-         } else {
-            getLog().error("********************************************************************************************");
-            getLog().error("Could not locate suitable Artemis.home on either " + home + " or " + alternateHome);
-            getLog().error("Use the binary distribution or build the distribution before running the examples");
-            getLog().error("********************************************************************************************");
-
-            throw new MojoExecutionException("Couldn't find artemis.home");
-         }
-      }
+      home = findArtemisHome(home, alternateHome);
 
       Map properties = getPluginContext();
 
@@ -189,7 +180,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          }
       }
 
-      ArrayList<String> listCommands = new ArrayList<>();
+      List<String> listCommands = new ArrayList<>();
 
       add(listCommands, "create", "--silent", "--force", "--user", user, "--password", password, "--role", role, "--port-offset", "" + portOffset, "--data", dataFolder);
 
@@ -211,8 +202,8 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          add(listCommands, "--no-web");
       }
 
-      if (slave) {
-         add(listCommands, "--slave");
+      if (slave || backup) {
+         add(listCommands, "--backup");
       }
 
       if (replicated) {
@@ -264,7 +255,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          commandLineStream.println("# These are the commands used to create " + instance.getName());
          commandLineStream.println(getCommandline(listCommands));
 
-         Artemis.execute(home, null, null, useSystemOutput, listCommands);
+         Artemis.execute(home, null, null, useSystemOutput, false, listCommands);
 
          if (configuration != null) {
             String[] list = configuration.list();
@@ -300,6 +291,17 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          }
 
          FileUtil.makeExec(commandLine);
+
+         if (libFolders != null) {
+            for (String libFolder : libFolders) {
+               File folder = new File(libFolder);
+               for (File file : folder.listFiles()) {
+                  if (!file.isDirectory()) {
+                     copyToDir("lib", file, commandLineStream);
+                  }
+               }
+            }
+         }
 
          if (getLog().isDebugEnabled()) {
             getLog().debug("###################################################################################################");
@@ -356,22 +358,20 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    }
 
    private void copyWithReplacements(Path original, Path target) throws IOException {
-      Charset charset = StandardCharsets.UTF_8;
-
-      String content = new String(Files.readAllBytes(original), charset);
+      String content = Files.readString(original);
       for (int i = 0; i + 1 < replacePairs.length; i += 2) {
          content = content.replaceAll(replacePairs[i], replacePairs[i + 1]);
       }
-      Files.write(target, content.getBytes(charset));
+      Files.writeString(target, content);
    }
 
-   private String getCommandline(ArrayList<String> listCommands) {
-      StringBuffer buffer = new StringBuffer();
-      buffer.append(home.getAbsolutePath() + "/bin/artemis ");
+   private String getCommandline(List<String> listCommands) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(home.getAbsolutePath() + "/bin/artemis ");
       for (String string : listCommands) {
-         buffer.append(string + " ");
+         sb.append(string + " ");
       }
-      return buffer.toString();
+      return sb.toString();
    }
 
    private void copyToDir(String destination, File projectLib, PrintStream commandLineStream) throws IOException {

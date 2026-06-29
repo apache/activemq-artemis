@@ -18,10 +18,8 @@
 package org.apache.activemq.artemis.utils.actors;
 
 /**
- * This abstract class will encapsulate
- * ThreadLocals to determine when a class is a handler.
- * This is because some functionality has to be avoided if inHandler().
- *
+ * This abstract class will encapsulate ThreadLocals to determine when a class is a handler. This is because some
+ * functionality has to be avoided if inHandler().
  */
 public abstract class HandlerBase {
 
@@ -29,19 +27,40 @@ public abstract class HandlerBase {
       int count = 0;
    }
 
-   /** an actor could be used within an OrderedExecutor. So we need this counter to decide if there's a Handler anywhere in the stack trace */
-   private static final ThreadLocal<Counter> inHandler = ThreadLocal.withInitial(() -> new Counter());
+   // There is only going to be a single Thread using the counter, so it is safe to cache this instance
+   private final Counter cachedCounter = new Counter();
 
-   protected static void enter() {
-      inHandler.get().count++;
+   /**
+    * an actor could be used within an OrderedExecutor. So we need this counter to decide if there's a Handler anywhere
+    * in the stack trace
+    */
+   private static final ThreadLocal<Counter> counterThreadLocal = new ThreadLocal<>();
+
+   protected void enter() {
+      Counter counter = counterThreadLocal.get();
+      if (counter == null) {
+         cachedCounter.count = 1;
+         counterThreadLocal.set(cachedCounter);
+      } else {
+         counter.count++;
+      }
    }
 
-   public static boolean inHandler() {
-      return inHandler.get().count > 0;
+   public boolean inHandler() {
+      Counter counter = counterThreadLocal.get();
+      if (counter == null) {
+         return false;
+      } else if (counter.count == 0) {
+         counterThreadLocal.remove();
+      }
+      return counter.count > 0;
    }
 
-   protected static void leave() {
-      inHandler.get().count--;
+   protected void leave() {
+      Counter counter = counterThreadLocal.get();
+      if (counter != null && --counter.count <= 0) {
+         counterThreadLocal.remove();
+      }
    }
 
 }

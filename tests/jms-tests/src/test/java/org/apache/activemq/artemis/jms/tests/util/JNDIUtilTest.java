@@ -21,8 +21,8 @@ import javax.naming.NameNotFoundException;
 
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.utils.JNDIUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -44,7 +44,7 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
          // OK
       }
 
-      JNDIUtil.rebind(ic, "/nosuchsubcontext/sub1/sub2/sub3/name", Integer.valueOf(7));
+      JNDIUtil.rebind(ic, "/nosuchsubcontext/sub1/sub2/sub3/name", 7);
 
       ProxyAssertSupport.assertEquals(7, ((Integer) ic.lookup("/nosuchsubcontext/sub1/sub2/sub3/name")).intValue());
    }
@@ -58,7 +58,7 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
          // OK
       }
 
-      JNDIUtil.rebind(ic, "/doesnotexistyet", Integer.valueOf(8));
+      JNDIUtil.rebind(ic, "/doesnotexistyet", 8);
 
       ProxyAssertSupport.assertEquals(8, ((Integer) ic.lookup("/doesnotexistyet")).intValue());
 
@@ -74,7 +74,7 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
          // OK
       }
 
-      JNDIUtil.rebind(ic, "doesnotexistyet", Integer.valueOf(9));
+      JNDIUtil.rebind(ic, "doesnotexistyet", 9);
 
       ProxyAssertSupport.assertEquals(9, ((Integer) ic.lookup("/doesnotexistyet")).intValue());
 
@@ -84,7 +84,7 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

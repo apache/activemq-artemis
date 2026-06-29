@@ -16,7 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -33,9 +37,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase {
 
@@ -43,7 +46,7 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase {
 
    private ClientSession clientSession;
 
-   private final SimpleString qName = new SimpleString("MessageGroupingTestQueue");
+   private final SimpleString qName = SimpleString.of("MessageGroupingTestQueue");
 
    @Test
    public void testBasicGroupingUsingConnection() throws Exception {
@@ -71,9 +74,9 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase {
       consumer.setMessageHandler(dummyMessageHandler);
       DummyMessageHandler dummyMessageHandler2 = new DummyMessageHandler(latch, true);
       consumer2.setMessageHandler(dummyMessageHandler2);
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-      Assert.assertEquals(100, dummyMessageHandler.list.size());
-      Assert.assertEquals(0, dummyMessageHandler2.list.size());
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertEquals(100, dummyMessageHandler.list.size());
+      assertEquals(0, dummyMessageHandler2.list.size());
       consumer.close();
       consumer2.close();
    }
@@ -98,15 +101,15 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase {
       consumer.setMessageHandler(dummyMessageHandler);
       DummyMessageHandler dummyMessageHandler2 = new DummyMessageHandler(latch, true);
       consumer2.setMessageHandler(dummyMessageHandler2);
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-      Assert.assertEquals(300, dummyMessageHandler.list.size());
-      Assert.assertEquals(0, dummyMessageHandler2.list.size());
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertEquals(300, dummyMessageHandler.list.size());
+      assertEquals(0, dummyMessageHandler2.list.size());
       consumer.close();
       consumer2.close();
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
@@ -114,12 +117,12 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase {
       ServerLocator locator = createInVMNonHALocator().setGroupID("grp1");
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = addClientSession(sessionFactory.createSession(false, true, true));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
    }
 
    private static class DummyMessageHandler implements MessageHandler {
 
-      ArrayList<ClientMessage> list = new ArrayList<>();
+      List<ClientMessage> list = new ArrayList<>();
 
       private final CountDownLatch latch;
 

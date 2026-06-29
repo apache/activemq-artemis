@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.settings.impl;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
@@ -36,49 +37,47 @@ public class Match<T> {
 
    private static final String DOT_REPLACEMENT = "\\.";
 
+   private static final char DOLLAR_CHAR = '$';
+
+   private static final String DOLLAR = String.valueOf(DOLLAR_CHAR);
+
+   private static final String DOLLAR_REPLACEMENT = "\\" + DOLLAR;
+
    private final String match;
 
    private final Pattern pattern;
 
    private final T value;
 
+   private final boolean literal;
+
    public Match(final String match, final T value, final WildcardConfiguration wildcardConfiguration) {
-      this.match = match;
-      this.value = value;
-      pattern = createPattern(match, wildcardConfiguration, false);
+      this(match, value, wildcardConfiguration, false);
    }
 
-   /**
-    *
-    * @param match
-    * @param wildcardConfiguration
-    * @param direct setting true is useful for use-cases where you just want to know whether or not a message sent to
-    *               a particular address would match the pattern
-    * @return
-    */
-   public static Pattern createPattern(final String match, final WildcardConfiguration wildcardConfiguration, boolean direct) {
+   public Match(final String match, final T value, final WildcardConfiguration wildcardConfiguration, final boolean literal) {
+      this.match = match;
+      this.value = value;
       String actMatch = match;
 
       if (wildcardConfiguration.getAnyWordsString().equals(match)) {
          // replace any regex characters
-         actMatch = Match.WILDCARD_REPLACEMENT;
+         actMatch = WILDCARD_REPLACEMENT;
       } else {
-         if (!direct) {
-            // this is to match with what's documented
-            actMatch = actMatch.replace(wildcardConfiguration.getDelimiterString() + wildcardConfiguration.getAnyWordsString(), wildcardConfiguration.getAnyWordsString());
+         // this is to match with what's documented
+         actMatch = actMatch.replace(wildcardConfiguration.getDelimiterString() + wildcardConfiguration.getAnyWordsString(), wildcardConfiguration.getAnyWordsString());
+         actMatch = actMatch.replace(DOT, DOT_REPLACEMENT);
+         if (!wildcardConfiguration.contains(DOLLAR_CHAR)) {
+            actMatch = actMatch.replace(DOLLAR, DOLLAR_REPLACEMENT);
          }
-         actMatch = actMatch.replace(Match.DOT, Match.DOT_REPLACEMENT);
          actMatch = actMatch.replace(wildcardConfiguration.getSingleWordString(), String.format(WORD_WILDCARD_REPLACEMENT_FORMAT, Pattern.quote(wildcardConfiguration.getDelimiterString())));
 
-         if (direct) {
-            actMatch = actMatch.replace(wildcardConfiguration.getAnyWordsString(), WILDCARD_REPLACEMENT);
-         } else {
-            // this one has to be done by last as we are using .* and it could be replaced wrongly if delimiter is '.'
-            actMatch = actMatch.replace(wildcardConfiguration.getAnyWordsString(), String.format(WILDCARD_CHILD_REPLACEMENT_FORMAT, Pattern.quote(wildcardConfiguration.getDelimiterString())));
-         }
+         // this one has to be done by last as we are using .* and it could be replaced wrongly if delimiter is '.'
+         actMatch = actMatch.replace(wildcardConfiguration.getAnyWordsString(), String.format(WILDCARD_CHILD_REPLACEMENT_FORMAT, Pattern.quote(wildcardConfiguration.getDelimiterString())));
       }
       // we need to anchor with eot to ensure we have a full match
-      return Pattern.compile(actMatch + "$");
+      pattern = Pattern.compile(actMatch + DOLLAR);
+      this.literal = literal;
    }
 
    public final String getMatch() {
@@ -93,25 +92,26 @@ public class Match<T> {
       return value;
    }
 
+   public final boolean isLiteral() {
+      return literal;
+   }
+
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof Match other)) {
          return false;
       }
 
-      @SuppressWarnings("rawtypes")
-      Match that = (Match) o;
-
-      return !(match != null ? !match.equals(that.match) : that.match != null);
+      return Objects.equals(match, other.match);
 
    }
 
    @Override
    public int hashCode() {
-      return match != null ? match.hashCode() : 0;
+      return Objects.hashCode(match);
    }
 
    /**

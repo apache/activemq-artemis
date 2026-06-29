@@ -16,10 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NettySymmetricClusterTest extends SymmetricClusterTest {
 
@@ -70,10 +73,11 @@ public class NettySymmetricClusterTest extends SymmetricClusterTest {
          clientSessionFactories[i] = addSessionFactory(locator.createSessionFactory());
       }
 
-      /**
-       * Since we are only using the initial connectors to load-balance then all the connections should be on the first 2 nodes.
-       * Note: This still uses the load-balancing-policy so this would changed if we used the random one instead of the default
-       * round-robin one.
+      /*
+       * Since we are only using the initial connectors to load-balance then all the connections should be on the first
+       * 2 nodes.
+       * Note: This still uses the load-balancing-policy so this would changed if we used the random one instead of the
+       * default round-robin one.
        */
       assertEquals(CONNECTION_COUNT / 2, (servers[0].getActiveMQServerControl().getConnectionCount() - baseline[0]));
       assertEquals(CONNECTION_COUNT / 2, (servers[1].getActiveMQServerControl().getConnectionCount() - baseline[1]));

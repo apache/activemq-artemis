@@ -27,28 +27,16 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * ActiveMQMessageProducer.
+ * A wrapper for a {@link MessageProducer}.
  */
 public class ActiveMQRAMessageProducer implements MessageProducer {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The wrapped message producer
-    */
    protected MessageProducer producer;
 
-   /**
-    * The session for this consumer
-    */
    protected ActiveMQRASession session;
 
-   /**
-    * Create a new wrapper
-    *
-    * @param producer the producer
-    * @param session  the session
-    */
    public ActiveMQRAMessageProducer(final MessageProducer producer, final ActiveMQRASession session) {
       this.producer = producer;
       this.session = session;
@@ -58,10 +46,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       }
    }
 
+
    /**
-    * Close
-    *
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void close() throws JMSException {
@@ -74,15 +61,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       }
    }
 
+
    /**
-    * Send message
-    *
-    * @param destination  The destination
-    * @param message      The message
-    * @param deliveryMode The delivery mode
-    * @param priority     The priority
-    * @param timeToLive   The time to live
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void send(final Destination destination,
@@ -107,12 +88,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       }
    }
 
+
    /**
-    * Send message
-    *
-    * @param destination The destination
-    * @param message     The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void send(final Destination destination, final Message message) throws JMSException {
@@ -132,14 +110,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       }
    }
 
+
    /**
-    * Send message
-    *
-    * @param message      The message
-    * @param deliveryMode The delivery mode
-    * @param priority     The priority
-    * @param timeToLive   The time to live
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void send(final Message message,
@@ -163,11 +136,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       }
    }
 
+
    /**
-    * Send message
-    *
-    * @param message The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void send(final Message message) throws JMSException {
@@ -185,11 +156,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       }
    }
 
+
    /**
-    * Get the delivery mode
-    *
-    * @return The mode
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public int getDeliveryMode() throws JMSException {
@@ -198,11 +167,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       return producer.getDeliveryMode();
    }
 
+
    /**
-    * Get the destination
-    *
-    * @return The destination
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Destination getDestination() throws JMSException {
@@ -211,11 +178,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       return producer.getDestination();
    }
 
+
    /**
-    * Disable message id
-    *
-    * @return True if disable
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public boolean getDisableMessageID() throws JMSException {
@@ -224,11 +189,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       return producer.getDisableMessageID();
    }
 
+
    /**
-    * Disable message timestamp
-    *
-    * @return True if disable
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public boolean getDisableMessageTimestamp() throws JMSException {
@@ -237,11 +200,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       return producer.getDisableMessageTimestamp();
    }
 
+
    /**
-    * Get the priority
-    *
-    * @return The priority
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public int getPriority() throws JMSException {
@@ -250,11 +211,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       return producer.getPriority();
    }
 
+
    /**
-    * Get the time to live
-    *
-    * @return The ttl
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public long getTimeToLive() throws JMSException {
@@ -263,11 +222,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       return producer.getTimeToLive();
    }
 
+
    /**
-    * Set the delivery mode
-    *
-    * @param deliveryMode The mode
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setDeliveryMode(final int deliveryMode) throws JMSException {
@@ -278,11 +235,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       producer.setDeliveryMode(deliveryMode);
    }
 
+
    /**
-    * Set disable message id
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setDisableMessageID(final boolean value) throws JMSException {
@@ -293,11 +248,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       producer.setDisableMessageID(value);
    }
 
+
    /**
-    * Set disable message timestamp
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setDisableMessageTimestamp(final boolean value) throws JMSException {
@@ -308,11 +261,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       producer.setDisableMessageTimestamp(value);
    }
 
+
    /**
-    * Set the priority
-    *
-    * @param defaultPriority The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setPriority(final int defaultPriority) throws JMSException {
@@ -323,11 +274,9 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       producer.setPriority(defaultPriority);
    }
 
+
    /**
-    * Set the ttl
-    *
-    * @param timeToLive The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setTimeToLive(final long timeToLive) throws JMSException {
@@ -395,20 +344,10 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       producer.send(destination, message, deliveryMode, priority, timeToLive, completionListener);
    }
 
-   /**
-    * Check state
-    *
-    * @throws JMSException Thrown if an error occurs
-    */
    void checkState() throws JMSException {
       session.checkState();
    }
 
-   /**
-    * Close producer
-    *
-    * @throws JMSException Thrown if an error occurs
-    */
    void closeProducer() throws JMSException {
       producer.close();
    }

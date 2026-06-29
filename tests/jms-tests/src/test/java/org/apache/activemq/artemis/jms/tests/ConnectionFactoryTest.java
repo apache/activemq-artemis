@@ -35,18 +35,23 @@ import javax.jms.XAQueueConnection;
 import javax.jms.XAQueueConnectionFactory;
 import javax.jms.XATopicConnection;
 import javax.jms.XATopicConnectionFactory;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ConnectionFactoryTest extends JMSTestCase {
 
@@ -56,15 +61,14 @@ public class ConnectionFactoryTest extends JMSTestCase {
    private String testClientId;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       testClientId = "amq" + random.nextInt();
    }
 
    /**
-    * Test that ConnectionFactory can be cast to QueueConnectionFactory and QueueConnection can be
-    * created.
+    * Test that ConnectionFactory can be cast to QueueConnectionFactory and QueueConnection can be created.
     */
    @Test
    public void testQueueConnectionFactory() throws Exception {
@@ -76,8 +80,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
    }
 
    /**
-    * Test that ConnectionFactory can be cast to TopicConnectionFactory and TopicConnection can be
-    * created.
+    * Test that ConnectionFactory can be cast to TopicConnectionFactory and TopicConnection can be created.
     */
    @Test
    public void testTopicConnectionFactory() throws Exception {
@@ -111,7 +114,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
 
    @Test
    public void testNoClientIDConfigured_1() throws Exception {
-      // the ConnectionFactories that ship with ActiveMQ Artemis do not have their clientID
+      // the ConnectionFactories that ship with Apache Artemis do not have their clientID
       // administratively configured.
 
       deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_XA_FALSE", "/CF_XA_FALSE");
@@ -126,7 +129,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
 
    @Test
    public void testNoClientIDConfigured_2() throws Exception {
-      // the ConnectionFactories that ship with ActiveMQ Artemis do not have their clientID
+      // the ConnectionFactories that ship with Apache Artemis do not have their clientID
       // administratively configured.
 
       deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_XA_FALSE", "/CF_XA_FALSE");
@@ -142,7 +145,6 @@ public class ConnectionFactoryTest extends JMSTestCase {
       undeployConnectionFactory("CF_XA_FALSE");
    }
 
-   // Added for http://jira.jboss.org/jira/browse/JBMESSAGING-939
    @Test
    public void testDurableSubscriptionOnPreConfiguredConnectionFactory() throws Exception {
       ActiveMQServerTestCase.deployConnectionFactory("TestConnectionFactory1", "cfTest", "/TestDurableCF");
@@ -185,7 +187,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
 
    @Test
    public void testSlowConsumers() throws Exception {
-      ArrayList<String> bindings = new ArrayList<>();
+      List<String> bindings = new ArrayList<>();
       bindings.add("TestSlowConsumersCF");
       ActiveMQServerTestCase.deployConnectionFactory(0, "TestSlowConsumersCF", 1, "TestSlowConsumersCF");
 
@@ -280,7 +282,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
             }
          }
 
-         Assert.assertTrue(fast.processed == numMessages - 2);
+         assertEquals(numMessages - 2, fast.processed);
 
       } finally {
          try {
@@ -320,62 +322,62 @@ public class ConnectionFactoryTest extends JMSTestCase {
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/ConnectionFactory");
 
-      Assert.assertTrue(factory instanceof ConnectionFactory);
+      assertInstanceOf(ConnectionFactory.class, factory);
       assertNTypes(factory, 4);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_XA_TRUE");
 
-      Assert.assertTrue(factory instanceof XAConnectionFactory);
+      assertInstanceOf(XAConnectionFactory.class, factory);
       assertNTypes(factory, 6);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_XA_FALSE");
 
-      Assert.assertTrue(factory instanceof ConnectionFactory);
+      assertInstanceOf(ConnectionFactory.class, factory);
       assertNTypes(factory, 4);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_GENERIC");
 
-      Assert.assertTrue(factory instanceof ConnectionFactory);
+      assertInstanceOf(ConnectionFactory.class, factory);
       assertNTypes(factory, 4);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_GENERIC_XA_TRUE");
 
-      Assert.assertTrue(factory instanceof XAConnectionFactory);
+      assertInstanceOf(XAConnectionFactory.class, factory);
       assertNTypes(factory, 6);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_GENERIC_XA_FALSE");
 
-      Assert.assertTrue(factory instanceof ConnectionFactory);
+      assertInstanceOf(ConnectionFactory.class, factory);
       assertNTypes(factory, 4);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_QUEUE");
 
-      Assert.assertTrue(factory instanceof QueueConnectionFactory);
+      assertInstanceOf(QueueConnectionFactory.class, factory);
       assertNTypes(factory, 3);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_QUEUE_XA_TRUE");
 
-      Assert.assertTrue(factory instanceof XAQueueConnectionFactory);
+      assertInstanceOf(XAQueueConnectionFactory.class, factory);
       assertNTypes(factory, 4);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_QUEUE_XA_FALSE");
 
-      Assert.assertTrue(factory instanceof QueueConnectionFactory);
+      assertInstanceOf(QueueConnectionFactory.class, factory);
       assertNTypes(factory, 3);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_TOPIC");
 
-      Assert.assertTrue(factory instanceof TopicConnectionFactory);
+      assertInstanceOf(TopicConnectionFactory.class, factory);
       assertNTypes(factory, 3);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_TOPIC_XA_TRUE");
 
-      Assert.assertTrue(factory instanceof XATopicConnectionFactory);
+      assertInstanceOf(XATopicConnectionFactory.class, factory);
       assertNTypes(factory, 4);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_TOPIC_XA_FALSE");
 
-      Assert.assertTrue(factory instanceof TopicConnectionFactory);
+      assertInstanceOf(TopicConnectionFactory.class, factory);
       assertNTypes(factory, 3);
 
       undeployConnectionFactory("ConnectionFactory");
@@ -450,19 +452,19 @@ public class ConnectionFactoryTest extends JMSTestCase {
    private void assertConnectionType(Connection conn, String type) {
       if ("generic".equals(type) || "queue".equals(type) || "topic".equals(type)) {
          //generic
-         Assert.assertFalse(conn instanceof XAConnection);
-         Assert.assertTrue(conn instanceof QueueConnection);
-         Assert.assertFalse(conn instanceof XAQueueConnection);
-         Assert.assertTrue(conn instanceof TopicConnection);
-         Assert.assertFalse(conn instanceof XATopicConnection);
+         assertFalse(conn instanceof XAConnection);
+         assertInstanceOf(QueueConnection.class, conn);
+         assertFalse(conn instanceof XAQueueConnection);
+         assertInstanceOf(TopicConnection.class, conn);
+         assertFalse(conn instanceof XATopicConnection);
       } else if ("xa".equals(type) || "xa-queue".equals(type) || "xa-topic".equals(type)) {
-         Assert.assertTrue(conn instanceof XAConnection);
-         Assert.assertTrue(conn instanceof QueueConnection);
-         Assert.assertTrue(conn instanceof XAQueueConnection);
-         Assert.assertTrue(conn instanceof TopicConnection);
-         Assert.assertTrue(conn instanceof XATopicConnection);
+         assertInstanceOf(XAConnection.class, conn);
+         assertInstanceOf(QueueConnection.class, conn);
+         assertInstanceOf(XAQueueConnection.class, conn);
+         assertInstanceOf(TopicConnection.class, conn);
+         assertInstanceOf(XATopicConnection.class, conn);
       } else {
-         Assert.fail("Unknown connection type: " + type);
+         fail("Unknown connection type: " + type);
       }
    }
 
@@ -494,6 +496,6 @@ public class ConnectionFactoryTest extends JMSTestCase {
          num++;
          text.append("XATopicConnectionFactory ");
       }
-      Assert.assertEquals(text.toString(), total, num);
+      assertEquals(total, num, text.toString());
    }
 }

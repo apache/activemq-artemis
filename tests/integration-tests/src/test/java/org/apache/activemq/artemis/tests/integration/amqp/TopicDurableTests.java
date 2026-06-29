@@ -42,11 +42,13 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TopicDurableTests extends JMSClientTestSupport {
 
@@ -65,7 +67,7 @@ public class TopicDurableTests extends JMSClientTestSupport {
 
       logger.debug("testMessageDurableSubscription");
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Topic testTopic =  session.createTopic("jmsTopic");
+      Topic testTopic = session.createTopic("jmsTopic");
 
       String sub1ID = "sub1DurSub";
       String sub2ID = "sub2DurSub";
@@ -129,7 +131,7 @@ public class TopicDurableTests extends JMSClientTestSupport {
          Connection connection1 = connectionFactory1.createConnection();
 
 
-         Hashtable env2 = new Hashtable<Object, Object>();
+         Hashtable env2 = new Hashtable<>();
          env2.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.qpid.jms.jndi.JmsInitialContextFactory");
          env2.put("connectionfactory.qpidConnectionFactory", "amqp://localhost:5672");
          env2.put("topic." + "jmsTopic", "jmsTopic");
@@ -179,7 +181,7 @@ public class TopicDurableTests extends JMSClientTestSupport {
          //TEAR-DOWN-E
 
          // ensure the topic is auto-deleted before continuing to the next iteration
-         Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString("jmsTopic")) == null, 2000, 100);
+         Wait.assertTrue(() -> server.getAddressInfo(SimpleString.of("jmsTopic")) == null, 2000, 100);
       }
    }
 

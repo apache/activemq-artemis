@@ -37,8 +37,8 @@ public class TwoWayTwoNodeClusterWithDiscoveryTest extends TwoWayTwoNodeClusterT
 
    @Override
    protected void setupServers() throws Exception {
-      setupLiveServerWithDiscovery(0, groupAddress, groupPort, isFileStorage(), isNetty(), false);
-      setupLiveServerWithDiscovery(1, groupAddress, groupPort, isFileStorage(), isNetty(), false);
+      setupPrimaryServerWithDiscovery(0, groupAddress, groupPort, isFileStorage(), isNetty(), false);
+      setupPrimaryServerWithDiscovery(1, groupAddress, groupPort, isFileStorage(), isNetty(), false);
    }
 
 

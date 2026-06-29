@@ -23,20 +23,19 @@ import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(Parameterized.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class StompLVQTest extends StompTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -46,19 +45,23 @@ public class StompLVQTest extends StompTestBase {
 
    private final String queue = "lvq";
 
+   public StompLVQTest() {
+      super("tcp+v10.stomp");
+   }
+
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
-      server.createQueue(new QueueConfiguration(queue).setLastValue(true).setExclusive(true));
+      server.createQueue(QueueConfiguration.of(queue).setLastValue(true).setExclusive(true).setRoutingType(RoutingType.ANYCAST));
 
       producerConn = StompClientConnectionFactory.createClientConnection(uri);
       consumerConn = StompClientConnectionFactory.createClientConnection(uri);
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       try {
          if (producerConn != null && producerConn.isConnected()) {
@@ -127,8 +130,8 @@ public class StompLVQTest extends StompTestBase {
          logger.error(null, e);
       }
 
-      Assert.assertEquals(2, messages.size());
-      Assert.assertEquals("1", messages.get(0).getBody());
-      Assert.assertEquals("100", messages.get(1).getBody());
+      assertEquals(2, messages.size());
+      assertEquals("1", messages.get(0).getBody());
+      assertEquals("100", messages.get(1).getBody());
    }
 }

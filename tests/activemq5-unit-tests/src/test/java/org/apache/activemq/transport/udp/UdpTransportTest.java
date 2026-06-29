@@ -25,10 +25,6 @@ import org.apache.activemq.util.IntSequenceGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- *
- */
 public class UdpTransportTest extends UdpTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(UdpTransportTest.class);

@@ -18,14 +18,12 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-/**
- * A SessionBindingQueryResponseMessage
- */
 public class SessionBindingQueryResponseMessage extends PacketImpl {
 
    protected boolean exists;
@@ -82,37 +80,29 @@ public class SessionBindingQueryResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (exists ? 1231 : 1237);
-      result = prime * result + ((queueNames == null) ? 0 : queueNames.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), exists, queueNames);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", exists=" + exists);
-      buff.append(", queueNames=" + queueNames);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", exists=" + exists);
+      sb.append(", queueNames=" + queueNames);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionBindingQueryResponseMessage))
+      }
+      if (!(obj instanceof SessionBindingQueryResponseMessage other)) {
          return false;
-      SessionBindingQueryResponseMessage other = (SessionBindingQueryResponseMessage) obj;
-      if (exists != other.exists)
-         return false;
-      if (queueNames == null) {
-         if (other.queueNames != null)
-            return false;
-      } else if (!queueNames.equals(other.queueNames))
-         return false;
-      return true;
+      }
+      return exists == other.exists &&
+             Objects.equals(queueNames, other.queueNames);
    }
 }

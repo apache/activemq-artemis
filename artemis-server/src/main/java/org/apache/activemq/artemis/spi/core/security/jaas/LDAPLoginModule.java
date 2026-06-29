@@ -45,8 +45,6 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,10 +56,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionException;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,20 @@ import org.slf4j.LoggerFactory;
 public class LDAPLoginModule implements AuditLoginModule {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   private static final ThreadLocal<Map<String, String>> environmentThreadLocal = new ThreadLocal<>();
+
+   public static Map<String, String> getEnvironment() {
+      return environmentThreadLocal.get();
+   }
+
+   protected static void setEnvironment(Map<String, String> environment) {
+      environmentThreadLocal.set(environment);
+   }
+
+   protected static void removeEnvironment() {
+      environmentThreadLocal.remove();
+   }
 
    enum ConfigKey {
 
@@ -94,7 +109,6 @@ public class LDAPLoginModule implements AuditLoginModule {
       REFERRAL("referral"),
       IGNORE_PARTIAL_RESULT_EXCEPTION("ignorePartialResultException"),
       PASSWORD_CODEC("passwordCodec"),
-      CONNECTION_POOL("connectionPool"),
       CONNECTION_TIMEOUT("connectionTimeout"),
       READ_TIMEOUT("readTimeout"),
       NO_CACHE_EXCEPTIONS("noCacheExceptions");
@@ -209,7 +223,7 @@ public class LDAPLoginModule implements AuditLoginModule {
           * requests (by verifying that the supplied password is not empty) and
           * react appropriately.
           */
-         if (password == null || password.length() == 0) {
+         if (password == null || password.isEmpty()) {
             throw new FailedLoginException("Password cannot be null or empty");
          }
 
@@ -386,9 +400,9 @@ public class LDAPLoginModule implements AuditLoginModule {
 
          NamingEnumeration<SearchResult> results = null;
          try {
-            results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.USER_BASE), filter, constraints));
-         } catch (PrivilegedActionException e) {
-            Exception cause = e.getException();
+            results = SecurityManagerShim.callAs(brokerGssapiIdentity, (Callable<NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.USER_BASE), filter, constraints));
+         } catch (CompletionException e) {
+            Throwable cause = e.getCause();
             FailedLoginException ex = new FailedLoginException("Error executing search query to resolve DN");
             ex.initCause(cause);
             throw ex;
@@ -508,13 +522,13 @@ public class LDAPLoginModule implements AuditLoginModule {
          logger.debug("  base DN: {}", getLDAPPropertyValue(ConfigKey.ROLE_BASE));
          logger.debug("  filter: {}", filter);
       }
-      HashSet<String> haveSeenNames = new HashSet<>();
+      Set<String> haveSeenNames = new HashSet<>();
       Queue<String> pendingNameExpansion = new LinkedList<>();
       NamingEnumeration<SearchResult> results = null;
       try {
-         results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.ROLE_BASE), filter, constraints));
-      } catch (PrivilegedActionException e) {
-         Exception cause = e.getException();
+         results = SecurityManagerShim.callAs(brokerGssapiIdentity, (Callable<NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.ROLE_BASE), filter, constraints));
+      } catch (CompletionException e) {
+         Throwable cause = e.getCause();
          NamingException ex = new NamingException("Error executing search query to resolve roles");
          ex.initCause(cause);
          throw ex;
@@ -549,9 +563,9 @@ public class LDAPLoginModule implements AuditLoginModule {
                logger.debug("  filter: {}", expandFilter);
             }
             try {
-               results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.ROLE_BASE), expandFilter, constraints));
-            } catch (PrivilegedActionException e) {
-               Exception cause = e.getException();
+               results = SecurityManagerShim.callAs(brokerGssapiIdentity, (Callable<NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.ROLE_BASE), expandFilter, constraints));
+            } catch (CompletionException e) {
+               Throwable cause = e.getCause();
                NamingException ex = new NamingException("Error executing search query to expand roles");
                ex.initCause(cause);
                throw ex;
@@ -660,9 +674,6 @@ public class LDAPLoginModule implements AuditLoginModule {
             env.put(Context.SECURITY_PROTOCOL, getLDAPPropertyValue(ConfigKey.CONNECTION_PROTOCOL));
             env.put(Context.PROVIDER_URL, getLDAPPropertyValue(ConfigKey.CONNECTION_URL));
             env.put(Context.SECURITY_AUTHENTICATION, getLDAPPropertyValue(ConfigKey.AUTHENTICATION));
-            if (isLoginPropertySet(ConfigKey.CONNECTION_POOL)) {
-               env.put("com.sun.jndi.ldap.connect.pool", getLDAPPropertyValue(ConfigKey.CONNECTION_POOL));
-            }
             if (isLoginPropertySet(ConfigKey.CONNECTION_TIMEOUT)) {
                env.put("com.sun.jndi.ldap.connect.timeout", getLDAPPropertyValue(ConfigKey.CONNECTION_TIMEOUT));
             }
@@ -711,12 +722,19 @@ public class LDAPLoginModule implements AuditLoginModule {
 
             extendInitialEnvironment(config, env);
 
+            setEnvironment(env);
             try {
-               context = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction<DirContext>) () -> new InitialDirContext(env));
-            } catch (PrivilegedActionException e) {
-               throw e.getException();
-            }
+               context = SecurityManagerShim.callAs(brokerGssapiIdentity, (Callable<DirContext>) () -> new InitialDirContext(env));
+            } catch (CompletionException ce) {
+               Throwable cause = ce.getCause();
+               if (cause instanceof Exception ex) {
+                  throw ex;
+               }
 
+               throw ce;
+            } finally {
+               removeEnvironment();
+            }
          } catch (NamingException e) {
             closeContext();
             ActiveMQServerLogger.LOGGER.failedToOpenContext(e);
@@ -725,7 +743,7 @@ public class LDAPLoginModule implements AuditLoginModule {
       }
    }
 
-   protected void extendInitialEnvironment(Set<LDAPLoginProperty> moduleConfig, Hashtable<String, String> initialContextEnv) {
+   protected void extendInitialEnvironment(Set<LDAPLoginProperty> moduleConfig, Map<String, String> initialContextEnv) {
       // sub-classes may override the method if the default implementation is not sufficient:
       // add all non-module configs to initial DirContext environment to support passing
       // any custom/future property to InitialDirContext construction
@@ -735,13 +753,18 @@ public class LDAPLoginModule implements AuditLoginModule {
             initialContextEnv.put(propName, prop.getPropertyValue());
          }
       }
+
+      if (codecClass != null) {
+         initialContextEnv.put(ConfigKey.PASSWORD_CODEC.getName(), codecClass);
+      }
    }
 
    private String getLDAPPropertyValue(ConfigKey key) {
-      for (LDAPLoginProperty conf : config)
+      for (LDAPLoginProperty conf : config) {
          if (conf.getPropertyName().equals(key.getName())) {
             return conf.getPropertyValue();
          }
+      }
       return null;
    }
 

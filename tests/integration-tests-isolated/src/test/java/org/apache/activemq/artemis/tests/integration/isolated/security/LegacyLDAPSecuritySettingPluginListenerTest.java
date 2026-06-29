@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -137,7 +138,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
    public void testRunning() throws Exception {
       DirContext ctx = getContext();
 
-      HashSet<String> set = new HashSet<>();
+      Set<String> set = new HashSet<>();
 
       NamingEnumeration<NameClassPair> list = ctx.list("ou=system");
 
@@ -171,7 +172,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       String name = "queue1";
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
       ClientSession session2 = cf.createSession("second", "secret", false, true, true, false, 0);
-      session.createQueue(new QueueConfiguration(name));
+      session.createQueue(QueueConfiguration.of(name));
       ClientProducer producer = session.createProducer();
       ClientProducer producer2 = session2.createProducer();
       producer.send(name, session.createMessage(true));
@@ -216,7 +217,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       String queue = "queue1";
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
       ClientSession session2 = cf.createSession("second", "secret", false, true, true, false, 0);
-      session.createQueue(new QueueConfiguration(queue));
+      session.createQueue(QueueConfiguration.of(queue));
       ClientConsumer consumer = session.createConsumer(queue);
       consumer.receiveImmediate();
       consumer.close();
@@ -260,7 +261,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       server.getConfiguration().setSecurityInvalidationInterval(0);
       server.start();
       String queue = "queue2";
-      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ClientSessionFactory cf = locator.createSessionFactory();
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
 
@@ -310,10 +311,10 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       server.getConfiguration().setSecurityInvalidationInterval(0);
       server.start();
       String queue = "queue2";
-      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ClientSessionFactory cf = locator.createSessionFactory();
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
-      ClientProducer producer = session.createProducer(SimpleString.toSimpleString(queue));
+      ClientProducer producer = session.createProducer(SimpleString.of(queue));
 
       try {
          producer.send(session.createMessage(true));
@@ -363,7 +364,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       server.getConfiguration().setSecurityInvalidationInterval(0);
       server.start();
       String queue = "queue1";
-      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ClientSessionFactory cf = locator.createSessionFactory();
 
       // authentication should fail
@@ -504,7 +505,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
          ctx.bind("cn=write,cn=" + goodQueue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system", null, basicAttributes);
       }
 
-      server.createQueue(new QueueConfiguration(goodQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(goodQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       ClientSession session = cf.createSession(USERNAME, "secret", false, true, true, false, 0);
 
@@ -518,7 +519,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       }, 2000, 100);
       session.close();
 
-      server.createQueue(new QueueConfiguration(badQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(badQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       // authorization for sending should fail for the new queue
       try {

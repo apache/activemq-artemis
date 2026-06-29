@@ -51,9 +51,13 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
    // This contains RefSchedules which are delegates to the real references
    // just adding some information to keep it in order accordingly to the initial operations
+   // Do not forget to call notifyScheduledReferencesUpdated() when updating the set.
    private final TreeSet<RefScheduled> scheduledReferences = new TreeSet<>(new MessageReferenceComparator());
 
    private final QueueMessageMetrics metrics;
+
+   // Oldest by timestamp, not by scheduled delivery time
+   private MessageReference oldestMessage = null;
 
    public ScheduledDeliveryHandlerImpl(final ScheduledExecutorService scheduledExecutor,
          final Queue queue) {
@@ -82,6 +86,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
    public void addInPlace(final long deliveryTime, final MessageReference ref, final boolean tail) {
       synchronized (scheduledReferences) {
          scheduledReferences.add(new RefScheduled(ref, tail));
+         notifyScheduledReferencesUpdated();
       }
       metrics.incrementMetrics(ref);
    }
@@ -92,8 +97,18 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
    }
 
    @Override
+   public int getNonPagedScheduledCount() {
+      return metrics.getNonPagedMessageCount();
+   }
+
+   @Override
    public int getDurableScheduledCount() {
       return metrics.getDurableMessageCount();
+   }
+
+   @Override
+   public int getNonPagedDurableScheduledCount() {
+      return metrics.getNonPagedDurableMessageCount();
    }
 
    @Override
@@ -102,8 +117,18 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
    }
 
    @Override
+   public long getNonPagedScheduledSize() {
+      return metrics.getNonPagedPersistentSize();
+   }
+
+   @Override
    public long getDurableScheduledSize() {
       return metrics.getDurablePersistentSize();
+   }
+
+   @Override
+   public long getNonPagedDurableScheduledSize() {
+      return metrics.getNonPagedPersistentSize();
    }
 
    @Override
@@ -129,6 +154,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
             MessageReference ref = iter.next().getRef();
             if (predicate.test(ref)) {
                iter.remove();
+               notifyScheduledReferencesUpdated();
                refs.add(ref);
                metrics.decrementMetrics(ref);
             }
@@ -149,8 +175,9 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
          while (iter.hasNext()) {
             MessageReference ref = iter.next().getRef();
             if (ref.getMessage().getMessageID() == id) {
-               ref.acknowledge(tx);
+               ref.acknowledge(tx, AckReason.NORMAL, null, false);
                iter.remove();
+               notifyScheduledReferencesUpdated();
                metrics.decrementMetrics(ref);
                return ref;
             }
@@ -188,6 +215,34 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
       }
    }
 
+   protected void notifyScheduledReferencesUpdated() {
+      oldestMessage = null;
+   }
+
+   @Override
+   public MessageReference peekFirstScheduledMessage() {
+      synchronized (scheduledReferences) {
+         if (scheduledReferences.isEmpty()) {
+            return null;
+         }
+         if (oldestMessage != null) {
+            return oldestMessage;
+         }
+         MessageReference result = null;
+         long oldestTimestamp = Long.MAX_VALUE;
+         for (RefScheduled scheduledReference : scheduledReferences) {
+            MessageReference ref = scheduledReference.getRef();
+            long refTimestamp = ref.getMessage().getTimestamp();
+            if (refTimestamp < oldestTimestamp) {
+               oldestTimestamp = refTimestamp;
+               result = ref;
+            }
+         }
+         oldestMessage = result;
+         return result;
+      }
+   }
+
    private class ScheduledDeliveryRunnable implements Runnable {
 
       long deliveryTime;
@@ -198,7 +253,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
       @Override
       public void run() {
-         HashMap<Queue, LinkedList<MessageReference>> refs = new HashMap<>();
+         Map<Queue, LinkedList<MessageReference>> refs = new HashMap<>();
 
          runnables.remove(deliveryTime);
 
@@ -232,6 +287,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
                }
 
                iter.remove();
+               notifyScheduledReferencesUpdated();
                metrics.decrementMetrics(reference);
 
                reference.setScheduledDeliveryTime(0);

@@ -39,8 +39,12 @@ import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
+import org.apache.qpid.proton.codec.DecodeException;
+import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
+import org.apache.qpid.proton.codec.EncodingCodes;
 import org.apache.qpid.proton.codec.ReadableBuffer;
+import org.apache.qpid.proton.codec.TypeConstructor;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
 // see https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#section-message-format
@@ -148,8 +152,8 @@ public class AMQPStandardMessage extends AMQPMessage {
    /**
     * Internal constructor used for persistence reload of the message.
     * <p>
-    * The message will not be usable until the persistence mechanism populates the message
-    * data and triggers a parse of the message contents to fill in the message state.
+    * The message will not be usable until the persistence mechanism populates the message data and triggers a parse of
+    * the message contents to fill in the message state.
     *
     * @param messageFormat The Message format tag given the in Transfer that carried this message
     */
@@ -186,9 +190,16 @@ public class AMQPStandardMessage extends AMQPMessage {
    }
 
    @Override
-   public int getMemoryEstimate() {
+   public synchronized int getMemoryEstimate() {
       if (memoryEstimate == -1) {
-         memoryEstimate = memoryOffset + (data != null ? data.capacity() + unmarshalledApplicationPropertiesMemoryEstimateFromData(data) : 0);
+         if (isPaged) {
+            // When the message is paged, we don't take the unmarshalled application properties because it could be
+            // updated at different places. We just keep the estimate simple when paging.
+            memoryEstimate = memoryOffset + (data != null ? data.capacity() : 0);
+         } else {
+            memoryEstimate = memoryOffset + (data != null ? data.capacity() + unmarshalledApplicationPropertiesMemoryEstimateFromData(data) : 0);
+         }
+         originalEstimate = memoryEstimate;
       }
 
       return memoryEstimate;
@@ -226,8 +237,79 @@ public class AMQPStandardMessage extends AMQPMessage {
 
       // Message state is now that the underlying buffer is loaded, but the contents not yet scanned
       resetMessageData();
+      recoverHeaderDataFromEncoding();
+
       modified = false;
       messageDataScanned = MessageDataScanningStatus.RELOAD_PERSISTENCE.code;
+   }
+
+   private void recoverHeaderDataFromEncoding() {
+      final DecoderImpl decoder = TLSEncode.getDecoder();
+      decoder.setBuffer(data);
+
+      try {
+         // At one point the broker could write the header and delivery annotations out of order
+         // which means a full scan is required for maximum compatibility with that older data
+         // where delivery annotations could be found ahead of the Header in the encoding.
+         //
+         // We manually extract the priority from the Header encoding if present to ensure we do
+         // not create any unneeded GC overhead during load from storage. We don't directly store
+         // other values from the header except for a value that is computed based on TTL and or
+         // absolute expiration time in the Properties section, but that value is stored in the
+         // data of the persisted message.
+         for (int section = 0; section < 2 && data.hasRemaining(); section++) {
+            final TypeConstructor<?> constructor = decoder.readConstructor();
+
+            if (Header.class.equals(constructor.getTypeClass())) {
+               final byte typeCode = data.get();
+
+               @SuppressWarnings("unused")
+               int size = 0;
+               int count = 0;
+
+               switch (typeCode) {
+                  case EncodingCodes.LIST0:
+                     break;
+                  case EncodingCodes.LIST8:
+                     size = data.get() & 0xff;
+                     count = data.get() & 0xff;
+                     break;
+                  case EncodingCodes.LIST32:
+                     size = data.getInt();
+                     count = data.getInt();
+                     break;
+                  default:
+                     throw new DecodeException("Incorrect type found in Header encoding: " + typeCode);
+               }
+
+               // Priority is stored in the second slot of the Header list encoding if present
+               if (count >= 2) {
+                  decoder.readBoolean(false); // Discard durable for now, it is computed elsewhere.
+
+                  final byte encodingCode = data.get();
+                  final int priority = switch (encodingCode) {
+                     case EncodingCodes.UBYTE -> data.get() & 0xff;
+                     case EncodingCodes.NULL -> DEFAULT_MESSAGE_PRIORITY;
+                     default ->
+                        throw new DecodeException("Expected UnsignedByte type but found encoding: " + EncodingCodes.toString(encodingCode));
+                  };
+
+                  // Scaled here so do not call setPriority as that will store the set value in the AMQP header
+                  // and we don't want to create that Header instance at this stage.
+                  this.priority = (byte) Math.min(priority, MAX_MESSAGE_PRIORITY);
+               }
+
+               return;
+            } else if (DeliveryAnnotations.class.equals(constructor.getTypeClass())) {
+               constructor.skipValue();
+            } else {
+               return;
+            }
+         }
+      } finally {
+         decoder.setBuffer(null);
+         data.rewind(); // Ensure next scan start at the beginning.
+      }
    }
 
    @Override
@@ -328,8 +410,8 @@ public class AMQPStandardMessage extends AMQPMessage {
    @Override
    public String getStringBody() {
       final Section body = getBody();
-      if (body instanceof AmqpValue && ((AmqpValue) body).getValue() instanceof String) {
-         return (String) ((AmqpValue) body).getValue();
+      if (body instanceof AmqpValue value && value.getValue() instanceof String) {
+         return (String) value.getValue();
       } else {
          return null;
       }

@@ -20,13 +20,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channel;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQLockAcquisitionTimeoutException;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
@@ -42,11 +47,12 @@ public class FileLockNodeManager extends FileBasedNodeManager {
 
    private static final int STATE_LOCK_POS = 0;
 
-   private static final int LIVE_LOCK_POS = 1;
+   private static final int PRIMARY_LOCK_POS = 1;
 
    private static final int BACKUP_LOCK_POS = 2;
 
-   private static final byte LIVE = 'L';
+   // value is 'L' for backwards compatibility
+   private static final byte ACTIVE = 'L';
 
    private static final byte FAILINGBACK = 'F';
 
@@ -58,7 +64,7 @@ public class FileLockNodeManager extends FileBasedNodeManager {
 
    private static final long LOCK_MONITOR_TIMEOUT_NANOS = TimeUnit.SECONDS.toNanos(2);
 
-   private volatile FileLock liveLock;
+   private volatile FileLock primaryLock;
 
    private FileLock backupLock;
 
@@ -68,29 +74,35 @@ public class FileLockNodeManager extends FileBasedNodeManager {
 
    private final long lockAcquisitionTimeoutNanos;
 
+   private final long journalLockMonitorTimeoutNanos;
+
+   private final int journalLockMonitorMaxRetries;
+
    protected boolean interrupted = false;
 
    private final ScheduledExecutorService scheduledPool;
 
-   public FileLockNodeManager(final File directory, boolean replicatedBackup, ScheduledExecutorService scheduledPool) {
-      super(replicatedBackup, directory);
-      this.scheduledPool = scheduledPool;
-      this.lockAcquisitionTimeoutNanos = -1;
-   }
-
    public FileLockNodeManager(final File directory, boolean replicatedBackup) {
       super(replicatedBackup, directory);
       this.scheduledPool = null;
-      this.lockAcquisitionTimeoutNanos = -1;
+      long timeout = ActiveMQDefaultConfiguration.getDefaultJournalLockAcquisitionTimeout();
+      this.lockAcquisitionTimeoutNanos = timeout == -1 ? -1 : TimeUnit.MILLISECONDS.toNanos(timeout);
+      this.journalLockMonitorTimeoutNanos = TimeUnit.MILLISECONDS.toNanos(
+         ActiveMQDefaultConfiguration.getDefaultJournalLockMonitorTimeout());
+      this.journalLockMonitorMaxRetries = ActiveMQDefaultConfiguration.getDefaultJournalLockMonitorMaxRetries();
    }
 
    public FileLockNodeManager(final File directory,
                               boolean replicatedBackup,
-                              long lockAcquisitionTimeout,
+                              Configuration configuration,
                               ScheduledExecutorService scheduledPool) {
       super(replicatedBackup, directory);
       this.scheduledPool = scheduledPool;
-      this.lockAcquisitionTimeoutNanos = lockAcquisitionTimeout == -1 ? -1 : TimeUnit.MILLISECONDS.toNanos(lockAcquisitionTimeout);
+      this.lockAcquisitionTimeoutNanos = configuration.getJournalLockAcquisitionTimeout() == -1
+         ? -1
+         : TimeUnit.MILLISECONDS.toNanos(configuration.getJournalLockAcquisitionTimeout());
+      this.journalLockMonitorTimeoutNanos = TimeUnit.MILLISECONDS.toNanos(configuration.getJournalLockMonitorTimeout());
+      this.journalLockMonitorMaxRetries = configuration.getJournalLockMonitorMaxRetries();
    }
 
    @Override
@@ -149,14 +161,14 @@ public class FileLockNodeManager extends FileBasedNodeManager {
    }
 
    @Override
-   public boolean isBackupLive() throws NodeManagerException {
+   public boolean isBackupActive() throws NodeManagerException {
       try {
-         FileLock liveAttemptLock;
-         liveAttemptLock = tryLock(FileLockNodeManager.LIVE_LOCK_POS);
-         if (liveAttemptLock == null) {
+         FileLock primaryAttemptLock;
+         primaryAttemptLock = tryLock(FileLockNodeManager.PRIMARY_LOCK_POS);
+         if (primaryAttemptLock == null) {
             return true;
          } else {
-            liveAttemptLock.release();
+            primaryAttemptLock.release();
             return false;
          }
       } catch (IOException e) {
@@ -164,8 +176,8 @@ public class FileLockNodeManager extends FileBasedNodeManager {
       }
    }
 
-   public boolean isLiveLocked() {
-      return liveLock != null;
+   public boolean isPrimaryLocked() {
+      return primaryLock != null;
    }
 
    @Override
@@ -186,35 +198,35 @@ public class FileLockNodeManager extends FileBasedNodeManager {
    }
 
    @Override
-   public void awaitLiveNode() throws NodeManagerException, InterruptedException {
+   public void awaitPrimaryNode() throws NodeManagerException, InterruptedException {
       try {
-         logger.debug("awaiting live node...");
+         logger.debug("awaiting primary node to fail...");
          do {
             byte state = getState();
             while (state == NOT_STARTED || state == FIRST_TIME_START) {
-               logger.debug("awaiting live node startup state = '{}'", (char) state);
+               logger.debug("awaiting primary node startup state = '{}'", (char) state);
 
                Thread.sleep(2000);
                state = getState();
             }
 
-            liveLock = lock(LIVE_LOCK_POS);
+            primaryLock = lock(PRIMARY_LOCK_POS);
             if (interrupted) {
                interrupted = false;
                throw new InterruptedException("Lock was interrupted");
             }
             state = getState();
             if (state == PAUSED) {
-               liveLock.release();
-               logger.debug("awaiting live node restarting");
+               primaryLock.release();
+               logger.debug("awaiting primary node restarting");
                Thread.sleep(2000);
             } else if (state == FAILINGBACK) {
-               liveLock.release();
-               logger.debug("awaiting live node failing back");
+               primaryLock.release();
+               logger.debug("awaiting primary node failing back");
                Thread.sleep(2000);
-            } else if (state == LIVE) {
-               // if the backup acquires the file lock and the state is 'L' that means the primary died
-               logger.debug("acquired live node lock state = {}", (char) state);
+            } else if (state == ACTIVE) {
+               // if the backup acquires the file lock and the state is ACTIVE that means the primary died
+               logger.debug("acquired primary node lock state = {}", (char) state);
                serverLockFile.setLastModified(System.currentTimeMillis());
                logger.debug("touched {}; new time: {}", serverLockFile.getAbsoluteFile(), serverLockFile.lastModified());
                break;
@@ -232,32 +244,33 @@ public class FileLockNodeManager extends FileBasedNodeManager {
       ActiveMQServerLogger.LOGGER.waitingToBecomeBackup();
       try {
          backupLock = lock(FileLockNodeManager.BACKUP_LOCK_POS);
-      } catch (ActiveMQLockAcquisitionTimeoutException e) {
+      } catch (ClosedChannelException | ActiveMQLockAcquisitionTimeoutException e) {
          throw new NodeManagerException(e);
       }
       ActiveMQServerLogger.LOGGER.gotBackupLock();
-      if (getUUID() == null)
+      if (getUUID() == null) {
          readNodeId();
+      }
    }
 
    @Override
-   public ActivateCallback startLiveNode() throws NodeManagerException {
+   public ActivateCallback startPrimaryNode() throws NodeManagerException {
       try {
          setFailingBack();
 
          String timeoutMessage = lockAcquisitionTimeoutNanos == -1 ? "indefinitely" : TimeUnit.NANOSECONDS.toMillis(lockAcquisitionTimeoutNanos) + " milliseconds";
 
-         ActiveMQServerLogger.LOGGER.waitingToObtainLiveLock(timeoutMessage);
+         ActiveMQServerLogger.LOGGER.waitingToObtainPrimaryLock(timeoutMessage);
 
-         liveLock = lock(FileLockNodeManager.LIVE_LOCK_POS);
+         primaryLock = lock(FileLockNodeManager.PRIMARY_LOCK_POS);
 
-         ActiveMQServerLogger.LOGGER.obtainedLiveLock();
+         ActiveMQServerLogger.LOGGER.obtainedPrimaryLock();
 
          return new CleaningActivateCallback() {
             @Override
             public void activationComplete() {
                try {
-                  setLive();
+                  setActive();
                   startLockMonitoring();
                } catch (Exception e) {
                   logger.warn(e.getMessage(), e);
@@ -266,18 +279,18 @@ public class FileLockNodeManager extends FileBasedNodeManager {
                }
             }
          };
-      } catch (ActiveMQLockAcquisitionTimeoutException e) {
+      } catch (ClosedChannelException | ActiveMQLockAcquisitionTimeoutException e) {
          throw new NodeManagerException(e);
       }
    }
 
    @Override
-   public void pauseLiveServer() throws NodeManagerException {
+   public void pausePrimaryServer() throws NodeManagerException {
       stopLockMonitoring();
       setPaused();
       try {
-         if (liveLock != null) {
-            liveLock.release();
+         if (primaryLock != null) {
+            primaryLock.release();
          }
       } catch (IOException e) {
          throw new NodeManagerException(e);
@@ -285,28 +298,28 @@ public class FileLockNodeManager extends FileBasedNodeManager {
    }
 
    @Override
-   public void crashLiveServer() throws NodeManagerException {
+   public void crashPrimaryServer() throws NodeManagerException {
       stopLockMonitoring();
-      if (liveLock != null) {
+      if (primaryLock != null) {
          try {
-            liveLock.release();
+            primaryLock.release();
          } catch (IOException e) {
             throw new NodeManagerException(e);
          } finally {
-            liveLock = null;
+            primaryLock = null;
          }
       }
    }
 
    @Override
-   public void awaitLiveStatus() throws NodeManagerException, InterruptedException {
-      while (getState() != LIVE) {
+   public void awaitActiveStatus() throws NodeManagerException, InterruptedException {
+      while (getState() != ACTIVE) {
          Thread.sleep(2000);
       }
    }
 
-   private void setLive() throws NodeManagerException {
-      writeFileLockStatus(LIVE);
+   private void setActive() throws NodeManagerException {
+      writeFileLockStatus(ACTIVE);
    }
 
    private void setFailingBack() throws NodeManagerException {
@@ -317,10 +330,6 @@ public class FileLockNodeManager extends FileBasedNodeManager {
       writeFileLockStatus(PAUSED);
    }
 
-   /**
-    * @param status
-    * @throws NodeManagerException
-    */
    private void writeFileLockStatus(byte status) throws NodeManagerException {
       if (replicatedBackup && channel == null) {
          return;
@@ -331,7 +340,7 @@ public class FileLockNodeManager extends FileBasedNodeManager {
       bb.put(status);
       bb.position(0);
       try {
-         if (!channel.isOpen()) {
+         if (channel == null || !channel.isOpen()) {
             setUpServerLockFile();
          }
          FileLock lock = null;
@@ -385,7 +394,7 @@ public class FileLockNodeManager extends FileBasedNodeManager {
          ByteBuffer id = ByteBuffer.allocateDirect(16);
          int read = channel.read(id, 3);
          if (read != 16) {
-            throw new IOException("live server did not write id to file");
+            throw new IOException("primary server did not write id to file");
          }
          byte[] bytes = new byte[16];
          id.position(0);
@@ -415,7 +424,7 @@ public class FileLockNodeManager extends FileBasedNodeManager {
       }
    }
 
-   protected FileLock lock(final int lockPosition) throws ActiveMQLockAcquisitionTimeoutException {
+   protected FileLock lock(final int lockPosition) throws ClosedChannelException, ActiveMQLockAcquisitionTimeoutException {
       long start = System.nanoTime();
       boolean isRecurringFailure = false;
 
@@ -440,6 +449,9 @@ public class FileLockNodeManager extends FileBasedNodeManager {
             } else {
                return lock;
             }
+         } catch (ClosedChannelException e) {
+            // This is an unrecoverable error as there's no guarantee the channel will ever be opened again.
+            throw e;
          } catch (IOException e) {
             // IOException during trylock() may be a temporary issue, e.g. NFS volume not being accessible
 
@@ -474,7 +486,7 @@ public class FileLockNodeManager extends FileBasedNodeManager {
    private synchronized void startLockMonitoring() {
       logger.debug("Starting the lock monitor");
       if (monitorLock == null) {
-         monitorLock = new MonitorLock(scheduledPool, LOCK_MONITOR_TIMEOUT_NANOS, LOCK_MONITOR_TIMEOUT_NANOS, TimeUnit.NANOSECONDS, false);
+         monitorLock = new MonitorLock(scheduledPool, journalLockMonitorTimeoutNanos, journalLockMonitorTimeoutNanos, TimeUnit.NANOSECONDS, false, journalLockMonitorMaxRetries);
          monitorLock.start();
       } else {
          logger.debug("Lock monitor was already started");
@@ -493,27 +505,35 @@ public class FileLockNodeManager extends FileBasedNodeManager {
 
    @Override
    protected synchronized void notifyLostLock() {
-      if (liveLock != null) {
+      if (primaryLock != null) {
          super.notifyLostLock();
       }
    }
 
    // This has been introduced to help ByteMan test testLockMonitorInvalid on JDK 11: sun.nio.ch.FileLockImpl::isValid
-   // can affecting setLive, causing an infinite loop due to java.nio.channels.OverlappingFileLockException on tryLock
-   private boolean isLiveLockLost() {
-      final FileLock lock = this.liveLock;
+   // can affecting setPrimary, causing an infinite loop due to java.nio.channels.OverlappingFileLockException on tryLock
+   // Made protected to allow testing with controlled lock failures.
+   // Subclasses overriding this method should maintain the contract: return true when the primary lock is lost,
+   // false when the lock is healthy. The return value directly controls whether MonitorLock triggers notifyLostLock().
+   protected boolean isPrimaryLockLost() {
+      final FileLock lock = this.primaryLock;
       return (lock != null && !lock.isValid()) || lock == null;
    }
 
    private MonitorLock monitorLock;
 
    public class MonitorLock extends ActiveMQScheduledComponent {
+      private final int maxRetries;
+      private final AtomicInteger consecutiveFailures = new AtomicInteger(0);
+
       public MonitorLock(ScheduledExecutorService scheduledExecutorService,
                             long initialDelay,
                             long checkPeriod,
                             TimeUnit timeUnit,
-                            boolean onDemand) {
+                            boolean onDemand,
+                            int maxRetries) {
          super(scheduledExecutorService, initialDelay, checkPeriod, timeUnit, onDemand);
+         this.maxRetries = maxRetries;
       }
 
 
@@ -522,10 +542,10 @@ public class FileLockNodeManager extends FileBasedNodeManager {
 
          boolean lostLock = true;
          try {
-            if (liveLock == null) {
-               logger.debug("Livelock is null");
+            if (primaryLock == null) {
+               logger.debug("primarylock is null");
             }
-            lostLock = isLiveLockLost();
+            lostLock = isPrimaryLockLost();
             if (!lostLock) {
                /*
                 * Java always thinks the lock is still valid even when there is no filesystem
@@ -553,8 +573,19 @@ public class FileLockNodeManager extends FileBasedNodeManager {
          }
 
          if (lostLock) {
-            logger.warn("Lost the lock according to the monitor, notifying listeners");
-            notifyLostLock();
+            int failures = consecutiveFailures.incrementAndGet();
+            if (failures > maxRetries) {
+               logger.warn("Lost the lock according to the monitor after {} failed check(s), notifying listeners", failures);
+               notifyLostLock();
+            } else {
+               logger.warn("Lock check failed ({}/{}), will retry on next check period", failures, maxRetries + 1);
+            }
+         } else {
+            // Reset the failure counter on successful check
+            int previousFailures = consecutiveFailures.getAndSet(0);
+            if (previousFailures > 0) {
+               logger.info("Lock check succeeded after {} previous failure(s), resetting failure counter", previousFailures);
+            }
          }
       }
 
@@ -565,8 +596,8 @@ public class FileLockNodeManager extends FileBasedNodeManager {
          File freshServerLockFile = new File(serverLockFile.getAbsolutePath());
 
          if (freshServerLockFile.exists()) {
-            // the other broker competing for the lock may modify the state as 'F' when it starts so ensure the state is 'L' before returning true
-            if (freshServerLockFile.lastModified() > serverLockLastModified && state == LIVE) {
+            // the other broker competing for the lock may modify the state as FAILINGBACK when it starts so ensure the state is ACTIVE before returning true
+            if (freshServerLockFile.lastModified() > serverLockLastModified && state == ACTIVE) {
                logger.debug("Lock file {} originally locked at {} was modified at {}", serverLockFile.getAbsolutePath(), new Date(serverLockLastModified), new Date(freshServerLockFile.lastModified()));
                modified = true;
             }
@@ -577,5 +608,9 @@ public class FileLockNodeManager extends FileBasedNodeManager {
 
          return modified;
       }
+   }
+
+   protected Channel getChannel() {
+      return channel;
    }
 }

@@ -17,18 +17,19 @@
 
 package org.apache.activemq.artemis.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidBufferException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.transaction.xa.Xid;
-
-import static org.junit.Assert.fail;
 
 public class XidCodecSupportTest {
 
@@ -40,11 +41,11 @@ public class XidCodecSupportTest {
       final ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(0);
       XidCodecSupport.encodeXid(VALID_XID, buffer);
 
-      Assert.assertEquals(51, buffer.readableBytes()); // formatId(4) + branchQualLength(4) + branchQual(3) +
+      assertEquals(51, buffer.readableBytes()); // formatId(4) + branchQualLength(4) + branchQual(3) +
       // globalTxIdLength(4) + globalTx(36)
 
       final Xid readXid = XidCodecSupport.decodeXid(buffer);
-      Assert.assertEquals(VALID_XID, readXid);
+      assertEquals(VALID_XID, readXid);
    }
 
    @Test
@@ -63,13 +64,15 @@ public class XidCodecSupportTest {
       fail("should have thrown exception");
    }
 
-   @Test(expected = ActiveMQInvalidBufferException.class)
+   @Test
    public void testOverflowLength() {
-      final ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(0);
-      XidCodecSupport.encodeXid(VALID_XID, buffer);
-      // Alter globalTxIdLength to be too big
-      buffer.setByte(11, (byte) 0x0C);
+      assertThrows(ActiveMQInvalidBufferException.class, () -> {
+         final ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(0);
+         XidCodecSupport.encodeXid(VALID_XID, buffer);
+         // Alter globalTxIdLength to be too big
+         buffer.setByte(11, (byte) 0x0C);
 
-      XidCodecSupport.decodeXid(buffer);
+         XidCodecSupport.decodeXid(buffer);
+      });
    }
 }

@@ -36,9 +36,6 @@ import org.apache.activemq.util.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class LargeMessageTestSupport extends ClientTestSupport implements MessageListener {
 
    protected static final int LARGE_MESSAGE_SIZE = 128 * 1024;

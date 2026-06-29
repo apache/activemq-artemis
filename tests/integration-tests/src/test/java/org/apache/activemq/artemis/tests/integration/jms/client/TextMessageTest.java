@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -28,9 +32,8 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TextMessageTest extends JMSTestBase {
 
@@ -54,21 +57,21 @@ public class TextMessageTest extends JMSTestBase {
       TextMessage msg1 = sess.createTextMessage(null);
       prod.send(msg1);
       TextMessage received1 = (TextMessage) cons.receive(1000);
-      Assert.assertNotNull(received1);
-      Assert.assertNull(received1.getText());
+      assertNotNull(received1);
+      assertNull(received1.getText());
 
       TextMessage msg2 = sess.createTextMessage();
       msg2.setText(null);
       prod.send(msg2);
       TextMessage received2 = (TextMessage) cons.receive(1000);
-      Assert.assertNotNull(received2);
-      Assert.assertNull(received2.getText());
+      assertNotNull(received2);
+      assertNull(received2.getText());
 
       TextMessage msg3 = sess.createTextMessage();
       prod.send(msg3);
       TextMessage received3 = (TextMessage) cons.receive(1000);
-      Assert.assertNotNull(received3);
-      Assert.assertNull(received3.getText());
+      assertNotNull(received3);
+      assertNull(received3.getText());
    }
 
    @Test
@@ -131,15 +134,15 @@ public class TextMessageTest extends JMSTestBase {
       TextMessage msg1 = sess.createTextMessage(str);
       prod.send(msg1);
       TextMessage received1 = (TextMessage) cons.receive(1000);
-      Assert.assertNotNull(received1);
-      Assert.assertEquals(str, received1.getText());
+      assertNotNull(received1);
+      assertEquals(str, received1.getText());
 
       TextMessage msg2 = sess.createTextMessage();
       msg2.setText(str);
       prod.send(msg2);
       TextMessage received2 = (TextMessage) cons.receive(1000);
-      Assert.assertNotNull(received2);
-      Assert.assertEquals(str, received2.getText());
+      assertNotNull(received2);
+      assertEquals(str, received2.getText());
 
       assertEquals(str, msg2.getText());
 
@@ -147,7 +150,7 @@ public class TextMessageTest extends JMSTestBase {
       prod.send(received2);
       assertEquals(str, received2.getText());
       TextMessage received3 = (TextMessage) cons.receive(1000);
-      Assert.assertNotNull(received3);
+      assertNotNull(received3);
       assertEquals(str, received3.getText());
 
       // And resend again
@@ -155,14 +158,14 @@ public class TextMessageTest extends JMSTestBase {
       prod.send(received3);
       assertEquals(str, received3.getText());
       TextMessage received4 = (TextMessage) cons.receive(1000);
-      Assert.assertNotNull(received4);
+      assertNotNull(received4);
       assertEquals(str, received4.getText());
    }
 
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       queue = createQueue("queue1");

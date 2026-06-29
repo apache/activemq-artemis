@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -28,16 +30,20 @@ public class SessionSendMessage extends MessagePacket {
    protected boolean requiresResponse;
 
    /**
-    * In case, we are using a different handler than the one set on the {@link org.apache.activemq.artemis.api.core.client.ClientSession}
-    * <br>
+    * In case, we are using a different handler than the one set on the
+    * {@link org.apache.activemq.artemis.api.core.client.ClientSession}
+    * <p>
     * This field is only used at the client side.
     *
     * @see org.apache.activemq.artemis.api.core.client.ClientSession#setSendAcknowledgementHandler(SendAcknowledgementHandler)
-    * @see org.apache.activemq.artemis.api.core.client.ClientProducer#send(org.apache.activemq.artemis.api.core.SimpleString, org.apache.activemq.artemis.api.core.Message, SendAcknowledgementHandler)
+    * @see org.apache.activemq.artemis.api.core.client.ClientProducer#send(org.apache.activemq.artemis.api.core.SimpleString,
+    * org.apache.activemq.artemis.api.core.Message, SendAcknowledgementHandler)
     */
    private final transient SendAcknowledgementHandler handler;
 
-   /** This will be using the CoreMessage because it is meant for the core-protocol */
+   /**
+    * This will be using the CoreMessage because it is meant for the core-protocol
+    */
    protected SessionSendMessage(final byte id,
                              final ICoreMessage message,
                              final boolean requiresResponse,
@@ -53,7 +59,9 @@ public class SessionSendMessage extends MessagePacket {
       this.handler = null;
    }
 
-   /** This will be using the CoreMessage because it is meant for the core-protocol */
+   /**
+    * This will be using the CoreMessage because it is meant for the core-protocol
+    */
    public SessionSendMessage(final ICoreMessage message,
                              final boolean requiresResponse,
                              final SendAcknowledgementHandler handler) {
@@ -109,31 +117,29 @@ public class SessionSendMessage extends MessagePacket {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (requiresResponse ? 1231 : 1237);
-      return result;
+      return super.hashCode() + Objects.hashCode(requiresResponse);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", requiresResponse=" + requiresResponse);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", requiresResponse=" + requiresResponse);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionSendMessage))
+      }
+      if (!(obj instanceof SessionSendMessage other)) {
          return false;
-      SessionSendMessage other = (SessionSendMessage) obj;
-      if (requiresResponse != other.requiresResponse)
-         return false;
-      return true;
+      }
+
+      return requiresResponse == other.requiresResponse;
    }
 
    public int getSenderID() {

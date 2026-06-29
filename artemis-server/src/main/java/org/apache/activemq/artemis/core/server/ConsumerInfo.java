@@ -21,16 +21,24 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 public interface ConsumerInfo {
 
-   /** an unique sequential ID for this consumer */
+   /**
+    * an unique sequential ID for this consumer
+    */
    long getSequentialID();
 
-   /** @return name of the queue that is being consumed */
+   /**
+    * {@return name of the queue that is being consumed}
+    */
    SimpleString getQueueName();
 
-   /** @return routing type of the queue that is being consumed */
+   /**
+    * {@return routing type of the queue that is being consumed}
+    */
    RoutingType getQueueType();
 
-   /** @return address of the queue that is being consumed */
+   /**
+    * {@return address of the queue that is being consumed}
+    */
    SimpleString getQueueAddress();
 
    SimpleString getFilterString();
@@ -40,73 +48,58 @@ public interface ConsumerInfo {
    String getConnectionClientID();
 
    /**
-    * Returns the name of the protocol for this Remoting Connection
-    * @return the name of protocol
+    * {@return the name of the protocol for this Remoting Connection}
     */
    String getConnectionProtocolName();
 
    /**
-    * Returns a string representation of the local address this connection is
-    * connected to. This is useful when the server is configured at 0.0.0.0 (or
-    * multiple IPs). This will give you the actual IP that's being used.
-    *
-    * @return the local address
+    * {@return a string representation of the local IP address this connection is connected to; useful when the server
+    * is configured at {@code 0.0.0.0} (or multiple IPs)}
     */
    String getConnectionLocalAddress();
 
    /**
-    * Returns a string representation of the remote address this connection is
-    * connected to.
-    *
-    * @return the remote address
+    * {@return a string representation of the remote address this connection is connected to}
     */
    String getConnectionRemoteAddress();
 
    /**
-    * Returns how many messages are out for delivery but not yet acknowledged
-    * @return delivering count
+    * {@return how many messages are out for delivery but not yet acknowledged}
     */
    int getMessagesInTransit();
 
    /**
-    * Returns the combined size of all the messages out for delivery but not yet acknowledged
-    * @return the total size of all the messages
+    * {@return the combined size of all the messages out for delivery but not yet acknowledged}
     */
    long getMessagesInTransitSize();
 
    /**
-    * Returns The total number of messages sent to a consumer including redeliveries that have been acknowledged
-    * @return the total number of messages delivered.
+    * {@return the total number of messages sent to a consumer including redeliveries that have been acknowledged}
     */
    long getMessagesDelivered();
 
    /**
-    * Returns the total size of all the messages delivered to the consumer. This includes redelivered messages
-    * @return The total size of all the messages
+    * {@return the total size of all the messages delivered to the consumer including redelivered messages}
     */
    long getMessagesDeliveredSize();
 
    /**
-    * Returns the number of messages acknowledged by this consumer since it was created
-    * @return messages acknowledged
+    * {@return the number of messages acknowledged by this consumer since it was created}
     */
    long getMessagesAcknowledged();
 
    /**
-    * Returns the number of acknowledged messages that are awaiting commit in a transaction
-    * @return th eno acknowledgements awaiting commit
+    * {@return the number of acknowledged messages that are awaiting commit an a transaction}
     */
    int getMessagesAcknowledgedAwaitingCommit();
 
    /**
-    * Returns the time in milliseconds that the last message was delivered to a consumer
-    * @return the time of the last message delivered
+    * {@return the time in milliseconds that the last message was delivered to a consumer}
     */
    long getLastDeliveredTime();
 
    /**
-    * Returns the time in milliseconds that the last message was acknowledged by a consumer
-    * @return the time of the last message was acknowledged
+    * {@return the time in milliseconds that the last message was acknowledged by a consumer}
     */
    long getLastAcknowledgedTime();
 }

@@ -17,13 +17,17 @@
 package org.apache.activemq.artemis.core.config.amqpBrokerConnectivity;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.postoffice.impl.AddressImpl;
 
 public class AMQPBrokerConnectionElement implements Serializable {
-   String name;
+
+   private static final long serialVersionUID = 3653295602796835937L;
+
+   String name = "default";
    SimpleString matchAddress;
    SimpleString queueName;
    AMQPBrokerConnectionAddressType type;
@@ -46,7 +50,7 @@ public class AMQPBrokerConnectionElement implements Serializable {
    }
 
    public AMQPBrokerConnectionElement setQueueName(String queueName) {
-      return setQueueName(SimpleString.toSimpleString(queueName));
+      return setQueueName(SimpleString.of(queueName));
    }
 
    public AMQPBrokerConnectionElement setQueueName(SimpleString queueName) {
@@ -69,7 +73,7 @@ public class AMQPBrokerConnectionElement implements Serializable {
    }
 
    public AMQPBrokerConnectionElement setMatchAddress(String matchAddress) {
-      return this.setMatchAddress(SimpleString.toSimpleString(matchAddress));
+      return this.setMatchAddress(SimpleString.of(matchAddress));
    }
 
    public AMQPBrokerConnectionElement setMatchAddress(SimpleString matchAddress) {
@@ -86,7 +90,6 @@ public class AMQPBrokerConnectionElement implements Serializable {
       return this;
    }
 
-
    public String getName() {
       return name;
    }
@@ -95,4 +98,24 @@ public class AMQPBrokerConnectionElement implements Serializable {
       this.name = name;
    }
 
+   @Override
+   public int hashCode() {
+      // Don't pass the parent into hash or you will get a loop of hash code computations.
+      return Objects.hash(matchAddress, name, queueName, type);
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof AMQPBrokerConnectionElement other)) {
+         return false;
+      }
+
+      return Objects.equals(type, other.type) &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(matchAddress, other.matchAddress) &&
+             Objects.equals(queueName, other.queueName);
+   }
 }

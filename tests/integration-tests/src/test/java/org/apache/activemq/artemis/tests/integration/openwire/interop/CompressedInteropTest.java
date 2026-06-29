@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.interop;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -32,8 +35,8 @@ import java.nio.charset.StandardCharsets;
 import org.apache.activemq.ActiveMQMessageProducer;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CompressedInteropTest extends BasicOpenWireTest {
 
@@ -41,16 +44,11 @@ public class CompressedInteropTest extends BasicOpenWireTest {
    private static final String LARGE_TEXT;
 
    static {
-      StringBuilder builder = new StringBuilder();
-
-      for (int i = 0; i < 20; i++) {
-         builder.append("The quick red fox jumped over the lazy brown dog. ");
-      }
-      TEXT = builder.toString();
-      LARGE_TEXT = TEXT + TEXT + TEXT + TEXT + TEXT;
+      TEXT = "The quick red fox jumped over the lazy brown dog. ".repeat(20);
+      LARGE_TEXT = TEXT.repeat(5);
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -130,7 +128,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       byte[] bytesVal = new byte[originVal.length];
       streamMessage.readBytes(bytesVal);
       for (int i = 0; i < bytesVal.length; i++) {
-         assertTrue(bytesVal[i] == originVal[i]);
+         assertEquals(originVal[i], bytesVal[i]);
       }
       char charVal = streamMessage.readChar();
       assertEquals('A', charVal);
@@ -144,7 +142,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       assertEquals(56652L, longVal);
       Object objectVal = streamMessage.readObject();
       Object origVal = new String("VVVV");
-      assertTrue(objectVal.equals(origVal));
+      assertEquals(origVal, objectVal);
       short shortVal = streamMessage.readShort();
       assertEquals((short) 333, shortVal);
       String strVal = streamMessage.readString();
@@ -221,7 +219,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       byte[] originVal = TEXT.getBytes();
       assertEquals(originVal.length, bytesVal.length);
       for (int i = 0; i < bytesVal.length; i++) {
-         assertTrue(bytesVal[i] == originVal[i]);
+         assertEquals(originVal[i], bytesVal[i]);
       }
       char charVal = mapMessage.getChar("char-type");
       assertEquals('A', charVal);
@@ -235,7 +233,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       assertEquals(56652L, longVal);
       Object objectVal = mapMessage.getObject("object-type");
       Object origVal = new String("VVVV");
-      assertTrue(objectVal.equals(origVal));
+      assertEquals(origVal, objectVal);
       short shortVal = mapMessage.getShort("short-type");
       assertEquals((short) 333, shortVal);
       String strVal = mapMessage.getString("string-type");
@@ -259,7 +257,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
 
       byte[] bytes = new byte[TEXT.getBytes(StandardCharsets.UTF_8).length];
       bytesMessage.readBytes(bytes);
-      assertTrue(bytesMessage.readBytes(new byte[255]) == -1);
+      assertEquals(-1, bytesMessage.readBytes(new byte[255]));
 
       String rcvString = new String(bytes, StandardCharsets.UTF_8);
       assertEquals(TEXT, rcvString);

@@ -16,16 +16,25 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnection;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
+import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.GSSAPIServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASL;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 public class AMQPConnectionCallbackTest {
 
@@ -38,7 +47,7 @@ public class AMQPConnectionCallbackTest {
       for (String mech: connectionCallback.getSaslMechanisms()) {
          assertNotNull(connectionCallback.getServerSASL(mech));
       }
-      assertNull("can't get mechanism not in the list", connectionCallback.getServerSASL(GSSAPIServerSASL.NAME));
+      assertNull(connectionCallback.getServerSASL(GSSAPIServerSASL.NAME), "can't get mechanism not in the list");
    }
 
    @Test
@@ -46,6 +55,42 @@ public class AMQPConnectionCallbackTest {
       ProtonProtocolManager protonProtocolManager = new ProtonProtocolManager(new ProtonProtocolManagerFactory(), null, null, null);
       protonProtocolManager.setSaslMechanisms(new String[]{});
       AMQPConnectionCallback connectionCallback = new AMQPConnectionCallback(protonProtocolManager, null, null, new ActiveMQServerImpl());
-      assertNotNull("can get anon with empty list", connectionCallback.getServerSASL(AnonymousServerSASL.NAME));
+      assertNotNull(connectionCallback.getServerSASL(AnonymousServerSASL.NAME), "can get anon with empty list");
+   }
+
+   @Test
+   public void testAnonymousSupportCheck() throws Exception {
+      ArtemisExecutor executor = Mockito.mock(ArtemisExecutor.class);
+      ExecutorFactory executorFactory = Mockito.mock(ExecutorFactory.class);
+      Mockito.when(executorFactory.getExecutor()).thenReturn(executor);
+
+      SecurityStore securityStore = Mockito.mock(SecurityStore.class);
+
+      ActiveMQServer server = Mockito.mock(ActiveMQServer.class);
+      Mockito.when(server.getExecutorFactory()).thenReturn(executorFactory);
+      Mockito.when(server.getSecurityStore()).thenReturn(securityStore);
+
+      NettyConnection transportConnection = Mockito.mock(NettyConnection.class);
+      ProtonProtocolManager protocolManager = Mockito.mock(ProtonProtocolManager.class);
+      Mockito.when(protocolManager.getServer()).thenReturn(server);
+
+      AMQPConnectionCallback callback = new AMQPConnectionCallback(protocolManager, transportConnection, executor, server);
+      ActiveMQProtonRemotingConnection connectionDelegate = Mockito.mock(ActiveMQProtonRemotingConnection.class);
+      callback.setProtonConnectionDelegate(connectionDelegate);
+
+      // Make it succeed
+      Mockito.when(securityStore.authenticate(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn("validatedAnonUser");
+
+      // Verify result and expected args are passed
+      assertTrue(callback.isSupportsAnonymous());
+      Mockito.verify(securityStore).authenticate(Mockito.any(), Mockito.any(), Mockito.same(connectionDelegate));
+
+      // Make it fail
+      Mockito.reset(securityStore);
+      Mockito.when(securityStore.authenticate(Mockito.any(), Mockito.any(), Mockito.any())).thenThrow(new ActiveMQSecurityException("auth-failed"));
+
+      // Verify result and expected args are passed
+      assertFalse(callback.isSupportsAnonymous());
+      Mockito.verify(securityStore).authenticate(Mockito.any(), Mockito.any(), Mockito.same(connectionDelegate));
    }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -45,10 +47,8 @@ import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.command.WireFormatInfo;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.util.ByteSequence;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.assertTrue;
 
 public class OpenWireConnectionTest {
 
@@ -73,7 +73,7 @@ public class OpenWireConnectionTest {
       Mockito.doReturn(serverSession).when(server).createSession(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean(),
                                                                  Mockito.anyBoolean(), Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyBoolean());
 
-      OpenWireProtocolManager openWireProtocolManager = new OpenWireProtocolManager(null, server,null, null);
+      OpenWireProtocolManager openWireProtocolManager = new OpenWireProtocolManager(null, server, null, null);
       openWireProtocolManager.setSecurityDomain("securityDomain");
       openWireProtocolManager.setSupportAdvisory(false);
 
@@ -142,17 +142,17 @@ public class OpenWireConnectionTest {
             }
          };
 
-         openWireConnection.bufferReceived(openWireConnection,  wireFormatInfoBuffer);
-         openWireConnection.bufferReceived(openWireConnection,  connectionInfoBuffer);
+         openWireConnection.bufferReceived(openWireConnection, wireFormatInfoBuffer);
+         openWireConnection.bufferReceived(openWireConnection, connectionInfoBuffer);
          // actor tasks
-         openWireConnection.bufferReceived(openWireConnection,  sessionInfoBuffer);
-         openWireConnection.bufferReceived(openWireConnection,  producerInfoBuffer);
+         openWireConnection.bufferReceived(openWireConnection, sessionInfoBuffer);
+         openWireConnection.bufferReceived(openWireConnection, producerInfoBuffer);
 
-         assertTrue("fail on ok response check, iteration: " + i, okResponses.await(10, TimeUnit.SECONDS));
+         assertTrue(okResponses.await(10, TimeUnit.SECONDS), "fail on ok response check, iteration: " + i);
 
-         openWireConnection.bufferReceived(openWireConnection,  removeInfoBuffer);
+         openWireConnection.bufferReceived(openWireConnection, removeInfoBuffer);
 
-         assertTrue("fail on ok response check with remove, iteration: " + i, okResponsesWithRemove.await(10, TimeUnit.SECONDS));
+         assertTrue(okResponsesWithRemove.await(10, TimeUnit.SECONDS), "fail on ok response check with remove, iteration: " + i);
 
          wireFormatInfoBuffer.resetReaderIndex();
          connectionInfoBuffer.resetReaderIndex();

@@ -17,6 +17,12 @@
 
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -40,11 +46,10 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +60,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
    ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
@@ -63,9 +68,9 @@ public class DeleteAddressTest extends ActiveMQTestBase {
    private void localServer(boolean autoCreate) throws Exception {
       server = createServer(false, true);
 
-      AddressSettings settings = new AddressSettings().setAutoDeleteAddresses(autoCreate).setAutoCreateAddresses(autoCreate).setAutoCreateQueues(autoCreate).setAutoDeleteQueues(autoCreate).setDeadLetterAddress(SimpleString.toSimpleString("DLQ")).setSendToDLAOnNoRoute(true);
+      AddressSettings settings = new AddressSettings().setAutoDeleteAddresses(autoCreate).setAutoCreateAddresses(autoCreate).setAutoCreateQueues(autoCreate).setAutoDeleteQueues(autoCreate).setDeadLetterAddress(SimpleString.of("DLQ")).setSendToDLAOnNoRoute(true);
       server.start();
-      server.createQueue(new QueueConfiguration("DLQ").setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of("DLQ").setRoutingType(RoutingType.ANYCAST));
       server.getAddressSettingsRepository().addMatch(getName() + "*", settings);
    }
 
@@ -107,7 +112,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
 
       if (!autocreate) {
          server.addAddressInfo(new AddressInfo(ADDRESS_NAME).addRoutingType(RoutingType.ANYCAST));
-         server.createQueue(new QueueConfiguration(ADDRESS_NAME).setRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
+         server.createQueue(QueueConfiguration.of(ADDRESS_NAME).setRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
       }
 
 
@@ -123,8 +128,8 @@ public class DeleteAddressTest extends ActiveMQTestBase {
          try (MessageConsumer consumer = session.createConsumer(queue)) {
             logger.debug("Sending hello message");
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("hello", message.getText());
+            assertNotNull(message);
+            assertEquals("hello", message.getText());
          }
 
          session.commit();
@@ -132,7 +137,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(ADDRESS_NAME);
          Wait.assertEquals(0, serverQueue::getConsumerCount);
 
-         server.destroyQueue(SimpleString.toSimpleString(ADDRESS_NAME));
+         server.destroyQueue(SimpleString.of(ADDRESS_NAME));
 
          boolean exception = false;
          try {
@@ -146,15 +151,15 @@ public class DeleteAddressTest extends ActiveMQTestBase {
          }
 
          if (!autocreate) {
-            Assert.assertTrue(exception);
+            assertTrue(exception);
          }
 
          if (autocreate) {
             logger.debug("creating consumer");
             try (MessageConsumer consumer = session.createConsumer(queue)) {
                TextMessage message = (TextMessage) consumer.receive(5000);
-               Assert.assertNotNull(message);
-               Assert.assertEquals("good bye", message.getText());
+               assertNotNull(message);
+               assertEquals("good bye", message.getText());
             }
          } else {
             exception = false;
@@ -164,12 +169,12 @@ public class DeleteAddressTest extends ActiveMQTestBase {
                logger.debug("Received exception after createConsumer");
                exception = true;
             }
-            Assert.assertTrue(exception);
+            assertTrue(exception);
          }
       }
 
       org.apache.activemq.artemis.core.server.Queue dlqServerQueue = server.locateQueue("DLQ");
-      Assert.assertEquals(0, dlqServerQueue.getMessageCount());
+      assertEquals(0, dlqServerQueue.getMessageCount());
    }
 
    @Test
@@ -206,7 +211,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
       localServer(autocreate);
 
       String ADDRESS_NAME = getName() + protocol + "_Topic";
-      final String dlqText = "This should be in DLQ " + RandomUtil.randomString();
+      final String dlqText = "This should be in DLQ " + RandomUtil.randomUUIDString();
 
       if (!autocreate) {
          server.addAddressInfo(new AddressInfo(ADDRESS_NAME).addRoutingType(RoutingType.MULTICAST));
@@ -227,17 +232,17 @@ public class DeleteAddressTest extends ActiveMQTestBase {
 
          logger.debug("Sending hello message");
          TextMessage message = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals("hello", message.getText());
+         assertNotNull(message);
+         assertEquals("hello", message.getText());
 
          consumer.close();
 
          session.commit();
 
-         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(SimpleString.toSimpleString(ADDRESS_NAME));
+         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(SimpleString.of(ADDRESS_NAME));
          for (Binding b : bindings.getBindings()) {
-            if (b instanceof LocalQueueBinding) {
-               Wait.assertEquals(0, () -> ((LocalQueueBinding)b).getQueue().getConsumerCount());
+            if (b instanceof LocalQueueBinding localQueueBinding) {
+               Wait.assertEquals(0, () -> localQueueBinding.getQueue().getConsumerCount());
                server.destroyQueue(b.getUniqueName());
             }
          }
@@ -245,7 +250,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
          producer.send(session.createTextMessage(dlqText));
          session.commit();
 
-         server.removeAddressInfo(SimpleString.toSimpleString(ADDRESS_NAME), null);
+         server.removeAddressInfo(SimpleString.of(ADDRESS_NAME), null);
 
          try {
             logger.debug("Sending good bye message");
@@ -253,7 +258,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
             logger.debug("Exception was not captured, sent went fine");
             if (!autocreate) {
                session.commit();
-               Assert.fail("Exception was expected");
+               fail("Exception was expected");
             } else {
                session.rollback();
             }
@@ -264,14 +269,14 @@ public class DeleteAddressTest extends ActiveMQTestBase {
          logger.debug("creating consumer");
          try (TopicSubscriber newSubs = session.createDurableSubscriber(destination, "second")) {
             if (!autocreate) {
-               Assert.fail("exception was expected");
+               fail("exception was expected");
             }
          } catch (Exception expected) {
             logger.debug(expected.getMessage(), expected);
          }
 
          org.apache.activemq.artemis.core.server.Queue dlqServerQueue = server.locateQueue("DLQ");
-         Assert.assertEquals(1, dlqServerQueue.getMessageCount());
+         assertEquals(1, dlqServerQueue.getMessageCount());
       }
 
       try (Connection connection = factory.createConnection()) {
@@ -281,9 +286,9 @@ public class DeleteAddressTest extends ActiveMQTestBase {
 
          MessageConsumer dlqConsumer = session.createConsumer(session.createQueue("DLQ"));
          TextMessage dlqMessage = (TextMessage) dlqConsumer.receive(5000);
-         Assert.assertNotNull(dlqMessage);
-         Assert.assertEquals(dlqText, dlqMessage.getText());
-         Assert.assertNull(dlqConsumer.receiveNoWait());
+         assertNotNull(dlqMessage);
+         assertEquals(dlqText, dlqMessage.getText());
+         assertNull(dlqConsumer.receiveNoWait());
       }
 
 

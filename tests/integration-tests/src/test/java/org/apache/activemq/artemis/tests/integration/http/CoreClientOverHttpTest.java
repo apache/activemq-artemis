@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.http;
 
 import java.util.HashMap;
-import java.util.Random;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -35,25 +35,27 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CoreClientOverHttpTest extends ActiveMQTestBase {
 
-   private static final SimpleString QUEUE = new SimpleString("CoreClientOverHttpTestQueue");
+   private static final SimpleString QUEUE = SimpleString.of("CoreClientOverHttpTestQueue");
    private Configuration conf;
    private ActiveMQServer server;
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HTTP_ENABLED_PROP_NAME, true);
 
-      conf = createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+      conf = createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
 
       server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
       server.start();
@@ -65,7 +67,7 @@ public class CoreClientOverHttpTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -84,7 +86,7 @@ public class CoreClientOverHttpTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive();
 
-         Assert.assertEquals("CoreClientOverHttpTest", message2.getBodyBuffer().readString());
+         assertEquals("CoreClientOverHttpTest", message2.getBodyBuffer().readString());
 
          message2.acknowledge();
       }
@@ -99,7 +101,7 @@ public class CoreClientOverHttpTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -108,13 +110,12 @@ public class CoreClientOverHttpTest extends ActiveMQTestBase {
       session.close();
    }
 
-   // https://issues.jboss.org/browse/JBPAPP-5542
    @Test
    public void testCoreHttpClient8kPlus() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -124,7 +125,7 @@ public class CoreClientOverHttpTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         content[i] = this.getFixedSizeString(((i % 5) + 1) * 1024 * 8);
+         content[i] = RandomUtil.randomAlphaNumericString(((i % 5) + 1) * 1024 * 8);
          message.getBodyBuffer().writeString(content[i]);
          producer.send(message);
       }
@@ -136,23 +137,11 @@ public class CoreClientOverHttpTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive();
 
-         Assert.assertEquals(content[i], message2.getBodyBuffer().readString());
+         assertEquals(content[i], message2.getBodyBuffer().readString());
 
          message2.acknowledge();
       }
 
       session.close();
    }
-
-   private String getFixedSizeString(int size) {
-      StringBuffer sb = new StringBuffer();
-      Random r = new Random();
-      for (int i = 0; i < size; i++) {
-         char chr = (char) r.nextInt(256);
-         sb.append(chr);
-      }
-      String result = sb.toString();
-      return result;
-   }
-
 }

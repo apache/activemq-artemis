@@ -104,7 +104,7 @@ public class FailoverUpdateURIsTest extends OpenwireArtemisBaseTest {
       // add the transport uri for broker number 2
       out = new FileOutputStream(updateFile, true);
       out.write(",".getBytes());
-      out.write(secondTcpUri.toString().getBytes());
+      out.write(secondTcpUri.getBytes());
       out.close();
 
       producer.send(message);

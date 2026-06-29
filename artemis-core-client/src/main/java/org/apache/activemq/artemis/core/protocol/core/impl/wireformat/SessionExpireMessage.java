@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -63,34 +65,30 @@ public class SessionExpireMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
-      result = prime * result + (int) (messageID ^ (messageID >>> 32));
-      return result;
+      return Objects.hash(super.hashCode(), consumerID, messageID);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", consumerID=" + consumerID);
-      buff.append(", messageID=" + messageID);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", consumerID=" + consumerID);
+      sb.append(", messageID=" + messageID);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionExpireMessage))
+      }
+      if (!(obj instanceof SessionExpireMessage other)) {
          return false;
-      SessionExpireMessage other = (SessionExpireMessage) obj;
-      if (consumerID != other.consumerID)
-         return false;
-      if (messageID != other.messageID)
-         return false;
-      return true;
+      }
+
+      return consumerID == other.consumerID &&
+             messageID == other.messageID;
    }
 }

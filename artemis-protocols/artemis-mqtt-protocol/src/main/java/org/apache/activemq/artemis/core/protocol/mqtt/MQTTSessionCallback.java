@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -27,10 +26,12 @@ public class MQTTSessionCallback implements SessionCallback {
 
    private final MQTTSession session;
    private final MQTTConnection connection;
+   private final int defaultMaximumInFlightPublishMessages;
 
-   public MQTTSessionCallback(MQTTSession session, MQTTConnection connection) throws Exception {
+   public MQTTSessionCallback(MQTTSession session, MQTTConnection connection, int defaultMaximumInFlightPublishMessages) throws Exception {
       this.session = session;
       this.connection = connection;
+      this.defaultMaximumInFlightPublishMessages = defaultMaximumInFlightPublishMessages;
    }
 
    @Override
@@ -44,14 +45,13 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference reference,
-                          Message message,
+   public int sendMessage(MessageReference ref,
                           ServerConsumer consumer,
                           int deliveryCount) {
       try {
-         session.getMqttPublishManager().sendMessage(message.toCore(), consumer, deliveryCount);
+         session.getMqttPublishManager().sendMessage(ref.getMessage().toCore(), consumer, deliveryCount);
       } catch (Exception e) {
-         MQTTLogger.LOGGER.unableToSendMessage(reference, e);
+         MQTTLogger.LOGGER.unableToSendMessage(ref, e);
       }
       return 1;
    }
@@ -70,12 +70,11 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendLargeMessage(MessageReference reference,
-                               Message message,
+   public int sendLargeMessage(MessageReference ref,
                                ServerConsumer consumer,
                                long bodySize,
                                int deliveryCount) {
-      return sendMessage(reference, message, consumer, deliveryCount);
+      return sendMessage(ref, consumer, deliveryCount);
    }
 
    @Override
@@ -110,7 +109,8 @@ public class MQTTSessionCallback implements SessionCallback {
        *
        * Therefore, enforce flow-control based on the number of pending QoS 1 & 2 messages
        */
-      if (ref != null && ref.isDurable() == true && connection.getReceiveMaximum() != -1 && session.getState().getOutboundStore().getPendingMessages() >= connection.getReceiveMaximum()) {
+      int maxInFlightPublishMessages = connection.getReceiveMaximum() > 0 ? connection.getReceiveMaximum() : defaultMaximumInFlightPublishMessages;
+      if (ref != null && ref.isDurable() == true && maxInFlightPublishMessages > 0 && session.getState().getOutboundStore().getSendQuota() >= maxInFlightPublishMessages) {
          return false;
       } else {
          return true;

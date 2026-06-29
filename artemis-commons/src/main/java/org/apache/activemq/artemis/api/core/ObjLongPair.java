@@ -52,22 +52,20 @@ public class ObjLongPair<A> implements Serializable {
          return super.hashCode();
       }
       // it's ok to use b to compute hashCode although NIL
-      return (a == null ? 0 : a.hashCode()) + 37 * Long.hashCode(b);
+      return Objects.hash(a, b);
    }
 
    @Override
-   public boolean equals(final Object other) {
-      if (other == this) {
+   public boolean equals(final Object obj) {
+      if (obj == this) {
          return true;
       }
-
-      if (other instanceof ObjLongPair == false) {
+      if (!(obj instanceof ObjLongPair other)) {
          return false;
       }
 
-      ObjLongPair<A> pother = (ObjLongPair<A>) other;
-
-      return (Objects.equals(pother.a, a)) && (pother.b == b);
+      return Objects.equals(other.a, a) &&
+             other.b == b;
    }
 
    @Override

@@ -16,20 +16,20 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <parent>
-      <groupId>org.apache.activemq</groupId>
+      <groupId>org.apache.artemis</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>2.31.0-SNAPSHOT</version>
+      <version>2.56.0-SNAPSHOT</version>
+      <relativePath>../artemis-pom/pom.xml</relativePath>
    </parent>
 
-   <name>ActiveMQ Artemis Tests POM</name>
+   <name>Apache Artemis Tests POM</name>
    <modelVersion>4.0.0</modelVersion>
-   <groupId>org.apache.activemq.tests</groupId>
+   <groupId>org.apache.artemis.tests</groupId>
    <artifactId>artemis-tests-pom</artifactId>
    <packaging>pom</packaging>
 
    <properties>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
-      <byteman.version>4.0.18</byteman.version>
+      <byteman.version>4.0.27</byteman.version>
    </properties>
 
    <dependencyManagement>
@@ -39,12 +39,6 @@
             <groupId>org.apache.geronimo.components</groupId>
             <artifactId>geronimo-jaspi</artifactId>
             <version>2.0.0</version>
-            <!-- License: Apache: 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.2</version>
             <!-- License: Apache: 2.0 -->
          </dependency>
          <dependency>
@@ -132,6 +126,7 @@
       <module>integration-tests</module>
       <module>integration-tests-isolated</module>
       <module>karaf-client-integration-tests</module>
+      <module>karaf-jakarta-client-integration-tests</module>
       <module>karaf-server-integration-tests</module>
       <module>compatibility-tests</module>
       <module>soak-tests</module>
@@ -141,5 +136,6 @@
       <module>smoke-tests</module>
       <module>e2e-tests</module>
       <module>leak-tests</module>
+      <module>db-tests</module>
    </modules>
 </project>

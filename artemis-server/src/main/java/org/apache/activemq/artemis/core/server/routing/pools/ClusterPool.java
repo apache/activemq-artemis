@@ -55,7 +55,7 @@ public class ClusterPool extends AbstractPool implements ClusterTopologyListener
    public void nodeUP(TopologyMember member, boolean last) {
       if (!clusterConnection.getNodeID().equals(member.getNodeId()) &&
          clusterMembers.putIfAbsent(member.getNodeId(), member) == null) {
-         addTarget(member.getLive(), member.getNodeId());
+         addTarget(member.getPrimary(), member.getNodeId());
       }
    }
 

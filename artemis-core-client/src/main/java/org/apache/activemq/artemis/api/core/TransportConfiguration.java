@@ -28,12 +28,10 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
- * A TransportConfiguration is used by a client to specify connections to a server and its backup if
- * one exists.
+ * A TransportConfiguration is used by a client to specify connections to a server and its backup if one exists.
  * <p>
- * Typically the constructors take the class name and parameters for needed to create the
- * connection. These will be different dependent on which connector is being used, i.e. Netty or
- * InVM etc. For example:
+ * Typically the constructors take the class name and parameters for needed to create the connection. These will be
+ * different dependent on which connector is being used, i.e. Netty or InVM etc. For example:
  *
  * <pre>
  * HashMap&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();
@@ -53,7 +51,9 @@ public class TransportConfiguration implements Serializable {
 
    private String name;
 
-   private String factoryClassName;
+   private String lockCoordinator;
+
+   private String factoryClassName = "null";
 
    private Map<String, Object> params;
 
@@ -98,8 +98,8 @@ public class TransportConfiguration implements Serializable {
    }
 
    /**
-    * Creates a TransportConfiguration with a specific name providing the class name of the {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
-    * and any parameters needed.
+    * Creates a TransportConfiguration with a specific name providing the class name of the
+    * {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory} and any parameters needed.
     *
     * @param className The class name of the ConnectorFactory
     * @param params    The parameters needed by the ConnectorFactory
@@ -110,8 +110,8 @@ public class TransportConfiguration implements Serializable {
    }
 
    /**
-    * Creates a TransportConfiguration with a specific name providing the class name of the {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
-    * and any parameters needed.
+    * Creates a TransportConfiguration with a specific name providing the class name of the
+    * {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory} and any parameters needed.
     *
     * @param className  The class name of the ConnectorFactory
     * @param params     The parameters needed by the ConnectorFactory
@@ -139,8 +139,8 @@ public class TransportConfiguration implements Serializable {
    }
 
    /**
-    * Creates a TransportConfiguration providing the class name of the {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
-    * and any parameters needed.
+    * Creates a TransportConfiguration providing the class name of the
+    * {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory} and any parameters needed.
     *
     * @param className The class name of the ConnectorFactory
     * @param params    The parameters needed by the ConnectorFactory
@@ -150,18 +150,17 @@ public class TransportConfiguration implements Serializable {
    }
 
    /**
-    * Creates a TransportConfiguration providing the class name of the {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
+    * Creates a TransportConfiguration providing the class name of the
+    * {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
     *
     * @param className The class name of the ConnectorFactory
     */
    public TransportConfiguration(final String className) {
-      this(className, new HashMap<String, Object>(), UUIDGenerator.getInstance().generateStringUUID());
+      this(className, new HashMap<>(), UUIDGenerator.getInstance().generateStringUUID());
    }
 
    /**
-    * Returns the name of this TransportConfiguration.
-    *
-    * @return the name
+    * {@return the name of this TransportConfiguration}
     */
    public String getName() {
       return name;
@@ -172,18 +171,14 @@ public class TransportConfiguration implements Serializable {
    }
 
    /**
-    * Returns the class name of ConnectorFactory being used by this TransportConfiguration
-    *
-    * @return The factory's class name
+    * {@return the class name of ConnectorFactory being used by this TransportConfiguration}
     */
    public String getFactoryClassName() {
       return factoryClassName;
    }
 
    /**
-    * Returns any parameters set for this TransportConfiguration
-    *
-    * @return the parameters
+    * {@return any parameters set for this TransportConfiguration}
     */
    public Map<String, Object> getParams() {
       return params;
@@ -206,53 +201,43 @@ public class TransportConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      int result = name != null ? name.hashCode() : 0;
-      result = 31 * result + factoryClassName.hashCode();
-      result = 31 * result + (params != null ? params.hashCode() : 0);
-      return result;
+      return Objects.hash(name, factoryClassName, params);
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
-         return false;
-
-      TransportConfiguration that = (TransportConfiguration) o;
-
-      if (!isSameParams(that)) {
+      }
+      if (!(obj instanceof TransportConfiguration other)) {
          return false;
       }
 
-      if (!Objects.equals(name, that.name)) {
-         return false;
-      }
-
-      // Empty and null extraProps maps are equivalent so the condition to check if two extraProps maps are not equal is:
-      if ((extraProps != that.extraProps) && (extraProps != null || !that.extraProps.isEmpty()) && (that.extraProps != null || !extraProps.isEmpty()) && (extraProps == null || that.extraProps == null || !extraProps.equals(that.extraProps))) {
-         return false;
-      }
-
-      return true;
+      return isSameParams(other) &&
+             Objects.equals(name, other.name) &&
+             // Empty and null extraProps maps are equivalent so the condition to check if two extraProps maps are not equal is:
+             !((extraProps != other.extraProps) &&
+               (extraProps != null || !other.extraProps.isEmpty()) &&
+               (other.extraProps != null || !extraProps.isEmpty()) &&
+               (extraProps == null || other.extraProps == null || !extraProps.equals(other.extraProps)));
    }
 
    public boolean isSameParams(TransportConfiguration that) {
-      if (!factoryClassName.equals(that.factoryClassName))
+      if (!factoryClassName.equals(that.factoryClassName)) {
          return false;
-      if (!Objects.equals(params, that.params))
+      }
+      if (!Objects.equals(params, that.params)) {
          return false;
+      }
 
       return true;
    }
 
    /**
-    * There's a case on ClusterConnections that we need to find an equivalent Connector and we can't
-    * use a Netty Cluster Connection on an InVM ClusterConnection (inVM used on tests) for that
-    * reason I need to test if the two instances of the TransportConfiguration are equivalent while
-    * a test a connector against an acceptor
+    * There's a case on ClusterConnections that we need to find an equivalent Connector and we can't use a Netty Cluster
+    * Connection on an InVM ClusterConnection (inVM used on tests) for that reason I need to test if the two instances
+    * of the TransportConfiguration are equivalent while a test a connector against an acceptor
     *
-    * @param otherConfig
     * @return {@code true} if the factory class names are equivalents
     */
    public boolean isEquivalent(TransportConfiguration otherConfig) {
@@ -272,7 +257,7 @@ public class TransportConfiguration implements Serializable {
       StringBuilder str = new StringBuilder(TransportConfiguration.class.getSimpleName());
       str.append("(name=" + name + ", ");
       str.append("factory=" + (factoryClassName == null ? "null" : replaceWildcardChars(factoryClassName)));
-      str.append(") ");
+      str.append(")");
       str.append(toStringParameters(params, extraProps));
       return str.toString();
    }
@@ -292,7 +277,7 @@ public class TransportConfiguration implements Serializable {
 
             String key = entry.getKey();
 
-            // HORNETQ-1281 - don't log passwords
+            // don't log passwords
             String val;
             if (key.toLowerCase().contains("password")) {
                val = "****";
@@ -328,18 +313,18 @@ public class TransportConfiguration implements Serializable {
 
          Object val = entry.getValue();
 
-         if (val instanceof Boolean) {
+         if (val instanceof Boolean booleanValue) {
             buffer.writeByte(TransportConfiguration.TYPE_BOOLEAN);
-            buffer.writeBoolean((Boolean) val);
-         } else if (val instanceof Integer) {
+            buffer.writeBoolean(booleanValue);
+         } else if (val instanceof Integer integer) {
             buffer.writeByte(TransportConfiguration.TYPE_INT);
-            buffer.writeInt((Integer) val);
-         } else if (val instanceof Long) {
+            buffer.writeInt(integer);
+         } else if (val instanceof Long longValue) {
             buffer.writeByte(TransportConfiguration.TYPE_LONG);
-            buffer.writeLong((Long) val);
-         } else if (val instanceof String) {
+            buffer.writeLong(longValue);
+         } else if (val instanceof String string) {
             buffer.writeByte(TransportConfiguration.TYPE_STRING);
-            buffer.writeString((String) val);
+            buffer.writeString(string);
          } else {
             throw ActiveMQClientMessageBundle.BUNDLE.invalidEncodeType(val);
          }
@@ -349,7 +334,7 @@ public class TransportConfiguration implements Serializable {
    /**
     * Encodes this TransportConfiguration into a buffer.
     * <p>
-    * Note that this is only used internally ActiveMQ Artemis.
+    * Note that this is only used internally Apache Artemis.
     *
     * @param buffer the buffer to encode into
     */
@@ -370,7 +355,7 @@ public class TransportConfiguration implements Serializable {
    /**
     * Decodes this TransportConfiguration from a buffer.
     * <p>
-    * Note this is only used internally by ActiveMQ
+    * Note this is only used internally by Apache Artemis
     *
     * @param buffer the buffer to decode from
     */
@@ -430,6 +415,19 @@ public class TransportConfiguration implements Serializable {
             params.put(key, val);
          }
       }
+   }
+
+   public String getLockCoordinator() {
+      return lockCoordinator;
+   }
+
+   public TransportConfiguration setLockCoordinator(String lockCoordinator) {
+      if (String.valueOf(lockCoordinator).trim().equals("")) {
+         this.lockCoordinator = null;
+      } else {
+         this.lockCoordinator = lockCoordinator;
+      }
+      return this;
    }
 
    private static String replaceWildcardChars(final String str) {

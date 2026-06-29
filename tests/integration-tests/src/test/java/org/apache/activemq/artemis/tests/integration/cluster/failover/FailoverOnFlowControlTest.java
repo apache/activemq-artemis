@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionPro
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnection;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -53,8 +53,7 @@ public class FailoverOnFlowControlTest extends FailoverTestBase {
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
             logger.debug("Intercept...{}", packet.getClass().getName());
 
-            if (packet instanceof SessionProducerCreditsMessage) {
-               SessionProducerCreditsMessage credit = (SessionProducerCreditsMessage) packet;
+            if (packet instanceof SessionProducerCreditsMessage credit) {
 
                logger.debug("Credits: {}", credit.getCredits());
                if (count.incrementAndGet() == 2) {
@@ -80,7 +79,7 @@ public class FailoverOnFlowControlTest extends FailoverTestBase {
       ClientSession session = sf.createSession(true, true);
       sessionList.add(session);
 
-      session.createQueue(new QueueConfiguration(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -102,7 +101,7 @@ public class FailoverOnFlowControlTest extends FailoverTestBase {
    @Override
    protected void createConfigs() throws Exception {
       super.createConfigs();
-      liveServer.getServer().getConfiguration().setJournalFileSize(1024 * 1024);
+      primaryServer.getServer().getConfiguration().setJournalFileSize(1024 * 1024);
       backupServer.getServer().getConfiguration().setJournalFileSize(1024 * 1024);
    }
 

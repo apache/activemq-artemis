@@ -19,9 +19,7 @@ package org.apache.activemq.artemis.spi.core.security.jaas.kubernetes.client;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -30,13 +28,12 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.Scanner;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.spi.core.security.jaas.kubernetes.model.TokenReview;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.slf4j.Logger;
@@ -58,18 +55,40 @@ public class KubernetesClientImpl implements KubernetesClient {
 
    private URI apiUri;
    private String tokenPath;
-   private String caPath;
+
+   private static volatile HttpClient httpClient;
+
+   private static HttpClient getHttpClientSingleton() {
+      HttpClient result = httpClient;
+      if (result != null) {
+         return result;
+      }
+      synchronized (KubernetesClientImpl.class) {
+         if (httpClient == null) {
+            try {
+               httpClient = HttpClient.newBuilder().sslContext(buildSSLContext()).build();
+            } catch (Exception e) {
+               logger.error("Unable to build a valid SSLContext or HttpClient", e);
+            }
+         }
+      }
+      return httpClient;
+   }
+
+   // for tests
+   public static void clearHttpClient() {
+      httpClient = null;
+   }
 
    public KubernetesClientImpl() {
       this.tokenPath = getParam(KUBERNETES_TOKEN_PATH, DEFAULT_KUBERNETES_TOKEN_PATH);
-      this.caPath = getParam(KUBERNETES_CA_PATH, DEFAULT_KUBERNETES_CA_PATH);
       String host = getParam(KUBERNETES_HOST);
       String port = getParam(KUBERNETES_PORT);
       this.apiUri = URI.create(String.format(KUBERNETES_TOKENREVIEW_URI_PATTERN, host, port));
       logger.debug("using apiUri {}", apiUri);
    }
 
-   public String getParam(String name, String defaultValue) {
+   public static String getParam(String name, String defaultValue) {
       String value = System.getProperty(name);
       if (value == null) {
          value = System.getenv(name);
@@ -98,14 +117,10 @@ public class KubernetesClientImpl implements KubernetesClient {
       }
       String jsonRequest = buildJsonRequest(token);
 
-      SSLContext ctx;
-      try {
-         ctx = buildSSLContext();
-      } catch (Exception e) {
-         logger.error("Unable to build a valid SSLContext", e);
+      HttpClient client = getHttpClient();
+      if (client == null) {
          return tokenReview;
       }
-      HttpClient client = HttpClient.newBuilder().sslContext(ctx).build();
 
       HttpRequest request = HttpRequest.newBuilder(apiUri)
             .header("Authorization", "Bearer " + authToken)
@@ -125,6 +140,10 @@ public class KubernetesClientImpl implements KubernetesClient {
          logger.error("Unable to request ReviewToken", e);
       }
       return tokenReview;
+   }
+
+   protected HttpClient getHttpClient() {
+      return KubernetesClientImpl.getHttpClientSingleton();
    }
 
    private String readFile(String path) throws IOException {
@@ -150,25 +169,20 @@ public class KubernetesClientImpl implements KubernetesClient {
             .build().toString();
    }
 
-   private SSLContext buildSSLContext() throws Exception {
-      SSLContext ctx = SSLContext.getInstance("SSL");
+   private static SSLContext buildSSLContext() throws Exception {
+      SSLContext ctx = SSLContext.getInstance("TLS");
+      String caPath = getParam(KUBERNETES_CA_PATH, DEFAULT_KUBERNETES_CA_PATH);
       File certFile = new File(caPath);
       if (!certFile.exists()) {
          logger.debug("Kubernetes CA certificate not found at: {}. Truststore not configured", caPath);
          return ctx;
       }
-      try (InputStream fis = new FileInputStream(certFile)) {
-         KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-         CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-         X509Certificate certificate = (X509Certificate) certFactory.generateCertificate(fis);
-         trustStore.load(null, null);
-         trustStore.setCertificateEntry(certFile.getName(), certificate);
-         TrustManagerFactory tmFactory = TrustManagerFactory
-               .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-         tmFactory.init(trustStore);
+      KeyStore trustStore = SSLSupport.loadKeystore(null, "PEMCA", caPath, null);
+      TrustManagerFactory tmFactory = TrustManagerFactory
+            .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      tmFactory.init(trustStore);
 
-         ctx.init(null, tmFactory.getTrustManagers(), new SecureRandom());
-      }
+      ctx.init(null, tmFactory.getTrustManagers(), new SecureRandom());
       return ctx;
    }
 }

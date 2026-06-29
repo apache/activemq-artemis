@@ -17,14 +17,14 @@
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class ClusteredRequestResponseTest extends ClusterTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -85,7 +85,7 @@ public class ClusteredRequestResponseTest extends ClusterTestBase {
     * TODO: I believe this test is invalid. I'm just ignoring it for now. It will probably go away
     */
    @Test
-   @Ignore
+   @Disabled
    public void testRequestResponseNoWaitForBindings() throws Exception {
       setupCluster();
 

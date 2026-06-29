@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.security;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -27,8 +29,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -36,11 +38,12 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-public class RejectValidatedUserTest  extends ActiveMQTestBase {
+public class RejectValidatedUserTest extends ActiveMQTestBase {
 
    private static final String ADDRESS = "TestQueue";
    private ActiveMQServer server;
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -57,7 +60,7 @@ public class RejectValidatedUserTest  extends ActiveMQTestBase {
       ClientProducer producer = session.createProducer(ADDRESS);
       try {
          producer.send(session.createMessage(true));
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (ActiveMQIllegalStateException e) {
          //pass
       }
@@ -81,7 +84,7 @@ public class RejectValidatedUserTest  extends ActiveMQTestBase {
       ActiveMQConnectionFactory connectionFactory = ActiveMQJMSClient.createConnectionFactory("vm://0", "0");
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession();
-      Queue queue = session.createQueue(ADDRESS.toString());
+      Queue queue = session.createQueue(ADDRESS);
       MessageProducer producer = session.createProducer(queue);
       Message message = session.createMessage();
       message.setStringProperty("JMSXUserID", "testuser");

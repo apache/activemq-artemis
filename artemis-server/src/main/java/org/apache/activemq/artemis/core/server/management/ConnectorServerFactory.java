@@ -179,8 +179,6 @@ public class ConnectorServerFactory {
 
    /**
     * Authenticator type to use. Acceptable values are "none", "password", and "certificate"
-    *
-    * @param value
     */
    public void setAuthenticatorType(String value) {
       this.authenticatorType = AuthenticatorType.valueOf(value.toUpperCase());
@@ -302,7 +300,7 @@ public class ConnectorServerFactory {
 
       @Override
       public ServerSocket createServerSocket(int port) throws IOException {
-         ServerSocket serverSocket = (ServerSocket) ServerSocketFactory.getDefault().createServerSocket(port, 50, InetAddress.getByName(rmiServerHost));
+         ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(port, 50, InetAddress.getByName(rmiServerHost));
          return serverSocket;
       }
    }

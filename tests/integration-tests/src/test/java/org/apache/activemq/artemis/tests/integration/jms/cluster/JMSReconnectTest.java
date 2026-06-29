@@ -32,6 +32,7 @@ import javax.jms.Topic;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -40,15 +41,18 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class JMSReconnectTest extends ActiveMQTestBase {
 
@@ -100,9 +104,9 @@ public class JMSReconnectTest extends ActiveMQTestBase {
 
       RemotingConnection coreConn = ((ClientSessionInternal) coreSession).getConnection();
 
-      SimpleString jmsQueueName = new SimpleString("myqueue");
+      SimpleString jmsQueueName = SimpleString.of("myqueue");
 
-      coreSession.createQueue(new QueueConfiguration(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
+      coreSession.createQueue(QueueConfiguration.of(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
 
       Queue queue = sess.createQueue("myqueue");
 
@@ -135,20 +139,20 @@ public class JMSReconnectTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          BytesMessage bm = (BytesMessage) consumer.receive(1000);
 
-         Assert.assertNotNull(bm);
+         assertNotNull(bm);
 
-         Assert.assertEquals(body.length, bm.getBodyLength());
+         assertEquals(body.length, bm.getBodyLength());
       }
 
       TextMessage tm = (TextMessage) consumer.receiveNoWait();
 
-      Assert.assertNull(tm);
+      assertNull(tm);
 
       conn.close();
 
-      Assert.assertNotNull(listener.e);
+      assertNotNull(listener.e);
 
-      Assert.assertTrue(me == listener.e.getCause());
+      assertSame(me, listener.e.getCause());
    }
 
    @Test
@@ -180,7 +184,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
       Destination dest;
 
       if (nonDurableSub) {
-         coreSession.createQueue(new QueueConfiguration("blahblah").setAddress("mytopic").setDurable(false));
+         coreSession.createQueue(QueueConfiguration.of("blahblah").setAddress("mytopic").setDurable(false));
 
          dest = ActiveMQJMSClient.createTopic("mytopic");
       } else {
@@ -216,18 +220,18 @@ public class JMSReconnectTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          BytesMessage bm = (BytesMessage) consumer.receive(1000);
 
-         Assert.assertNotNull(bm);
+         assertNotNull(bm);
 
-         Assert.assertEquals(body.length, bm.getBodyLength());
+         assertEquals(body.length, bm.getBodyLength());
       }
 
       TextMessage tm = (TextMessage) consumer.receiveNoWait();
 
-      Assert.assertNull(tm);
+      assertNull(tm);
 
       conn.close();
 
-      Assert.assertNotNull(listener.e);
+      assertNotNull(listener.e);
    }
 
    //If the server is shutdown after a non durable sub is created, then close on the connection should proceed normally
@@ -243,7 +247,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
 
       ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
-      coreSession.createQueue(new QueueConfiguration("blahblah").setAddress("mytopic").setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of("blahblah").setAddress("mytopic").setDurable(false));
 
       Topic topic = ActiveMQJMSClient.createTopic("mytopic");
 
@@ -288,7 +292,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

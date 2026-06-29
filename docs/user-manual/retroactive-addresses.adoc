@@ -1,6 +1,7 @@
 = Retroactive Addresses
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 A "retroactive" address is an address that will preserve messages sent to it for queues which will be created on it in the future.
 This can be useful in, for example, publish-subscribe use cases where clients want to receive the messages sent to the address _before_ they actually connected and created their multicast "subscription" queue.

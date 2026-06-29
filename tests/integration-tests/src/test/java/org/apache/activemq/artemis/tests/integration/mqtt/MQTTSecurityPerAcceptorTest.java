@@ -16,13 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.net.URL;
 import java.util.Arrays;
 
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class MQTTSecurityPerAcceptorTest extends MQTTTestSupport {
 
@@ -48,12 +52,14 @@ public class MQTTSecurityPerAcceptorTest extends MQTTTestSupport {
       server.getConfiguration().addAcceptorConfiguration("MQTT", "tcp://localhost:" + port + "?securityDomain=PropertiesLogin");
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testConnectionPositive() throws Exception {
       internalTestConnection("first", true);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testConnectionNegative() throws Exception {
       internalTestConnection("fail", false);
    }
@@ -81,10 +87,12 @@ public class MQTTSecurityPerAcceptorTest extends MQTTTestSupport {
             }
             BlockingConnection finalConnection = connection;
             if (succeed) {
-               assertTrue("Should be connected", Wait.waitFor(() -> finalConnection.isConnected(), 2000, 100));
+               assertTrue(Wait.waitFor(() -> finalConnection.isConnected(), 2000, 100), "Should be connected");
             }
          } finally {
-            if (connection != null && connection.isConnected()) connection.disconnect();
+            if (connection != null && connection.isConnected()) {
+               connection.disconnect();
+            }
          }
       }
    }

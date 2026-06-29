@@ -16,16 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.uri;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class ConnectorTransportConfigurationParserURITest {
 
@@ -42,13 +43,13 @@ public class ConnectorTransportConfigurationParserURITest {
          objects.forEach(t -> logger.info("transportConfig: {}", t));
       }
 
-      Assert.assertEquals(3, objects.size());
-      Assert.assertEquals("live", objects.get(0).getParams().get("host"));
-      Assert.assertEquals("1", objects.get(0).getParams().get("port"));
-      Assert.assertEquals("backupA", objects.get(1).getParams().get("host"));
-      Assert.assertEquals("2", objects.get(1).getParams().get("port"));
-      Assert.assertEquals("backupB", objects.get(2).getParams().get("host"));
-      Assert.assertEquals("3", objects.get(2).getParams().get("port"));
+      assertEquals(3, objects.size());
+      assertEquals("live", objects.get(0).getParams().get("host"));
+      assertEquals("1", objects.get(0).getParams().get("port"));
+      assertEquals("backupA", objects.get(1).getParams().get("host"));
+      assertEquals("2", objects.get(1).getParams().get("port"));
+      assertEquals("backupB", objects.get(2).getParams().get("host"));
+      assertEquals("3", objects.get(2).getParams().get("port"));
    }
 
    @Test
@@ -62,15 +63,15 @@ public class ConnectorTransportConfigurationParserURITest {
          objects.forEach(t -> logger.info("transportConfig: {}", t));
       }
 
-      Assert.assertEquals(3, objects.size());
-      Assert.assertEquals("live1", objects.get(0).getName());
-      Assert.assertEquals("live", objects.get(0).getParams().get("host"));
-      Assert.assertEquals("1", objects.get(0).getParams().get("port"));
-      Assert.assertEquals("backupA2", objects.get(1).getName());
-      Assert.assertEquals("backupA", objects.get(1).getParams().get("host"));
-      Assert.assertEquals("2", objects.get(1).getParams().get("port"));
-      Assert.assertEquals("backupB3", objects.get(2).getName());
-      Assert.assertEquals("backupB", objects.get(2).getParams().get("host"));
-      Assert.assertEquals("3", objects.get(2).getParams().get("port"));
+      assertEquals(3, objects.size());
+      assertEquals("live1", objects.get(0).getName());
+      assertEquals("live", objects.get(0).getParams().get("host"));
+      assertEquals("1", objects.get(0).getParams().get("port"));
+      assertEquals("backupA2", objects.get(1).getName());
+      assertEquals("backupA", objects.get(1).getParams().get("host"));
+      assertEquals("2", objects.get(1).getParams().get("port"));
+      assertEquals("backupB3", objects.get(2).getName());
+      assertEquals("backupB", objects.get(2).getParams().get("host"));
+      assertEquals("3", objects.get(2).getParams().get("port"));
    }
 }

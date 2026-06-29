@@ -60,16 +60,16 @@ import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.Target;
 import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import static org.apache.activemq.transport.amqp.AmqpSupport.LIFETIME_POLICY;
 import static org.apache.activemq.transport.amqp.AmqpSupport.TEMP_QUEUE_CAPABILITY;
 import static org.apache.activemq.transport.amqp.AmqpSupport.TEMP_TOPIC_CAPABILITY;
 
 /**
- * Test support class for tests that will be using the AMQP Proton wrapper client. This is to
- * make it easier to migrate tests from ActiveMQ5
+ * Test support class for tests that will be using the AMQP Proton wrapper client. This is to make it easier to migrate
+ * tests from ActiveMQ5
  */
 public class AmqpClientTestSupport extends AmqpTestSupport {
 
@@ -78,7 +78,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
 
    protected ActiveMQServer server;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -86,7 +86,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       server = createServer();
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       for (AmqpConnection conn : connections) {
@@ -159,8 +159,8 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       addressSettings.setAutoCreateQueues(isAutoCreateQueues());
       addressSettings.setAutoCreateAddresses(isAutoCreateAddresses());
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
-      addressSettings.setExpiryAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
+      addressSettings.setDeadLetterAddress(SimpleString.of(getDeadLetterAddress()));
+      addressSettings.setExpiryAddress(SimpleString.of(getDeadLetterAddress()));
 
       server.getConfiguration().getAddressSettings().put("#", addressSettings);
       Set<TransportConfiguration> acceptors = server.getConfiguration().getAcceptorConfigurations();
@@ -175,21 +175,21 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
    @Override
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       // Default Queue
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getQueueName()), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(getQueueName()), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST));
 
       // Default DLQ
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getDeadLetterAddress()), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(getDeadLetterAddress()).setRoutingType(RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(getDeadLetterAddress()), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getDeadLetterAddress()).setRoutingType(RoutingType.ANYCAST));
 
       // Default Topic
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getTopicName()), RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(getTopicName()));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(getTopicName()), RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of(getTopicName()));
 
       // Additional Test Queues
       for (int i = 0; i < getPrecreatedQueueSize(); ++i) {
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getQueueName(i)), RoutingType.ANYCAST));
-         server.createQueue(new QueueConfiguration(getQueueName(i)).setRoutingType(RoutingType.ANYCAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of(getQueueName(i)), RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(getQueueName(i)).setRoutingType(RoutingType.ANYCAST));
       }
    }
 
@@ -217,11 +217,11 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
 
       // Configure roles
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HashSet<Role> value = new HashSet<>();
-      value.add(new Role("nothing", false, false, false, false, false, false, false, false, false, false));
-      value.add(new Role("browser", false, false, false, false, false, false, false, true, false, false));
-      value.add(new Role("guest", false, true, false, false, false, false, false, true, false, false));
-      value.add(new Role("full", true, true, true, true, true, true, true, true, true, true));
+      Set<Role> value = new HashSet<>();
+      value.add(new Role("nothing", false, false, false, false, false, false, false, false, false, false, false, false));
+      value.add(new Role("browser", false, false, false, false, false, false, false, true, false, false, false, false));
+      value.add(new Role("guest", false, true, false, false, false, false, false, true, false, false, false, false));
+      value.add(new Role("full", true, true, true, true, true, true, true, true, true, true, false, false));
       securityRepository.addMatch(getQueueName(), value);
 
       for (String match : securityMatches) {
@@ -232,7 +232,11 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
    }
 
    public Queue getProxyToQueue(String queueName) {
-      return server.locateQueue(SimpleString.toSimpleString(queueName));
+      return server.locateQueue(SimpleString.of(queueName));
+   }
+
+   public AddressInfo getProxyToAddress(String addressName) {
+      return server.getAddressInfo(SimpleString.of(addressName));
    }
 
    public String getTestName() {

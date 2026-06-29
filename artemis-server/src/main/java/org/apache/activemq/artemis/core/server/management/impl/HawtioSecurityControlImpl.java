@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.server.management.impl;
 import org.apache.activemq.artemis.core.management.impl.AbstractControl;
 import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuard;
+import org.apache.activemq.artemis.core.server.management.GuardInvocationHandler;
 import org.apache.activemq.artemis.core.server.management.HawtioSecurityControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,20 +49,19 @@ public class HawtioSecurityControlImpl extends AbstractControl implements Hawtio
 
    /**
     * The Tabular Type returned by the {@link #canInvoke(Map)} operation. The rows consist of
-    * {@link #CAN_INVOKE_RESULT_ROW_TYPE} entries.
-    * It has a composite key with consists of the "ObjectName" and "Method" columns.
+    * {@link #CAN_INVOKE_RESULT_ROW_TYPE} entries. It has a composite key with consists of the "ObjectName" and "Method"
+    * columns.
     */
    static final TabularType CAN_INVOKE_TABULAR_TYPE = SecurityMBeanOpenTypeInitializer.TABULAR_TYPE;
 
    /**
-    * A row as returned by the {@link #CAN_INVOKE_TABULAR_TYPE}. The columns of the row are defined
-    * by {@link #CAN_INVOKE_RESULT_COLUMNS}.
+    * A row as returned by the {@link #CAN_INVOKE_TABULAR_TYPE}. The columns of the row are defined by
+    * {@link #CAN_INVOKE_RESULT_COLUMNS}.
     */
    static final CompositeType CAN_INVOKE_RESULT_ROW_TYPE = SecurityMBeanOpenTypeInitializer.ROW_TYPE;
 
    /**
-    * The columns contained in a {@link #CAN_INVOKE_RESULT_ROW_TYPE}. The data types for these columns are
-    * as follows:
+    * The columns contained in a {@link #CAN_INVOKE_RESULT_ROW_TYPE}. The data types for these columns are as follows:
     * <ul>
     * <li>"ObjectName" : {@link SimpleType#STRING}</li>
     * <li>"Method" : {@link SimpleType#STRING}</li>
@@ -70,9 +69,9 @@ public class HawtioSecurityControlImpl extends AbstractControl implements Hawtio
     * </ul>
     */
    static final String[] CAN_INVOKE_RESULT_COLUMNS = SecurityMBeanOpenTypeInitializer.COLUMNS;
-   private final ArtemisMBeanServerGuard mBeanServerGuard;
+   private final GuardInvocationHandler mBeanServerGuard;
 
-   public HawtioSecurityControlImpl(ArtemisMBeanServerGuard mBeanServerGuard, StorageManager storageManager) throws NotCompliantMBeanException {
+   public HawtioSecurityControlImpl(GuardInvocationHandler mBeanServerGuard, StorageManager storageManager) throws NotCompliantMBeanException {
       super(HawtioSecurityControl.class, storageManager);
       this.mBeanServerGuard = mBeanServerGuard;
    }
@@ -109,7 +108,7 @@ public class HawtioSecurityControlImpl extends AbstractControl implements Hawtio
       for (Map.Entry<String, List<String>> entry : bulkQuery.entrySet()) {
          String objectName = entry.getKey();
          List<String> methods = entry.getValue();
-         if (methods.size() == 0) {
+         if (methods.isEmpty()) {
             boolean res = canInvoke(objectName);
             CompositeData data = new CompositeDataSupport(CAN_INVOKE_RESULT_ROW_TYPE,
                   CAN_INVOKE_RESULT_COLUMNS,

@@ -49,9 +49,9 @@ under the License.
 
       <ha-policy>
          <replication>
-            <slave>
+            <backup>
                <allow-failback>true</allow-failback>
-            </slave>
+            </backup>
          </replication>
       </ha-policy>
 

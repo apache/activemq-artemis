@@ -16,13 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
@@ -33,12 +34,6 @@ import javax.jms.TextMessage;
 
 public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
 
-   /** There is a possible race on the openwire client receiving updates from
-    *  the Advisor Consumer.
-    *  Nothing we can do here beyond retry the test. */
-   @Rule
-   public RetryRule retryRule = new RetryRule(3);
-
    @Override
    public boolean isFileStorage() {
       return false;
@@ -47,7 +42,7 @@ public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
    public static final String QUEUE_NAME = "target";
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -93,7 +88,7 @@ public class TemporaryQueueClusterTest extends OpenWireJMSClusteredTestBase {
 
          prod1.send(msg);
 
-         Wait.assertTrue(() -> getServer(1).locateQueue(SimpleString.toSimpleString(QUEUE_NAME)).getMessageCount() == 1, 5000, 100);
+         Wait.assertTrue(() -> getServer(1).locateQueue(SimpleString.of(QUEUE_NAME)).getMessageCount() == 1, 5000, 100);
 
          TextMessage msgReceived = (TextMessage) cons2.receive(5000);
 

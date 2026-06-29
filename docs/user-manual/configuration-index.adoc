@@ -1,6 +1,7 @@
 = Configuration Reference
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 This section is a quick index for looking up configuration.
 Click on the element name to go to the specific chapter.
@@ -99,29 +100,58 @@ Collections need some special treatment to allow additions and reference.
 We utilise the name attribute of configuration entities to find existing entries and when populating new entities, we set the name to match the requested key.
 Removal of configuration from named collections is supported by setting a key value to "-".
 The remove match value can be configured with a property key "remove.value".
-
-For example, a properties file containing:
+For example, a properties file containing the following keys and values:
 
 ----
 securityEnabled=false
 acceptorConfigurations.tcp.factoryClassName=org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory
-acceptorConfigurations.tcp.params.HOST=localhost
-acceptorConfigurations.tcp.params.PORT=61616
+acceptorConfigurations.tcp.params.host=localhost
+acceptorConfigurations.tcp.params.port=61616
 ----
 
-would: 1) disable RBAC security checks 2) add or modify an acceptor named "tcp" that will use Netty 3) set the acceptor named "tcp" 'HOST' parameter to localhost 4) set the acceptor named "tcp" 'PORT' parameter to 61616
+.would:
+ . disable RBAC security checks
+ . add or modify an acceptor named "tcp" that will use Netty
+ . set the acceptor named "tcp" 'HOST' parameter to localhost
+ . set the acceptor named "tcp" 'PORT' parameter to 61616
 
-The configuration properties are low level, lower level than xml, however it is very powerful;
-any accessible attribute of the internal `org.apache.activemq.artemis.core.config.impl.ConfigurationImpl` objects can be modified.
+=== JAAS
+Broker properties can configure JAAS via the `jaasConfigs` collection, this provides a means to dynamically configure the jaas realms accessed by the broker. The jaas configuration provider will look first for any realm configured in the `jaasConfigs` collection before delegating to the platform defaults.
+For example, to configure the `guestRealm` and use it from the above `tcp` acceptor, configure properties of the form:
 
+----
+acceptorConfigurations.tcp.params.securityDomain=guestRealm
+jaasConfigs.guestRealm.modules.guest.loginModuleClass=org.apache.activemq.artemis.spi.core.security.jaas.GuestLoginModule
+jaasConfigs.guestRealm.modules.guest.controlFlag=required
+----
+==== Usage
+
+The `artemis run` command script supports `--properties <path to properties files comma list>` where properties file paths can be configured.
+If a properties path string ends in a '/' it represents a directory. Any file name matching the regex `.*\.(json|properties)` in that directory is treated as broker configuration.
+
+It is possible to override the default regex filter pattern with a `filter` query parameter on the directory path, e.g: `--properties '/home/x/broker_props/?filter=.*\.custom_props'`.
+
+==== Broker configuration in properties format
+
+The xref:management.adoc#server-management[server management operation] `exportConfigAsProperties` will export the current configuration of a broker as broker properties. Use this to get a better understanding of how properties apply to the broker configuration and how they map from xml.
+
+==== Attribute Names with Dots
+Dots are significant in property keys because they identify the nesting level. If attribute names contain dots those need to be quoted. The quote string is specified via the property `key.surround` and has a default value of the double quote character: `"`.
+
+An address setting, where the address contains dots, would be a typical example where quoting is required:
+----
+addressSettings."Address.Name.With.Dots".expiryAddress=expiredMessages
+----
+
+==== Error reporting
+The free form text format of a java properties file and the inexact mapping from xml attribute to key=value can make it tricky to correctly configure broker properties.
+Properties that don't match or fail to apply are tracked through the status attribute of the broker, visible through the xref:management.adoc#server-management[server management operation] `getStatus`.
+
+More detailed information can also be obtained through debug logging of the `org.apache.activemq.artemis.core.config.impl.ConfigurationImpl` class.
+
+NOTE: The configuration properties are very low level, lower level than xml, which makes them very powerful.
+Any accessible attribute of the internal `org.apache.activemq.artemis.core.config.impl.ConfigurationImpl` objects can be modified.
 With great power one must take great care!
-
-The `artemis run` command script supports `--properties <properties file url>`, where a properties file can be configured.
-
-NOTE: one shortcoming of this method of configuration is that any property that does not match is ignored with no fanfare.
-Enable debug logging for `org.apache.activemq.artemis.core.config.impl.ConfigurationImpl` to get more insight.
-
-There are a growing number of examples of what can be explicitly configured in this way in the https://github.com/apache/activemq-artemis/blob/065bfe14f532858f2c2a20b0afb1a226b08ce013/artemis-server/src/test/java/org/apache/activemq/artemis/core/config/impl/ConfigurationImplTest.java#L675[unit test].
 
 == The core configuration
 
@@ -129,13 +159,20 @@ This describes the root of the XML configuration.
 You will see here also multiple sub-types listed.
 For example on the main config you will have bridges and at the <<bridge-type,list of bridge>> type we will describe the properties for that configuration.
 
-[WARNING]
-====
-The default values listed below are the values which will be used if the configuration parameter is *not set* either programmatically or via `broker.xml`.
-Some of these values are set in the `broker.xml` which is available out-of-the-box.
-Any values set in the out-of-the-box configuration will override the default values listed here.
-Please consult your specific configuration to know which values will actually be used when the broker is running.
-====
+[[regarding-default-values]]
+.Regarding _default_ Values
+****
+The documentation often refers to the _default_ values.
+This is the value of a configuration attribute if it is *not set* (e.g. programmatically, via XML, etc.).
+
+This is worth noting because a `broker.xml` is generated automatically when a xref:using-server.adoc#creating-a-broker-instance[broker instance is created] and this out-of-the-box `broker.xml` may have configuration values which may differ from and override the default values identified here.
+This is relatively rare, but it normally happens when we've discovered that a default is not actually suitable for most use-cases.
+
+Changing the actual default value cannot be done in a minor release as dictated by https://semver.org/[semantic versioning] so we have to wait for a major release to make such changes.
+However, in the mean-time we can address unsuitable defaults by modifying the generated `broker.xml` which maintains backwards compatibility for existing broker instances while giving new deployments an updated configuration.
+
+In general, it's recommended that you consult your specific configuration to know which values will actually be used when the broker is running.
+****
 
 |===
 | Name | Description | Default
@@ -156,8 +193,8 @@ Please consult your specific configuration to know which values will actually be
 | <<address-setting-type,a list of address-setting>>
 | n/a
 
-| xref:ha.adoc#failing-back-to-live-server[allow-failback]
-| Should stop backup on live restart.
+| xref:ha.adoc#failing-back-to-primary-server[allow-failback]
+| Should stop backup on primary restart.
 | `true`
 
 | xref:amqp.adoc#amqp[amqp-use-core-subscription-naming]
@@ -196,8 +233,8 @@ Please consult your specific configuration to know which values will actually be
 | The frequency in milliseconds the configuration file is checked for changes
 | 5000
 
-| xref:ha.adoc#data-replication[check-for-live-server]
-| Used for a live server to verify if there are other nodes with the same ID on the topology
+| xref:ha.adoc#replication-configuration[check-for-active-server]
+| Used by a primary server to verify if there are other nodes with the same ID on the topology
 | n/a
 
 | xref:clusters.adoc#configuring-cluster-connections[cluster-connections]
@@ -251,6 +288,11 @@ This is a list
 | xref:paging.adoc#global-max-size[global-max-size]
 | The amount in bytes before all addresses are considered full.
 | Half of the JVM's `-Xmx`
+
+| xref:paging.adoc#global-max-messages[global-max-messages]
+| Number of messages before all addresses will enter into their Full Policy configured.
+It works in conjunction with global-max-size, being watever value hits its maximum first.
+| `-1`
 
 | xref:graceful-shutdown.adoc#graceful-server-shutdown[graceful-shutdown-enabled]
 | true means that graceful shutdown is enabled.
@@ -314,6 +356,14 @@ Setting this to 0 means compacting is disabled.
 | how long (in ms) to wait to acquire a file lock on the journal.
 | -1
 
+| xref:persistence.adoc#configuring-the-message-journal[journal-lock-monitor-timeout]
+| how long (in ms) between journal lock health checks.
+| 2000
+
+| xref:persistence.adoc#configuring-the-message-journal[journal-lock-monitor-max-retries]
+| how many consecutive failed lock health checks to tolerate before declaring the lock lost.
+| 0
+
 | xref:persistence.adoc#configuring-the-message-journal[journal-max-io]
 | the maximum number of write requests that can be in the ASYNCIO queue at any one time.
 | 4096 for ASYNCIO;
@@ -334,7 +384,7 @@ The system will create as many files as needed however when reclaiming files it 
 | -1
 
 | xref:persistence.adoc#configuring-the-message-journal[journal-sync-non-transactional]
-| if true wait for non transaction data to be synced to the journal before returning response to client.
+| if true wait for non-transaction data to be synced to the journal before returning response to client.
 | `true`
 
 | xref:persistence.adoc#configuring-the-message-journal[journal-sync-transactional]
@@ -345,13 +395,29 @@ The system will create as many files as needed however when reclaiming files it 
 | the type of journal to use.
 | `ASYNCIO`
 
+| xref:data-retention.adoc#data-retention[journal-retention-directory]
+| where to keep retained data including attributes for how long to keep it (`unit` & `period`) and how much to keep (`storage-limit`)
+| n/a
+
 | xref:persistence.adoc#configuring-the-message-journal[journal-datasync]
 | It will use msync/fsync on journal operations.
 | `true`
 
+| journal-device-block-size
+| The size in bytes used by the storage device. This is usually translated as `fstat`/`st_blksize`, and this is a way to bypass the value returned as `st_blksize`.
+| `4096`
+
+| log-journal-write-rate
+| Whether to log messages about the journal write rate.
+| `false`
+
 | xref:large-messages.adoc#large-messages[large-messages-directory]
 | the directory to store large messages.
 | `data/largemessages`
+
+| xref:large-messages.adoc#configuring-the-server[large-message-sync]
+| should sync large messages before closing the file
+| `true`
 
 | log-delegate-factory-class-name
 | *deprecated* the name of the factory class to use for log delegation.
@@ -370,7 +436,7 @@ The system will create as many files as needed however when reclaiming files it 
 If set to "true" the passwords are masked.
 | `false`
 
-| xref:ha.adoc#data-replication[max-saved-replicated-journals-size]
+| xref:ha.adoc#replication-configuration[max-saved-replicated-journals-size]
 | This specifies how many replication backup directories will be kept when server starts as replica.
 -1 Means no Limit;
 0 don't keep a copy at all.
@@ -379,8 +445,15 @@ If set to "true" the passwords are masked.
 | xref:paging.adoc#max-disk-usage[max-disk-usage]
 | The max percentage of data we should use from disks.
 The broker will block while the disk is full.
-Disable by setting -1.
+Disable by setting `-1`.
 | 90
+
+| xref:paging.adoc#minimum-disk-free[min-disk-free]
+| Min free bytes on disk below which the system blocks or fails clients.
+Supports byte notation like "K", "MB", "GB", etc.
+Will override `max-disk-usage` if both are set.
+Disable by setting `-1`.
+| `-1`
 
 | xref:perf-tuning.adoc#performance-tuning[memory-measure-interval]
 | frequency to sample JVM memory in ms (or -1 to disable memory sampling).
@@ -483,17 +556,25 @@ In most cases this should be set to '1'.
 | <<resource-limit-type,a list of resource-limits>>
 | n/a
 
-| xref:thread-pooling.adoc#server-scheduled-thread-pool[scheduled-thread-pool-max-size]
+| xref:thread-pooling.adoc#scheduled-thread-pool[scheduled-thread-pool-max-size]
 | Maximum number of threads to use for the scheduled thread pool.
 | 5
 
-| xref:security.adoc#authentication-authorization[security-enabled]
+| xref:security.adoc#basic-configuration[security-enabled]
 | true means that security is enabled.
 | `true`
 
-| xref:security.adoc#authentication-authorization[security-invalidation-interval]
+| xref:security.adoc#caching-security-operations[security-invalidation-interval]
 | how long (in ms) to wait before invalidating the security cache.
 | 10000
+
+| xref:security.adoc#caching-security-operations[authentication-cache-size]
+| how large to make the authentication cache
+| 1000
+
+| xref:security.adoc#caching-security-operations[authorization-cache-size]
+| how large to make the authorization cache
+| 1000
 
 | system-property-prefix
 | Prefix for replacing configuration settings using Bean Utils.
@@ -501,10 +582,14 @@ In most cases this should be set to '1'.
 
 | internal-naming-prefix
 | the prefix used when naming the internal queues and addresses required for implementing certain behaviours.
-| `$.activemq.internal`
+| `$.activemq.internal.`
 
 | xref:security.adoc#tracking-the-validated-user[populate-validated-user]
 | whether or not to add the name of the validated user to the messages that user sends.
+| `false`
+
+| xref:security.adoc#tracking-the-validated-user[reject-empty-validated-user]
+| true means that the server will not allow any message that doesn't have a validated user, in JMS this is `JMSXUserID`
 | `false`
 
 | xref:security.adoc#role-based-security-for-addresses[security-settings]
@@ -590,6 +675,70 @@ In most cases this should be set to '1'.
 
 | xref:wildcard-syntax.adoc#wildcard-syntax[wildcard-addresses]
 | parameters to configure wildcard address matching format.
+| n/a
+
+| [[view-permission-method-match-pattern]] view-permission-method-match-pattern
+| parameter to configure the regular expression pattern to match xref:management.adoc#fine-grained-rbac-on-management-messages[management] or xref:management.adoc#jmx-authorization-in-broker-xml[JMX] operations that require the 'view' permission
+in your security-settings.
+| ``^(get\|is\|count\|list\|browse\|query).*$``
+
+| [[management-message-rbac]] management-message-rbac
+| parameter to enable security-settings RBAC on xref:management.adoc#fine-grained-rbac-on-management-messages[management messages] sent to the management address.
+| false
+
+| [[management-rbac-prefix]] management-rbac-prefix
+| parameter to configure the prefix for security-settings match addresses to control RBAC on xref:management.adoc#jmx-authorization-in-broker-xml[JMX MBean operations] and optionally on xref:management.adoc#fine-grained-rbac-on-management-messages[management messages]
+| mops (shorthand for management operations)
+
+| xref:address-model.adoc#uuid-resources[uuid-namespace]
+| the namespace to use for looking up address & security settings for resources named with a UUID
+| n/a
+
+| xref:mqtt.adoc#automatic-subscription-clean-up[mqtt-session-scan-interval]
+| how often (in ms) to scan for expired MQTT sessions
+| `5000`
+
+| xref:mqtt.adoc#persistent-subscriptions[mqtt-session-state-persistence-timeout]
+| how long (in ms) to wait to persist MQTT session state
+| `5000`
+
+| xref:federation.adoc#federation[federations]
+| a list of federation elements
+| n/a
+
+| xref:connection-routers.adoc#connection-routers[connection-routers]
+| a list of connection-router elements
+| n/a
+
+| mirror-ack-manager-queue-attempts
+| The number of times a mirror target would retry an acknowledgement on the queue before scanning page files for the message.
+| `5`
+
+| mirror-ack-manager-page-attempts
+| The number of times a mirror target would retry an acknowledgement on paging.
+| `2`
+
+| mirror-ack-manager-retry-delay
+| Period in milliseconds for which retries are going to be exercised.
+| `100`
+
+| mirror-page-transaction
+| Should Mirror use Page Transactions When target destinations is paging?
+When a target queue on the mirror is paged, the mirror will not record a page transaction for every message.
+The default is `false`, and the overhead of paged messages will be smaller, but there is a possibility of eventual duplicates in case of interrupted communication between the mirror source and target.
+If you set this to `true` there will be a record stored on the journal for the page-transaction additionally to the record in the page store.
+| `false`
+
+| xref:management.adoc#suppressing-session-notifications[suppress-session-notifications]
+| Whether to suppress `SESSION_CREATED` and `SESSION_CLOSED` notifications.
+Set to `true` to reduce notification overhead.
+However, these are required to enforce unique client ID utilization in a cluster for MQTT clients.
+| `false`
+
+| xref:address-settings.adoc#literal-matches[literal-match-markers]
+| The characters that mark a "literal" match.
+A literal match means the setting(s) will only apply to the exact match regardless of wildcards.
+If this setting is not omitted then it must be two characters - the start marker and the end marker.
 | n/a
 |===
 
@@ -784,6 +933,11 @@ see `auto-create-queues` & `auto-create-addresses`
 | xref:address-settings.adoc#address-settings[management-browse-page-size]
 | Number of messages a management resource can browse
 | 200
+
+
+| xref:address-settings.adoc#address-settings[initial-queue-buffer-size]
+| The number of elements in the intermediate message buffer allocated for each queue
+| 8192
 
 | xref:address-model.adoc#non-durable-subscription-queue[default-purge-on-no-consumers]
 | `purge-on-no-consumers` value if none is set on the queue

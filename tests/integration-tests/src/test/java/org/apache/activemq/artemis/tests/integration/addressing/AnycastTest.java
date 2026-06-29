@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.addressing;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
@@ -35,14 +39,14 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.TimeUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AnycastTest extends ActiveMQTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-   private SimpleString baseAddress = new SimpleString("anycast.address");
+   private SimpleString baseAddress = SimpleString.of("anycast.address");
 
    private AddressInfo addressInfo;
 
@@ -50,7 +54,7 @@ public class AnycastTest extends ActiveMQTestBase {
 
    private ClientSessionFactory sessionFactory;
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
       server = createServer(true);
       server.start();
@@ -70,8 +74,8 @@ public class AnycastTest extends ActiveMQTestBase {
    @Test
    public void testTxCommitReceive() throws Exception {
 
-      Queue q1 = server.createQueue(new QueueConfiguration(baseAddress.concat(".1")).setAddress(baseAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
-      Queue q2 = server.createQueue(new QueueConfiguration(baseAddress.concat(".2")).setAddress(baseAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q1 = server.createQueue(QueueConfiguration.of(baseAddress.concat(".1")).setAddress(baseAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q2 = server.createQueue(QueueConfiguration.of(baseAddress.concat(".2")).setAddress(baseAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
 
       ClientSession session = sessionFactory.createSession(false, false);
       session.start();
@@ -90,10 +94,19 @@ public class AnycastTest extends ActiveMQTestBase {
       }
       assertNull(consumer1.receive(200));
       assertNull(consumer2.receive(200));
+
+      // before commit close the consumers because it can trigger delivering count
+      // that makes getMessageCount temporarily inaccurate.
+      consumer1.close();
+      consumer2.close();
+
       session.commit();
 
       assertTrue(TimeUtils.waitOnBoolean(true, 2000, () -> num / 2 == q1.getMessageCount()));
       assertTrue(TimeUtils.waitOnBoolean(true, 2000, () -> num / 2 == q2.getMessageCount()));
+
+      consumer1 = session.createConsumer(q1.getName());
+      consumer2 = session.createConsumer(q2.getName());
 
       ClientConsumer[] consumers = new ClientConsumer[]{consumer1, consumer2};
       for (int i = 0; i < consumers.length; i++) {
@@ -117,8 +130,8 @@ public class AnycastTest extends ActiveMQTestBase {
    @Test
    public void testTxRollbackReceive() throws Exception {
 
-      Queue q1 = server.createQueue(new QueueConfiguration(baseAddress.concat(".1")).setAddress(baseAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
-      Queue q2 = server.createQueue(new QueueConfiguration(baseAddress.concat(".2")).setAddress(baseAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q1 = server.createQueue(QueueConfiguration.of(baseAddress.concat(".1")).setAddress(baseAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
+      Queue q2 = server.createQueue(QueueConfiguration.of(baseAddress.concat(".2")).setAddress(baseAddress).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(Queue.MAX_CONSUMERS_UNLIMITED));
 
       ClientSession session = sessionFactory.createSession(false, false);
       session.start();

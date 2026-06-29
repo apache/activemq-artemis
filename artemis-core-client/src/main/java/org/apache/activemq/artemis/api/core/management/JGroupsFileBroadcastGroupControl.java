@@ -22,19 +22,19 @@ package org.apache.activemq.artemis.api.core.management;
 public interface JGroupsFileBroadcastGroupControl extends BaseBroadcastGroupControl {
 
    /**
-    * Returns jgroups channel name
+    * {@return jgroups channel name}
     */
    @Attribute(desc = "Returns jgroups channel name")
    String getChannelName();
 
    /**
-    * Returns the jgroups file name
+    * {@return the jgroups file name}
     */
    @Attribute(desc = "Returns the jgroups file name")
    String getFile();
 
    /**
-    * Returns the contents of the jgroups file
+    * {@return the contents of the jgroups file}
     */
    @Attribute(desc = "Returns the contents of the jgroups file")
    String getFileContents() throws Exception;

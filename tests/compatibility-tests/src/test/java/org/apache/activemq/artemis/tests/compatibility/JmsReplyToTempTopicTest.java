@@ -17,15 +17,18 @@
 package org.apache.activemq.artemis.tests.compatibility;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.JAKARTAEE;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_1_4_0;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,23 +37,20 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JmsReplyToTempTopicTest extends VersionedBase {
 
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
-      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, SNAPSHOT});
-      combinations.add(new Object[]{SNAPSHOT, SNAPSHOT, ONE_FIVE});
+      combinations.add(new Object[]{SNAPSHOT, ARTEMIS_1_4_0, SNAPSHOT});
+      combinations.add(new Object[]{SNAPSHOT, SNAPSHOT, ARTEMIS_1_4_0});
       combinations.add(new Object[]{SNAPSHOT, SNAPSHOT, SNAPSHOT});
       combinations.add(new Object[]{JAKARTAEE, JAKARTAEE, JAKARTAEE});
       combinations.add(new Object[]{JAKARTAEE, JAKARTAEE, SNAPSHOT});
       combinations.add(new Object[]{JAKARTAEE, SNAPSHOT, JAKARTAEE});
-      combinations.add(new Object[]{JAKARTAEE, JAKARTAEE, ONE_FIVE});
-      combinations.add(new Object[]{JAKARTAEE, ONE_FIVE, JAKARTAEE});
+      combinations.add(new Object[]{JAKARTAEE, JAKARTAEE, ARTEMIS_1_4_0});
+      combinations.add(new Object[]{JAKARTAEE, ARTEMIS_1_4_0, JAKARTAEE});
       return combinations;
    }
 
@@ -59,19 +59,19 @@ public class JmsReplyToTempTopicTest extends VersionedBase {
    }
 
 
-   @Before
+   @BeforeEach
    public void setUp() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
+      FileUtil.deleteDirectory(serverFolder);
    }
 
-   @After
+   @AfterEach
    public void stopTest() throws Exception {
       execute(serverClassloader, "server.stop()");
    }
 
-   @Test
+   @TestTemplate
    public void testJmsReplyToTempTopic() throws Throwable {
-      evaluate(serverClassloader, "jmsReplyToTempTopic/artemisServer.groovy", serverFolder.getRoot().getAbsolutePath(), server);
+      evaluate(serverClassloader, "jmsReplyToTempTopic/artemisServer.groovy", serverFolder.getAbsolutePath(), server);
 
       CountDownLatch consumerCreated = new CountDownLatch(1);
       CountDownLatch receiverLatch = new CountDownLatch(1);
@@ -81,46 +81,40 @@ public class JmsReplyToTempTopicTest extends VersionedBase {
       setVariable(receiverClassloader, "consumerCreated", consumerCreated);
 
       AtomicInteger errors = new AtomicInteger(0);
-      Thread t1 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               if (JAKARTAEE.equals(receiver)) {
-                  evaluate(receiverClassloader, "jakartaReplyToTempTopic/receiveMessages.groovy", receiver);
-               } else {
-                  evaluate(receiverClassloader, "jmsReplyToTempTopic/receiveMessages.groovy", receiver);
-               }
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
+      Thread t1 = new Thread(() -> {
+         try {
+            if (JAKARTAEE.equals(receiver)) {
+               evaluate(receiverClassloader, "jakartaReplyToTempTopic/receiveMessages.groovy", receiver);
+            } else {
+               evaluate(receiverClassloader, "jmsReplyToTempTopic/receiveMessages.groovy", receiver);
             }
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+      });
       t1.start();
 
-      Assert.assertTrue(consumerCreated.await(10, TimeUnit.SECONDS));
+      assertTrue(consumerCreated.await(10, TimeUnit.SECONDS));
 
       setVariable(senderClassloader, "senderLatch", senderLatch);
-      Thread t2 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               if (JAKARTAEE.equals(sender)) {
-                  evaluate(senderClassloader, "jakartaReplyToTempTopic/sendMessagesAddress.groovy", sender);
-               } else {
-                  evaluate(senderClassloader, "jmsReplyToTempTopic/sendMessagesAddress.groovy", sender);
-               }
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
+      Thread t2 = new Thread(() -> {
+         try {
+            if (JAKARTAEE.equals(sender)) {
+               evaluate(senderClassloader, "jakartaReplyToTempTopic/sendMessagesAddress.groovy", sender);
+            } else {
+               evaluate(senderClassloader, "jmsReplyToTempTopic/sendMessagesAddress.groovy", sender);
             }
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+      });
       t2.start();
 
       try {
-         Assert.assertTrue("Sender did not get message from temporary topic", senderLatch.await(10, TimeUnit.SECONDS));
-         Assert.assertTrue("Receiver did not receive messages", receiverLatch.await(10, TimeUnit.SECONDS));
+         assertTrue(senderLatch.await(10, TimeUnit.SECONDS), "Sender did not get message from temporary topic");
+         assertTrue(receiverLatch.await(10, TimeUnit.SECONDS), "Receiver did not receive messages");
       } finally {
 
          t1.join(TimeUnit.SECONDS.toMillis(1));

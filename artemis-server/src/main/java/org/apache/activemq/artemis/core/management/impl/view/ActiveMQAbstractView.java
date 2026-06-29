@@ -16,22 +16,32 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view;
 
-import org.apache.activemq.artemis.json.JsonArrayBuilder;
-import org.apache.activemq.artemis.json.JsonObject;
-import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.core.management.impl.view.predicate.PredicateFilterPart;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ActiveMQFilterPredicate;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonValue;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
-public abstract class ActiveMQAbstractView<T> {
+public abstract class ActiveMQAbstractView<T, V extends PredicateFilterPart<T>> {
+
+   // use this for values which couldn't be retrieved (e.g. an exception was thrown)
+   protected static final String N_A = "n/a";
+
+   private static final String FILTER_ARRAY_FIELD = "searchFilters";
 
    private static final String FILTER_FIELD = "field";
 
@@ -41,25 +51,37 @@ public abstract class ActiveMQAbstractView<T> {
 
    private static final String SORT_ORDER = "sortOrder";
 
+   private static final String ASCENDING = "asc";
+
+   private static final String DESCENDING = "desc";
+
+   @Deprecated(forRemoval = true)
    private static final String SORT_COLUMN = "sortColumn";
+
+   private static final String SORT_FIELD = "sortField";
+
+   private static final JsonObject DEFAULT_FILTER = JsonUtil.toJsonObject(Map.of(FILTER_FIELD, "", FILTER_OPERATION, "", FILTER_VALUE, ""));
 
    protected Collection<T> collection;
 
-   protected ActiveMQFilterPredicate<T> predicate;
+   protected ActiveMQFilterPredicate<T, V> predicate;
 
-   protected String sortColumn;
+   protected String sortField;
 
    protected String sortOrder;
 
-   protected String options;
-
    public ActiveMQAbstractView() {
-      this.sortColumn = getDefaultOrderColumn();
-      this.sortOrder = "asc";
+      this.sortField = getDefaultOrderColumn();
+      this.sortOrder = ASCENDING;
    }
 
    public void setCollection(Collection<T> collection) {
       this.collection = collection;
+   }
+
+   public List<T> filter() {
+      List<T> collect = collection.stream().filter(getPredicate()).collect(Collectors.toList());
+      return collect;
    }
 
    public String getResultsAsJson(int page, int pageSize) {
@@ -78,10 +100,32 @@ public abstract class ActiveMQAbstractView<T> {
       return obj.build().toString();
    }
 
+   public String AsJson(int page, int pageSize) {
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder();
+      JsonArrayBuilder array = JsonLoader.createArrayBuilder();
+      for (T element : getPagedResult(page, pageSize)) {
+         JsonObjectBuilder jsonObjectBuilder = toJson(element);
+         //toJson() may return a null
+         if (jsonObjectBuilder != null) {
+            array.add(jsonObjectBuilder);
+         }
+      }
+      obj.add("data", array);
+      obj.add("count", collection.size());
+      return obj.build().toString();
+   }
+
    public List<T> getPagedResult(int page, int pageSize) {
       List<T> builder = new ArrayList<>();
-      int start = (page - 1) * pageSize;
-      int end = Math.min(page * pageSize, collection.size());
+      final int start;
+      final int end;
+      if (page == -1 || pageSize == -1) {
+         start = 0;
+         end = collection.size();
+      } else {
+         start = (page - 1) * pageSize;
+         end = Math.min(page * pageSize, collection.size());
+      }
       int i = 0;
       for (T e : collection.stream().sorted(getComparator()).collect(Collectors.toList())) {
          if (i >= start && i < end) {
@@ -99,13 +143,13 @@ public abstract class ActiveMQAbstractView<T> {
    public Comparator<T> getComparator() {
       return (left, right) -> {
          try {
-            Object leftValue = getField(left, sortColumn);
-            Object rightValue = getField(right, sortColumn);
-            if (leftValue instanceof Comparable && rightValue instanceof Comparable) {
-               if (sortOrder.equals("desc")) {
-                  return ((Comparable) rightValue).compareTo(leftValue);
+            Object leftValue = getField(left, sortField);
+            Object rightValue = getField(right, sortField);
+            if (leftValue instanceof Comparable l && rightValue instanceof Comparable r) {
+               if (sortOrder.equalsIgnoreCase(DESCENDING)) {
+                  return r.compareTo(leftValue);
                } else {
-                  return ((Comparable) leftValue).compareTo(rightValue);
+                  return l.compareTo(rightValue);
                }
             }
             return 0;
@@ -119,16 +163,36 @@ public abstract class ActiveMQAbstractView<T> {
    abstract Object getField(T t, String fieldName);
 
    public void setOptions(String options) {
-      JsonObject json = JsonUtil.readJsonObject(options);
+      JsonObject json;
+      if (options == null || options.isBlank()) {
+         json = DEFAULT_FILTER;
+      } else {
+         json = JsonUtil.readJsonObject(options);
+      }
       if (predicate != null) {
-         predicate.setField(json.getString(FILTER_FIELD));
-         predicate.setOperation(json.getString(FILTER_OPERATION));
-         predicate.setValue(json.getString(FILTER_VALUE));
-         if (json.containsKey(SORT_COLUMN) && json.containsKey(SORT_ORDER)) {
-            this.sortColumn = json.getString(SORT_COLUMN);
+         predicate.addFilterParts(createFilterPredicates(json));
+         if ((json.containsKey(SORT_COLUMN) || json.containsKey(SORT_FIELD)) && json.containsKey(SORT_ORDER)) {
+            if (json.containsKey(SORT_COLUMN)) {
+               this.sortField = json.getString(SORT_COLUMN);
+            } else {
+               this.sortField = json.getString(SORT_FIELD);
+            }
             this.sortOrder = json.getString(SORT_ORDER);
          }
       }
+   }
+
+   private List<V> createFilterPredicates(JsonObject json) {
+      ArrayList<V> predicates = new ArrayList<>();
+      JsonArray jsonArray = json.getJsonArray(FILTER_ARRAY_FIELD);
+      if (jsonArray == null) {
+         predicates.add(predicate.createFilterPart(json.getString(FILTER_FIELD), json.getString(FILTER_OPERATION), json.getString(FILTER_VALUE)));
+      } else {
+         for (JsonValue jsonValue : jsonArray) {
+            predicates.add(predicate.createFilterPart(((JsonObject)jsonValue).getString(FILTER_FIELD), ((JsonObject)jsonValue).getString(FILTER_OPERATION), ((JsonObject)jsonValue).getString(FILTER_VALUE)));
+         }
+      }
+      return predicates;
    }
 
    public abstract Class getClassT();
@@ -137,12 +201,17 @@ public abstract class ActiveMQAbstractView<T> {
 
    public abstract String getDefaultOrderColumn();
 
+   public String getSortField() {
+      return sortField;
+   }
+
+   public String getSortOrder() {
+      return sortOrder;
+   }
+
    /**
     * JsonObjectBuilder will throw an NPE if a null value is added.  For this reason we check for null explicitly when
     * adding objects.
-    *
-    * @param o
-    * @return
     */
    protected String toString(Object o) {
       return o == null ? "" : o.toString();

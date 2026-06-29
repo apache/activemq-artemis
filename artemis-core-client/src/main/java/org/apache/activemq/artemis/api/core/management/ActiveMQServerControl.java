@@ -23,17 +23,25 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 
 /**
- * An ActiveMQServerControl is used to manage ActiveMQ Artemis servers.
+ * An ActiveMQServerControl is used to manage Apache Artemis servers.
  */
 public interface ActiveMQServerControl {
    String CONNECTION_COUNT_DESCRIPTION = "Number of clients connected to this server";
-   String TOTAL_CONNECTION_COUNT_DESCRIPTION = "Number of clients which have connected to this server since it was started";
+   String TOTAL_CONNECTION_COUNT_DESCRIPTION = "Total number of clients which have connected to this server since it was started";
+   String SESSION_COUNT_DESCRIPTION = "Number of sessions on this server";
+   String TOTAL_SESSION_COUNT_DESCRIPTION = "Total number of sessions created on this server since it was started";
    String ADDRESS_MEMORY_USAGE_DESCRIPTION = "Memory used by all the addresses on broker for in-memory messages";
    String ADDRESS_MEMORY_USAGE_PERCENTAGE_DESCRIPTION = "Memory used by all the addresses on broker as a percentage of the global-max-size";
    String DISK_STORE_USAGE_DESCRIPTION = "Fraction of total disk store used";
+   String REPLICA_SYNC_DESCRIPTION = "If the initial replication synchronization process is complete";
+   String IS_ACTIVE_DESCRIPTION = "If the server is active";
+   String AUTHENTICATION_SUCCESS_COUNT = "Number of successful authentication attempts";
+   String AUTHENTICATION_FAILURE_COUNT = "Number of failed authentication attempts";
+   String AUTHORIZATION_SUCCESS_COUNT = "Number of successful authorization attempts";
+   String AUTHORIZATION_FAILURE_COUNT = "Number of failed authorization attempts";
 
    /**
-    * Returns this server's name.
+    * {@return this server's name.}
     */
    @Attribute(desc = "Server's name")
    String getName();
@@ -42,49 +50,64 @@ public interface ActiveMQServerControl {
    long getCurrentTimeMillis();
 
    /**
-    * Returns this server's version.
+    * {@return this server's version.}
     */
    @Attribute(desc = "Server's version")
    String getVersion();
 
 
-   @Attribute(desc = "Server is active")
+   @Attribute(desc = IS_ACTIVE_DESCRIPTION)
    boolean isActive();
 
+   @Operation(desc = "Return the status of lock coordinators")
+   String listLockCoordinatorsAsJSON();
+
    /**
-    * Returns the number of clients connected to this server.
+    * {@return the number of clients connected to this server.}
     */
    @Attribute(desc = CONNECTION_COUNT_DESCRIPTION)
    int getConnectionCount();
 
    /**
-    * Returns the number of clients which have connected to this server since it was started.
+    * {@return the total number of clients which have connected to this server since it was started.}
     */
    @Attribute(desc = TOTAL_CONNECTION_COUNT_DESCRIPTION)
    long getTotalConnectionCount();
 
    /**
-    * Returns the number of messages in all queues on the server.
+    * Returns the number of sessions on this server.
     */
-   @Attribute(desc = "Number of messages in all queues on the server")
+   @Attribute(desc = SESSION_COUNT_DESCRIPTION)
+   int getSessionCount();
+
+   /**
+    * Returns the total number of sessions created on this server since it was started.
+    */
+   @Attribute(desc = TOTAL_SESSION_COUNT_DESCRIPTION)
+   long getTotalSessionCount();
+
+   /**
+    * {@return the number of messages in all queues currently on the server.}
+    */
+   @Attribute(desc = "Number of messages in all queues currently on the server")
    long getTotalMessageCount();
 
    /**
-    * Returns the number of messages sent to this server since it was started.
+    * {@return the number of messages sent to all queues currently on the server since they were created.}
     */
-   @Attribute(desc = "Number of messages sent to this server since it was started")
+   @Attribute(desc = "Number of messages sent to all queues currently on the server since they were created")
    long getTotalMessagesAdded();
 
    /**
-    * Returns the number of messages sent to this server since it was started.
+    * {@return the number of messages acknowledged from all the queues currently on this server since they were created.}
     */
-   @Attribute(desc = "Number of messages acknowledged from all the queues on this server since it was started")
+   @Attribute(desc = "Number of messages acknowledged from all the queues currently on this server since they were created")
    long getTotalMessagesAcknowledged();
 
    /**
-    * Returns the number of messages sent to this server since it was started.
+    * {@return the number of consumers on all the queues currently on this server.}
     */
-   @Attribute(desc = "Number of consumers consuming messages from all the queues on this server")
+   @Attribute(desc = "Number of consumers on all the queues currently on this server")
    long getTotalConsumerCount();
 
    /**
@@ -94,7 +117,7 @@ public interface ActiveMQServerControl {
    boolean isStarted();
 
    /**
-    * Returns the list of interceptors used by this server for incoming messages.
+    * {@return the list of interceptors used by this server for incoming messages.}
     *
     * @see org.apache.activemq.artemis.api.core.Interceptor
     */
@@ -102,93 +125,97 @@ public interface ActiveMQServerControl {
    String[] getIncomingInterceptorClassNames();
 
    /**
-    * Returns the list of interceptors used by this server for outgoing messages.
+    * {@return the list of interceptors used by this server for outgoing messages.}
     *
     * @see org.apache.activemq.artemis.api.core.Interceptor
     */
    @Attribute(desc = "List of interceptors used by this server for outgoing messages")
    String[] getOutgoingInterceptorClassNames();
 
+
+   @Attribute(desc = "List of broker plugin class names used by this server")
+   String[] getBrokerPluginClassNames();
+
    /**
-    * Returns whether this server is clustered.
+    * {@return whether this server is clustered.}
     */
    @Attribute(desc = "Whether this server is clustered")
    boolean isClustered();
 
    /**
-    * Returns the maximum number of threads in the <em>scheduled</em> thread pool.
+    * {@return the maximum number of threads in the <em>scheduled</em> thread pool.}
     */
    @Attribute(desc = "Maximum number of threads in the scheduled thread pool")
    int getScheduledThreadPoolMaxSize();
 
    /**
-    * Returns the maximum number of threads in the thread pool.
+    * {@return the maximum number of threads in the thread pool.}
     */
    @Attribute(desc = "Maximum number of threads in the thread pool")
    int getThreadPoolMaxSize();
 
    /**
-    * Returns the interval time (in milliseconds) to invalidate security credentials.
+    * {@return the interval time (in milliseconds) to invalidate security credentials.}
     */
    @Attribute(desc = "Interval time (in milliseconds) to invalidate security credentials")
    long getSecurityInvalidationInterval();
 
    /**
-    * Returns whether security is enabled for this server.
+    * {@return whether security is enabled for this server.}
     */
    @Attribute(desc = "Whether security is enabled for this server")
    boolean isSecurityEnabled();
 
    /**
-    * Returns the file system directory used to store bindings.
+    * {@return the file system directory used to store bindings.}
     */
    @Attribute(desc = "File system directory used to store bindings")
    String getBindingsDirectory();
 
    /**
-    * Returns the file system directory used to store journal log.
+    * {@return the file system directory used to store journal log.}
     */
    @Attribute(desc = "File system directory used to store journal log")
    String getJournalDirectory();
 
    /**
-    * Returns the type of journal used by this server (either {@code NIO} or {@code ASYNCIO}).
+    * {@return the type of journal used by this server (either {@code NIO} or {@code ASYNCIO}).}
     */
    @Attribute(desc = "Type of journal used by this server")
    String getJournalType();
 
    /**
-    * Returns whether the journal is synchronized when receiving transactional data.
+    * {@return whether the journal is synchronized when receiving transactional data.}
     */
    @Attribute(desc = "Whether the journal is synchronized when receiving transactional data")
    boolean isJournalSyncTransactional();
 
    /**
-    * Returns whether the journal is synchronized when receiving non-transactional data.
+    * {@return whether the journal is synchronized when receiving non-transactional data.}
     */
    @Attribute(desc = "Whether the journal is synchronized when receiving non-transactional datar")
    boolean isJournalSyncNonTransactional();
 
    /**
-    * Returns the size (in bytes) of each journal files.
+    * {@return the size (in bytes) of each journal files.}
     */
    @Attribute(desc = "Size (in bytes) of each journal files")
    int getJournalFileSize();
 
    /**
-    * Returns the number of journal files to pre-create.
+    * {@return the number of journal files to pre-create.}
     */
    @Attribute(desc = "Number of journal files to pre-create")
    int getJournalMinFiles();
 
    /**
-    * Returns the maximum number of write requests that can be in the AIO queue at any given time.
+    * {@return the maximum number of write requests that can be in the AIO queue at any given time.}
     */
    @Attribute(desc = "Maximum number of write requests that can be in the AIO queue at any given time")
    int getJournalMaxIO();
 
    /**
-    * Returns the size of the internal buffer on the journal.
+    * {@return the size of the internal buffer on the journal.}
     */
    @Attribute(desc = "Size of the internal buffer on the journal")
    int getJournalBufferSize();
@@ -200,7 +227,7 @@ public interface ActiveMQServerControl {
    int getJournalPoolFiles();
 
    /**
-    * Returns the timeout (in nanoseconds) used to flush internal buffers on the journal.
+    * {@return the timeout (in nanoseconds) used to flush internal buffers on the journal.}
     */
    @Attribute(desc = "Timeout (in nanoseconds) used to flush internal buffers on the journal")
    int getJournalBufferTimeout();
@@ -212,13 +239,13 @@ public interface ActiveMQServerControl {
    void setFailoverOnServerShutdown(boolean failoverOnServerShutdown) throws Exception;
 
    /**
-    * returns if clients failover on a server shutdown
+    * {@return if clients failover on a server shutdown}
     */
    @Attribute(desc = "If clients failover on a server shutdown")
    boolean isFailoverOnServerShutdown();
 
    /**
-    * Returns the minimal number of journal files before compacting.
+    * {@return the minimal number of journal files before compacting.}
     */
    @Attribute(desc = "Minimal number of journal files before compacting")
    int getJournalCompactMinFiles();
@@ -230,31 +257,31 @@ public interface ActiveMQServerControl {
    int getJournalCompactPercentage();
 
    /**
-    * Returns whether this server is using persistence and store data.
+    * {@return whether this server is using persistence and store data.}
     */
    @Attribute(desc = "Whether this server is using persistence and store data")
    boolean isPersistenceEnabled();
 
    /**
-    * Returns whether the bindings directory is created on this server startup.
+    * {@return whether the bindings directory is created on this server startup.}
     */
    @Attribute(desc = "Whether the bindings directory is created on this server startup")
    boolean isCreateBindingsDir();
 
    /**
-    * Returns whether the journal directory is created on this server startup.
+    * {@return whether the journal directory is created on this server startup.}
     */
    @Attribute(desc = "Whether the journal directory is created on this server startup")
    boolean isCreateJournalDir();
 
    /**
-    * Returns whether message counter is enabled for this server.
+    * {@return whether message counter is enabled for this server.}
     */
    @Attribute(desc = "Whether message counter is enabled for this server")
    boolean isMessageCounterEnabled();
 
    /**
-    * Returns the maximum number of days kept in memory for message counter.
+    * {@return the maximum number of days kept in memory for message counter.}
     */
    @Attribute(desc = "Maximum number of days kept in memory for message counter")
    int getMessageCounterMaxDayCount();
@@ -268,7 +295,7 @@ public interface ActiveMQServerControl {
    void setMessageCounterMaxDayCount(int count) throws Exception;
 
    /**
-    * Returns the sample period (in milliseconds) to take message counter snapshot.
+    * {@return the sample period (in milliseconds) to take message counter snapshot.}
     */
    @Attribute(desc = "Sample period (in milliseconds) to take message counter snapshot")
    long getMessageCounterSamplePeriod();
@@ -282,229 +309,277 @@ public interface ActiveMQServerControl {
    void setMessageCounterSamplePeriod(long newPeriod) throws Exception;
 
    /**
-    * Returns {@code true} if this server is a backup, {@code false} if it is a live server.
-    * <br>
-    * If a backup server has been activated, returns {@code false}.
+    * {@return {@code true} if this server is a backup, {@code false} if it is a primary server or if it is a backup
+    * server and has been activated}
     */
    @Attribute(desc = "Whether this server is a backup")
    boolean isBackup();
 
    /**
-    * Returns whether this server shares its data store with a corresponding live or backup server.
+    * {@return whether this server shares its data store with a corresponding primary or backup server.}
     */
-   @Attribute(desc = "Whether this server shares its data store with a corresponding live or backup serve")
+   @Attribute(desc = "Whether this server shares its data store with a corresponding primary or backup serve")
    boolean isSharedStore();
 
    /**
-    * Returns the file system directory used to store paging files.
+    * {@return the file system directory used to store paging files.}
     */
    @Attribute(desc = "File system directory used to store paging files")
    String getPagingDirectory();
 
    /**
-    * Returns whether delivery count is persisted before messages are delivered to the consumers.
+    * {@return whether delivery count is persisted before messages are delivered to the consumers.}
     */
    @Attribute(desc = "Whether delivery count is persisted before messages are delivered to the consumers")
    boolean isPersistDeliveryCountBeforeDelivery();
 
    /**
-    * Returns the connection time to live.
-    * <br>
-    * This value overrides the connection time to live <em>sent by the client</em>.
+    * {@return the connection time to live; this value overrides the connection time to live <em>sent by the client</em>}
     */
    @Attribute(desc = "Connection time to live")
    long getConnectionTTLOverride();
 
    /**
-    * Returns the management address of this server.
-    * <br>
-    * Clients can send management messages to this address to manage this server.
+    * {@return the management address of this server; clients can send management messages to this address to manage
+    * this server}
     */
    @Attribute(desc = "Management address of this server")
    String getManagementAddress();
 
    /**
-    * Returns the node ID of this server.
-    * <br>
-    * Clients can send management messages to this address to manage this server.
+    * {@return the node ID of this server.}
     */
    @Attribute(desc = "Node ID of this server")
    String getNodeID();
 
 
    /**
-    * Returns the current activation sequence number of this server.
-    * <br>
-    * When replicated, peers may coordinate activation with this monotonic sequence
+    * {@return the current activation sequence number of this server; when replicated, peers may coordinate activation
+    * with this monotonic sequence}
     */
    @Attribute(desc = "Activation sequence of this server instance")
    long getActivationSequence();
 
    /**
-    * Returns the management notification address of this server.
-    * <br>
-    * Clients can bind queues to this address to receive management notifications emitted by this server.
+    * {@return the management notification address of this server; clients can bind queues to this address to receive
+    * management notifications emitted by this server}
     */
    @Attribute(desc = "Management notification address of this server")
    String getManagementNotificationAddress();
 
    /**
-    * Returns the size of the cache for pre-creating message IDs.
+    * {@return the size of the cache for pre-creating message IDs.}
     */
    @Attribute(desc = "Size of the cache for pre-creating message IDs")
    int getIDCacheSize();
 
    /**
-    * Returns whether message ID cache is persisted.
+    * {@return whether message ID cache is persisted.}
     */
    @Attribute(desc = "Whether message ID cache is persisted")
    boolean isPersistIDCache();
 
    /**
-    * Returns the file system directory used to store large messages.
+    * {@return the file system directory used to store large messages.}
     */
    @Attribute(desc = "File system directory used to store large messages")
    String getLargeMessagesDirectory();
 
    /**
-    * Returns whether wildcard routing is supported by this server.
+    * {@return whether wildcard routing is supported by this server.}
     */
    @Attribute(desc = "Whether wildcard routing is supported by this server")
    boolean isWildcardRoutingEnabled();
 
    /**
-    * Returns the timeout (in milliseconds) after which transactions is removed
+    * {@return the timeout (in milliseconds) after which transactions is removed}
     * from the resource manager after it was created.
     */
    @Attribute(desc = "Timeout (in milliseconds) after which transactions is removed from the resource manager after it was created")
    long getTransactionTimeout();
 
    /**
-    * Returns the frequency (in milliseconds)  to scan transactions to detect which transactions
+    * {@return the frequency (in milliseconds)  to scan transactions to detect which transactions}
     * have timed out.
     */
    @Attribute(desc = "Frequency (in milliseconds)  to scan transactions to detect which transactions have timed out")
    long getTransactionTimeoutScanPeriod();
 
    /**
-    * Returns the frequency (in milliseconds)  to scan messages to detect which messages
+    * {@return the frequency (in milliseconds)  to scan messages to detect which messages}
     * have expired.
     */
    @Attribute(desc = "Frequency (in milliseconds)  to scan messages to detect which messages have expired")
    long getMessageExpiryScanPeriod();
 
    /**
-    * Returns the priority of the thread used to scan message expiration.
+    * {@return the priority of the thread used to scan message expiration.}
+    *
+    * @deprecated This config parameter is no longer valid. The code uses a ScheduledExecutorService and a thread pool
+    * rather than dedicating a thread 100% to the expiry scanner. The pool's size can be controlled via
+    * {@code scheduled-thread-pool-max-size}.
     */
    @Attribute(desc = "Priority of the thread used to scan message expiration")
-   @Deprecated
+   @Deprecated(forRemoval = true)
    long getMessageExpiryThreadPriority();
 
    /**
-    * Returns whether code coming from connection is executed asynchronously or not.
+    * {@return whether code coming from connection is executed asynchronously or not.}
     */
    @Attribute(desc = "Whether code coming from connection is executed asynchronously or not")
    boolean isAsyncConnectionExecutionEnabled();
 
    /**
-    * Returns the connectors configured for this server.
+    * {@return the connectors configured for this server.}
     */
    @Attribute(desc = "Connectors configured for this server")
    Object[] getConnectors() throws Exception;
 
    /**
-    * Returns the connectors configured for this server using JSON serialization.
+    * Get the connectors configured for this server as JSON. The JSON consists of an array of objects containing the
+    * attributes of the connector, e.g.:
+    * <pre>
+    * [
+    *   {
+    *     "name": "invm",
+    *     "factoryClassName": "org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory",
+    *     "params": {
+    *       "serverId": 0
+    *     },
+    *     "extraProps": {}
+    *   },
+    *   {
+    *     "name": "artemis",
+    *     "factoryClassName": "org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory",
+    *     "params": {
+    *       "port": "61616",
+    *       "host": "localhost"
+    *     },
+    *     "extraProps": {}
+    *   }
+    * ]
+    * </pre>
+    *
+    * @return the connectors configured for this server as JSON
     */
-   @Attribute(desc = "Connectors configured for this server using JSON serialization")
+   @Attribute(desc = "Connectors configured for this server as JSON")
    String getConnectorsAsJSON() throws Exception;
 
+
    /**
-    * Returns the acceptors configured for this server.
+    * {@return the acceptors configured for this server.}
     */
    @Attribute(desc = "Connectors configured for this server")
    Object[] getAcceptors() throws Exception;
 
+
    /**
-    * Returns the acceptors configured for this server using JSON serialization.
+    * Get the acceptors configured for this server as JSON. The JSON consists of an array of objects containing the
+    * attributes of the acceptor, e.g.:
+    * <pre>
+    * [
+    *   {
+    *     "name": "artemis",
+    *     "factoryClassName": "org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory",
+    *     "params": {
+    *       "scheme": "tcp",
+    *       "port": "61616",
+    *       "host": "0.0.0.0",
+    *       "protocols": "CORE,AMQP"
+    *     },
+    *     "extraProps": {}
+    *   }
+    *   {
+    *     "name": "invm",
+    *     "factoryClassName": "org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory",
+    *     "params": {
+    *       "serverId": 0
+    *     },
+    *     "extraProps": {}
+    *   }
+    * ]
+    * </pre>
+    *
+    * @return the acceptors configured for this server as JSON
     */
-   @Attribute(desc = "Acceptors configured for this server using JSON serialization")
+   @Attribute(desc = "Acceptors configured for this server as JSON")
    String getAcceptorsAsJSON() throws Exception;
 
    /**
-    * Returns the number of addresses created on this server.
+    * {@return the number of addresses created on this server.}
     */
    @Attribute(desc = "Number of addresses created on this server")
    int getAddressCount();
 
    /**
-    * Returns the names of the addresses created on this server.
+    * {@return the names of the addresses created on this server.}
     */
    @Attribute(desc = "Names of the addresses created on this server")
    String[] getAddressNames();
 
    /**
-    * Returns the number of queues created on this server.
+    * {@return the number of queues created on this server.}
     */
    @Attribute(desc = "Number of queues created on this server")
    int getQueueCount();
 
    /**
-    * Returns the names of the queues created on this server.
+    * {@return the names of the queues created on this server.}
     */
    @Attribute(desc = "Names of the queues created on this server")
    String[] getQueueNames();
 
    /**
-    * Returns the uptime of this server.
+    * {@return the uptime of this server.}
     */
    @Attribute(desc = "Uptime of this server")
    String getUptime();
 
    /**
-    * Returns the uptime of this server.
+    * {@return the uptime of this server.}
     */
    @Attribute(desc = "Uptime of this server in milliseconds")
    long getUptimeMillis();
 
    /**
-    * Returns whether the initial replication synchronization process with the backup server is complete; applicable for
-    * either the live or backup server.
+    * {@return whether the initial replication synchronization process with the backup server is complete; applicable
+    * for either the primary or backup server}
     */
-   @Attribute(desc = "Whether the initial replication synchronization process with the backup server is complete")
+   @Attribute(desc = REPLICA_SYNC_DESCRIPTION)
    boolean isReplicaSync();
 
    /**
-    * Returns how often the server checks for disk space usage.
+    * {@return how often the server checks for disk space usage.}
     */
    @Attribute(desc = "How often to check for disk space usage, in milliseconds")
    int getDiskScanPeriod();
 
    /**
-    * Returns the disk use max limit.
+    * {@return the disk use max limit.}
     */
    @Attribute(desc = "Maximum limit for disk use, in percentage")
    int getMaxDiskUsage();
 
    /**
-    * Returns the global max bytes limit for in-memory messages.
+    * {@return the global max bytes limit for in-memory messages.}
     */
    @Attribute(desc = "Global maximum limit for in-memory messages, in bytes")
    long getGlobalMaxSize();
 
    /**
-    * Returns the  memory used by all the addresses on broker for in-memory messages
+    * {@return the  memory used by all the addresses on broker for in-memory messages}
     */
    @Attribute(desc = ADDRESS_MEMORY_USAGE_DESCRIPTION)
    long getAddressMemoryUsage();
 
    /**
-    * Returns the percentage of total disk store use
+    * {@return the percentage of total disk store use}
     */
    @Attribute(desc = DISK_STORE_USAGE_DESCRIPTION)
    double getDiskStoreUsage();
 
    /**
-    * Returns the memory used by all the addresses on broker as a percentage of the global-max-size
+    * {@return the memory used by all the addresses on broker as a percentage of the global-max-size}
     */
    @Attribute(desc = ADDRESS_MEMORY_USAGE_PERCENTAGE_DESCRIPTION)
    int getAddressMemoryUsagePercentage();
@@ -513,13 +588,13 @@ public interface ActiveMQServerControl {
    String getHAPolicy();
 
    /**
-    * Returns the runtime size of the authentication cache
+    * {@return the runtime size of the authentication cache}
     */
    @Attribute(desc = "The runtime size of the authentication cache")
    long getAuthenticationCacheSize();
 
    /**
-    * Returns the runtime size of the authorization cache
+    * {@return the runtime size of the authorization cache}
     */
    @Attribute(desc = "The runtime size of the authorization cache")
    long getAuthorizationCacheSize();
@@ -548,31 +623,37 @@ public interface ActiveMQServerControl {
 
    /**
     * Create a durable queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exits.
     *
     * @param address address to bind the queue to
     * @param name    name of the queue
+    *
+    * @deprecated Use {@link #createQueue(String)} instead.
     */
-   @Deprecated
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a queue with the specified address", impact = MBeanOperationInfo.ACTION)
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name) throws Exception;
 
    /**
     * Create a durable queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exits.
     *
     * @param address     address to bind the queue to
     * @param name        name of the queue
     * @param routingType The routing type used for this address, MULTICAST or ANYCAST
+    *
+    * @deprecated Use {@link #createQueue(String)} instead.
     */
-   @Deprecated
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a queue with the specified address", impact = MBeanOperationInfo.ACTION)
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
@@ -580,16 +661,19 @@ public interface ActiveMQServerControl {
 
    /**
     * Create a queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exits.
     *
     * @param address address to bind the queue to
     * @param name    name of the queue
     * @param durable whether the queue is durable
+    *
+    * @deprecated Use {@link #createQueue(String)} instead.
     */
-   @Deprecated
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a queue with the specified address, name and durability", impact = MBeanOperationInfo.ACTION)
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
@@ -597,37 +681,42 @@ public interface ActiveMQServerControl {
 
    /**
     * Create a queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exits.
     *
     * @param address     address to bind the queue to
     * @param name        name of the queue
     * @param durable     whether the queue is durable
     * @param routingType The routing type used for this address, MULTICAST or ANYCAST
+    *
+    * @deprecated Use {@link #createQueue(String)} instead.
     */
-   @Deprecated
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a queue with the specified address, name and durability", impact = MBeanOperationInfo.ACTION)
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
                     @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
                     @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType) throws Exception;
 
-
    /**
     * Create a queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exits.
     *
     * @param address address to bind the queue to
     * @param name    name of the queue
     * @param filter  of the queue
     * @param durable whether the queue is durable
+    *
+    * @deprecated Use {@link #createQueue(String)} instead.
     */
-   @Deprecated
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
@@ -636,18 +725,21 @@ public interface ActiveMQServerControl {
 
    /**
     * Create a queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exits.
     *
     * @param address     address to bind the queue to
     * @param name        name of the queue
     * @param filter      of the queue
     * @param durable     whether the queue is durable
     * @param routingType The routing type used for this address, MULTICAST or ANYCAST
+    *
+    * @deprecated Use {@link #createQueue(String)} instead.
     */
-   @Deprecated
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
@@ -657,27 +749,29 @@ public interface ActiveMQServerControl {
 
    /**
     * Create a queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exits.
     *
-    * @param address            address to bind the queue to
-    * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
-    * @param name               name of the queue
-    * @param filterStr          filter of the queue
-    * @param durable            is the queue durable?
-    * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
-    * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
-    * @param exclusive if the queue should route exclusively to one consumer
-    * @param lastValue use last-value semantics
+    * @param address                 address to bind the queue to
+    * @param routingType             the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param name                    name of the queue
+    * @param filterStr               filter of the queue
+    * @param durable                 is the queue durable?
+    * @param maxConsumers            the maximum number of consumers allowed on this queue at any one time
+    * @param purgeOnNoConsumers      delete this queue when the last consumer disconnects
+    * @param exclusive               if the queue should route exclusively to one consumer
+    * @param lastValue               use last-value semantics
     * @param consumersBeforeDispatch number of consumers needed before dispatch can start
-    * @param delayBeforeDispatch delay to wait before dispatching if number of consumers before dispatch is not met
-    * @param autoCreateAddress  create an address with default values should a matching address not be found
+    * @param delayBeforeDispatch     delay to wait before dispatching if number of consumers before dispatch is not met
+    * @param autoCreateAddress       create an address with default values should a matching address not be found
     * @return a textual summary of the queue
-    * @throws Exception
+    *
+    * @deprecated Use {@link #createQueue(String)} instead.
     */
-   @Deprecated
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    String createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
@@ -696,28 +790,27 @@ public interface ActiveMQServerControl {
                       @Parameter(name = "delayBeforeDispatch", desc = "Delay to wait before dispatching if number of consumers before dispatch is not met") long delayBeforeDispatch,
                       @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
 
-
    /**
     * Create a queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exits.
     *
-    * @param address            address to bind the queue to
-    * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
-    * @param name               name of the queue
-    * @param filterStr          filter of the queue
-    * @param durable            is the queue durable?
-    * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
-    * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
-    * @param exclusive if the queue should route exclusively to one consumer
-    * @param lastValue use last-value semantics
+    * @param address                 address to bind the queue to
+    * @param routingType             the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param name                    name of the queue
+    * @param filterStr               filter of the queue
+    * @param durable                 is the queue durable?
+    * @param maxConsumers            the maximum number of consumers allowed on this queue at any one time
+    * @param purgeOnNoConsumers      delete this queue when the last consumer disconnects
+    * @param exclusive               if the queue should route exclusively to one consumer
+    * @param lastValue               use last-value semantics
     * @param consumersBeforeDispatch number of consumers needed before dispatch can start
-    * @param delayBeforeDispatch delay to wait before dispatching if number of consumers before dispatch is not met
-    * @param autoCreateAddress  create an address with default values should a matching address not be found
+    * @param delayBeforeDispatch     delay to wait before dispatching if number of consumers before dispatch is not met
+    * @param autoCreateAddress       create an address with default values should a matching address not be found
     * @return a textual summary of the queue
-    * @throws Exception
     */
    @Deprecated
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
@@ -743,25 +836,25 @@ public interface ActiveMQServerControl {
 
    /**
     * Create a queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exits.
     *
-    * @param address            address to bind the queue to
-    * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
-    * @param name               name of the queue
-    * @param filterStr          filter of the queue
-    * @param durable            is the queue durable?
-    * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
-    * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
-    * @param exclusive if the queue should route exclusively to one consumer
-    * @param lastValue use last-value semantics
+    * @param address                 address to bind the queue to
+    * @param routingType             the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param name                    name of the queue
+    * @param filterStr               filter of the queue
+    * @param durable                 is the queue durable?
+    * @param maxConsumers            the maximum number of consumers allowed on this queue at any one time
+    * @param purgeOnNoConsumers      delete this queue when the last consumer disconnects
+    * @param exclusive               if the queue should route exclusively to one consumer
+    * @param lastValue               use last-value semantics
     * @param consumersBeforeDispatch number of consumers needed before dispatch can start
-    * @param delayBeforeDispatch delay to wait before dispatching if number of consumers before dispatch is not met
-    * @param autoCreateAddress  create an address with default values should a matching address not be found
+    * @param delayBeforeDispatch     delay to wait before dispatching if number of consumers before dispatch is not met
+    * @param autoCreateAddress       create an address with default values should a matching address not be found
     * @return a textual summary of the queue
-    * @throws Exception
     */
    @Deprecated
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
@@ -788,26 +881,26 @@ public interface ActiveMQServerControl {
 
    /**
     * Create a queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exits.
     *
-    * @param address            address to bind the queue to
-    * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
-    * @param name               name of the queue
-    * @param filterStr          filter of the queue
-    * @param durable            is the queue durable?
-    * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
-    * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
-    * @param exclusive          if the queue should route exclusively to one consumer
-    * @param lastValue          use last-value semantics
+    * @param address                 address to bind the queue to
+    * @param routingType             the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param name                    name of the queue
+    * @param filterStr               filter of the queue
+    * @param durable                 is the queue durable?
+    * @param maxConsumers            the maximum number of consumers allowed on this queue at any one time
+    * @param purgeOnNoConsumers      delete this queue when the last consumer disconnects
+    * @param exclusive               if the queue should route exclusively to one consumer
+    * @param lastValue               use last-value semantics
     * @param consumersBeforeDispatch number of consumers needed before dispatch can start
-    * @param delayBeforeDispatch delay to wait before dispatching if number of consumers before dispatch is not met
-    * @param autoCreateAddress  create an address with default values should a matching address not be found
-    * @param ringSize           the size this queue should maintain according to ring semantics
+    * @param delayBeforeDispatch     delay to wait before dispatching if number of consumers before dispatch is not met
+    * @param autoCreateAddress       create an address with default values should a matching address not be found
+    * @param ringSize                the size this queue should maintain according to ring semantics
     * @return a textual summary of the queue
-    * @throws Exception
     */
    @Deprecated
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
@@ -835,10 +928,11 @@ public interface ActiveMQServerControl {
 
    /**
     * Create a queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exits.
     *
     * @param address            address to bind the queue to
     * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
@@ -849,7 +943,6 @@ public interface ActiveMQServerControl {
     * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
     * @param autoCreateAddress  create an address with default values should a matching address not be found
     * @return a textual summary of the queue
-    * @throws Exception
     */
    @Deprecated
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
@@ -861,39 +954,38 @@ public interface ActiveMQServerControl {
                       @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
                       @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean purgeOnNoConsumers,
                       @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
+
    /**
     * Create a queue.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exists.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exists.
     *
     * @param queueConfiguration the configuration of the queue in JSON format
     * @return the configuration of the created queue in JSON format
-    * @throws Exception
     */
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    String createQueue(@Parameter(name = "queueConfiguration", desc = "the configuration of the queue in JSON format") String queueConfiguration) throws Exception;
 
    /**
     * Create a queue.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exists and {@code ignoreIfExists} is {@code false}.
+    * <p>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the
+    * queue already exists and {@code ignoreIfExists} is {@code false}.
     *
     * @param queueConfiguration the configuration of the queue in JSON format
-    * @param ignoreIfExists     whether or not to simply return without an exception if the queue exists
+    * @param ignoreIfExists     whether to simply return without an exception if the queue exists
     * @return the configuration of the created queue in JSON format
-    * @throws Exception
     */
    @Operation(desc = "Create a queue", impact = MBeanOperationInfo.ACTION)
    String createQueue(@Parameter(name = "queueConfiguration", desc = "the configuration of the queue in JSON format") String queueConfiguration,
                       @Parameter(name = "ignoreIfExists", desc = "whether or not to try to create the queue if it exists already") boolean ignoreIfExists) throws Exception;
-
 
    /**
     * Update a queue.
     *
     * @param queueConfiguration the configuration of the queue in JSON format
     * @return the configuration of the created queue in JSON format
-    * @throws Exception
     */
    @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
    String updateQueue(@Parameter(name = "queueConfiguration", desc = "the configuration of the queue in JSON format") String queueConfiguration) throws Exception;
@@ -906,7 +998,6 @@ public interface ActiveMQServerControl {
     * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
     * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
     * @return a textual summary of the queue
-    * @throws Exception
     */
    @Deprecated
    @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
@@ -924,7 +1015,6 @@ public interface ActiveMQServerControl {
     * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
     * @param exclusive          if the queue should route exclusively to one consumer
     * @return a textual summary of the queue
-    * @throws Exception
     */
    @Deprecated
    @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
@@ -943,8 +1033,6 @@ public interface ActiveMQServerControl {
     * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
     * @param exclusive          if the queue should route exclusively to one consumer
     * @param user               the user associated with this queue
-    * @return
-    * @throws Exception
     */
    @Deprecated
    @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
@@ -958,20 +1046,19 @@ public interface ActiveMQServerControl {
    /**
     * Update a queue
     *
-    * @param name               name of the queue
-    * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
-    * @param filter             the filter to use on the queue
-    * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
-    * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
-    * @param exclusive          if the queue should route exclusively to one consumer
-    * @param groupRebalance     if the queue should rebalance groups when a consumer is added
-    * @param groupBuckets       number of buckets that should be used for message groups, -1 (default) is unlimited, and groups by raw key instead
-    * @param nonDestructive     If the queue is non-destructive
+    * @param name                    name of the queue
+    * @param routingType             the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param filter                  the filter to use on the queue
+    * @param maxConsumers            the maximum number of consumers allowed on this queue at any one time
+    * @param purgeOnNoConsumers      delete this queue when the last consumer disconnects
+    * @param exclusive               if the queue should route exclusively to one consumer
+    * @param groupRebalance          if the queue should rebalance groups when a consumer is added
+    * @param groupBuckets            number of buckets that should be used for message groups, -1 (default) is
+    *                                unlimited, and groups by raw key instead
+    * @param nonDestructive          If the queue is non-destructive
     * @param consumersBeforeDispatch number of consumers needed before dispatch can start
-    * @param delayBeforeDispatch delay to wait before dispatching if number of consumers before dispatch is not met
-    * @param user               the user associated with this queue
-    * @return
-    * @throws Exception
+    * @param delayBeforeDispatch     delay to wait before dispatching if number of consumers before dispatch is not met
+    * @param user                    the user associated with this queue
     */
    @Deprecated
    @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
@@ -991,21 +1078,20 @@ public interface ActiveMQServerControl {
    /**
     * Update a queue
     *
-    * @param name               name of the queue
-    * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
-    * @param filter             the filter to use on the queue
-    * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
-    * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
-    * @param exclusive          if the queue should route exclusively to one consumer
-    * @param groupRebalance     if the queue should rebalance groups when a consumer is added
-    * @param groupBuckets       number of buckets that should be used for message groups, -1 (default) is unlimited, and groups by raw key instead
-    * @param groupFirstKey      key used to mark a message is first in a group for a consumer
-    * @param nonDestructive     If the queue is non-destructive
+    * @param name                    name of the queue
+    * @param routingType             the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param filter                  the filter to use on the queue
+    * @param maxConsumers            the maximum number of consumers allowed on this queue at any one time
+    * @param purgeOnNoConsumers      delete this queue when the last consumer disconnects
+    * @param exclusive               if the queue should route exclusively to one consumer
+    * @param groupRebalance          if the queue should rebalance groups when a consumer is added
+    * @param groupBuckets            number of buckets that should be used for message groups, -1 (default) is
+    *                                unlimited, and groups by raw key instead
+    * @param groupFirstKey           key used to mark a message is first in a group for a consumer
+    * @param nonDestructive          If the queue is non-destructive
     * @param consumersBeforeDispatch number of consumers needed before dispatch can start
-    * @param delayBeforeDispatch delay to wait before dispatching if number of consumers before dispatch is not met
-    * @param user               the user associated with this queue
-    * @return
-    * @throws Exception
+    * @param delayBeforeDispatch     delay to wait before dispatching if number of consumers before dispatch is not met
+    * @param user                    the user associated with this queue
     */
    @Deprecated
    @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
@@ -1026,22 +1112,21 @@ public interface ActiveMQServerControl {
    /**
     * Update a queue
     *
-    * @param name               name of the queue
-    * @param routingType        the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
-    * @param filter             the filter to use on the queue
-    * @param maxConsumers       the maximum number of consumers allowed on this queue at any one time
-    * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
-    * @param exclusive          if the queue should route exclusively to one consumer
-    * @param groupRebalance     if the queue should rebalance groups when a consumer is added
-    * @param groupBuckets       number of buckets that should be used for message groups, -1 (default) is unlimited, and groups by raw key instead
-    * @param groupFirstKey      key used to mark a message is first in a group for a consumer
-    * @param nonDestructive     If the queue is non-destructive
+    * @param name                    name of the queue
+    * @param routingType             the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param filter                  the filter to use on the queue
+    * @param maxConsumers            the maximum number of consumers allowed on this queue at any one time
+    * @param purgeOnNoConsumers      delete this queue when the last consumer disconnects
+    * @param exclusive               if the queue should route exclusively to one consumer
+    * @param groupRebalance          if the queue should rebalance groups when a consumer is added
+    * @param groupBuckets            number of buckets that should be used for message groups, -1 (default) is
+    *                                unlimited, and groups by raw key instead
+    * @param groupFirstKey           key used to mark a message is first in a group for a consumer
+    * @param nonDestructive          If the queue is non-destructive
     * @param consumersBeforeDispatch number of consumers needed before dispatch can start
-    * @param delayBeforeDispatch delay to wait before dispatching if number of consumers before dispatch is not met
-    * @param user               the user associated with this queue
-    * @param ringSize           the size this queue should maintain according to ring semantics
-    * @return
-    * @throws Exception
+    * @param delayBeforeDispatch     delay to wait before dispatching if number of consumers before dispatch is not met
+    * @param user                    the user associated with this queue
+    * @param ringSize                the size this queue should maintain according to ring semantics
     */
    @Deprecated
    @Operation(desc = "Update a queue", impact = MBeanOperationInfo.ACTION)
@@ -1062,9 +1147,9 @@ public interface ActiveMQServerControl {
 
    /**
     * Deploy a durable queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
+    * <p>
     * This method will do nothing if the queue with the given name already exists on the server.
     *
     * @param address address to bind the queue to
@@ -1079,9 +1164,9 @@ public interface ActiveMQServerControl {
 
    /**
     * Deploy a queue.
-    * <br>
+    * <p>
     * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
+    * <p>
     * This method will do nothing if the queue with the given name already exists on the server.
     *
     * @param address address to bind the queue to
@@ -1143,9 +1228,9 @@ public interface ActiveMQServerControl {
 
    /**
     * List all the prepared transaction, sorted by date, oldest first.
-    * <br>
-    * The Strings are Base-64 representation of the transaction XID and can be
-    * used to heuristically commit or rollback the transactions.
+    * <p>
+    * The Strings are Base-64 representation of the transaction XID and can be used to heuristically commit or rollback
+    * the transactions.
     *
     * @see #commitPreparedTransaction(String)
     * @see #rollbackPreparedTransaction(String)
@@ -1154,17 +1239,72 @@ public interface ActiveMQServerControl {
    String[] listPreparedTransactions() throws Exception;
 
    /**
-    * List all the prepared transaction, sorted by date,
-    * oldest first, with details, in text format.
+    * List all the prepared transaction as JSON. The JSON consists of an array of objects containing the details of each
+    * transaction, including transaction branch details, and an array listing the messages involved, e.g.:
+    * <pre>
+    * [
+    *   {
+    *     "creation_time": "5/22/79, 12:00:00 AM",
+    *     "xid_as_base64": "eGExODAyZDNlOGItZDlmYy0xMWYwLTliOWUtM2NlMWExZDEyOTM5AQAAAA==",
+    *     "xid_format_id": 1,
+    *     "xid_global_txid": "802d3e8b-d9fc-11f0-9b9e-3ce1a1d12939",
+    *     "xid_branch_qual": "xa1",
+    *     "tx_related_messages": [
+    *       {
+    *         "message_operation_type": "(+) send",
+    *         "message_type": "TextMessage",
+    *         "message_properties": {
+    *           "durable": true,
+    *           "address": "AddressA",
+    *           "myPropertyKey": "myPropertyValue",
+    *           "messageID": 123,
+    *           "expiration": 0,
+    *           "type": 3,
+    *           "priority": 4,
+    *           "timestamp": 296197200
+    *         }
+    *       },
+    *       {
+    *         "message_operation_type": "(+) send",
+    *         "message_type": "TextMessage",
+    *         "message_properties": {
+    *           "durable": true,
+    *           "address": "AddressB",
+    *           "messageID": 456,
+    *           "expiration": 0,
+    *           "type": 3,
+    *           "priority": 4,
+    *           "timestamp": 296197200
+    *         },
+    *       },
+    *       {
+    *         "message_operation_type": "(-) receive",
+    *         "message_type": "TextMessage",
+    *         "message_properties": {
+    *           "durable": true,
+    *           "address": "AddressC",
+    *           "messageID": 789,
+    *           "expiration": 0,
+    *           "type": 3,
+    *           "priority": 4,
+    *           "timestamp": 296197200
+    *         }
+    *       }
+    *     ]
+    *   }
+    * ]
+    * </pre>
+    * Transactions are sorted by date, oldest first.
     */
-   @Operation(desc = "List all the prepared transaction, sorted by date, oldest first, with details, in JSON format")
+   @Operation(desc = "List all the prepared transaction as JSON")
    String listPreparedTransactionDetailsAsJSON() throws Exception;
 
    /**
-    * List all the prepared transaction, sorted by date,
-    * oldest first, with details, in HTML format
+    * List all the prepared transaction, sorted by date, oldest first, with details, in HTML format
+    *
+    * @deprecated Use {@link #listPreparedTransactionDetailsAsJSON()} instead.
     */
-   @Deprecated
+   @Deprecated(forRemoval = true)
    @Operation(desc = "List all the prepared transaction, sorted by date, oldest first, with details, in HTML format")
    String listPreparedTransactionDetailsAsHTML() throws Exception;
 
@@ -1264,12 +1404,31 @@ public interface ActiveMQServerControl {
    @Operation(desc = "List all the connection IDs", impact = MBeanOperationInfo.INFO)
    String[] listConnectionIDs() throws Exception;
 
-   @Operation(desc = "List all producers", impact = MBeanOperationInfo.INFO)
+   /**
+    * List details as JSON about the producers sending messages to this broker. The JSON consists of an array of objects
+    * containing details about each producer, e.g.:
+    * <pre>
+    * [
+    *   {
+    *     "id": "1",
+    *     "name": "artemis:sender:ID:338502e5-da02-11f0-900f-3ce1a1d12939",
+    *     "connectionID": "33848db2-da02-11f0-900f-3ce1a1d12939",
+    *     "sessionID": "3384b4c4-da02-11f0-900f-3ce1a1d12939",
+    *     "creationTime": "1765836343763",
+    *     "destination": "AddressA",
+    *     "lastProducedMessageID": null,
+    *     "msgSent": 8,
+    *     "msgSizeSent": 607
+    *   }
+    * ]
+    * </pre>
+    */
+   @Operation(desc = "List all producers")
    String listProducersInfoAsJSON() throws Exception;
 
    /**
-    * Lists all the connections connected to this server.
-    * The returned String is a JSON string containing details about each connection, e.g.:
+    * Lists all the connections to this server as JSON. The JSON consists of an array of objects containing details
+    * about each connection, e.g.:
     * <pre>
     * [
     *   {
@@ -1277,7 +1436,7 @@ public interface ActiveMQServerControl {
     *     "sessionCount": 1,
     *     "implementation": "RemotingConnectionImpl",
     *     "connectionID": "1648309901",
-    *     "clientAddress": "\/127.0.0.1:57649"
+    *     "clientAddress": "127.0.0.1:57649"
     *   }
     * ]
     * </pre>
@@ -1286,8 +1445,8 @@ public interface ActiveMQServerControl {
    String listConnectionsAsJSON() throws Exception;
 
    /**
-    * Lists all the consumers which belongs to the connection specified by the connectionID.
-    * The returned String is a JSON string containing details about each consumer, e.g.:
+    * Lists all the consumers that belong to the connection specified by the connectionID. The returned String is JSON
+    * containing details about each consumer, e.g.:
     * <pre>
     * [
     *   {
@@ -1303,12 +1462,12 @@ public interface ActiveMQServerControl {
     * ]
     * </pre>
     */
-   @Operation(desc = "List all consumers associated with a connection as a JSON string")
+   @Operation(desc = "List all consumers associated with a connection as JSON")
    String listConsumersAsJSON(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception;
 
    /**
-    * Lists all the consumers connected to this server.
-    * The returned String is a JSON string containing details about each consumer, e.g.:
+    * Lists all the consumers connected to this server. The returned String is JSON containing details about
+    * each consumer, e.g.:
     * <pre>
     * [
     *   {
@@ -1323,12 +1482,12 @@ public interface ActiveMQServerControl {
     * ]
     * </pre>
     */
-   @Operation(desc = "List all consumers as a JSON string")
+   @Operation(desc = "List all consumers as JSON")
    String listAllConsumersAsJSON() throws Exception;
 
    /**
-    * Lists details about all the sessions for the specified connection ID.
-    * The returned String is a JSON string containing details about each session associated with the specified ID, e.g.:
+    * Lists details about all the sessions for the specified connection ID. The returned String is JSON containing
+    * details about each session associated with the specified ID, e.g.:
     * <pre>
     * [
     *   {
@@ -1344,8 +1503,7 @@ public interface ActiveMQServerControl {
    String listSessionsAsJSON(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception;
 
    /**
-    * Lists details about all sessions.
-    * The returned String is a JSON string containing details about each and every session, e.g.:
+    * Lists details about all sessions. The returned String is JSON containing details about every session, e.g.:
     * <pre>
     * [
     *   {
@@ -1372,6 +1530,10 @@ public interface ActiveMQServerControl {
    @Operation(desc = "List the sessions for the given connectionID", impact = MBeanOperationInfo.INFO)
    String[] listSessions(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception;
 
+   /**
+    * @deprecated use {@link ActiveMQServerControl#addSecuritySettings(String, String)}
+    */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Add security settings for addresses matching the addressMatch", impact = MBeanOperationInfo.ACTION)
    void addSecuritySettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
                             @Parameter(desc = "a comma-separated list of roles allowed to send messages", name = "send") String sendRoles,
@@ -1382,6 +1544,10 @@ public interface ActiveMQServerControl {
                             @Parameter(desc = "a comma-separated list of roles allowed to delete non durable queues", name = "deleteNonDurableQueueRoles") String deleteNonDurableQueueRoles,
                             @Parameter(desc = "a comma-separated list of roles allowed to send management messages messages", name = "manage") String manageRoles) throws Exception;
 
+   /**
+    * @deprecated use {@link ActiveMQServerControl#addSecuritySettings(String, String)}
+    */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Add security settings for addresses matching the addressMatch", impact = MBeanOperationInfo.ACTION)
    void addSecuritySettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
                             @Parameter(desc = "a comma-separated list of roles allowed to send messages", name = "send") String sendRoles,
@@ -1393,6 +1559,10 @@ public interface ActiveMQServerControl {
                             @Parameter(desc = "a comma-separated list of roles allowed to send management messages messages", name = "manage") String manageRoles,
                             @Parameter(desc = "a comma-separated list of roles allowed to browse queues", name = "browse") String browseRoles) throws Exception;
 
+   /**
+    * @deprecated use {@link ActiveMQServerControl#addSecuritySettings(String, String)}
+    */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Add security settings for addresses matching the addressMatch", impact = MBeanOperationInfo.ACTION)
    void addSecuritySettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
                             @Parameter(desc = "a comma-separated list of roles allowed to send messages", name = "send") String sendRoles,
@@ -1406,18 +1576,121 @@ public interface ActiveMQServerControl {
                             @Parameter(desc = "a comma-separated list of roles allowed to create addresses", name = "createAddressRoles") String createAddressRoles,
                             @Parameter(desc = "a comma-separated list of roles allowed to delete addresses", name = "deleteAddressRoles") String deleteAddressRoles) throws Exception;
 
+   /**
+    * @deprecated use {@link ActiveMQServerControl#addSecuritySettings(String, String)}
+    */
+   @Deprecated(forRemoval = true)
+   @Operation(desc = "Add security settings for addresses matching the addressMatch", impact = MBeanOperationInfo.ACTION)
+   void addSecuritySettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
+                            @Parameter(desc = "a comma-separated list of roles allowed to send messages", name = "send") String sendRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to consume messages", name = "consume") String consumeRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to create durable queues", name = "createDurableQueueRoles") String createDurableQueueRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to delete durable queues", name = "deleteDurableQueueRoles") String deleteDurableQueueRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to create non durable queues", name = "createNonDurableQueueRoles") String createNonDurableQueueRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to delete non durable queues", name = "deleteNonDurableQueueRoles") String deleteNonDurableQueueRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to send management messages messages", name = "manage") String manageRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to browse queues", name = "browse") String browseRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to create addresses", name = "createAddressRoles") String createAddressRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to delete addresses", name = "deleteAddressRoles") String deleteAddressRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to view management resources", name = "view") String viewRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to edit management resources", name = "edit") String editRoles) throws Exception;
+
+   /**
+    * Add security-settings for matching addresses.
+    *
+    * @param addressMatch           The address match pattern to which the security-settings will be applied.
+    * @param securitySettingsAsJson The security-settings in JSON format. The JSON consists of key/value pairs where the
+    *                               key is a string representing the permission type, and the value is an array of
+    *                               strings containing the names of the roles which will be granted the corresponding
+    *                               permission, e.g.:
+    *                               <pre>{@code
+    *                               {
+    *                                 "send": ["role1", "role2"],
+    *                                 "consume": ["role3", "role4"],
+    *                                 "createDurableQueue": ["role5", "role6"]
+    *                               }
+    *                               }</pre>
+    *                               These permission types are supported:
+    *                               <ul>
+    *                               <li>send</li>
+    *                               <li>consume</li>
+    *                               <li>createDurableQueue</li>
+    *                               <li>deleteDurableQueue</li>
+    *                               <li>createNonDurableQueue</li>
+    *                               <li>deleteNonDurableQueue</li>
+    *                               <li>manage</li>
+    *                               <li>browse</li>
+    *                               <li>createAddress</li>
+    *                               <li>deleteAddress</li>
+    *                               <li>view</li>
+    *                               <li>edit</li>
+    *                               </ul>
+    *                               This JSON can be constructed using methods from {@link org.apache.activemq.artemis.utils.SecurityFormatter}.
+    * @throws Exception If an error occurs while adding the security-settings.
+    */
+   @Operation(desc = "Add security-settings for matching addresses", impact = MBeanOperationInfo.ACTION)
+   void addSecuritySettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
+                            @Parameter(desc = "The configuration of the security-settings as JSON", name = "securitySettingsAsJson") String securitySettingsAsJson) throws Exception;
+
    @Operation(desc = "Remove security settings for an address", impact = MBeanOperationInfo.ACTION)
    void removeSecuritySettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;
 
    @Operation(desc = "Get roles for a specific address match", impact = MBeanOperationInfo.INFO)
    Object[] getRoles(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;
 
+   /**
+    * Retrieves roles associated with a specific address match as JSON. The JSON consists of an array of objects
+    * containing the name of the role and a boolean for every permission type indicating whether that role has that
+    * permission, e.g.:
+    * <pre>
+    * [
+    *   {
+    *     "name": "myRole",
+    *     "send": true,
+    *     "consume": true,
+    *     "createDurableQueue": false,
+    *     "deleteDurableQueue": false,
+    *     "createNonDurableQueue": true,
+    *     "deleteNonDurableQueue": false,
+    *     "manage": false,
+    *     "browse": false,
+    *     "createAddress": true,
+    *     "deleteAddress": true,
+    *     "view": false,
+    *     "edit": false
+    *   },
+    *   {
+    *     "name": "myOtherRole",
+    *     "send": false,
+    *     "consume": true,
+    *     "createDurableQueue": false,
+    *     "deleteDurableQueue": true,
+    *     "createNonDurableQueue": true,
+    *     "deleteNonDurableQueue": false,
+    *     "manage": false,
+    *     "browse": true,
+    *     "createAddress": false,
+    *     "deleteAddress": false,
+    *     "view": false,
+    *     "edit": false
+    *   }
+    * ]
+    * </pre>
+    * This JSON can be converted into an array of {@link RoleInfo} objects using {@link RoleInfo#from(String)}.
+    *
+    * @param addressMatch the address match for which roles are to be retrieved
+    * @return JSON representing the roles associated with the specified address match
+    * @throws Exception if an error occurs during the retrieval process
+    */
    @Operation(desc = "Get roles (as a JSON string) for a specific address match", impact = MBeanOperationInfo.INFO)
    String getRolesAsJSON(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;
 
    /**
     * adds a new address setting for a specific address
+    *
+    * @deprecated Use {@link #addAddressSettings(String, String)} instead.
     */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Add address settings for addresses matching the addressMatch", impact = MBeanOperationInfo.ACTION)
    void addAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
                            @Parameter(desc = "the dead letter address setting", name = "DLA") String DLA,
@@ -1444,7 +1717,10 @@ public interface ActiveMQServerControl {
 
    /**
     * adds a new address setting for a specific address
+    *
+    * @deprecated Use {@link #addAddressSettings(String, String)} instead.
     */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Add address settings for addresses matching the addressMatch", impact = MBeanOperationInfo.ACTION)
    void addAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
                            @Parameter(desc = "the dead letter address setting", name = "DLA") String DLA,
@@ -1475,7 +1751,10 @@ public interface ActiveMQServerControl {
 
    /**
     * adds a new address setting for a specific address
+    *
+    * @deprecated Use {@link #addAddressSettings(String, String)} instead.
     */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Add address settings for addresses matching the addressMatch", impact = MBeanOperationInfo.ACTION)
    void addAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
                            @Parameter(desc = "the dead letter address setting", name = "DLA") String DLA,
@@ -1529,7 +1808,10 @@ public interface ActiveMQServerControl {
 
    /**
     * adds a new address setting for a specific address
+    *
+    * @deprecated Use {@link #addAddressSettings(String, String)} instead.
     */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Add address settings for addresses matching the addressMatch", impact = MBeanOperationInfo.ACTION)
    void addAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
                            @Parameter(desc = "the dead letter address setting", name = "DLA") String DLA,
@@ -1589,7 +1871,10 @@ public interface ActiveMQServerControl {
 
    /**
     * adds a new address setting for a specific address
+    *
+    * @deprecated Use {@link #addAddressSettings(String, String)} instead.
     */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Add address settings for addresses matching the addressMatch", impact = MBeanOperationInfo.ACTION)
    void addAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
                            @Parameter(desc = "the dead letter address setting", name = "DLA") String DLA,
@@ -1650,11 +1935,48 @@ public interface ActiveMQServerControl {
                            @Parameter(desc = "the maximum expiry delay setting", name = "maxExpiryDelay") long maxExpiryDelay,
                            @Parameter(desc = "whether or not to enable metrics", name = "enableMetrics") boolean enableMetrics) throws Exception;
 
+   /**
+    * Adds address-settings for matching addresses. The address-settings must be JSON consisting of a simple object of
+    * key/value pairs, e.g.:
+    * <pre>
+    * {
+    *   "addressFullMessagePolicy": "DROP",
+    *   "maxSizeBytes": 1024,
+    *   "prefetchPageMessages": 256,
+    *   "redeliveryDelay": 60000,
+    *   "redeliveryMultiplier": 1.0,
+    *   "deadLetterAddress": "myDeadLetterAddress",
+    *   "expiryAddress": "myExpiryAddress"
+    * }
+    * </pre>
+    *
+    * @param address               the address match pattern for the addresses to apply settings to
+    * @param addressSettingsAsJson the configuration of the address settings as JSON
+    * @return the effective settings for the input address once the input settings are merged with any existing matches
+    * @throws Exception if there is an error adding the address settings
+    */
+   @Operation(desc = "Add address settings for addresses matching the addressMatch", impact = MBeanOperationInfo.ACTION)
+   String addAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String address,
+                             @Parameter(desc = "The configuration of the address settings as JSON", name = "addressSettingsAsJson") String addressSettingsAsJson) throws Exception;
+
    @Operation(desc = "Remove address settings", impact = MBeanOperationInfo.ACTION)
    void removeAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;
 
    /**
-    * returns the address settings as a JSON string
+    * Get address-settings for matching address, e.g.:
+    * <pre>
+    * {
+    *   "addressFullMessagePolicy": "DROP",
+    *   "maxSizeBytes": 1024,
+    *   "prefetchPageMessages": 256,
+    *   "redeliveryDelay": 60000,
+    *   "redeliveryMultiplier": 1.0,
+    *   "deadLetterAddress": "myDeadLetterAddress",
+    *   "expiryAddress": "myExpiryAddress"
+    * }
+    * </pre>
+    *
+    * @return the address-settings as JSON
     */
    @Operation(desc = "Returns the address settings as a JSON string for an address match", impact = MBeanOperationInfo.INFO)
    String getAddressSettingsAsJSON(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;
@@ -1663,14 +1985,17 @@ public interface ActiveMQServerControl {
    String[] getDivertNames();
 
    /**
-    * Jon plugin doesn't recognize an Operation whose name is in
-    * form getXXXX(), so add this one.
+    * Jon plugin doesn't recognize an Operation whose name is in form getXXXX(), so add this one.
     */
    @Operation(desc = "names of the diverts deployed on this server", impact = MBeanOperationInfo.INFO)
    default String[] listDivertNames() {
       return getDivertNames();
    }
 
+   /**
+    * @deprecated Deprecated in favor of {@link #createDivert(String)}
+    */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
    void createDivert(@Parameter(name = "name", desc = "Name of the divert") String name,
                      @Parameter(name = "routingName", desc = "Routing name of the divert") String routingName,
@@ -1680,6 +2005,10 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "filterString", desc = "Filter of the divert") String filterString,
                      @Parameter(name = "transformerClassName", desc = "Class name of the divert's transformer") String transformerClassName) throws Exception;
 
+   /**
+    * @deprecated Deprecated in favor of {@link #createDivert(String)}
+    */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
    void createDivert(@Parameter(name = "name", desc = "Name of the divert") String name,
                      @Parameter(name = "routingName", desc = "Routing name of the divert") String routingName,
@@ -1690,6 +2019,10 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "transformerClassName", desc = "Class name of the divert's transformer") String transformerClassName,
                      @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
 
+   /**
+    * @deprecated Deprecated in favor of {@link #createDivert(String)}
+    */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
    void createDivert(@Parameter(name = "name", desc = "Name of the divert") String name,
                      @Parameter(name = "routingName", desc = "Routing name of the divert") String routingName,
@@ -1701,6 +2034,10 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "transformerProperties", desc = "Configuration properties of the divert's transformer") Map<String, String> transformerProperties,
                      @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
 
+   /**
+    * @deprecated Deprecated in favor of {@link #createDivert(String)}
+    */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
    void createDivert(@Parameter(name = "name", desc = "Name of the divert") String name,
                      @Parameter(name = "routingName", desc = "Routing name of the divert") String routingName,
@@ -1713,8 +2050,28 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
 
    /**
-    * update a divert
+    * Adds a divert. The divert configuration must be JSON consisting of a simple object of key/value pairs, e.g.:
+    * <pre>
+    * {
+    *   "name": "myDivert",
+    *   "address": "myAddress",
+    *   "forwarding-address": "myForwardingAddress",
+    *   "exclusive": false,
+    *   "routing-type": "STRIP"
+    * }
+    * </pre>
+    *
+    * @param divertConfiguration the configuration of the divert in JSON format
     */
+   @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
+   void createDivert(@Parameter(name = "divertConfiguration", desc = "the configuration of the divert in JSON format") String divertConfiguration) throws Exception;
+
+   /**
+    * update a divert
+    *
+    * @deprecated Use {@link #createDivert(String)} instead.
+    */
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Update a divert", impact = MBeanOperationInfo.ACTION)
    void updateDivert(@Parameter(name = "name", desc = "Name of the queue") String name,
                      @Parameter(name = "forwardingAddress", desc = "Address to divert to") String forwardingAddress,
@@ -1722,6 +2079,13 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "transformerClassName", desc = "Class name of the divert's transformer") String transformerClassName,
                      @Parameter(name = "transformerProperties", desc = "Configuration properties of the divert's transformer") Map<String, String> transformerProperties,
                      @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
+
+   /**
+    * Updates a divert. The divert configuration must be JSON consisting of a simple object of key/value pairs. For an
+    * example, see {@link #createDivert(String)}.
+    */
+   @Operation(desc = "Update a divert", impact = MBeanOperationInfo.ACTION)
+   void updateDivert(@Parameter(name = "divertConfiguration", desc = "the configuration of the divert in JSON format") String divertConfiguration) throws Exception;
 
    @Operation(desc = "Destroy a Divert", impact = MBeanOperationInfo.ACTION)
    void destroyDivert(@Parameter(name = "name", desc = "Name of the divert") String name) throws Exception;
@@ -1732,7 +2096,7 @@ public interface ActiveMQServerControl {
    /**
     * @deprecated Deprecated in favour of {@link #createBridge(String)}
     */
-   @Deprecated
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a Bridge", impact = MBeanOperationInfo.ACTION)
    void createBridge(@Parameter(name = "name", desc = "Name of the bridge") String name,
                      @Parameter(name = "queueName", desc = "Name of the source queue") String queueName,
@@ -1756,7 +2120,7 @@ public interface ActiveMQServerControl {
    /**
     * @deprecated Deprecated in favour of {@link #createBridge(String)}
     */
-   @Deprecated
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a Bridge", impact = MBeanOperationInfo.ACTION)
    void createBridge(@Parameter(name = "name", desc = "Name of the bridge") String name,
                      @Parameter(name = "queueName", desc = "Name of the source queue") String queueName,
@@ -1781,7 +2145,7 @@ public interface ActiveMQServerControl {
    /**
     * @deprecated Deprecated in favour of {@link #createBridge(String)}
     */
-   @Deprecated
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a Bridge", impact = MBeanOperationInfo.ACTION)
    void createBridge(@Parameter(name = "name", desc = "Name of the bridge") String name,
                      @Parameter(name = "queueName", desc = "Name of the source queue") String queueName,
@@ -1806,7 +2170,7 @@ public interface ActiveMQServerControl {
    /**
     * @deprecated Deprecated in favour of {@link #createBridge(String)}
     */
-   @Deprecated
+   @Deprecated(forRemoval = true)
    @Operation(desc = "Create a Bridge", impact = MBeanOperationInfo.ACTION)
    void createBridge(@Parameter(name = "name", desc = "Name of the bridge") String name,
                      @Parameter(name = "queueName", desc = "Name of the source queue") String queueName,
@@ -1827,7 +2191,23 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "password", desc = "User password") String password) throws Exception;
 
    /**
-    * Create a bridge.
+    * Create a bridge. The bridge configuration must be JSON consisting of a simple object of key/value pairs, e.g.:
+    * <pre>
+    * {
+    *   "name": "myBridge",
+    *   "queue-name": "myQueue",
+    *   "forwarding-address": "myForwardingAddress",
+    *   "retry-interval": 2000,
+    *   "retry-interval-multiplier": 1.0,
+    *   "reconnect-attempts": -1,
+    *   "use-duplicate-detection": false,
+    *   "producer-window-size": -1,
+    *   "routing-type": "PASS",
+    *   "static-connectors": [
+    *     "myConnector"
+    *   ]
+    * }
+    * </pre>
     *
     * @param bridgeConfiguration the configuration of the queue in JSON format
     */
@@ -1913,24 +2293,19 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "pageSize", desc = "Page Size") int pageSize) throws Exception;
 
    /**
-    * Returns the names of the queues created on this server with the given routing-type.
+    * {@return the names of the queues created on this server with the given routing-type.}
     */
    @Operation(desc = "Names of the queues created on this server with the given routing-type (i.e. ANYCAST or MULTICAST)", impact = MBeanOperationInfo.INFO)
    String[] getQueueNames(@Parameter(name = "routingType", desc = "The routing type, MULTICAST or ANYCAST") String routingType) throws Exception;
 
    /**
-    * Returns the names of the cluster-connections deployed on this server.
+    * {@return the names of the cluster-connections deployed on this server.}
     */
    @Operation(desc = "Names of the cluster-connections deployed on this server", impact = MBeanOperationInfo.INFO)
    String[] getClusterConnectionNames();
 
    /**
     * Add a user (only applicable when using the JAAS PropertiesLoginModule or the ActiveMQBasicSecurityManager)
-    *
-    * @param username
-    * @param password
-    * @param roles
-    * @throws Exception
     */
    @Operation(desc = "add a user (only applicable when using the JAAS PropertiesLoginModule or the ActiveMQBasicSecurityManager)", impact = MBeanOperationInfo.ACTION)
    void addUser(@Parameter(name = "username", desc = "Name of the user") String username,
@@ -1939,46 +2314,33 @@ public interface ActiveMQServerControl {
                 @Parameter(name = "plaintext", desc = "whether or not to store the password in plaintext or hash it") boolean plaintext) throws Exception;
 
    /**
-    * List the information about a user or all users if no username is supplied (only applicable when using the JAAS PropertiesLoginModule or the ActiveMQBasicSecurityManager).
+    * List the information about a user or all users if no username is supplied (only applicable when using the JAAS
+    * PropertiesLoginModule or the ActiveMQBasicSecurityManager).
     *
-    * @param username
     * @return JSON array of user and role information
-    * @throws Exception
     */
    @Operation(desc = "list info about a user or all users if no username is supplied (only applicable when using the JAAS PropertiesLoginModule or the ActiveMQBasicSecurityManager)", impact = MBeanOperationInfo.ACTION)
    String listUser(@Parameter(name = "username", desc = "Name of the user; leave null to list all known users") String username) throws Exception;
 
    /**
     * Remove a user (only applicable when using the JAAS PropertiesLoginModule or the ActiveMQBasicSecurityManager).
-    *
-    * @param username
-    * @throws Exception
     */
    @Operation(desc = "remove a user (only applicable when using the JAAS PropertiesLoginModule or the ActiveMQBasicSecurityManager)", impact = MBeanOperationInfo.ACTION)
    void removeUser(@Parameter(name = "username", desc = "Name of the user") String username) throws Exception;
 
    /**
-    * Set new properties on an existing user (only applicable when using the JAAS PropertiesLoginModule or the ActiveMQBasicSecurityManager).
-    *
-    * @param username
-    * @param password
-    * @param roles
-    * @throws Exception
+    * Set new properties on an existing user (only applicable when using the JAAS PropertiesLoginModule or the
+    * ActiveMQBasicSecurityManager).
     */
    @Operation(desc = "set new properties on an existing user (only applicable when using the JAAS PropertiesLoginModule or the ActiveMQBasicSecurityManager)", impact = MBeanOperationInfo.ACTION)
    void resetUser(@Parameter(name = "username", desc = "Name of the user") String username,
                   @Parameter(name = "password", desc = "User's password") String password,
                   @Parameter(name = "roles", desc = "User's role (comma separated)") String roles) throws Exception;
-   /**
-    * Set new properties on an existing user (only applicable when using the JAAS PropertiesLoginModule or the ActiveMQBasicSecurityManager).
-    *
-    * @param username
-    * @param password
-    * @param roles
-    * @param plaintext
-    * @throws Exception
-    */
 
+   /**
+    * Set new properties on an existing user (only applicable when using the JAAS PropertiesLoginModule or the
+    * ActiveMQBasicSecurityManager).
+    */
    @Operation(desc = "set new properties on an existing user (only applicable when using the JAAS PropertiesLoginModule or the ActiveMQBasicSecurityManager)", impact = MBeanOperationInfo.ACTION)
    void resetUser(@Parameter(name = "username", desc = "Name of the user") String username,
                   @Parameter(name = "password", desc = "User's password") String password,
@@ -1988,11 +2350,17 @@ public interface ActiveMQServerControl {
    @Operation(desc = "forces the broker to reload its configuration file", impact = MBeanOperationInfo.ACTION)
    void reloadConfigurationFile() throws Exception;
 
+   /**
+    * Replays messages from all files in the retention folder that match an address and filter.
+    */
    @Operation(desc = "Replays messages from all files in the retention folder that match an address and filter.", impact = MBeanOperationInfo.ACTION)
    void replay(@Parameter(name = "address", desc = "Name of the address to replay") String address,
                @Parameter(name = "target", desc = "Where the replay data should be sent") String target,
                @Parameter(name = "filter", desc = "Filter to apply on message selection. Null means everything matching the address") String filter) throws Exception;
 
+   /**
+    * Replays messages from a configurable subset of the files in the retention folder that match an address and filter.
+    */
    @Operation(desc = "Replays messages from a configurable subset of the files in the retention folder that match an address and filter.", impact = MBeanOperationInfo.ACTION)
    void replay(@Parameter(name = "startScanDate", desc = "Start date where we will start scanning for journals to replay. Format YYYYMMDDHHMMSS") String startScan,
                @Parameter(name = "endScanDate", desc = "Finish date where we will stop scannning for journals to replay. Format YYYYMMDDHHMMSS") String endScan,
@@ -2023,5 +2391,23 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "Clear the authorization cache", impact = MBeanOperationInfo.ACTION)
    void clearAuthorizationCache() throws Exception;
+
+   @Attribute(desc = AUTHENTICATION_SUCCESS_COUNT)
+   long getAuthenticationSuccessCount();
+
+   @Attribute(desc = AUTHENTICATION_FAILURE_COUNT)
+   long getAuthenticationFailureCount();
+
+   @Attribute(desc = AUTHORIZATION_SUCCESS_COUNT)
+   long getAuthorizationSuccessCount();
+
+   @Attribute(desc = AUTHORIZATION_FAILURE_COUNT)
+   long getAuthorizationFailureCount();
+
+   @Attribute(desc = "Number of pending acknowledgements records on mirroring")
+   int getPendingMirrorAcks();
+
+   @Operation(desc = "Export the broker configuration as properties", impact = MBeanOperationInfo.ACTION)
+   void exportConfigAsProperties() throws Exception;
 }
 

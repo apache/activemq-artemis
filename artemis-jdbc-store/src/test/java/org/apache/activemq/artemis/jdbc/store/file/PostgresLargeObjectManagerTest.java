@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.jdbc.store.file;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Array;
@@ -37,9 +36,11 @@ import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class PostgresLargeObjectManagerTest {
 
@@ -54,7 +55,7 @@ public class PostgresLargeObjectManagerTest {
    }
 
    @Test
-   public void testShouldUseReflection() throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+   public void testShouldUseReflection() throws Exception {
       ClassLoader loader = new FunkyClassLoader();
       Class funkyClass = loader.loadClass("org.apache.activemq.artemis.jdbc.store.file.PostgresLargeObjectManager");
       Object manager = funkyClass.getConstructor().newInstance();

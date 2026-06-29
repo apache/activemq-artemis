@@ -184,6 +184,10 @@ public abstract class AbstractJDBCDriver {
       }
    }
 
+   public SQLProvider getSqlProvider() {
+      return sqlProvider;
+   }
+
    public void setSqlProvider(SQLProvider sqlProvider) {
       this.sqlProvider = sqlProvider;
    }

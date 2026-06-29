@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -41,23 +45,23 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RingQueueTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString address = new SimpleString("RingQueueTestAddress");
+   private final SimpleString address = SimpleString.of("RingQueueTestAddress");
 
-   private final SimpleString qName = new SimpleString("RingQueueTestQ1");
+   private final SimpleString qName = SimpleString.of("RingQueueTestQ1");
 
    @Test
    public void testSimple() throws Exception {
       ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession clientSession = addClientSession(sf.createSession(false, true, true));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(address).setRingSize(1L));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(address).setRingSize(1L));
       clientSession.start();
       final Queue queue = server.locateQueue(qName);
       assertEquals(1, queue.getRingSize());
@@ -86,7 +90,7 @@ public class RingQueueTest extends ActiveMQTestBase {
       ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession clientSession = addClientSession(sf.createSession(false, true, false));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(address).setRingSize(1L));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(address).setRingSize(1L));
       clientSession.start();
       final Queue queue = server.locateQueue(qName);
 
@@ -137,7 +141,7 @@ public class RingQueueTest extends ActiveMQTestBase {
       ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession clientSession = addClientSession(sf.createSession(false, true, false));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(address).setRingSize(1L));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(address).setRingSize(1L));
       clientSession.start();
       final Queue queue = server.locateQueue(qName);
       assertEquals(1, queue.getRingSize());
@@ -153,7 +157,7 @@ public class RingQueueTest extends ActiveMQTestBase {
       Wait.assertEquals(2, queue::getDeliveringCount);
       consumer.close();
       Wait.assertEquals(1, queue::getMessageCount);
-      Wait.assertEquals(0,  queue::getDeliveringCount);
+      Wait.assertEquals(0, queue::getDeliveringCount);
       Wait.assertEquals(1, queue::getMessagesReplaced);
       consumer = clientSession.createConsumer(qName);
       message = consumer.receiveImmediate();
@@ -174,7 +178,7 @@ public class RingQueueTest extends ActiveMQTestBase {
       ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession clientSession = addClientSession(sf.createSession(false, true, false));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(address).setRingSize(1L));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(address).setRingSize(1L));
       clientSession.start();
       final Queue queue = server.locateQueue(qName);
       assertEquals(1, queue.getRingSize());
@@ -200,7 +204,7 @@ public class RingQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testDefaultAddressSetting() throws Exception {
-      SimpleString random = RandomUtil.randomSimpleString();
+      SimpleString random = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setDefaultRingSize(100));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
@@ -222,7 +226,7 @@ public class RingQueueTest extends ActiveMQTestBase {
       ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession clientSession = addClientSession(sf.createSession(false, true, true));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       clientSession.start();
       final Queue queue = server.locateQueue(qName);
       assertEquals(-1, queue.getRingSize());
@@ -291,7 +295,7 @@ public class RingQueueTest extends ActiveMQTestBase {
       ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession clientSession = addClientSession(sf.createSession(false, true, true));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(address).setRingSize(1L).setNonDestructive(true));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(address).setRingSize(1L).setNonDestructive(true));
       clientSession.start();
       final Queue queue = server.locateQueue(qName);
       assertEquals(1, queue.getRingSize());
@@ -321,7 +325,7 @@ public class RingQueueTest extends ActiveMQTestBase {
       ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession clientSession = addClientSession(sf.createSession(false, true, true));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(address).setRingSize(1L).setNonDestructive(true));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(address).setRingSize(1L).setNonDestructive(true));
       clientSession.start();
       final Queue queue = server.locateQueue(qName);
       assertEquals(1, queue.getRingSize());
@@ -344,7 +348,7 @@ public class RingQueueTest extends ActiveMQTestBase {
       ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession clientSession = addClientSession(sf.createSession(false, true, true));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(address).setRingSize(RING_SIZE));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(address).setRingSize(RING_SIZE));
       clientSession.start();
       final Queue queue = server.locateQueue(qName);
       assertEquals(RING_SIZE, queue.getRingSize());
@@ -375,7 +379,7 @@ public class RingQueueTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

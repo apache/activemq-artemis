@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,8 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CompactingStressTest extends ActiveMQTestBase {
 
@@ -110,7 +112,7 @@ public class CompactingStressTest extends ActiveMQTestBase {
 
          for (int j = 0; j < 1000; j++) {
             ClientMessage msg = cons.receive(2000);
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
             msg.acknowledge();
          }
 
@@ -119,7 +121,7 @@ public class CompactingStressTest extends ActiveMQTestBase {
 
       }
 
-      Assert.assertNull(cons.receiveImmediate());
+      assertNull(cons.receiveImmediate());
 
       session.close();
 
@@ -135,11 +137,11 @@ public class CompactingStressTest extends ActiveMQTestBase {
 
       for (int i = 0; i < 500; i++) {
          ClientMessage msg = cons.receive(1000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.acknowledge();
       }
 
-      Assert.assertNull(cons.receiveImmediate());
+      assertNull(cons.receiveImmediate());
 
       prod = session.createProducer(CompactingStressTest.AD2);
 
@@ -263,7 +265,7 @@ public class CompactingStressTest extends ActiveMQTestBase {
                   msg.acknowledge();
                }
 
-               Assert.assertNull(cons.receiveImmediate());
+               assertNull(cons.receiveImmediate());
             } catch (Throwable e) {
                this.e = e;
             } finally {
@@ -315,17 +317,17 @@ public class CompactingStressTest extends ActiveMQTestBase {
 
          for (int i = 0; i < numberOfMessages.intValue(); i++) {
             ClientMessage msg = cons.receive(60000);
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
             msg.acknowledge();
          }
 
-         Assert.assertNull(cons.receiveImmediate());
+         assertNull(cons.receiveImmediate());
 
          cons.close();
 
          cons = sess.createConsumer(CompactingStressTest.Q2);
 
-         Assert.assertNull(cons.receiveImmediate());
+         assertNull(cons.receiveImmediate());
 
          cons.close();
 
@@ -333,11 +335,11 @@ public class CompactingStressTest extends ActiveMQTestBase {
 
          for (int i = 0; i < CompactingStressTest.TOT_AD3; i++) {
             ClientMessage msg = cons.receive(60000);
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
             msg.acknowledge();
          }
 
-         Assert.assertNull(cons.receiveImmediate());
+         assertNull(cons.receiveImmediate());
 
       } finally {
          try {
@@ -360,17 +362,17 @@ public class CompactingStressTest extends ActiveMQTestBase {
       ClientSession sess = addClientSession(sf.createSession());
 
       try {
-         sess.createQueue(new QueueConfiguration(CompactingStressTest.Q1).setAddress(CompactingStressTest.AD1));
+         sess.createQueue(QueueConfiguration.of(CompactingStressTest.Q1).setAddress(CompactingStressTest.AD1));
       } catch (Exception ignored) {
       }
 
       try {
-         sess.createQueue(new QueueConfiguration(CompactingStressTest.Q2).setAddress(CompactingStressTest.AD2));
+         sess.createQueue(QueueConfiguration.of(CompactingStressTest.Q2).setAddress(CompactingStressTest.AD2));
       } catch (Exception ignored) {
       }
 
       try {
-         sess.createQueue(new QueueConfiguration(CompactingStressTest.Q3).setAddress(CompactingStressTest.AD3));
+         sess.createQueue(QueueConfiguration.of(CompactingStressTest.Q3).setAddress(CompactingStressTest.AD3));
       } catch (Exception ignored) {
       }
 

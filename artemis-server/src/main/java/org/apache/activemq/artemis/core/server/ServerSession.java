@@ -50,8 +50,8 @@ public interface ServerSession extends SecurityAuth {
    Executor getSessionExecutor();
 
    /**
-    * Certain protocols may create an internal session that shouldn't go through security checks.
-    * make sure you don't expose this property through any protocol layer as that would be a security breach
+    * Certain protocols may create an internal session that shouldn't go through security checks. Make sure you don't
+    * expose this property through any protocol layer as that would be a security breach
     */
    void enableSecurity();
 
@@ -122,7 +122,16 @@ public interface ServerSession extends SecurityAuth {
                                  boolean supportLargeMessage,
                                  Integer credits) throws Exception;
 
-    /**
+   ServerConsumer createConsumer(long consumerID,
+                                 SimpleString queueName,
+                                 SimpleString filterString,
+                                 int priority,
+                                 boolean browseOnly,
+                                 boolean supportLargeMessage,
+                                 Integer credits,
+                                 boolean enforceSecurity) throws Exception;
+
+   /**
     * To be used by protocol heads that needs to control the transaction outside the session context.
     */
    void resetTX(Transaction transaction);
@@ -144,14 +153,6 @@ public interface ServerSession extends SecurityAuth {
 
    /**
     * Create queue with default delivery mode
-    *
-    * @param address
-    * @param name
-    * @param filterString
-    * @param temporary
-    * @param durable
-    * @return
-    * @throws Exception
     */
    @Deprecated
    Queue createQueue(SimpleString address,
@@ -282,7 +283,7 @@ public interface ServerSession extends SecurityAuth {
 
    /**
     * This method invokes {@link ActiveMQServer#createQueue(QueueConfiguration)} with a few client-specific additions:
-    * <p><ul>
+    * <ul>
     * <li>set the routing type based on the prefixes configured on the acceptor used by the client
     * <li>strip any prefixes from the address and queue names (if applicable)
     * <li>check authorization based on the client's credentials
@@ -292,7 +293,6 @@ public interface ServerSession extends SecurityAuth {
     *
     * @param queueConfiguration the configuration to use when creating the queue
     * @return the {@code Queue} instance that was created
-    * @throws Exception
     */
    Queue createQueue(QueueConfiguration queueConfiguration) throws Exception;
 
@@ -310,6 +310,8 @@ public interface ServerSession extends SecurityAuth {
    void deleteQueue(SimpleString name) throws Exception;
 
    void deleteQueue(SimpleString name, boolean enforceSecurity) throws Exception;
+
+   void deleteAddress(SimpleString name) throws Exception;
 
    ServerConsumer createConsumer(long consumerID,
                                  SimpleString queueName,
@@ -346,6 +348,14 @@ public interface ServerSession extends SecurityAuth {
                       boolean noAutoCreateQueue,
                       RoutingContext routingContext) throws Exception;
 
+   RoutingStatus send(Transaction tx,
+                      SimpleString address,
+                      RoutingType routingType,
+                      Message message,
+                      boolean direct,
+                      String senderName,
+                      boolean noAutoCreateQueue,
+                      RoutingContext routingContext) throws Exception;
 
    RoutingStatus doSend(Transaction tx,
                         Message msg,
@@ -355,6 +365,15 @@ public interface ServerSession extends SecurityAuth {
                         boolean noAutoCreateQueue) throws Exception;
 
    RoutingStatus doSend(Transaction tx,
+                        Message msg,
+                        SimpleString originalAddress,
+                        boolean direct,
+                        String senderName,
+                        boolean noAutoCreateQueue,
+                        RoutingContext routingContext) throws Exception;
+
+   RoutingStatus doSend(Transaction tx,
+                        RoutingType routingType,
                         Message msg,
                         SimpleString originalAddress,
                         boolean direct,
@@ -387,14 +406,9 @@ public interface ServerSession extends SecurityAuth {
    Map<String, String> getMetaData();
 
    /**
-    * Add all the producers detail to the JSONArray object.
-    * This is a method to be used by the management layer.
-    *
-    * @param objs
-    * @throws Exception
+    * Add all the producers detail to the JSONArray object. This is a method to be used by the management layer.
     */
-   void describeProducersInfo(JsonArrayBuilder objs) throws Exception;
-
+   void describeProducersInfo(JsonArrayBuilder objs);
 
    long getCreationTime();
 
@@ -483,10 +497,6 @@ public interface ServerSession extends SecurityAuth {
 
    SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception;
 
-   SimpleString getMatchingQueue(SimpleString address,
-                                 SimpleString queueName,
-                                 RoutingType routingType) throws Exception;
-
    AddressInfo getAddress(SimpleString address);
 
    /**
@@ -510,7 +520,7 @@ public interface ServerSession extends SecurityAuth {
     *
     * @param addressInfo the address to inspect
     * @return a {@code org.apache.activemq.artemis.api.core.Pair} representing the canonical (i.e. non-prefixed) address
-    *         name and the {@code org.apache.activemq.artemis.api.core.RoutingType} corresponding to the that prefix.
+    * name and the {@code org.apache.activemq.artemis.api.core.RoutingType} corresponding to the that prefix.
     */
    AddressInfo getAddressAndRoutingType(AddressInfo addressInfo);
 
@@ -519,12 +529,12 @@ public interface ServerSession extends SecurityAuth {
    /**
     * Get the canonical (i.e. non-prefixed) address and the corresponding routing-type.
     *
-    * @param address the address to inspect
+    * @param address             the address to inspect
     * @param defaultRoutingTypes a the {@code java.util.Set} of {@code org.apache.activemq.artemis.api.core.RoutingType}
     *                            objects to return if no prefix match is found.
     * @return a {@code org.apache.activemq.artemis.api.core.Pair} representing the canonical (i.e. non-prefixed) address
-    *         name and the {@code java.util.Set} of {@code org.apache.activemq.artemis.api.core.RoutingType} objects
-    *         corresponding to the that prefix.
+    * name and the {@code java.util.Set} of {@code org.apache.activemq.artemis.api.core.RoutingType} objects
+    * corresponding to the that prefix.
     */
    Pair<SimpleString, EnumSet<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
                                                                       EnumSet<RoutingType> defaultRoutingTypes);

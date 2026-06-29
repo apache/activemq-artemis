@@ -1,6 +1,7 @@
 = Configuration Reload
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 The system will perform a periodic check on the configuration files, configured by `configuration-file-refresh-period`, with the default at `5000`, in milliseconds.
 These checks can be disabled by specifying `-1`.
@@ -15,6 +16,7 @@ Once the configuration file is changed (broker.xml) the following modules will b
 * Diverts
 * Addresses & Queues
 * Bridges
+* Acceptors
 
 If using xref:configuration-index.adoc#modularising-broker-xml[modularised `broker.xml`] ensure you also read xref:configuration-index.adoc#reloading-modular-configuration-files[reloading modular configuration files]
 
@@ -503,16 +505,6 @@ Below lists the effects of adding, deleting and updating of an element/attribute
 | Will be set back to the default `null`
 | On reload group-first-key will be updated
 
-| attribute `last-value`
-| On reload last-value will be updated
-| Will be set back to the default `false`
-| On reload last-value will be updated
-
-| attribute `last-value-key`
-| On reload last-value-key will be updated
-| Will be set back to the default `null`
-| On reload last-value-key will be updated
-
 | attribute `non-destructive`
 | On reload non-destructive will be updated
 | Will be set back to the default `false`
@@ -538,17 +530,24 @@ Below lists the effects of adding, deleting and updating of an element/attribute
 | The filter will be removed after reloading
 | The filter will be updated after reloading
 
-| `<durable>`
-| The queue durability will be set to the given value after reloading
-| The queue durability will be set to the default `true` after reloading
-| The queue durability will be set to the new value after reloading
-
 | `<user>`
 | The queue user will be set to the given value after reloading
 | The queue user will be set to the default `null` after reloading
 | The queue user will be set to the new value after reloading
 |===
 
+==== `<acceptors>`
+Adding, updating and removing an `<acceptor>` is supported, updating or removing an `<acceptor>` results in the closure of all connections that were accepted previously. Added or updated acceptors are automatically started during the configuration reload process unless the `auto-start` option is set to false.
+
+==== `<connection-routers>`
+Adding, updating and removing an `<connection-router>` is supported, updating or removing an `<connection-router>` results in the stop of the existing connection router and re-adding a new instance if updated.
+
 === `<jms>` _(Deprecated)_
 
 === `<queues>` _(Deprecated)_
+
+== Broker Properties
+The location of xref:configuration-index.adoc#broker-properties[brokerProperties] files will be tracked for reload. Any property values that reflect reloadable parameters will take effect after the `configuration-file-refresh-period`.
+
+[NOTE]
+If programmatic configuration is in play, any configuration object passed to the broker must not contain reloadable config *and* have a broker properties source. The broker does not have any config reload callbacks at this time to protect the programmatic configuration. An IllegalStateException will be thrown if this arises.

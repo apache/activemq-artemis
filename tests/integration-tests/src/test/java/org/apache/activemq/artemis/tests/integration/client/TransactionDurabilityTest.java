@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -26,8 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TransactionDurabilityTest extends ActiveMQTestBase {
 
@@ -43,16 +45,14 @@ public class TransactionDurabilityTest extends ActiveMQTestBase {
     * R1 then rolls back, and the server is restarted - unfortunately since the delete record was written R1 is not ready to be consumed again.
     *
     * It's therefore crucial the messages aren't deleted from storage until AFTER any ack records are committed to storage.
-    *
-    *
     */
    @Test
    public void testRolledBackAcknowledgeWithSameMessageAckedByOtherSession() throws Exception {
-      final SimpleString testAddress = new SimpleString("testAddress");
+      final SimpleString testAddress = SimpleString.of("testAddress");
 
-      final SimpleString queue1 = new SimpleString("queue1");
+      final SimpleString queue1 = SimpleString.of("queue1");
 
-      final SimpleString queue2 = new SimpleString("queue2");
+      final SimpleString queue2 = SimpleString.of("queue2");
 
       ActiveMQServer server = createServer(true, createDefaultInVMConfig());
 
@@ -66,9 +66,9 @@ public class TransactionDurabilityTest extends ActiveMQTestBase {
 
       ClientSession session2 = addClientSession(sf.createSession(false, false, false));
 
-      session1.createQueue(new QueueConfiguration(queue1).setAddress(testAddress));
+      session1.createQueue(QueueConfiguration.of(queue1).setAddress(testAddress));
 
-      session1.createQueue(new QueueConfiguration(queue2).setAddress(testAddress));
+      session1.createQueue(QueueConfiguration.of(queue2).setAddress(testAddress));
 
       ClientProducer producer = session1.createProducer(testAddress);
 
@@ -86,11 +86,11 @@ public class TransactionDurabilityTest extends ActiveMQTestBase {
 
       ClientMessage m1 = consumer1.receive(1000);
 
-      Assert.assertNotNull(m1);
+      assertNotNull(m1);
 
       ClientMessage m2 = consumer2.receive(1000);
 
-      Assert.assertNotNull(m2);
+      assertNotNull(m2);
 
       m2.acknowledge();
 
@@ -124,11 +124,11 @@ public class TransactionDurabilityTest extends ActiveMQTestBase {
 
       m1 = consumer1.receiveImmediate();
 
-      Assert.assertNull(m1);
+      assertNull(m1);
 
       m2 = consumer2.receive(1000);
 
-      Assert.assertNotNull(m2);
+      assertNotNull(m2);
 
       m2.acknowledge();
 
@@ -156,11 +156,11 @@ public class TransactionDurabilityTest extends ActiveMQTestBase {
 
       m1 = consumer1.receiveImmediate();
 
-      Assert.assertNull(m1);
+      assertNull(m1);
 
       m2 = consumer2.receiveImmediate();
 
-      Assert.assertNull(m2);
+      assertNull(m2);
 
       session1.close();
 

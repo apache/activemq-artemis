@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,18 +25,18 @@ import java.util.List;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ScaleDownHandler;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes.FakeQueue;
+import org.junit.jupiter.api.Test;
 
 public class QueueComparatorTest {
 
    @Test
    public void testQueueSorting() {
-      FakeQueue queue1 = new FakeQueue(new SimpleString("1"));
+      FakeQueue queue1 = new FakeQueue(SimpleString.of("1"));
       queue1.setMessageCount(1);
-      FakeQueue queue2 = new FakeQueue(new SimpleString("2"));
+      FakeQueue queue2 = new FakeQueue(SimpleString.of("2"));
       queue2.setMessageCount(2);
-      FakeQueue queue3 = new FakeQueue(new SimpleString("3"));
+      FakeQueue queue3 = new FakeQueue(SimpleString.of("3"));
       queue3.setMessageCount(3);
 
       List<Queue> queues = new ArrayList<>();
@@ -42,14 +44,14 @@ public class QueueComparatorTest {
       queues.add(queue2);
       queues.add(queue3);
 
-      Assert.assertEquals(1, queues.get(0).getMessageCount());
-      Assert.assertEquals(2, queues.get(1).getMessageCount());
-      Assert.assertEquals(3, queues.get(2).getMessageCount());
+      assertEquals(1, queues.get(0).getMessageCount());
+      assertEquals(2, queues.get(1).getMessageCount());
+      assertEquals(3, queues.get(2).getMessageCount());
 
       Collections.sort(queues, new ScaleDownHandler.OrderQueueByNumberOfReferencesComparator());
 
-      Assert.assertEquals(3, queues.get(0).getMessageCount());
-      Assert.assertEquals(2, queues.get(1).getMessageCount());
-      Assert.assertEquals(1, queues.get(2).getMessageCount());
+      assertEquals(3, queues.get(0).getMessageCount());
+      assertEquals(2, queues.get(1).getMessageCount());
+      assertEquals(1, queues.get(2).getMessageCount());
    }
 }

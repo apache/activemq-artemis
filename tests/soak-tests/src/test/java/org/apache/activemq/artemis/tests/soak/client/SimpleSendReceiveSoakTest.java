@@ -28,15 +28,17 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SimpleSendReceiveSoakTest extends ActiveMQTestBase {
 
 
-   private static final SimpleString ADDRESS = new SimpleString("ADD");
+   private static final SimpleString ADDRESS = SimpleString.of("ADD");
 
    private static final boolean IS_JOURNAL = false;
 
@@ -51,7 +53,7 @@ public class SimpleSendReceiveSoakTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -59,7 +61,7 @@ public class SimpleSendReceiveSoakTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultConfig(isNetty()).setJournalFileSize(10 * 1024 * 1024);
 
-      server = createServer(IS_JOURNAL, config, -1, -1, new HashMap<String, AddressSettings>());
+      server = createServer(IS_JOURNAL, config, -1, -1, new HashMap<>());
 
       server.start();
 
@@ -69,7 +71,7 @@ public class SimpleSendReceiveSoakTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession();
 
-      session.createQueue(new QueueConfiguration(SimpleSendReceiveSoakTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(SimpleSendReceiveSoakTest.ADDRESS));
 
       session.close();
    }

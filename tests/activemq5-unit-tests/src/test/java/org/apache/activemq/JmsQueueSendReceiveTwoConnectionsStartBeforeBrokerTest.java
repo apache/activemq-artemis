@@ -23,9 +23,6 @@ import org.apache.activemq.broker.BrokerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest extends JmsQueueSendReceiveTwoConnectionsTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest.class);
@@ -64,12 +61,7 @@ public class JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest extends JmsQ
    protected void setUp() throws Exception {
       setAutoFail(true);
       // now lets asynchronously start a broker
-      Thread thread = new Thread() {
-         @Override
-         public void run() {
-            startBroker();
-         }
-      };
+      Thread thread = new Thread(() -> startBroker());
       thread.start();
 
       super.setUp();

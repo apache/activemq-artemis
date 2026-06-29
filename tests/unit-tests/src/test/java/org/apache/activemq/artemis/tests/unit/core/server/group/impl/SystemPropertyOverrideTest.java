@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.server.group.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SystemPropertyOverrideTest extends ActiveMQTestBase {
-
-
 
    @Test
    public void testSystemPropertyOverride() throws Exception {
@@ -33,7 +33,7 @@ public class SystemPropertyOverrideTest extends ActiveMQTestBase {
       System.setProperty(GroupingHandlerConfiguration.GROUP_TIMEOUT_PROP_NAME, groupTimeoutPropertyValue);
       System.setProperty(GroupingHandlerConfiguration.REAPER_PERIOD_PROP_NAME, reaperPeriodPropertyValue);
 
-      GroupingHandlerConfiguration groupingHandlerConfiguration = new GroupingHandlerConfiguration().setName(new SimpleString("test")).setType(GroupingHandlerConfiguration.TYPE.LOCAL).setAddress(new SimpleString("address"));
+      GroupingHandlerConfiguration groupingHandlerConfiguration = new GroupingHandlerConfiguration().setName(SimpleString.of("test")).setType(GroupingHandlerConfiguration.TYPE.LOCAL).setAddress(SimpleString.of("address"));
 
       assertEquals(groupingHandlerConfiguration.getGroupTimeout(), Long.parseLong(groupTimeoutPropertyValue));
       assertEquals(groupingHandlerConfiguration.getReaperPeriod(), Long.parseLong(reaperPeriodPropertyValue));

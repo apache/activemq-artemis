@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.EnumSet;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -51,11 +52,11 @@ public class CreateAddressMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", address=" + address);
-      buff.append(", routingTypes=" + routingTypes);
-      buff.append(", autoCreated=" + autoCreated);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", address=" + address);
+      sb.append(", routingTypes=" + routingTypes);
+      sb.append(", autoCreated=" + autoCreated);
+      return sb.toString();
    }
 
    public SimpleString getAddress() {
@@ -108,38 +109,24 @@ public class CreateAddressMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + (routingTypes.hashCode());
-      result = prime * result + (autoCreated ? 1231 : 1237);
-      result = prime * result + (requiresResponse ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), address, routingTypes, autoCreated, requiresResponse);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof CreateAddressMessage))
+      }
+      if (!(obj instanceof CreateAddressMessage other)) {
          return false;
-      CreateAddressMessage other = (CreateAddressMessage) obj;
-      if (address == null) {
-         if (other.address != null)
-            return false;
-      } else if (!address.equals(other.address))
-         return false;
-      if (routingTypes == null) {
-         if (other.routingTypes != null)
-            return false;
-      } else if (!routingTypes.equals(other.routingTypes))
-         return false;
-      if (autoCreated != other.autoCreated)
-         return false;
-      if (requiresResponse != other.requiresResponse)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(address, other.address) &&
+             Objects.equals(routingTypes, other.routingTypes) &&
+             autoCreated == other.autoCreated &&
+             requiresResponse == other.requiresResponse;
    }
 }

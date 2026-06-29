@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -56,9 +58,9 @@ public class DisconnectMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", nodeID=" + nodeID);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", nodeID=" + nodeID);
+      return sb.toString();
    }
 
    @Override
@@ -68,10 +70,7 @@ public class DisconnectMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((nodeID == null) ? 0 : nodeID.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(nodeID);
    }
 
    @Override
@@ -82,17 +81,10 @@ public class DisconnectMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof DisconnectMessage)) {
+      if (!(obj instanceof DisconnectMessage other)) {
          return false;
       }
-      DisconnectMessage other = (DisconnectMessage) obj;
-      if (nodeID == null) {
-         if (other.nodeID != null) {
-            return false;
-         }
-      } else if (!nodeID.equals(other.nodeID)) {
-         return false;
-      }
-      return true;
+
+      return Objects.equals(nodeID, other.nodeID);
    }
 }

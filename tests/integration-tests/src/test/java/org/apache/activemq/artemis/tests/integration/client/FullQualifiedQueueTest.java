@@ -31,33 +31,40 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.Wait;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private SimpleString anycastAddress = new SimpleString("address.anycast");
-   private SimpleString multicastAddress = new SimpleString("address.multicast");
-   private SimpleString mixedAddress = new SimpleString("address.mixed");
+   private SimpleString anycastAddress = SimpleString.of("address.anycast");
+   private SimpleString multicastAddress = SimpleString.of("address.multicast");
+   private SimpleString mixedAddress = SimpleString.of("address.mixed");
 
-   private SimpleString anycastQ1 = new SimpleString("q1");
-   private SimpleString anycastQ2 = new SimpleString("q2");
-   private SimpleString anycastQ3 = new SimpleString("q3");
+   private SimpleString anycastQ1 = SimpleString.of("q1");
+   private SimpleString anycastQ2 = SimpleString.of("q2");
+   private SimpleString anycastQ3 = SimpleString.of("q3");
 
-   private SimpleString multicastQ1 = new SimpleString("q4");
-   private SimpleString multicastQ2 = new SimpleString("q5");
-   private SimpleString multicastQ3 = new SimpleString("q6");
+   private SimpleString multicastQ1 = SimpleString.of("q4");
+   private SimpleString multicastQ2 = SimpleString.of("q5");
+   private SimpleString multicastQ3 = SimpleString.of("q6");
 
    private ActiveMQServer server;
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -69,12 +76,12 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testMixedQueues() throws Exception {
-      server.createQueue(new QueueConfiguration(multicastQ1).setAddress(mixedAddress));
-      server.createQueue(new QueueConfiguration(multicastQ2).setAddress(mixedAddress));
-      server.createQueue(new QueueConfiguration(multicastQ3).setAddress(mixedAddress));
-      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(anycastQ2).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(anycastQ3).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(multicastQ1).setAddress(mixedAddress));
+      server.createQueue(QueueConfiguration.of(multicastQ2).setAddress(mixedAddress));
+      server.createQueue(QueueConfiguration.of(multicastQ3).setAddress(mixedAddress));
+      server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ2).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ3).setAddress(mixedAddress).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession();
@@ -139,9 +146,9 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testMulticastQueues() throws Exception {
-      server.createQueue(new QueueConfiguration(multicastQ1).setAddress(multicastAddress));
-      server.createQueue(new QueueConfiguration(multicastQ2).setAddress(multicastAddress));
-      server.createQueue(new QueueConfiguration(multicastQ3).setAddress(multicastAddress));
+      server.createQueue(QueueConfiguration.of(multicastQ1).setAddress(multicastAddress));
+      server.createQueue(QueueConfiguration.of(multicastQ2).setAddress(multicastAddress));
+      server.createQueue(QueueConfiguration.of(multicastQ3).setAddress(multicastAddress));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession();
@@ -180,9 +187,9 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testAnycastQueues() throws Exception {
-      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(anycastQ2).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(anycastQ3).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ2).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ3).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession();
@@ -241,7 +248,7 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testSpecialCase() throws Exception {
-      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession();
@@ -251,7 +258,7 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
       sendMessages(session, producer, 1);
 
       //::queue
-      ClientConsumer consumer1 = session.createConsumer(CompositeAddress.toFullyQualified(new SimpleString(""), anycastQ1));
+      ClientConsumer consumer1 = session.createConsumer(CompositeAddress.toFullyQualified(SimpleString.of(""), anycastQ1));
       session.start();
 
       ClientMessage m = consumer1.receive(2000);
@@ -263,7 +270,7 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
       try {
          //queue::
-         session.createConsumer(CompositeAddress.toFullyQualified(anycastQ1, new SimpleString("")));
+         session.createConsumer(CompositeAddress.toFullyQualified(anycastQ1, SimpleString.of("")));
          fail("should get exception");
       } catch (ActiveMQNonExistentQueueException e) {
          //expected.
@@ -271,10 +278,42 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
       try {
          //::
-         session.createConsumer(CompositeAddress.toFullyQualified(new SimpleString(""), new SimpleString("")));
+         session.createConsumer(CompositeAddress.toFullyQualified(SimpleString.of(""), SimpleString.of("")));
          fail("should get exception");
       } catch (ActiveMQNonExistentQueueException e) {
          //expected.
       }
+   }
+
+   @Test
+   public void testFilteredQueue() throws Exception {
+      testFilteredQueue(true);
+   }
+
+   @Test
+   public void testFilteredQueueNegative() throws Exception {
+      testFilteredQueue(false);
+   }
+
+   private void testFilteredQueue(boolean useProperty) throws Exception {
+      final String key = "myKey";
+      final String value = RandomUtil.randomUUIDString();
+      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setFilterString(key + "='" + value + "'"));
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = cf.createSession();
+      session.start();
+
+      ClientProducer producer = session.createProducer(anycastAddress);
+      ClientMessage m = session.createMessage(true);
+      if (useProperty) {
+         m.putStringProperty(key, value);
+      }
+      producer.send(m);
+
+
+      Wait.assertEquals(useProperty ? 1L : 0L, () -> server.getAddressInfo(anycastAddress).getRoutedMessageCount(), 2000, 100);
+      Wait.assertEquals(useProperty ? 0L : 1L, () -> server.getAddressInfo(anycastAddress).getUnRoutedMessageCount(), 2000, 100);
+      Wait.assertEquals(useProperty ? 1L : 0L, () -> server.locateQueue(anycastQ1).getMessageCount(), 2000, 100);
    }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
@@ -26,7 +28,9 @@ public class SessionSendMessage_V2 extends SessionSendMessage {
 
    private long correlationID;
 
-   /** This will be using the CoreMessage because it is meant for the core-protocol */
+   /**
+    * This will be using the CoreMessage because it is meant for the core-protocol
+    */
    public SessionSendMessage_V2(final ICoreMessage message,
                                 final boolean requiresResponse,
                                 final SendAcknowledgementHandler handler) {
@@ -71,33 +75,29 @@ public class SessionSendMessage_V2 extends SessionSendMessage {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (correlationID ^ (correlationID >>> 32));
-      return result;
+      return super.hashCode() + Objects.hashCode(correlationID);
    }
-
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", correlationID=" + correlationID);
-      buff.append(", requiresResponse=" + super.isRequiresResponse());
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", correlationID=" + correlationID);
+      sb.append(", requiresResponse=" + super.isRequiresResponse());
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionSendMessage_V2))
+      }
+      if (!(obj instanceof SessionSendMessage_V2 other)) {
          return false;
-      SessionSendMessage_V2 other = (SessionSendMessage_V2) obj;
-      if (correlationID != other.correlationID)
-         return false;
-      return true;
-   }
+      }
 
+      return correlationID == other.correlationID;
+   }
 }

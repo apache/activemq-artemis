@@ -24,6 +24,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -92,8 +93,8 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
    }
 
    /**
-    * <p> This is the member discovery implementation using direct UDP. It was extracted as a refactoring from
-    * {@link org.apache.activemq.artemis.core.cluster.DiscoveryGroup}</p>
+    * This is the member discovery implementation using direct UDP. It was extracted as a refactoring from
+    * {@link org.apache.activemq.artemis.core.cluster.DiscoveryGroup}
     */
    private static class UDPBroadcastEndpoint implements BroadcastEndpoint {
 
@@ -197,7 +198,6 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
 
       @Override
       public void openClient() throws Exception {
-         // HORNETQ-874
          if (checkForLinux() || checkForSolaris() || checkForHp()) {
             try {
                receivingSocket = new MulticastSocket(new InetSocketAddress(groupAddress, groupPort));
@@ -281,29 +281,19 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((groupAddress == null) ? 0 : groupAddress.hashCode());
-      result = prime * result + groupPort;
-      return result;
+      return Objects.hash(groupAddress, groupPort);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof UDPBroadcastEndpointFactory other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      UDPBroadcastEndpointFactory other = (UDPBroadcastEndpointFactory) obj;
-      if (groupAddress == null) {
-         if (other.groupAddress != null)
-            return false;
-      } else if (!groupAddress.equals(other.groupAddress))
-         return false;
-      if (groupPort != other.groupPort)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(groupAddress, other.groupAddress) &&
+             groupPort == other.groupPort;
    }
 }

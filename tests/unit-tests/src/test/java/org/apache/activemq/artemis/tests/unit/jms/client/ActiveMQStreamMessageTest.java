@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.MessageEOFException;
 import javax.jms.MessageFormatException;
 import java.util.ArrayList;
@@ -23,17 +27,14 @@ import java.util.ArrayList;
 import org.apache.activemq.artemis.jms.client.ActiveMQStreamMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
-
-
 
    @Test
    public void testGetType() throws Exception {
       ActiveMQStreamMessage message = new ActiveMQStreamMessage();
-      Assert.assertEquals(ActiveMQStreamMessage.TYPE, message.getType());
+      assertEquals(ActiveMQStreamMessage.TYPE, message.getType());
    }
 
    @Test
@@ -44,7 +45,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeBoolean(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readBoolean());
+      assertEquals(value, message.readBoolean());
    }
 
    @Test
@@ -55,47 +56,27 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeString(Boolean.toString(value));
       message.reset();
 
-      Assert.assertEquals(value, message.readBoolean());
+      assertEquals(value, message.readBoolean());
    }
 
    @Test
    public void testReadBooleanFromInvalidType() throws Exception {
-      doReadTypeFromInvalidType(RandomUtil.randomFloat(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readBoolean();
-         }
-      });
+      doReadTypeFromInvalidType(RandomUtil.randomFloat(), message -> message.readBoolean());
    }
 
    @Test
    public void testReadBooleanFromEmptyMessage() throws Exception {
-      doReadTypeFromEmptyMessage(new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readBoolean();
-         }
-      });
+      doReadTypeFromEmptyMessage(message -> message.readBoolean());
    }
 
    @Test
    public void testReadCharFromInvalidType() throws Exception {
-      doReadTypeFromInvalidType(RandomUtil.randomFloat(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readChar();
-         }
-      });
+      doReadTypeFromInvalidType(RandomUtil.randomFloat(), message -> message.readChar());
    }
 
    @Test
    public void testReadCharFromEmptyMessage() throws Exception {
-      doReadTypeFromEmptyMessage(new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readChar();
-         }
-      });
+      doReadTypeFromEmptyMessage(message -> message.readChar());
    }
 
    @Test
@@ -106,7 +87,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeByte(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readByte());
+      assertEquals(value, message.readByte());
    }
 
    @Test
@@ -117,27 +98,17 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeString(Byte.toString(value));
       message.reset();
 
-      Assert.assertEquals(value, message.readByte());
+      assertEquals(value, message.readByte());
    }
 
    @Test
    public void testReadByteFromInvalidType() throws Exception {
-      doReadTypeFromInvalidType(RandomUtil.randomFloat(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readByte();
-         }
-      });
+      doReadTypeFromInvalidType(RandomUtil.randomFloat(), message -> message.readByte());
    }
 
    @Test
    public void testReadByteFromEmptyMessage() throws Exception {
-      doReadTypeFromEmptyMessage(new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readByte();
-         }
-      });
+      doReadTypeFromEmptyMessage(message -> message.readByte());
    }
 
    @Test
@@ -170,22 +141,14 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
    @Test
    public void testReadBytesFromInvalidType() throws Exception {
-      doReadTypeFromInvalidType(RandomUtil.randomBoolean(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readByte();
-         }
-      });
+      doReadTypeFromInvalidType(RandomUtil.randomBoolean(), message -> message.readByte());
    }
 
    @Test
    public void testReadBytesFromEmptyMessage() throws Exception {
-      doReadTypeFromEmptyMessage(new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            byte[] bytes = new byte[1];
-            return message.readBytes(bytes);
-         }
+      doReadTypeFromEmptyMessage(message -> {
+         byte[] bytes = new byte[1];
+         return message.readBytes(bytes);
       });
    }
 
@@ -197,7 +160,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeByte(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readShort());
+      assertEquals(value, message.readShort());
    }
 
    @Test
@@ -208,7 +171,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeShort(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readShort());
+      assertEquals(value, message.readShort());
    }
 
    @Test
@@ -219,27 +182,17 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeString(Short.toString(value));
       message.reset();
 
-      Assert.assertEquals(value, message.readShort());
+      assertEquals(value, message.readShort());
    }
 
    @Test
    public void testReadShortFromInvalidType() throws Exception {
-      doReadTypeFromInvalidType(RandomUtil.randomFloat(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readShort();
-         }
-      });
+      doReadTypeFromInvalidType(RandomUtil.randomFloat(), message -> message.readShort());
    }
 
    @Test
    public void testReadShortFromEmptyMessage() throws Exception {
-      doReadTypeFromEmptyMessage(new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readShort();
-         }
-      });
+      doReadTypeFromEmptyMessage(message -> message.readShort());
    }
 
    @Test
@@ -250,7 +203,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeByte(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readInt());
+      assertEquals(value, message.readInt());
    }
 
    @Test
@@ -261,7 +214,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeShort(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readInt());
+      assertEquals(value, message.readInt());
    }
 
    @Test
@@ -272,7 +225,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeInt(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readInt());
+      assertEquals(value, message.readInt());
    }
 
    @Test
@@ -283,27 +236,17 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeString(Integer.toString(value));
       message.reset();
 
-      Assert.assertEquals(value, message.readInt());
+      assertEquals(value, message.readInt());
    }
 
    @Test
    public void testReadIntFromInvalidType() throws Exception {
-      doReadTypeFromInvalidType(RandomUtil.randomFloat(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readInt();
-         }
-      });
+      doReadTypeFromInvalidType(RandomUtil.randomFloat(), message -> message.readInt());
    }
 
    @Test
    public void testReadIntFromEmptyMessage() throws Exception {
-      doReadTypeFromEmptyMessage(new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readInt();
-         }
-      });
+      doReadTypeFromEmptyMessage(message -> message.readInt());
    }
 
    @Test
@@ -314,7 +257,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeChar(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readChar());
+      assertEquals(value, message.readChar());
    }
 
    @Test
@@ -339,7 +282,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeByte(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readLong());
+      assertEquals(value, message.readLong());
    }
 
    @Test
@@ -350,7 +293,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeShort(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readLong());
+      assertEquals(value, message.readLong());
    }
 
    @Test
@@ -361,7 +304,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeInt(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readLong());
+      assertEquals(value, message.readLong());
    }
 
    @Test
@@ -372,7 +315,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeLong(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readLong());
+      assertEquals(value, message.readLong());
    }
 
    @Test
@@ -383,27 +326,17 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeString(Long.toString(value));
       message.reset();
 
-      Assert.assertEquals(value, message.readLong());
+      assertEquals(value, message.readLong());
    }
 
    @Test
    public void testReadLongFromInvalidType() throws Exception {
-      doReadTypeFromInvalidType(RandomUtil.randomFloat(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readLong();
-         }
-      });
+      doReadTypeFromInvalidType(RandomUtil.randomFloat(), message -> message.readLong());
    }
 
    @Test
    public void testReadLongFromEmptyMessage() throws Exception {
-      doReadTypeFromEmptyMessage(new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readLong();
-         }
-      });
+      doReadTypeFromEmptyMessage(message -> message.readLong());
    }
 
    @Test
@@ -414,7 +347,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeFloat(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readFloat(), 0.000001);
+      assertEquals(value, message.readFloat(), 0.000001);
    }
 
    @Test
@@ -425,27 +358,17 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeString(Float.toString(value));
       message.reset();
 
-      Assert.assertEquals(value, message.readFloat(), 0.000001);
+      assertEquals(value, message.readFloat(), 0.000001);
    }
 
    @Test
    public void testReadFloatFromInvalidType() throws Exception {
-      doReadTypeFromInvalidType(RandomUtil.randomBoolean(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readFloat();
-         }
-      });
+      doReadTypeFromInvalidType(RandomUtil.randomBoolean(), message -> message.readFloat());
    }
 
    @Test
    public void testReadFloatFromEmptyMessage() throws Exception {
-      doReadTypeFromEmptyMessage(new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readFloat();
-         }
-      });
+      doReadTypeFromEmptyMessage(message -> message.readFloat());
    }
 
    @Test
@@ -456,7 +379,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeFloat(value);
       message.reset();
 
-      Assert.assertEquals(Float.valueOf(value).doubleValue(), message.readDouble(), 0.000001);
+      assertEquals(Float.valueOf(value).doubleValue(), message.readDouble(), 0.000001);
    }
 
    @Test
@@ -467,7 +390,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeDouble(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readDouble(), 0.000001);
+      assertEquals(value, message.readDouble(), 0.000001);
    }
 
    @Test
@@ -478,27 +401,17 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeString(Double.toString(value));
       message.reset();
 
-      Assert.assertEquals(value, message.readDouble(), 0.000001);
+      assertEquals(value, message.readDouble(), 0.000001);
    }
 
    @Test
    public void testReadDoubleFromInvalidType() throws Exception {
-      doReadTypeFromInvalidType(RandomUtil.randomBoolean(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readDouble();
-         }
-      });
+      doReadTypeFromInvalidType(RandomUtil.randomBoolean(), message -> message.readDouble());
    }
 
    @Test
    public void testReadDoubleFromEmptyMessage() throws Exception {
-      doReadTypeFromEmptyMessage(new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readDouble();
-         }
-      });
+      doReadTypeFromEmptyMessage(message -> message.readDouble());
    }
 
    @Test
@@ -509,7 +422,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeBoolean(value);
       message.reset();
 
-      Assert.assertEquals(Boolean.toString(value), message.readString());
+      assertEquals(Boolean.toString(value), message.readString());
    }
 
    @Test
@@ -520,7 +433,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeChar(value);
       message.reset();
 
-      Assert.assertEquals(Character.toString(value), message.readString());
+      assertEquals(Character.toString(value), message.readString());
    }
 
    @Test
@@ -531,12 +444,12 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeByte(value);
       message.reset();
 
-      Assert.assertEquals(Byte.toString(value), message.readString());
+      assertEquals(Byte.toString(value), message.readString());
    }
 
    @Test
    public void testString() throws Exception {
-      String value = RandomUtil.randomString();
+      String value = RandomUtil.randomUUIDString();
       ActiveMQStreamMessage message = new ActiveMQStreamMessage();
 
       message.writeString(value);
@@ -549,7 +462,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       }
 
       // we can read the String without resetting the message
-      Assert.assertEquals(value, message.readString());
+      assertEquals(value, message.readString());
    }
 
    @Test
@@ -560,7 +473,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeShort(value);
       message.reset();
 
-      Assert.assertEquals(Short.toString(value), message.readString());
+      assertEquals(Short.toString(value), message.readString());
    }
 
    @Test
@@ -571,7 +484,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeInt(value);
       message.reset();
 
-      Assert.assertEquals(Integer.toString(value), message.readString());
+      assertEquals(Integer.toString(value), message.readString());
    }
 
    @Test
@@ -582,7 +495,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeLong(value);
       message.reset();
 
-      Assert.assertEquals(Long.toString(value), message.readString());
+      assertEquals(Long.toString(value), message.readString());
    }
 
    @Test
@@ -593,7 +506,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeFloat(value);
       message.reset();
 
-      Assert.assertEquals(Float.toString(value), message.readString());
+      assertEquals(Float.toString(value), message.readString());
    }
 
    @Test
@@ -604,18 +517,18 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeDouble(value);
       message.reset();
 
-      Assert.assertEquals(Double.toString(value), message.readString());
+      assertEquals(Double.toString(value), message.readString());
    }
 
    @Test
    public void testReadStringFromString() throws Exception {
-      String value = RandomUtil.randomString();
+      String value = RandomUtil.randomUUIDString();
       ActiveMQStreamMessage message = new ActiveMQStreamMessage();
 
       message.writeString(value);
       message.reset();
 
-      Assert.assertEquals(value, message.readString());
+      assertEquals(value, message.readString());
    }
 
    @Test
@@ -625,120 +538,67 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.writeString(null);
       message.reset();
 
-      Assert.assertNull(message.readString());
+      assertNull(message.readString());
    }
 
    @Test
    public void testReadStringFromEmptyMessage() throws Exception {
-      doReadTypeFromEmptyMessage(new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readString();
-         }
-      });
+      doReadTypeFromEmptyMessage(message -> message.readString());
    }
 
    @Test
    public void testWriteObjectWithBoolean() throws Exception {
-      doWriteObjectWithType(RandomUtil.randomBoolean(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readBoolean();
-         }
-      });
+      doWriteObjectWithType(RandomUtil.randomBoolean(), message -> message.readBoolean());
    }
 
    @Test
    public void testWriteObjectWithChar() throws Exception {
-      doWriteObjectWithType(RandomUtil.randomChar(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readChar();
-         }
-      });
+      doWriteObjectWithType(RandomUtil.randomChar(), message -> message.readChar());
    }
 
    @Test
    public void testWriteObjectWithByte() throws Exception {
-      doWriteObjectWithType(RandomUtil.randomByte(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readByte();
-         }
-      });
+      doWriteObjectWithType(RandomUtil.randomByte(), message -> message.readByte());
    }
 
    @Test
    public void testWriteObjectWithBytes() throws Exception {
       final byte[] value = RandomUtil.randomBytes();
-      doWriteObjectWithType(value, new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            byte[] bytes = new byte[value.length];
-            message.readBytes(bytes);
-            return bytes;
-         }
+      doWriteObjectWithType(value, message -> {
+         byte[] bytes = new byte[value.length];
+         message.readBytes(bytes);
+         return bytes;
       });
    }
 
    @Test
    public void testWriteObjectWithShort() throws Exception {
-      doWriteObjectWithType(RandomUtil.randomShort(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readShort();
-         }
-      });
+      doWriteObjectWithType(RandomUtil.randomShort(), message -> message.readShort());
    }
 
    @Test
    public void testWriteObjectWithInt() throws Exception {
-      doWriteObjectWithType(RandomUtil.randomInt(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readInt();
-         }
-      });
+      doWriteObjectWithType(RandomUtil.randomInt(), message -> message.readInt());
    }
 
    @Test
    public void testWriteObjectWithLong() throws Exception {
-      doWriteObjectWithType(RandomUtil.randomLong(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readLong();
-         }
-      });
+      doWriteObjectWithType(RandomUtil.randomLong(), message -> message.readLong());
    }
 
    @Test
    public void testWriteObjectWithFloat() throws Exception {
-      doWriteObjectWithType(RandomUtil.randomFloat(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readFloat();
-         }
-      });
+      doWriteObjectWithType(RandomUtil.randomFloat(), message -> message.readFloat());
    }
 
    @Test
    public void testWriteObjectWithDouble() throws Exception {
-      doWriteObjectWithType(RandomUtil.randomDouble(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readDouble();
-         }
-      });
+      doWriteObjectWithType(RandomUtil.randomDouble(), message -> message.readDouble());
    }
 
    @Test
    public void testWriteObjectWithString() throws Exception {
-      doWriteObjectWithType(RandomUtil.randomString(), new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readString();
-         }
-      });
+      doWriteObjectWithType(RandomUtil.randomUUIDString(), message -> message.readString());
    }
 
    @Test
@@ -754,7 +614,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
       try {
          message.writeObject(new ArrayList<String>());
-         Assert.fail("MessageFormatException");
+         fail("MessageFormatException");
       } catch (MessageFormatException e) {
       }
    }
@@ -767,7 +627,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
       message.reset();
 
-      Assert.assertEquals(value, message.readObject());
+      assertEquals(value, message.readObject());
    }
 
    @Test
@@ -778,7 +638,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
       message.reset();
 
-      Assert.assertEquals(value, message.readObject());
+      assertEquals(value, message.readObject());
    }
 
    @Test
@@ -789,7 +649,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
       message.reset();
 
-      Assert.assertEquals(value, message.readObject());
+      assertEquals(value, message.readObject());
    }
 
    @Test
@@ -812,7 +672,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
       message.reset();
 
-      Assert.assertEquals(value, message.readObject());
+      assertEquals(value, message.readObject());
    }
 
    @Test
@@ -823,7 +683,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
       message.reset();
 
-      Assert.assertEquals(value, message.readObject());
+      assertEquals(value, message.readObject());
    }
 
    @Test
@@ -834,7 +694,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
       message.reset();
 
-      Assert.assertEquals(value, message.readObject());
+      assertEquals(value, message.readObject());
    }
 
    @Test
@@ -845,7 +705,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
       message.reset();
 
-      Assert.assertEquals(value, message.readObject());
+      assertEquals(value, message.readObject());
    }
 
    @Test
@@ -856,18 +716,18 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
       message.reset();
 
-      Assert.assertEquals(value, message.readObject());
+      assertEquals(value, message.readObject());
    }
 
    @Test
    public void testReadObjectFromString() throws Exception {
-      String value = RandomUtil.randomString();
+      String value = RandomUtil.randomUUIDString();
       ActiveMQStreamMessage message = new ActiveMQStreamMessage();
       message.writeString(value);
 
       message.reset();
 
-      Assert.assertEquals(value, message.readObject());
+      assertEquals(value, message.readObject());
    }
 
 
@@ -877,7 +737,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
       try {
          reader.readType(message);
-         Assert.fail("MessageEOFException");
+         fail("MessageEOFException");
       } catch (MessageEOFException e) {
       }
    }
@@ -890,7 +750,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
       try {
          reader.readType(message);
-         Assert.fail("MessageFormatException");
+         fail("MessageFormatException");
       } catch (MessageFormatException e) {
       }
    }
@@ -902,10 +762,10 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.reset();
 
       Object v = reader.readType(message);
-      if (value instanceof byte[]) {
-         ActiveMQTestBase.assertEqualsByteArrays((byte[]) value, (byte[]) v);
+      if (value instanceof byte[] bytes) {
+         ActiveMQTestBase.assertEqualsByteArrays(bytes, (byte[]) v);
       } else {
-         Assert.assertEquals(value, v);
+         assertEquals(value, v);
       }
    }
 

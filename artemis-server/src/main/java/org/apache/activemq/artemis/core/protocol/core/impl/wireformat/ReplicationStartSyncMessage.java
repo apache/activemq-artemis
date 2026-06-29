@@ -25,12 +25,13 @@ import org.apache.activemq.artemis.utils.DataConstants;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This message may signal start or end of the replication synchronization.
  * <p>
- * At start, it sends all fileIDs used in a given journal live server to the backup, so the backup
- * can reserve those IDs.
+ * At start, it sends all fileIDs used in a given journal primary server to the backup, so the backup can reserve those
+ * IDs.
  */
 public class ReplicationStartSyncMessage extends PacketImpl {
 
@@ -39,10 +40,6 @@ public class ReplicationStartSyncMessage extends PacketImpl {
    private boolean synchronizationIsFinished;
    private String nodeID;
    private boolean allowsAutoFailBack;
-
-   // this is for version compatibility
-   // certain versions will need to interrupt encoding and decoding after synchronizationIsFinished on the encoding depending on its value
-   private final boolean beforeTwoEighteen;
 
    public enum SyncDataType {
       JournalBindings(AbstractJournalStorageManager.JournalContent.BINDINGS.typeByte),
@@ -61,26 +58,29 @@ public class ReplicationStartSyncMessage extends PacketImpl {
       }
 
       public static SyncDataType getDataType(byte code) {
-         if (code == JournalBindings.code)
+         if (code == JournalBindings.code) {
             return JournalBindings;
-         if (code == JournalMessages.code)
+         }
+         if (code == JournalMessages.code) {
             return JournalMessages;
-         if (code == LargeMessages.code)
+         }
+         if (code == LargeMessages.code) {
             return LargeMessages;
-         if (code == ActivationSequence.code)
+         }
+         if (code == ActivationSequence.code) {
             return ActivationSequence;
+         }
 
          throw new InvalidParameterException("invalid byte: " + code);
       }
    }
 
-   public ReplicationStartSyncMessage(boolean beforeTwoEighteen) {
+   public ReplicationStartSyncMessage() {
       super(REPLICATION_START_FINISH_SYNC);
-      this.beforeTwoEighteen = synchronizationIsFinished;
    }
 
-   public ReplicationStartSyncMessage(boolean beforeTwoEighteen, List<Long> filenames) {
-      this(beforeTwoEighteen);
+   public ReplicationStartSyncMessage(List<Long> filenames) {
+      this();
       ids = new long[filenames.size()];
       for (int i = 0; i < filenames.size(); i++) {
          ids[i] = filenames.get(i);
@@ -90,24 +90,20 @@ public class ReplicationStartSyncMessage extends PacketImpl {
    }
 
 
-   public ReplicationStartSyncMessage(boolean beforeTwoEighteen, String nodeID, long nodeDataVersion) {
-      this(beforeTwoEighteen, nodeID);
+   public ReplicationStartSyncMessage(String nodeID, long nodeDataVersion) {
+      this();
+      synchronizationIsFinished = true;
+      this.nodeID = nodeID;
       ids = new long[1];
       ids[0] = nodeDataVersion;
       dataType = SyncDataType.ActivationSequence;
    }
 
-   public ReplicationStartSyncMessage(boolean beforeTwoEighteen, String nodeID) {
-      this(beforeTwoEighteen);
-      synchronizationIsFinished = true;
-      this.nodeID = nodeID;
-   }
-
-   public ReplicationStartSyncMessage(boolean beforeTwoEighteen, JournalFile[] datafiles,
+   public ReplicationStartSyncMessage(JournalFile[] datafiles,
                                       AbstractJournalStorageManager.JournalContent contentType,
                                       String nodeID,
                                       boolean allowsAutoFailBack) {
-      this(beforeTwoEighteen);
+      this();
       this.nodeID = nodeID;
       this.allowsAutoFailBack = allowsAutoFailBack;
       synchronizationIsFinished = false;
@@ -148,10 +144,6 @@ public class ReplicationStartSyncMessage extends PacketImpl {
       buffer.writeBoolean(synchronizationIsFinished);
       buffer.writeBoolean(allowsAutoFailBack);
       buffer.writeString(nodeID);
-      if (beforeTwoEighteen && synchronizationIsFinished) {
-         // At this point, pre 2.18.0 servers don't expect any more data to come.
-         return;
-      }
       buffer.writeByte(dataType.code);
       buffer.writeInt(ids.length);
       for (long id : ids) {
@@ -184,8 +176,8 @@ public class ReplicationStartSyncMessage extends PacketImpl {
    }
 
    /**
-    * @return {@code true} if the live has finished synchronizing its data and the backup is
-    * therefore up-to-date, {@code false} otherwise.
+    * @return {@code true} if the primary has finished synchronizing its data and the backup is therefore up-to-date,
+    * {@code false} otherwise.
     */
    public boolean isSynchronizationFinished() {
       return synchronizationIsFinished;
@@ -205,49 +197,37 @@ public class ReplicationStartSyncMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (allowsAutoFailBack ? 1231 : 1237);
-      result = prime * result + ((dataType == null) ? 0 : dataType.hashCode());
-      result = prime * result + Arrays.hashCode(ids);
-      result = prime * result + ((nodeID == null) ? 0 : nodeID.hashCode());
-      result = prime * result + (synchronizationIsFinished ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), allowsAutoFailBack, dataType, Arrays.hashCode(ids), nodeID,
+                          synchronizationIsFinished);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReplicationStartSyncMessage))
+      }
+      if (!(obj instanceof ReplicationStartSyncMessage other)) {
          return false;
-      ReplicationStartSyncMessage other = (ReplicationStartSyncMessage) obj;
-      if (allowsAutoFailBack != other.allowsAutoFailBack)
-         return false;
-      if (dataType != other.dataType)
-         return false;
-      if (!Arrays.equals(ids, other.ids))
-         return false;
-      if (nodeID == null) {
-         if (other.nodeID != null)
-            return false;
-      } else if (!nodeID.equals(other.nodeID))
-         return false;
-      if (synchronizationIsFinished != other.synchronizationIsFinished)
-         return false;
-      return true;
+      }
+
+      return allowsAutoFailBack == other.allowsAutoFailBack &&
+             dataType == other.dataType &&
+             Arrays.equals(ids, other.ids) &&
+             Objects.equals(nodeID, other.nodeID) &&
+             synchronizationIsFinished == other.synchronizationIsFinished;
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buf = new StringBuffer(super.getPacketString());
-      buf.append(", synchronizationIsFinished=" + synchronizationIsFinished);
-      buf.append(", dataType=" + dataType);
-      buf.append(", nodeID=" + nodeID);
-      buf.append(", ids=" + Arrays.toString(ids));
-      buf.append(", allowsAutoFailBack=" + allowsAutoFailBack);
-      return buf.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", synchronizationIsFinished=" + synchronizationIsFinished);
+      sb.append(", dataType=" + dataType);
+      sb.append(", nodeID=" + nodeID);
+      sb.append(", ids=" + Arrays.toString(ids));
+      sb.append(", allowsAutoFailBack=" + allowsAutoFailBack);
+      return sb.toString();
    }
 }

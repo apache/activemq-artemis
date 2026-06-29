@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -27,7 +29,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase {
 
@@ -67,7 +69,7 @@ public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase {
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("testuser", "testpassword");
       securityManager.getConfiguration().addRole("testuser", "arole");
-      Role role = new Role("arole", false, true, false, false, false, false, false, false, false, false);
+      Role role = new Role("arole", false, true, false, false, false, false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);
@@ -88,7 +90,7 @@ public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase {
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       Binding binding = server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE);
-      assertEquals(((LocalQueueBinding) binding).getQueue().getConsumerCount(), 15);
+      assertEquals(15, ((LocalQueueBinding) binding).getQueue().getConsumerCount());
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
    }

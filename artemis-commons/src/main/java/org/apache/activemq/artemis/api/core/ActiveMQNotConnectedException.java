@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- * A client is not able to connect to ActiveMQ Artemis server.
+ * A client is not able to connect to the Apache Artemis server.
  */
 public final class ActiveMQNotConnectedException extends ActiveMQException {
 

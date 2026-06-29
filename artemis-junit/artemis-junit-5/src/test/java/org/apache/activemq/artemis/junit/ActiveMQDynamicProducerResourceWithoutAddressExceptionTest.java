@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 public class ActiveMQDynamicProducerResourceWithoutAddressExceptionTest {
 
-   static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
+   static final SimpleString TEST_QUEUE_ONE = SimpleString.of("test.queue.one");
    static final String TEST_BODY = "Test Message";
    static final Map<String, Object> TEST_PROPERTIES;
 
@@ -44,11 +44,11 @@ public class ActiveMQDynamicProducerResourceWithoutAddressExceptionTest {
 
    @RegisterExtension
    @Order(1)
-   public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
+   public static EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
 
    @RegisterExtension
    @Order(2)
-   public ActiveMQDynamicProducerExtension producer = new ActiveMQDynamicProducerExtension(server.getVmURL());
+   public static ActiveMQDynamicProducerExtension producer = new ActiveMQDynamicProducerExtension(server.getVmURL());
 
    @BeforeAll
    public void setUp() throws Exception {

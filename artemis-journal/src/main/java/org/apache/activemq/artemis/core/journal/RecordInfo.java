@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.core.journal;
 
+import java.util.Objects;
+
+import io.netty.buffer.Unpooled;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
+
 public class RecordInfo {
 
    public RecordInfo(final long id,
@@ -38,8 +44,7 @@ public class RecordInfo {
    }
 
    /**
-    * How many times this record was compacted (up to 7 times)
-    * After the record has reached 7 times, it will always be 7
+    * How many times this record was compacted (up to 7 times) After the record has reached 7 times, it will always be 7
     * As we only store up to 0x7 binary, as part of the recordID (binary 111)
     */
    public final short compactCount;
@@ -54,23 +59,29 @@ public class RecordInfo {
 
    public boolean replaceableUpdate;
 
+   public ActiveMQBuffer wrapData() {
+      return new ChannelBufferWrapper(Unpooled.wrappedBuffer(data), true);
+   }
+
    public byte getUserRecordType() {
       return userRecordType;
    }
 
    @Override
    public int hashCode() {
-      return (int) (id >>> 32 ^ id);
+      return Objects.hashCode(id);
    }
 
    @Override
-   public boolean equals(final Object other) {
-      if (!(other instanceof RecordInfo)) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof RecordInfo other)) {
          return false;
       }
-      RecordInfo r = (RecordInfo) other;
 
-      return r.id == id;
+      return other.id == id;
    }
 
    @Override

@@ -41,17 +41,15 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
    private boolean syncDone;
    private boolean deleted;
 
-   /**
-    * @param storageManager
-    */
    public LargeServerMessageInSync(StorageManager storageManager) {
-      mainLM = storageManager.createLargeMessage();
+      mainLM = storageManager.createCoreLargeMessage();
       this.storageManager = storageManager;
    }
 
    public synchronized void joinSyncedData(ByteBuffer buffer) throws Exception {
-      if (deleted)
+      if (deleted) {
          return;
+      }
       SequentialFile mainSeqFile = mainLM.getAppendFile();
       if (!mainSeqFile.isOpen()) {
          mainSeqFile.open();
@@ -96,6 +94,11 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
    }
 
    @Override
+   public Message getMessage() {
+      return mainLM.toMessage();
+   }
+
+   @Override
    public synchronized void releaseResources(boolean sync, boolean sendEvent) {
       if (logger.isTraceEnabled()) {
          logger.trace("release resources called on {}", mainLM, new Exception("trace"));
@@ -120,21 +123,20 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
       }
    }
 
-   /**
-    * @throws Exception
-    */
    private void deleteAppendFile() throws Exception {
       if (appendFile != null) {
-         if (appendFile.isOpen())
+         if (appendFile.isOpen()) {
             appendFile.close();
+         }
          appendFile.delete();
       }
    }
 
    @Override
    public synchronized void addBytes(byte[] bytes) throws Exception {
-      if (deleted)
+      if (deleted) {
          return;
+      }
 
       if (syncDone) {
          if (logger.isTraceEnabled()) {

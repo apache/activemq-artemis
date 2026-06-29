@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +37,14 @@ import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not explicitly tested here):
  *
  * [MQTT-2.1.3-1] Where a flag bit is marked as “Reserved” it is reserved for future use and MUST be set to the value listed.
@@ -49,20 +54,18 @@ import org.junit.Test;
 
 public class ControlPacketFormatTests extends MQTT5TestSupport {
 
-   public ControlPacketFormatTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-2.2.1-2] A PUBLISH packet MUST NOT contain a Packet Identifier if its QoS value is set to 0.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPacketIdQoSZero() throws Exception {
       final String TOPIC = this.getTopicName();
+      final String CONSUMER_CLIENT_ID = "consumer";
       final int MESSAGE_COUNT = 100;
 
       final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
-      MqttClient consumer = createPahoClient("consumer");
+      MqttClient consumer = createPahoClient(CONSUMER_CLIENT_ID);
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
          public void messageArrived(String topic, MqttMessage message) throws Exception {
@@ -79,7 +82,7 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          producer.publish(TOPIC, ("foo" + i).getBytes(), 0, false);
       }
-      Wait.assertEquals(MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC).getMessagesAdded());
+      Wait.assertEquals(MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC, CONSUMER_CLIENT_ID).getMessagesAdded());
       producer.disconnect();
       producer.close();
 
@@ -92,9 +95,10 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
     * [MQTT-2.2.1-4] Each time a Server sends a new PUBLISH (with QoS > 0) MQTT Control Packet it MUST assign it a non
     * zero Packet Identifier that is currently unused.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPacketIdQoSGreaterThanZero() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final int MESSAGE_COUNT = 10;
       final List IDS = new ArrayList();
@@ -115,15 +119,15 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
       });
       consumer.connect();
       consumer.subscribe(TOPIC, 2);
-      Wait.assertTrue(() -> getSubscriptionQueue(TOPIC) != null);
-      Wait.assertEquals(1, () -> getSubscriptionQueue(TOPIC).getConsumerCount());
+      Wait.assertTrue(() -> getSubscriptionQueue(TOPIC, CONSUMER_ID) != null);
+      Wait.assertEquals(1, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getConsumerCount());
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          producer.publish(TOPIC, ("foo" + i).getBytes(), (RandomUtil.randomPositiveInt() % 2) + 1, false);
       }
-      Wait.assertEquals(MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC).getMessagesAdded());
+      Wait.assertEquals(MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded());
       producer.disconnect();
       producer.close();
 
@@ -136,7 +140,8 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
     * [MQTT-2.2.1-5] A PUBACK, PUBREC, PUBREL, or PUBCOMP packet MUST contain the same Packet Identifier as the PUBLISH
     * packet that was originally sent.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPacketIdPubAckQoS2() throws Exception {
       AtomicInteger id = new AtomicInteger(0);
       AtomicBoolean failed = new AtomicBoolean(false);
@@ -177,7 +182,8 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient consumer = createPahoClient("consumer");
+      final String CONSUMER_ID = "consumer";
+      MqttClient consumer = createPahoClient(CONSUMER_ID);
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
          public void messageArrived(String topic, MqttMessage message) throws Exception {
@@ -190,11 +196,11 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "foo".getBytes(StandardCharsets.UTF_8), 2, false);
-      Wait.assertEquals((long) 1, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
+      Wait.assertEquals((long) 1, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded(), 2000, 100);
       producer.disconnect();
       producer.close();
 
-      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC).getMessagesAcknowledged(), 15000, 100);
+      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAcknowledged(), 15000, 100);
       assertTrue(latch.await(15, TimeUnit.SECONDS));
       Wait.assertFalse(() -> failed.get(), 2000, 100);
       Wait.assertEquals(8, () -> packetCount.get());
@@ -206,7 +212,8 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
     * [MQTT-2.2.1-5] A PUBACK, PUBREC, PUBREL, or PUBCOMP packet MUST contain the same Packet Identifier as the PUBLISH
     * packet that was originally sent.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPacketIdPubAckQoS1() throws Exception {
       AtomicInteger id = new AtomicInteger(0);
       AtomicBoolean failed = new AtomicBoolean(false);
@@ -247,7 +254,8 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient consumer = createPahoClient("consumer");
+      final String CONSUMER_ID = "consumer";
+      MqttClient consumer = createPahoClient(CONSUMER_ID);
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
          public void messageArrived(String topic, MqttMessage message) throws Exception {
@@ -260,11 +268,11 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "foo".getBytes(StandardCharsets.UTF_8), 1, false);
-      Wait.assertEquals((long) 1, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
+      Wait.assertEquals((long) 1, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded(), 2000, 100);
       producer.disconnect();
       producer.close();
 
-      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC).getMessagesAcknowledged(), 15000, 100);
+      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAcknowledged(), 15000, 100);
       assertTrue(latch.await(15, TimeUnit.SECONDS));
       Wait.assertFalse(() -> failed.get(), 2000, 100);
       Wait.assertEquals(4, () -> packetCount.get());
@@ -276,7 +284,8 @@ public class ControlPacketFormatTests extends MQTT5TestSupport {
     * [MQTT-2.2.1-6] A SUBACK and UNSUBACK MUST contain the Packet Identifier that was used in the corresponding
     * SUBSCRIBE and UNSUBSCRIBE packet respectively.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPacketIdSubAckAndUnsubAck() throws Exception {
       AtomicInteger subId = new AtomicInteger(0);
       AtomicInteger unsubId = new AtomicInteger(0);

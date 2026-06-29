@@ -22,19 +22,19 @@ package org.apache.activemq.artemis.api.core.management;
 public interface BroadcastGroupControl extends BaseBroadcastGroupControl {
 
    /**
-    * Returns the local port this broadcast group is bound to.
+    * {@return the local port this broadcast group is bound to}
     */
    @Attribute(desc = "local port this broadcast group is bound to")
    int getLocalBindPort() throws Exception;
 
    /**
-    * Returns the address this broadcast group is broadcasting to.
+    * {@return the address this broadcast group is broadcasting to}
     */
    @Attribute(desc = "address this broadcast group is broadcasting to")
    String getGroupAddress() throws Exception;
 
    /**
-    * Returns the port this broadcast group is broadcasting to.
+    * {@return the port this broadcast group is broadcasting to}
     */
    @Attribute(desc = "port this broadcast group is broadcasting to")
    int getGroupPort() throws Exception;

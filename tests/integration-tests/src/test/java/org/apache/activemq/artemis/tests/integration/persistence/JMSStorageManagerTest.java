@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,9 +38,8 @@ import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfi
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JMSStorageManagerTest extends ActiveMQTestBase {
 
@@ -51,7 +52,7 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -108,7 +109,7 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
          str[i] = "str" + i;
       }
 
-      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("some-name").setConnectorNames(new ArrayList<String>()).setBindings("");
+      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("some-name").setConnectorNames(new ArrayList<>()).setBindings("");
 
       int size = config.getEncodeSize();
 
@@ -141,16 +142,16 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
       }
 
       List<String> connectorConfigs = new ArrayList<>();
-      Map<String, Object> liveParams = new HashMap<>();
-      liveParams.put(TransportConstants.PORT_PROP_NAME, 5665);
+      Map<String, Object> primaryParams = new HashMap<>();
+      primaryParams.put(TransportConstants.PORT_PROP_NAME, 5665);
       Map<String, Object> backupParams = new HashMap<>();
       backupParams.put(TransportConstants.PORT_PROP_NAME, 5775);
-      Map<String, Object> liveParams2 = new HashMap<>();
-      liveParams2.put(TransportConstants.PORT_PROP_NAME, 6665);
+      Map<String, Object> primaryParams2 = new HashMap<>();
+      primaryParams2.put(TransportConstants.PORT_PROP_NAME, 6665);
 
       ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("some-name").setConnectorNames(connectorConfigs).setBindings(str).setCallTimeout(RandomUtil.randomPositiveLong());
       List<Pair<String, String>> connectors = new ArrayList<>();
-      connectors.add(new Pair<String, String>(RandomUtil.randomString(), null));
+      connectors.add(new Pair<String, String>(RandomUtil.randomUUIDString(), null));
       //config.setConnectorNames(connectors);
 
       addSetting(new PersistedConnectionFactory(config));
@@ -169,7 +170,6 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
    }
 
 
-   //https://issues.jboss.org/browse/HORNETQ-812
    @Test
    public void testJNDIPersistence() throws Exception {
       createJMSStorage();
@@ -182,15 +182,15 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
 
       List<PersistedBindings> jndiList = jmsJournal.recoverPersistedBindings();
 
-      Assert.assertEquals(1, destinations.size());
+      assertEquals(1, destinations.size());
 
-      Assert.assertEquals(1, jndiList.size());
+      assertEquals(1, jndiList.size());
 
       jmsJournal.deleteDestination(PersistedType.Queue, "jndiPersistQueue");
 
       destinations = jmsJournal.recoverDestinations();
 
-      Assert.assertEquals(0, destinations.size());
+      assertEquals(0, destinations.size());
 
       jmsJournal.stop();
 
@@ -198,26 +198,23 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
 
       destinations = jmsJournal.recoverDestinations();
 
-      Assert.assertEquals(0, destinations.size());
+      assertEquals(0, destinations.size());
 
       jndiList = jmsJournal.recoverPersistedBindings();
 
-      Assert.assertEquals(1, jndiList.size());
+      assertEquals(1, jndiList.size());
 
       PersistedBindings jndi = jndiList.get(0);
 
       List<String> jndis = jndi.getBindings();
 
-      Assert.assertEquals(1, jndis.size());
+      assertEquals(1, jndis.size());
 
-      Assert.assertEquals("jndi-1", jndis.get(0));
+      assertEquals("jndi-1", jndis.get(0));
 
    }
 
 
-   /**
-    * @throws Exception
-    */
    protected void createJMSStorage() throws Exception {
       jmsJournal = new JMSJournalStorageManagerImpl(null, new TimeAndCounterIDGenerator(), createDefaultInVMConfig(), null);
       runAfter(jmsJournal::stop);

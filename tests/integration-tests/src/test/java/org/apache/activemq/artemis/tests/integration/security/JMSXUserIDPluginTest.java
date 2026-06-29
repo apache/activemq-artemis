@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.security;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -34,9 +36,8 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -48,10 +49,10 @@ import java.util.Map;
 public class JMSXUserIDPluginTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
-   private SimpleString ADDRESS = new SimpleString("TestQueue");
+   private SimpleString ADDRESS = SimpleString.of("TestQueue");
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -62,7 +63,7 @@ public class JMSXUserIDPluginTest extends ActiveMQTestBase {
 
       server.registerBrokerPlugin(plugin);
       server.start();
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Test
@@ -75,8 +76,8 @@ public class JMSXUserIDPluginTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(ADDRESS.toString());
       session.start();
       ClientMessage clientMessage = consumer.receiveImmediate();
-      Assert.assertNotNull(clientMessage);
-      Assert.assertEquals(clientMessage.getValidatedUserID(), "testuser");
+      assertNotNull(clientMessage);
+      assertEquals("testuser", clientMessage.getValidatedUserID());
    }
 
    @Test
@@ -97,8 +98,8 @@ public class JMSXUserIDPluginTest extends ActiveMQTestBase {
       connection.start();
       MessageConsumer consumer = session.createConsumer(queue);
       Message message = consumer.receive(5000);
-      Assert.assertNotNull(message);
-      Assert.assertEquals(message.getStringProperty("_AMQ_VALIDATED_USER"), "testuser");
+      assertNotNull(message);
+      assertEquals("testuser", message.getStringProperty("_AMQ_VALIDATED_USER"));
       connection.close();
    }
 
@@ -111,8 +112,6 @@ public class JMSXUserIDPluginTest extends ActiveMQTestBase {
 
       /**
        * used to pass configured properties to Plugin
-       *
-       * @param properties
        */
       @Override
       public void init(Map<String, String> properties) {

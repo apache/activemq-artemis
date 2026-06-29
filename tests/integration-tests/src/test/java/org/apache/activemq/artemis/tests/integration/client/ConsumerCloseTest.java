@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.client;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -37,9 +36,13 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ConsumerCloseTest extends ActiveMQTestBase {
 
@@ -62,35 +65,16 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
 
       consumer.close();
 
-      Assert.assertTrue(consumer.isClosed());
+      assertTrue(consumer.isClosed());
 
-      expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            consumer.receive();
-         }
-      });
+      expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> consumer.receive());
 
-      expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            consumer.receiveImmediate();
-         }
-      });
+      expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> consumer.receiveImmediate());
 
-      expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            consumer.setMessageHandler(new MessageHandler() {
-               @Override
-               public void onMessage(final ClientMessage message) {
-               }
-            });
-         }
-      });
+      expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> consumer.setMessageHandler(message -> {
+      }));
    }
 
-   // https://jira.jboss.org/jira/browse/JBMESSAGING-1526
    @Test
    public void testCloseWithManyMessagesInBufferAndSlowConsumer() throws Exception {
       ClientConsumer consumer = session.createConsumer(queue);
@@ -139,7 +123,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
       consumer.close();
       long end = System.currentTimeMillis();
 
-      Assert.assertTrue(end - start <= 1500);
+      assertTrue(end - start <= 1500);
 
    }
 
@@ -179,7 +163,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
       // We received one, so we must receive the others now
       for (int i = 0; i < numMessages - 1; i++) {
          msg = consumer.receive(1000);
-         assertNotNull("Expected message at i=" + i, msg);
+         assertNotNull(msg, "Expected message at i=" + i);
          msg.acknowledge();
       }
 
@@ -190,7 +174,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
       consumer.close();
       long end = System.currentTimeMillis();
 
-      Assert.assertTrue(end - start <= 1500);
+      assertTrue(end - start <= 1500);
 
    }
 
@@ -236,7 +220,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
       // We received one, so we must receive the others now
       for (int i = 0; i < numMessages - 1; i++) {
          msg = consumer.receive(1000);
-         assertNotNull("Expected message at i=" + i, msg);
+         assertNotNull(msg, "Expected message at i=" + i);
          msg.acknowledge();
       }
 
@@ -256,14 +240,14 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
       consumer.close();
       long end = System.currentTimeMillis();
 
-      Assert.assertTrue(end - start <= 1500);
+      assertTrue(end - start <= 1500);
 
    }
 
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -272,15 +256,15 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
       server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
-      address = RandomUtil.randomSimpleString();
-      queue = RandomUtil.randomSimpleString();
+      address = RandomUtil.randomUUIDSimpleString();
+      queue = RandomUtil.randomUUIDSimpleString();
 
       locator = createInVMNonHALocator();
 
       sf = createSessionFactory(locator);
 
       session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
    }
 
 }

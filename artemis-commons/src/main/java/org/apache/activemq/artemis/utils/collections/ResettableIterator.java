@@ -21,8 +21,8 @@ import java.util.Iterator;
 public interface ResettableIterator<E> extends Iterator<E> {
 
    /**
-    * Resets the iterator so that you can iterate over all elements from your current position.
-    * Your current position (when reached again) signals the end of iteration as if the collection is circular.
+    * Resets the iterator so that you can iterate over all elements from your current position. Your current position
+    * (when reached again) signals the end of iteration as if the collection is circular.
     */
    void reset();
 }

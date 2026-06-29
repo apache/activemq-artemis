@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.resource.ResourceException;
@@ -45,7 +47,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class ActiveMQRATestBase extends JMSTestBase {
 
@@ -54,10 +56,10 @@ public abstract class ActiveMQRATestBase extends JMSTestBase {
    protected static final String MDBQUEUE = "mdbQueue";
    protected static final String DLQ = "dlqQueue";
    protected static final String MDBQUEUEPREFIXED = "mdbQueue";
-   protected static final SimpleString MDBQUEUEPREFIXEDSIMPLE = new SimpleString("mdbQueue");
+   protected static final SimpleString MDBQUEUEPREFIXEDSIMPLE = SimpleString.of("mdbQueue");
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
@@ -67,7 +69,7 @@ public abstract class ActiveMQRATestBase extends JMSTestBase {
    }
 
    protected void setupDLQ(int maxDeliveries) {
-      AddressSettings settings = new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString(DLQ)).setMaxDeliveryAttempts(maxDeliveries);
+      AddressSettings settings = new AddressSettings().setDeadLetterAddress(SimpleString.of(DLQ)).setMaxDeliveryAttempts(maxDeliveries);
       server.getAddressSettingsRepository().addMatch("#", settings);
    }
 

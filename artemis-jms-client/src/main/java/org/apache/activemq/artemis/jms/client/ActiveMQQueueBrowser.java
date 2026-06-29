@@ -21,6 +21,7 @@ import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -31,7 +32,7 @@ import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMes
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 
 /**
- * ActiveMQ Artemis implementation of a JMS QueueBrowser.
+ * Apache Artemis implementation of a JMS QueueBrowser.
  */
 public final class ActiveMQQueueBrowser implements QueueBrowser {
 
@@ -59,7 +60,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
       this.session = session;
       this.queue = queue;
       if (messageSelector != null) {
-         filterString = new SimpleString(SelectorTranslator.convertToActiveMQFilterString(messageSelector));
+         filterString = SimpleString.of(SelectorTranslator.convertToActiveMQFilterString(messageSelector));
       }
       this.enable1xPrefixes = enable1xPrefixes;
    }
@@ -93,7 +94,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
 
    @Override
    public String getMessageSelector() throws JMSException {
-      return filterString == null ? null : filterString.toString();
+      return Objects.toString(filterString, null);
    }
 
    @Override

@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 /**
- * pls use factory to create frames.
+ * Use factory to create frames.
  */
 public class ClientStompFrameV10 extends AbstractClientStompFrame {
 

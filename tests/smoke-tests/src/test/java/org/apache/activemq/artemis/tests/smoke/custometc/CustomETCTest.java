@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.smoke.custometc;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -31,18 +35,32 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CustomETCTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_0 = "customETC/server";
 
-   public CustomETCTest() {
+   @BeforeAll
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).
+            setArgs("--etc", new File("./target/customETC/theCustomETC").getAbsolutePath()).
+            setArtemisInstance(server0Location);
+         cliCreateServer.createServer();
+      }
    }
 
-   @Before
+
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       disableCheckThread();
@@ -58,16 +76,16 @@ public class CustomETCTest extends SmokeTestBase {
          Queue queue = session.createQueue(getName());
          MessageConsumer consumer = session.createConsumer(queue);
          MessageProducer producer = session.createProducer(queue);
-         String text = RandomUtil.randomString();
+         String text = RandomUtil.randomUUIDString();
          connection.start();
          producer.send(session.createTextMessage(text));
          TextMessage txtMessage = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(txtMessage);
-         Assert.assertEquals(text, txtMessage.getText());
+         assertNotNull(txtMessage);
+         assertEquals(text, txtMessage.getText());
       }
 
       File logLocation = new File(getServerLocation(SERVER_NAME_0) + "/log/artemis.log");
-      Assert.assertTrue(logLocation.exists());
+      assertTrue(logLocation.exists());
 
       AtomicBoolean started = new AtomicBoolean(false);
       Files.lines(logLocation.toPath()).forEach(line -> {
@@ -76,7 +94,7 @@ public class CustomETCTest extends SmokeTestBase {
          }
       });
 
-      Assert.assertTrue(started.get());
+      assertTrue(started.get());
    }
 
 }

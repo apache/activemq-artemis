@@ -16,8 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-import java.security.AccessController;
+import java.lang.invoke.MethodHandles;
 import java.security.PrivilegedAction;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -27,9 +28,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * This is for components with a scheduled at a fixed rate.
@@ -40,7 +41,9 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    protected ScheduledExecutorService scheduledExecutorService;
    private boolean startedOwnScheduler;
 
-   /** initialDelay < 0 would mean no initial delay, use the period instead */
+   /**
+    * initialDelay < 0 would mean no initial delay, use the period instead
+    */
    private long initialDelay;
    private long period;
    private TimeUnit timeUnit;
@@ -52,14 +55,17 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    private AtomicBoolean bookedForRunning;
 
    /**
-    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured {@code executor}.
+    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured
+    * {@code executor}.
     *
-    * @param scheduledExecutorService the {@link ScheduledExecutorService} that periodically trigger {@link #run()} on the configured {@code executor}
+    * @param scheduledExecutorService the {@link ScheduledExecutorService} that periodically trigger {@link #run()} on
+    *                                 the configured {@code executor}
     * @param executor                 the {@link Executor} that execute {@link #run()} when triggered
     * @param initialDelay             the time to delay first execution
     * @param checkPeriod              the delay between the termination of one execution and the start of the next
     * @param timeUnit                 the time unit of the {@code initialDelay} and {@code checkPeriod} parameters
-    * @param onDemand                 if {@code true} the task won't be scheduled on {@link #start()}, {@code false} otherwise
+    * @param onDemand                 if {@code true} the task won't be scheduled on {@link #start()}, {@code false}
+    *                                 otherwise
     */
    public ActiveMQScheduledComponent(ScheduledExecutorService scheduledExecutorService,
                                      Executor executor,
@@ -78,13 +84,16 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    /**
-    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured {@code executor}.
+    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured
+    * {@code executor}.
     *
-    * @param scheduledExecutorService the {@link ScheduledExecutorService} that periodically trigger {@link #run()} on the configured {@code executor}
+    * @param scheduledExecutorService the {@link ScheduledExecutorService} that periodically trigger {@link #run()} on
+    *                                 the configured {@code executor}
     * @param initialDelay             the time to delay first execution
     * @param checkPeriod              the delay between the termination of one execution and the start of the next
     * @param timeUnit                 the time unit of the {@code initialDelay} and {@code checkPeriod} parameters
-    * @param onDemand                 if {@code true} the task won't be scheduled on {@link #start()}, {@code false} otherwise
+    * @param onDemand                 if {@code true} the task won't be scheduled on {@link #start()}, {@code false}
+    *                                 otherwise
     */
    public ActiveMQScheduledComponent(ScheduledExecutorService scheduledExecutorService,
                                      long initialDelay,
@@ -95,16 +104,18 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    /**
-    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured {@code executor}.
-    *
+    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured
+    * {@code executor}.
     * <p>
     * The component created will have {@code initialDelay} defaulted to {@code checkPeriod}.
     *
-    * @param scheduledExecutorService the {@link ScheduledExecutorService} that periodically trigger {@link #run()} on the configured {@code executor}
+    * @param scheduledExecutorService the {@link ScheduledExecutorService} that periodically trigger {@link #run()} on
+    *                                 the configured {@code executor}
     * @param executor                 the {@link Executor} that execute {@link #run()} when triggered
     * @param checkPeriod              the delay between the termination of one execution and the start of the next
     * @param timeUnit                 the time unit of the {@code initialDelay} and {@code checkPeriod} parameters
-    * @param onDemand                 if {@code true} the task won't be scheduled on {@link #start()}, {@code false} otherwise
+    * @param onDemand                 if {@code true} the task won't be scheduled on {@link #start()}, {@code false}
+    *                                 otherwise
     */
    public ActiveMQScheduledComponent(ScheduledExecutorService scheduledExecutorService,
                                      Executor executor,
@@ -115,11 +126,12 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    /**
-    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured {@code executor}.
-    *
+    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured
+    * {@code executor}.
     * <p>
-    * This is useful for cases where we want our own scheduler executor: on {@link #start()} it will create a fresh new single-threaded {@link ScheduledExecutorService}
-    * using {@link #getThreadFactory()} and {@link #getThisClassLoader()}, while on {@link #stop()} it will garbage it.
+    * This is useful for cases where we want our own scheduler executor: on {@link #start()} it will create a fresh new
+    * single-threaded {@link ScheduledExecutorService} using {@link #getThreadFactory()} and
+    * {@link #getThisClassLoader()}, while on {@link #stop()} it will garbage it.
     *
     * @param initialDelay the time to delay first execution
     * @param checkPeriod  the delay between the termination of one execution and the start of the next
@@ -131,11 +143,12 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    /**
-    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured {@code executor}.
+    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured
+    * {@code executor}.
     *
     * <p>
-    * This is useful for cases where we want our own scheduler executor.
-    * The component created will have {@code initialDelay} defaulted to {@code checkPeriod}.
+    * This is useful for cases where we want our own scheduler executor. The component created will have
+    * {@code initialDelay} defaulted to {@code checkPeriod}.
     *
     * @param checkPeriod the delay between the termination of one execution and the start of the next
     * @param timeUnit    the time unit of the {@code initialDelay} and {@code checkPeriod} parameters
@@ -171,16 +184,11 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    protected ActiveMQThreadFactory getThreadFactory() {
-      return new ActiveMQThreadFactory(this.getClass().getSimpleName() + "-scheduled-threads", false, getThisClassLoader());
+      return new ActiveMQThreadFactory(this.getClass().getSimpleName() + "-scheduled", false, getThisClassLoader());
    }
 
    private ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         @Override
-         public ClassLoader run() {
-            return ActiveMQScheduledComponent.this.getClass().getClassLoader();
-         }
-      });
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ClassLoader>) () -> ActiveMQScheduledComponent.this.getClass().getClassLoader());
 
    }
 
@@ -191,7 +199,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
     *    <li>there is no pending execution request
     * </ul>
     * <p>
-    * When a delay request succeed it schedule a new execution to happen in {@link #getPeriod()}.<br>
+    * When a delay request succeed it schedule a new execution to happen in {@link #getPeriod()}.
     */
    public boolean delay() {
       final AtomicBoolean booked = this.bookedForRunning;
@@ -212,15 +220,20 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    public synchronized ActiveMQScheduledComponent setPeriod(long period) {
-      this.period = period;
-      restartIfNeeded();
+      if (this.period != period) {
+         this.period = period;
+         restartIfNeeded();
+      }
       return this;
    }
 
    public synchronized ActiveMQScheduledComponent setPeriod(long period, TimeUnit unit) {
-      this.period = period;
-      this.timeUnit = unit;
-      restartIfNeeded();
+      Objects.requireNonNull(unit, "unit is required");
+      if (this.period != period || this.timeUnit != unit) {
+         this.period = period;
+         this.timeUnit = unit;
+         restartIfNeeded();
+      }
       return this;
    }
 

@@ -16,19 +16,19 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * Represents a property expression
- *
- * @version $Revision: 1.5 $
  */
 public class PropertyExpression implements Expression {
 
    private final SimpleString name;
 
    public PropertyExpression(String name) {
-      this(SimpleString.toSimpleString(name));
+      this(SimpleString.of(name));
    }
 
    public PropertyExpression(SimpleString name) {
@@ -44,32 +44,26 @@ public class PropertyExpression implements Expression {
       return name.toString();
    }
 
-   /**
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return name.toString();
    }
 
-   /**
-    * @see java.lang.Object#hashCode()
-    */
    @Override
    public int hashCode() {
       return name.hashCode();
    }
 
-   /**
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
    @Override
-   public boolean equals(Object o) {
-      if (o == null || !this.getClass().equals(o.getClass())) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof PropertyExpression other)) {
          return false;
       }
-      return name.equals(((PropertyExpression) o).name);
 
+      return Objects.equals(name, other.name);
    }
 
 }

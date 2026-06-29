@@ -20,7 +20,17 @@ public class BrokerMetricNames {
 
    public static final String CONNECTION_COUNT = "connection.count";
    public static final String TOTAL_CONNECTION_COUNT = "total.connection.count";
+   public static final String SESSION_COUNT = "session.count";
+   public static final String TOTAL_SESSION_COUNT = "total.session.count";
    public static final String ADDRESS_MEMORY_USAGE = "address.memory.usage";
    public static final String ADDRESS_MEMORY_USAGE_PERCENTAGE = "address.memory.usage.percentage";
    public static final String DISK_STORE_USAGE = "disk.store.usage";
+   public static final String REPLICA_SYNC = "replica.sync";
+   public static final String ACTIVE = "active";
+   public static final String AUTHENTICATION_COUNT = "authentication.count";
+   public static final String AUTHORIZATION_COUNT = "authorization.count";
+   public static final String GENERAL_EXECUTOR_SERVICE = "general.executor.service";
+   public static final String IO_EXECUTOR_SERVICE = "io.executor.service";
+   public static final String PAGE_EXECUTOR_SERVICE = "paging.executor.service";
+   public static final String SCHEDULED_EXECUTOR_SERVICE = "scheduled.executor.service";
 }

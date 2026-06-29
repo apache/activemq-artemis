@@ -17,9 +17,8 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- * An error has happened at ActiveMQ's native (non-Java) code used in reading and writing data.
+ * An error has happened in Apache Artemis native (non-Java) code used in reading and writing data.
  */
-// XXX
 public final class ActiveMQNativeIOError extends ActiveMQException {
 
    private static final long serialVersionUID = 2355120980683293085L;

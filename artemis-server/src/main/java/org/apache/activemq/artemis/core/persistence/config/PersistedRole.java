@@ -18,17 +18,14 @@ package org.apache.activemq.artemis.core.persistence.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.utils.BufferHelper;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
-
-public class PersistedRole implements EncodingSupport {
-
-   private long storeId;
+public class PersistedRole extends PersistedConfiguration {
 
    private String username;
 
@@ -38,19 +35,8 @@ public class PersistedRole implements EncodingSupport {
    }
 
    public PersistedRole(String username, List<String> roles) {
-      checkNotNull(username);
-      checkNotNull(roles);
-
-      this.username = username;
-      this.roles = roles;
-   }
-
-   public void setStoreId(long id) {
-      this.storeId = id;
-   }
-
-   public long getStoreId() {
-      return storeId;
+      this.username = Objects.requireNonNull(username);
+      this.roles = Objects.requireNonNull(roles);
    }
 
    public String getUsername() {
@@ -91,9 +77,6 @@ public class PersistedRole implements EncodingSupport {
       }
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       StringBuilder result = new StringBuilder();
@@ -111,5 +94,15 @@ public class PersistedRole implements EncodingSupport {
       result.append("]]");
 
       return result.toString();
+   }
+
+   @Override
+   public byte getRecordType() {
+      return JournalRecordIds.ROLE_RECORD;
+   }
+
+   @Override
+   public String getName() {
+      return username;
    }
 }

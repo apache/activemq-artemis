@@ -17,20 +17,22 @@
 
 package org.apache.activemq.artemis.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.JMSException;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ChangeURLTest {
 
    @Test
    public void testChangeURL() throws Exception {
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616?user=nono");
-      Assert.assertEquals("nono", factory.getUser());
+      assertEquals("nono", factory.getUser());
 
       factory.setBrokerURL("tcp://localhost:61616?user=changed");
-      Assert.assertEquals("changed", factory.getUser());
+      assertEquals("changed", factory.getUser());
 
       boolean failed = false;
       try {
@@ -42,7 +44,7 @@ public class ChangeURLTest {
          failed = true;
       }
 
-      Assert.assertTrue("failure expected", failed);
+      assertTrue(failed, "failure expected");
 
       failed = false;
 
@@ -52,7 +54,7 @@ public class ChangeURLTest {
          failed = true;
       }
 
-      Assert.assertTrue("failure expected", failed);
+      assertTrue(failed, "failure expected");
    }
 
 }

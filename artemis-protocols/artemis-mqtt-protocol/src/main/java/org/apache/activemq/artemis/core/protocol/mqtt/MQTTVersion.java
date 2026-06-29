@@ -21,28 +21,20 @@ public enum MQTTVersion {
    MQTT_3_1, MQTT_3_1_1, MQTT_5;
 
    public int getVersion() {
-      switch (this) {
-         case MQTT_3_1:
-            return 3;
-         case MQTT_3_1_1:
-            return 4;
-         case MQTT_5:
-            return 5;
-         default:
-            return -1;
-      }
+      return switch (this) {
+         case MQTT_3_1 -> 3;
+         case MQTT_3_1_1 -> 4;
+         case MQTT_5 -> 5;
+         default -> -1;
+      };
    }
 
    public static MQTTVersion getVersion(int version) {
-      switch (version) {
-         case 3:
-            return MQTT_3_1;
-         case 4:
-            return MQTT_3_1_1;
-         case 5:
-            return MQTT_5;
-         default:
-            return null;
-      }
+      return switch (version) {
+         case 3 -> MQTT_3_1;
+         case 4 -> MQTT_3_1_1;
+         case 5 -> MQTT_5;
+         default -> null;
+      };
    }
 }

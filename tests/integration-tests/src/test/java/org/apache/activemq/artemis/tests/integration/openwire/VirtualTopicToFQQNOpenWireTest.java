@@ -32,7 +32,11 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class VirtualTopicToFQQNOpenWireTest extends OpenWireTestBase {
 
@@ -52,7 +56,7 @@ public class VirtualTopicToFQQNOpenWireTest extends OpenWireTestBase {
    public void testAutoVirtualTopicFQQN() throws Exception {
       Connection connection = null;
 
-      SimpleString topic = new SimpleString("VirtualTopic.Orders");
+      SimpleString topic = SimpleString.of("VirtualTopic.Orders");
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateQueues(true);
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateAddresses(true);
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoDeleteQueues(false);
@@ -94,8 +98,8 @@ public class VirtualTopicToFQQNOpenWireTest extends OpenWireTestBase {
    public void testTwoTopicSubsSameNameAutoVirtualTopicFQQN() throws Exception {
       Connection connection = null;
 
-      SimpleString topic1 = new SimpleString("VirtualTopic.Orders1");
-      SimpleString topic2 = new SimpleString("VirtualTopic.Orders2");
+      SimpleString topic1 = SimpleString.of("VirtualTopic.Orders1");
+      SimpleString topic2 = SimpleString.of("VirtualTopic.Orders2");
 
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateQueues(true);
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateAddresses(true);
@@ -147,9 +151,9 @@ public class VirtualTopicToFQQNOpenWireTest extends OpenWireTestBase {
    public void testAutoVirtualTopicWildcardFQQN() throws Exception {
       Connection connection = null;
 
-      SimpleString topicA = new SimpleString("VirtualTopic.Orders.A");
-      SimpleString topicB = new SimpleString("VirtualTopic.Orders.B");
-      SimpleString topic = new SimpleString("VirtualTopic.Orders.>");
+      SimpleString topicA = SimpleString.of("VirtualTopic.Orders.A");
+      SimpleString topicB = SimpleString.of("VirtualTopic.Orders.B");
+      SimpleString topic = SimpleString.of("VirtualTopic.Orders.>");
 
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateQueues(true);
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateAddresses(true);
@@ -190,9 +194,9 @@ public class VirtualTopicToFQQNOpenWireTest extends OpenWireTestBase {
    public void testAutoVirtualTopicWildcardStarFQQN() throws Exception {
       Connection connection = null;
 
-      SimpleString topicA = new SimpleString("VirtualTopic.Orders.A");
-      SimpleString topicB = new SimpleString("VirtualTopic.Orders.B");
-      SimpleString topic = new SimpleString("VirtualTopic.Orders.*");
+      SimpleString topicA = SimpleString.of("VirtualTopic.Orders.A");
+      SimpleString topicB = SimpleString.of("VirtualTopic.Orders.B");
+      SimpleString topic = SimpleString.of("VirtualTopic.Orders.*");
 
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateQueues(true);
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateAddresses(true);
@@ -233,7 +237,7 @@ public class VirtualTopicToFQQNOpenWireTest extends OpenWireTestBase {
    public void testSelectorAwareVT() throws Exception {
       Connection connection = null;
 
-      SimpleString topic = new SimpleString("SVT.Orders.A");
+      SimpleString topic = SimpleString.of("SVT.Orders.A");
 
       this.server.getAddressSettingsRepository().getMatch("SVT.#").setAutoCreateQueues(true);
       this.server.getAddressSettingsRepository().getMatch("SVT.#").setAutoCreateAddresses(true);
@@ -269,10 +273,10 @@ public class VirtualTopicToFQQNOpenWireTest extends OpenWireTestBase {
 
          // verify C message got dropped
 
-         final QueueControl queueControlA = ManagementControlHelper.createQueueControl(topic, SimpleString.toSimpleString("C.A." + topic.toString()), RoutingType.MULTICAST, mbeanServer);
+         final QueueControl queueControlA = ManagementControlHelper.createQueueControl(topic, SimpleString.of("C.A." + topic.toString()), RoutingType.MULTICAST, mbeanServer);
          Wait.assertEquals(0, () -> queueControlA.countMessages());
 
-         final QueueControl queueControlB = ManagementControlHelper.createQueueControl(topic, SimpleString.toSimpleString("C.B." + topic.toString()), RoutingType.MULTICAST, mbeanServer);
+         final QueueControl queueControlB = ManagementControlHelper.createQueueControl(topic, SimpleString.of("C.B." + topic.toString()), RoutingType.MULTICAST, mbeanServer);
          Wait.assertEquals(0, () -> queueControlB.countMessages());
 
       } finally {

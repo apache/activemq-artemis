@@ -24,7 +24,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -57,7 +57,7 @@ public class PersistenceTest extends JMSTestCase {
 
          startNoDelete();
 
-         // ActiveMQ Artemis server restart implies new ConnectionFactory lookup
+         // Apache Artemis server restart implies new ConnectionFactory lookup
          deployAndLookupAdministeredObjects();
 
          conn = createConnection();
@@ -137,7 +137,7 @@ public class PersistenceTest extends JMSTestCase {
 
          startNoDelete();
 
-         // ActiveMQ Artemis server restart implies new ConnectionFactory lookup
+         // Apache Artemis server restart implies new ConnectionFactory lookup
          deployAndLookupAdministeredObjects();
 
          conn = createConnection();
@@ -202,7 +202,7 @@ public class PersistenceTest extends JMSTestCase {
 
          startNoDelete();
 
-         // ActiveMQ Artemis server restart implies new ConnectionFactory lookup
+         // Apache Artemis server restart implies new ConnectionFactory lookup
          deployAndLookupAdministeredObjects();
 
          conn = createConnection();
@@ -379,7 +379,7 @@ public class PersistenceTest extends JMSTestCase {
       }
    }
 
-   /*
+   /**
     * Test durable subscription state survives a server crash
     */
    @Test
@@ -431,7 +431,7 @@ public class PersistenceTest extends JMSTestCase {
       }
    }
 
-   /*
+   /**
     * Test durable subscription state survives a restart
     */
    @Test
@@ -463,7 +463,7 @@ public class PersistenceTest extends JMSTestCase {
 
          startNoDelete();
 
-         // ActiveMQ Artemis server restart implies new ConnectionFactory lookup
+         // Apache Artemis server restart implies new ConnectionFactory lookup
          deployAndLookupAdministeredObjects();
 
          conn = createConnection();

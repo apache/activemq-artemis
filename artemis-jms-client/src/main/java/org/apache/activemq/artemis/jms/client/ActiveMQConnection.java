@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.jms.client;
 
 import java.lang.ref.WeakReference;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Set;
@@ -57,12 +56,13 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 /**
- * ActiveMQ Artemis implementation of a JMS Connection.
+ * Apache Artemis implementation of a JMS Connection.
  * <p>
- * The flat implementation of {@link TopicConnection} and {@link QueueConnection} is per design,
- * following the common usage of these as one flat API in JMS 1.1.
+ * The flat implementation of {@link TopicConnection} and {@link QueueConnection} is per design, following the common
+ * usage of these as one flat API in JMS 1.1.
  */
 public class ActiveMQConnection extends ActiveMQConnectionForContextImpl implements TopicConnection, QueueConnection {
 
@@ -128,8 +128,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private ClientSession initialSession;
 
-   private final Exception creationStack;
-
    private ActiveMQConnectionFactory factoryReference;
 
    private final ConnectionFactoryOptions options;
@@ -168,17 +166,13 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       this.cacheDestinations = cacheDestinations;
 
       this.enable1xPrefixes = enable1xPrefixes;
-
-      creationStack = new Exception();
    }
 
    /**
-    * This internal method serves basically the Resource Adapter.
-    * The resource adapter plays with an XASession and a non XASession.
-    * When there is no enlisted transaction, the EE specification mandates that the commit should
-    * be done as if it was a nonXA Session (i.e. SessionTransacted).
-    * For that reason we have this method to force that nonXASession, since the JMS Javadoc
-    * mandates createSession to return a XASession.
+    * This internal method serves basically the Resource Adapter. The resource adapter plays with an XASession and a non
+    * XASession. When there is no enlisted transaction, the EE specification mandates that the commit should be done as
+    * if it was a nonXA Session (i.e. SessionTransacted). For that reason we have this method to force that
+    * nonXASession, since the JMS Javadoc mandates createSession to return a XASession.
     */
    public synchronized Session createNonXASession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
@@ -187,12 +181,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    }
 
    /**
-    * This internal method serves basically the Resource Adapter.
-    * The resource adapter plays with an XASession and a non XASession.
-    * When there is no enlisted transaction, the EE specification mandates that the commit should
-    * be done as if it was a nonXA Session (i.e. SessionTransacted).
-    * For that reason we have this method to force that nonXASession, since the JMS Javadoc
-    * mandates createSession to return a XASession.
+    * This internal method serves basically the Resource Adapter. The resource adapter plays with an XASession and a non
+    * XASession. When there is no enlisted transaction, the EE specification mandates that the commit should be done as
+    * if it was a nonXA Session (i.e. SessionTransacted). For that reason we have this method to force that
+    * nonXASession, since the JMS Javadoc mandates createSession to return a XASession.
     */
    public synchronized Session createNonXATopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
@@ -201,12 +193,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    }
 
    /**
-    * This internal method serves basically the Resource Adapter.
-    * The resource adapter plays with an XASession and a non XASession.
-    * When there is no enlisted transaction, the EE specification mandates that the commit should
-    * be done as if it was a nonXA Session (i.e. SessionTransacted).
-    * For that reason we have this method to force that nonXASession, since the JMS Javadoc
-    * mandates createSession to return a XASession.
+    * This internal method serves basically the Resource Adapter. The resource adapter plays with an XASession and a non
+    * XASession. When there is no enlisted transaction, the EE specification mandates that the commit should be done as
+    * if it was a nonXA Session (i.e. SessionTransacted). For that reason we have this method to force that
+    * nonXASession, since the JMS Javadoc mandates createSession to return a XASession.
     */
    public synchronized Session createNonXAQueueSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
@@ -309,9 +299,8 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    public synchronized void signalStopToAllSessions() {
       for (ActiveMQSession session : sessions) {
          ClientSession coreSession = session.getCoreSession();
-         if (coreSession instanceof ClientSessionInternal) {
-            ClientSessionInternal internalSession = (ClientSessionInternal) coreSession;
-            internalSession.setStopSignal();
+         if (coreSession instanceof ClientSessionInternal clientSessionInternal) {
+            clientSessionInternal.setStopSignal();
          }
       }
 
@@ -366,12 +355,9 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
             }
          }
 
-         AccessController.doPrivileged(new PrivilegedAction() {
-            @Override
-            public Object run() {
-               failoverListenerExecutor.shutdown();
-               return null;
-            }
+         SecurityManagerShim.doPrivileged((PrivilegedAction<Object>) () -> {
+            failoverListenerExecutor.shutdown();
+            return null;
          });
 
          closed = true;
@@ -502,7 +488,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
     * Sets a FailureListener for the session which is notified if a failure occurs on the session.
     *
     * @param listener the listener to add
-    * @throws JMSException
     */
    public void setFailoverListener(final FailoverEventListener listener) throws JMSException {
       checkClosed();
@@ -514,8 +499,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    }
 
    /**
-    * @return {@link FailoverEventListener} the current failover event listener for this connection
-    * @throws JMSException
+    * {@return {@link FailoverEventListener} the current failover event listener for this connection}
     */
    public FailoverEventListener getFailoverListener() throws JMSException {
       checkClosed();
@@ -616,13 +600,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    }
 
 
-   /**
-    * @param transacted
-    * @param acknowledgeMode
-    * @param session
-    * @param type
-    * @return
-    */
    protected ActiveMQSession createAMQSession(boolean isXA,
                                               boolean transacted,
                                               int acknowledgeMode,
@@ -681,12 +658,22 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return started;
    }
 
+   @Deprecated(forRemoval = true)
    public String getDeserializationBlackList() {
-      return this.factoryReference.getDeserializationBlackList();
+      return getDeserializationDenyList();
    }
 
+   @Deprecated(forRemoval = true)
    public String getDeserializationWhiteList() {
-      return this.factoryReference.getDeserializationWhiteList();
+      return getDeserializationAllowList();
+   }
+
+   public String getDeserializationDenyList() {
+      return this.factoryReference.getDeserializationDenyList();
+   }
+
+   public String getDeserializationAllowList() {
+      return this.factoryReference.getDeserializationAllowList();
    }
 
 
@@ -715,12 +702,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
                   je.initCause(me);
 
-                  new Thread(new Runnable() {
-                     @Override
-                     public void run() {
-                        exceptionListener.onException(je);
-                     }
-                  }).start();
+                  new Thread(() -> exceptionListener.onException(je)).start();
                }
             } catch (JMSException e) {
                if (!conn.closed) {
@@ -760,12 +742,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
                if (failoverListener != null) {
 
-                  conn.failoverListenerExecutor.execute(new Runnable() {
-                     @Override
-                     public void run() {
-                        failoverListener.failoverEvent(eventType);
-                     }
-                  });
+                  conn.failoverListenerExecutor.execute(() -> failoverListener.failoverEvent(eventType));
                }
             } catch (JMSException e) {
                if (!conn.closed) {

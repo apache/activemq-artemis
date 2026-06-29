@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,9 +35,10 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttSubscription;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-3.10.1-1] Bits 3,2,1 and 0 of the Fixed Header of the UNSUBSCRIBE packet are reserved and MUST be set to 0,0,1 and 0 respectively. The Server MUST treat any other value as malformed and close the Network Connection
@@ -48,10 +53,6 @@ import org.junit.Test;
 
 public class UnsubscribeTests extends MQTT5TestSupport {
 
-   public UnsubscribeTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-3.10.4-1] The Topic Filters (whether they contain wildcards or not) supplied in an UNSUBSCRIBE packet MUST
     * be compared character-by-character with the current set of Topic Filters held by the Server for the Client. If any
@@ -61,14 +62,15 @@ public class UnsubscribeTests extends MQTT5TestSupport {
     * that packet as if it had received a sequence of multiple UNSUBSCRIBE packets, except that it sends just one
     * UNSUBACK response.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUnsubscribe() throws Exception {
       final int SUBSCRIPTION_COUNT = 30;
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final AtomicInteger unsubAckCount = new AtomicInteger(0);
       SimpleString[] topicNames = new SimpleString[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
-         topicNames[i] = new SimpleString(i + "-" + TOPIC);
+         topicNames[i] = SimpleString.of(i + "-" + TOPIC);
       }
 
       MQTTInterceptor outgoingInterceptor = (packet, connection) -> {
@@ -116,9 +118,10 @@ public class UnsubscribeTests extends MQTT5TestSupport {
     * [MQTT-3.10.4-2] When a Server receives UNSUBSCRIBE It MUST stop adding any new messages which match the Topic
     * Filters, for delivery to the Client.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testStopAddingMessagesOnUnsubscribe() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
 
       MqttClient consumer1 = createPahoClient("consumer1");
       consumer1.connect();
@@ -157,9 +160,10 @@ public class UnsubscribeTests extends MQTT5TestSupport {
    /*
     * [MQTT-3.10.4-4] The Server MUST respond to an UNSUBSCRIBE request by sending an UNSUBACK packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUnsubAck() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final AtomicBoolean unsubscribed = new AtomicBoolean(false);
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -195,9 +199,10 @@ public class UnsubscribeTests extends MQTT5TestSupport {
     * [MQTT-3.10.4-5] The UNSUBACK packet MUST have the same Packet Identifier as the UNSUBSCRIBE packet. Even where no
     * Topic Subscriptions are deleted, the Server MUST respond with an UNSUBACK.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUnsubAckPacketId() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final AtomicBoolean unsubscribed = new AtomicBoolean(false);
       final AtomicInteger packetId = new AtomicInteger(0);
       final CountDownLatch latch = new CountDownLatch(1);

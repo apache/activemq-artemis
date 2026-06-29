@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,7 +35,7 @@ import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataImporter;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class XmlImportExportStressTest extends ActiveMQTestBase {
 
@@ -49,7 +52,7 @@ public class XmlImportExportStressTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(QUEUE_NAME));
+      session.createQueue(QueueConfiguration.of(QUEUE_NAME));
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 

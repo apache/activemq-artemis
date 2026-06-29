@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.stomp;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +53,6 @@ import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-/**
- * StompProtocolManager
- */
 public class StompProtocolManager extends AbstractProtocolManager<StompFrame, StompFrameInterceptor, StompConnection, RoutingHandler> {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -244,7 +242,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    private StompSession internalGetSession(StompConnection connection, Map<Object, StompSession> sessions, Object id, boolean transacted) throws Exception {
       StompSession stompSession = sessions.get(id);
       if (stompSession == null) {
-         stompSession = new StompSession(connection, this, server.getStorageManager().newContext(server.getExecutorFactory().getExecutor()));
+         stompSession = new StompSession(connection, this, server.getStorageManager().newContext(connection.getTransportConnection().getEventLoop()));
          String name = UUIDGenerator.getInstance().generateStringUUID();
          final String validatedUser = server.validateUser(connection.getLogin(), connection.getPasscode(), connection, getSecurityDomain());
          ServerSession session = server.createSession(name, connection.getLogin(), connection.getPasscode(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, connection, !transacted, false, false, false, null, stompSession, true, server.newOperationContext(), getPrefixes(), getSecurityDomain(), validatedUser, false);
@@ -259,33 +257,30 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
       connection.setValid(false);
 
       // Close the session outside of the lock on the StompConnection, otherwise it could dead lock
-      this.executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            StompSession session = sessions.remove(connection.getID());
-            if (session != null) {
-               try {
-                  session.getCoreSession().stop();
-                  session.getCoreSession().rollback(true);
-                  session.getCoreSession().close(false);
-               } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
-               }
+      this.executor.execute(() -> {
+         StompSession session = sessions.remove(connection.getID());
+         if (session != null) {
+            try {
+               session.getCoreSession().stop();
+               session.getCoreSession().rollback(true);
+               session.getCoreSession().close(false);
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
             }
-
-            Map<Object, StompSession> sessionMap = getTXMap(connection.getID());
-            sessionMap.values().forEach(ss -> {
-               try {
-                  ss.getCoreSession().rollback(false);
-                  ss.getCoreSession().close(false);
-               } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
-               }
-            });
-            sessionMap.clear();
-
-            transactedSessions.remove(connection.getID());
          }
+
+         Map<Object, StompSession> sessionMap = getTXMap(connection.getID());
+         sessionMap.values().forEach(ss -> {
+            try {
+               ss.getCoreSession().rollback(false);
+               ss.getCoreSession().close(false);
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
+            }
+         });
+         sessionMap.clear();
+
+         transactedSessions.remove(connection.getID());
       });
    }
 
@@ -365,13 +360,12 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
                                              boolean noLocal,
                                              Integer consumerWindowSize) throws Exception {
       StompSession stompSession = getSession(connection);
-      stompSession.setNoLocal(noLocal);
       if (stompSession.containsSubscription(subscriptionID)) {
          throw new ActiveMQStompException(connection, "There already is a subscription for: " + subscriptionID +
             ". Either use unique subscription IDs or do not create multiple subscriptions for the same destination");
       }
       long consumerID = server.getStorageManager().generateID();
-      return stompSession.addSubscription(consumerID, subscriptionID, connection.getClientID(), durableSubscriptionName, destination, selector, ack, consumerWindowSize);
+      return stompSession.addSubscription(consumerID, subscriptionID, connection.getClientID(), durableSubscriptionName, destination, selector, ack, noLocal, consumerWindowSize);
    }
 
    public void unsubscribe(StompConnection connection,
@@ -404,10 +398,14 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
       if (server.getManagementService().getManagementAddress().toString().equals(destination)) {
          return true;
       }
-      return server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(destination)) != null;
+      return server.getPostOffice().getAddressInfo(SimpleString.of(destination)) != null;
    }
 
    public ActiveMQServer getServer() {
       return server;
+   }
+
+   public Collection<StompSession> getSessions() {
+      return sessions.values();
    }
 }

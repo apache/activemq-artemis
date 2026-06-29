@@ -25,14 +25,19 @@ import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.lang.invoke.MethodHandles;
+import java.net.URI;
 
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
-import java.net.URI;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
 
@@ -48,7 +53,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       return "amqp.saslMechanisms=PLAIN";
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void testNoUserOrPassword() throws Exception {
       Connection connection = null;
       try {
@@ -65,7 +71,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void testNoUserOrPasswordWithoutSaslRestrictions() throws Exception {
       Connection connection = null;
       JmsConnectionFactory factory = new JmsConnectionFactory(new URI("amqp://localhost:" + AMQP_PORT));
@@ -84,7 +91,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void testUnknownUser() throws Exception {
       Connection connection = null;
       try {
@@ -100,7 +108,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void testKnownUserWrongPassword() throws Exception {
       Connection connection = null;
       try {
@@ -116,7 +125,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testRepeatedWrongPasswordAttempts() throws Exception {
       for (int i = 0; i < 25; ++i) {
          Connection connection = null;
@@ -134,7 +144,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSendReceive() throws Exception {
       Connection connection = createConnection(fullUser, fullPass);
 
@@ -153,7 +164,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
          connection.start();
          Message msg = consumer.receive(5000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          TextMessage textMessage = (TextMessage) msg;
          assertEquals(messageText, textMessage.getText());
       } finally {
@@ -161,7 +172,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testConsumerNotAuthorized() throws Exception {
       Connection connection = createConnection(noprivUser, noprivPass);
 
@@ -179,7 +191,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testBrowserNotAuthorized() throws Exception {
       Connection connection = createConnection(noprivUser, noprivPass);
 
@@ -199,7 +212,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testConsumerNotAuthorizedToCreateQueues() throws Exception {
       Connection connection = createConnection(noprivUser, noprivPass);
 
@@ -217,7 +231,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testProducerNotAuthorized() throws Exception {
       Connection connection = createConnection(guestUser, guestPass);
 
@@ -235,7 +250,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testAnonymousProducerNotAuthorized() throws Exception {
       Connection connection = createConnection(guestUser, guestPass);
 
@@ -255,7 +271,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testCreateTemporaryQueueNotAuthorized() throws JMSException {
       Connection connection = createConnection(guestUser, guestPass);
 
@@ -275,7 +292,8 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testCreateTemporaryTopicNotAuthorized() throws JMSException {
       Connection connection = createConnection(guestUser, guestPass);
 

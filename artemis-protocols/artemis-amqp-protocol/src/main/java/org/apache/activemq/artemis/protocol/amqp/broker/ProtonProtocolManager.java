@@ -25,6 +25,8 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -49,12 +51,13 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.utils.DestinationUtil;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
+ * A proton protocol manager, basically reads the Proton Input and maps proton resources to Apache Artemis resources
  */
 public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, AmqpInterceptor, ActiveMQProtonRemotingConnection, AMQPRoutingHandler> implements NotificationListener {
 
@@ -62,7 +65,7 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private static final List<String> websocketRegistryNames = Arrays.asList("amqp");
 
-   public static final String MIRROR_ADDRESS = "$ACTIVEMQ_ARTEMIS_MIRROR";
+   public static final String MIRROR_ADDRESS = QueueConfiguration.MIRROR_ADDRESS;
 
    private final List<AmqpInterceptor> incomingInterceptors = new ArrayList<>();
    private final List<AmqpInterceptor> outgoingInterceptors = new ArrayList<>();
@@ -79,8 +82,9 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
-   /** minLargeMessageSize determines when a message should be considered as large.
-    *  minLargeMessageSize = -1 basically disables large message control over AMQP.
+   /**
+    * minLargeMessageSize determines when a message should be considered as large. minLargeMessageSize = -1 basically
+    * disables large message control over AMQP.
     */
    private int amqpMinLargeMessageSize = 100 * 1024;
 
@@ -92,6 +96,8 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private boolean amqpUseModifiedForTransientDeliveryErrors = AmqpSupport.AMQP_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS;
 
+   private boolean amqpDrainOnTransientDeliveryErrors = AmqpSupport.AMQP_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS;
+
    // If set true, a reject disposition will be treated as if it were an unmodified disposition with the
    // delivery-failed flag set true.
    private boolean amqpTreatRejectAsUnmodifiedDeliveryFailed = AmqpSupport.AMQP_TREAT_REJECT_AS_UNMODIFIED_DELIVERY_FAILURE;
@@ -102,16 +108,22 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private String saslLoginConfigScope = "amqp-sasl-gssapi";
 
+   private int amqpLinkQuiesceTimeout = AmqpSupport.AMQP_LINK_QUIESCE_TIMEOUT;
+
    private Long amqpIdleTimeout;
 
+   private long ackManagerFlushTimeout = 10_000;
+
    private boolean directDeliver = true;
+
+   private int mirrorMaxPendingAcks = 10_000;
 
    private final AMQPRoutingHandler routingHandler;
 
    /*
-   * used when you want to treat senders as a subscription on an address rather than consuming from the actual queue for
-   * the address. This can be changed on the acceptor.
-   * */
+    * Used when you want to treat senders as a subscription on an address rather than consuming from the actual queue
+    * for the address. This can be changed on the acceptor.
+    */
    private String pubSubPrefix = DestinationUtil.TOPIC_QUALIFIED_PREFIX;
 
    private int maxFrameSize = AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
@@ -141,8 +153,30 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    }
 
+   /**
+    * Before the ackManager retries acks, it must flush the OperationContext on the MirrorTargets. This is the timeout
+    * is in milliseconds
+    */
+   public long getAckManagerFlushTimeout() {
+      return ackManagerFlushTimeout;
+   }
+
+   public ProtonProtocolManager setAckManagerFlushTimeout(long ackManagerFlushTimeout) {
+      this.ackManagerFlushTimeout = ackManagerFlushTimeout;
+      return this;
+   }
+
    public int getAmqpMinLargeMessageSize() {
       return amqpMinLargeMessageSize;
+   }
+
+   public int getMirrorMaxPendingAcks() {
+      return mirrorMaxPendingAcks;
+   }
+
+   public ProtonProtocolManager setMirrorMaxPendingAcks(int maxPendingAcks) {
+      this.mirrorMaxPendingAcks = maxPendingAcks;
+      return this;
    }
 
    public ProtonProtocolManager setAmqpMinLargeMessageSize(int amqpMinLargeMessageSize) {
@@ -197,7 +231,9 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       return this;
    }
 
-   /** for outgoing */
+   /**
+    * for outgoing
+    */
    public ProtonClientProtocolManager createClientManager() {
       ProtonClientProtocolManager clientOutgoing = new ProtonClientProtocolManager(factory, server);
       return clientOutgoing;
@@ -205,20 +241,30 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection remotingConnection) {
-      return internalConnectionEntry(remotingConnection, false, null);
+      return internalConnectionEntry(remotingConnection, false, null, null, null, null);
    }
 
-   /** This method is not part of the ProtocolManager interface because it only makes sense on AMQP.
-    *  More specifically on AMQP Bridges */
+   /**
+    * This method is not part of the ProtocolManager interface because it only makes sense on AMQP. More specifically on
+    * AMQP Bridges
+    */
    public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection) {
-      return internalConnectionEntry(remotingConnection, true, null);
+      return internalConnectionEntry(remotingConnection, true, null, null, null, null);
    }
 
    public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection, ClientSASLFactory saslFactory) {
-      return internalConnectionEntry(remotingConnection, true, saslFactory);
+      return internalConnectionEntry(remotingConnection, true, saslFactory, null, null, null);
    }
 
-   private ConnectionEntry internalConnectionEntry(Connection remotingConnection, boolean outgoing, ClientSASLFactory saslFactory) {
+   public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection, ClientSASLFactory saslFactory, Map<Symbol, Object> connectionProperties) {
+      return internalConnectionEntry(remotingConnection, true, saslFactory, connectionProperties, null, null);
+   }
+
+   public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection, ClientSASLFactory saslFactory, Map<Symbol, Object> connectionProperties, Symbol[] offeredCapabilities, Symbol[] desiredCapabilities) {
+      return internalConnectionEntry(remotingConnection, true, saslFactory, connectionProperties, offeredCapabilities, desiredCapabilities);
+   }
+
+   private ConnectionEntry internalConnectionEntry(Connection remotingConnection, boolean outgoing, ClientSASLFactory saslFactory, Map<Symbol, Object> connectionProperties, Symbol[] offeredCapabilities, Symbol[] desiredCapabilities) {
       AMQPConnectionCallback connectionCallback = new AMQPConnectionCallback(this, remotingConnection, server.getExecutorFactory().getExecutor(), server);
       long ttl = ActiveMQClient.DEFAULT_CONNECTION_TTL;
 
@@ -234,9 +280,12 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
          ttl = 0;
       }
 
-      String id = server.getConfiguration().getName();
+      String id = server.getNodeID().toString();
       boolean useCoreSubscriptionNaming = server.getConfiguration().isAmqpUseCoreSubscriptionNaming();
-      AMQPConnectionContext amqpConnection = new AMQPConnectionContext(this, connectionCallback, id, (int) ttl, getMaxFrameSize(), AMQPConstants.Connection.DEFAULT_CHANNEL_MAX, useCoreSubscriptionNaming, server.getScheduledPool(), true, saslFactory, null, outgoing);
+      AMQPConnectionContext amqpConnection = new AMQPConnectionContext(
+         this, connectionCallback, id, (int) ttl, getMaxFrameSize(), AMQPConstants.Connection.DEFAULT_CHANNEL_MAX,
+         useCoreSubscriptionNaming, server.getScheduledPool(), true, saslFactory, connectionProperties,
+         offeredCapabilities, desiredCapabilities, outgoing);
 
       Executor executor = server.getExecutorFactory().getExecutor();
 
@@ -331,14 +380,14 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    @Override
    public void setAnycastPrefix(String anycastPrefix) {
       for (String prefix : anycastPrefix.split(",")) {
-         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.ANYCAST);
+         prefixes.put(SimpleString.of(prefix), RoutingType.ANYCAST);
       }
    }
 
    @Override
    public void setMulticastPrefix(String multicastPrefix) {
       for (String prefix : multicastPrefix.split(",")) {
-         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.MULTICAST);
+         prefixes.put(SimpleString.of(prefix), RoutingType.MULTICAST);
       }
    }
 
@@ -352,12 +401,32 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       return routingHandler;
    }
 
-   public String invokeIncoming(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
-      return super.invokeInterceptors(this.incomingInterceptors, message, connection);
+   public String invokeIncoming(Message message, ActiveMQProtonRemotingConnection connection) {
+      // For tunneled messages we need to check the type as our interceptor only cares about
+      // AMQP message right now so there's not notification point for other types that cross
+      if (incomingInterceptors != null && !incomingInterceptors.isEmpty()) {
+         if (message instanceof AMQPMessage amqpMessage) {
+            return super.invokeInterceptors(this.incomingInterceptors, amqpMessage, connection);
+         } else {
+            return null;
+         }
+      } else {
+         return null;
+      }
    }
 
-   public String invokeOutgoing(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
-      return super.invokeInterceptors(this.outgoingInterceptors, message, connection);
+   public String invokeOutgoing(Message message, ActiveMQProtonRemotingConnection connection) {
+      // For tunneled messages we need to check the type as our interceptor only cares about
+      // AMQP message right now so there's not notification point for other types that cross
+      if (outgoingInterceptors != null && !outgoingInterceptors.isEmpty()) {
+         if (message instanceof AMQPMessage amqpMessage) {
+            return super.invokeInterceptors(this.outgoingInterceptors, amqpMessage, connection);
+         } else {
+            return null;
+         }
+      } else {
+         return null;
+      }
    }
 
    public int getInitialRemoteMaxFrameSize() {
@@ -369,22 +438,20 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    }
 
    /**
-    * Returns true if transient delivery errors should be handled with a Modified disposition
-    * (if permitted by link)
+    * {@return true if transient delivery errors should be handled with a Modified disposition
+    * (if permitted by link)}
     */
    public boolean isUseModifiedForTransientDeliveryErrors() {
       return this.amqpUseModifiedForTransientDeliveryErrors;
    }
 
    /**
-    * Sets if transient delivery errors should be handled with a Modified disposition
-    * (if permitted by link)
+    * Sets if transient delivery errors should be handled with a Modified disposition (if permitted by link)
     */
    public ProtonProtocolManager setAmqpUseModifiedForTransientDeliveryErrors(boolean amqpUseModifiedForTransientDeliveryErrors) {
       this.amqpUseModifiedForTransientDeliveryErrors = amqpUseModifiedForTransientDeliveryErrors;
       return this;
    }
-
 
    public void setAmqpTreatRejectAsUnmodifiedDeliveryFailed(final boolean amqpTreatRejectAsUnmodifiedDeliveryFailed) {
       this.amqpTreatRejectAsUnmodifiedDeliveryFailed = amqpTreatRejectAsUnmodifiedDeliveryFailed;
@@ -392,5 +459,47 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    public boolean isAmqpTreatRejectAsUnmodifiedDeliveryFailed() {
       return this.amqpTreatRejectAsUnmodifiedDeliveryFailed;
+   }
+
+   /**
+    * {@return true if transient delivery errors should be handled by draining link credit from the remote sender}
+    */
+   public boolean isDrainOnTransientDeliveryErrors() {
+      return this.amqpDrainOnTransientDeliveryErrors;
+   }
+
+   /**
+    * Sets if transient delivery errors should be handled by draining link credit from the remote sender
+    *
+    * @param amqpDrainOnTransientDeliveryErrors
+    *    Set to <code>true</code> if senders should be drained on transient delivery errors.
+    *
+    * @return this protocol manager instance.
+    */
+   public ProtonProtocolManager setAmqpDrainOnTransientDeliveryErrors(boolean amqpDrainOnTransientDeliveryErrors) {
+      this.amqpDrainOnTransientDeliveryErrors = amqpDrainOnTransientDeliveryErrors;
+      return this;
+   }
+
+   /**
+    * {@return the time in milliseconds to wait for remote sender once a link quiesce is initiated by this peer}
+    */
+   public int getLinkQuiesceTimeout() {
+      return amqpLinkQuiesceTimeout;
+   }
+
+   /**
+    * Sets the time in milliseconds to wait before closing a remote sender link if the server has requested
+    * that the link drain all outstanding credit an complete pending settlements. A value less than or equal
+    * to zero disables drain timeouts.
+    *
+    * @param amqpLinkQuiesceTimeout
+    *    The time in milliseconds to wait for quiesce to complete.
+    *
+    * @return this protocol manager instance.
+    */
+   public ProtonProtocolManager setAmqpLinkQuiesceTimeout(int amqpLinkQuiesceTimeout) {
+      this.amqpLinkQuiesceTimeout = amqpLinkQuiesceTimeout;
+      return this;
    }
 }

@@ -29,7 +29,9 @@ public enum ConnectionField {
    LOCAL_ADDRESS("localAddress"),
    SESSION_ID("sessionID"),
    CREATION_TIME("creationTime"),
-   IMPLEMENTATION("implementation");
+   IMPLEMENTATION("implementation"),
+   PROXY_ADDRESS("proxyAddress"),
+   PROXY_PROTOCOL_VERSION("proxyProtocolVersion");
 
    private static final Map<String, ConnectionField> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 

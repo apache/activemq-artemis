@@ -27,9 +27,9 @@
                <max-backups>3</max-backups>
                <request-backup>false</request-backup>
                <backup-port-offset>33</backup-port-offset>
-               <master>
+               <primary>
                   <failover-on-shutdown>false</failover-on-shutdown>
-               </master>
+               </primary>
             </colocated>
          </shared-store>
       </ha-policy>

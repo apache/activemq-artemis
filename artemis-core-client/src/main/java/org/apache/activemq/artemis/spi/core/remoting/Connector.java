@@ -23,40 +23,27 @@ import java.util.Map;
  */
 public interface Connector {
 
-   /**
-    * starts the connector
-    */
    void start();
 
-   /**
-    * closes the connector
-    */
    void close();
 
-   /**
-    * returns true if the connector is started, oterwise false.
-    *
-    * @return true if the connector is started
-    */
    boolean isStarted();
 
    /**
     * Create and return a connection from this connector.
     * <p>
-    * This method must NOT throw an exception if it fails to create the connection
-    * (e.g. network is not available), in this case it MUST return null
+    * This method must NOT throw an exception if it fails to create the connection (e.g. network is not available), in
+    * this case it MUST return null
     *
     * @return The connection, or null if unable to create a connection (e.g. network is unavailable)
     */
    Connection createConnection();
 
    /**
-    * If the configuration is equivalent to this connector, which means
-    * if the parameter configuration is used to create a connection to a target
-    * node, it will be the same node as of the connections made with this connector.
+    * If the configuration is equivalent to this connector, which means if the parameter configuration is used to create
+    * a connection to a target node, it will be the same node as of the connections made with this connector.
     *
-    * @param configuration
-    * @return true means the configuration is equivalent to the connector. false otherwise.
+    * @return true means the configuration is equivalent to the connector. false otherwise
     */
    boolean isEquivalent(Map<String, Object> configuration);
 }

@@ -19,14 +19,14 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq</groupId>
+      <groupId>org.apache.artemis</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>2.31.0-SNAPSHOT</version>
-      <relativePath>../../pom.xml</relativePath>
+      <version>2.56.0-SNAPSHOT</version>
+      <relativePath>../../artemis-pom/pom.xml</relativePath>
    </parent>
 
    <artifactId>artemis-image-examples</artifactId>
-   <name>Apache ActiveMQ Artemis Image Examples</name>
+   <name>Apache Artemis Image Examples</name>
    <packaging>pom</packaging>
 
    <properties>
@@ -44,7 +44,7 @@
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-server</artifactId>
          <version>${project.parent.version}</version>
       </dependency>

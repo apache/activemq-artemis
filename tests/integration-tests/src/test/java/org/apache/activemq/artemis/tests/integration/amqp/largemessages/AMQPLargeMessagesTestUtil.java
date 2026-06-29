@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.NoSuchElementException;
 
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
@@ -26,7 +28,6 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPLargeMessage;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.junit.Assert;
 
 public class AMQPLargeMessagesTestUtil {
 
@@ -39,21 +40,17 @@ public class AMQPLargeMessagesTestUtil {
 
    public static void validateTemporaryBuffers(Queue serverQueue) {
       LinkedListIterator<MessageReference> totalIterator = serverQueue.browserIterator();
-      while (totalIterator.hasNext()) {
-         MessageReference ref;
-         try {
-            ref = totalIterator.next();
-         } catch (NoSuchElementException e) {
-            // that's fine, it means the iterator got to the end of the list
-            // and something else removed it
-            break;
+      try {
+         while (totalIterator.hasNext()) {
+            MessageReference ref = totalIterator.next();
+            if (ref.getMessage() instanceof AMQPLargeMessage amqpLargeMessage) {
+               // Using a Wait.waitFor here as we may have something working with the buffer in parallel
+               Wait.waitFor(() -> amqpLargeMessage.inspectTemporaryBuffer() == null, 1000, 10);
+               assertNull(amqpLargeMessage.inspectTemporaryBuffer(), "Temporary buffers are being retained");
+            }
          }
-         if (ref.getMessage() instanceof AMQPLargeMessage) {
-            AMQPLargeMessage amqpLargeMessage = (AMQPLargeMessage) ref.getMessage();
-            // Using a Wait.waitFor here as we may have something working with the buffer in parallel
-            Wait.waitFor(() -> amqpLargeMessage.inspectTemporaryBuffer() == null, 1000, 10);
-            Assert.assertNull("Temporary buffers are being retained", amqpLargeMessage.inspectTemporaryBuffer());
-         }
+      } catch (NoSuchElementException e) {
+         // that's ok
       }
       totalIterator.close();
    }

@@ -17,11 +17,10 @@
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.server.routing.RoutingContext;
 
 public class ActiveMQRoutingContext extends RoutingContext {
-   public ActiveMQRoutingContext(CoreRemotingConnection connection, CreateSessionMessage message) {
-      super(connection, connection.getClientID(), message.getUsername());
+   public ActiveMQRoutingContext(CoreRemotingConnection connection, String username) {
+      super(connection, connection.getClientID(), username);
    }
 }

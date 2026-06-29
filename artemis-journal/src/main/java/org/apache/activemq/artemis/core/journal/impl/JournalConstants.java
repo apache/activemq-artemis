@@ -18,9 +18,10 @@ package org.apache.activemq.artemis.core.journal.impl;
 
 import org.apache.activemq.artemis.ArtemisConstants;
 
-@Deprecated
 /**
- * @deprecated Use ArtemisConstants instead.
- */ public final class JournalConstants extends ArtemisConstants {
+ * @deprecated use {@link ArtemisConstants} instead
+ */
+@Deprecated
+public final class JournalConstants extends ArtemisConstants {
 
 }

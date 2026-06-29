@@ -43,19 +43,15 @@ public class CoreTextMessageWrapper extends CoreMessageWrapper {
 
    public static final byte TYPE = Message.TEXT_TYPE;
 
-
-
    // We cache it locally - it's more performant to cache as a SimpleString, the AbstractChannelBuffer write
    // methods are more efficient for a SimpleString
    private SimpleString text;
 
-
-   /*
+   /**
     * This constructor is used to construct messages prior to sending
     */
    public CoreTextMessageWrapper(ICoreMessage message) {
       super(message);
-
    }
 
    @Override
@@ -86,9 +82,9 @@ public class CoreTextMessageWrapper extends CoreMessageWrapper {
       return body;
    }
 
-   public void setText(final String text)  {
+   public void setText(final String text) {
       if (text != null) {
-         this.text = new SimpleString(text);
+         this.text = SimpleString.of(text);
       } else {
          this.text = null;
       }
@@ -105,20 +101,20 @@ public class CoreTextMessageWrapper extends CoreMessageWrapper {
    }
 
    @Override
-   public void clearBody()  {
+   public void clearBody() {
       super.clearBody();
 
       text = null;
    }
 
    @Override
-   public void encode()  {
+   public void encode() {
       super.encode();
       writeBodyText(getWriteBodyBuffer(), text);
    }
 
    @Override
-   public void decode()  {
+   public void decode() {
       super.decode();
       text = readBodyText(getReadBodyBuffer());
    }

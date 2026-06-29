@@ -41,7 +41,7 @@ public final class ActiveMQBuffers {
    }
 
    public static ActiveMQBuffer pooledBuffer(final int size) {
-      return new ChannelBufferWrapper(ALLOCATOR.heapBuffer(size),true, true);
+      return new ChannelBufferWrapper(ALLOCATOR.heapBuffer(size), true, true);
    }
 
    /**
@@ -60,7 +60,7 @@ public final class ActiveMQBuffers {
 
    /**
     * Creates an ActiveMQBuffer wrapping an underlying NIO ByteBuffer
-    *
+    * <p>
     * The position on this buffer won't affect the position on the inner buffer
     *
     * @param underlying the underlying NIO ByteBuffer
@@ -76,7 +76,7 @@ public final class ActiveMQBuffers {
 
    /**
     * Creates an ActiveMQBuffer wrapping an underlying ByteBuf
-    *
+    * <p>
     * The position on this buffer won't affect the position on the inner buffer
     *
     * @param underlying the underlying NIO ByteBuffer

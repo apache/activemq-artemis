@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -27,14 +31,13 @@ import javax.jms.Topic;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TopicClusteredOffTest extends ClusterTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -99,8 +102,8 @@ public class TopicClusteredOffTest extends ClusterTestBase {
          MessageConsumer consumer = session.createConsumer(session.createTopic("queues.dist::queue0"));
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("message" + i, message.getText());
+            assertNotNull(message);
+            assertEquals("message" + i, message.getText());
          }
          session.rollback();
       }
@@ -112,8 +115,8 @@ public class TopicClusteredOffTest extends ClusterTestBase {
          MessageConsumer consumer = session.createConsumer(session.createTopic("queues.dist::queue1"));
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("message" + i, message.getText());
+            assertNotNull(message);
+            assertEquals("message" + i, message.getText());
          }
          session.rollback();
       }
@@ -135,12 +138,12 @@ public class TopicClusteredOffTest extends ClusterTestBase {
          if (redisitribute) {
             for (int i = 0; i < 10; i++) {
                TextMessage message = (TextMessage) consumer.receive(5_000);
-               Assert.assertNotNull(message);
-               Assert.assertEquals("message" + i, message.getText());
+               assertNotNull(message);
+               assertEquals("message" + i, message.getText());
             }
          } else {
             TextMessage message = (TextMessage) consumer.receive(100);
-            Assert.assertNull("Messages are being redistributed", message);
+            assertNull(message, "Messages are being redistributed");
          }
       }
 

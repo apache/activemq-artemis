@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.soak.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -27,31 +31,34 @@ import javax.jms.TextMessage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.TestParameters;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-import static org.apache.activemq.artemis.tests.soak.TestParameters.intMandatoryProperty;
-import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
 /**
- * Refer to ./scripts/parameters.sh for suggested parameters
- * #You may choose to use zip files to save some time on producing if you want to run this test over and over when debugging
- * export TEST_FLOW_ZIP_LOCATION=a folder */
-@RunWith(Parameterized.class)
+ * Refer to ./scripts/parameters.sh for suggested parameters #You may choose to use zip files to save some time on
+ * producing if you want to run this test over and over when debugging export TEST_FLOW_ZIP_LOCATION=a folder
+ */
+@ExtendWith(ParameterizedTestExtension.class)
 public class FlowControlPagingTest extends SoakTestBase {
 
    private static final String TEST_NAME = "FLOW";
@@ -75,11 +82,28 @@ public class FlowControlPagingTest extends SoakTestBase {
 
    public static final String SERVER_NAME_0 = "flowControlPaging";
 
-   @Parameterized.Parameters(name = "protocol={0}")
+
+   @BeforeAll
+   public static void createServers() throws Exception {
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_0);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
+         // some limited memory to make it more likely to fail
+         cliCreateServer.setArgs("--java-memory", "512M");
+         cliCreateServer.setConfiguration("./src/main/resources/servers/flowControlPaging");
+         cliCreateServer.createServer();
+      }
+   }
+
+
+   @Parameters(name = "protocol={0}")
    public static Collection<Object[]> parameters() {
       String[] protocols = PROTOCOL_LIST.split(",");
 
-      ArrayList<Object[]> parameters = new ArrayList<>();
+      List<Object[]> parameters = new ArrayList<>();
       for (String str : protocols) {
          logger.info("Adding {} to the list for the test", str);
          parameters.add(new Object[]{str});
@@ -90,11 +114,11 @@ public class FlowControlPagingTest extends SoakTestBase {
 
    public FlowControlPagingTest(String protocol) {
       this.protocol = protocol;
-      MESSAGES = intMandatoryProperty(TEST_NAME, protocol + "_MESSAGES");
-      COMMIT_INTERVAL = intMandatoryProperty(TEST_NAME, protocol + "_COMMIT_INTERVAL");
+      MESSAGES = TestParameters.testProperty(TEST_NAME, protocol + "_MESSAGES", 50_000);
+      COMMIT_INTERVAL = TestParameters.testProperty(TEST_NAME, protocol + "_COMMIT_INTERVAL", 1000);
       // if 0 will use AUTO_ACK
-      RECEIVE_COMMIT_INTERVAL = intMandatoryProperty(TEST_NAME, protocol + "_RECEIVE_COMMIT_INTERVAL");
-      MESSAGE_SIZE = intMandatoryProperty(TEST_NAME, protocol + "_MESSAGE_SIZE");
+      RECEIVE_COMMIT_INTERVAL = TestParameters.testProperty(TEST_NAME, protocol + "_RECEIVE_COMMIT_INTERVAL", 0);
+      MESSAGE_SIZE = TestParameters.testProperty(TEST_NAME, protocol + "_MESSAGE_SIZE", 10000);
    }
 
    Process serverProcess;
@@ -102,19 +126,19 @@ public class FlowControlPagingTest extends SoakTestBase {
    boolean unzipped = false;
 
    private String getZipName() {
-      return "flow-data-" + protocol +  "-" + MESSAGES + "-" + MESSAGE_SIZE + ".zip";
+      return "flow-data-" + protocol + "-" + MESSAGES + "-" + MESSAGE_SIZE + ".zip";
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
-      Assume.assumeTrue(TEST_ENABLED);
+      assumeTrue(TEST_ENABLED);
       cleanupData(SERVER_NAME_0);
 
       boolean useZip = ZIP_LOCATION != null;
       String zipName = getZipName();
       File zipFile = useZip ? new File(ZIP_LOCATION + "/" + zipName) : null;
 
-      if (ZIP_LOCATION  != null && zipFile.exists()) {
+      if (ZIP_LOCATION != null && zipFile.exists()) {
          unzipped = true;
          unzip(zipFile, new File(getServerLocation(SERVER_NAME_0)));
       }
@@ -122,7 +146,7 @@ public class FlowControlPagingTest extends SoakTestBase {
       serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT);
    }
 
-   @Test
+   @TestTemplate
    public void testFlow() throws Exception {
       String QUEUE_NAME = "QUEUE_FLOW";
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
@@ -135,15 +159,7 @@ public class FlowControlPagingTest extends SoakTestBase {
          Connection connection = factory.createConnection();
          runAfter(connection::close);
 
-         String text;
-         {
-            StringBuffer buffer = new StringBuffer();
-            while (buffer.length() < MESSAGE_SIZE) {
-               buffer.append("a big string...");
-            }
-
-            text = buffer.toString();
-         }
+         String text = RandomUtil.randomAlphaNumericString(MESSAGE_SIZE);
 
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
          Queue queue = session.createQueue(QUEUE_NAME);
@@ -183,7 +199,7 @@ public class FlowControlPagingTest extends SoakTestBase {
       } else if (protocol.equals("OPENWIRE")) {
          factoryClient = CFUtil.createConnectionFactory("OPENWIRE", "tcp://localhost:61616");  // no flow control on openwire by default
       } else {
-         factoryClient = CFUtil.createConnectionFactory("OPENWIRE", "tcp://localhost:61616");  // no flow control on openwire by default
+         throw new IllegalStateException("protocol not defined!");
       }
 
       Connection connectionConsumer = factoryClient.createConnection();
@@ -212,7 +228,7 @@ public class FlowControlPagingTest extends SoakTestBase {
                   continue;
                }
 
-               Assert.assertEquals(m, message.getIntProperty("m"));
+               assertEquals(m, message.getIntProperty("m"));
 
                // The sending commit interval here will be used for printing
                if (PRINT_INTERVAL > 0 && m % PRINT_INTERVAL == 0) {
@@ -239,8 +255,8 @@ public class FlowControlPagingTest extends SoakTestBase {
       connectionConsumer.start();
 
       service.shutdown();
-      Assert.assertTrue("Test Timed Out", service.awaitTermination(TIMEOUT_MINUTES, TimeUnit.MINUTES));
-      Assert.assertEquals(0, errors.get());
+      assertTrue(service.awaitTermination(TIMEOUT_MINUTES, TimeUnit.MINUTES), "Test Timed Out");
+      assertEquals(0, errors.get());
 
       connectionConsumer.close();
    }

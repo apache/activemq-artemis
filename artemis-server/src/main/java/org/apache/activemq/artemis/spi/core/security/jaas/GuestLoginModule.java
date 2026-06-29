@@ -34,16 +34,15 @@ import java.lang.invoke.MethodHandles;
 
 /**
  * Always login the user with a default 'guest' identity.
- *
- * Useful for unauthenticated communication channels being used in the
- * same broker as authenticated ones.
+ * <p>
+ * Useful for unauthenticated communication channels being used in the same broker as authenticated ones.
  */
 public class GuestLoginModule implements AuditLoginModule {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final String GUEST_USER = "org.apache.activemq.jaas.guest.user";
-   private static final String GUEST_ROLE = "org.apache.activemq.jaas.guest.role";
+   public static final String GUEST_USER = "org.apache.activemq.jaas.guest.user";
+   public static final String GUEST_ROLE = "org.apache.activemq.jaas.guest.role";
 
    private String userName = "guest";
    private String roleName = "guests";

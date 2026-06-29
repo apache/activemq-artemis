@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -54,30 +56,28 @@ public class SessionXAGetTimeoutResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + timeoutSeconds;
-      return result;
+      return super.hashCode() + Objects.hashCode(timeoutSeconds);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", timeoutSeconds=" + timeoutSeconds);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", timeoutSeconds=" + timeoutSeconds);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionXAGetTimeoutResponseMessage))
+      }
+      if (!(obj instanceof SessionXAGetTimeoutResponseMessage other)) {
          return false;
-      SessionXAGetTimeoutResponseMessage other = (SessionXAGetTimeoutResponseMessage) obj;
-      if (timeoutSeconds != other.timeoutSeconds)
-         return false;
-      return true;
+      }
+
+      return timeoutSeconds == other.timeoutSeconds;
    }
 }

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.spi.core.security.scram;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -42,21 +43,23 @@ public class StringPrep {
       //
       // TreeMap would work well for this, but it was missing basic operations like lowerEntry
       // until JDK1.6, which we don't want to depend on.
-      private final ArrayList<Integer> tupleStart = new ArrayList<>();
-      private final ArrayList<Integer> tupleCount = new ArrayList<>();
+      private final List<Integer> tupleStart = new ArrayList<>();
+      private final List<Integer> tupleCount = new ArrayList<>();
 
       static CharClass fromList(int[] charMap) {
          SortedMap<Integer, Integer> mapping = new TreeMap<>();
-         for (int element : charMap)
+         for (int element : charMap) {
             mapping.put(element, 1);
+         }
 
          return new CharClass(mapping);
       }
 
       static CharClass fromRanges(int[] charMap) {
          // There must be an even number of tuples in RANGES tables.
-         if ((charMap.length % 2) != 0)
+         if ((charMap.length % 2) != 0) {
             throw new IllegalArgumentException("Invalid character list size");
+         }
 
          SortedMap<Integer, Integer> mapping = new TreeMap<>();
          for (int i = 0; i < charMap.length; i += 2) {
@@ -88,7 +91,7 @@ public class StringPrep {
             int count = pair.getValue();
 
             // Coalesce overlapping ranges.
-            if (tupleStart.size() > 0) {
+            if (!tupleStart.isEmpty()) {
                int prevIndex = tupleStart.size() - 1;
                int prevStart = tupleStart.get(prevIndex);
                int prevCount = tupleCount.get(prevIndex);
@@ -123,8 +126,9 @@ public class StringPrep {
          // -pos - 1 is the lowest index where tupleStart[pos] > c. If this is the
          // first entry, then c is below all entries in the class.
          pos = -pos - 1;
-         if (pos == 0)
+         if (pos == 0) {
             return false;
+         }
          --pos;
 
          // tupleStart[pos] is <= c.
@@ -135,7 +139,9 @@ public class StringPrep {
       }
    }
 
-   /** A.1 Unassigned code points in Unicode 3.2 */
+   /**
+    * A.1 Unassigned code points in Unicode 3.2
+    */
    static final CharClass A1 = CharClass.fromRanges(new int[] {0x0221,
                                                                0x0221,
                                                                0x0234,
@@ -927,9 +933,11 @@ public class StringPrep {
                                                                0xE0002,
                                                                0xE001F,
                                                                0xE0080,
-                                                               0xEFFFD,});
+                                                               0xEFFFD});
 
-   /** B.1 Commonly mapped to nothing */
+   /**
+    * B.1 Commonly mapped to nothing
+    */
    static final CharClass B1 = CharClass.fromList(new int[] {0x00AD,
                                                              0x034F,
                                                              0x1806,
@@ -956,12 +964,16 @@ public class StringPrep {
                                                              0xFE0D,
                                                              0xFE0E,
                                                              0xFE0F,
-                                                             0xFEFF,});
+                                                             0xFEFF});
 
-   /** C.1.1 ASCII space characters */
+   /**
+    * C.1.1 ASCII space characters
+    */
    static final CharClass C11 = CharClass.fromList(new int[] {0x0020});
 
-   /** C.1.2 Non-ASCII space characters */
+   /**
+    * C.1.2 Non-ASCII space characters
+    */
    static final CharClass C12 = CharClass.fromList(new int[] {0x00A0,
                                                               0x1680,
                                                               0x2000,
@@ -978,9 +990,11 @@ public class StringPrep {
                                                               0x200B,
                                                               0x202F,
                                                               0x205F,
-                                                              0x3000,});
+                                                              0x3000});
 
-   /** C.2.1 ASCII control characters */
+   /**
+    * C.2.1 ASCII control characters
+    */
    static final CharClass C21 = CharClass.fromList(new int[] {0x0000,
                                                               0x0001,
                                                               0x0002,
@@ -1015,7 +1029,9 @@ public class StringPrep {
                                                               0x001F,
                                                               0x007F});
 
-   /** C.2.2 Non-ASCII control characters */
+   /**
+    * C.2.2 Non-ASCII control characters
+    */
    static final CharClass C22 = CharClass.fromList(new int[] {0x0080,
                                                               0x0081,
                                                               0x0082,
@@ -1077,12 +1093,16 @@ public class StringPrep {
                                                               0x1D177,
                                                               0x1D178,
                                                               0x1D179,
-                                                              0x1D17A,});
+                                                              0x1D17A});
 
-   /** C.3 Private use */
-   static final CharClass C3 = CharClass.fromRanges(new int[] {0xE000, 0xF8FF, 0xF0000, 0xFFFFD, 0x100000, 0x10FFFD,});
+   /**
+    * C.3 Private use
+    */
+   static final CharClass C3 = CharClass.fromRanges(new int[] {0xE000, 0xF8FF, 0xF0000, 0xFFFFD, 0x100000, 0x10FFFD});
 
-   /** C.4 Non-character code points */
+   /**
+    * C.4 Non-character code points
+    */
    static final CharClass C4 = CharClass.fromRanges(new int[] {0xFDD0,
                                                                0xFDEF,
                                                                0xFFFE,
@@ -1118,15 +1138,21 @@ public class StringPrep {
                                                                0xFFFFE,
                                                                0xFFFFF,
                                                                0x10FFFE,
-                                                               0x10FFFF,});
+                                                               0x10FFFF});
 
-   /** C.5 Surrogate codes */
-   static final CharClass C5 = CharClass.fromRanges(new int[] {0xD800, 0xDFFF,});
+   /**
+    * C.5 Surrogate codes
+    */
+   static final CharClass C5 = CharClass.fromRanges(new int[] {0xD800, 0xDFFF});
 
-   /** C.6 Inappropriate for plain text */
-   static final CharClass C6 = CharClass.fromList(new int[] {0xFFF9, 0xFFFA, 0xFFFB, 0xFFFC, 0xFFFD,});
+   /**
+    * C.6 Inappropriate for plain text
+    */
+   static final CharClass C6 = CharClass.fromList(new int[] {0xFFF9, 0xFFFA, 0xFFFB, 0xFFFC, 0xFFFD});
 
-   /** C.7 Inappropriate for canonical representation */
+   /**
+    * C.7 Inappropriate for canonical representation
+    */
    static final CharClass C7 = CharClass.fromList(new int[] {0x2FF0,
                                                              0x2FF1,
                                                              0x2FF2,
@@ -1138,9 +1164,11 @@ public class StringPrep {
                                                              0x2FF8,
                                                              0x2FF9,
                                                              0x2FFA,
-                                                             0x2FFB,});
+                                                             0x2FFB});
 
-   /** C.8 Change display properties or are deprecated */
+   /**
+    * C.8 Change display properties or are deprecated
+    */
    static final CharClass C8 = CharClass.fromList(new int[] {0x0340,
                                                              0x0341,
                                                              0x200E,
@@ -1155,12 +1183,16 @@ public class StringPrep {
                                                              0x206C,
                                                              0x206D,
                                                              0x206E,
-                                                             0x206F,});
+                                                             0x206F});
 
-   /** C.9 Tagging characters (tuples) */
-   static final CharClass C9 = CharClass.fromRanges(new int[] {0xE0001, 0xE0001, 0xE0020, 0xE007F,});
+   /**
+    * C.9 Tagging characters (tuples)
+    */
+   static final CharClass C9 = CharClass.fromRanges(new int[] {0xE0001, 0xE0001, 0xE0020, 0xE007F});
 
-   /** D.1 Characters with bidirectional property "R" or "AL" */
+   /**
+    * D.1 Characters with bidirectional property "R" or "AL"
+    */
    static final CharClass D1 = CharClass.fromRanges(new int[] {0x05BE,
                                                                0x05BE,
                                                                0x05C0,
@@ -1228,9 +1260,11 @@ public class StringPrep {
                                                                0xFE70,
                                                                0xFE74,
                                                                0xFE76,
-                                                               0xFEFC,});
+                                                               0xFEFC});
 
-   /** D.2 Characters with bidirectional property "L" */
+   /**
+    * D.2 Characters with bidirectional property "L"
+    */
    static final CharClass D2 = CharClass.fromRanges(new int[] {0x0041,
                                                                0x005A,
                                                                0x0061,
@@ -1950,16 +1984,17 @@ public class StringPrep {
                                                                0xF0000,
                                                                0xFFFFD,
                                                                0x100000,
-                                                               0x10FFFD,});
+                                                               0x10FFFD});
 
-   /** rfc4013 2.3. Prohibited Output */
+   /**
+    * rfc4013 2.3. Prohibited Output
+    */
    static final CharClass saslProhibited = CharClass.fromClasses(C12, C21, C22, C3, C4, C5, C6, C7, C8, C9);
 
-   /** A prohibited string has been passed to StringPrep. */
+   /**
+    * A prohibited string has been passed to StringPrep.
+    */
    public abstract static class StringPrepError extends Exception {
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
 
       protected StringPrepError(String message) {
@@ -1967,12 +2002,11 @@ public class StringPrep {
       }
    }
 
-   /** A prohibited character was detected. */
+   /**
+    * A prohibited character was detected.
+    */
    @SuppressWarnings({"WeakerAccess", "JavaDoc"})
    public static class StringPrepProhibitedCharacter extends StringPrepError {
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
 
       StringPrepProhibitedCharacter() {
@@ -1984,12 +2018,11 @@ public class StringPrep {
       }
    }
 
-   /** A prohibited unassigned codepoint was detected. */
+   /**
+    * A prohibited unassigned codepoint was detected.
+    */
    @SuppressWarnings("JavaDoc")
    public static class StringPrepUnassignedCodepoint extends StringPrepProhibitedCharacter {
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
 
       StringPrepUnassignedCodepoint() {
@@ -1997,12 +2030,11 @@ public class StringPrep {
       }
    }
 
-   /** RTL verification has failed, according to rfc3454 section 6. */
+   /**
+    * RTL verification has failed, according to rfc3454 section 6.
+    */
    @SuppressWarnings({"unused", "JavaDoc"})
    public static class StringPrepRTLError extends StringPrepError {
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
 
       StringPrepRTLError() {
@@ -2012,25 +2044,16 @@ public class StringPrep {
 
    public static class StringPrepRTLErrorBothRALandL extends StringPrepRTLError {
 
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
    }
 
    public static class StringPrepRTLErrorRALWithoutPrefix extends StringPrepRTLError {
 
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
    }
 
    public static class StringPrepRTLErrorRALWithoutSuffix extends StringPrepRTLError {
 
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
    }
 
@@ -2043,10 +2066,11 @@ public class StringPrep {
       for (int i = 0; i < s.length();) {
          int c = Character.codePointAt(s, i);
          int charCount = Character.charCount(c);
-         if (mapFrom.isCharInClass(c))
+         if (mapFrom.isCharInClass(c)) {
             result.append(mapTo);
-         else
+         } else {
             result.append(s, i, i + charCount);
+         }
          i += charCount;
       }
 
@@ -2060,8 +2084,9 @@ public class StringPrep {
    static int containsCharacterInClass(String s, CharClass charClass) {
       for (int i = 0; i < s.length();) {
          int c = Character.codePointAt(s, i);
-         if (charClass.isCharInClass(c))
+         if (charClass.isCharInClass(c)) {
             return i;
+         }
 
          i += Character.charCount(c);
       }
@@ -2078,20 +2103,25 @@ public class StringPrep {
          // 2) If a string contains any RandALCat character, the string MUST NOT
          // contain any LCat character.
          int containsL = containsCharacterInClass(s, D2);
-         if (containsL != -1)
+         if (containsL != -1) {
             throw new StringPrepRTLErrorBothRALandL();
+         }
          // 3) If a string contains any RandALCat character, a RandALCat
          // character MUST be the first character of the string
-         if (containsRAL != 0)
+         if (containsRAL != 0) {
             throw new StringPrepRTLErrorRALWithoutPrefix();
+         }
 
          // ... and a RandALCat character MUST be the last character of the string.
-         if (!D1.isCharInClass(s.charAt(s.length() - 1)))
+         if (!D1.isCharInClass(s.charAt(s.length() - 1))) {
             throw new StringPrepRTLErrorRALWithoutSuffix();
+         }
       }
    }
 
-   /** Apply SASLPrep and return the result. {@code} is treated as a stored string. */
+   /**
+    * Apply SASLPrep and return the result. {@code} is treated as a stored string.
+    */
    public static String prepAsStoredString(String s) throws StringPrepError {
       s = prepAsQueryString(s);
 
@@ -2101,12 +2131,15 @@ public class StringPrep {
       // This profile specifies the [StringPrep, A.1] table as its list of unassigned
       // code points.
       int containsUnassignedCodepoint = containsCharacterInClass(s, A1);
-      if (containsUnassignedCodepoint != -1)
+      if (containsUnassignedCodepoint != -1) {
          throw new StringPrepUnassignedCodepoint();
+      }
       return s;
    }
 
-   /** Apply SASLPrep and return the result. {@code} is treated as a query string. */
+   /**
+    * Apply SASLPrep and return the result. {@code} is treated as a query string.
+    */
    public static String prepAsQueryString(String s) throws StringPrepError {
       // 1) Map
       // rfc4013: 2.1. Mapping
@@ -2123,8 +2156,9 @@ public class StringPrep {
 
       // 3) Prohibit
       int idx = containsCharacterInClass(s, saslProhibited);
-      if (idx != -1)
+      if (idx != -1) {
          throw new StringPrepProhibitedCharacter();
+      }
 
       // 4) Check bidi
       verifyRTL(s);

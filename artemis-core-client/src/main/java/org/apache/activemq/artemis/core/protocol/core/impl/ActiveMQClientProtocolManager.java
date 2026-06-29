@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -69,23 +70,20 @@ import java.lang.invoke.MethodHandles;
 
 /**
  * This class will return specific packets for different types of actions happening on a messaging protocol.
- *
+ * <p>
  * This is trying to unify the Core client into multiple protocols.
- *
+ * <p>
  * Returning null in certain packets means no action is taken on this specific protocol.
- *
+ * <p>
  * Semantic properties could also be added to this implementation.
- *
+ * <p>
  * Implementations of this class need to be stateless.
  */
-
 public class ActiveMQClientProtocolManager implements ClientProtocolManager {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String handshake = "ARTEMIS";
-
-   private final int versionID = VersionLoader.getVersion().getIncrementingVersion();
 
    private ClientSessionFactoryInternal factoryInternal;
 
@@ -206,8 +204,9 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       alive = false;
 
       synchronized (inCreateSessionGuard) {
-         if (inCreateSessionLatch != null)
+         if (inCreateSessionLatch != null) {
             inCreateSessionLatch.countDown();
+         }
       }
 
       Channel channel1 = getChannel1();
@@ -275,8 +274,9 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                                               int minLargeMessageSize,
                                               int confirmationWindowSize,
                                               String clientID) throws ActiveMQException {
-      if (!isAlive())
+      if (!isAlive()) {
          throw ActiveMQClientMessageBundle.BUNDLE.clientSessionClosed();
+      }
 
       Channel sessionChannel = null;
       CreateSessionResponseMessage response = null;
@@ -293,8 +293,9 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
 
             // We now set a flag saying createSession is executing
             synchronized (inCreateSessionGuard) {
-               if (!isAlive())
+               if (!isAlive()) {
                   throw ActiveMQClientMessageBundle.BUNDLE.clientSessionClosed();
+               }
                inCreateSession = true;
                inCreateSessionLatch = new CountDownLatch(1);
             }
@@ -307,8 +308,9 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                // channel1 reference here has to go away
                response = (CreateSessionResponseMessage) getChannel1().sendBlocking(request, PacketImpl.CREATESESSION_RESP);
             } catch (ActiveMQException cause) {
-               if (!isAlive())
+               if (!isAlive()) {
                   throw cause;
+               }
 
                if (cause.getType() == ActiveMQExceptionType.UNBLOCKED ||
                        cause.getType() == ActiveMQExceptionType.ROUTING_EXCEPTION) {
@@ -331,8 +333,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                lock = null;
             }
 
-            if (t instanceof ActiveMQException) {
-               throw (ActiveMQException) t;
+            if (t instanceof ActiveMQException activeMQException) {
+               throw activeMQException;
             } else {
                throw ActiveMQClientMessageBundle.BUNDLE.failedToCreateSession(t);
             }
@@ -422,8 +424,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
    }
 
    @Override
-   public boolean checkForFailover(String liveNodeID) throws ActiveMQException {
-      CheckFailoverMessage packet = new CheckFailoverMessage(liveNodeID);
+   public boolean checkForFailover(String nodeID) throws ActiveMQException {
+      CheckFailoverMessage packet = new CheckFailoverMessage(nodeID);
       CheckFailoverReplyMessage message = (CheckFailoverReplyMessage) getChannel1().sendBlocking(packet, PacketImpl.CHECK_FOR_FAILOVER_REPLY);
       return message.isOkToFailover();
    }
@@ -502,25 +504,21 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
 
       private void handleDisconnect(SimpleString nodeID, DisconnectReason reason, SimpleString targetNodeID, TransportConfiguration tagetConnector) {
          if (topologyResponseHandler != null) {
-            topologyResponseHandler.nodeDisconnected(conn, nodeID == null ? null : nodeID.toString(), reason,
-                    targetNodeID == null ? null : targetNodeID.toString(), tagetConnector);
+            topologyResponseHandler.nodeDisconnected(conn, Objects.toString(nodeID, null), reason, Objects.toString(targetNodeID, null), tagetConnector);
          }
       }
 
-      /**
-       * @param topMessage
-       */
       protected void notifyTopologyChange(final ClusterTopologyChangeMessage topMessage) {
          final long eventUID;
          final String backupGroupName;
          final String scaleDownGroupName;
-         if (topMessage instanceof ClusterTopologyChangeMessage_V3) {
-            eventUID = ((ClusterTopologyChangeMessage_V3) topMessage).getUniqueEventID();
-            backupGroupName = ((ClusterTopologyChangeMessage_V3) topMessage).getBackupGroupName();
-            scaleDownGroupName = ((ClusterTopologyChangeMessage_V3) topMessage).getScaleDownGroupName();
-         } else if (topMessage instanceof ClusterTopologyChangeMessage_V2) {
-            eventUID = ((ClusterTopologyChangeMessage_V2) topMessage).getUniqueEventID();
-            backupGroupName = ((ClusterTopologyChangeMessage_V2) topMessage).getBackupGroupName();
+         if (topMessage instanceof ClusterTopologyChangeMessage_V3 v3) {
+            eventUID = v3.getUniqueEventID();
+            backupGroupName = v3.getBackupGroupName();
+            scaleDownGroupName = v3.getScaleDownGroupName();
+         } else if (topMessage instanceof ClusterTopologyChangeMessage_V2 v2) {
+            eventUID = v2.getUniqueEventID();
+            backupGroupName = v2.getBackupGroupName();
             scaleDownGroupName = null;
          } else {
             eventUID = System.currentTimeMillis();
@@ -532,7 +530,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
             logger.debug("Notifying {} going down", topMessage.getNodeID());
 
             if (topologyResponseHandler != null) {
-               topologyResponseHandler.notifyNodeDown(eventUID, topMessage.getNodeID());
+               topologyResponseHandler.notifyNodeDown(eventUID, topMessage.getNodeID(), topMessage.isExit());
             }
          } else {
             Pair<TransportConfiguration, TransportConfiguration> transportConfig = topMessage.getPair();

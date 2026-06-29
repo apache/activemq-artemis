@@ -27,6 +27,7 @@ public class SCRAMMechanismCallback implements Callback {
 
    /**
     * sets the name of the mechanism
+    *
     * @param name the name of the mechanism
     */
    public void setMechanism(String name) {

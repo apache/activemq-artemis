@@ -19,7 +19,8 @@ package org.apache.activemq.artemis.core.server.impl;
 import org.apache.activemq.artemis.utils.collections.NoOpMap;
 
 /**
- * Implementation of MessageGroups that simply uses a NoOpMap, and in essence disables message grouping for queues that use it.
+ * Implementation of MessageGroups that simply uses a NoOpMap, and in essence disables message grouping for queues that
+ * use it.
  *
  * @param <C> the value type.
  */

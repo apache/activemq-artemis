@@ -28,7 +28,7 @@ import org.junit.rules.RuleChain;
 
 public class ActiveMQDynamicProducerResourceWithoutAddressExceptionTest {
 
-   static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
+   static final SimpleString TEST_QUEUE_ONE = SimpleString.of("test.queue.one");
    static final String TEST_BODY = "Test Message";
    static final Map<String, Object> TEST_PROPERTIES;
 

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.performance.paging;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -30,7 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
 
@@ -41,14 +42,14 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
       final int NUMBER_OF_MESSAGES = 50000;
       final int SIZE_OF_MESSAGE = 1024;
 
-      HashMap<String, AddressSettings> settings = new HashMap<>();
+      Map<String, AddressSettings> settings = new HashMap<>();
 
       ActiveMQServer messagingService = createServer(true, createDefaultInVMConfig(), 10 * 1024, 20 * 1024, settings);
       messagingService.start();
       ServerLocator locator = createInVMNonHALocator();
       try {
          final ClientSessionFactory factory = createSessionFactory(locator);
-         final SimpleString adr = new SimpleString("test-adr");
+         final SimpleString adr = SimpleString.of("test-adr");
 
          createDestination(factory, adr);
 
@@ -148,13 +149,6 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
 
 
 
-   /**
-    * @param adr
-    * @param nMessages
-    * @param messageSize
-    * @param factory
-    * @throws ActiveMQException
-    */
    private void sendInitialBatch(final SimpleString adr,
                                  final int nMessages,
                                  final int messageSize,
@@ -168,12 +162,6 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
       sendMessages(nMessages, producer, msg);
    }
 
-   /**
-    * @param nMessages
-    * @param producer
-    * @param msg
-    * @throws ActiveMQException
-    */
    private void sendMessages(final int nMessages,
                              final ClientProducer producer,
                              final ClientMessage msg) throws ActiveMQException {
@@ -182,15 +170,10 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
       }
    }
 
-   /**
-    * @param factory
-    * @param adr
-    * @throws ActiveMQException
-    */
    private void createDestination(final ClientSessionFactory factory, final SimpleString adr) throws ActiveMQException {
       {
          ClientSession session = factory.createSession(false, false, false);
-         session.createQueue(new QueueConfiguration(adr));
+         session.createQueue(QueueConfiguration.of(adr));
          session.close();
       }
    }

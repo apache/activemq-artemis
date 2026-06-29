@@ -143,4 +143,13 @@ public class JMSMessageListenerWrapper implements MessageHandler {
 
       session.setRecoverCalled(false);
    }
+
+   @Override
+   public void onMessageExpired(ClientMessage message) {
+      try {
+         message.checkCompletion();
+      } catch (ActiveMQException e) {
+         ActiveMQJMSClientLogger.LOGGER.errorProcessingMessage(e);
+      }
+   }
 }

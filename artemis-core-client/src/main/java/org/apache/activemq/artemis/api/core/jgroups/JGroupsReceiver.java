@@ -26,8 +26,7 @@ import java.lang.invoke.MethodHandles;
 import org.jgroups.Receiver;
 
 /**
- * This class is used to receive messages from a JGroups channel.
- * Incoming messages are put into a queue.
+ * This class is used to receive messages from a JGroups channel. Incoming messages are put into a queue.
  */
 public class JGroupsReceiver implements Receiver {
 

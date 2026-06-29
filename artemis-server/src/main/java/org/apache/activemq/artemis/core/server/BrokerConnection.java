@@ -16,8 +16,45 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
+import org.apache.activemq.artemis.core.server.lock.LockCoordinator;
+
+/**
+ * A broker connection defines a server connection created to provide services between this server and another
+ * instance.
+ */
 public interface BrokerConnection extends ActiveMQComponent {
+
+   default void initialize() throws Exception {
+      // Subclass should override and perform needed initialization.
+   }
+
+   default void shutdown() throws Exception {
+      // Subclass should override and perform needed cleanup.
+   }
+
+   LockCoordinator getLockCoordinator();
+
+   BrokerConnection setLockCoordinator(LockCoordinator lockCoordinator);
+
+   /**
+    * {@return the unique name of the broker connection}
+    */
    String getName();
 
+   /**
+    * {@return the protocol that underlies the broker connection implementation}
+    */
    String getProtocol();
+
+   /**
+    * {@return {@code true} if the broker connection is currently connected to the remote}
+    */
+   boolean isConnected();
+
+   /**
+    * {@return the configuration that was used to create this broker connection}
+    */
+   BrokerConnectConfiguration getConfiguration();
+
 }

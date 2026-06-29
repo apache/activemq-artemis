@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.jndi;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
@@ -28,7 +28,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.jndi.JNDIReferenceFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Test to simulate JNDI references created using String properties in containers such as Apache Tomcat.
@@ -38,7 +39,8 @@ public class StringRefAddrReferenceTest {
    private static final String FACTORY = "factory";
    private static final String TYPE = "type";
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void testActiveMQQueueFromPropertiesJNDI() throws Exception {
       Properties properties = new Properties();
       properties.setProperty(TYPE, ActiveMQQueue.class.getName());
@@ -55,7 +57,8 @@ public class StringRefAddrReferenceTest {
 
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void testActiveMQTopicFromPropertiesJNDI() throws Exception {
       Properties properties = new Properties();
       properties.setProperty(TYPE, ActiveMQTopic.class.getName());
@@ -72,7 +75,8 @@ public class StringRefAddrReferenceTest {
 
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void testActiveMQConnectionFactoryFromPropertiesJNDI() throws Exception {
       Properties properties = new Properties();
       properties.setProperty(TYPE, ActiveMQConnectionFactory.class.getName());
@@ -96,8 +100,7 @@ public class StringRefAddrReferenceTest {
 
    private <T> T getObject(Reference reference, Class<T> tClass) throws Exception {
       String factoryName = reference.getFactoryClassName();
-      Class<?> factoryClass = Class.forName(factoryName);
-      ObjectFactory factory = (ObjectFactory) factoryClass.newInstance();
+      ObjectFactory factory = (ObjectFactory) Class.forName(factoryName).getDeclaredConstructor().newInstance();
       Object o = factory.getObjectInstance(reference, null, null, null);
       if (tClass.isAssignableFrom(tClass)) {
          return tClass.cast(o);

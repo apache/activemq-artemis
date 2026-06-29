@@ -22,7 +22,9 @@ import java.util.function.Consumer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 
-/** this class will split a big buffer into smaller buffers */
+/**
+ * this class will split a big buffer into smaller buffers
+ */
 public class BufferSplitter {
 
 

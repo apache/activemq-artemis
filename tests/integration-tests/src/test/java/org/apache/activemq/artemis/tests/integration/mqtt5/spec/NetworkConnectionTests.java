@@ -17,18 +17,14 @@
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested explicitly here, but tested implicitly through all the tests using TCP):
  *
  * [MQTT-4.2.0-1] A Client or Server MUST support the use of one or more underlying transport protocols that provide an ordered, lossless, stream of bytes from the Client to Server and Server to Client.
  */
 
-@Ignore
+@Disabled
 public class NetworkConnectionTests extends MQTT5TestSupport {
-
-   public NetworkConnectionTests(String protocol) {
-      super(protocol);
-   }
 }

@@ -25,13 +25,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ClientACKPerf extends AbstractSendReceivePerfTest {
 
-   @Parameterized.Parameters(name = "batchSize={0}")
+   @Parameters(name = "batchSize={0}")
    public static Collection<Object[]> data() {
       List<Object[]> list = Arrays.asList(new Object[][]{{1}, {2000}});
 
@@ -103,4 +105,8 @@ public class ClientACKPerf extends AbstractSendReceivePerfTest {
 
    }
 
+   @TestTemplate
+   public void testSendReceive() throws Exception {
+      super.doSendReceiveTestImpl();
+   }
 }

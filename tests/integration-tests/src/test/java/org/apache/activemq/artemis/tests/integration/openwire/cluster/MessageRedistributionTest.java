@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -30,8 +34,7 @@ import org.apache.activemq.artemis.tests.integration.cluster.distribution.Cluste
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.util.ConsumerThread;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -136,12 +139,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
       });
 
 
-      assertTrue(Wait.waitFor(new org.apache.activemq.artemis.utils.Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return received.getCount() <= numMessagesPerNode;
-         }
-      }));
+      assertTrue(Wait.waitFor(() -> received.getCount() <= numMessagesPerNode));
 
       // force a failover to the other broker
       servers[0].stop(false, true);
@@ -215,13 +213,13 @@ public class MessageRedistributionTest extends ClusterTestBase {
          MessageProducer producer = session.createProducer(dest);
          producer.send(session.createTextMessage("test message"));
          Message message = mySubscriber.receive(5000);
-         SimpleString  advQueue = new SimpleString("ActiveMQ.Advisory.TempQueue");
-         SimpleString  advTopic = new SimpleString("ActiveMQ.Advisory.TempTopic");
+         SimpleString advQueue = SimpleString.of("ActiveMQ.Advisory.TempQueue");
+         SimpleString advTopic = SimpleString.of("ActiveMQ.Advisory.TempTopic");
          //we create a consumer on node 2 and assert that the advisory subscription queue is not clustered
-         Assert.assertEquals("", 1, servers[0].getPostOffice().getBindingsForAddress(advQueue).getBindings().size());
-         Assert.assertEquals("", 1, servers[0].getPostOffice().getBindingsForAddress(advTopic).getBindings().size());
-         Assert.assertEquals("", 1, servers[1].getPostOffice().getBindingsForAddress(advQueue).getBindings().size());
-         Assert.assertEquals("", 1, servers[1].getPostOffice().getBindingsForAddress(advTopic).getBindings().size());
+         assertEquals(1, servers[0].getPostOffice().getBindingsForAddress(advQueue).getBindings().size(), "");
+         assertEquals(1, servers[0].getPostOffice().getBindingsForAddress(advTopic).getBindings().size(), "");
+         assertEquals(1, servers[1].getPostOffice().getBindingsForAddress(advQueue).getBindings().size(), "");
+         assertEquals(1, servers[1].getPostOffice().getBindingsForAddress(advTopic).getBindings().size(), "");
 
       } finally {
          conn.close();
@@ -250,7 +248,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
          consumer.setFinished(active);
          consumer.start();
 
-         assertTrue("consumer takes too long to finish!", active.await(5, TimeUnit.SECONDS));
+         assertTrue(active.await(5, TimeUnit.SECONDS), "consumer takes too long to finish!");
       } finally {
          conn.close();
       }
@@ -264,12 +262,12 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       Wait.waitFor(() -> remoteBinding.consumerCount() >= 0);
       int count = remoteBinding.consumerCount();
-      assertTrue("consumer count should never be negative " + count, count >= 0);
+      assertTrue(count >= 0, "consumer count should never be negative " + count);
    }
 
    private RemoteQueueBinding getRemoteQueueBinding(ActiveMQServer server) throws Exception {
       ActiveMQServer remoteServer = server;
-      Bindings bindings = remoteServer.getPostOffice().getBindingsForAddress(new SimpleString("queues.testaddress"));
+      Bindings bindings = remoteServer.getPostOffice().getBindingsForAddress(SimpleString.of("queues.testaddress"));
       Collection<Binding> bindingSet = bindings.getBindings();
 
       return getRemoteQueueBinding(bindingSet);
@@ -278,8 +276,8 @@ public class MessageRedistributionTest extends ClusterTestBase {
    private RemoteQueueBinding getRemoteQueueBinding(Collection<Binding> bindingSet) {
       RemoteQueueBinding remoteBinding = null;
       for (Binding b : bindingSet) {
-         if (b instanceof RemoteQueueBinding) {
-            remoteBinding = (RemoteQueueBinding) b;
+         if (b instanceof RemoteQueueBinding remoteQueueBinding) {
+            remoteBinding = remoteQueueBinding;
             break;
          }
       }

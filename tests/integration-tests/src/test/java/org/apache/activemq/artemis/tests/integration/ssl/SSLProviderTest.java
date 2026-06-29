@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.ssl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -27,19 +30,19 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+//Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class SSLProviderTest extends SSLTestBase {
 
    public SSLProviderTest(String sslProvider, String clientSslProvider) {
       super(sslProvider, clientSslProvider);
    }
 
-   @Test
+   @TestTemplate
    public void testProviderConfig() {
       NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor(getNettyAcceptorName());
       assertNotNull(acceptor);
@@ -47,7 +50,7 @@ public class SSLProviderTest extends SSLTestBase {
       assertEquals(sslProvider, sslProviderInUse);
    }
 
-   @Test
+   @TestTemplate
    public void testProviderLoading() throws Exception {
       if (!isOpenSSLSupported()) {
          return;
@@ -66,7 +69,7 @@ public class SSLProviderTest extends SSLTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocator(uri.toString()));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = addClientProducer(session.createProducer(QUEUE));
 
       ClientMessage message = createTextMessage(session, text);
@@ -76,8 +79,8 @@ public class SSLProviderTest extends SSLTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
 
    }
 }

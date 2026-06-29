@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.core.settings.impl;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -30,17 +31,17 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
 
    public static final SimpleString DEFAULT_MATCH = null;
 
-   public static final Integer DEFAULT_MAX_CONNECTIONS = -1;
+   public static final Integer DEFAULT_MAX_SESSIONS = -1;
 
    public static final Integer DEFAULT_MAX_QUEUES = -1;
 
    //   public static final Long DEFAULT_MAX_QUEUE_SIZE_BYTES = -1L;
 
-   //   public static final SimpleString DEFAULT_QUEUE_NAME_REGEX = new SimpleString(".+");
+   //   public static final SimpleString DEFAULT_QUEUE_NAME_REGEX = SimpleString.of(".+");
 
    SimpleString match = null;
 
-   Integer maxConnections = null;
+   Integer maxSessions = null;
 
    Integer maxQueues = null;
 
@@ -49,19 +50,24 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
    //   SimpleString queueNameRegex = null;
 
    public void setName(String name) {
-      setMatch(SimpleString.toSimpleString(name));
+      setMatch(SimpleString.of(name));
    }
 
    public SimpleString getMatch() {
       return match != null ? match : DEFAULT_MATCH;
    }
 
+   @Deprecated(forRemoval = true)
    public int getMaxConnections() {
-      return maxConnections != null ? maxConnections : DEFAULT_MAX_CONNECTIONS;
+      return getMaxSessions();
+   }
+
+   public int getMaxSessions() {
+      return Objects.requireNonNullElse(maxSessions, DEFAULT_MAX_SESSIONS);
    }
 
    public int getMaxQueues() {
-      return maxQueues != null ? maxQueues : DEFAULT_MAX_QUEUES;
+      return Objects.requireNonNullElse(maxQueues, DEFAULT_MAX_QUEUES);
    }
 
    //   public long getMaxQueueSizeBytes()
@@ -78,8 +84,13 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
       this.match = match;
    }
 
+   @Deprecated(forRemoval = true)
    public void setMaxConnections(int maxConnections) {
-      this.maxConnections = maxConnections;
+      setMaxSessions(maxConnections);
+   }
+
+   public void setMaxSessions(int maxSessions) {
+      this.maxSessions = maxSessions;
    }
 
    public void setMaxQueues(int maxQueues) {
@@ -99,7 +110,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
    @Override
    public int getEncodeSize() {
       return SimpleString.sizeofNullableString(match) +
-         BufferHelper.sizeOfNullableInteger(maxConnections) +
+         BufferHelper.sizeOfNullableInteger(maxSessions) +
          BufferHelper.sizeOfNullableInteger(maxQueues);
       //              BufferHelper.sizeOfNullableLong(maxQueueSizeBytes) +
       //              SimpleString.sizeofNullableString(queueNameRegex);
@@ -109,7 +120,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
    public void encode(ActiveMQBuffer buffer) {
       buffer.writeNullableSimpleString(match);
 
-      BufferHelper.writeNullableInteger(buffer, maxConnections);
+      BufferHelper.writeNullableInteger(buffer, maxSessions);
 
       BufferHelper.writeNullableInteger(buffer, maxQueues);
 
@@ -122,7 +133,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
    public void decode(ActiveMQBuffer buffer) {
       match = buffer.readNullableSimpleString();
 
-      maxConnections = BufferHelper.readNullableInteger(buffer);
+      maxSessions = BufferHelper.readNullableInteger(buffer);
 
       maxQueues = BufferHelper.readNullableInteger(buffer);
 
@@ -131,49 +142,29 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
       //      queueNameRegex = buffer.readNullableSimpleString();
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#hashCode()
-    */
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((match == null) ? 0 : match.hashCode());
-      result = prime * result + ((maxConnections == null) ? 0 : maxConnections.hashCode());
-      result = prime * result + ((maxQueues == null) ? 0 : maxQueues.hashCode());
-      //      result = prime * result + ((maxQueueSizeBytes == null) ? 0 : maxQueueSizeBytes.hashCode());
-      //      result = prime * result + ((queueNameRegex == null) ? 0 : queueNameRegex.hashCode());
-      return result;
+      return Objects.hash(match, maxSessions, maxQueues);
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof ResourceLimitSettings other)) {
          return false;
       }
 
-      ResourceLimitSettings that = (ResourceLimitSettings) o;
-
-      if (match != null ? !match.equals(that.match) : that.match != null) {
-         return false;
-      }
-      if (maxConnections != null ? !maxConnections.equals(that.maxConnections) : that.maxConnections != null) {
-         return false;
-      }
-      return maxQueues != null ? maxQueues.equals(that.maxQueues) : that.maxQueues == null;
+      return Objects.equals(match, other.match) &&
+             Objects.equals(maxSessions, other.maxSessions) &&
+             Objects.equals(maxQueues, other.maxQueues);
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "ResourceLimitSettings [match=" + match +
-         ", maxConnections=" +
-         maxConnections +
+         ", maxSessions=" + maxSessions +
          ", maxQueues=" +
          maxQueues +
          //              ", maxQueueSizeBytes=" +

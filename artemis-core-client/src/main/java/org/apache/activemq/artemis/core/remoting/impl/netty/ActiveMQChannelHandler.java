@@ -40,7 +40,7 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
 
    private final BaseConnectionLifeCycleListener<?> listener;
 
-   volatile boolean active;
+   protected volatile boolean active;
 
    private final Executor listenerExecutor;
 
@@ -86,7 +86,7 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
       synchronized (this) {
          if (active) {
-            listenerExecutor.execute(() -> listener.connectionDestroyed(channelId(ctx.channel())));
+            listenerExecutor.execute(() -> listener.connectionDestroyed(channelId(ctx.channel()), true));
 
             active = false;
          }

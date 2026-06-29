@@ -25,28 +25,10 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 
-/**
- *
- */
 public interface ActiveMQServerSessionPlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a session is created.
-    *
-    * @param name
-    * @param username
-    * @param minLargeMessageSize
-    * @param connection
-    * @param autoCommitSends
-    * @param autoCommitAcks
-    * @param preAcknowledge
-    * @param xa
-    * @param defaultAddress
-    * @param callback
-    * @param autoCreateQueues
-    * @param context
-    * @param prefixes
-    * @throws ActiveMQException
     */
    default void beforeCreateSession(String name, String username, int minLargeMessageSize,
                                     RemotingConnection connection, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge,
@@ -59,7 +41,6 @@ public interface ActiveMQServerSessionPlugin extends ActiveMQServerBasePlugin {
     * After a session has been created.
     *
     * @param session The newly created session
-    * @throws ActiveMQException
     */
    default void afterCreateSession(ServerSession session) throws ActiveMQException {
 
@@ -67,10 +48,6 @@ public interface ActiveMQServerSessionPlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a session is closed
-    *
-    * @param session
-    * @param failed
-    * @throws ActiveMQException
     */
    default void beforeCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
 
@@ -78,10 +55,6 @@ public interface ActiveMQServerSessionPlugin extends ActiveMQServerBasePlugin {
 
    /**
     * After a session is closed
-    *
-    * @param session
-    * @param failed
-    * @throws ActiveMQException
     */
    default void afterCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
 
@@ -89,11 +62,6 @@ public interface ActiveMQServerSessionPlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before session metadata is added to the session
-    *
-    * @param session
-    * @param key
-    * @param data
-    * @throws ActiveMQException
     */
    default void beforeSessionMetadataAdded(ServerSession session, String key, String data) throws ActiveMQException {
 
@@ -101,11 +69,6 @@ public interface ActiveMQServerSessionPlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Called when adding session metadata fails because the metadata is a duplicate
-    *
-    * @param session
-    * @param key
-    * @param data
-    * @throws ActiveMQException
     */
    default void duplicateSessionMetadataFailure(ServerSession session, String key, String data) throws ActiveMQException {
 
@@ -113,11 +76,6 @@ public interface ActiveMQServerSessionPlugin extends ActiveMQServerBasePlugin {
 
    /**
     * After session metadata is added to the session
-    *
-    * @param session
-    * @param key
-    * @param data
-    * @throws ActiveMQException
     */
    default void afterSessionMetadataAdded(ServerSession session, String key, String data) throws ActiveMQException {
 

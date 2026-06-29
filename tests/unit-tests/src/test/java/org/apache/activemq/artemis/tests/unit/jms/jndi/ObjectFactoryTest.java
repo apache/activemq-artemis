@@ -16,7 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.jndi;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
@@ -32,19 +33,20 @@ import org.apache.activemq.artemis.jndi.JNDIReferenceFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 
 import org.apache.activemq.artemis.utils.uri.URISupport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class ObjectFactoryTest {
 
-   @Test(timeout = 1000)
+   @Test
+   @Timeout(1)
    public void testConnectionFactory() throws Exception {
       // Create sample connection factory
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://0");
 
-      String clientID = RandomUtil.randomString();
-      String user = RandomUtil.randomString();
-      String password = RandomUtil.randomString();
+      String clientID = RandomUtil.randomUUIDString();
+      String user = RandomUtil.randomUUIDString();
+      String password = RandomUtil.randomUUIDString();
       long clientFailureCheckPeriod = RandomUtil.randomPositiveLong();
       long connectionTTL = RandomUtil.randomPositiveLong();
       long callTimeout = RandomUtil.randomPositiveLong();
@@ -58,7 +60,7 @@ public class ObjectFactoryTest {
       boolean blockOnNonDurableSend = RandomUtil.randomBoolean();
       boolean autoGroup = RandomUtil.randomBoolean();
       boolean preAcknowledge = RandomUtil.randomBoolean();
-      String loadBalancingPolicyClassName = RandomUtil.randomString();
+      String loadBalancingPolicyClassName = RandomUtil.randomUUIDString();
       boolean useGlobalPools = RandomUtil.randomBoolean();
       int scheduledThreadPoolMaxSize = RandomUtil.randomPositiveInt();
       int threadPoolMaxSize = RandomUtil.randomPositiveInt();
@@ -99,36 +101,37 @@ public class ObjectFactoryTest {
       temp = (ActiveMQConnectionFactory)refFactory.getObjectInstance(ref, null, null, null);
 
       // Check settings
-      Assert.assertEquals(clientID, temp.getClientID());
-      Assert.assertEquals(user, temp.getUser());
-      Assert.assertEquals(password, temp.getPassword());
-      Assert.assertEquals(clientFailureCheckPeriod, temp.getClientFailureCheckPeriod());
-      Assert.assertEquals(connectionTTL, temp.getConnectionTTL());
-      Assert.assertEquals(callTimeout, temp.getCallTimeout());
-      Assert.assertEquals(minLargeMessageSize, temp.getMinLargeMessageSize());
-      Assert.assertEquals(consumerWindowSize, temp.getConsumerWindowSize());
-      Assert.assertEquals(consumerMaxRate, temp.getConsumerMaxRate());
-      Assert.assertEquals(confirmationWindowSize, temp.getConfirmationWindowSize());
-      Assert.assertEquals(producerMaxRate, temp.getProducerMaxRate());
-      Assert.assertEquals(blockOnAcknowledge, temp.isBlockOnAcknowledge());
-      Assert.assertEquals(blockOnDurableSend, temp.isBlockOnDurableSend());
-      Assert.assertEquals(blockOnNonDurableSend, temp.isBlockOnNonDurableSend());
-      Assert.assertEquals(autoGroup, temp.isAutoGroup());
-      Assert.assertEquals(preAcknowledge, temp.isPreAcknowledge());
-      Assert.assertEquals(loadBalancingPolicyClassName, temp.getConnectionLoadBalancingPolicyClassName());
-      Assert.assertEquals(useGlobalPools, temp.isUseGlobalPools());
-      Assert.assertEquals(scheduledThreadPoolMaxSize, temp.getScheduledThreadPoolMaxSize());
-      Assert.assertEquals(threadPoolMaxSize, temp.getThreadPoolMaxSize());
-      Assert.assertEquals(retryInterval, temp.getRetryInterval());
-      Assert.assertEquals(retryIntervalMultiplier, temp.getRetryIntervalMultiplier(), 0.0001);
-      Assert.assertEquals(reconnectAttempts, temp.getReconnectAttempts());
+      assertEquals(clientID, temp.getClientID());
+      assertEquals(user, temp.getUser());
+      assertEquals(password, temp.getPassword());
+      assertEquals(clientFailureCheckPeriod, temp.getClientFailureCheckPeriod());
+      assertEquals(connectionTTL, temp.getConnectionTTL());
+      assertEquals(callTimeout, temp.getCallTimeout());
+      assertEquals(minLargeMessageSize, temp.getMinLargeMessageSize());
+      assertEquals(consumerWindowSize, temp.getConsumerWindowSize());
+      assertEquals(consumerMaxRate, temp.getConsumerMaxRate());
+      assertEquals(confirmationWindowSize, temp.getConfirmationWindowSize());
+      assertEquals(producerMaxRate, temp.getProducerMaxRate());
+      assertEquals(blockOnAcknowledge, temp.isBlockOnAcknowledge());
+      assertEquals(blockOnDurableSend, temp.isBlockOnDurableSend());
+      assertEquals(blockOnNonDurableSend, temp.isBlockOnNonDurableSend());
+      assertEquals(autoGroup, temp.isAutoGroup());
+      assertEquals(preAcknowledge, temp.isPreAcknowledge());
+      assertEquals(loadBalancingPolicyClassName, temp.getConnectionLoadBalancingPolicyClassName());
+      assertEquals(useGlobalPools, temp.isUseGlobalPools());
+      assertEquals(scheduledThreadPoolMaxSize, temp.getScheduledThreadPoolMaxSize());
+      assertEquals(threadPoolMaxSize, temp.getThreadPoolMaxSize());
+      assertEquals(retryInterval, temp.getRetryInterval());
+      assertEquals(retryIntervalMultiplier, temp.getRetryIntervalMultiplier(), 0.0001);
+      assertEquals(reconnectAttempts, temp.getReconnectAttempts());
 
    }
 
-   @Test(timeout = 1000)
+   @Test
+   @Timeout(1)
    public void testDestination() throws Exception {
       // Create sample destination
-      ActiveMQDestination dest = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomString());
+      ActiveMQDestination dest = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomUUIDString());
 
       // Create reference
       Reference ref = JNDIReferenceFactory.createReference(dest.getClass().getName(), dest);
@@ -159,11 +162,11 @@ public class ObjectFactoryTest {
       URI uri = cf.toURI();
       Map<String, String> params = URISupport.parseParameters(uri);
 
-      Assert.assertEquals("true", params.get(TransportConstants.SSL_ENABLED_PROP_NAME));
-      Assert.assertEquals("/path/to/trustStore", params.get(TransportConstants.TRUSTSTORE_PATH_PROP_NAME));
-      Assert.assertEquals("trustStorePassword", params.get(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME));
-      Assert.assertEquals("/path/to/keyStore", params.get(TransportConstants.KEYSTORE_PATH_PROP_NAME));
-      Assert.assertEquals("keyStorePassword", params.get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME));
-      Assert.assertNull(params.get("doesnotexist"));
+      assertEquals("true", params.get(TransportConstants.SSL_ENABLED_PROP_NAME));
+      assertEquals("/path/to/trustStore", params.get(TransportConstants.TRUSTSTORE_PATH_PROP_NAME));
+      assertEquals("trustStorePassword", params.get(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME));
+      assertEquals("/path/to/keyStore", params.get(TransportConstants.KEYSTORE_PATH_PROP_NAME));
+      assertEquals("keyStorePassword", params.get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME));
+      assertNull(params.get("doesnotexist"));
    }
 }

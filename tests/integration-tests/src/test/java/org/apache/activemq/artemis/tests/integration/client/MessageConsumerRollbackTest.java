@@ -16,7 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,8 +40,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageConsumerRollbackTest extends ActiveMQTestBase {
 
@@ -49,7 +56,7 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
    private static final String outQueue = "outQueue";
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -66,9 +73,9 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createTransactedSession();
 
-      session.createQueue(new QueueConfiguration(inQueue));
+      session.createQueue(QueueConfiguration.of(inQueue));
 
-      session.createQueue(new QueueConfiguration(outQueue));
+      session.createQueue(QueueConfiguration.of(outQueue));
 
       session.close();
    }
@@ -105,14 +112,14 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
 
       session.start();
 
-      HashSet<Integer> values = new HashSet<>();
+      Set<Integer> values = new HashSet<>();
 
       for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = consumer.receive(1000);
          assertNotNull(msg);
          int value = msg.getIntProperty("out_msg");
          msg.acknowledge();
-         assertFalse("msg " + value + " received in duplicate", values.contains(value));
+         assertFalse(values.contains(value), "msg " + value + " received in duplicate");
          values.add(value);
       }
 
@@ -128,11 +135,6 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
 
    }
 
-   /**
-    * @param numberOfMessages
-    * @param session
-    * @throws Exception
-    */
    private void sendMessages(int numberOfMessages, ClientSession session) throws Exception {
       ClientProducer producer = session.createProducer(inQueue);
 

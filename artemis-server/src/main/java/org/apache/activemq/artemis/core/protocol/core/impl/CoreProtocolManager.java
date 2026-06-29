@@ -60,17 +60,20 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Federation
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
-import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQFrameDecoder2;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
+import org.apache.activemq.artemis.utils.SecurityManagerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -79,7 +82,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final List<String> websocketRegistryNames = Collections.EMPTY_LIST;
+   private static final List<String> websocketRegistryNames = Collections.emptyList();
 
    protected final ActiveMQServer server;
 
@@ -146,7 +149,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
 
       channel1.setHandler(handler);
 
-      long ttl = ActiveMQClient.DEFAULT_CONNECTION_TTL;
+      long ttl = connection instanceof InVMConnection ? ActiveMQClient.DEFAULT_CONNECTION_TTL_INVM : ActiveMQClient.DEFAULT_CONNECTION_TTL;
 
       if (config.getConnectionTTLOverride() != -1) {
          ttl = config.getConnectionTTLOverride();
@@ -163,8 +166,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
          .addClusterChannelHandler(rc.getChannel(CHANNEL_ID.CLUSTER.id, -1), acceptorUsed, rc,
                                    server.getActivation());
 
-      final Channel federationChannel =  rc.getChannel(CHANNEL_ID.FEDERATION.id, -1);
-      federationChannel.setHandler(new LocalChannelHandler(config, entry, channel0, acceptorUsed, rc));
+      rc.getChannel(CHANNEL_ID.FEDERATION.id, -1).setHandler(new FederationChannelHandler(acceptorUsed, rc));
 
       return entry;
    }
@@ -214,14 +216,14 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
    @Override
    public void setAnycastPrefix(String anycastPrefix) {
       for (String prefix : anycastPrefix.split(",")) {
-         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.ANYCAST);
+         prefixes.put(SimpleString.of(prefix), RoutingType.ANYCAST);
       }
    }
 
    @Override
    public void setMulticastPrefix(String multicastPrefix) {
       for (String prefix : multicastPrefix.split(",")) {
-         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.MULTICAST);
+         prefixes.put(SimpleString.of(prefix), RoutingType.MULTICAST);
       }
    }
 
@@ -313,31 +315,28 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
                      // Using an executor as most of the notifications on the Topology
                      // may come from a channel itself
                      // What could cause deadlocks
-                     entry.connectionExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                           if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V4)) {
-                              channel0.send(new ClusterTopologyChangeMessage_V4(
-                                 topologyMember.getUniqueEventID(), nodeID,
-                                 topologyMember.getBackupGroupName(),
-                                 topologyMember.getScaleDownGroupName(), connectorPair,
-                                 last, server.getVersion().getIncrementingVersion()));
-                           } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V3)) {
-                              channel0.send(new ClusterTopologyChangeMessage_V3(
-                                 topologyMember.getUniqueEventID(), nodeID,
-                                 topologyMember.getBackupGroupName(),
-                                 topologyMember.getScaleDownGroupName(), connectorPair,
-                                 last));
-                           } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
-                              channel0.send(new ClusterTopologyChangeMessage_V2(
-                                 topologyMember.getUniqueEventID(), nodeID,
-                                 topologyMember.getBackupGroupName(), connectorPair,
-                                 last));
-                           } else {
-                              channel0.send(
-                                 new ClusterTopologyChangeMessage(nodeID, connectorPair,
-                                                                  last));
-                           }
+                     entry.connectionExecutor.execute(() -> {
+                        if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V4)) {
+                           channel0.send(new ClusterTopologyChangeMessage_V4(
+                              topologyMember.getUniqueEventID(), nodeID,
+                              topologyMember.getBackupGroupName(),
+                              topologyMember.getScaleDownGroupName(), connectorPair,
+                              last, server.getVersion().getIncrementingVersion()));
+                        } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V3)) {
+                           channel0.send(new ClusterTopologyChangeMessage_V3(
+                              topologyMember.getUniqueEventID(), nodeID,
+                              topologyMember.getBackupGroupName(),
+                              topologyMember.getScaleDownGroupName(), connectorPair,
+                              last));
+                        } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
+                           channel0.send(new ClusterTopologyChangeMessage_V2(
+                              topologyMember.getUniqueEventID(), nodeID,
+                              topologyMember.getBackupGroupName(), connectorPair,
+                              last));
+                        } else {
+                           channel0.send(
+                              new ClusterTopologyChangeMessage(nodeID, connectorPair,
+                                                               last));
                         }
                      });
                   } catch (RejectedExecutionException ignored) {
@@ -354,16 +353,13 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
                   // may come from a channel itself
                   // What could cause deadlocks
                   try {
-                     entry.connectionExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                           if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
-                              channel0.send(
-                                 new ClusterTopologyChangeMessage_V2(uniqueEventID,
-                                                                     nodeID));
-                           } else {
-                              channel0.send(new ClusterTopologyChangeMessage(nodeID));
-                           }
+                     entry.connectionExecutor.execute(() -> {
+                        if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
+                           channel0.send(
+                              new ClusterTopologyChangeMessage_V2(uniqueEventID,
+                                                                  nodeID));
+                        } else {
+                           channel0.send(new ClusterTopologyChangeMessage(nodeID));
                         }
                      });
                   } catch (RejectedExecutionException ignored) {
@@ -382,37 +378,65 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
             if (acceptorUsed.getClusterConnection() != null) {
                acceptorUsed.getClusterConnection().addClusterTopologyListener(listener);
 
-               rc.addCloseListener(new CloseListener() {
-                  @Override
-                  public void connectionClosed() {
-                     acceptorUsed.getClusterConnection()
-                        .removeClusterTopologyListener(listener);
-                  }
-               });
+               rc.addCloseListener(() -> acceptorUsed.getClusterConnection().removeClusterTopologyListener(listener));
             } else {
                // if not clustered, we send a single notification to the client containing the node-id where the server is connected to
                // This is done this way so Recovery discovery could also use the node-id for non-clustered setups
-               entry.connectionExecutor.execute(new Runnable() {
-                  @Override
-                  public void run() {
-                     String nodeId = server.getNodeID().toString();
-                     Pair<TransportConfiguration, TransportConfiguration> emptyConfig = new Pair<>(
-                        null, null);
-                     if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V4)) {
-                        channel0.send(new ClusterTopologyChangeMessage_V4(System.currentTimeMillis(), nodeId,
-                           null, null, emptyConfig, true, server.getVersion().getIncrementingVersion()));
-                     } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
-                        channel0.send(
-                           new ClusterTopologyChangeMessage_V2(System.currentTimeMillis(),
-                                                               nodeId, null, emptyConfig, true));
-                     } else {
-                        channel0.send(
-                           new ClusterTopologyChangeMessage(nodeId, emptyConfig, true));
-                     }
+               entry.connectionExecutor.execute(() -> {
+                  String nodeId = server.getNodeID().toString();
+                  Pair<TransportConfiguration, TransportConfiguration> emptyConfig = new Pair<>(
+                     null, null);
+                  if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V4)) {
+                     channel0.send(new ClusterTopologyChangeMessage_V4(System.currentTimeMillis(), nodeId,
+                        null, null, emptyConfig, true, server.getVersion().getIncrementingVersion()));
+                  } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
+                     channel0.send(
+                        new ClusterTopologyChangeMessage_V2(System.currentTimeMillis(),
+                                                            nodeId, null, emptyConfig, true));
+                  } else {
+                     channel0.send(
+                        new ClusterTopologyChangeMessage(nodeId, emptyConfig, true));
                   }
                });
             }
-         } else if (packet.getType() == PacketImpl.FEDERATION_DOWNSTREAM_CONNECT) {
+         }
+      }
+
+      private Pair<TransportConfiguration, TransportConfiguration> getPair(
+         TransportConfiguration conn,
+         boolean isBackup) {
+         if (isBackup) {
+            return new Pair<>(null, conn);
+         }
+         return new Pair<>(conn, null);
+      }
+   }
+
+   private class FederationChannelHandler implements ChannelHandler {
+
+      private final Acceptor acceptorUsed;
+      private final CoreRemotingConnection rc;
+
+      private FederationChannelHandler(final Acceptor acceptorUsed, final CoreRemotingConnection rc) {
+         this.acceptorUsed = acceptorUsed;
+         this.rc = rc;
+      }
+
+      @Override
+      public void handlePacket(final Packet packet) {
+         if (packet.getType() == PacketImpl.FEDERATION_DOWNSTREAM_CONNECT) {
+            if (server.getSecurityStore().isSecurityEnabled()) {
+               if (rc.getSubject() == null) {
+                  ActiveMQServerLogger.LOGGER.federationDownstreamUnauthenticated(rc.getRemoteAddress());
+                  rc.close();
+                  return;
+               }
+               if (!server.getFederationManager().authorizeDownstreamDeployment(rc.getSubject())) {
+                  ActiveMQServerLogger.LOGGER.federationDownstreamUnauthorized(rc.getRemoteAddress(), SecurityManagerUtil.getUserFromSubject(rc.getSubject(), UserPrincipal.class));
+                  rc.close();
+                  return;
+               }
+            }
             //If we receive this packet then a remote broker is requesting us to create federated upstream connection
             //back to it which simulates a downstream connection
             final FederationDownstreamConnectMessage message = (FederationDownstreamConnectMessage) packet;
@@ -492,37 +516,35 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
             //Register close and failure listeners, if the initial downstream connection goes down then we
             //want to terminate the upstream connection
             rc.addCloseListener(() -> {
-               server.getFederationManager().undeploy(config.getName());
+               handleClose(config.getName(), rc.getRemoteAddress());
             });
 
             rc.addFailureListener(new FailureListener() {
                @Override
                public void connectionFailed(ActiveMQException exception, boolean failedOver) {
-                  server.getFederationManager().undeploy(config.getName());
+                  handleClose(config.getName(), rc.getRemoteAddress());
                }
 
                @Override
-               public void connectionFailed(ActiveMQException exception, boolean failedOver,
-                                            String scaleDownTargetNodeID) {
-                  server.getFederationManager().undeploy(config.getName());
+               public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
+                  handleClose(config.getName(), rc.getRemoteAddress());
                }
             });
 
             try {
                server.getFederationManager().deploy(config);
+               String user = rc.getSubject() != null ? SecurityManagerUtil.getUserFromSubject(rc.getSubject(), UserPrincipal.class) : "anonymous";
+               ActiveMQServerLogger.LOGGER.federationDownstreamDeployedFromRemoteUser(config.getName(), user, rc.getRemoteAddress());
             } catch (Exception e) {
                logger.error("Error deploying federation", e);
             }
          }
       }
 
-      private Pair<TransportConfiguration, TransportConfiguration> getPair(
-         TransportConfiguration conn,
-         boolean isBackup) {
-         if (isBackup) {
-            return new Pair<>(null, conn);
+      private void handleClose(String configName, String remoteAddress) {
+         if (server.getFederationManager().undeploy(configName)) {
+            ActiveMQServerLogger.LOGGER.federationDownstreamConnectionClosed(remoteAddress, configName);
          }
-         return new Pair<>(conn, null);
       }
    }
 }

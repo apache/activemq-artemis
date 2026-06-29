@@ -16,16 +16,17 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class HashProcessorTest {
 
    private static final String USER1_PASSWORD = "password";
@@ -36,7 +37,7 @@ public class HashProcessorTest {
 
    private static final String USER3_PASSWORD = "artemis000";
 
-   @Parameterized.Parameters(name = "{index}: testing password {0}")
+   @Parameters(name = "{index}: testing password {0}")
    public static Collection<Object[]> data() {
       return Arrays.asList(new Object[][] {
          {USER1_PASSWORD, USER1_HASHED_PASSWORD, true},
@@ -57,7 +58,7 @@ public class HashProcessorTest {
       this.match = match;
    }
 
-   @Test
+   @TestTemplate
    public void testPasswordVerification() throws Exception {
       HashProcessor processor = PasswordMaskingUtil.getHashProcessor(storedPassword);
       boolean result = processor.compare(password.toCharArray(), storedPassword);

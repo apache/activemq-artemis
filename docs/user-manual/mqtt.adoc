@@ -1,12 +1,13 @@
 = MQTT
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
-MQTT is a light weight, client to server, publish / subscribe messaging protocol.
+MQTT is a light weight, client-to-server, publish / subscribe messaging protocol.
 MQTT has been specifically designed to reduce transport overhead (and thus network traffic) and code footprint on client devices.
 For this reason MQTT is ideally suited to constrained devices such as sensors and actuators and is quickly becoming the defacto standard communication protocol for IoT.
 
-Apache ActiveMQ Artemis supports the following MQTT versions (with links to their respective specifications):
+{project-name-full} supports the following MQTT versions (with links to their respective specifications):
 
 * https://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html[3.1]
 * https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html[3.1.1]
@@ -16,7 +17,7 @@ By default there are `acceptor` elements configured to accept MQTT connections  
 
 See the general xref:protocols-interoperability.adoc#protocols-and-interoperability[Protocols and Interoperability] chapter for details on configuring an `acceptor` for MQTT.
 
-Refer to the MQTT examples for a look at some of this functionality in action.
+Refer to the MQTT xref:examples.adoc[examples] for a look at some of this functionality in action.
 
 == MQTT Quality of Service
 
@@ -82,18 +83,44 @@ This feature can be useful in an IoT style scenario to detect errors across a po
 == Debug Logging
 
 Detailed protocol logging (e.g. packets in/out) can be activated by turning on `TRACE` logging for `org.apache.activemq.artemis.core.protocol.mqtt`.
-Follow xref:logging.adoc#activating-trace-for-a-specific-logger[these steps] to configure logging appropriately.
+Follow xref:logging.adoc#configuring-a-specific-level-for-a-logger[these steps] to configure logging appropriately.
 
 The MQTT specification doesn't dictate the format of the payloads which clients publish.
 As far as the broker is concerned a payload is just an array of bytes.
 However, to facilitate logging the broker will encode the payloads as UTF-8 strings and print them up to 256 characters.
 Payload logging is limited to avoid filling the logs with potentially hundreds of megabytes of unhelpful information.
 
+== Persistent Subscriptions
+
+The subscription information for MQTT sessions is kept in an internal queue named `$sys.mqtt.sessions` and persisted to storage (assuming persistence is enabled).
+The information is durable so that MQTT subscribers can reconnect and resume their subscriptions seamlessly after a broker restart, failure, etc. without having to resend a `SUBSCRIBE` packet.
+When brokers are configured for high availability this information will be available on the backup so even in the case of a broker fail-over subscribers will be able to resume their subscriptions.
+
+While persistent subscriptions can be convenient they impose a performance penalty since data must be written to and removed from storage.
+If you don't need the convenience (e.g. you always use clean sessions) and/or you don't want the performance penalty then you can disable it by setting `mqtt-subscription-persistence-enabled` to `false` in `broker.xml`, e.g.:
+
+[,xml]
+----
+<core>
+   ...
+   <mqtt-subscription-persistence-enabled>false</mqtt-subscription-persistence-enabled>
+   ...
+</core>
+----
+
+The default is `true`.
+
+[NOTE]
+====
+Even if `mqtt-subscription-persistence-enabled` is `false` the broker will still keep track of QoS 1 & 2 messages.
+The _only_ impact of disabling MQTT subscription persistence is that clients will have to resend `SUBSCRIBE` packets as necessary in order to continue receiving messages after reconnecting after the server is restarted.
+====
+
 == Custom Client ID Handling
 
 The client ID used by an MQTT application is very important as it uniquely identifies the application.
 In some situations broker administrators may want to perform extra validation or even modify incoming client IDs to support specific use-cases.
-This is possible by implementing a custom security manager as demonstrated in the `security-manager` example shipped with the broker.
+This is possible by implementing a custom security manager as demonstrated in the `security-manager` xref:examples.adoc[example].
 
 The simplest implementation is a "wrapper" just like the `security-manager` example uses.
 In the `authenticate` method you can modify the client ID using `setClientId()` on the `org.apache.activemq.artemis.spi.core.protocol.RemotingConnection` that is passed in.
@@ -101,7 +128,8 @@ If you perform some custom validation of the client ID you can reject the client
 
 == Wildcard subscriptions
 
-MQTT addresses are hierarchical much like a file system, and they use a special character (i.e. `/` by default) to separate hierarchical levels.
+MQTT defines a special wildcard syntax for topic filters. This definition is found in section 4.7.1 of both the http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718107[3.1.1] and https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901242[5] specs.
+MQTT topics are hierarchical much like a file system, and they use a special character (i.e. `/` by default) to separate hierarchical levels.
 Subscribers are able to subscribe to specific topics or to whole branches of a hierarchy.
 
 To subscribe to branches of an address hierarchy a subscriber can use wild cards.
@@ -119,23 +147,38 @@ This can be useful, but should be done so with care since it has significant per
 Matches a single level in the address hierarchy.
 For example `/uk/+/stores` would match `/uk/newcastle/stores` but not `/uk/cities/newcastle/stores`.
 
-These MQTT-specific wildcards are automatically _translated_ into the wildcard syntax used by ActiveMQ Artemis.
-These wildcards are configurable.
-See the xref:wildcard-syntax.adoc#customizing-the-syntax[Wildcard Syntax] chapter for details about how to configure custom wildcards.
+This is _close_ to the default  xref:wildcard-syntax.adoc#wildcard-syntax[wildcard syntax], but not exactly the same.
+Therefore, some conversion is necessary.
+This conversion isn't free so *if you want the best MQTT performance* use `broker.xml` to configure the wildcard syntax to match MQTT's, e.g.:
 
-== Web Sockets
+[,xml]
+----
+<core>
+   ...
+   <wildcard-addresses>
+      <delimiter>/</delimiter>
+      <any-words>#</any-words>
+      <single-word>+</single-word>
+   </wildcard-addresses>
+   ...
+</core>
+----
 
-Apache ActiveMQ Artemis also supports MQTT over https://html.spec.whatwg.org/multipage/web-sockets.html[Web Sockets].
-Modern web browsers which support Web Sockets can send and receive MQTT messages.
+Of course, changing the default syntax also means other clients on other protocols will need to follow this same syntax as well as the `match` values of your `address-setting` configuration elements.
 
-MQTT over Web Sockets is supported via a normal MQTT acceptor:
+== WebSockets
+
+MQTT over https://html.spec.whatwg.org/multipage/web-sockets.html[WebSockets] is also supported.
+Modern web browsers which support WebSockets can send and receive MQTT messages.
+
+MQTT over WebSockets is supported via a normal MQTT acceptor:
 
 [,xml]
 ----
 <acceptor name="mqtt-ws-acceptor">tcp://host:1883?protocols=MQTT</acceptor>
 ----
 
-With this configuration, Apache ActiveMQ Artemis will accept MQTT connections over Web Sockets on the port `1883`.
+With this configuration, the broker will accept MQTT connections over WebSockets on the port `1883`.
 Web browsers can then connect to `ws://<server>:1883` using a Web Socket to send and receive MQTT messages.
 
 SSL/TLS is also available, e.g.:
@@ -146,6 +189,8 @@ SSL/TLS is also available, e.g.:
 ----
 
 Web browsers can then connect to `wss://<server>:8883` using a Web Socket to send and receive MQTT messages.
+WebSockets per-message deflate is supported but not enabled by default, to enable it add the `webSocketCompressionSupported=true` option to the acceptor URI.
+The client must also support per-message deflate and request it via the standard WebSockets extension.
 
 == Link Stealing
 
@@ -159,37 +204,28 @@ In the case of MQTT 5 clients they will receive a disconnect reason code of http
 
 == Automatic Subscription Clean-up
 
-Sometimes MQTT clients using `CleanSession=false` don't clean up their subscriptions.
-In such situations the following address-setting can be used to clean up the abandoned subscription queues:
+Sometimes MQTT 3.x clients using `CleanSession=false` don't properly unsubscribe. The URL parameter `defaultMqttSessionExpiryInterval` can be configured on the MQTT `acceptor` so that abandoned sessions and subscription queues will be cleaned up automatically after the expiry interval elapses.
 
-[,xml]
-----
-   <address-setting match="myMqttAddress">
-      <auto-delete-created-queues>true</auto-delete-created-queues>
-      <auto-delete-queues-delay>3600000</auto-delete-queues-delay> <!-- 1 hour delay -->
-      <auto-delete-queues-message-count>-1</auto-delete-queues-message-count> <!-- doesn't matter how many messages there are -->
-   </address-setting>
-----
+The default `defaultMqttSessionExpiryInterval` is `-1` which means no clean up will happen for MQTT 3.x clients.
+Otherwise it represents the number of *seconds* which must elapse after the client has disconnected before the broker will remove the session state and subscription queues.
 
-However, the MQTT session meta-data is still present in memory and needs to be cleaned up as well.
-The URL parameter `defaultMqttSessionExpiryInterval` can be configured on the MQTT `acceptor` to deal with this situation.
+MQTT 5 has the same basic semantics with slightly different configuration.
+The `CleanSession` flag was replaced with `CleanStart` and a https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901048[session expiry interval] property.
+The broker will use the client's session expiry interval if it is set.
+If it is not set or set to `0`, the session ends when the Network Connection is closed.
 
-MQTT 5 added a new https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901048[session expiry interval] property with the same basic semantics.
-The broker will use the client's value for this property if it is set.
-If it is not set then it will apply the `defaultMqttSessionExpiryInterval`.
-
-The default `defaultMqttSessionExpiryInterval` is `-1` which means no MQTT 3.x session states will be expired and no MQTT 5 session states which do not pass their own session expiry interval will be expired.
-Otherwise it represents the number of *seconds* which must elapse after the client has disconnected before the broker will remove the session state.
 
 MQTT session state is scanned every 5,000 milliseconds by default.
 This can be changed using the `mqtt-session-scan-interval` element set in the `core` section of `broker.xml`.
 
 == Flow Control
 
+MQTT 3.x lacks a flow control mechanism. The sending party determines how many QoS 1 & 2 messages can be published without acknowledgment. On the broker side, this is controlled by the `defaultMaximumInFlightPublishMessages` URL parameter on the MQTT `acceptor` in `broker.xml`, which defaults to `65535`.
+
 MQTT 5 introduced a simple form of https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Flow_Control[flow control].
 In short, a broker can tell a client how many QoS 1 & 2 messages it can receive before being acknowledged and vice versa.
 
-This is controlled on the broker by setting the `receiveMaximum` URL parameter on the MQTT `acceptor` in `broker.xml`.
+This is controlled on the broker by setting the `receiveMaximum` URL parameter on the MQTT `acceptor`.
 
 The default value is `65535` (the maximum value of the 2-byte integer used by  MQTT).
 
@@ -197,6 +233,8 @@ A value of `0` is prohibited by the MQTT 5 specification.
 
 A value of `-1` will prevent the broker from informing the client of any receive maximum which means flow-control will be disabled from clients to the broker.
 This is effectively the same as setting the value to `65535`, but reduces the size of the `CONNACK` packet by a few bytes.
+
+If the MQTT 5 client doesn't send the https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901049[Receive Maximum] property to the broker, the broker uses its `defaultMaximumInFlightPublishMessages` setting to determine the maximum number of QoS 1 & 2 messages it can send without acknowledgment.
 
 == Topic Alias Maximum
 

@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
@@ -32,9 +34,6 @@ import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.UUID;
 
-/**
- * A ClientMessageImpl
- */
 public class ClientMessageImpl extends CoreMessage implements ClientMessageInternal {
 
    // added this constant here so that the client package have no dependency on JMS
@@ -53,9 +52,6 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
     */
    private InputStream bodyInputStream;
 
-   /*
-    * Constructor for when reading from remoting
-    */
    public ClientMessageImpl() {
    }
 
@@ -92,9 +88,7 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
    }
 
 
-   /*
-    * Construct messages before sending
-    */
+   // Construct messages before sending
    public ClientMessageImpl(final byte type,
                             final boolean durable,
                             final long expiration,
@@ -168,9 +162,6 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
       this.flowControlSize = flowControlSize;
    }
 
-   /**
-    * @return the largeMessage
-    */
    @Override
    public boolean isLargeMessage() {
       return false;
@@ -189,7 +180,7 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
 
    @Override
    public String toString() {
-      return getClass().getSimpleName() + "[messageID=" + messageID + ", durable=" + durable + ", address=" + getAddress() + ",userID=" + (getUserID() != null ? getUserID() : "null") + ",properties=" + getProperties().toString() + "]";
+      return getClass().getSimpleName() + "[messageID=" + messageID + ", durable=" + durable + ", address=" + getAddress() + ",userID=" + Objects.requireNonNullElse(getUserID(), "null") + ", properties=" + getProperties().toString() + "]";
    }
 
    @Override
@@ -219,17 +210,11 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
    public void discardBody() {
    }
 
-   /**
-    * @return the bodyInputStream
-    */
    @Override
    public InputStream getBodyInputStream() {
       return bodyInputStream;
    }
 
-   /**
-    * @param bodyInputStream the bodyInputStream to set
-    */
    @Override
    public ClientMessageImpl setBodyInputStream(final InputStream bodyInputStream) {
       this.bodyInputStream = bodyInputStream;
@@ -412,7 +397,7 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
    }
 
    @Override
-   public Message copy() {
+   public ICoreMessage copy() {
       return new ClientMessageImpl(this);
    }
 

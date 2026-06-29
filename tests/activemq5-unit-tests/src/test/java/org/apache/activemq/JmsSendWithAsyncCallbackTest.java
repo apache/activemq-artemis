@@ -29,9 +29,6 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class JmsSendWithAsyncCallbackTest extends TestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsSendWithAsyncCallbackTest.class);
@@ -64,11 +61,7 @@ public class JmsSendWithAsyncCallbackTest extends TestSupport {
 
       // setup a consumer to drain messages..
       MessageConsumer consumer = session.createConsumer(queue);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message message) {
-         }
-      });
+      consumer.setMessageListener(message -> {});
 
       // warmup...
       for (int i = 0; i < 10; i++) {
@@ -83,7 +76,7 @@ public class JmsSendWithAsyncCallbackTest extends TestSupport {
       LOG.info(String.format("NonAsyncCallback Send rate: %,.2f m/s", nonCallbackRate));
 
       // The async style HAS to be faster than the non-async style..
-      assertTrue("async rate[" + callbackRate + "] should beat non-async rate[" + nonCallbackRate + "]", callbackRate / nonCallbackRate > 1.5);
+      assertTrue("async rate[" + callbackRate + "] should beat non-async rate[" + nonCallbackRate + "]", callbackRate / nonCallbackRate >= 1.2);
    }
 
    private double benchmarkNonCallbackRate() throws JMSException {

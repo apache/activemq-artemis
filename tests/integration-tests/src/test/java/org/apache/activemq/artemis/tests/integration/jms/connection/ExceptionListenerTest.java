@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.Connection;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
@@ -34,13 +36,9 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/**
- * ExceptionListenerTest
- */
 public class ExceptionListenerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
@@ -48,7 +46,7 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
    private ActiveMQConnectionFactory cf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -90,7 +88,7 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
 
       latch.await(5, TimeUnit.SECONDS);
 
-      Assert.assertEquals(1, listener.numCalls);
+      assertEquals(1, listener.numCalls);
 
       conn.close();
    }
@@ -128,20 +126,19 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
 
       latch.await(5, TimeUnit.SECONDS);
       // Listener should only be called once even if all sessions connections die
-      Assert.assertEquals(1, listener.numCalls);
+      assertEquals(1, listener.numCalls);
 
       conn.close();
    }
 
-
    /**
-    * The JMS Spec isn't specific about if ClientId can be set after Exception Listener or not,
-    * simply it states that clientId must be set before any operation (read as remote)
-    *
-    * QpidJMS and ActiveMQ5 both interpret that therefor you can set the exception lister first.
-    * As such we align with those, allowing the exception listener to be set prior to the clientId,
-    * This to avoid causing implementation nuance's, when switching code from one client to another.
-    *
+    * The JMS Spec isn't specific about if ClientId can be set after Exception Listener or not, simply it states that
+    * clientId must be set before any operation (read as remote)
+    * <p>
+    * QpidJMS and ActiveMQ5 both interpret that therefor you can set the exception lister first. As such we align with
+    * those, allowing the exception listener to be set prior to the clientId, This to avoid causing implementation
+    * nuance's, when switching code from one client to another.
+    * <p>
     * This test is to test this and to ensure it doesn't get accidentally regressed.
     */
    @Test

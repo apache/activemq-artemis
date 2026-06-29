@@ -30,13 +30,11 @@ import org.junit.Before;
 
 /**
  * Creates convenient Point to Point JMS objects which can be needed for tests.
- * <br />
- * This class defines the setUp and tearDown methods so
- * that JMS administrated objects and  other "ready to use" PTP objects (that is to say queues,
- * sessions, senders and receviers) are available conveniently for the test cases.
- * <br />
- * Classes which want that convenience should extend <code>PTPTestCase</code> instead of
- * <code>JMSTestCase</code>.
+ * <p>
+ * This class defines the setUp and tearDown methods so that JMS administrated objects and  other "ready to use" PTP
+ * objects (that is to say queues, sessions, senders and receviers) are available conveniently for the test cases.
+ * <p>
+ * Classes which want that convenience should extend {@code PTPTestCase} instead of {@code JMSTestCase}.
  */
 public abstract class PTPTestCase extends JMSTestCase {
 
@@ -46,24 +44,12 @@ public abstract class PTPTestCase extends JMSTestCase {
 
    private static final String QUEUE_NAME = "testJoramQueue";
 
-   /**
-    * Queue used by a sender
-    */
    protected Queue senderQueue;
 
-   /**
-    * Sender on queue
-    */
    protected QueueSender sender;
 
-   /**
-    * QueueConnectionFactory of the sender
-    */
    protected QueueConnectionFactory senderQCF;
 
-   /**
-    * QueueConnection of the sender
-    */
    protected QueueConnection senderConnection;
 
    /**
@@ -71,24 +57,12 @@ public abstract class PTPTestCase extends JMSTestCase {
     */
    protected QueueSession senderSession;
 
-   /**
-    * Queue used by a receiver
-    */
    protected Queue receiverQueue;
 
-   /**
-    * Receiver on queue
-    */
    protected QueueReceiver receiver;
 
-   /**
-    * QueueConnectionFactory of the receiver
-    */
    protected QueueConnectionFactory receiverQCF;
 
-   /**
-    * QueueConnection of the receiver
-    */
    protected QueueConnection receiverConnection;
 
    /**
@@ -98,7 +72,7 @@ public abstract class PTPTestCase extends JMSTestCase {
 
    /**
     * Create all administrated objects connections and sessions ready to use for tests.
-    * <br />
+    * <p>
     * Start connections.
     */
    @Override

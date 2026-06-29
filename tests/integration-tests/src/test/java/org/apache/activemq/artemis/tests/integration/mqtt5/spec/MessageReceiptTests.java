@@ -16,17 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-4.5.0-2] The Client MUST acknowledge any Publish packet it receives according to the applicable QoS rules regardless of whether it elects to process the Application Message that it contains.
@@ -34,11 +38,7 @@ import org.junit.Test;
 
 public class MessageReceiptTests extends MQTT5TestSupport {
 
-   public MessageReceiptTests(String protocol) {
-      super(protocol);
-   }
-
-   /*
+   /**
     * [MQTT-4.5.0-1] When a Server takes ownership of an incoming Application Message it MUST add it to the Session
     * State for those Clients that have matching Subscriptions.
     *
@@ -47,15 +47,17 @@ public class MessageReceiptTests extends MQTT5TestSupport {
     *
     * This test is pretty generic. It just creates a bunch of individual consumers and sends a message to each one.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMessageReceipt() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
+      final String CONSUMER_ID = "consumer";
       final int CONSUMER_COUNT = 25;
       final MqttClient[] consumers = new MqttClient[CONSUMER_COUNT];
 
       final CountDownLatch latch = new CountDownLatch(CONSUMER_COUNT);
       for (int i = 0; i < CONSUMER_COUNT; i++) {
-         MqttClient consumer = createPahoClient(RandomUtil.randomString());
+         MqttClient consumer = createPahoClient(CONSUMER_ID + i);
          consumers[i] = consumer;
          consumer.connect();
          int finalI = i;
@@ -76,7 +78,13 @@ public class MessageReceiptTests extends MQTT5TestSupport {
       for (int i = 0; i < CONSUMER_COUNT; i++) {
          producer.publish(TOPIC + i, ("hello" + i).getBytes(), 0, false);
       }
-      Wait.assertEquals((long) CONSUMER_COUNT, () -> server.getActiveMQServerControl().getTotalMessagesAdded(), 2000, 100);
+      Wait.assertEquals((long) CONSUMER_COUNT, () -> {
+         int totalMessagesAdded = 0;
+         for (int i = 0; i < CONSUMER_COUNT; i++) {
+            totalMessagesAdded += getSubscriptionQueue(TOPIC + i, CONSUMER_ID + i).getMessagesAdded();
+         }
+         return totalMessagesAdded;
+      }, 2000, 100);
       producer.disconnect();
       producer.close();
 

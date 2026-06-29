@@ -29,7 +29,6 @@ import javax.jms.Topic;
 import javax.jms.TopicConnectionFactory;
 import javax.jms.XAConnectionFactory;
 import javax.naming.InitialContext;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,13 +45,14 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.tests.tools.ServerManagement;
 import org.apache.activemq.artemis.jms.tests.tools.container.Server;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.apache.activemq.artemis.tests.extensions.LogTestNameExtension;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.TestWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -62,6 +62,7 @@ import java.lang.invoke.MethodHandles;
  * org.apache.activemq.tests.integration.jms at the integration-tests project.
  */
 @Deprecated
+@ExtendWith(LogTestNameExtension.class)
 public abstract class ActiveMQServerTestCase {
    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -70,21 +71,6 @@ public abstract class ActiveMQServerTestCase {
    public static final int MIN_TIMEOUT = 1000 * 1 /* seconds */;
 
    private static final int DRAIN_WAIT_TIME = 250;
-
-   /**
-    * Some testcases are time sensitive, and we need to make sure a GC would happen before certain scenarios
-    */
-   public static void forceGC() {
-      WeakReference<Object> dumbReference = new WeakReference<>(new Object());
-      // A loop that will wait GC, using the minimal time as possible
-      while (dumbReference.get() != null) {
-         System.gc();
-         try {
-            Thread.sleep(500);
-         } catch (InterruptedException e) {
-         }
-      }
-   }
 
    protected static List<Server> servers = new ArrayList<>();
 
@@ -100,25 +86,16 @@ public abstract class ActiveMQServerTestCase {
    private final Set<Connection> connectionsSet = new HashSet<>();
    private final Set<JMSContext> contextSet = new HashSet<>();
 
-   @Rule
-   public TestRule watcher = new TestWatcher() {
+   // The TestWatcher must be static to be invoked (per-method) via RegisterExtension
+   @RegisterExtension
+   public static TestWatcher watcher = new TestWatcher() {
       @Override
-      protected void starting(Description description) {
-         logger.debug(String.format("#*#*# Starting test: %s()...", description.getMethodName()));
-      }
-
-      @Override
-      protected void finished(Description description) {
-         logger.debug(String.format("#*#*# Finished test: %s()...", description.getMethodName()));
-      }
-
-      @Override
-      protected void failed(Throwable e, Description description) {
+      public void testFailed(ExtensionContext context, Throwable cause) {
          ActiveMQServerTestCase.tearDownAllServers();
       }
    };
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       System.setProperty("java.naming.factory.initial", getContextFactory());
 
@@ -151,7 +128,7 @@ public abstract class ActiveMQServerTestCase {
       checkNoSubscriptions(topic3);
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       for (JMSContext context : contextSet) {
          context.close();
@@ -209,7 +186,7 @@ public abstract class ActiveMQServerTestCase {
 
    protected void deployAdministeredObjects() throws Exception {
       // set DLA and expiry to avoid spamming the log with warnings
-      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("DLA")).setExpiryAddress(SimpleString.of("Expiry")));
       createTopic("Topic1");
       createTopic("Topic2");
       createTopic("Topic3");
@@ -234,7 +211,7 @@ public abstract class ActiveMQServerTestCase {
    }
 
 
-   @AfterClass
+   @AfterAll
    public static final void tearDownAllServers() {
       for (Server s : servers) {
          try {
@@ -347,9 +324,9 @@ public abstract class ActiveMQServerTestCase {
 
    protected boolean assertRemainingMessages(final int expected) throws Exception {
       String queueName = "Queue1";
-      Binding binding = servers.get(0).getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString(queueName));
-      if (binding != null && binding instanceof LocalQueueBinding) {
-         ((LocalQueueBinding) binding).getQueue().flushExecutor();
+      Binding binding = servers.get(0).getActiveMQServer().getPostOffice().getBinding(SimpleString.of(queueName));
+      if (binding != null && binding instanceof LocalQueueBinding queueBinding) {
+         queueBinding.getQueue().flushExecutor();
       }
       Long messageCount = null;
       for (int i = 0; i < 10; i++) {

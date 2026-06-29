@@ -40,10 +40,11 @@ import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 
-/*
-* Instead of loading into its own post office this will use its parent server (the actual live server) and load into that.
-* Since the server is already running we have to make sure we don't route any message that may subsequently get deleted or acked.
-* */
+/**
+ * Instead of loading into its own post office this will use its parent server (the active server) and load into that.
+ * Since the server is already running we have to make sure we don't route any message that may subsequently get deleted
+ * or acked.
+ */
 public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader {
 
    private ActiveMQServer parentServer;
@@ -76,8 +77,8 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader {
    public void handleGroupingBindings(List<GroupingInfo> groupingInfos) {
       //currently only the node that is configured with the local group handler can recover these as all other nodes are
       //remote handlers, this means that you can only use FULL backup server when using group handlers.
-      //todo maybe in the future we can restart the handler on the live server as a local handler and redistribute the state
-      if (groupingInfos != null && groupingInfos.size() > 0) {
+      //todo maybe in the future we can restart the handler on the active server as a local handler and redistribute the state
+      if (groupingInfos != null && !groupingInfos.isEmpty()) {
          ActiveMQServerLogger.LOGGER.groupBindingsOnRecovery();
       }
    }
@@ -91,7 +92,7 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader {
    public void postLoad(Journal messageJournal,
                         ResourceManager resourceManager,
                         Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception {
-      ScaleDownHandler scaleDownHandler = new ScaleDownHandler(pagingManager, postOffice, nodeManager, clusterController, parentServer != null ? parentServer.getStorageManager() : storageManager);
+      ScaleDownHandler scaleDownHandler = new ScaleDownHandler(pagingManager, postOffice, nodeManager, clusterController, parentServer != null ? parentServer.getStorageManager() : storageManager, parentServer != null ? parentServer.getHAPolicy().getScaleDownCommitInterval() : -1);
       locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(locator, storageManager));
 
       try (ClientSessionFactory sessionFactory = locator.createSessionFactory()) {

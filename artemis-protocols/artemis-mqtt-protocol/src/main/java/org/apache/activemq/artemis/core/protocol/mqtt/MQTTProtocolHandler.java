@@ -44,8 +44,9 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.InvalidClientIdException;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.DisconnectException;
+import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.InvalidClientIdException;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
@@ -57,6 +58,7 @@ import java.lang.invoke.MethodHandles;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.AUTHENTICATION_DATA;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.AUTHENTICATION_METHOD;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.SESSION_EXPIRY_INTERVAL;
+import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.SUBSCRIPTION_IDENTIFIER;
 
 /**
  * This class is responsible for receiving and sending MQTT packets, delegating behaviour to one of the
@@ -92,7 +94,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    void setConnection(MQTTConnection connection, ConnectionEntry entry) throws Exception {
       this.connectionEntry = entry;
       this.connection = connection;
-      this.session = new MQTTSession(this, connection, protocolManager, server.getConfiguration().getWildcardConfiguration());
+      this.session = new MQTTSession(this, connection, protocolManager, server.getConfiguration().getWildcardConfiguration(), server.newOperationContext());
+      server.getStorageManager().setContext(session.getSessionContext());
    }
 
    void stop() {
@@ -238,9 +241,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          return;
       }
 
-      /*
-       * Perform authentication *before* attempting redirection because redirection may be based on the user's role.
-       */
+      // Perform authentication *before* attempting redirection because redirection may be based on the user's role.
       String password = connect.payload().passwordInBytes() == null ? null : new String(connect.payload().passwordInBytes(), CharsetUtil.UTF_8);
       String username = connect.payload().userName();
       Pair<Boolean, String> validationData = null;
@@ -257,10 +258,10 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       if (handleLinkStealing() == LinkStealingResult.NEW_LINK_DENIED) {
          return;
       } else {
-         protocolManager.addConnectedClient(session.getConnection().getClientID(), session.getConnection());
+         protocolManager.getStateManager().addConnectedClient(session.getConnection().getClientID(), session.getConnection());
       }
 
-      if (connection.getTransportConnection().getRouter() == null || !protocolManager.getRoutingHandler().route(connection, session, connect)) {
+      if (connection.getTransportConnection().getRouter() == null || !protocolManager.getRoutingHandler().route(connection, session, validationData.getB() != null ? validationData.getB() : username)) {
          calculateKeepAlive(connect);
 
          session.getConnectionManager().connect(connect, validationData.getB(), username, password);
@@ -320,7 +321,9 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       try {
          session.getMqttPublishManager().sendToQueue(message, false);
       } catch (DisconnectException e) {
-         sendDisconnect(e.getCode());
+         if (session.getVersion() == MQTTVersion.MQTT_5) {
+            sendDisconnect(e.getCode());
+         }
          disconnect(true);
       }
    }
@@ -377,7 +380,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handleSubscribe(MqttSubscribeMessage message) throws Exception {
-      int[] qos = session.getSubscriptionManager().addSubscriptions(message.payload().topicSubscriptions(), message.idAndPropertiesVariableHeader().properties());
+      Integer subscriptionIdentifier = MQTTUtil.getProperty(Integer.class, message.idAndPropertiesVariableHeader().properties(), SUBSCRIPTION_IDENTIFIER, null);
+      int[] qos = session.getSubscriptionManager().addSubscriptions(message.payload().topicSubscriptions(), subscriptionIdentifier);
       MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.SUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0);
       MqttMessageIdAndPropertiesVariableHeader variableHeader = new MqttMessageIdAndPropertiesVariableHeader(message.variableHeader().messageId(), MqttProperties.NO_PROPERTIES);
       MqttSubAckMessage subAck = new MqttSubAckMessage(header, variableHeader, new MqttSubAckPayload(qos));
@@ -385,7 +389,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handleUnsubscribe(MqttUnsubscribeMessage message) throws Exception {
-      short[] reasonCodes = session.getSubscriptionManager().removeSubscriptions(message.payload().topics());
+      short[] reasonCodes = session.getSubscriptionManager().removeSubscriptions(message.payload().topics(), true);
       MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.UNSUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0);
       MqttUnsubAckMessage unsubAck;
       if (session.getVersion() == MQTTVersion.MQTT_5) {
@@ -406,7 +410,16 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          return;
       }
       MQTTUtil.logMessage(session.getState(), message, false, session.getVersion());
-      ctx.writeAndFlush(message, ctx.voidPromise());
+      server.getStorageManager().afterCompleteOperations(new IOCallback() {
+         @Override
+         public void done() {
+            ctx.writeAndFlush(message, ctx.voidPromise());
+         }
+
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+         }
+      });
    }
 
    private int getMessageId(MqttMessage message) {
@@ -455,21 +468,22 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       return true;
    }
 
-   /* The MQTT specification states:
+   /*
+    * The MQTT specification states:
     *
     *     [MQTT-3.1.4-2] If the client ID represents a client already connected to the server then the server MUST
     *     disconnect the existing client
     *
     * However, this behavior is configurable via the "allowLinkStealing" acceptor URL property.
     */
-   private LinkStealingResult handleLinkStealing() {
+   private LinkStealingResult handleLinkStealing() throws Exception {
       final String clientID = session.getConnection().getClientID();
       LinkStealingResult result;
 
-      if (protocolManager.isClientConnected(clientID)) {
-         MQTTConnection existingConnection = protocolManager.getConnectedClient(clientID);
+      MQTTConnection existingConnection = protocolManager.getStateManager().getConnectedClient(clientID);
+      if (existingConnection != null) {
          if (protocolManager.isAllowLinkStealing()) {
-            MQTTSession existingSession = protocolManager.getSessionState(clientID).getSession();
+            MQTTSession existingSession = protocolManager.getStateManager().getSessionState(clientID).getSession();
             if (existingSession != null) {
                if (existingSession.getVersion() == MQTTVersion.MQTT_5) {
                   existingSession.getProtocolHandler().sendDisconnect(MQTTReasonCodes.SESSION_TAKEN_OVER);
@@ -513,7 +527,17 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          } else {
             session.getProtocolHandler().sendConnack(MQTTReasonCodes.NOT_AUTHORIZED_3);
          }
-         disconnect(true);
+         // avoid a race with sending the CONNACK packet and disconnecting the client
+         server.getStorageManager().afterCompleteOperations(new IOCallback() {
+            @Override
+            public void done() {
+               disconnect(true);
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+            }
+         });
          result = Boolean.FALSE;
       }
 

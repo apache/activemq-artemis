@@ -16,16 +16,26 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.advisory.AdvisorySupport;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +44,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 public class AdvisoryOpenWireTest extends BasicOpenWireTest {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       //this system property is used to construct the executor in
       //org.apache.activemq.transport.AbstractInactivityMonitor.createExecutor()
@@ -67,21 +77,42 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
          Wait.waitFor(() -> advisoryAddress.getMessageCount() == 0);
 
          Wait.assertEquals(0, advisoryAddress::getMessageCount);
-         Wait.assertEquals(2, advisoryAddress::getRoutedMessageCount);
+         Wait.assertEquals(2, advisoryAddress::getUnRoutedMessageCount);
 
+      }
+   }
+
+   @Test
+   public void testAdvisoryEnforcedToDrop() throws Exception {
+
+      try (AssertionLoggerHandler handler = new AssertionLoggerHandler()) {
+         handler.start();
+         try (Connection connection = factory.createConnection()) {
+            connection.start();
+
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+            TemporaryTopic temporaryTopic = session.createTemporaryTopic();
+            assertNotNull(temporaryTopic);
+
+            PagingStore store = server.getPagingManager().getPageStore(SimpleString.of("ActiveMQ.Advisory.TempTopic"));
+            assertNotNull(store);
+            assertEquals(AddressFullMessagePolicy.DROP, store.getAddressFullMessagePolicy());
+         }
+         assertFalse(handler.hasLevel(AssertionLoggerHandler.LogLevel.WARN));
       }
    }
 
    private AddressControl assertNonNullAddressControl(String match) {
       AddressControl advisoryAddressControl = null;
-      Object[] addressResources = server.getManagementService().getResources(AddressControl.class);
+      List<AddressControl> addressResources = server.getManagementService().getAddressControls();
 
-      for (Object addressResource : addressResources) {
-         if (((AddressControl) addressResource).getAddress().equals(match)) {
-            advisoryAddressControl = (AddressControl) addressResource;
+      for (AddressControl addressResource : addressResources) {
+         if (addressResource.getAddress().equals(match)) {
+            advisoryAddressControl = addressResource;
          }
       }
-      assertNotNull("addressControl for temp advisory", advisoryAddressControl);
+      assertNotNull(advisoryAddressControl, "addressControl for temp advisory");
       return advisoryAddressControl;
    }
 
@@ -100,7 +131,7 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
          Wait.waitFor(() -> advisoryAddress.getMessageCount() == 0);
 
          Wait.assertEquals(0, advisoryAddress::getMessageCount);
-         Wait.assertEquals(2, advisoryAddress::getRoutedMessageCount);
+         Wait.assertEquals(2, advisoryAddress::getUnRoutedMessageCount);
 
       }
    }
@@ -159,7 +190,7 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
          Wait.assertEquals(0, advisoryAddress::getMessageCount);
 
          // there is an advisory for create and another for delete
-         assertEquals("all routed", numTempDestinations * 2, advisoryAddress.getRoutedMessageCount());
+         assertEquals(numTempDestinations * 2, advisoryAddress.getRoutedMessageCount(), "all routed");
 
       } finally {
          for (Connection conn : connections) {
@@ -190,7 +221,7 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
          Session session = connections[0].createSession(false, Session.AUTO_ACKNOWLEDGE);
          session.close();
 
-         assertTrue("Got all the advisories on time", numConnectionsCreatedViaAdvisoryNotificationsLatch.await(5, TimeUnit.SECONDS));
+         assertTrue(numConnectionsCreatedViaAdvisoryNotificationsLatch.await(5, TimeUnit.SECONDS), "Got all the advisories on time");
 
       } finally {
          for (Connection conn : connections) {

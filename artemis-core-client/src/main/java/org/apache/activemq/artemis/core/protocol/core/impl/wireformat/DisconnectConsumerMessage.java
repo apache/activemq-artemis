@@ -44,9 +44,9 @@ public class DisconnectConsumerMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", consumerId=" + consumerId);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", consumerId=" + consumerId);
+      return sb.toString();
    }
 
    public long getConsumerId() {

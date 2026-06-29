@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.e2e.brokerConnection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -25,10 +29,9 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
 import org.apache.activemq.artemis.tests.e2e.common.E2ETestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ChainedMirrorTest extends E2ETestBase {
 
@@ -46,12 +49,12 @@ public class ChainedMirrorTest extends E2ETestBase {
    private final String SERVER_A = basedir + "/target/brokerConnect/chainedMirror/serverA";
    private final String SERVER_B = basedir + "/target/brokerConnect/chainedMirror/serverB";
 
-   @Before
+   @BeforeEach
    public void beforeStart() throws Exception {
       disableCheckThread();
       ValidateContainer.assumeArtemisContainer();
 
-      Assert.assertNotNull(basedir);
+      assertNotNull(basedir);
       recreateBrokerDirectory(SERVER_ROOT);
       recreateBrokerDirectory(SERVER_A);
       recreateBrokerDirectory(SERVER_B);
@@ -81,7 +84,7 @@ public class ChainedMirrorTest extends E2ETestBase {
       service.start(serverRoot);
    }
 
-   @After
+   @AfterEach
    public void afterStop() {
       service.stop(serverRoot);
       service.stop(serverMainA);
@@ -115,8 +118,8 @@ public class ChainedMirrorTest extends E2ETestBase {
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("message " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("message " + i, message.getText());
          }
          consumer.close();
       }
@@ -129,8 +132,8 @@ public class ChainedMirrorTest extends E2ETestBase {
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
          for (int i = 10; i < 20; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("message " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("message " + i, message.getText());
          }
          consumer.close();
       }
@@ -143,8 +146,8 @@ public class ChainedMirrorTest extends E2ETestBase {
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
          for (int i = 20; i < 30; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("message " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("message " + i, message.getText());
          }
          consumer.close();
       }
@@ -158,8 +161,8 @@ public class ChainedMirrorTest extends E2ETestBase {
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
          for (int i = 30; i < 40; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("message " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("message " + i, message.getText());
          }
          consumer.close();
       }
@@ -170,7 +173,7 @@ public class ChainedMirrorTest extends E2ETestBase {
          Session session = conn.createSession();
          conn.start();
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          consumer.close();
       }
 
@@ -178,7 +181,7 @@ public class ChainedMirrorTest extends E2ETestBase {
          Session session = conn.createSession();
          conn.start();
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          consumer.close();
       }
 
@@ -186,7 +189,7 @@ public class ChainedMirrorTest extends E2ETestBase {
          Session session = conn.createSession();
          conn.start();
          MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          consumer.close();
       }
 

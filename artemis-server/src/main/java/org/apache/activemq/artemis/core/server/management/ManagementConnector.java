@@ -66,8 +66,8 @@ public class ManagementConnector implements ActiveMQComponent {
 
       JMXAuthenticator authenticator;
 
-      if (securityManager != null && securityManager instanceof ActiveMQBasicSecurityManager) {
-         authenticator = new BasicAuthenticator((ActiveMQBasicSecurityManager) securityManager);
+      if (securityManager != null && securityManager instanceof ActiveMQBasicSecurityManager manager) {
+         authenticator = new BasicAuthenticator(manager);
       } else {
          JaasAuthenticator jaasAuthenticator = new JaasAuthenticator();
          jaasAuthenticator.setRealm(configuration.getJmxRealm());

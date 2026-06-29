@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,8 +29,7 @@ import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TransportConfigurationTest extends ActiveMQTestBase {
 
@@ -35,28 +39,28 @@ public class TransportConfigurationTest extends ActiveMQTestBase {
    public void testSplitNullAddress() throws Exception {
       String[] addresses = TransportConfiguration.splitHosts(null);
 
-      Assert.assertNotNull(addresses);
-      Assert.assertEquals(0, addresses.length);
+      assertNotNull(addresses);
+      assertEquals(0, addresses.length);
    }
 
    @Test
    public void testSplitSingleAddress() throws Exception {
       String[] addresses = TransportConfiguration.splitHosts("localhost");
 
-      Assert.assertNotNull(addresses);
-      Assert.assertEquals(1, addresses.length);
-      Assert.assertEquals("localhost", addresses[0]);
+      assertNotNull(addresses);
+      assertEquals(1, addresses.length);
+      assertEquals("localhost", addresses[0]);
    }
 
    @Test
    public void testSplitManyAddresses() throws Exception {
       String[] addresses = TransportConfiguration.splitHosts("localhost, 127.0.0.1, 192.168.0.10");
 
-      Assert.assertNotNull(addresses);
-      Assert.assertEquals(3, addresses.length);
-      Assert.assertEquals("localhost", addresses[0]);
-      Assert.assertEquals("127.0.0.1", addresses[1]);
-      Assert.assertEquals("192.168.0.10", addresses[2]);
+      assertNotNull(addresses);
+      assertEquals(3, addresses.length);
+      assertEquals("localhost", addresses[0]);
+      assertEquals("127.0.0.1", addresses[1]);
+      assertEquals("192.168.0.10", addresses[2]);
    }
 
    @Test
@@ -69,7 +73,7 @@ public class TransportConfigurationTest extends ActiveMQTestBase {
       params2.put("host", "blah");
       params2.put("port", "5467");
       TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
-      Assert.assertTrue(TransportConfigurationUtil.isSameHost(tc1, tc2));
+      assertTrue(TransportConfigurationUtil.isSameHost(tc1, tc2));
    }
 
    @Test
@@ -82,7 +86,7 @@ public class TransportConfigurationTest extends ActiveMQTestBase {
       params2.put("host", "blah2");
       params2.put("port", "5467");
       TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
-      Assert.assertFalse(TransportConfigurationUtil.isSameHost(tc1, tc2));
+      assertFalse(TransportConfigurationUtil.isSameHost(tc1, tc2));
    }
 
    @Test
@@ -93,7 +97,7 @@ public class TransportConfigurationTest extends ActiveMQTestBase {
       TransportConfiguration tc1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params1);
       Map<String, Object> params2 = new HashMap<>();
       TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
-      Assert.assertTrue(TransportConfigurationUtil.isSameHost(tc1, tc2));
+      assertTrue(TransportConfigurationUtil.isSameHost(tc1, tc2));
    }
 
    @Test
@@ -104,7 +108,7 @@ public class TransportConfigurationTest extends ActiveMQTestBase {
       Map<String, Object> params2 = new HashMap<>();
       params2.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "blah");
       TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
-      Assert.assertTrue(TransportConfigurationUtil.isSameHost(tc1, tc2));
+      assertTrue(TransportConfigurationUtil.isSameHost(tc1, tc2));
    }
 
    @Test
@@ -115,7 +119,7 @@ public class TransportConfigurationTest extends ActiveMQTestBase {
       Map<String, Object> params2 = new HashMap<>();
       params2.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "blah3");
       TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
-      Assert.assertFalse(TransportConfigurationUtil.isSameHost(tc1, tc2));
+      assertFalse(TransportConfigurationUtil.isSameHost(tc1, tc2));
    }
 
    @Test
@@ -125,6 +129,6 @@ public class TransportConfigurationTest extends ActiveMQTestBase {
       TransportConfiguration tc1 = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params1);
       Map<String, Object> params2 = new HashMap<>();
       TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
-      Assert.assertTrue(TransportConfigurationUtil.isSameHost(tc1, tc2));
+      assertTrue(TransportConfigurationUtil.isSameHost(tc1, tc2));
    }
 }

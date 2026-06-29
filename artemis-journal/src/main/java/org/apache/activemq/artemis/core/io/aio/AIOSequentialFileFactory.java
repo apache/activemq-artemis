@@ -76,6 +76,11 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
    private static final String AIO_TEST_FILE = ".aio-test";
 
+   @Override
+   public boolean isSyncSupported() {
+      return false;
+   }
+
    public void beforeClose() {
    }
 
@@ -133,7 +138,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
    @Override
    public SequentialFile createSequentialFile(final String fileName) {
-      return new AIOSequentialFile(this, bufferSize, bufferTimeout, journalDir, fileName, writeExecutor);
+      return new AIOSequentialFile(this, bufferSize, bufferTimeout, journalDir, fileName);
    }
 
    @Override
@@ -161,11 +166,13 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          // plain Java but not using AIO
          try {
             if (!aioTestFile.exists()) {
-               if (!aioTestFile.createNewFile())
+               if (!aioTestFile.createNewFile()) {
                   return true;
+               }
             }
-            if (!aioTestFile.delete())
+            if (!aioTestFile.delete()) {
                return true;
+            }
          } catch (Exception ie) {
             // we can not even create the test file using plain java
             return true;
@@ -263,15 +270,13 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    }
 
    /**
-    * It can be used to align {@code size} if alignment is not a power of 2: otherwise better to use {@link PowerOf2Util#align(int, int)} instead.
+    * It can be used to align {@code size} if alignment is not a power of 2: otherwise better to use
+    * {@link PowerOf2Util#align(int, int)} instead.
     */
    private static int align(int size, int alignment) {
       return (size / alignment + (size % alignment != 0 ? 1 : 0)) * alignment;
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.io.SequentialFileFactory#releaseBuffer(java.nio.ByteBuffer)
-    */
    @Override
    public synchronized void releaseBuffer(final ByteBuffer buffer) {
       LibaioContext.freeBuffer(buffer);
@@ -317,8 +322,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    }
 
    /**
-    * The same callback is used for Runnable executor.
-    * This way we can save some memory over the pool.
+    * The same callback is used for Runnable executor. This way we can save some memory over the pool.
     */
    public class AIOSequentialCallback implements SubmitInfo, Runnable, Comparable<AIOSequentialCallback> {
 
@@ -357,7 +361,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          try {
             libaioFile.write(position, bytes, buffer, this);
          } catch (IOException e) {
-            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during write to " + sequentialFile.getFileName() + ": " + e.getMessage());
             onIOError(e, "Failed to write to file", sequentialFile);
          }
       }
@@ -437,12 +441,15 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    private class PollerThread extends Thread {
 
       private PollerThread() {
-         super("Apache ActiveMQ Artemis libaio poller");
+         super("activemq-libaio-poller");
       }
 
       @Override
       public void run() {
          while (running.get()) {
+            // To optimize performance, libaioContext.poll should always be invoked from the same thread.
+            // This approach leverages kernel-level efficiencies in context switching.
+            // Consistent polling from a dedicated thread will yield substantial performance gains.
             try {
                libaioContext.poll();
             } catch (Throwable e) {
@@ -460,7 +467,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
       private volatile long bufferReuseLastTime = System.currentTimeMillis();
 
-      private final ConcurrentLinkedQueue<ByteBuffer> reuseBuffersQueue = new ConcurrentLinkedQueue<>();
+      private final Queue<ByteBuffer> reuseBuffersQueue = new ConcurrentLinkedQueue<>();
 
       private boolean stopped = false;
 

@@ -17,21 +17,49 @@
 
 package org.apache.activemq.artemis.tests.smoke.paging;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SmokeMaxMessagePagingTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_GLOBAL = "pagingGlobalMaxMessages";
    public static final String SERVER_NAME_ADDRESS = "pagingAddressMaxMessages";
 
-   @Before
+
+   @BeforeAll
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_GLOBAL);
+      deleteDirectory(server0Location);
+      File server1Location = getFileServerLocation(SERVER_NAME_ADDRESS);
+      deleteDirectory(server1Location);
+
+      {
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location);
+         cliCreateServer.setArgs("--java-options", "-Djava.rmi.server.hostname=localhost", "--global-max-messages", "1000");
+         cliCreateServer.createServer();
+      }
+
+      {
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server1Location).
+            setConfiguration("./src/main/resources/servers/" + SERVER_NAME_ADDRESS);
+         cliCreateServer.createServer();
+      }
+   }
+
+   @BeforeEach
    public void before() throws Exception {
    }
 
@@ -49,7 +77,7 @@ public class SmokeMaxMessagePagingTest extends SmokeTestBase {
       cleanupData(serverName);
       startServer(serverName, 0, 30000);
       internalSend("core", 2000);
-      Assert.assertTrue("System did not page", isPaging(serverName));
+      assertTrue(isPaging(serverName), "System did not page");
    }
 
    boolean isPaging(String serverName) {
@@ -75,13 +103,13 @@ public class SmokeMaxMessagePagingTest extends SmokeTestBase {
       Process process = startServer(serverName, 0, 30000);
       internalSend("core", 500);
 
-      Assert.assertFalse(isPaging(serverName));
+      assertFalse(isPaging(serverName));
 
       process.destroy();
       process = startServer(serverName, 0, 30000);
       internalSend("core", 1500);
 
-      Assert.assertTrue(isPaging(serverName));
+      assertTrue(isPaging(serverName));
    }
 
    private void internalSend(String protocol, int numberOfMessages) throws Exception {

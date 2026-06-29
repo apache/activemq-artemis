@@ -16,7 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -24,14 +31,12 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class ConsumerFilterTest extends ActiveMQTestBase {
 
@@ -43,7 +48,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
    private ClientConsumer consumer;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -57,7 +62,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
       session = sf.createSession();
 
       session.start();
-      session.createQueue(new QueueConfiguration("foo").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("foo").setRoutingType(RoutingType.ANYCAST));
 
       producer = session.createProducer("foo");
       consumer = session.createConsumer("foo", "animal='giraffe'");
@@ -65,15 +70,12 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
 
    @Test
    public void testLargeToken() throws Exception {
-      StringBuffer token = new StringBuffer();
+      StringBuilder token = new StringBuilder();
 
       token.append("'");
-      for (int i = 0; i < 5000; i++) {
-         token.append("a");
-      }
+      token.append("a".repeat(5000));
       token.append("'");
 
-      // The server would fail to create this consumer if HORNETQ-545 wasn't solved
       consumer = session.createConsumer("foo", "animal=" + token.toString());
    }
 
@@ -268,22 +270,13 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
       locator.close();
    }
 
-   /**
-    * @param consumer
-    * @throws Exception
-    */
    private void readConsumer(String consumerName, ClientConsumer consumer) throws Exception {
       ClientMessage message = consumer.receive(5000);
       assertNotNull(message);
-      logger.debug("consumer = {} message, color={}, msg = {}",consumerName, message.getStringProperty("color"), message.getStringProperty("value"));
+      logger.debug("consumer = {} message, color={}, msg = {}", consumerName, message.getStringProperty("color"), message.getStringProperty("value"));
       message.acknowledge();
    }
 
-   /**
-    * @param session
-    * @param producer
-    * @throws Exception
-    */
    private void sendMessage(ClientSession session, ClientProducer producer, String color, String msg) throws Exception {
       ClientMessage anyMessage = session.createMessage(true);
       anyMessage.putStringProperty("color", color);

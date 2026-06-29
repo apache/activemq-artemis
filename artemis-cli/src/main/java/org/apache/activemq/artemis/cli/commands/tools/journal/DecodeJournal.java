@@ -102,15 +102,16 @@ public class DecodeJournal extends LockAbstract {
       File journalDir = new File(directory);
 
       if (!journalDir.exists()) {
-         if (!journalDir.mkdirs())
+         if (!journalDir.mkdirs()) {
             System.err.println("Could not create directory " + directory);
+         }
       }
 
       NIOSequentialFileFactory nio = new NIOSequentialFileFactory(new File(directory), null, 1);
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
 
-      if (journal.orderFiles().size() != 0) {
+      if (!journal.orderFiles().isEmpty()) {
          throw new IllegalStateException("Import needs to create a brand new journal");
       }
 
@@ -123,7 +124,7 @@ public class DecodeJournal extends LockAbstract {
 
       String line;
 
-      HashMap<Long, AtomicInteger> txCounters = new HashMap<>();
+      Map<Long, AtomicInteger> txCounters = new HashMap<>();
 
       long lineNumber = 0;
 
@@ -292,7 +293,7 @@ public class DecodeJournal extends LockAbstract {
    }
 
    private static byte[] decode(final String data) {
-      return Base64.decode(data, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
+      return Base64.decode(data, true);
    }
 
 }

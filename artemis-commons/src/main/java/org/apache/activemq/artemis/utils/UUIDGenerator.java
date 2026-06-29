@@ -43,7 +43,7 @@ public final class UUIDGenerator {
    private static final UUIDGenerator sSingleton = new UUIDGenerator();
 
    // Windows has some fake adapters that will return the same HARDWARE ADDRESS on any computer. We need to ignore those
-   private static final byte[][] BLACK_LIST = new byte[][]{{2, 0, 84, 85, 78, 1}};
+   private static final byte[][] DENY_LIST = new byte[][]{{2, 0, 84, 85, 78, 1}};
 
    /**
     * Random-generator, used by various UUID-generation methods:
@@ -71,19 +71,12 @@ public final class UUIDGenerator {
       return UUIDGenerator.sSingleton;
    }
 
-   /*
-    * ///////////////////////////////////////////////////// // Configuration
-    * /////////////////////////////////////////////////////
-    */
-
    /**
-    * Method for getting the shared random number generator used for generating
-    * the UUIDs. This way the initialization cost is only taken once; access
-    * need not be synchronized (or in cases where it has to, SecureRandom takes
-    * care of it); it might even be good for getting really 'random' stuff to
-    * get shared access..
+    * Method for getting the shared random number generator used for generating the UUIDs. This way the initialization
+    * cost is only taken once; access need not be synchronized (or in cases where it has to, SecureRandom takes care of
+    * it); it might even be good for getting really 'random' stuff to get shared access..
     *
-    * @return A Random number generator.
+    * @return A Random number generator
     */
    public Random getRandomNumberGenerator() {
       /*
@@ -121,7 +114,8 @@ public final class UUIDGenerator {
       Random rnd = getRandomNumberGenerator();
       byte[] dummy = new byte[6];
       rnd.nextBytes(dummy);
-      /* Need to set the broadcast bit to indicate it's not a real
+      /*
+       * Need to set the broadcast bit to indicate it's not a real
        * address.
        */
       dummy[0] |= (byte) 0x01;
@@ -133,10 +127,10 @@ public final class UUIDGenerator {
    }
 
    /**
-    * If running java 6 or above, returns {@link NetworkInterface#getHardwareAddress()}, else return {@code null}.
-    * The first hardware address is returned when iterating all the NetworkInterfaces
+    * If running java 6 or above, returns {@link NetworkInterface#getHardwareAddress()}, else return {@code null}. The
+    * first hardware address is returned when iterating all the NetworkInterfaces
     *
-    * @return A byte array containing the hardware address.
+    * @return A byte array containing the hardware address
     */
    public static byte[] getHardwareAddress() {
       try {
@@ -151,7 +145,7 @@ public final class UUIDGenerator {
       try {
          List<NetworkInterface> ifaces = getAllNetworkInterfaces();
 
-         if (ifaces.size() == 0) {
+         if (ifaces.isEmpty()) {
             return null;
          }
 
@@ -169,7 +163,7 @@ public final class UUIDGenerator {
    }
 
    public SimpleString generateSimpleStringUUID() {
-      return new SimpleString(generateStringUUID());
+      return SimpleString.of(generateStringUUID());
    }
 
    public UUID generateUUID() {
@@ -211,9 +205,9 @@ public final class UUIDGenerator {
    }
 
 
-   private static boolean isBlackList(final byte[] address) {
-      for (byte[] blackList : UUIDGenerator.BLACK_LIST) {
-         if (Arrays.equals(address, blackList)) {
+   private static boolean isDenyList(final byte[] address) {
+      for (byte[] denyList : UUIDGenerator.DENY_LIST) {
+         if (Arrays.equals(address, denyList)) {
             return true;
          }
       }
@@ -269,33 +263,30 @@ public final class UUIDGenerator {
       Collection<Callable<byte[]>> tasks = new ArrayList<>(ifaces.size());
 
       for (final NetworkInterface networkInterface : ifaces) {
-         tasks.add(new Callable<byte[]>() {
-            @Override
-            public byte[] call() throws Exception {
-               boolean up = networkInterface.isUp();
-               boolean loopback = networkInterface.isLoopback();
-               boolean virtual = networkInterface.isVirtual();
+         tasks.add(() -> {
+            boolean up = networkInterface.isUp();
+            boolean loopback = networkInterface.isLoopback();
+            boolean virtual = networkInterface.isVirtual();
 
-               if (loopback || virtual || !up) {
-                  throw new Exception("not suitable interface");
-               }
-
-               byte[] address = networkInterface.getHardwareAddress();
-               if (address != null) {
-
-                  byte[] paddedAddress = UUIDGenerator.getZeroPaddedSixBytes(address);
-
-                  if (UUIDGenerator.isBlackList(address)) {
-                     throw new Exception("black listed address");
-                  }
-
-                  if (paddedAddress != null) {
-                     return paddedAddress;
-                  }
-               }
-
-               throw new Exception("invalid network interface");
+            if (loopback || virtual || !up) {
+               throw new Exception("not suitable interface");
             }
+
+            byte[] address = networkInterface.getHardwareAddress();
+            if (address != null) {
+
+               byte[] paddedAddress = UUIDGenerator.getZeroPaddedSixBytes(address);
+
+               if (UUIDGenerator.isDenyList(address)) {
+                  throw new Exception("deny listed address");
+               }
+
+               if (paddedAddress != null) {
+                  return paddedAddress;
+               }
+            }
+
+            throw new Exception("invalid network interface");
          });
       }
       try {

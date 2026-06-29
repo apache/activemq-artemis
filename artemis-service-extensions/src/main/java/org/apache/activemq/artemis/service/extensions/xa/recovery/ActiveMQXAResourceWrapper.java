@@ -35,20 +35,17 @@ import java.lang.invoke.MethodHandles;
 
 /**
  * XAResourceWrapper.
- *
+ * <p>
  * Mainly from org.jboss.server.XAResourceWrapper from the JBoss AS server module
- *
- * The reason why we don't use that class directly is that it assumes on failure of connection
- * the RM_FAIL or RM_ERR is thrown, but in ActiveMQ Artemis we throw XA_RETRY since we want the recovery manager to be able
- * to retry on failure without having to manually retry
+ * <p>
+ * The reason why we don't use that class directly is that it assumes on failure of connection the RM_FAIL or RM_ERR is
+ * thrown, but in Apache Artemis we throw XA_RETRY since we want the recovery manager to be able to retry on failure
+ * without having to manually retry
  */
 public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The state lock
-    */
    private static final Object lock = new Object();
 
    private ServerLocator serverLocator;
@@ -131,8 +128,8 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
 
    @Override
    public boolean isSameRM(XAResource xaRes) throws XAException {
-      if (xaRes instanceof ActiveMQXAResourceWrapper) {
-         xaRes = ((ActiveMQXAResourceWrapper) xaRes).getDelegate(false);
+      if (xaRes instanceof ActiveMQXAResourceWrapper wrapper) {
+         xaRes = wrapper.getDelegate(false);
       }
 
       XAResource xaResource = getDelegate(false);
@@ -235,26 +232,20 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       if (result == null) {
          // we should always throw a retry for certain methods commit etc, if not the tx is marked as a heuristic and
          // all chaos is let loose
+         XAException xae;
          if (retry) {
-            XAException xae = new XAException("Connection unavailable for xa recovery");
+            xae = new XAException("Connection unavailable for xa recovery");
             xae.errorCode = XAException.XA_RETRY;
-            if (error != null) {
-               xae.initCause(error);
-            }
-            logger.debug("Cannot get connectionFactory XAResource", xae);
-
-            throw xae;
          } else {
-            XAException xae = new XAException("Error trying to connect to any providers for xa recovery");
+            xae = new XAException("Error trying to connect to any providers for xa recovery");
             xae.errorCode = XAException.XAER_RMFAIL;
-            if (error != null) {
-               xae.initCause(error);
-            }
-            logger.debug("Cannot get connectionFactory XAResource", xae);
-
-            throw xae;
          }
 
+         if (error != null) {
+            xae.initCause(error);
+         }
+         logger.debug("Cannot get connectionFactory XAResource", xae);
+         throw xae;
       }
 
       return result;
@@ -309,10 +300,9 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
             logger.debug(e.getMessage(), e);
 
             try {
-               if (cs != null)
-                  cs.close();
-               if (serverLocator != null)
+               if (serverLocator != null) {
                   serverLocator.close();
+               }
             } catch (Throwable ignored) {
                logger.trace(e.getMessage(), ignored);
             }
@@ -331,9 +321,6 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       throw new ActiveMQNotConnectedException();
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "ActiveMQXAResourceWrapper [serverLocator=" + serverLocator +
@@ -390,8 +377,8 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
    }
 
    /**
-    * Check whether an XAException is fatal. If it is an RM problem
-    * we close the connection so the next call will reconnect.
+    * Check whether an XAException is fatal. If it is an RM problem we close the connection so the next call will
+    * reconnect.
     *
     * @param e the xa exception
     * @return never
@@ -399,9 +386,10 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
     */
    protected XAException check(final XAException e) throws XAException {
       ActiveMQXARecoveryLogger.LOGGER.xaRecoveryError(e);
-
-      // If any exception happened, we close the connection so we may start fresh
-      close();
+      if (e.errorCode != XAException.XAER_NOTA) {
+         // If any exception happened, we close the connection so we may start fresh
+         close();
+      }
       throw e;
    }
 

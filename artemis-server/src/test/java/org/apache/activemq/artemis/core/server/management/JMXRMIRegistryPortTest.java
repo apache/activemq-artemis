@@ -16,26 +16,27 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.core.config.JMXConnectorConfiguration;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 
-public class JMXRMIRegistryPortTest extends ActiveMQTestBase {
+public class JMXRMIRegistryPortTest extends ServerTestBase {
 
    @Test
    public void explicitLocalhostRegistry() throws IOException {
       RmiRegistryFactory registryFactory = new RmiRegistryFactory();
       registryFactory.setHost("localhost");
-      registryFactory.setPort(1099);
+      registryFactory.setPort(0);
       registryFactory.init();
       runAfter(registryFactory::destroy);
       try (ServerSocket testSocket = registryFactory.createTestSocket()) {
-         Assert.assertEquals(InetAddress.getByName("localhost"), testSocket.getInetAddress());
+         assertEquals(InetAddress.getByName("localhost"), testSocket.getInetAddress());
       }
    }
 
@@ -43,11 +44,11 @@ public class JMXRMIRegistryPortTest extends ActiveMQTestBase {
    public void unlimitedHostRegistry() throws IOException {
       RmiRegistryFactory registryFactory = new RmiRegistryFactory();
       registryFactory.setHost(null);
-      registryFactory.setPort(1099);
+      registryFactory.setPort(0);
       registryFactory.init();
       runAfter(registryFactory::destroy);
       try (ServerSocket testSocket = registryFactory.createTestSocket()) {
-         Assert.assertEquals(InetAddress.getByAddress(new byte[]{0, 0, 0, 0}), testSocket.getInetAddress());
+         assertEquals(InetAddress.getByAddress(new byte[]{0, 0, 0, 0}), testSocket.getInetAddress());
       }
    }
 
@@ -60,7 +61,7 @@ public class JMXRMIRegistryPortTest extends ActiveMQTestBase {
       registryFactory.init();
       registryFactory.destroy();
       try (ServerSocket testSocket = registryFactory.createTestSocket()) {
-         Assert.assertEquals(InetAddress.getByName("localhost"), testSocket.getInetAddress());
+         assertEquals(InetAddress.getByName("localhost"), testSocket.getInetAddress());
       }
    }
 }

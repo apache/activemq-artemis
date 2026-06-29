@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 
 public final class DummyOperationContext implements OperationContext {
@@ -35,7 +36,7 @@ public final class DummyOperationContext implements OperationContext {
    }
 
    @Override
-   public void executeOnCompletion(IOCallback runnable, boolean storeOnly) {
+   public void executeOnCompletion(IOCallback runnable, OperationConsistencyLevel consistencyLevel) {
       // There are no executeOnCompletion calls while using the DummyOperationContext
       // However we keep the code here for correctness
       runnable.done();

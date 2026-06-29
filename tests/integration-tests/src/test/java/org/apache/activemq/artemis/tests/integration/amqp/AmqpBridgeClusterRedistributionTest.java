@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -37,9 +40,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.amqp.largemessages.AMQPLargeMessagesTestUtil;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -93,7 +96,7 @@ public class AmqpBridgeClusterRedistributionTest extends AmqpClientTestSupport {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server0 = createServer(true, createBasicConfig(0));
@@ -120,10 +123,10 @@ public class AmqpBridgeClusterRedistributionTest extends AmqpClientTestSupport {
       server1.getConfiguration().addDivertConfiguration(frameworkNotificationsDivertServer1);
       server2.getConfiguration().addDivertConfiguration(frameworkNotificationsDivertServer2);
 
-      customNotificationQueue = SimpleString.toSimpleString("*.Provider.*.Agent.*.CustomNotification");
-      frameworkNotificationsQueue = SimpleString.toSimpleString("FrameworkNotifications");
-      bridgeNotificationsQueue = SimpleString.toSimpleString("BridgeNotifications");
-      notificationsQueue = SimpleString.toSimpleString("Notifications");
+      customNotificationQueue = SimpleString.of("*.Provider.*.Agent.*.CustomNotification");
+      frameworkNotificationsQueue = SimpleString.of("FrameworkNotifications");
+      bridgeNotificationsQueue = SimpleString.of("BridgeNotifications");
+      notificationsQueue = SimpleString.of("Notifications");
 
       setupClusterConnection("cluster-1->2", "", MessageLoadBalancingType.ON_DEMAND, 1, true, 1, 2);
       setupClusterConnection("cluster-2->1", "", MessageLoadBalancingType.ON_DEMAND, 1, true, 2, 1);
@@ -133,19 +136,19 @@ public class AmqpBridgeClusterRedistributionTest extends AmqpClientTestSupport {
       server1.start();
       server2.start();
 
-      server0.createQueue(new QueueConfiguration(customNotificationQueue).setRoutingType(RoutingType.ANYCAST));
-      server0.createQueue(new QueueConfiguration(frameworkNotificationsQueue).setRoutingType(RoutingType.ANYCAST));
+      server0.createQueue(QueueConfiguration.of(customNotificationQueue).setRoutingType(RoutingType.ANYCAST));
+      server0.createQueue(QueueConfiguration.of(frameworkNotificationsQueue).setRoutingType(RoutingType.ANYCAST));
 
-      server1.createQueue(new QueueConfiguration(bridgeNotificationsQueue).setRoutingType(RoutingType.ANYCAST));
-      server1.createQueue(new QueueConfiguration(notificationsQueue));
+      server1.createQueue(QueueConfiguration.of(bridgeNotificationsQueue).setRoutingType(RoutingType.ANYCAST));
+      server1.createQueue(QueueConfiguration.of(notificationsQueue));
 
-      server2.createQueue(new QueueConfiguration(bridgeNotificationsQueue).setRoutingType(RoutingType.ANYCAST));
-      server2.createQueue(new QueueConfiguration(notificationsQueue));
+      server2.createQueue(QueueConfiguration.of(bridgeNotificationsQueue).setRoutingType(RoutingType.ANYCAST));
+      server2.createQueue(QueueConfiguration.of(notificationsQueue));
 
       server0.deployBridge(new BridgeConfiguration().setName("notifications-bridge").setQueueName(frameworkNotificationsQueue.toString()).setForwardingAddress(bridgeNotificationsQueue.toString()).setConfirmationWindowSize(10).setStaticConnectors(Arrays.asList("notification-broker")));
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       try {

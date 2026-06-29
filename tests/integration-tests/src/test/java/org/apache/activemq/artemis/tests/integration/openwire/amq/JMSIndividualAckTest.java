@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -27,7 +31,7 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JMSIndividualAckTest
@@ -36,8 +40,6 @@ public class JMSIndividualAckTest extends BasicOpenWireTest {
 
    /**
     * Tests if acknowledged messages are being consumed.
-    *
-    * @throws JMSException
     */
    @Test
    public void testAckedMessageAreConsumed() throws JMSException {
@@ -67,8 +69,6 @@ public class JMSIndividualAckTest extends BasicOpenWireTest {
 
    /**
     * Tests if acknowledged messages are being consumed.
-    *
-    * @throws JMSException
     */
    @Test
    public void testLastMessageAcked() throws JMSException {
@@ -113,8 +113,6 @@ public class JMSIndividualAckTest extends BasicOpenWireTest {
    /**
     * Tests if unacknowledged messages are being re-delivered when the consumer
     * connects again.
-    *
-    * @throws JMSException
     */
    @Test
    public void testUnAckedMessageAreNotConsumedOnSessionClose() throws JMSException {

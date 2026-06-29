@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -24,7 +25,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -41,7 +42,7 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase 
    protected abstract void setupServers() throws Exception;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       setupServers();
@@ -70,24 +71,23 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase 
    }
 
    /**
-    * @param node             The node which we should fail
-    * @param originalLiveNode The number of the original node, to locate session to fail
-    * @throws Exception
+    * @param node                The node which we should fail
+    * @param originalPrimaryNode The number of the original node, to locate session to fail
     */
-   protected void failNode(final int node, final int originalLiveNode) throws Exception {
+   protected void failNode(final int node, final int originalPrimaryNode) throws Exception {
       logger.debug("*** failing node {}", node);
 
       ActiveMQServer server = getServer(node);
 
       TestableServer tstServer = new SameProcessActiveMQServer(server);
 
-      ClientSession[] sessionsArray = exploreSessions(originalLiveNode);
+      ClientSession[] sessionsArray = exploreSessions(originalPrimaryNode);
 
       tstServer.crash(sessionsArray);
    }
 
    private ClientSession[] exploreSessions(final int node) {
-      HashSet<ClientSession> sessions = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (ConsumerHolder holder : consumers) {
          if (holder != null && holder.getNode() == node && holder.getSession() != null) {

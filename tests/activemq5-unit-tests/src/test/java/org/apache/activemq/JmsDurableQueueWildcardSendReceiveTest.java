@@ -25,11 +25,7 @@ import org.apache.activemq.test.JmsTopicSendReceiveTest;
  */
 public class JmsDurableQueueWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
 
-   /**
-    * Set up the test with a queue and persistent delivery mode.
-    *
-    * @see junit.framework.TestCase#setUp()
-    */
+   // Set up the test with a queue and persistent delivery mode.
    @Override
    protected void setUp() throws Exception {
       topic = false;
@@ -37,17 +33,11 @@ public class JmsDurableQueueWildcardSendReceiveTest extends JmsTopicSendReceiveT
       super.setUp();
    }
 
-   /**
-    * Returns the consumer subject.
-    */
    @Override
    protected String getConsumerSubject() {
       return "FOO.>";
    }
 
-   /**
-    * Returns the producer subject.
-    */
    @Override
    protected String getProducerSubject() {
       return "FOO.BAR.HUMBUG";

@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.deployers.impl;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Validator;
 import java.io.InputStream;
-import java.security.AccessController;
+import java.lang.invoke.MethodHandles;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -43,10 +44,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
-import org.apache.activemq.artemis.core.config.routing.CacheConfiguration;
-import org.apache.activemq.artemis.core.config.routing.NamedPropertyConfiguration;
-import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -55,14 +52,21 @@ import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
+import org.apache.activemq.artemis.core.config.LockCoordinatorConfiguration;
 import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
-import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBridgeAddressPolicyElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBridgeBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBridgeQueuePolicyElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederatedBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationAddressPolicyElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationQueuePolicyElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
-import org.apache.activemq.artemis.core.config.routing.PoolConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationDownstreamConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
@@ -70,17 +74,20 @@ import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyC
 import org.apache.activemq.artemis.core.config.federation.FederationStreamConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationTransformerConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationUpstreamConfiguration;
-import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.core.config.impl.Validators;
+import org.apache.activemq.artemis.core.config.routing.CacheConfiguration;
+import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
+import org.apache.activemq.artemis.core.config.routing.NamedPropertyConfiguration;
+import org.apache.activemq.artemis.core.config.routing.PoolConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.config.storage.FileStorageConfiguration;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
@@ -90,19 +97,22 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
-import org.apache.activemq.artemis.core.server.routing.policies.PolicyFactoryResolver;
-import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.lock.LockCoordinator;
 import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
+import org.apache.activemq.artemis.core.server.routing.KeyType;
+import org.apache.activemq.artemis.core.server.routing.policies.PolicyFactoryResolver;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
+import org.apache.activemq.artemis.core.settings.impl.DiskFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
+import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
@@ -111,13 +121,51 @@ import org.apache.activemq.artemis.utils.XMLConfigurationUtil;
 import org.apache.activemq.artemis.utils.XMLUtil;
 import org.apache.activemq.artemis.utils.XmlProvider;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import static org.apache.activemq.artemis.core.config.impl.Validators.ADDRESS_FULL_MESSAGE_POLICY_TYPE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.COMPONENT_ROUTING_TYPE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.DELETION_POLICY_TYPE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.DISK_FULL_MESSAGE_POLICY_TYPE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.GE_ZERO;
+import static org.apache.activemq.artemis.core.config.impl.Validators.GT_ZERO;
+import static org.apache.activemq.artemis.core.config.impl.Validators.JOURNAL_TYPE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.KEY_TYPE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.LE_ONE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.MAX_QUEUE_CONSUMERS;
+import static org.apache.activemq.artemis.core.config.impl.Validators.MESSAGE_LOAD_BALANCING_TYPE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.MINUS_ONE_OR_GE_ZERO;
+import static org.apache.activemq.artemis.core.config.impl.Validators.MINUS_ONE_OR_GT_ZERO;
+import static org.apache.activemq.artemis.core.config.impl.Validators.MINUS_ONE_OR_POSITIVE_INT;
+import static org.apache.activemq.artemis.core.config.impl.Validators.NOT_NULL_OR_EMPTY;
+import static org.apache.activemq.artemis.core.config.impl.Validators.NO_CHECK;
+import static org.apache.activemq.artemis.core.config.impl.Validators.NULL_OR_TWO_CHARACTERS;
+import static org.apache.activemq.artemis.core.config.impl.Validators.PAGE_FULL_MESSAGE_POLICY_TYPE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.PERCENTAGE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.PERCENTAGE_OR_MINUS_ONE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.POSITIVE_INT;
+import static org.apache.activemq.artemis.core.config.impl.Validators.POSITIVE_POWER_OF_TWO;
+import static org.apache.activemq.artemis.core.config.impl.Validators.ROUTING_TYPE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.SLOW_CONSUMER_POLICY_TYPE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT;
+import static org.apache.activemq.artemis.core.security.Role.BROWSE_PERMISSION;
+import static org.apache.activemq.artemis.core.security.Role.CONSUME_PERMISSION;
+import static org.apache.activemq.artemis.core.security.Role.CREATE_ADDRESS_PERMISSION;
+import static org.apache.activemq.artemis.core.security.Role.CREATE_DURABLE_QUEUE_PERMISSION;
+import static org.apache.activemq.artemis.core.security.Role.CREATE_NONDURABLE_QUEUE_PERMISSION;
+import static org.apache.activemq.artemis.core.security.Role.DELETE_ADDRESS_PERMISSION;
+import static org.apache.activemq.artemis.core.security.Role.DELETE_DURABLE_QUEUE_PERMISSION;
+import static org.apache.activemq.artemis.core.security.Role.DELETE_NONDURABLE_QUEUE_PERMISSION;
+import static org.apache.activemq.artemis.core.security.Role.EDIT_PERMISSION;
+import static org.apache.activemq.artemis.core.security.Role.MANAGE_PERMISSION;
+import static org.apache.activemq.artemis.core.security.Role.SEND_PERMISSION;
+import static org.apache.activemq.artemis.core.security.Role.VIEW_PERMISSION;
 
 /**
  * Parses an XML document according to the {@literal artemis-configuration.xsd} schema.
@@ -153,30 +201,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String ROLE_TO_ATTR_NAME = "to";
 
-   static final String CREATEDURABLEQUEUE_NAME = "createDurableQueue";
-
-   private static final String DELETEDURABLEQUEUE_NAME = "deleteDurableQueue";
-
-   private static final String CREATE_NON_DURABLE_QUEUE_NAME = "createNonDurableQueue";
-
-   private static final String DELETE_NON_DURABLE_QUEUE_NAME = "deleteNonDurableQueue";
-
-   // HORNETQ-309 we keep supporting these attribute names for compatibility
+   // We keep supporting these attribute names for compatibility
+   @Deprecated(forRemoval = true)
    private static final String CREATETEMPQUEUE_NAME = "createTempQueue";
 
+   @Deprecated(forRemoval = true)
    private static final String DELETETEMPQUEUE_NAME = "deleteTempQueue";
-
-   private static final String SEND_NAME = "send";
-
-   private static final String CONSUME_NAME = "consume";
-
-   private static final String MANAGE_NAME = "manage";
-
-   private static final String BROWSE_NAME = "browse";
-
-   private static final String CREATEADDRESS_NAME = "createAddress";
-
-   private static final String DELETEADDRESS_NAME = "deleteAddress";
 
    // Address parsing
 
@@ -202,6 +232,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String MAX_EXPIRY_DELAY_NODE_NAME = "max-expiry-delay";
 
+   private static final String NO_EXPIRY_NODE_NAME = "no-expiry";
+
    private static final String REDELIVERY_DELAY_NODE_NAME = "redelivery-delay";
 
    private static final String REDELIVERY_DELAY_MULTIPLIER_NODE_NAME = "redelivery-delay-multiplier";
@@ -222,9 +254,15 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String PAGE_FULL_MESSAGE_POLICY_NODE_NAME = "page-full-policy";
 
+   private static final String DISK_FULL_MESSAGE_POLICY_NODE_NAME = "disk-full-policy";
+
    private static final String MAX_READ_PAGE_BYTES_NODE_NAME = "max-read-page-bytes";
 
+   private static final String PREFETCH_PAGE_BYTES_NODE_NAME = "prefetch-page-bytes";
+
    private static final String MAX_READ_PAGE_MESSAGES_NODE_NAME = "max-read-page-messages";
+
+   private static final String PREFETCH_PAGE_MESSAGES_NODE_NAME = "prefetch-page-messages";
 
    private static final String PAGE_SIZE_BYTES_NODE_NAME = "page-size-bytes";
 
@@ -322,9 +360,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String GLOBAL_MAX_SIZE = "global-max-size";
 
+   private static final String GLOBAL_MAX_SIZE_PERCENT_JVM_MAX_MEM = "global-max-size-percent-of-jvm-max-memory";
+
    private static final String GLOBAL_MAX_MESSAGES = "global-max-messages";
 
-   private static final String MAX_DISK_USAGE = "max-disk-usage";
+   public static final String MAX_DISK_USAGE = "max-disk-usage";
+
+   public static final String MIN_DISK_FREE = "min-disk-free";
 
    private static final String DISK_SCAN_PERIOD = "disk-scan-period";
 
@@ -344,20 +386,27 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String ID_CACHE_SIZE = "id-cache-size";
 
+   private static final String MIRROR_ACK_MANAGER_QUEUE_ATTEMPTS = "mirror-ack-manager-queue-attempts";
+
+   private static final String MIRROR_ACK_MANAGER_PAGE_ATTEMPTS = "mirror-ack-manager-page-attempts";
+
+   private static final String MIRROR_ACK_MANAGER_RETRY_DELAY = "mirror-ack-manager-retry-delay";
+   private static final String MIRROR_ACK_MANAGER_WARN_UNACKED = "mirror-ack-manager-warn-unacked";
+
+   private static final String MIRROR_PAGE_TRANSACTION = "mirror-page-transaction";
+
+   private static final String INITIAL_QUEUE_BUFFER_SIZE = "initial-queue-buffer-size";
+
+   private static final String MQTT_SUBSCRIPTION_PERSISTENCE_ENABLED = "mqtt-subscription-persistence-enabled";
+
    private boolean validateAIO = false;
 
    private boolean printPageMaxSizeUsed = false;
 
-   /**
-    * @return the validateAIO
-    */
    public boolean isValidateAIO() {
       return validateAIO;
    }
 
-   /**
-    * @param validateAIO the validateAIO to set
-    */
    public void setValidateAIO(final boolean validateAIO) {
       this.validateAIO = validateAIO;
    }
@@ -378,9 +427,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    public void parseMainConfig(final Element e, final Configuration config) throws Exception {
 
-      config.setName(getString(e, "name", config.getName(), Validators.NO_CHECK));
+      config.setName(getString(e, "name", config.getName(), NO_CHECK));
 
-      config.setSystemPropertyPrefix(getString(e, "system-property-prefix", config.getSystemPropertyPrefix(), Validators.NOT_NULL_OR_EMPTY));
+      config.setSystemPropertyPrefix(getString(e, "system-property-prefix", config.getSystemPropertyPrefix(), NOT_NULL_OR_EMPTY));
 
       NodeList haPolicyNodes = e.getElementsByTagName("ha-policy");
 
@@ -390,7 +439,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       //if we aren already set then set to default
       if (config.getHAPolicyConfiguration() == null) {
-         config.setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration());
+         config.setHAPolicyConfiguration(new PrimaryOnlyPolicyConfiguration());
       }
 
       config.setResolveProtocols(getBoolean(e, "resolve-protocols", config.isResolveProtocols()));
@@ -399,67 +448,77 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setPersistDeliveryCountBeforeDelivery(getBoolean(e, "persist-delivery-count-before-delivery", config.isPersistDeliveryCountBeforeDelivery()));
 
-      config.setMaxRedeliveryRecords(getInteger(e, "max-redelivery-records", config.getMaxRedeliveryRecords(), Validators.MINUS_ONE_OR_GE_ZERO));
+      config.setMaxRedeliveryRecords(getInteger(e, "max-redelivery-records", config.getMaxRedeliveryRecords(), MINUS_ONE_OR_GE_ZERO));
 
-      config.setScheduledThreadPoolMaxSize(getInteger(e, "scheduled-thread-pool-max-size", config.getScheduledThreadPoolMaxSize(), Validators.GT_ZERO));
+      config.setScheduledThreadPoolMaxSize(getInteger(e, "scheduled-thread-pool-max-size", config.getScheduledThreadPoolMaxSize(), GT_ZERO));
 
-      config.setThreadPoolMaxSize(getInteger(e, "thread-pool-max-size", config.getThreadPoolMaxSize(), Validators.MINUS_ONE_OR_GT_ZERO));
+      config.setThreadPoolMaxSize(getInteger(e, "thread-pool-max-size", config.getThreadPoolMaxSize(), MINUS_ONE_OR_GT_ZERO));
 
       config.setSecurityEnabled(getBoolean(e, "security-enabled", config.isSecurityEnabled()));
 
       config.setGracefulShutdownEnabled(getBoolean(e, "graceful-shutdown-enabled", config.isGracefulShutdownEnabled()));
 
-      config.setGracefulShutdownTimeout(getLong(e, "graceful-shutdown-timeout", config.getGracefulShutdownTimeout(), Validators.MINUS_ONE_OR_GE_ZERO));
+      config.setGracefulShutdownTimeout(getLong(e, "graceful-shutdown-timeout", config.getGracefulShutdownTimeout(), MINUS_ONE_OR_GE_ZERO));
 
       config.setJMXManagementEnabled(getBoolean(e, "jmx-management-enabled", config.isJMXManagementEnabled()));
 
-      config.setJMXDomain(getString(e, "jmx-domain", config.getJMXDomain(), Validators.NOT_NULL_OR_EMPTY));
+      config.setJMXNotificationEnabled(getBoolean(e, "jmx-notification-enabled", config.isJMXNotificationEnabled()));
+
+      config.setJMXDomain(getString(e, "jmx-domain", config.getJMXDomain(), NOT_NULL_OR_EMPTY));
 
       config.setJMXUseBrokerName(getBoolean(e, "jmx-use-broker-name", config.isJMXUseBrokerName()));
 
-      config.setSecurityInvalidationInterval(getLong(e, "security-invalidation-interval", config.getSecurityInvalidationInterval(), Validators.GE_ZERO));
+      config.setSecurityInvalidationInterval(getLong(e, "security-invalidation-interval", config.getSecurityInvalidationInterval(), GE_ZERO));
 
-      config.setAuthenticationCacheSize(getLong(e, "authentication-cache-size", config.getAuthenticationCacheSize(), Validators.GE_ZERO));
+      config.setAuthenticationCacheSize(getLong(e, "authentication-cache-size", config.getAuthenticationCacheSize(), GE_ZERO));
 
-      config.setAuthorizationCacheSize(getLong(e, "authorization-cache-size", config.getAuthorizationCacheSize(), Validators.GE_ZERO));
+      config.setAuthorizationCacheSize(getLong(e, "authorization-cache-size", config.getAuthorizationCacheSize(), GE_ZERO));
 
-      config.setConnectionTTLOverride(getLong(e, "connection-ttl-override", config.getConnectionTTLOverride(), Validators.MINUS_ONE_OR_GT_ZERO));
+      config.setConnectionTTLOverride(getLong(e, "connection-ttl-override", config.getConnectionTTLOverride(), MINUS_ONE_OR_GT_ZERO));
 
       config.setEnabledAsyncConnectionExecution(getBoolean(e, "async-connection-execution-enabled", config.isAsyncConnectionExecutionEnabled()));
 
-      config.setTransactionTimeout(getLong(e, "transaction-timeout", config.getTransactionTimeout(), Validators.GT_ZERO));
+      config.setTransactionTimeout(getLong(e, "transaction-timeout", config.getTransactionTimeout(), GT_ZERO));
 
-      config.setTransactionTimeoutScanPeriod(getLong(e, "transaction-timeout-scan-period", config.getTransactionTimeoutScanPeriod(), Validators.GT_ZERO));
+      config.setTransactionTimeoutScanPeriod(getLong(e, "transaction-timeout-scan-period", config.getTransactionTimeoutScanPeriod(), GT_ZERO));
 
-      config.setMessageExpiryScanPeriod(getLong(e, "message-expiry-scan-period", config.getMessageExpiryScanPeriod(), Validators.MINUS_ONE_OR_GT_ZERO));
+      config.setMessageExpiryScanPeriod(getLong(e, "message-expiry-scan-period", config.getMessageExpiryScanPeriod(), MINUS_ONE_OR_GT_ZERO));
 
-      config.setAddressQueueScanPeriod(getLong(e, "address-queue-scan-period", config.getAddressQueueScanPeriod(), Validators.MINUS_ONE_OR_GT_ZERO));
+      config.setAddressQueueScanPeriod(getLong(e, "address-queue-scan-period", config.getAddressQueueScanPeriod(), MINUS_ONE_OR_GT_ZERO));
 
-      config.setIDCacheSize(getInteger(e, "id-cache-size", config.getIDCacheSize(), Validators.GE_ZERO));
+      config.setIDCacheSize(getInteger(e, "id-cache-size", config.getIDCacheSize(), GE_ZERO));
 
       config.setPersistIDCache(getBoolean(e, "persist-id-cache", config.isPersistIDCache()));
 
-      config.setManagementAddress(new SimpleString(getString(e, "management-address", config.getManagementAddress().toString(), Validators.NOT_NULL_OR_EMPTY)));
+      config.setManagementAddress(SimpleString.of(getString(e, "management-address", config.getManagementAddress().toString(), NOT_NULL_OR_EMPTY)));
 
-      config.setManagementNotificationAddress(new SimpleString(getString(e, "management-notification-address", config.getManagementNotificationAddress().toString(), Validators.NOT_NULL_OR_EMPTY)));
+      config.setManagementNotificationAddress(SimpleString.of(getString(e, "management-notification-address", config.getManagementNotificationAddress().toString(), NOT_NULL_OR_EMPTY)));
 
       config.setMaskPassword(getBoolean(e, "mask-password", null));
 
-      config.setPasswordCodec(getString(e, "password-codec", DefaultSensitiveStringCodec.class.getName(), Validators.NOT_NULL_OR_EMPTY));
+      config.setPasswordCodec(getString(e, "password-codec", DefaultSensitiveStringCodec.class.getName(), NOT_NULL_OR_EMPTY));
 
       config.setPopulateValidatedUser(getBoolean(e, "populate-validated-user", config.isPopulateValidatedUser()));
 
       config.setRejectEmptyValidatedUser(getBoolean(e, "reject-empty-validated-user", config.isRejectEmptyValidatedUser()));
 
-      config.setConnectionTtlCheckInterval(getLong(e, "connection-ttl-check-interval", config.getConnectionTtlCheckInterval(), Validators.GT_ZERO));
+      config.setConnectionTtlCheckInterval(getLong(e, "connection-ttl-check-interval", config.getConnectionTtlCheckInterval(), GT_ZERO));
 
-      config.setConfigurationFileRefreshPeriod(getLong(e, "configuration-file-refresh-period", config.getConfigurationFileRefreshPeriod(), Validators.MINUS_ONE_OR_GT_ZERO));
+      config.setConfigurationFileRefreshPeriod(getLong(e, "configuration-file-refresh-period", config.getConfigurationFileRefreshPeriod(), MINUS_ONE_OR_GT_ZERO));
 
-      config.setTemporaryQueueNamespace(getString(e, "temporary-queue-namespace", config.getTemporaryQueueNamespace(), Validators.NOT_NULL_OR_EMPTY));
+      config.setTemporaryQueueNamespace(getString(e, "temporary-queue-namespace", config.getTemporaryQueueNamespace(), NOT_NULL_OR_EMPTY));
 
-      config.setMqttSessionScanInterval(getLong(e, "mqtt-session-scan-interval", config.getMqttSessionScanInterval(), Validators.GT_ZERO));
+      config.setUuidNamespace(getString(e, "uuid-namespace", config.getUuidNamespace(), NOT_NULL_OR_EMPTY));
 
-      long globalMaxSize = getTextBytesAsLongBytes(e, GLOBAL_MAX_SIZE, -1, Validators.MINUS_ONE_OR_GT_ZERO);
+      config.setMqttSessionScanInterval(getLong(e, "mqtt-session-scan-interval", config.getMqttSessionScanInterval(), GT_ZERO));
+
+      config.setMqttSessionStatePersistenceTimeout(getLong(e, "mqtt-session-state-persistence-timeout", config.getMqttSessionStatePersistenceTimeout(), GT_ZERO, MQTT_SUBSCRIPTION_PERSISTENCE_ENABLED));
+
+      config.setMqttSubscriptionPersistenceEnabled(getBoolean(e, MQTT_SUBSCRIPTION_PERSISTENCE_ENABLED, config.isMqttSubscriptionPersistenceEnabled()));
+
+      config.setGlobalMaxSizePercentOfJvmMaxMemory(getInteger(e, GLOBAL_MAX_SIZE_PERCENT_JVM_MAX_MEM, config.getGlobalMaxSizePercentOfJvmMaxMemory(), GT_ZERO));
+
+      long globalMaxSize = getTextBytesAsLongBytes(e, GLOBAL_MAX_SIZE, -1, MINUS_ONE_OR_GT_ZERO);
 
       if (globalMaxSize > 0) {
          // We only set it if it's not set on the XML, otherwise getGlobalMaxSize will calculate it.
@@ -467,21 +526,23 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          config.setGlobalMaxSize(globalMaxSize);
       }
 
-      long globalMaxMessages = getLong(e, GLOBAL_MAX_MESSAGES, -1, Validators.MINUS_ONE_OR_GT_ZERO);
+      long globalMaxMessages = getLong(e, GLOBAL_MAX_MESSAGES, -1, MINUS_ONE_OR_GT_ZERO);
 
       config.setGlobalMaxMessages(globalMaxMessages);
 
-      config.setMaxDiskUsage(getInteger(e, MAX_DISK_USAGE, config.getMaxDiskUsage(), Validators.PERCENTAGE_OR_MINUS_ONE));
+      config.setMinDiskFree(getTextBytesAsLongBytes(e, MIN_DISK_FREE, config.getMinDiskFree(), MINUS_ONE_OR_GT_ZERO));
 
-      config.setDiskScanPeriod(getInteger(e, DISK_SCAN_PERIOD, config.getDiskScanPeriod(), Validators.MINUS_ONE_OR_GT_ZERO));
+      config.setMaxDiskUsage(getInteger(e, MAX_DISK_USAGE, config.getMaxDiskUsage(), PERCENTAGE_OR_MINUS_ONE));
 
-      config.setInternalNamingPrefix(getString(e, INTERNAL_NAMING_PREFIX, config.getInternalNamingPrefix(), Validators.NO_CHECK));
+      config.setDiskScanPeriod(getInteger(e, DISK_SCAN_PERIOD, config.getDiskScanPeriod(), MINUS_ONE_OR_GT_ZERO));
+
+      config.setInternalNamingPrefix(getString(e, INTERNAL_NAMING_PREFIX, config.getInternalNamingPrefix(), NO_CHECK));
 
       config.setAmqpUseCoreSubscriptionNaming(getBoolean(e, AMQP_USE_CORE_SUBSCRIPTION_NAMING, config.isAmqpUseCoreSubscriptionNaming()));
 
 
       // parsing cluster password
-      String passwordText = getString(e, "cluster-password", null, Validators.NO_CHECK);
+      String passwordText = getString(e, "cluster-password", null, NO_CHECK);
 
       final Boolean maskText = config.isMaskPassword();
 
@@ -490,7 +551,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          config.setClusterPassword(resolvedPassword);
       }
 
-      config.setClusterUser(getString(e, "cluster-user", config.getClusterUser(), Validators.NO_CHECK));
+      config.setClusterUser(getString(e, "cluster-user", config.getClusterUser(), NO_CHECK));
 
       NodeList storeTypeNodes = e.getElementsByTagName("store");
 
@@ -500,7 +561,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       NodeList interceptorNodes = e.getElementsByTagName("remoting-interceptors");
 
-      ArrayList<String> incomingInterceptorList = new ArrayList<>();
+      List<String> incomingInterceptorList = new ArrayList<>();
 
       if (interceptorNodes.getLength() > 0) {
          NodeList interceptors = interceptorNodes.item(0).getChildNodes();
@@ -532,7 +593,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       NodeList outgoingInterceptorNodes = e.getElementsByTagName("remoting-outgoing-interceptors");
 
-      ArrayList<String> outgoingInterceptorList = new ArrayList<>();
+      List<String> outgoingInterceptorList = new ArrayList<>();
 
       if (outgoingInterceptorNodes.getLength() > 0) {
          NodeList interceptors = outgoingInterceptorNodes.item(0).getChildNodes();
@@ -596,20 +657,40 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          parseDiscoveryGroupConfiguration(dgNode, config);
       }
 
-      NodeList brNodes = e.getElementsByTagName("bridge");
+      // Ensure AMQP bridge configuration isn't picked up here by core bridge
+      // configuration parsing.
+      NodeList bridges = e.getElementsByTagName("bridges");
 
-      for (int i = 0; i < brNodes.getLength(); i++) {
-         Element mfNode = (Element) brNodes.item(i);
+      for (int i = 0; i < bridges.getLength(); i++) {
+         Element bridgesElement = (Element) bridges.item(i);
 
-         parseBridgeConfiguration(mfNode, config);
+         for (int j = 0; j < bridgesElement.getChildNodes().getLength(); ++j) {
+            Node node = bridgesElement.getChildNodes().item(j);
+
+            if (node.getNodeName().equalsIgnoreCase("bridge")) {
+               parseBridgeConfiguration((Element) node, config);
+            }
+         }
       }
 
-      NodeList fedNodes = e.getElementsByTagName("federation");
+      // Ensure AMQP federation configuration isn't picked up here by core federation
+      // configuration parsing, any AMQP federation configuration would generate empty
+      // Core federation configurations that would not create active federations.
+      NodeList federations = e.getElementsByTagName("federations");
 
-      for (int i = 0; i < fedNodes.getLength(); i++) {
-         Element fedNode = (Element) fedNodes.item(i);
+      for (int i = 0; i < federations.getLength(); i++) {
+         Element federationElement = (Element) federations.item(i);
 
-         parseFederationConfiguration(fedNode, config);
+         // Handle attributes at the federations level and then add each nested federation.
+         parseFederationsConfiguration(federationElement, config);
+
+         for (int j = 0; j < federationElement.getChildNodes().getLength(); ++j) {
+            Node node = federationElement.getChildNodes().item(j);
+
+            if (node.getNodeName().equalsIgnoreCase("federation")) {
+               parseFederationConfiguration((Element) node, config);
+            }
+         }
       }
 
       NodeList gaNodes = e.getElementsByTagName("grouping-handler");
@@ -673,38 +754,54 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
+      NodeList lockCoordinators = e.getElementsByTagName("lock-coordinators");
+
+      if (lockCoordinators != null) {
+         for (int i = 0; i < lockCoordinators.getLength(); i++) {
+            Element lockCoordinatorElement = (Element) lockCoordinators.item(i);
+
+            for (int j = 0; j < lockCoordinatorElement.getChildNodes().getLength(); ++j) {
+               Node node = lockCoordinatorElement.getChildNodes().item(j);
+
+               if (node.getNodeName().equalsIgnoreCase("lock-coordinator")) {
+                  parseLockCoordinator((Element) node, config);
+               }
+            }
+         }
+      }
+
       // Persistence config
 
-      config.setLargeMessagesDirectory(getString(e, "large-messages-directory", config.getLargeMessagesDirectory(), Validators.NOT_NULL_OR_EMPTY));
+      config.setLargeMessagesDirectory(getString(e, "large-messages-directory", config.getLargeMessagesDirectory(), NOT_NULL_OR_EMPTY));
 
-      config.setBindingsDirectory(getString(e, "bindings-directory", config.getBindingsDirectory(), Validators.NOT_NULL_OR_EMPTY));
+      config.setBindingsDirectory(getString(e, "bindings-directory", config.getBindingsDirectory(), NOT_NULL_OR_EMPTY));
 
       config.setCreateBindingsDir(getBoolean(e, "create-bindings-dir", config.isCreateBindingsDir()));
 
-      config.setJournalDirectory(getString(e, "journal-directory", config.getJournalDirectory(), Validators.NOT_NULL_OR_EMPTY));
+      config.setJournalDirectory(getString(e, "journal-directory", config.getJournalDirectory(), NOT_NULL_OR_EMPTY));
 
 
       parseJournalRetention(e, config);
 
-      config.setNodeManagerLockDirectory(getString(e, "node-manager-lock-directory", null, Validators.NO_CHECK));
+      config.setNodeManagerLockDirectory(getString(e, "node-manager-lock-directory", null, NO_CHECK));
 
-      config.setPageMaxConcurrentIO(getInteger(e, "page-max-concurrent-io", config.getPageMaxConcurrentIO(), Validators.MINUS_ONE_OR_GT_ZERO));
+      config.setPageMaxConcurrentIO(getInteger(e, "page-max-concurrent-io", config.getPageMaxConcurrentIO(), MINUS_ONE_OR_GT_ZERO));
 
       config.setReadWholePage(getBoolean(e, "read-whole-page", config.isReadWholePage()));
 
-      config.setPagingDirectory(getString(e, "paging-directory", config.getPagingDirectory(), Validators.NOT_NULL_OR_EMPTY));
+      config.setPagingDirectory(getString(e, "paging-directory", config.getPagingDirectory(), NOT_NULL_OR_EMPTY));
+
+      config.setPurgePageFolders(getBoolean(e, "purge-page-folders", config.isPurgePageFolders()));
 
       config.setCreateJournalDir(getBoolean(e, "create-journal-dir", config.isCreateJournalDir()));
 
-      String s = getString(e, "journal-type", config.getJournalType().toString(), Validators.JOURNAL_TYPE);
+      String s = getString(e, "journal-type", config.getJournalType().toString(), JOURNAL_TYPE);
 
       config.setJournalType(JournalType.getType(s));
 
       if (config.getJournalType() == JournalType.ASYNCIO) {
-         // https://jira.jboss.org/jira/browse/HORNETQ-295
-         // We do the check here to see if AIO is supported so we can use the correct defaults and/or use
-         // correct settings in xml
-         // If we fall back later on these settings can be ignored
+         // We do the check here to see if AIO is supported so we can use the correct defaults and/or use correct
+         // settings in xml. If we fall back later on these settings can be ignored.
          boolean supportsAIO = AIOSequentialFileFactory.isSupported();
 
          if (!supportsAIO) {
@@ -721,17 +818,17 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setJournalSyncNonTransactional(getBoolean(e, "journal-sync-non-transactional", config.isJournalSyncNonTransactional()));
 
-      config.setJournalFileSize(getTextBytesAsIntBytes(e, "journal-file-size", config.getJournalFileSize(), Validators.POSITIVE_INT));
+      config.setJournalFileSize(getTextBytesAsIntBytes(e, "journal-file-size", config.getJournalFileSize(), POSITIVE_INT));
 
-      config.setJournalMaxAtticFiles(getInteger(e, "journal-max-attic-files", config.getJournalMaxAtticFiles(), Validators.NO_CHECK));
+      config.setJournalMaxAtticFiles(getInteger(e, "journal-max-attic-files", config.getJournalMaxAtticFiles(), NO_CHECK));
 
-      int journalBufferTimeout = getInteger(e, "journal-buffer-timeout", config.getJournalType() == JournalType.ASYNCIO ? ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO : ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, Validators.GE_ZERO);
+      int journalBufferTimeout = getInteger(e, "journal-buffer-timeout", config.getJournalType() == JournalType.ASYNCIO ? ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO : ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, GE_ZERO);
 
-      int journalBufferSize = getTextBytesAsIntBytes(e, "journal-buffer-size", config.getJournalType() == JournalType.ASYNCIO ? ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO : ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, Validators.POSITIVE_INT);
+      int journalBufferSize = getTextBytesAsIntBytes(e, "journal-buffer-size", config.getJournalType() == JournalType.ASYNCIO ? ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO : ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, POSITIVE_INT);
 
-      int journalMaxIO = getInteger(e, "journal-max-io", config.getJournalType() == JournalType.ASYNCIO ? ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio(), Validators.GT_ZERO);
+      int journalMaxIO = getInteger(e, "journal-max-io", config.getJournalType() == JournalType.ASYNCIO ? ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio(), GT_ZERO);
 
-      config.setJournalDeviceBlockSize(getInteger(e, "journal-device-block-size", null, Validators.MINUS_ONE_OR_GE_ZERO));
+      config.setJournalDeviceBlockSize(getInteger(e, "journal-device-block-size", null, MINUS_ONE_OR_GE_ZERO));
 
       if (config.getJournalType() == JournalType.ASYNCIO) {
          config.setJournalBufferTimeout_AIO(journalBufferTimeout);
@@ -743,19 +840,23 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          config.setJournalMaxIO_NIO(journalMaxIO);
       }
 
-      config.setJournalFileOpenTimeout(getInteger(e, "journal-file-open-timeout", ActiveMQDefaultConfiguration.getDefaultJournalFileOpenTimeout(), Validators.GT_ZERO));
+      config.setJournalFileOpenTimeout(getInteger(e, "journal-file-open-timeout", ActiveMQDefaultConfiguration.getDefaultJournalFileOpenTimeout(), GT_ZERO));
 
-      config.setJournalMinFiles(getInteger(e, "journal-min-files", config.getJournalMinFiles(), Validators.GT_ZERO));
+      config.setJournalMinFiles(getInteger(e, "journal-min-files", config.getJournalMinFiles(), GT_ZERO));
 
-      config.setJournalPoolFiles(getInteger(e, "journal-pool-files", config.getJournalPoolFiles(), Validators.MINUS_ONE_OR_GT_ZERO));
+      config.setJournalPoolFiles(getInteger(e, "journal-pool-files", config.getJournalPoolFiles(), MINUS_ONE_OR_GT_ZERO));
 
-      config.setJournalCompactMinFiles(getInteger(e, "journal-compact-min-files", config.getJournalCompactMinFiles(), Validators.GE_ZERO));
+      config.setJournalCompactMinFiles(getInteger(e, "journal-compact-min-files", config.getJournalCompactMinFiles(), GE_ZERO));
 
-      config.setJournalCompactPercentage(getInteger(e, "journal-compact-percentage", config.getJournalCompactPercentage(), Validators.PERCENTAGE));
+      config.setJournalCompactPercentage(getInteger(e, "journal-compact-percentage", config.getJournalCompactPercentage(), PERCENTAGE));
 
       config.setLogJournalWriteRate(getBoolean(e, "log-journal-write-rate", ActiveMQDefaultConfiguration.isDefaultJournalLogWriteRate()));
 
-      config.setJournalLockAcquisitionTimeout(getLong(e, "journal-lock-acquisition-timeout", config.getJournalLockAcquisitionTimeout(), Validators.MINUS_ONE_OR_GT_ZERO));
+      config.setJournalLockAcquisitionTimeout(getLong(e, "journal-lock-acquisition-timeout", config.getJournalLockAcquisitionTimeout(), MINUS_ONE_OR_GT_ZERO));
+
+      config.setJournalLockMonitorTimeout(getLong(e, "journal-lock-monitor-timeout", config.getJournalLockMonitorTimeout(), GT_ZERO));
+
+      config.setJournalLockMonitorMaxRetries(getInteger(e, "journal-lock-monitor-max-retries", config.getJournalLockMonitorMaxRetries(), GE_ZERO));
 
       if (e.hasAttribute("wild-card-routing-enabled")) {
          config.setWildcardRoutingEnabled(getBoolean(e, "wild-card-routing-enabled", config.isWildcardRoutingEnabled()));
@@ -763,41 +864,61 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setMessageCounterEnabled(getBoolean(e, "message-counter-enabled", config.isMessageCounterEnabled()));
 
-      config.setMessageCounterSamplePeriod(getLong(e, "message-counter-sample-period", config.getMessageCounterSamplePeriod(), Validators.GT_ZERO));
+      config.setMessageCounterSamplePeriod(getLong(e, "message-counter-sample-period", config.getMessageCounterSamplePeriod(), GT_ZERO));
 
-      config.setMessageCounterMaxDayHistory(getInteger(e, "message-counter-max-day-history", config.getMessageCounterMaxDayHistory(), Validators.GT_ZERO));
+      config.setMessageCounterMaxDayHistory(getInteger(e, "message-counter-max-day-history", config.getMessageCounterMaxDayHistory(), GT_ZERO));
 
-      config.setServerDumpInterval(getLong(e, "server-dump-interval", config.getServerDumpInterval(), Validators.MINUS_ONE_OR_GT_ZERO)); // in milliseconds
+      config.setServerDumpInterval(getLong(e, "server-dump-interval", config.getServerDumpInterval(), MINUS_ONE_OR_GT_ZERO)); // in milliseconds
 
-      config.setMemoryWarningThreshold(getInteger(e, "memory-warning-threshold", config.getMemoryWarningThreshold(), Validators.PERCENTAGE));
+      config.setMemoryWarningThreshold(getInteger(e, "memory-warning-threshold", config.getMemoryWarningThreshold(), PERCENTAGE));
 
-      config.setMemoryMeasureInterval(getLong(e, "memory-measure-interval", config.getMemoryMeasureInterval(), Validators.MINUS_ONE_OR_GT_ZERO));
+      config.setMemoryMeasureInterval(getLong(e, "memory-measure-interval", config.getMemoryMeasureInterval(), MINUS_ONE_OR_GT_ZERO));
 
-      config.setNetworkCheckList(getString(e, "network-check-list", config.getNetworkCheckList(), Validators.NO_CHECK));
+      config.setNetworkCheckList(getString(e, "network-check-list", config.getNetworkCheckList(), NO_CHECK));
 
-      config.setNetworkCheckURLList(getString(e, "network-check-URL-list", config.getNetworkCheckURLList(), Validators.NO_CHECK));
+      config.setNetworkCheckURLList(getString(e, "network-check-URL-list", config.getNetworkCheckURLList(), NO_CHECK));
 
-      config.setNetworkCheckPeriod(getLong(e, "network-check-period", config.getNetworkCheckPeriod(), Validators.GT_ZERO));
+      config.setNetworkCheckPeriod(getLong(e, "network-check-period", config.getNetworkCheckPeriod(), GT_ZERO));
 
-      config.setNetworkCheckTimeout(getInteger(e, "network-check-timeout", config.getNetworkCheckTimeout(), Validators.GT_ZERO));
+      config.setNetworkCheckTimeout(getInteger(e, "network-check-timeout", config.getNetworkCheckTimeout(), GT_ZERO));
 
-      config.setNetworkCheckNIC(getString(e, "network-check-NIC", config.getNetworkCheckNIC(), Validators.NO_CHECK));
+      config.setNetworkCheckNIC(getString(e, "network-check-NIC", config.getNetworkCheckNIC(), NO_CHECK));
 
-      config.setNetworkCheckPing6Command(getString(e, "network-check-ping6-command", config.getNetworkCheckPing6Command(), Validators.NO_CHECK));
+      config.setNetworkCheckPing6Command(getString(e, "network-check-ping6-command", config.getNetworkCheckPing6Command(), NO_CHECK));
 
-      config.setNetworkCheckPingCommand(getString(e, "network-check-ping-command", config.getNetworkCheckPingCommand(), Validators.NO_CHECK));
+      config.setNetworkCheckPingCommand(getString(e, "network-check-ping-command", config.getNetworkCheckPingCommand(), NO_CHECK));
 
       config.setCriticalAnalyzer(getBoolean(e, "critical-analyzer", config.isCriticalAnalyzer()));
 
-      config.setCriticalAnalyzerTimeout(getLong(e, "critical-analyzer-timeout", config.getCriticalAnalyzerTimeout(), Validators.GE_ZERO));
+      config.setCriticalAnalyzerTimeout(getLong(e, "critical-analyzer-timeout", config.getCriticalAnalyzerTimeout(), GE_ZERO));
 
-      config.setCriticalAnalyzerCheckPeriod(getLong(e, "critical-analyzer-check-period", config.getCriticalAnalyzerCheckPeriod(), Validators.GE_ZERO));
+      config.setCriticalAnalyzerCheckPeriod(getLong(e, "critical-analyzer-check-period", config.getCriticalAnalyzerCheckPeriod(), GE_ZERO));
 
-      config.setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy.valueOf(getString(e, "critical-analyzer-policy", config.getCriticalAnalyzerPolicy().name(), Validators.NOT_NULL_OR_EMPTY)));
+      config.setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy.valueOf(getString(e, "critical-analyzer-policy", config.getCriticalAnalyzerPolicy().name(), NOT_NULL_OR_EMPTY)));
 
-      config.setPageSyncTimeout(getInteger(e, "page-sync-timeout", config.getJournalBufferTimeout_NIO(), Validators.GE_ZERO));
+      config.setPageSyncTimeout(getInteger(e, "page-sync-timeout", config.getJournalBufferTimeout_NIO(), GE_ZERO));
 
       config.setSuppressSessionNotifications(getBoolean(e, "suppress-session-notifications", config.isSuppressSessionNotifications()));
+
+      config.setLiteralMatchMarkers(getString(e, "literal-match-markers", config.getLiteralMatchMarkers(), NULL_OR_TWO_CHARACTERS));
+
+      config.setLargeMessageSync(getBoolean(e, "large-message-sync", config.isLargeMessageSync()));
+
+      config.setViewPermissionMethodMatchPattern(getString(e, "view-permission-method-match-pattern", config.getViewPermissionMethodMatchPattern(), NO_CHECK));
+
+      config.setManagementMessageRbac(getBoolean(e, "management-message-rbac", config.isManagementMessageRbac()));
+
+      config.setManagementRbacPrefix(getString(e, "management-rbac-prefix", config.getManagementRbacPrefix(), NO_CHECK));
+
+      config.setMirrorPageTransaction(getBoolean(e, MIRROR_PAGE_TRANSACTION, config.isMirrorPageTransaction()));
+
+      config.setMirrorAckManagerPageAttempts(getInteger(e, MIRROR_ACK_MANAGER_PAGE_ATTEMPTS, config.getMirrorAckManagerPageAttempts(), GT_ZERO));
+
+      config.setMirrorAckManagerQueueAttempts(getInteger(e, MIRROR_ACK_MANAGER_QUEUE_ATTEMPTS, config.getMirrorAckManagerQueueAttempts(), GT_ZERO));
+
+      config.setMirrorAckManagerRetryDelay(getInteger(e, MIRROR_ACK_MANAGER_RETRY_DELAY, config.getMirrorAckManagerRetryDelay(), GT_ZERO));
+
+      config.setMirrorAckManagerWarnUnacked(getBoolean(e, MIRROR_ACK_MANAGER_WARN_UNACKED, config.isMirrorAckManagerWarnUnacked()));
 
       parseAddressSettings(e, config);
 
@@ -815,7 +936,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       NodeList connectorServiceConfigs = e.getElementsByTagName("connector-service");
 
-      ArrayList<ConnectorServiceConfiguration> configs = new ArrayList<>();
+      List<ConnectorServiceConfiguration> configs = new ArrayList<>();
 
       for (int i = 0; i < connectorServiceConfigs.getLength(); i++) {
          Element node = (Element) connectorServiceConfigs.item(i);
@@ -831,6 +952,31 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          parseWildcardConfiguration((Element) wildCardConfiguration.item(0), config);
       }
    }
+
+   private void parseLockCoordinator(final Element lockCoordinatorElement, final Configuration mainConfig) throws Exception {
+      String name = lockCoordinatorElement.getAttribute("name");
+      String lockId = getString(lockCoordinatorElement, "lock-id", name, NO_CHECK);
+      String className = getString(lockCoordinatorElement, "class-name", null, NOT_NULL_OR_EMPTY);
+      int checkPeriod = getInteger(lockCoordinatorElement, "check-period", LockCoordinator.DEFAULT_CHECK_PERIOD, NO_CHECK);
+
+      HashMap<String, String> properties = new HashMap<>();
+
+      if (parameterExists(lockCoordinatorElement, "properties")) {
+         final NodeList propertyNodeList = lockCoordinatorElement.getElementsByTagName("property");
+         final int propertiesCount = propertyNodeList.getLength();
+         properties = new HashMap<>(propertiesCount);
+         for (int i = 0; i < propertiesCount; i++) {
+            final Element propertyNode = (Element) propertyNodeList.item(i);
+            final String propertyName = propertyNode.getAttributeNode("key").getValue();
+            final String propertyValue = propertyNode.getAttributeNode("value").getValue();
+            properties.put(propertyName, propertyValue);
+         }
+      }
+
+      LockCoordinatorConfiguration lockCoordinatorConfiguration = new LockCoordinatorConfiguration(properties).setName(name).setLockId(lockId).setClassName(className).setCheckPeriod(checkPeriod);
+      mainConfig.addLockCoordinatorConfiguration(lockCoordinatorConfiguration);
+   }
+
 
 
    private void parseJournalRetention(final Element e, final Configuration config) {
@@ -849,7 +995,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          } else {
             storageLimit = ByteUtil.convertTextBytes(storageLimitStr.trim());
          }
-         int period = getAttributeInteger(node, "period", -1, Validators.GT_ZERO);
+         int period = getAttributeInteger(node, "period", -1, GT_ZERO);
          String unitStr = getAttributeValue(node, "unit");
 
          if (unitStr == null) {
@@ -862,7 +1008,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          config.setJournalRetentionMaxBytes(storageLimit);
          config.setJournalRetentionPeriod(unit, period);
 
-         if (directory == null || directory.equals("")) {
+         if (directory == null || directory.isEmpty()) {
             throw new IllegalArgumentException("journal-retention-directory=null");
          }
 
@@ -873,10 +1019,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
    }
 
-   /**
-    * @param e
-    * @param config
-    */
    private void parseSecurity(final Element e, final Configuration config) throws Exception {
       NodeList elements = e.getElementsByTagName("security-settings");
       if (elements.getLength() != 0) {
@@ -918,12 +1060,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       Map<String, String> properties = getMapOfChildPropertyElements(item);
 
-      ActiveMQServerPlugin serverPlugin = AccessController.doPrivileged(new PrivilegedAction<ActiveMQServerPlugin>() {
-         @Override
-         public ActiveMQServerPlugin run() {
-            return (ActiveMQServerPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz);
-         }
-      });
+      ActiveMQServerPlugin serverPlugin = SecurityManagerShim.doPrivileged((PrivilegedAction<ActiveMQServerPlugin>) () -> (ActiveMQServerPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, ActiveMQServerPlugin.class));
 
       serverPlugin.init(properties);
 
@@ -944,10 +1081,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return properties;
    }
 
-   /**
-    * @param e
-    * @param config
-    */
    private void parseMetrics(final Element e, final Configuration config) {
       NodeList metrics = e.getElementsByTagName("metrics");
       NodeList metricsPlugin = e.getElementsByTagName("metrics-plugin");
@@ -972,6 +1105,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                metricsConfiguration.setProcessor(XMLUtil.parseBoolean(child));
             } else if (child.getNodeName().equals("uptime")) {
                metricsConfiguration.setUptime(XMLUtil.parseBoolean(child));
+            } else if (child.getNodeName().equals("logging")) {
+               metricsConfiguration.setLogging(XMLUtil.parseBoolean(child));
+            } else if (child.getNodeName().equals("security-caches")) {
+               metricsConfiguration.setSecurityCaches(XMLUtil.parseBoolean(child));
+            } else if (child.getNodeName().equals("executor-services")) {
+               metricsConfiguration.setExecutorServices(XMLUtil.parseBoolean(child));
             } else if (child.getNodeName().equals("plugin")) {
                metricsConfiguration.setPlugin(parseMetricsPlugin(child, config));
             }
@@ -995,12 +1134,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       Map<String, String> properties = getMapOfChildPropertyElements(item);
 
-      ActiveMQMetricsPlugin metricsPlugin = AccessController.doPrivileged(new PrivilegedAction<ActiveMQMetricsPlugin>() {
-         @Override
-         public ActiveMQMetricsPlugin run() {
-            return (ActiveMQMetricsPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz);
-         }
-      });
+      ActiveMQMetricsPlugin metricsPlugin = SecurityManagerShim.doPrivileged((PrivilegedAction<ActiveMQMetricsPlugin>) () -> (ActiveMQMetricsPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, ActiveMQMetricsPlugin.class));
 
       ActiveMQServerLogger.LOGGER.initializingMetricsPlugin(clazz, properties.toString());
 
@@ -1010,10 +1144,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return metricsPlugin;
    }
 
-   /**
-    * @param e
-    * @param config
-    */
    private void parseQueues(final Element e, final Configuration config) {
       NodeList elements = e.getElementsByTagName("queues");
       if (elements.getLength() != 0) {
@@ -1034,10 +1164,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return queueConfigurations;
    }
 
-   /**
-    * @param e
-    * @param config
-    */
    private void parseAddresses(final Element e, final Configuration config) {
       NodeList elements = e.getElementsByTagName("addresses");
 
@@ -1050,10 +1176,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
    }
 
-   /**
-    * @param e
-    * @param config
-    */
    private void parseAddressSettings(final Element e, final Configuration config) {
       NodeList elements = e.getElementsByTagName("address-settings");
 
@@ -1072,10 +1194,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
    }
 
-   /**
-    * @param e
-    * @param config
-    */
    private void parseResourceLimits(final Element e, final Configuration config) {
       NodeList elements = e.getElementsByTagName("resource-limit-settings");
 
@@ -1088,10 +1206,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
    }
 
-   /**
-    * @param node
-    * @return
-    */
    protected Pair<String, Set<Role>> parseSecurityRoles(final Node node, final Map<String, Set<String>> roleMappings) {
       final String match = node.getAttributes().getNamedItem("match").getNodeValue();
 
@@ -1099,17 +1213,19 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       Pair<String, Set<Role>> securityMatch = new Pair<>(match, securityRoles);
 
-      ArrayList<String> send = new ArrayList<>();
-      ArrayList<String> consume = new ArrayList<>();
-      ArrayList<String> createDurableQueue = new ArrayList<>();
-      ArrayList<String> deleteDurableQueue = new ArrayList<>();
-      ArrayList<String> createNonDurableQueue = new ArrayList<>();
-      ArrayList<String> deleteNonDurableQueue = new ArrayList<>();
-      ArrayList<String> manageRoles = new ArrayList<>();
-      ArrayList<String> browseRoles = new ArrayList<>();
-      ArrayList<String> createAddressRoles = new ArrayList<>();
-      ArrayList<String> deleteAddressRoles = new ArrayList<>();
-      ArrayList<String> allRoles = new ArrayList<>();
+      List<String> send = new ArrayList<>();
+      List<String> consume = new ArrayList<>();
+      List<String> createDurableQueue = new ArrayList<>();
+      List<String> deleteDurableQueue = new ArrayList<>();
+      List<String> createNonDurableQueue = new ArrayList<>();
+      List<String> deleteNonDurableQueue = new ArrayList<>();
+      List<String> manageRoles = new ArrayList<>();
+      List<String> browseRoles = new ArrayList<>();
+      List<String> createAddressRoles = new ArrayList<>();
+      List<String> deleteAddressRoles = new ArrayList<>();
+      List<String> viewRoles = new ArrayList<>();
+      List<String> editRoles = new ArrayList<>();
+      List<String> allRoles = new ArrayList<>();
       NodeList children = node.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
          Node child = children.item(i);
@@ -1121,30 +1237,34 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             String[] mappedRoles = getMappedRoleNames(roles, roleMappings);
 
             for (String role : mappedRoles) {
-               if (SEND_NAME.equals(type)) {
+               if (SEND_PERMISSION.equals(type)) {
                   send.add(role.trim());
-               } else if (CONSUME_NAME.equals(type)) {
+               } else if (CONSUME_PERMISSION.equals(type)) {
                   consume.add(role.trim());
-               } else if (CREATEDURABLEQUEUE_NAME.equals(type)) {
+               } else if (CREATE_DURABLE_QUEUE_PERMISSION.equals(type)) {
                   createDurableQueue.add(role.trim());
-               } else if (DELETEDURABLEQUEUE_NAME.equals(type)) {
+               } else if (DELETE_DURABLE_QUEUE_PERMISSION.equals(type)) {
                   deleteDurableQueue.add(role.trim());
-               } else if (CREATE_NON_DURABLE_QUEUE_NAME.equals(type)) {
+               } else if (CREATE_NONDURABLE_QUEUE_PERMISSION.equals(type)) {
                   createNonDurableQueue.add(role.trim());
-               } else if (DELETE_NON_DURABLE_QUEUE_NAME.equals(type)) {
+               } else if (DELETE_NONDURABLE_QUEUE_PERMISSION.equals(type)) {
                   deleteNonDurableQueue.add(role.trim());
                } else if (CREATETEMPQUEUE_NAME.equals(type)) {
                   createNonDurableQueue.add(role.trim());
                } else if (DELETETEMPQUEUE_NAME.equals(type)) {
                   deleteNonDurableQueue.add(role.trim());
-               } else if (MANAGE_NAME.equals(type)) {
+               } else if (MANAGE_PERMISSION.equals(type)) {
                   manageRoles.add(role.trim());
-               } else if (BROWSE_NAME.equals(type)) {
+               } else if (BROWSE_PERMISSION.equals(type)) {
                   browseRoles.add(role.trim());
-               } else if (CREATEADDRESS_NAME.equals(type)) {
+               } else if (CREATE_ADDRESS_PERMISSION.equals(type)) {
                   createAddressRoles.add(role.trim());
-               } else if (DELETEADDRESS_NAME.equals(type)) {
+               } else if (DELETE_ADDRESS_PERMISSION.equals(type)) {
                   deleteAddressRoles.add(role.trim());
+               } else if (VIEW_PERMISSION.equals(type)) {
+                  viewRoles.add(role.trim());
+               } else if (EDIT_PERMISSION.equals(type)) {
+                  editRoles.add(role.trim());
                } else {
                   ActiveMQServerLogger.LOGGER.rolePermissionConfigurationError(type);
                }
@@ -1156,7 +1276,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       for (String role : allRoles) {
-         securityRoles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role), browseRoles.contains(role), createAddressRoles.contains(role), deleteAddressRoles.contains(role)));
+         securityRoles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role), browseRoles.contains(role), createAddressRoles.contains(role), deleteAddressRoles.contains(role), viewRoles.contains(role), editRoles.contains(role)));
       }
 
       return securityMatch;
@@ -1164,7 +1284,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    /**
     * Translate and expand a set of role names to a set of mapped role names, also includes the original role names
-    * @param roles the original set of role names
+    *
+    * @param roles        the original set of role names
     * @param roleMappings a one-to-many mapping of original role names to mapped role names
     * @return the final set of mapped role names
     */
@@ -1196,25 +1317,25 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      SecuritySettingPlugin securitySettingPlugin = AccessController.doPrivileged(new PrivilegedAction<SecuritySettingPlugin>() {
-         @Override
-         public SecuritySettingPlugin run() {
-            return (SecuritySettingPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz);
-         }
-      });
+      SecuritySettingPlugin securitySettingPlugin = SecurityManagerShim.doPrivileged((PrivilegedAction<SecuritySettingPlugin>) () -> (SecuritySettingPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, SecuritySettingPlugin.class));
 
       return new Pair<>(securitySettingPlugin, settings);
    }
 
    /**
-    * Computes the map of internal ActiveMQ role names to sets of external (e.g. LDAP) role names.  For example, given a role
-    * "myrole" with a DN of "cn=myrole,dc=local,dc=com":
+    * Computes the map of internal ActiveMQ role names to sets of external (e.g. LDAP) role names.  For example, given a
+    * role "myrole" with a DN of "cn=myrole,dc=local,dc=com":
+    * <pre>{@code
     *      from="cn=myrole,dc=local,dc=com", to="amq,admin,guest"
     *      from="cn=myOtherRole,dc=local,dc=com", to="amq"
+    * }</pre>
     * The resulting map will consist of:
+    * <pre>{@code
     *      amq => {"cn=myrole,dc=local,dc=com","cn=myOtherRole",dc=local,dc=com"}
     *      admin => {"cn=myrole,dc=local,dc=com"}
     *      guest => {"cn=myrole,dc=local,dc=com"}
+    * }</pre>
+    *
     * @param item the role-mapping node
     * @return the map of local ActiveMQ role names to the set of mapped role names
     */
@@ -1230,7 +1351,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          } else {
             Set<String> externalRoleNames = new HashSet<>();
             externalRoleNames.add(externalRoleName);
-            if ((internalRoleName.length() > 0) && (externalRoleName.length() > 0)) {
+            if ((!internalRoleName.isEmpty()) && (!externalRoleName.isEmpty())) {
                mappedRoleNames.put(internalRoleName, externalRoleNames);
             }
          }
@@ -1238,10 +1359,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return mappedRoleNames;
    }
 
-   /**
-    * @param node
-    * @return
-    */
    protected Pair<String, AddressSettings> parseAddressSettings(final Node node) {
       String match = getAttributeValue(node, "match");
 
@@ -1255,25 +1372,25 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          final Node child = children.item(i);
          final String name = child.getNodeName();
          if (DEAD_LETTER_ADDRESS_NODE_NAME.equalsIgnoreCase(name)) {
-            SimpleString queueName = new SimpleString(getTrimmedTextContent(child));
-            addressSettings.setDeadLetterAddress(queueName);
+            addressSettings.setDeadLetterAddress(SimpleString.of(getTrimmedTextContent(child)));
          } else if (EXPIRY_ADDRESS_NODE_NAME.equalsIgnoreCase(name)) {
-            SimpleString queueName = new SimpleString(getTrimmedTextContent(child));
-            addressSettings.setExpiryAddress(queueName);
+            addressSettings.setExpiryAddress(SimpleString.of(getTrimmedTextContent(child)));
          } else if (EXPIRY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setExpiryDelay(XMLUtil.parseLong(child));
          } else if (MIN_EXPIRY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMinExpiryDelay(XMLUtil.parseLong(child));
          } else if (MAX_EXPIRY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxExpiryDelay(XMLUtil.parseLong(child));
+         } else if (NO_EXPIRY_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setNoExpiry(XMLUtil.parseBoolean(child));
          } else if (REDELIVERY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setRedeliveryDelay(XMLUtil.parseLong(child));
          } else if (REDELIVERY_DELAY_MULTIPLIER_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setRedeliveryMultiplier(XMLUtil.parseDouble(child));
          } else if (REDELIVERY_COLLISION_AVOIDANCE_FACTOR_NODE_NAME.equalsIgnoreCase(name)) {
             double redeliveryCollisionAvoidanceFactor = XMLUtil.parseDouble(child);
-            Validators.GE_ZERO.validate(REDELIVERY_COLLISION_AVOIDANCE_FACTOR_NODE_NAME, redeliveryCollisionAvoidanceFactor);
-            Validators.LE_ONE.validate(REDELIVERY_COLLISION_AVOIDANCE_FACTOR_NODE_NAME, redeliveryCollisionAvoidanceFactor);
+            GE_ZERO.validate(REDELIVERY_COLLISION_AVOIDANCE_FACTOR_NODE_NAME, redeliveryCollisionAvoidanceFactor);
+            LE_ONE.validate(REDELIVERY_COLLISION_AVOIDANCE_FACTOR_NODE_NAME, redeliveryCollisionAvoidanceFactor);
             addressSettings.setRedeliveryCollisionAvoidanceFactor(redeliveryCollisionAvoidanceFactor);
          } else if (MAX_REDELIVERY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxRedeliveryDelay(XMLUtil.parseLong(child));
@@ -1284,17 +1401,15 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          } else if (MAX_SIZE_BYTES_REJECT_THRESHOLD_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxSizeBytesRejectThreshold(ByteUtil.convertTextBytes(getTrimmedTextContent(child)));
          } else if (PAGE_SIZE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
-            long pageSizeLong = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
-            Validators.POSITIVE_INT.validate(PAGE_SIZE_BYTES_NODE_NAME, pageSizeLong);
-            addressSettings.setPageSizeBytes((int) pageSizeLong);
-         }  else if (MAX_READ_PAGE_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
-            long maxReadPageMessages = Long.parseLong(getTrimmedTextContent(child));
-            Validators.MINUS_ONE_OR_POSITIVE_INT.validate(MAX_READ_PAGE_MESSAGES_NODE_NAME, maxReadPageMessages);
-            addressSettings.setMaxReadPageMessages((int)maxReadPageMessages);
-         }  else if (MAX_READ_PAGE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
-            long maxReadPageBytes = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
-            Validators.MINUS_ONE_OR_POSITIVE_INT.validate(MAX_READ_PAGE_BYTES_NODE_NAME, maxReadPageBytes);
-            addressSettings.setMaxReadPageBytes((int)maxReadPageBytes);
+            addressSettings.setPageSizeBytes(POSITIVE_INT.validate(PAGE_SIZE_BYTES_NODE_NAME, ByteUtil.convertTextBytes(getTrimmedTextContent(child))).intValue());
+         } else if (MAX_READ_PAGE_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setMaxReadPageMessages(MINUS_ONE_OR_POSITIVE_INT.validate(MAX_READ_PAGE_MESSAGES_NODE_NAME, Long.parseLong(getTrimmedTextContent(child))).intValue());
+         } else if (MAX_READ_PAGE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setMaxReadPageBytes(MINUS_ONE_OR_POSITIVE_INT.validate(MAX_READ_PAGE_BYTES_NODE_NAME, ByteUtil.convertTextBytes(getTrimmedTextContent(child))).intValue());
+         } else if (PREFETCH_PAGE_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setPrefetchPageMessages(MINUS_ONE_OR_POSITIVE_INT.validate(PREFETCH_PAGE_MESSAGES_NODE_NAME, Long.parseLong(getTrimmedTextContent(child))).intValue());
+         } else if (PREFETCH_PAGE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setPrefetchPageBytes(MINUS_ONE_OR_POSITIVE_INT.validate(PREFETCH_PAGE_BYTES_NODE_NAME, ByteUtil.convertTextBytes(getTrimmedTextContent(child))).intValue());
          } else if (PAGE_MAX_CACHE_SIZE_NODE_NAME.equalsIgnoreCase(name)) {
             if (!printPageMaxSizeUsed) {
                printPageMaxSizeUsed = true;
@@ -1302,29 +1417,21 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             }
             addressSettings.setPageCacheMaxSize(XMLUtil.parseInt(child));
          } else if (PAGE_LIMIT_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
-            long pageLimitBytes = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
-            Validators.MINUS_ONE_OR_GT_ZERO.validate(PAGE_LIMIT_BYTES_NODE_NAME, pageLimitBytes);
-            addressSettings.setPageLimitBytes(pageLimitBytes);
+            addressSettings.setPageLimitBytes(MINUS_ONE_OR_GT_ZERO.validate(PAGE_LIMIT_BYTES_NODE_NAME, ByteUtil.convertTextBytes(getTrimmedTextContent(child))).longValue());
          } else if (PAGE_LIMIT_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
-            long pageLimitMessages = XMLUtil.parseLong(child);
-            Validators.MINUS_ONE_OR_GT_ZERO.validate(PAGE_LIMIT_MESSAGES_NODE_NAME, pageLimitMessages);
-            addressSettings.setPageLimitMessages(pageLimitMessages);
+            addressSettings.setPageLimitMessages(MINUS_ONE_OR_GT_ZERO.validate(PAGE_LIMIT_MESSAGES_NODE_NAME, XMLUtil.parseLong(child)).longValue());
          } else if (MESSAGE_COUNTER_HISTORY_DAY_LIMIT_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMessageCounterHistoryDayLimit(XMLUtil.parseInt(child));
          } else if (ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
-            String value = getTrimmedTextContent(child);
-            Validators.ADDRESS_FULL_MESSAGE_POLICY_TYPE.validate(ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME, value);
-            AddressFullMessagePolicy policy = Enum.valueOf(AddressFullMessagePolicy.class, value);
-            addressSettings.setAddressFullMessagePolicy(policy);
+            addressSettings.setAddressFullMessagePolicy(Enum.valueOf(AddressFullMessagePolicy.class, ADDRESS_FULL_MESSAGE_POLICY_TYPE.validate(ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME, getTrimmedTextContent(child))));
+         } else if (DISK_FULL_MESSAGE_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setDiskFullMessagePolicy(Enum.valueOf(DiskFullMessagePolicy.class, DISK_FULL_MESSAGE_POLICY_TYPE.validate(DISK_FULL_MESSAGE_POLICY_NODE_NAME, getTrimmedTextContent(child))));
          } else if (PAGE_FULL_MESSAGE_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
-            String value = getTrimmedTextContent(child);
-            Validators.PAGE_FULL_MESSAGE_POLICY_TYPE.validate(PAGE_FULL_MESSAGE_POLICY_NODE_NAME, value);
-            PageFullMessagePolicy policy = Enum.valueOf(PageFullMessagePolicy.class, value);
-            addressSettings.setPageFullMessagePolicy(policy);
+            addressSettings.setPageFullMessagePolicy(Enum.valueOf(PageFullMessagePolicy.class, PAGE_FULL_MESSAGE_POLICY_TYPE.validate(PAGE_FULL_MESSAGE_POLICY_NODE_NAME, getTrimmedTextContent(child))));
          } else if (LVQ_NODE_NAME.equalsIgnoreCase(name) || DEFAULT_LVQ_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setDefaultLastValueQueue(XMLUtil.parseBoolean(child));
          } else if (DEFAULT_LVQ_KEY_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setDefaultLastValueKey(SimpleString.toSimpleString(getTrimmedTextContent(child)));
+            addressSettings.setDefaultLastValueKey(SimpleString.of(getTrimmedTextContent(child)));
          } else if (DEFAULT_NON_DESTRUCTIVE_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setDefaultNonDestructive(XMLUtil.parseBoolean(child));
          } else if (DEFAULT_EXCLUSIVE_NODE_NAME.equalsIgnoreCase(name)) {
@@ -1336,7 +1443,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          } else if (DEFAULT_GROUP_BUCKETS.equalsIgnoreCase(name)) {
             addressSettings.setDefaultGroupBuckets(XMLUtil.parseInt(child));
          } else if (DEFAULT_GROUP_FIRST_KEY.equalsIgnoreCase(name)) {
-            addressSettings.setDefaultGroupFirstKey(SimpleString.toSimpleString(getTrimmedTextContent(child)));
+            addressSettings.setDefaultGroupFirstKey(SimpleString.of(getTrimmedTextContent(child)));
          } else if (MAX_DELIVERY_ATTEMPTS.equalsIgnoreCase(name)) {
             addressSettings.setMaxDeliveryAttempts(XMLUtil.parseInt(child));
          } else if (REDISTRIBUTION_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
@@ -1344,25 +1451,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          } else if (SEND_TO_DLA_ON_NO_ROUTE.equalsIgnoreCase(name)) {
             addressSettings.setSendToDLAOnNoRoute(XMLUtil.parseBoolean(child));
          } else if (SLOW_CONSUMER_THRESHOLD_NODE_NAME.equalsIgnoreCase(name)) {
-            long slowConsumerThreshold = XMLUtil.parseLong(child);
-            Validators.MINUS_ONE_OR_GT_ZERO.validate(SLOW_CONSUMER_THRESHOLD_NODE_NAME, slowConsumerThreshold);
-
-            addressSettings.setSlowConsumerThreshold(slowConsumerThreshold);
+            addressSettings.setSlowConsumerThreshold(MINUS_ONE_OR_GT_ZERO.validate(SLOW_CONSUMER_THRESHOLD_NODE_NAME, XMLUtil.parseLong(child)).longValue());
          } else if (SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT_NODE_NAME.equalsIgnoreCase(name)) {
-            String slowConsumerThresholdMeasurementUnit = getTrimmedTextContent(child);
-            Validators.SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT.validate(SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT_NODE_NAME, slowConsumerThresholdMeasurementUnit);
-
-            addressSettings.setSlowConsumerThresholdMeasurementUnit(SlowConsumerThresholdMeasurementUnit.valueOf(slowConsumerThresholdMeasurementUnit));
+            addressSettings.setSlowConsumerThresholdMeasurementUnit(SlowConsumerThresholdMeasurementUnit.valueOf(SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT.validate(SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT_NODE_NAME, getTrimmedTextContent(child))));
          } else if (SLOW_CONSUMER_CHECK_PERIOD_NODE_NAME.equalsIgnoreCase(name)) {
-            long slowConsumerCheckPeriod = XMLUtil.parseLong(child);
-            Validators.GT_ZERO.validate(SLOW_CONSUMER_CHECK_PERIOD_NODE_NAME, slowConsumerCheckPeriod);
-
-            addressSettings.setSlowConsumerCheckPeriod(slowConsumerCheckPeriod);
+            addressSettings.setSlowConsumerCheckPeriod(GT_ZERO.validate(SLOW_CONSUMER_CHECK_PERIOD_NODE_NAME, XMLUtil.parseLong(child)).longValue());
          } else if (SLOW_CONSUMER_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
-            String value = getTrimmedTextContent(child);
-            Validators.SLOW_CONSUMER_POLICY_TYPE.validate(SLOW_CONSUMER_POLICY_NODE_NAME, value);
-            SlowConsumerPolicy policy = Enum.valueOf(SlowConsumerPolicy.class, value);
-            addressSettings.setSlowConsumerPolicy(policy);
+            addressSettings.setSlowConsumerPolicy(Enum.valueOf(SlowConsumerPolicy.class, SLOW_CONSUMER_POLICY_TYPE.validate(SLOW_CONSUMER_POLICY_NODE_NAME, getTrimmedTextContent(child))));
          } else if (AUTO_CREATE_JMS_QUEUES.equalsIgnoreCase(name)) {
             addressSettings.setAutoCreateJmsQueues(XMLUtil.parseBoolean(child));
          } else if (AUTO_DELETE_JMS_QUEUES.equalsIgnoreCase(name)) {
@@ -1378,40 +1473,25 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          } else if (AUTO_DELETE_CREATED_QUEUES.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteCreatedQueues(XMLUtil.parseBoolean(child));
          } else if (AUTO_DELETE_QUEUES_DELAY.equalsIgnoreCase(name)) {
-            long autoDeleteQueuesDelay = XMLUtil.parseLong(child);
-            Validators.GE_ZERO.validate(AUTO_DELETE_QUEUES_DELAY, autoDeleteQueuesDelay);
-            addressSettings.setAutoDeleteQueuesDelay(autoDeleteQueuesDelay);
+            addressSettings.setAutoDeleteQueuesDelay(GE_ZERO.validate(AUTO_DELETE_QUEUES_DELAY, XMLUtil.parseLong(child)).longValue());
          } else if (AUTO_DELETE_QUEUES_MESSAGE_COUNT.equalsIgnoreCase(name)) {
-            long autoDeleteQueuesMessageCount = XMLUtil.parseLong(child);
-            Validators.MINUS_ONE_OR_GE_ZERO.validate(AUTO_DELETE_QUEUES_MESSAGE_COUNT, autoDeleteQueuesMessageCount);
-            addressSettings.setAutoDeleteQueuesMessageCount(autoDeleteQueuesMessageCount);
-         }  else if (AUTO_DELETE_QUEUES_SKIP_USAGE_CHECK.equalsIgnoreCase(name)) {
+            addressSettings.setAutoDeleteQueuesMessageCount((Long) MINUS_ONE_OR_GE_ZERO.validate(AUTO_DELETE_QUEUES_MESSAGE_COUNT, XMLUtil.parseLong(child)));
+         } else if (AUTO_DELETE_QUEUES_SKIP_USAGE_CHECK.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteQueuesSkipUsageCheck(XMLUtil.parseBoolean(child));
          } else if (CONFIG_DELETE_QUEUES.equalsIgnoreCase(name)) {
-            String value = getTrimmedTextContent(child);
-            Validators.DELETION_POLICY_TYPE.validate(CONFIG_DELETE_QUEUES, value);
-            DeletionPolicy policy = Enum.valueOf(DeletionPolicy.class, value);
-            addressSettings.setConfigDeleteQueues(policy);
+            addressSettings.setConfigDeleteQueues(Enum.valueOf(DeletionPolicy.class, DELETION_POLICY_TYPE.validate(CONFIG_DELETE_QUEUES, getTrimmedTextContent(child))));
          } else if (AUTO_CREATE_ADDRESSES.equalsIgnoreCase(name)) {
             addressSettings.setAutoCreateAddresses(XMLUtil.parseBoolean(child));
          } else if (AUTO_DELETE_ADDRESSES.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteAddresses(XMLUtil.parseBoolean(child));
          } else if (AUTO_DELETE_ADDRESSES_DELAY.equalsIgnoreCase(name)) {
-            long autoDeleteAddressesDelay = XMLUtil.parseLong(child);
-            Validators.GE_ZERO.validate(AUTO_DELETE_ADDRESSES_DELAY, autoDeleteAddressesDelay);
-            addressSettings.setAutoDeleteAddressesDelay(autoDeleteAddressesDelay);
+            addressSettings.setAutoDeleteAddressesDelay(GE_ZERO.validate(AUTO_DELETE_ADDRESSES_DELAY, XMLUtil.parseLong(child)).longValue());
          } else if (AUTO_DELETE_ADDRESSES_SKIP_USAGE_CHECK.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteAddressesSkipUsageCheck(XMLUtil.parseBoolean(child));
          } else if (CONFIG_DELETE_ADDRESSES.equalsIgnoreCase(name)) {
-            String value = getTrimmedTextContent(child);
-            Validators.DELETION_POLICY_TYPE.validate(CONFIG_DELETE_ADDRESSES, value);
-            DeletionPolicy policy = Enum.valueOf(DeletionPolicy.class, value);
-            addressSettings.setConfigDeleteAddresses(policy);
+            addressSettings.setConfigDeleteAddresses(Enum.valueOf(DeletionPolicy.class, DELETION_POLICY_TYPE.validate(CONFIG_DELETE_ADDRESSES, getTrimmedTextContent(child))));
          } else if (CONFIG_DELETE_DIVERTS.equalsIgnoreCase(name)) {
-            String value = getTrimmedTextContent(child);
-            Validators.DELETION_POLICY_TYPE.validate(CONFIG_DELETE_DIVERTS, value);
-            DeletionPolicy policy = Enum.valueOf(DeletionPolicy.class, value);
-            addressSettings.setConfigDeleteDiverts(policy);
+            addressSettings.setConfigDeleteDiverts(Enum.valueOf(DeletionPolicy.class, DELETION_POLICY_TYPE.validate(CONFIG_DELETE_DIVERTS, getTrimmedTextContent(child))));
          } else if (MANAGEMENT_BROWSE_PAGE_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setManagementBrowsePageSize(XMLUtil.parseInt(child));
          } else if (MANAGEMENT_MESSAGE_ATTRIBUTE_SIZE_LIMIT.equalsIgnoreCase(name)) {
@@ -1425,56 +1505,44 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          } else if (DEFAULT_DELAY_BEFORE_DISPATCH.equalsIgnoreCase(name)) {
             addressSettings.setDefaultDelayBeforeDispatch(XMLUtil.parseLong(child));
          } else if (DEFAULT_QUEUE_ROUTING_TYPE.equalsIgnoreCase(name)) {
-            String value = getTrimmedTextContent(child);
-            Validators.ROUTING_TYPE.validate(DEFAULT_QUEUE_ROUTING_TYPE, value);
-            RoutingType routingType = RoutingType.valueOf(value);
-            addressSettings.setDefaultQueueRoutingType(routingType);
+            addressSettings.setDefaultQueueRoutingType(RoutingType.valueOf(ROUTING_TYPE.validate(DEFAULT_QUEUE_ROUTING_TYPE, getTrimmedTextContent(child))));
          } else if (DEFAULT_ADDRESS_ROUTING_TYPE.equalsIgnoreCase(name)) {
-            String value = getTrimmedTextContent(child);
-            Validators.ROUTING_TYPE.validate(DEFAULT_ADDRESS_ROUTING_TYPE, value);
-            RoutingType routingType = RoutingType.valueOf(value);
-            addressSettings.setDefaultAddressRoutingType(routingType);
+            addressSettings.setDefaultAddressRoutingType(RoutingType.valueOf(ROUTING_TYPE.validate(DEFAULT_ADDRESS_ROUTING_TYPE, getTrimmedTextContent(child))));
          } else if (DEFAULT_CONSUMER_WINDOW_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setDefaultConsumerWindowSize(XMLUtil.parseInt(child));
          } else if (DEFAULT_RING_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setDefaultRingSize(XMLUtil.parseLong(child));
          } else if (RETROACTIVE_MESSAGE_COUNT.equalsIgnoreCase(name)) {
-            long retroactiveMessageCount = XMLUtil.parseLong(child);
-            Validators.GE_ZERO.validate(RETROACTIVE_MESSAGE_COUNT, retroactiveMessageCount);
-            addressSettings.setRetroactiveMessageCount(retroactiveMessageCount);
+            addressSettings.setRetroactiveMessageCount(GE_ZERO.validate(RETROACTIVE_MESSAGE_COUNT, XMLUtil.parseLong(child)).longValue());
          } else if (AUTO_CREATE_DEAD_LETTER_RESOURCES_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setAutoCreateDeadLetterResources(XMLUtil.parseBoolean(child));
          } else if (DEAD_LETTER_QUEUE_PREFIX_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setDeadLetterQueuePrefix(new SimpleString(getTrimmedTextContent(child)));
+            addressSettings.setDeadLetterQueuePrefix(SimpleString.of(getTrimmedTextContent(child)));
          } else if (DEAD_LETTER_QUEUE_SUFFIX_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setDeadLetterQueueSuffix(new SimpleString(getTrimmedTextContent(child)));
+            addressSettings.setDeadLetterQueueSuffix(SimpleString.of(getTrimmedTextContent(child)));
          } else if (AUTO_CREATE_EXPIRY_RESOURCES_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setAutoCreateExpiryResources(XMLUtil.parseBoolean(child));
          } else if (EXPIRY_QUEUE_PREFIX_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setExpiryQueuePrefix(new SimpleString(getTrimmedTextContent(child)));
+            addressSettings.setExpiryQueuePrefix(SimpleString.of(getTrimmedTextContent(child)));
          } else if (EXPIRY_QUEUE_SUFFIX_NODE_NAME.equalsIgnoreCase(name)) {
-            addressSettings.setExpiryQueueSuffix(new SimpleString(getTrimmedTextContent(child)));
+            addressSettings.setExpiryQueueSuffix(SimpleString.of(getTrimmedTextContent(child)));
          } else if (ENABLE_METRICS.equalsIgnoreCase(name)) {
             addressSettings.setEnableMetrics(XMLUtil.parseBoolean(child));
          } else if (ENABLE_INGRESS_TIMESTAMP.equalsIgnoreCase(name)) {
             addressSettings.setEnableIngressTimestamp(XMLUtil.parseBoolean(child));
          } else if (ID_CACHE_SIZE.equalsIgnoreCase(name)) {
-            int idCacheSize = XMLUtil.parseInt(child);
-            Validators.GE_ZERO.validate(ID_CACHE_SIZE, idCacheSize);
-            addressSettings.setIDCacheSize(XMLUtil.parseInt(child));
+            addressSettings.setIDCacheSize(GE_ZERO.validate(ID_CACHE_SIZE, XMLUtil.parseInt(child)).intValue());
+         } else if (INITIAL_QUEUE_BUFFER_SIZE.equalsIgnoreCase(name)) {
+            addressSettings.setInitialQueueBufferSize(POSITIVE_POWER_OF_TWO.validate(INITIAL_QUEUE_BUFFER_SIZE, XMLUtil.parseInt(child)).intValue());
          }
       }
       return setting;
    }
 
-   /**
-    * @param node
-    * @return
-    */
    protected ResourceLimitSettings parseResourceLimitSettings(final Node node) {
       ResourceLimitSettings resourceLimitSettings = new ResourceLimitSettings();
 
-      resourceLimitSettings.setMatch(SimpleString.toSimpleString(getAttributeValue(node, "match")));
+      resourceLimitSettings.setMatch(SimpleString.of(getAttributeValue(node, "match")));
 
       NodeList children = node.getChildNodes();
 
@@ -1515,8 +1583,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       for (int i = 0; i < attributes.getLength(); i++) {
          Node item = attributes.item(i);
          if (item.getNodeName().equals("max-consumers")) {
-            maxConsumers = Integer.parseInt(item.getNodeValue());
-            Validators.MAX_QUEUE_CONSUMERS.validate(name, maxConsumers);
+            maxConsumers = MAX_QUEUE_CONSUMERS.validate(name, Integer.parseInt(item.getNodeValue()));
          } else if (item.getNodeName().equals("purge-on-no-consumers")) {
             purgeOnNoConsumers = Boolean.parseBoolean(item.getNodeValue());
          } else if (item.getNodeName().equals("exclusive")) {
@@ -1561,7 +1628,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      return new QueueConfiguration(name)
+      return QueueConfiguration.of(name)
               .setAddress(address)
               .setFilterString(filterString)
               .setDurable(durable)
@@ -1616,13 +1683,21 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                                                                       final Configuration mainConfig) throws Exception {
       Node nameNode = e.getAttributes().getNamedItem("name");
 
+      String lockCoordinator = e.getAttribute("lock-coordinator");
+
+
       String name = nameNode != null ? nameNode.getNodeValue() : null;
 
       String uri = e.getChildNodes().item(0).getNodeValue();
 
       List<TransportConfiguration> configurations = ConfigurationUtils.parseAcceptorURI(name, uri);
+      TransportConfiguration transportConfiguration = configurations.get(0);
 
       Map<String, Object> params = configurations.get(0).getParams();
+
+      if (lockCoordinator != null) {
+         transportConfiguration.setLockCoordinator(lockCoordinator);
+      }
 
       if (mainConfig.isMaskPassword() != null) {
          params.put(ActiveMQDefaultConfiguration.getPropMaskPassword(), mainConfig.isMaskPassword());
@@ -1658,15 +1733,16 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return configurations.get(0);
    }
 
-   private static final ArrayList<String> HA_LIST = new ArrayList<>();
+   private static final List<String> HA_LIST = new ArrayList<>();
 
    static {
       HA_LIST.add("live-only");
+      HA_LIST.add("primary-only");
       HA_LIST.add("shared-store");
       HA_LIST.add("replication");
    }
 
-   private static final ArrayList<String> STORE_TYPE_LIST = new ArrayList<>();
+   private static final List<String> STORE_TYPE_LIST = new ArrayList<>();
 
    static {
       STORE_TYPE_LIST.add("database-store");
@@ -1693,171 +1769,168 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          if (haNodeList.getLength() > 0) {
             Element haNode = (Element) haNodeList.item(0);
             if (haNode.getTagName().equals("replication")) {
-               NodeList masterNodeList = e.getElementsByTagName("master");
-               if (masterNodeList.getLength() > 0) {
-                  Element masterNode = (Element) masterNodeList.item(0);
-                  mainConfig.setHAPolicyConfiguration(createReplicatedHaPolicy(masterNode));
-               }
-               NodeList slaveNodeList = e.getElementsByTagName("slave");
-               if (slaveNodeList.getLength() > 0) {
-                  Element slaveNode = (Element) slaveNodeList.item(0);
-                  mainConfig.setHAPolicyConfiguration(createReplicaHaPolicy(slaveNode));
-               }
+               // check for "colocated" first because it will contain primary/master & backup/slave elements of its own
                NodeList colocatedNodeList = e.getElementsByTagName("colocated");
                if (colocatedNodeList.getLength() > 0) {
                   Element colocatedNode = (Element) colocatedNodeList.item(0);
                   mainConfig.setHAPolicyConfiguration(createColocatedHaPolicy(colocatedNode, true));
+                  return;
                }
-               NodeList primaryNodeList = e.getElementsByTagName("primary");
+               NodeList primaryNodeList = e.getElementsByTagName("master");
+               if (primaryNodeList.getLength() > 0) {
+                  ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("master", "primary");
+                  mainConfig.setHAPolicyConfiguration(createReplicationPrimaryHaPolicy((Element) primaryNodeList.item(0)));
+                  return;
+               }
+               NodeList backupNodeList = e.getElementsByTagName("slave");
+               if (backupNodeList.getLength() > 0) {
+                  ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("slave", "backup");
+                  mainConfig.setHAPolicyConfiguration(createReplicationBackupHaPolicy((Element) backupNodeList.item(0)));
+                  return;
+               }
+               primaryNodeList = e.getElementsByTagName("primary");
                if (primaryNodeList.getLength() > 0) {
                   Element primaryNode = (Element) primaryNodeList.item(0);
-                  mainConfig.setHAPolicyConfiguration(createReplicationPrimaryHaPolicy(primaryNode, mainConfig));
+                  if (primaryNode.getElementsByTagName("manager").item(0) != null) {
+                     mainConfig.setHAPolicyConfiguration(createPluggableReplicationPrimaryHaPolicy(primaryNode));
+                     return;
+                  } else {
+                     mainConfig.setHAPolicyConfiguration(createReplicationPrimaryHaPolicy(primaryNode));
+                     return;
+                  }
                }
-               NodeList backupNodeList = e.getElementsByTagName("backup");
+               backupNodeList = e.getElementsByTagName("backup");
                if (backupNodeList.getLength() > 0) {
                   Element backupNode = (Element) backupNodeList.item(0);
-                  mainConfig.setHAPolicyConfiguration(createReplicationBackupHaPolicy(backupNode, mainConfig));
+                  if (backupNode.getElementsByTagName("manager").item(0) != null) {
+                     mainConfig.setHAPolicyConfiguration(createPluggableReplicationBackupHaPolicy(backupNode));
+                     return;
+                  } else {
+                     mainConfig.setHAPolicyConfiguration(createReplicationBackupHaPolicy(backupNode));
+                     return;
+                  }
                }
             } else if (haNode.getTagName().equals("shared-store")) {
-               NodeList masterNodeList = e.getElementsByTagName("master");
-               if (masterNodeList.getLength() > 0) {
-                  Element masterNode = (Element) masterNodeList.item(0);
-                  mainConfig.setHAPolicyConfiguration(createSharedStoreMasterHaPolicy(masterNode));
-               }
-               NodeList slaveNodeList = e.getElementsByTagName("slave");
-               if (slaveNodeList.getLength() > 0) {
-                  Element slaveNode = (Element) slaveNodeList.item(0);
-                  mainConfig.setHAPolicyConfiguration(createSharedStoreSlaveHaPolicy(slaveNode));
-               }
+               // check for "colocated" first because it will contain primary/master & backup/slave elements of its own
                NodeList colocatedNodeList = e.getElementsByTagName("colocated");
                if (colocatedNodeList.getLength() > 0) {
                   Element colocatedNode = (Element) colocatedNodeList.item(0);
                   mainConfig.setHAPolicyConfiguration(createColocatedHaPolicy(colocatedNode, false));
+                  return;
+               }
+               NodeList primaryNodeList = e.getElementsByTagName("master");
+               if (primaryNodeList.getLength() > 0) {
+                  ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("master", "primary");
+                  mainConfig.setHAPolicyConfiguration(createSharedStorePrimaryHaPolicy((Element) primaryNodeList.item(0)));
+                  return;
+               }
+               NodeList backupNodeList = e.getElementsByTagName("slave");
+               if (backupNodeList.getLength() > 0) {
+                  ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("slave", "backup");
+                  mainConfig.setHAPolicyConfiguration(createSharedStoreBackupHaPolicy((Element) backupNodeList.item(0)));
+                  return;
+               }
+               primaryNodeList = e.getElementsByTagName("primary");
+               if (primaryNodeList.getLength() > 0) {
+                  mainConfig.setHAPolicyConfiguration(createSharedStorePrimaryHaPolicy((Element) primaryNodeList.item(0)));
+                  return;
+               }
+               backupNodeList = e.getElementsByTagName("backup");
+               if (backupNodeList.getLength() > 0) {
+                  mainConfig.setHAPolicyConfiguration(createSharedStoreBackupHaPolicy((Element) backupNodeList.item(0)));
+                  return;
                }
             } else if (haNode.getTagName().equals("live-only")) {
                NodeList noneNodeList = e.getElementsByTagName("live-only");
                Element noneNode = (Element) noneNodeList.item(0);
-               mainConfig.setHAPolicyConfiguration(createLiveOnlyHaPolicy(noneNode));
+               mainConfig.setHAPolicyConfiguration(createPrimaryOnlyHaPolicy(noneNode));
+            } else if (haNode.getTagName().equals("primary-only")) {
+               NodeList noneNodeList = e.getElementsByTagName("primary-only");
+               Element noneNode = (Element) noneNodeList.item(0);
+               mainConfig.setHAPolicyConfiguration(createPrimaryOnlyHaPolicy(noneNode));
             }
          }
       }
    }
 
-   private LiveOnlyPolicyConfiguration createLiveOnlyHaPolicy(Element policyNode) {
-      LiveOnlyPolicyConfiguration configuration = new LiveOnlyPolicyConfiguration();
+   private PrimaryOnlyPolicyConfiguration createPrimaryOnlyHaPolicy(Element policyNode) {
+      PrimaryOnlyPolicyConfiguration configuration = new PrimaryOnlyPolicyConfiguration();
 
       configuration.setScaleDownConfiguration(parseScaleDownConfig(policyNode));
 
       return configuration;
    }
 
-   private ReplicatedPolicyConfiguration createReplicatedHaPolicy(Element policyNode) {
+   private ReplicatedPolicyConfiguration createReplicationPrimaryHaPolicy(Element policyNode) {
       ReplicatedPolicyConfiguration configuration = new ReplicatedPolicyConfiguration();
-
-      configuration.setQuorumVoteWait(getInteger(policyNode, "quorum-vote-wait", ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait(), Validators.GT_ZERO));
-
-      configuration.setCheckForLiveServer(getBoolean(policyNode, "check-for-live-server", configuration.isCheckForLiveServer()));
-
-      configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), Validators.NO_CHECK));
-
-      configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), Validators.NO_CHECK));
-
-      configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
-
-      configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), Validators.GT_ZERO));
-
+      configuration.setQuorumVoteWait(getInteger(policyNode, "quorum-vote-wait", ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait(), GT_ZERO));
+      final String checkForLiveServer = "check-for-live-server";
+      final String checkForActiveServer = "check-for-active-server";
+      if (policyNode.getElementsByTagName(checkForLiveServer).getLength() > 0) {
+         ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption(checkForLiveServer, checkForActiveServer);
+         configuration.setCheckForActiveServer(getBoolean(policyNode, checkForLiveServer, configuration.isCheckForActiveServer()));
+      } else {
+         configuration.setCheckForActiveServer(getBoolean(policyNode, checkForActiveServer, configuration.isCheckForActiveServer()));
+      }
+      configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), NO_CHECK));
+      configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), NO_CHECK));
+      configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), MINUS_ONE_OR_GE_ZERO));
+      configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), GT_ZERO));
       configuration.setVoteOnReplicationFailure(getBoolean(policyNode, "vote-on-replication-failure", configuration.getVoteOnReplicationFailure()));
-
-      configuration.setVoteRetries(getInteger(policyNode, "vote-retries", configuration.getVoteRetries(), Validators.MINUS_ONE_OR_GE_ZERO));
-
-      configuration.setVoteRetryWait(getLong(policyNode, "vote-retry-wait", configuration.getVoteRetryWait(), Validators.GT_ZERO));
-
-      configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getVoteRetryWait(), Validators.GT_ZERO));
-
-      configuration.setQuorumSize(getInteger(policyNode, "quorum-size", configuration.getQuorumSize(), Validators.MINUS_ONE_OR_GT_ZERO));
-
+      configuration.setVoteRetries(getInteger(policyNode, "vote-retries", configuration.getVoteRetries(), MINUS_ONE_OR_GE_ZERO));
+      configuration.setVoteRetryWait(getLong(policyNode, "vote-retry-wait", configuration.getVoteRetryWait(), GT_ZERO));
+      configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getVoteRetryWait(), GT_ZERO));
+      configuration.setQuorumSize(getInteger(policyNode, "quorum-size", configuration.getQuorumSize(), MINUS_ONE_OR_GT_ZERO));
       return configuration;
    }
 
-   private ReplicaPolicyConfiguration createReplicaHaPolicy(Element policyNode) {
-
+   private ReplicaPolicyConfiguration createReplicationBackupHaPolicy(Element policyNode) {
       ReplicaPolicyConfiguration configuration = new ReplicaPolicyConfiguration();
-
-      configuration.setQuorumVoteWait(getInteger(policyNode, "quorum-vote-wait", ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait(), Validators.GT_ZERO));
-
+      configuration.setQuorumVoteWait(getInteger(policyNode, "quorum-vote-wait", ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait(), GT_ZERO));
       configuration.setRestartBackup(getBoolean(policyNode, "restart-backup", configuration.isRestartBackup()));
-
-      configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), Validators.NO_CHECK));
-
+      configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), NO_CHECK));
       configuration.setAllowFailBack(getBoolean(policyNode, "allow-failback", configuration.isAllowFailBack()));
-
-      configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), Validators.GT_ZERO));
-
-      configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), Validators.NO_CHECK));
-
-      configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
-
+      configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), GT_ZERO));
+      configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), NO_CHECK));
+      configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), MINUS_ONE_OR_GE_ZERO));
       configuration.setScaleDownConfiguration(parseScaleDownConfig(policyNode));
-
       configuration.setVoteOnReplicationFailure(getBoolean(policyNode, "vote-on-replication-failure", configuration.getVoteOnReplicationFailure()));
-
-      configuration.setVoteRetries(getInteger(policyNode, "vote-retries", configuration.getVoteRetries(), Validators.MINUS_ONE_OR_GE_ZERO));
-
-      configuration.setVoteRetryWait(getLong(policyNode, "vote-retry-wait", configuration.getVoteRetryWait(), Validators.GT_ZERO));
-
-      configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getVoteRetryWait(), Validators.GT_ZERO));
-
-      configuration.setQuorumSize(getInteger(policyNode, "quorum-size", configuration.getQuorumSize(), Validators.MINUS_ONE_OR_GT_ZERO));
-
+      configuration.setVoteRetries(getInteger(policyNode, "vote-retries", configuration.getVoteRetries(), MINUS_ONE_OR_GE_ZERO));
+      configuration.setVoteRetryWait(getLong(policyNode, "vote-retry-wait", configuration.getVoteRetryWait(), GT_ZERO));
+      configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getVoteRetryWait(), GT_ZERO));
+      configuration.setQuorumSize(getInteger(policyNode, "quorum-size", configuration.getQuorumSize(), MINUS_ONE_OR_GT_ZERO));
       return configuration;
    }
 
-   private ReplicationPrimaryPolicyConfiguration createReplicationPrimaryHaPolicy(Element policyNode, Configuration config) {
+   private ReplicationPrimaryPolicyConfiguration createPluggableReplicationPrimaryHaPolicy(Element policyNode) {
       ReplicationPrimaryPolicyConfiguration configuration = ReplicationPrimaryPolicyConfiguration.withDefault();
-
-      configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), Validators.NO_CHECK));
-
-      configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), Validators.NO_CHECK));
-
-      configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), Validators.GT_ZERO));
-
-      configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getRetryReplicationWait(), Validators.GT_ZERO));
-
-      configuration.setDistributedManagerConfiguration(createDistributedPrimitiveManagerConfiguration(policyNode, config));
-
-      configuration.setCoordinationId(getString(policyNode, "coordination-id", configuration.getCoordinationId(), Validators.NOT_NULL_OR_EMPTY));
-
-      configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
-
+      configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), NO_CHECK));
+      configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), NO_CHECK));
+      configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), GT_ZERO));
+      configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getRetryReplicationWait(), GT_ZERO));
+      configuration.setDistributedManagerConfiguration(createDistributedLockManagerConfiguration(policyNode));
+      configuration.setCoordinationId(getString(policyNode, "coordination-id", configuration.getCoordinationId(), NOT_NULL_OR_EMPTY));
+      configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), MINUS_ONE_OR_GE_ZERO));
       return configuration;
    }
 
-   private ReplicationBackupPolicyConfiguration createReplicationBackupHaPolicy(Element policyNode, Configuration config) {
-
+   private ReplicationBackupPolicyConfiguration createPluggableReplicationBackupHaPolicy(Element policyNode) {
       ReplicationBackupPolicyConfiguration configuration = ReplicationBackupPolicyConfiguration.withDefault();
-
-      configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), Validators.NO_CHECK));
-
+      configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), NO_CHECK));
       configuration.setAllowFailBack(getBoolean(policyNode, "allow-failback", configuration.isAllowFailBack()));
-
-      configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), Validators.GT_ZERO));
-
-      configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), Validators.NO_CHECK));
-
-      configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
-
-      configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getRetryReplicationWait(), Validators.GT_ZERO));
-
-      configuration.setDistributedManagerConfiguration(createDistributedPrimitiveManagerConfiguration(policyNode, config));
-
+      configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), GT_ZERO));
+      configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), NO_CHECK));
+      configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), MINUS_ONE_OR_GE_ZERO));
+      configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getRetryReplicationWait(), GT_ZERO));
+      configuration.setDistributedManagerConfiguration(createDistributedLockManagerConfiguration(policyNode));
       return configuration;
    }
 
-   private DistributedPrimitiveManagerConfiguration createDistributedPrimitiveManagerConfiguration(Element policyNode, Configuration config) {
+   private DistributedLockManagerConfiguration createDistributedLockManagerConfiguration(Element policyNode) {
       final Element managerNode = (Element) policyNode.getElementsByTagName("manager").item(0);
       final String className = getString(managerNode, "class-name",
-                                         ActiveMQDefaultConfiguration.getDefaultDistributedPrimitiveManagerClassName(),
-                                         Validators.NO_CHECK);
+                                         ActiveMQDefaultConfiguration.getDefaultDistributedLockManagerClassName(),
+                                         NO_CHECK);
       final Map<String, String> properties;
       if (parameterExists(managerNode, "properties")) {
          final NodeList propertyNodeList = managerNode.getElementsByTagName("property");
@@ -1872,11 +1945,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       } else {
          properties = new HashMap<>(1);
       }
-      return new DistributedPrimitiveManagerConfiguration(className, properties);
+      return new DistributedLockManagerConfiguration(className, properties);
    }
 
-   private SharedStoreMasterPolicyConfiguration createSharedStoreMasterHaPolicy(Element policyNode) {
-      SharedStoreMasterPolicyConfiguration configuration = new SharedStoreMasterPolicyConfiguration();
+   private SharedStorePrimaryPolicyConfiguration createSharedStorePrimaryHaPolicy(Element policyNode) {
+      SharedStorePrimaryPolicyConfiguration configuration = new SharedStorePrimaryPolicyConfiguration();
 
       configuration.setFailoverOnServerShutdown(getBoolean(policyNode, "failover-on-shutdown", configuration.isFailoverOnServerShutdown()));
       configuration.setWaitForActivation(getBoolean(policyNode, "wait-for-activation", configuration.isWaitForActivation()));
@@ -1884,8 +1957,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return configuration;
    }
 
-   private SharedStoreSlavePolicyConfiguration createSharedStoreSlaveHaPolicy(Element policyNode) {
-      SharedStoreSlavePolicyConfiguration configuration = new SharedStoreSlavePolicyConfiguration();
+   private SharedStoreBackupPolicyConfiguration createSharedStoreBackupHaPolicy(Element policyNode) {
+      SharedStoreBackupPolicyConfiguration configuration = new SharedStoreBackupPolicyConfiguration();
 
       configuration.setAllowFailBack(getBoolean(policyNode, "allow-failback", configuration.isAllowFailBack()));
 
@@ -1905,19 +1978,19 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       configuration.setRequestBackup(requestBackup);
 
-      int backupRequestRetries = getInteger(policyNode, "backup-request-retries", configuration.getBackupRequestRetries(), Validators.MINUS_ONE_OR_GE_ZERO);
+      int backupRequestRetries = getInteger(policyNode, "backup-request-retries", configuration.getBackupRequestRetries(), MINUS_ONE_OR_GE_ZERO);
 
       configuration.setBackupRequestRetries(backupRequestRetries);
 
-      long backupRequestRetryInterval = getLong(policyNode, "backup-request-retry-interval", configuration.getBackupRequestRetryInterval(), Validators.GT_ZERO);
+      long backupRequestRetryInterval = getLong(policyNode, "backup-request-retry-interval", configuration.getBackupRequestRetryInterval(), GT_ZERO);
 
       configuration.setBackupRequestRetryInterval(backupRequestRetryInterval);
 
-      int maxBackups = getInteger(policyNode, "max-backups", configuration.getMaxBackups(), Validators.GE_ZERO);
+      int maxBackups = getInteger(policyNode, "max-backups", configuration.getMaxBackups(), GE_ZERO);
 
       configuration.setMaxBackups(maxBackups);
 
-      int backupPortOffset = getInteger(policyNode, "backup-port-offset", configuration.getBackupPortOffset(), Validators.GT_ZERO);
+      int backupPortOffset = getInteger(policyNode, "backup-port-offset", configuration.getBackupPortOffset(), GT_ZERO);
 
       configuration.setBackupPortOffset(backupPortOffset);
 
@@ -1934,15 +2007,28 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      NodeList masterNodeList = policyNode.getElementsByTagName("master");
-      if (masterNodeList.getLength() > 0) {
-         Element masterNode = (Element) masterNodeList.item(0);
-         configuration.setLiveConfig(replicated ? createReplicatedHaPolicy(masterNode) : createSharedStoreMasterHaPolicy(masterNode));
+      NodeList primaryNodeList = policyNode.getElementsByTagName("master");
+      if (primaryNodeList.getLength() > 0) {
+         ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("master", "primary");
+         Element primaryNode = (Element) primaryNodeList.item(0);
+         configuration.setPrimaryConfig(replicated ? createReplicationPrimaryHaPolicy(primaryNode) : createSharedStorePrimaryHaPolicy(primaryNode));
       }
-      NodeList slaveNodeList = policyNode.getElementsByTagName("slave");
-      if (slaveNodeList.getLength() > 0) {
-         Element slaveNode = (Element) slaveNodeList.item(0);
-         configuration.setBackupConfig(replicated ? createReplicaHaPolicy(slaveNode) : createSharedStoreSlaveHaPolicy(slaveNode));
+      NodeList backupNodeList = policyNode.getElementsByTagName("slave");
+      if (backupNodeList.getLength() > 0) {
+         ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("slave", "backup");
+         Element backupNode = (Element) backupNodeList.item(0);
+         configuration.setBackupConfig(replicated ? createReplicationBackupHaPolicy(backupNode) : createSharedStoreBackupHaPolicy(backupNode));
+      }
+
+      primaryNodeList = policyNode.getElementsByTagName("primary");
+      if (primaryNodeList.getLength() > 0) {
+         Element primaryNode = (Element) primaryNodeList.item(0);
+         configuration.setPrimaryConfig(replicated ? createReplicationPrimaryHaPolicy(primaryNode) : createSharedStorePrimaryHaPolicy(primaryNode));
+      }
+      backupNodeList = policyNode.getElementsByTagName("backup");
+      if (backupNodeList.getLength() > 0) {
+         Element backupNode = (Element) backupNodeList.item(0);
+         configuration.setBackupConfig(replicated ? createReplicationBackupHaPolicy(backupNode) : createSharedStoreBackupHaPolicy(backupNode));
       }
 
       return configuration;
@@ -1958,13 +2044,15 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
          scaleDownConfiguration.setEnabled(getBoolean(scaleDownElement, "enabled", scaleDownConfiguration.isEnabled()));
 
+         scaleDownConfiguration.setCommitInterval(getInteger(scaleDownElement, "commit-interval", scaleDownConfiguration.getCommitInterval(), MINUS_ONE_OR_GT_ZERO));
+
          NodeList discoveryGroupRef = scaleDownElement.getElementsByTagName("discovery-group-ref");
 
          if (discoveryGroupRef.item(0) != null) {
             scaleDownConfiguration.setDiscoveryGroup(discoveryGroupRef.item(0).getAttributes().getNamedItem("discovery-group-name").getNodeValue());
          }
 
-         String scaleDownGroupName = getString(scaleDownElement, "group-name", scaleDownConfiguration.getGroupName(), Validators.NO_CHECK);
+         String scaleDownGroupName = getString(scaleDownElement, "group-name", scaleDownConfiguration.getGroupName(), NO_CHECK);
 
          scaleDownConfiguration.setGroupName(scaleDownGroupName);
 
@@ -1988,29 +2076,34 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private DatabaseStorageConfiguration createDatabaseStoreConfig(Element storeNode, Configuration mainConfig) throws Exception {
       DatabaseStorageConfiguration conf = new DatabaseStorageConfiguration();
-      conf.setBindingsTableName(getString(storeNode, "bindings-table-name", conf.getBindingsTableName(), Validators.NO_CHECK));
-      conf.setMessageTableName(getString(storeNode, "message-table-name", conf.getMessageTableName(), Validators.NO_CHECK));
-      conf.setLargeMessageTableName(getString(storeNode, "large-message-table-name", conf.getLargeMessageTableName(), Validators.NO_CHECK));
-      conf.setPageStoreTableName(getString(storeNode, "page-store-table-name", conf.getPageStoreTableName(), Validators.NO_CHECK));
-      conf.setNodeManagerStoreTableName(getString(storeNode, "node-manager-store-table-name", conf.getNodeManagerStoreTableName(), Validators.NO_CHECK));
-      conf.setJdbcConnectionUrl(getString(storeNode, "jdbc-connection-url", conf.getJdbcConnectionUrl(), Validators.NO_CHECK));
-      conf.setJdbcDriverClassName(getString(storeNode, "jdbc-driver-class-name", conf.getJdbcDriverClassName(), Validators.NO_CHECK));
-      conf.setJdbcNetworkTimeout(getInteger(storeNode, "jdbc-network-timeout", conf.getJdbcNetworkTimeout(), Validators.NO_CHECK));
-      conf.setJdbcLockRenewPeriodMillis(getLong(storeNode, "jdbc-lock-renew-period", conf.getJdbcLockRenewPeriodMillis(), Validators.NO_CHECK));
-      conf.setJdbcLockExpirationMillis(getLong(storeNode, "jdbc-lock-expiration", conf.getJdbcLockExpirationMillis(), Validators.NO_CHECK));
-      conf.setJdbcJournalSyncPeriodMillis(getLong(storeNode, "jdbc-journal-sync-period", conf.getJdbcJournalSyncPeriodMillis(), Validators.NO_CHECK));
-      conf.setJdbcAllowedTimeDiff(getLong(storeNode, "jdbc-allowed-time-diff", conf.getJdbcAllowedTimeDiff(), Validators.NO_CHECK));
-      String jdbcUser = getString(storeNode, "jdbc-user", conf.getJdbcUser(), Validators.NO_CHECK);
+      conf.setBindingsTableName(getString(storeNode, "bindings-table-name", conf.getBindingsTableName(), NO_CHECK));
+      conf.setMessageTableName(getString(storeNode, "message-table-name", conf.getMessageTableName(), NO_CHECK));
+      conf.setLargeMessageTableName(getString(storeNode, "large-message-table-name", conf.getLargeMessageTableName(), NO_CHECK));
+      conf.setPageStoreTableName(getString(storeNode, "page-store-table-name", conf.getPageStoreTableName(), NO_CHECK));
+      conf.setNodeManagerStoreTableName(getString(storeNode, "node-manager-store-table-name", conf.getNodeManagerStoreTableName(), NO_CHECK));
+      String jdbcConnectionUrl = getString(storeNode, "jdbc-connection-url", conf.getJdbcConnectionUrl(), NO_CHECK);
+      if (jdbcConnectionUrl != null && !jdbcConnectionUrl.startsWith("jdbc:")) {
+         jdbcConnectionUrl = PasswordMaskingUtil.resolveMask(jdbcConnectionUrl, mainConfig.getPasswordCodec());
+      }
+      conf.setJdbcConnectionUrl(jdbcConnectionUrl);
+      conf.setJdbcDriverClassName(getString(storeNode, "jdbc-driver-class-name", conf.getJdbcDriverClassName(), NO_CHECK));
+      conf.setJdbcNetworkTimeout(getInteger(storeNode, "jdbc-network-timeout", conf.getJdbcNetworkTimeout(), NO_CHECK));
+      conf.setJdbcLockRenewPeriodMillis(getLong(storeNode, "jdbc-lock-renew-period", conf.getJdbcLockRenewPeriodMillis(), NO_CHECK));
+      conf.setJdbcLockExpirationMillis(getLong(storeNode, "jdbc-lock-expiration", conf.getJdbcLockExpirationMillis(), NO_CHECK));
+      conf.setJdbcJournalSyncPeriodMillis(getLong(storeNode, "jdbc-journal-sync-period", conf.getJdbcJournalSyncPeriodMillis(), NO_CHECK));
+      conf.setJdbcAllowedTimeDiff(getLong(storeNode, "jdbc-allowed-time-diff", conf.getJdbcAllowedTimeDiff(), NO_CHECK));
+      conf.setMaxPageSizeBytes(getTextBytesAsIntBytes(storeNode, "jdbc-max-page-size-bytes", conf.getMaxPageSizeBytes(), NO_CHECK));
+      String jdbcUser = getString(storeNode, "jdbc-user", conf.getJdbcUser(), NO_CHECK);
       if (jdbcUser != null) {
          jdbcUser = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), jdbcUser, mainConfig.getPasswordCodec());
       }
       conf.setJdbcUser(jdbcUser);
-      String password = getString(storeNode, "jdbc-password", conf.getJdbcPassword(), Validators.NO_CHECK);
+      String password = getString(storeNode, "jdbc-password", conf.getJdbcPassword(), NO_CHECK);
       if (password != null) {
          password = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), password, mainConfig.getPasswordCodec());
       }
       conf.setJdbcPassword(password);
-      conf.setDataSourceClassName(getString(storeNode, "data-source-class-name", conf.getDataSourceClassName(), Validators.NO_CHECK));
+      conf.setDataSourceClassName(getString(storeNode, "data-source-class-name", conf.getDataSourceClassName(), NO_CHECK));
       if (parameterExists(storeNode, "data-source-properties")) {
          NodeList propertyNodeList = storeNode.getElementsByTagName("data-source-property");
          for (int i = 0; i < propertyNodeList.getLength(); i++) {
@@ -2042,25 +2135,25 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          Node child = children.item(j);
 
          if (child.getNodeName().equals("connector-ref")) {
-            String connectorName = getString(e, "connector-ref", null, Validators.NOT_NULL_OR_EMPTY);
+            String connectorName = getString(e, "connector-ref", null, NOT_NULL_OR_EMPTY);
 
             connectorNames.add(connectorName);
          }
       }
 
-      long broadcastPeriod = getLong(e, "broadcast-period", ActiveMQDefaultConfiguration.getDefaultBroadcastPeriod(), Validators.GT_ZERO);
+      long broadcastPeriod = getLong(e, "broadcast-period", ActiveMQDefaultConfiguration.getDefaultBroadcastPeriod(), GT_ZERO);
 
-      String localAddress = getString(e, "local-bind-address", null, Validators.NO_CHECK);
+      String localAddress = getString(e, "local-bind-address", null, NO_CHECK);
 
-      int localBindPort = getInteger(e, "local-bind-port", -1, Validators.MINUS_ONE_OR_GT_ZERO);
+      int localBindPort = getInteger(e, "local-bind-port", -1, MINUS_ONE_OR_GT_ZERO);
 
-      String groupAddress = getString(e, "group-address", null, Validators.NO_CHECK);
+      String groupAddress = getString(e, "group-address", null, NO_CHECK);
 
-      int groupPort = getInteger(e, "group-port", -1, Validators.MINUS_ONE_OR_GT_ZERO);
+      int groupPort = getInteger(e, "group-port", -1, MINUS_ONE_OR_GT_ZERO);
 
-      String jgroupsFile = getString(e, "jgroups-file", null, Validators.NO_CHECK);
+      String jgroupsFile = getString(e, "jgroups-file", null, NO_CHECK);
 
-      String jgroupsChannel = getString(e, "jgroups-channel", null, Validators.NO_CHECK);
+      String jgroupsChannel = getString(e, "jgroups-channel", null, NO_CHECK);
 
       // TODO: validate if either jgroups or UDP is being filled
 
@@ -2080,21 +2173,21 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private void parseDiscoveryGroupConfiguration(final Element e, final Configuration mainConfig) {
       String name = e.getAttribute("name");
 
-      long discoveryInitialWaitTimeout = getLong(e, "initial-wait-timeout", ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, Validators.GT_ZERO);
+      long discoveryInitialWaitTimeout = getLong(e, "initial-wait-timeout", ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, GT_ZERO);
 
-      long refreshTimeout = getLong(e, "refresh-timeout", ActiveMQDefaultConfiguration.getDefaultBroadcastRefreshTimeout(), Validators.GT_ZERO);
+      long refreshTimeout = getLong(e, "refresh-timeout", ActiveMQDefaultConfiguration.getDefaultBroadcastRefreshTimeout(), GT_ZERO);
 
-      String localBindAddress = getString(e, "local-bind-address", null, Validators.NO_CHECK);
+      String localBindAddress = getString(e, "local-bind-address", null, NO_CHECK);
 
-      int localBindPort = getInteger(e, "local-bind-port", -1, Validators.MINUS_ONE_OR_GT_ZERO);
+      int localBindPort = getInteger(e, "local-bind-port", -1, MINUS_ONE_OR_GT_ZERO);
 
-      String groupAddress = getString(e, "group-address", null, Validators.NO_CHECK);
+      String groupAddress = getString(e, "group-address", null, NO_CHECK);
 
-      int groupPort = getInteger(e, "group-port", -1, Validators.MINUS_ONE_OR_GT_ZERO);
+      int groupPort = getInteger(e, "group-port", -1, MINUS_ONE_OR_GT_ZERO);
 
-      String jgroupsFile = getString(e, "jgroups-file", null, Validators.NO_CHECK);
+      String jgroupsFile = getString(e, "jgroups-file", null, NO_CHECK);
 
-      String jgroupsChannel = getString(e, "jgroups-channel", null, Validators.NO_CHECK);
+      String jgroupsChannel = getString(e, "jgroups-channel", null, NO_CHECK);
 
       // TODO: validate if either jgroups or UDP is being filled
       BroadcastEndpointFactory endpointFactory;
@@ -2132,8 +2225,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       String uri = e.getAttribute("uri");
 
-      int retryInterval = getAttributeInteger(e, "retry-interval", 5000, Validators.GT_ZERO);
-      int reconnectAttempts = getAttributeInteger(e, "reconnect-attempts", -1, Validators.MINUS_ONE_OR_GT_ZERO);
+      String lockCoordinator = getAttributeValue(e, "lock-coordinator");
+      int retryInterval = getAttributeInteger(e, "retry-interval", 5000, GT_ZERO);
+      int reconnectAttempts = getAttributeInteger(e, "reconnect-attempts", -1, MINUS_ONE_OR_GT_ZERO);
       String user = getAttributeValue(e, "user");
       if (user != null && PasswordMaskingUtil.isEncMasked(user)) {
          user = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), user, mainConfig.getPasswordCodec());
@@ -2144,14 +2238,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
       boolean autoStart = getBooleanAttribute(e, "auto-start", true);
 
-      getInteger(e, "local-bind-port", -1, Validators.MINUS_ONE_OR_GT_ZERO);
+      getInteger(e, "local-bind-port", -1, MINUS_ONE_OR_GT_ZERO);
 
       AMQPBrokerConnectConfiguration config = new AMQPBrokerConnectConfiguration(name, uri);
       config.parseURI();
-      config.setRetryInterval(retryInterval).setReconnectAttempts(reconnectAttempts).setUser(user).setPassword(password).setAutostart(autoStart);
+      config.setRetryInterval(retryInterval).setReconnectAttempts(reconnectAttempts).setUser(user).setPassword(password).setAutostart(autoStart).setLockCoordinator(lockCoordinator);
 
       mainConfig.addAMQPConnection(config);
-
 
       NodeList senderList = e.getChildNodes();
       for (int i = 0; i < senderList.getLength(); i++) {
@@ -2162,7 +2255,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
             if (nodeType == AMQPBrokerConnectionAddressType.MIRROR) {
                boolean messageAcks = getBooleanAttribute(e2, "message-acknowledgements", true);
-               boolean queueCreation = getBooleanAttribute(e2,"queue-creation", true);
+               boolean queueCreation = getBooleanAttribute(e2, "queue-creation", true);
                boolean durable = getBooleanAttribute(e2, "durable", true);
                boolean queueRemoval = getBooleanAttribute(e2, "queue-removal", true);
                boolean sync = getBooleanAttribute(e2, "sync", false);
@@ -2172,12 +2265,68 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                amqpMirrorConnectionElement.setMessageAcknowledgements(messageAcks).setQueueCreation(queueCreation).setQueueRemoval(queueRemoval).setDurable(durable).setAddressFilter(addressFilter).setSync(sync);
                connectionElement = amqpMirrorConnectionElement;
                connectionElement.setType(AMQPBrokerConnectionAddressType.MIRROR);
+
+               final NodeList federationAttrs = e2.getChildNodes();
+
+               for (int j = 0; j < federationAttrs.getLength(); j++) {
+                  final Node mirrorElement = federationAttrs.item(j);
+
+                  if (mirrorElement.getNodeName().equals("property")) {
+                     amqpMirrorConnectionElement.addProperty(getAttributeValue(mirrorElement, "key"), getAttributeValue(mirrorElement, "value"));
+                  }
+               }
+
+            } else if (nodeType == AMQPBrokerConnectionAddressType.FEDERATION) {
+               final AMQPFederatedBrokerConnectionElement amqpFederationConnectionElement = new AMQPFederatedBrokerConnectionElement(name);
+               final NodeList federationAttrs = e2.getChildNodes();
+
+               for (int j = 0; j < federationAttrs.getLength(); j++) {
+                  final Node federationPolicy = federationAttrs.item(j);
+
+                  if (federationPolicy.getNodeName().equals("remote-queue-policy")) {
+                     amqpFederationConnectionElement.addRemoteQueuePolicy(parseAMQPFederatedFromQueuePolicy((Element) federationPolicy, mainConfig));
+                  } else if (federationPolicy.getNodeName().equals("local-queue-policy")) {
+                     amqpFederationConnectionElement.addLocalQueuePolicy(parseAMQPFederatedFromQueuePolicy((Element)federationPolicy, mainConfig));
+                  } else if (federationPolicy.getNodeName().equals("remote-address-policy")) {
+                     amqpFederationConnectionElement.addRemoteAddressPolicy(parseAMQPFederatedFromAddressPolicy((Element)federationPolicy, mainConfig));
+                  } else if (federationPolicy.getNodeName().equals("local-address-policy")) {
+                     amqpFederationConnectionElement.addLocalAddressPolicy(parseAMQPFederatedFromAddressPolicy((Element)federationPolicy, mainConfig));
+                  } else if (federationPolicy.getNodeName().equals("property")) {
+                     amqpFederationConnectionElement.addProperty(getAttributeValue(federationPolicy, "key"), getAttributeValue(federationPolicy, "value"));
+                  }
+               }
+
+               connectionElement = amqpFederationConnectionElement;
+               connectionElement.setType(AMQPBrokerConnectionAddressType.FEDERATION);
+            } else if (nodeType == AMQPBrokerConnectionAddressType.BRIDGE) {
+               final NodeList bridgeAttrs = e2.getChildNodes();
+               final String bridgeName = e2.hasAttribute("name") ? e2.getAttribute("name") : name;
+               final AMQPBridgeBrokerConnectionElement amqpBridgeConnectionElement = new AMQPBridgeBrokerConnectionElement(bridgeName);
+
+               for (int j = 0; j < bridgeAttrs.getLength(); j++) {
+                  final Node bridgePolicy = bridgeAttrs.item(j);
+
+                  if (bridgePolicy.getNodeName().equals("bridge-from-address")) {
+                     amqpBridgeConnectionElement.addBridgeFromAddressPolicy(parseAMQPBridgeAddressPolicy((Element) bridgePolicy, mainConfig));
+                  } else if (bridgePolicy.getNodeName().equals("bridge-to-address")) {
+                     amqpBridgeConnectionElement.addBridgeToAddressPolicy(parseAMQPBridgeAddressPolicy((Element)bridgePolicy, mainConfig));
+                  } else if (bridgePolicy.getNodeName().equals("bridge-from-queue")) {
+                     amqpBridgeConnectionElement.addBridgeFromQueuePolicy(parseAMQPBridgeQueuePolicy((Element)bridgePolicy, mainConfig));
+                  } else if (bridgePolicy.getNodeName().equals("bridge-to-queue")) {
+                     amqpBridgeConnectionElement.addBridgeToQueuePolicy(parseAMQPBridgeQueuePolicy((Element)bridgePolicy, mainConfig));
+                  } else if (bridgePolicy.getNodeName().equals("property")) {
+                     amqpBridgeConnectionElement.addProperty(getAttributeValue(bridgePolicy, "key"), getAttributeValue(bridgePolicy, "value"));
+                  }
+               }
+
+               connectionElement = amqpBridgeConnectionElement;
+               connectionElement.setType(AMQPBrokerConnectionAddressType.BRIDGE);
             } else {
                String match = getAttributeValue(e2, "address-match");
                String queue = getAttributeValue(e2, "queue-name");
                connectionElement = new AMQPBrokerConnectionElement();
-               connectionElement.setMatchAddress(SimpleString.toSimpleString(match)).setType(nodeType);
-               connectionElement.setQueueName(SimpleString.toSimpleString(queue));
+               connectionElement.setMatchAddress(SimpleString.of(match)).setType(nodeType);
+               connectionElement.setQueueName(SimpleString.of(queue));
             }
 
             config.addElement(connectionElement);
@@ -2187,12 +2336,218 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       logger.debug("Adding AMQP connection :: {}", config);
    }
 
+   private AMQPFederationAddressPolicyElement parseAMQPFederatedFromAddressPolicy(Element policyNod, final Configuration mainConfig) throws Exception {
+      AMQPFederationAddressPolicyElement config = new AMQPFederationAddressPolicyElement();
+      config.setName(policyNod.getAttribute("name"));
+
+      NamedNodeMap attributes = policyNod.getAttributes();
+      for (int i = 0; i < attributes.getLength(); i++) {
+         Node item = attributes.item(i);
+         if (item.getNodeName().equals("max-hops")) {
+            config.setMaxHops(MINUS_ONE_OR_GE_ZERO.validate(item.getNodeName(), Integer.parseInt(item.getNodeValue())).intValue());
+         } else if (item.getNodeName().equals("auto-delete")) {
+            config.setAutoDelete(Boolean.parseBoolean(item.getNodeValue()));
+         } else if (item.getNodeName().equals("auto-delete-delay")) {
+            config.setAutoDeleteDelay(GE_ZERO.validate("auto-delete-delay", Long.parseLong(item.getNodeValue())).longValue());
+         } else if (item.getNodeName().equals("auto-delete-message-count")) {
+            config.setAutoDeleteMessageCount(MINUS_ONE_OR_GE_ZERO.validate("auto-delete-message-count", Long.parseLong(item.getNodeValue())).longValue());
+         } else if (item.getNodeName().equals("enable-divert-bindings")) {
+            config.setEnableDivertBindings(Boolean.parseBoolean(item.getNodeValue()));
+         } else if (item.getNodeName().equals("allow-wildcard-groupings")) {
+            config.setAllowWildcardGroupings(Boolean.parseBoolean(item.getNodeValue()));
+         }
+      }
+
+      final NodeList children = policyNod.getChildNodes();
+
+      final String transformerClassName = getString(policyNod, "transformer-class-name", null, NO_CHECK);
+      if (transformerClassName != null && !transformerClassName.isEmpty()) {
+         config.setTransformerConfiguration(getTransformerConfiguration(transformerClassName));
+      }
+
+      for (int j = 0; j < children.getLength(); j++) {
+         Node child = children.item(j);
+
+         if (child.getNodeName().equals("include")) {
+            config.addToIncludes(((Element) child).getAttribute("address-match"));
+         } else if (child.getNodeName().equals("exclude")) {
+            config.addToExcludes(((Element) child).getAttribute("address-match"));
+         } else if (child.getNodeName().equals("transformer")) {
+            config.setTransformerConfiguration(getTransformerConfiguration(child));
+         } else if (child.getNodeName().equals("property")) {
+            config.addProperty(getAttributeValue(child, "key"), getAttributeValue(child, "value"));
+         }
+      }
+
+      return config;
+   }
+
+   private AMQPFederationQueuePolicyElement parseAMQPFederatedFromQueuePolicy(Element policyNod, final Configuration mainConfig) throws Exception {
+      AMQPFederationQueuePolicyElement config = new AMQPFederationQueuePolicyElement();
+      config.setName(policyNod.getAttribute("name"));
+
+      NamedNodeMap attributes = policyNod.getAttributes();
+      for (int i = 0; i < attributes.getLength(); i++) {
+         Node item = attributes.item(i);
+         if (item.getNodeName().equals("include-federated")) {
+            config.setIncludeFederated(Boolean.parseBoolean(item.getNodeValue()));
+         } else if (item.getNodeName().equals("priority-adjustment")) {
+            config.setPriorityAdjustment(Integer.parseInt(item.getNodeValue()));
+         }
+      }
+
+      final NodeList children = policyNod.getChildNodes();
+
+      final String transformerClassName = getString(policyNod, "transformer-class-name", null, NO_CHECK);
+      if (transformerClassName != null && !transformerClassName.isEmpty()) {
+         config.setTransformerConfiguration(getTransformerConfiguration(transformerClassName));
+      }
+
+      for (int j = 0; j < children.getLength(); j++) {
+         Node child = children.item(j);
+
+         if (child.getNodeName().equals("include")) {
+            config.addToIncludes(((Element) child).getAttribute("address-match"), ((Element) child).getAttribute("queue-match"));
+         } else if (child.getNodeName().equals("exclude")) {
+            config.addToExcludes(((Element) child).getAttribute("address-match"), ((Element) child).getAttribute("queue-match"));
+         } else if (child.getNodeName().equals("transformer")) {
+            config.setTransformerConfiguration(getTransformerConfiguration(child));
+         } else if (child.getNodeName().equals("property")) {
+            config.addProperty(getAttributeValue(child, "key"), getAttributeValue(child, "value"));
+         }
+      }
+
+      return config;
+   }
+
+   private AMQPBridgeAddressPolicyElement parseAMQPBridgeAddressPolicy(Element policyNod, final Configuration mainConfig) throws Exception {
+      final AMQPBridgeAddressPolicyElement config = new AMQPBridgeAddressPolicyElement();
+      config.setName(policyNod.getAttribute("name"));
+      final NamedNodeMap attributes = policyNod.getAttributes();
+
+      for (int i = 0; i < attributes.getLength(); i++) {
+         final Node item = attributes.item(i);
+
+         if (item.getNodeName().equals("filter")) {
+            final String filterString = item.getNodeValue();
+            try {
+               SelectorParser.parse(filterString);
+            } catch (Exception ex) {
+               logger.debug("Filter expression in bridge address policy {} has invalid syntax: {}", config.getName(), filterString, ex);
+               throw ex;
+            }
+            config.setFilter(filterString);
+         } else if (item.getNodeName().equals("priority")) {
+            config.setPriority(Integer.parseInt(item.getNodeValue()));
+         } else if (item.getNodeName().equals("enable-divert-bindings")) {
+            config.setIncludeDivertBindings(Boolean.parseBoolean(item.getNodeValue()));
+         } else if (item.getNodeName().equals("use-durable-subscriptions")) {
+            config.setUseDurableSubscriptions(Boolean.parseBoolean(item.getNodeValue()));
+         } else if (item.getNodeName().equals("remote-address")) {
+            config.setRemoteAddress(item.getNodeValue());
+         } else if (item.getNodeName().equals("remote-address-prefix")) {
+            config.setRemoteAddressPrefix(item.getNodeValue());
+         } else if (item.getNodeName().equals("remote-address-suffix")) {
+            config.setRemoteAddressSuffix(item.getNodeValue());
+         } else if (item.getNodeName().equals("remote-terminus-capabilities")) {
+            final String capabilities = item.getNodeValue();
+            if (capabilities != null && !capabilities.isBlank()) {
+               config.setRemoteTerminusCapabilities(capabilities.split(","));
+            }
+         }
+      }
+
+      final NodeList children = policyNod.getChildNodes();
+
+      @SuppressWarnings("unchecked")
+      final String transformerClassName = getString(policyNod, "transformer-class-name", null, NO_CHECK);
+      if (transformerClassName != null && !transformerClassName.isEmpty()) {
+         config.setTransformerConfiguration(getTransformerConfiguration(transformerClassName));
+      }
+
+      for (int j = 0; j < children.getLength(); j++) {
+         final Node child = children.item(j);
+
+         if (child.getNodeName().equals("include")) {
+            config.addToIncludes(((Element) child).getAttribute("address-match"));
+         } else if (child.getNodeName().equals("exclude")) {
+            config.addToExcludes(((Element) child).getAttribute("address-match"));
+         } else if (child.getNodeName().equals("transformer")) {
+            config.setTransformerConfiguration(getTransformerConfiguration(child));
+         } else if (child.getNodeName().equals("property")) {
+            config.addProperty(getAttributeValue(child, "key"), getAttributeValue(child, "value"));
+         }
+      }
+
+      return config;
+   }
+
+   private AMQPBridgeQueuePolicyElement parseAMQPBridgeQueuePolicy(Element policyNod, final Configuration mainConfig) throws Exception {
+      final AMQPBridgeQueuePolicyElement config = new AMQPBridgeQueuePolicyElement();
+      config.setName(policyNod.getAttribute("name"));
+      final NamedNodeMap attributes = policyNod.getAttributes();
+
+      for (int i = 0; i < attributes.getLength(); i++) {
+         final Node item = attributes.item(i);
+
+         if (item.getNodeName().equals("filter")) {
+            final String filterString = item.getNodeValue();
+            try {
+               SelectorParser.parse(filterString);
+            } catch (Exception ex) {
+               logger.debug("Filter expression in bridge queue policy {} has invalid syntax: {}", config.getName(), filterString, ex);
+               throw ex;
+            }
+            config.setFilter(filterString);
+         } else if (item.getNodeName().equals("priority")) {
+            config.setPriority(Integer.parseInt(item.getNodeValue()));
+         } else if (item.getNodeName().equals("priority-adjustment")) {
+            config.setPriorityAdjustment(Integer.parseInt(item.getNodeValue()));
+         } else if (item.getNodeName().equals("remote-address")) {
+            config.setRemoteAddress(item.getNodeValue());
+         } else if (item.getNodeName().equals("remote-address-prefix")) {
+            config.setRemoteAddressPrefix(item.getNodeValue());
+         } else if (item.getNodeName().equals("remote-address-suffix")) {
+            config.setRemoteAddressSuffix(item.getNodeValue());
+         } else if (item.getNodeName().equals("remote-terminus-capabilities")) {
+            final String capabilities = item.getNodeValue();
+            if (capabilities != null && !capabilities.isBlank()) {
+               config.setRemoteTerminusCapabilities(capabilities.split(","));
+            }
+         }
+      }
+
+      final NodeList children = policyNod.getChildNodes();
+
+      @SuppressWarnings("unchecked")
+      final String transformerClassName = getString(policyNod, "transformer-class-name", null, NO_CHECK);
+      if (transformerClassName != null && !transformerClassName.isEmpty()) {
+         config.setTransformerConfiguration(getTransformerConfiguration(transformerClassName));
+      }
+
+      for (int j = 0; j < children.getLength(); j++) {
+         final Node child = children.item(j);
+
+         if (child.getNodeName().equals("include")) {
+            config.addToIncludes(((Element) child).getAttribute("address-match"), ((Element) child).getAttribute("queue-match"));
+         } else if (child.getNodeName().equals("exclude")) {
+            config.addToExcludes(((Element) child).getAttribute("address-match"), ((Element) child).getAttribute("queue-match"));
+         } else if (child.getNodeName().equals("transformer")) {
+            config.setTransformerConfiguration(getTransformerConfiguration(child));
+         } else if (child.getNodeName().equals("property")) {
+            config.addProperty(getAttributeValue(child, "key"), getAttributeValue(child, "value"));
+         }
+      }
+
+      return config;
+   }
+
    private void parseClusterConnectionConfiguration(final Element e, final Configuration mainConfig) throws Exception {
       String name = e.getAttribute("name");
 
-      String address = getString(e, "address", "", Validators.NO_CHECK);
+      String address = getString(e, "address", "", NO_CHECK);
 
-      String connectorName = getString(e, "connector-ref", null, Validators.NOT_NULL_OR_EMPTY);
+      String connectorName = getString(e, "connector-ref", null, NOT_NULL_OR_EMPTY);
 
       if (!mainConfig.getConnectorConfigurations().containsKey(connectorName)) {
          ActiveMQServerLogger.LOGGER.connectorRefNotFound(connectorName, name);
@@ -2212,40 +2567,40 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       } else {
 
-         messageLoadBalancingType = Enum.valueOf(MessageLoadBalancingType.class, getString(e, "message-load-balancing", ActiveMQDefaultConfiguration.getDefaultClusterMessageLoadBalancingType(), Validators.MESSAGE_LOAD_BALANCING_TYPE));
+         messageLoadBalancingType = Enum.valueOf(MessageLoadBalancingType.class, getString(e, "message-load-balancing", ActiveMQDefaultConfiguration.getDefaultClusterMessageLoadBalancingType(), MESSAGE_LOAD_BALANCING_TYPE));
       }
 
-      int maxHops = getInteger(e, "max-hops", ActiveMQDefaultConfiguration.getDefaultClusterMaxHops(), Validators.GE_ZERO);
+      int maxHops = getInteger(e, "max-hops", ActiveMQDefaultConfiguration.getDefaultClusterMaxHops(), GE_ZERO);
 
-      long clientFailureCheckPeriod = getLong(e, "check-period", ActiveMQDefaultConfiguration.getDefaultClusterFailureCheckPeriod(), Validators.GT_ZERO);
+      long clientFailureCheckPeriod = getLong(e, "check-period", ActiveMQDefaultConfiguration.getDefaultClusterFailureCheckPeriod(), GT_ZERO);
 
-      long connectionTTL = getLong(e, "connection-ttl", ActiveMQDefaultConfiguration.getDefaultClusterConnectionTtl(), Validators.GT_ZERO);
+      long connectionTTL = getLong(e, "connection-ttl", ActiveMQDefaultConfiguration.getDefaultClusterConnectionTtl(), GT_ZERO);
 
-      long retryInterval = getLong(e, "retry-interval", ActiveMQDefaultConfiguration.getDefaultClusterRetryInterval(), Validators.GT_ZERO);
+      long retryInterval = getLong(e, "retry-interval", ActiveMQDefaultConfiguration.getDefaultClusterRetryInterval(), GT_ZERO);
 
-      long callTimeout = getLong(e, "call-timeout", ActiveMQDefaultConfiguration.getDefaultClusterCallTimeout(), Validators.GT_ZERO);
+      long callTimeout = getLong(e, "call-timeout", ActiveMQDefaultConfiguration.getDefaultClusterCallTimeout(), GT_ZERO);
 
-      long callFailoverTimeout = getLong(e, "call-failover-timeout", ActiveMQDefaultConfiguration.getDefaultClusterCallFailoverTimeout(), Validators.MINUS_ONE_OR_GT_ZERO);
+      long callFailoverTimeout = getLong(e, "call-failover-timeout", ActiveMQDefaultConfiguration.getDefaultClusterCallFailoverTimeout(), MINUS_ONE_OR_GT_ZERO);
 
-      double retryIntervalMultiplier = getDouble(e, "retry-interval-multiplier", ActiveMQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier(), Validators.GT_ZERO);
+      double retryIntervalMultiplier = getDouble(e, "retry-interval-multiplier", ActiveMQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier(), GT_ZERO);
 
-      int minLargeMessageSize = getTextBytesAsIntBytes(e, "min-large-message-size", ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, Validators.POSITIVE_INT);
+      int minLargeMessageSize = getTextBytesAsIntBytes(e, "min-large-message-size", ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, POSITIVE_INT);
 
-      long maxRetryInterval = getLong(e, "max-retry-interval", ActiveMQDefaultConfiguration.getDefaultClusterMaxRetryInterval(), Validators.GT_ZERO);
+      long maxRetryInterval = getLong(e, "max-retry-interval", ActiveMQDefaultConfiguration.getDefaultClusterMaxRetryInterval(), GT_ZERO);
 
-      int initialConnectAttempts = getInteger(e, "initial-connect-attempts", ActiveMQDefaultConfiguration.getDefaultClusterInitialConnectAttempts(), Validators.MINUS_ONE_OR_GE_ZERO);
+      int initialConnectAttempts = getInteger(e, "initial-connect-attempts", ActiveMQDefaultConfiguration.getDefaultClusterInitialConnectAttempts(), MINUS_ONE_OR_GE_ZERO);
 
-      int reconnectAttempts = getInteger(e, "reconnect-attempts", ActiveMQDefaultConfiguration.getDefaultClusterReconnectAttempts(), Validators.MINUS_ONE_OR_GE_ZERO);
+      int reconnectAttempts = getInteger(e, "reconnect-attempts", ActiveMQDefaultConfiguration.getDefaultClusterReconnectAttempts(), MINUS_ONE_OR_GE_ZERO);
 
-      int confirmationWindowSize = getTextBytesAsIntBytes(e, "confirmation-window-size", ActiveMQDefaultConfiguration.getDefaultClusterConfirmationWindowSize(), Validators.POSITIVE_INT);
+      int confirmationWindowSize = getTextBytesAsIntBytes(e, "confirmation-window-size", ActiveMQDefaultConfiguration.getDefaultClusterConfirmationWindowSize(), POSITIVE_INT);
 
-      int producerWindowSize = getTextBytesAsIntBytes(e, "producer-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize(), Validators.MINUS_ONE_OR_POSITIVE_INT);
+      int producerWindowSize = getTextBytesAsIntBytes(e, "producer-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize(), MINUS_ONE_OR_POSITIVE_INT);
 
-      long clusterNotificationInterval = getLong(e, "notification-interval", ActiveMQDefaultConfiguration.getDefaultClusterNotificationInterval(), Validators.GT_ZERO);
+      long clusterNotificationInterval = getLong(e, "notification-interval", ActiveMQDefaultConfiguration.getDefaultClusterNotificationInterval(), GT_ZERO);
 
-      int clusterNotificationAttempts = getInteger(e, "notification-attempts", ActiveMQDefaultConfiguration.getDefaultClusterNotificationAttempts(), Validators.GT_ZERO);
+      int clusterNotificationAttempts = getInteger(e, "notification-attempts", ActiveMQDefaultConfiguration.getDefaultClusterNotificationAttempts(), GT_ZERO);
 
-      String scaleDownConnector = e.getAttribute("scale-down-connector");
+      int topologyScannerAttempts = getInteger(e, "topology-scanner-attempts", ActiveMQDefaultConfiguration.getClusterTopologyScannerAttempts(), MINUS_ONE_OR_GE_ZERO);
 
       String discoveryGroupName = null;
 
@@ -2269,7 +2624,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      ClusterConnectionConfiguration config = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(connectorName).setMinLargeMessageSize(minLargeMessageSize).setClientFailureCheckPeriod(clientFailureCheckPeriod).setConnectionTTL(connectionTTL).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setMaxRetryInterval(maxRetryInterval).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setCallTimeout(callTimeout).setCallFailoverTimeout(callFailoverTimeout).setDuplicateDetection(duplicateDetection).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(confirmationWindowSize).setProducerWindowSize(producerWindowSize).setAllowDirectConnectionsOnly(allowDirectConnectionsOnly).setClusterNotificationInterval(clusterNotificationInterval).setClusterNotificationAttempts(clusterNotificationAttempts);
+      String clientId = getString(e, "client-id", null, NO_CHECK);
+
+      ClusterConnectionConfiguration config = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(connectorName).setMinLargeMessageSize(minLargeMessageSize).setClientFailureCheckPeriod(clientFailureCheckPeriod).setConnectionTTL(connectionTTL).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setMaxRetryInterval(maxRetryInterval).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setCallTimeout(callTimeout).setCallFailoverTimeout(callFailoverTimeout).setDuplicateDetection(duplicateDetection).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(confirmationWindowSize).setProducerWindowSize(producerWindowSize).setAllowDirectConnectionsOnly(allowDirectConnectionsOnly).setClusterNotificationInterval(clusterNotificationInterval).setClusterNotificationAttempts(clusterNotificationAttempts).setClientId(clientId).setTopologyScannerAttempts(topologyScannerAttempts);
 
       if (discoveryGroupName == null) {
          config.setStaticConnectors(staticConnectorNames);
@@ -2282,65 +2639,69 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private void parseGroupingHandlerConfiguration(final Element node, final Configuration mainConfiguration) {
       String name = node.getAttribute("name");
-      String type = getString(node, "type", null, Validators.NOT_NULL_OR_EMPTY);
-      String address = getString(node, "address", "", Validators.NO_CHECK);
-      Integer timeout = getInteger(node, "timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerTimeout(), Validators.GT_ZERO);
-      Long groupTimeout = getLong(node, "group-timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout(), Validators.MINUS_ONE_OR_GT_ZERO);
-      Long reaperPeriod = getLong(node, "reaper-period", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod(), Validators.GT_ZERO);
-      mainConfiguration.setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString(name)).setType(type.equals(GroupingHandlerConfiguration.TYPE.LOCAL.getType()) ? GroupingHandlerConfiguration.TYPE.LOCAL : GroupingHandlerConfiguration.TYPE.REMOTE).setAddress(new SimpleString(address)).setTimeout(timeout).setGroupTimeout(groupTimeout).setReaperPeriod(reaperPeriod));
+      String type = getString(node, "type", null, NOT_NULL_OR_EMPTY);
+      String address = getString(node, "address", "", NO_CHECK);
+      Integer timeout = getInteger(node, "timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerTimeout(), GT_ZERO);
+      Long groupTimeout = getLong(node, "group-timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout(), MINUS_ONE_OR_GT_ZERO);
+      Long reaperPeriod = getLong(node, "reaper-period", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod(), GT_ZERO);
+      mainConfiguration.setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(SimpleString.of(name)).setType(type.equals(GroupingHandlerConfiguration.TYPE.LOCAL.getType()) ? GroupingHandlerConfiguration.TYPE.LOCAL : GroupingHandlerConfiguration.TYPE.REMOTE).setAddress(SimpleString.of(address)).setTimeout(timeout).setGroupTimeout(groupTimeout).setReaperPeriod(reaperPeriod));
    }
 
    private TransformerConfiguration getTransformerConfiguration(final Node node) {
       Element element = (Element) node;
-      String className = getString(element, "class-name", null, Validators.NO_CHECK);
+      String className = getString(element, "class-name", null, NO_CHECK);
 
       Map<String, String> properties = getMapOfChildPropertyElements(element);
       return new TransformerConfiguration(className).setProperties(properties);
    }
 
    private TransformerConfiguration getTransformerConfiguration(final String transformerClassName) {
-      return new TransformerConfiguration(transformerClassName).setProperties(Collections.EMPTY_MAP);
+      return new TransformerConfiguration(transformerClassName).setProperties(Collections.emptyMap());
    }
 
    private void parseBridgeConfiguration(final Element brNode, final Configuration mainConfig) throws Exception {
       String name = brNode.getAttribute("name");
 
-      String queueName = getString(brNode, "queue-name", null, Validators.NOT_NULL_OR_EMPTY);
+      String queueName = getString(brNode, "queue-name", null, NOT_NULL_OR_EMPTY);
 
-      String forwardingAddress = getString(brNode, "forwarding-address", null, Validators.NO_CHECK);
+      String forwardingAddress = getString(brNode, "forwarding-address", null, NO_CHECK);
 
-      String transformerClassName = getString(brNode, "transformer-class-name", null, Validators.NO_CHECK);
+      String transformerClassName = getString(brNode, "transformer-class-name", null, NO_CHECK);
 
       // Default bridge conf
-      int confirmationWindowSize = getTextBytesAsIntBytes(brNode, "confirmation-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize(), Validators.MINUS_ONE_OR_POSITIVE_INT);
+      int confirmationWindowSize = getTextBytesAsIntBytes(brNode, "confirmation-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize(), MINUS_ONE_OR_POSITIVE_INT);
 
-      int producerWindowSize = getTextBytesAsIntBytes(brNode, "producer-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize(), Validators.MINUS_ONE_OR_POSITIVE_INT);
+      int producerWindowSize = getTextBytesAsIntBytes(brNode, "producer-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize(), MINUS_ONE_OR_POSITIVE_INT);
 
-      long retryInterval = getLong(brNode, "retry-interval", ActiveMQClient.DEFAULT_RETRY_INTERVAL, Validators.GT_ZERO);
+      long retryInterval = getLong(brNode, "retry-interval", ActiveMQClient.DEFAULT_RETRY_INTERVAL, GT_ZERO);
 
-      long clientFailureCheckPeriod = getLong(brNode, "check-period", ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, Validators.GT_ZERO);
+      long clientFailureCheckPeriod = getLong(brNode, "check-period", ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, GT_ZERO);
 
-      long connectionTTL = getLong(brNode, "connection-ttl", ActiveMQClient.DEFAULT_CONNECTION_TTL, Validators.GT_ZERO);
+      long connectionTTL = getLong(brNode, "connection-ttl", ActiveMQClient.DEFAULT_CONNECTION_TTL, GT_ZERO);
 
-      int minLargeMessageSize = getTextBytesAsIntBytes(brNode, "min-large-message-size", ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, Validators.POSITIVE_INT);
+      int minLargeMessageSize = getTextBytesAsIntBytes(brNode, "min-large-message-size", ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, POSITIVE_INT);
 
-      long maxRetryInterval = getLong(brNode, "max-retry-interval", ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL, Validators.GT_ZERO);
+      long maxRetryInterval = getLong(brNode, "max-retry-interval", ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL, GT_ZERO);
 
-      double retryIntervalMultiplier = getDouble(brNode, "retry-interval-multiplier", ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, Validators.GT_ZERO);
+      double retryIntervalMultiplier = getDouble(brNode, "retry-interval-multiplier", ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, GT_ZERO);
 
-      int initialConnectAttempts = getInteger(brNode, "initial-connect-attempts", ActiveMQDefaultConfiguration.getDefaultBridgeInitialConnectAttempts(), Validators.MINUS_ONE_OR_GE_ZERO);
+      int initialConnectAttempts = getInteger(brNode, "initial-connect-attempts", ActiveMQDefaultConfiguration.getDefaultBridgeInitialConnectAttempts(), MINUS_ONE_OR_GE_ZERO);
 
-      int reconnectAttempts = getInteger(brNode, "reconnect-attempts", ActiveMQDefaultConfiguration.getDefaultBridgeReconnectAttempts(), Validators.MINUS_ONE_OR_GE_ZERO);
+      int reconnectAttempts = getInteger(brNode, "reconnect-attempts", ActiveMQDefaultConfiguration.getDefaultBridgeReconnectAttempts(), MINUS_ONE_OR_GE_ZERO);
 
-      int reconnectAttemptsSameNode = getInteger(brNode, "reconnect-attempts-same-node", ActiveMQDefaultConfiguration.getDefaultBridgeConnectSameNode(), Validators.MINUS_ONE_OR_GE_ZERO);
+      int reconnectAttemptsSameNode = getInteger(brNode, "reconnect-attempts-same-node", ActiveMQDefaultConfiguration.getDefaultBridgeConnectSameNode(), MINUS_ONE_OR_GE_ZERO);
 
       boolean useDuplicateDetection = getBoolean(brNode, "use-duplicate-detection", ActiveMQDefaultConfiguration.isDefaultBridgeDuplicateDetection());
 
-      String user = getString(brNode, "user", ActiveMQDefaultConfiguration.getDefaultClusterUser(), Validators.NO_CHECK);
+      String user = getString(brNode, "user", ActiveMQDefaultConfiguration.getDefaultClusterUser(), NO_CHECK);
 
-      ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(getString(brNode, "routing-type", ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType(), Validators.COMPONENT_ROUTING_TYPE));
+      ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(getString(brNode, "routing-type", ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType(), COMPONENT_ROUTING_TYPE));
 
-      int concurrency = getInteger(brNode, "concurrency", ActiveMQDefaultConfiguration.getDefaultBridgeConcurrency(), Validators.GT_ZERO);
+      int concurrency = getInteger(brNode, "concurrency", ActiveMQDefaultConfiguration.getDefaultBridgeConcurrency(), GT_ZERO);
+
+      long pendingAckTimeout = getLong(brNode, "pending-ack-timeout", ActiveMQDefaultConfiguration.getDefaultBridgePendingAckTimeout(), GT_ZERO);
+
+      String clientId = getString(brNode, "client-id", null, NO_CHECK);
 
       NodeList clusterPassNodes = brNode.getElementsByTagName("password");
       String password = null;
@@ -2408,7 +2769,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          .setUser(user)
          .setPassword(password)
          .setRoutingType(routingType)
-         .setConcurrency(concurrency);
+         .setConcurrency(concurrency)
+         .setPendingAckTimeout(pendingAckTimeout)
+         .setClientId(clientId);
 
       if (!staticConnectorNames.isEmpty()) {
          config.setStaticConnectors(staticConnectorNames);
@@ -2417,6 +2780,16 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       mainConfig.getBridgeConfigurations().add(config);
+   }
+
+   private void parseFederationsConfiguration(final Element fedNode, final Configuration mainConfig) throws Exception {
+      String roles = fedNode.getAttribute("downstream-authorization");
+      if (!roles.isEmpty()) {
+         Stream.of(roles.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .forEach(mainConfig::addFederationDownstreamAuthorization);
+      }
    }
 
    private void parseFederationConfiguration(final Element fedNode, final Configuration mainConfig) throws Exception {
@@ -2500,7 +2873,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private FederationQueuePolicyConfiguration.Matcher getQueueMatcher(Element child) {
       FederationQueuePolicyConfiguration.Matcher matcher = new FederationQueuePolicyConfiguration.Matcher();
-      matcher.setAddressMatch(child.getAttribute("queue-match"));
+      matcher.setQueueMatch(child.getAttribute("queue-match"));
       matcher.setAddressMatch(child.getAttribute("address-match"));
       return matcher;
    }
@@ -2514,26 +2887,17 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       for (int i = 0; i < attributes.getLength(); i++) {
          Node item = attributes.item(i);
          if (item.getNodeName().equals("max-consumers")) {
-            int maxConsumers = Integer.parseInt(item.getNodeValue());
-            Validators.MINUS_ONE_OR_GE_ZERO.validate(item.getNodeName(), maxConsumers);
-            config.setMaxHops(maxConsumers);
+            config.setMaxHops(MINUS_ONE_OR_GE_ZERO.validate(item.getNodeName(), Integer.parseInt(item.getNodeValue())).intValue());
          } else if (item.getNodeName().equals("auto-delete")) {
-            boolean autoDelete = Boolean.parseBoolean(item.getNodeValue());
-            config.setAutoDelete(autoDelete);
+            config.setAutoDelete(Boolean.parseBoolean(item.getNodeValue()));
          } else if (item.getNodeName().equals("auto-delete-delay")) {
-            long autoDeleteDelay = Long.parseLong(item.getNodeValue());
-            Validators.GE_ZERO.validate("auto-delete-delay", autoDeleteDelay);
-            config.setAutoDeleteDelay(autoDeleteDelay);
+            config.setAutoDeleteDelay((GE_ZERO.validate("auto-delete-delay", Long.parseLong(item.getNodeValue())).longValue()));
          } else if (item.getNodeName().equals("auto-delete-message-count")) {
-            long autoDeleteMessageCount = Long.parseLong(item.getNodeValue());
-            Validators.MINUS_ONE_OR_GE_ZERO.validate("auto-delete-message-count", autoDeleteMessageCount);
-            config.setAutoDeleteMessageCount(autoDeleteMessageCount);
+            config.setAutoDeleteMessageCount(MINUS_ONE_OR_GE_ZERO.validate("auto-delete-message-count", Long.parseLong(item.getNodeValue())).longValue());
          } else if (item.getNodeName().equals("transformer-ref")) {
-            String transformerRef = item.getNodeValue();
-            config.setTransformerRef(transformerRef);
+            config.setTransformerRef(item.getNodeValue());
          } else if (item.getNodeName().equals("enable-divert-bindings")) {
-            boolean enableDivertBindings = Boolean.parseBoolean(item.getNodeValue());
-            config.setEnableDivertBindings(enableDivertBindings);
+            config.setEnableDivertBindings(Boolean.parseBoolean(item.getNodeValue()));
          }
       }
 
@@ -2600,24 +2964,23 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       for (int i = 0; i < attributes.getLength(); i++) {
          Node item = attributes.item(i);
          if (item.getNodeName().equals("priority-adjustment")) {
-            int priorityAdjustment = Integer.parseInt(item.getNodeValue());
-            config.getConnectionConfiguration().setPriorityAdjustment(priorityAdjustment);
+            config.getConnectionConfiguration().setPriorityAdjustment(Integer.parseInt(item.getNodeValue()));
          }
       }
 
       boolean ha = getBoolean(upstreamNode, "ha", false);
 
-      long circuitBreakerTimeout = getLong(upstreamNode, "circuit-breaker-timeout", config.getConnectionConfiguration().getCircuitBreakerTimeout(), Validators.MINUS_ONE_OR_GE_ZERO);
+      long circuitBreakerTimeout = getLong(upstreamNode, "circuit-breaker-timeout", config.getConnectionConfiguration().getCircuitBreakerTimeout(), MINUS_ONE_OR_GE_ZERO);
 
-      long clientFailureCheckPeriod = getLong(upstreamNode, "check-period", ActiveMQDefaultConfiguration.getDefaultFederationFailureCheckPeriod(), Validators.GT_ZERO);
-      long connectionTTL = getLong(upstreamNode, "connection-ttl", ActiveMQDefaultConfiguration.getDefaultFederationConnectionTtl(), Validators.GT_ZERO);
-      long retryInterval = getLong(upstreamNode, "retry-interval", ActiveMQDefaultConfiguration.getDefaultFederationRetryInterval(), Validators.GT_ZERO);
-      long callTimeout = getLong(upstreamNode, "call-timeout", ActiveMQClient.DEFAULT_CALL_TIMEOUT, Validators.GT_ZERO);
-      long callFailoverTimeout = getLong(upstreamNode, "call-failover-timeout", ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, Validators.MINUS_ONE_OR_GT_ZERO);
-      double retryIntervalMultiplier = getDouble(upstreamNode, "retry-interval-multiplier", ActiveMQDefaultConfiguration.getDefaultFederationRetryIntervalMultiplier(), Validators.GT_ZERO);
-      long maxRetryInterval = getLong(upstreamNode, "max-retry-interval", ActiveMQDefaultConfiguration.getDefaultFederationMaxRetryInterval(), Validators.GT_ZERO);
-      int initialConnectAttempts = getInteger(upstreamNode, "initial-connect-attempts", ActiveMQDefaultConfiguration.getDefaultFederationInitialConnectAttempts(), Validators.MINUS_ONE_OR_GE_ZERO);
-      int reconnectAttempts = getInteger(upstreamNode, "reconnect-attempts", ActiveMQDefaultConfiguration.getDefaultFederationReconnectAttempts(), Validators.MINUS_ONE_OR_GE_ZERO);
+      long clientFailureCheckPeriod = getLong(upstreamNode, "check-period", ActiveMQDefaultConfiguration.getDefaultFederationFailureCheckPeriod(), GT_ZERO);
+      long connectionTTL = getLong(upstreamNode, "connection-ttl", ActiveMQDefaultConfiguration.getDefaultFederationConnectionTtl(), GT_ZERO);
+      long retryInterval = getLong(upstreamNode, "retry-interval", ActiveMQDefaultConfiguration.getDefaultFederationRetryInterval(), GT_ZERO);
+      long callTimeout = getLong(upstreamNode, "call-timeout", ActiveMQClient.DEFAULT_CALL_TIMEOUT, GT_ZERO);
+      long callFailoverTimeout = getLong(upstreamNode, "call-failover-timeout", ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, MINUS_ONE_OR_GT_ZERO);
+      double retryIntervalMultiplier = getDouble(upstreamNode, "retry-interval-multiplier", ActiveMQDefaultConfiguration.getDefaultFederationRetryIntervalMultiplier(), GT_ZERO);
+      long maxRetryInterval = getLong(upstreamNode, "max-retry-interval", ActiveMQDefaultConfiguration.getDefaultFederationMaxRetryInterval(), GT_ZERO);
+      int initialConnectAttempts = getInteger(upstreamNode, "initial-connect-attempts", ActiveMQDefaultConfiguration.getDefaultFederationInitialConnectAttempts(), MINUS_ONE_OR_GE_ZERO);
+      int reconnectAttempts = getInteger(upstreamNode, "reconnect-attempts", ActiveMQDefaultConfiguration.getDefaultFederationReconnectAttempts(), MINUS_ONE_OR_GE_ZERO);
 
       List<String> staticConnectorNames = new ArrayList<>();
 
@@ -2670,10 +3033,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       final FederationDownstreamConfiguration downstreamConfiguration =
           getFederationStream(new FederationDownstreamConfiguration(), downstreamNode, mainConfig);
 
-      final String upstreamRef = getString(downstreamNode,"upstream-connector-ref", null, Validators.NOT_NULL_OR_EMPTY);
+      final String upstreamRef = getString(downstreamNode, "upstream-connector-ref", null, NOT_NULL_OR_EMPTY);
       downstreamConfiguration.setUpstreamConfigurationRef(upstreamRef);
 
       return downstreamConfiguration;
+   }
+
+   private FederationUpstreamConfiguration getBrokerConnections(final Element upstreamNode, final Configuration mainConfig) throws Exception {
+      return getFederationStream(new FederationUpstreamConfiguration(), upstreamNode, mainConfig);
    }
 
    private void getStaticConnectors(List<String> staticConnectorNames, Node child) {
@@ -2691,17 +3058,17 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private void parseDivertConfiguration(final Element e, final Configuration mainConfig) {
       String name = e.getAttribute("name");
 
-      String routingName = getString(e, "routing-name", null, Validators.NO_CHECK);
+      String routingName = getString(e, "routing-name", null, NO_CHECK);
 
-      String address = getString(e, "address", null, Validators.NOT_NULL_OR_EMPTY);
+      String address = getString(e, "address", null, NOT_NULL_OR_EMPTY);
 
-      String forwardingAddress = getString(e, "forwarding-address", null, Validators.NOT_NULL_OR_EMPTY);
+      String forwardingAddress = getString(e, "forwarding-address", null, NOT_NULL_OR_EMPTY);
 
       boolean exclusive = getBoolean(e, "exclusive", ActiveMQDefaultConfiguration.isDefaultDivertExclusive());
 
-      String transformerClassName = getString(e, "transformer-class-name", null, Validators.NO_CHECK);
+      String transformerClassName = getString(e, "transformer-class-name", null, NO_CHECK);
 
-      ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(getString(e, "routing-type", ActiveMQDefaultConfiguration.getDefaultDivertRoutingType(), Validators.COMPONENT_ROUTING_TYPE));
+      ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(getString(e, "routing-type", ActiveMQDefaultConfiguration.getDefaultDivertRoutingType(), COMPONENT_ROUTING_TYPE));
 
       TransformerConfiguration transformerConfiguration = null;
 
@@ -2733,11 +3100,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       connectionRouterConfiguration.setName(e.getAttribute("name"));
 
-      connectionRouterConfiguration.setKeyType(KeyType.valueOf(getString(e, "key-type", connectionRouterConfiguration.getKeyType().name(), Validators.KEY_TYPE)));
+      connectionRouterConfiguration.setKeyType(KeyType.valueOf(getString(e, "key-type", connectionRouterConfiguration.getKeyType().name(), KEY_TYPE)));
 
-      connectionRouterConfiguration.setKeyFilter(getString(e, "key-filter", connectionRouterConfiguration.getKeyFilter(), Validators.NO_CHECK));
+      connectionRouterConfiguration.setKeyFilter(getString(e, "key-filter", connectionRouterConfiguration.getKeyFilter(), NO_CHECK));
 
-      connectionRouterConfiguration.setLocalTargetFilter(getString(e, "local-target-filter", connectionRouterConfiguration.getLocalTargetFilter(), Validators.NO_CHECK));
+      connectionRouterConfiguration.setLocalTargetFilter(getString(e, "local-target-filter", connectionRouterConfiguration.getLocalTargetFilter(), NO_CHECK));
 
       NamedPropertyConfiguration policyConfiguration = null;
       PoolConfiguration poolConfiguration = null;
@@ -2769,7 +3136,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          cacheConfiguration.isPersisted()));
 
       cacheConfiguration.setTimeout(getInteger(e, "timeout",
-         cacheConfiguration.getTimeout(), Validators.GE_ZERO));
+         cacheConfiguration.getTimeout(), GE_ZERO));
    }
 
    private void parsePolicyConfiguration(final Element e, final NamedPropertyConfiguration policyConfiguration) throws ClassNotFoundException {
@@ -2783,24 +3150,24 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    }
 
    private void parsePoolConfiguration(final Element e, final Configuration config, final PoolConfiguration poolConfiguration) throws Exception {
-      poolConfiguration.setUsername(getString(e, "username", null, Validators.NO_CHECK));
+      poolConfiguration.setUsername(getString(e, "username", null, NO_CHECK));
 
-      String password = getString(e, "password", null, Validators.NO_CHECK);
+      String password = getString(e, "password", null, NO_CHECK);
       poolConfiguration.setPassword(password != null ? PasswordMaskingUtil.resolveMask(
          config.isMaskPassword(), password, config.getPasswordCodec()) : null);
 
       poolConfiguration.setCheckPeriod(getInteger(e, "check-period",
-         poolConfiguration.getCheckPeriod(), Validators.GT_ZERO));
+         poolConfiguration.getCheckPeriod(), GT_ZERO));
 
       poolConfiguration.setQuorumSize(getInteger(e, "quorum-size",
-         poolConfiguration.getQuorumSize(), Validators.GT_ZERO));
+         poolConfiguration.getQuorumSize(), GT_ZERO));
 
       poolConfiguration.setQuorumTimeout(getInteger(e, "quorum-timeout",
-         poolConfiguration.getQuorumTimeout(), Validators.GE_ZERO));
+         poolConfiguration.getQuorumTimeout(), GE_ZERO));
 
       poolConfiguration.setLocalTargetEnabled(getBoolean(e, "local-target-enabled", poolConfiguration.isLocalTargetEnabled()));
 
-      poolConfiguration.setClusterConnection(getString(e, "cluster-connection", null, Validators.NO_CHECK));
+      poolConfiguration.setClusterConnection(getString(e, "cluster-connection", null, NO_CHECK));
 
       NodeList children = e.getChildNodes();
 
@@ -2817,15 +3184,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
    }
 
-   /**RedirectConfiguration
-    * @param e
-    */
    protected void parseWildcardConfiguration(final Element e, final Configuration mainConfig) {
       WildcardConfiguration conf = mainConfig.getWildcardConfiguration();
 
-      conf.setDelimiter(getString(e, "delimiter", Character.toString(conf.getDelimiter()), Validators.NO_CHECK).charAt(0));
-      conf.setAnyWords(getString(e, "any-words", Character.toString(conf.getAnyWords()), Validators.NO_CHECK).charAt(0));
-      conf.setSingleWord(getString(e, "single-word", Character.toString(conf.getSingleWord()), Validators.NO_CHECK).charAt(0));
+      conf.setDelimiter(getString(e, "delimiter", Character.toString(conf.getDelimiter()), NO_CHECK).charAt(0));
+      conf.setAnyWords(getString(e, "any-words", Character.toString(conf.getAnyWords()), NO_CHECK).charAt(0));
+      conf.setSingleWord(getString(e, "single-word", Character.toString(conf.getSingleWord()), NO_CHECK).charAt(0));
       conf.setRoutingEnabled(getBoolean(e, "enabled", conf.isRoutingEnabled()));
       conf.setRoutingEnabled(getBoolean(e, "routing-enabled", conf.isRoutingEnabled()));
    }
@@ -2835,7 +3199,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       String name = nameNode != null ? nameNode.getNodeValue() : null;
 
-      String clazz = getString(e, "factory-class", null, Validators.NOT_NULL_OR_EMPTY);
+      String clazz = getString(e, "factory-class", null, NOT_NULL_OR_EMPTY);
 
       Map<String, Object> params = new HashMap<>();
 

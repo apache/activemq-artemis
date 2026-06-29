@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -24,7 +27,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
 

@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.spi.core.security.jaas;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.x500.X500Principal;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Map;
@@ -26,15 +27,12 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * A LoginModule allowing for SSL certificate based authentication based on
- * Distinguished Names (DN) stored in text files. The DNs are parsed using a
- * Properties class where each line is &lt;user_name&gt;=&lt;user_DN&gt;. This class also
- * uses a group definition file where each line is &lt;role_name&gt;=&lt;user_name_1&gt;,&lt;user_name_2&gt;,etc.
- * The user and role files' locations must be specified in the
- * org.apache.activemq.jaas.textfiledn.user and
- * org.apache.activemq.jaas.textfiledn.role properties respectively. NOTE: This
- * class will re-read user and group files if they have been modified and the "reload"
- * option is true
+ * A LoginModule allowing for SSL certificate based authentication based on Distinguished Names (DN) stored in text
+ * files. The DNs are parsed using a Properties class where each line is &lt;user_name&gt;=&lt;user_DN&gt;. This class
+ * also uses a group definition file where each line is &lt;role_name&gt;=&lt;user_name_1&gt;,&lt;user_name_2&gt;,etc.
+ * The user and role files' locations must be specified in the org.apache.activemq.jaas.textfiledn.user and
+ * org.apache.activemq.jaas.textfiledn.role properties respectively. NOTE: This class will re-read user and group files
+ * if they have been modified and the "reload" option is true
  */
 public class TextFileCertificateLoginModule extends CertificateLoginModule {
 
@@ -44,6 +42,7 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
    private Map<String, Set<String>> rolesByUser;
    private Map<String, Pattern> regexpByUser;
    private Map<String, String> usersByDn;
+   boolean normalise = false; // leaving this off by default as it validates the input, which may blow up with preexisting config
 
    /**
     * Performs initialization of file paths. A standard JAAS override.
@@ -54,20 +53,22 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
                           Map<String, ?> sharedState,
                           Map<String, ?> options) {
       super.initialize(subject, callbackHandler, sharedState, options);
-      usersByDn = load(USER_FILE_PROP_NAME, "", options).invertedPropertiesMap();
+      normalise = booleanOption("normalise", options);
+      if (normalise) {
+         usersByDn = load(USER_FILE_PROP_NAME, "", options, (String v) -> new X500Principal(v).getName()).invertedPropertiesMap();
+      } else {
+         usersByDn = load(USER_FILE_PROP_NAME, "", options).invertedPropertiesMap();
+      }
       regexpByUser = load(USER_FILE_PROP_NAME, "", options).regexpPropertiesMap();
       rolesByUser = load(ROLE_FILE_PROP_NAME, "", options).invertedPropertiesValuesMap();
    }
 
    /**
-    * Overriding to allow DN authorization based on DNs specified in text
-    * files.
+    * Overriding to allow DN authorization based on DNs specified in text files.
     *
     * @param certs The certificate the incoming connection provided.
-    * @return The user's authenticated name or null if unable to authenticate
-    * the user.
-    * @throws LoginException Thrown if unable to find user file or connection
-    *                        certificate.
+    * @return The user's authenticated name or null if unable to authenticate the user.
+    * @throws LoginException Thrown if unable to find user file or connection certificate.
     */
    @Override
    protected String getUserNameForCertificates(final X509Certificate[] certs) throws LoginException {
@@ -81,9 +82,9 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
    /**
     * Overriding to allow for role discovery based on text files.
     *
-    * @param username The name of the user being examined. This is the same
-    *                 name returned by getUserNameForCertificates.
-    * @return A Set of name Strings for roles this user belongs to.
+    * @param username The name of the user being examined. This is the same name returned by
+    *                 getUserNameForCertificates.
+    * @return A Set of name Strings for roles this user belongs to
     * @throws LoginException Thrown if unable to find role definition file.
     */
    @Override

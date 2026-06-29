@@ -21,6 +21,7 @@ import java.util.TreeMap;
 
 public enum ConsumerField {
    ID("id", "consumerID"),
+   SEQUENTIAL_ID("sequentialId", "sequentialId"),
    SESSION("session", "sessionID"),
    CONNECTION("connection", "connectionID"),
    QUEUE("queue", "queueName"),
@@ -42,7 +43,9 @@ public enum ConsumerField {
    MESSAGES_ACKNOWLEDGED("messagesAcknowledged"),
    MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT("messagesAcknowledgedAwaitingCommit"),
    LAST_DELIVERED_TIME("lastDeliveredTime"),
-   LAST_ACKNOWLEDGED_TIME("lastAcknowledgedTime");
+   LAST_ACKNOWLEDGED_TIME("lastAcknowledgedTime"),
+   STATUS("status");
+
 
    private static final Map<String, ConsumerField> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -61,8 +64,9 @@ public enum ConsumerField {
    }
 
    /**
-    * There is some inconsistency with some json objects returned for consumers because they were hard coded.
-    * This is just to track the differences and provide backward compatibility.
+    * There is some inconsistency with some json objects returned for consumers because they were hard coded. This is
+    * just to track the differences and provide backward compatibility.
+    *
     * @return the old alternative name
     */
    public String getAlternativeName() {

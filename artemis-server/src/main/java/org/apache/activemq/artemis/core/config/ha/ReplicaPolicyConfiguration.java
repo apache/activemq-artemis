@@ -32,9 +32,7 @@ public class ReplicaPolicyConfiguration implements HAPolicyConfiguration {
 
    private ScaleDownConfiguration scaleDownConfiguration;
 
-   /*
-   * used in the replicated policy after failover
-   * */
+   // used in the replicated policy after failover
    private boolean allowFailBack = false;
 
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
@@ -57,7 +55,7 @@ public class ReplicaPolicyConfiguration implements HAPolicyConfiguration {
 
    @Override
    public TYPE getType() {
-      return TYPE.REPLICA;
+      return TYPE.REPLICATION_BACKUP_QUORUM_VOTING;
    }
 
    public ScaleDownConfiguration getScaleDownConfiguration() {
@@ -137,7 +135,7 @@ public class ReplicaPolicyConfiguration implements HAPolicyConfiguration {
       return voteOnReplicationFailure;
    }
 
-   public void setVoteOnReplicationFailure(Boolean voteOnReplicationFailure) {
+   public void setVoteOnReplicationFailure(boolean voteOnReplicationFailure) {
       this.voteOnReplicationFailure = voteOnReplicationFailure;
    }
 

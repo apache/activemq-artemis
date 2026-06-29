@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
-import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -32,8 +30,8 @@ import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOff
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +47,7 @@ public class RestartSMTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -71,7 +69,7 @@ public class RestartSMTest extends ActiveMQTestBase {
 
          List<QueueBindingInfo> queueBindingInfos = new ArrayList<>();
 
-         journal.loadBindingJournal(queueBindingInfos, new ArrayList<GroupingInfo>(), new ArrayList<AddressBindingInfo>());
+         journal.loadBindingJournal(queueBindingInfos, new ArrayList<>(), new ArrayList<>());
 
          journal.loadMessageJournal(postOffice, null, null, null, null, null, null, new FakeJournalLoader());
 
@@ -85,7 +83,7 @@ public class RestartSMTest extends ActiveMQTestBase {
 
          queueBindingInfos = new ArrayList<>();
 
-         journal.loadBindingJournal(queueBindingInfos, new ArrayList<GroupingInfo>(), new ArrayList<AddressBindingInfo>());
+         journal.loadBindingJournal(queueBindingInfos, new ArrayList<>(), new ArrayList<>());
 
          journal.start();
       } finally {

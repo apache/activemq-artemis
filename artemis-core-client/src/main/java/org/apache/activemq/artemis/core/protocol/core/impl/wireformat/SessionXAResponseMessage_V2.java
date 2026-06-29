@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.utils.DataConstants;
 
@@ -65,20 +67,17 @@ public class SessionXAResponseMessage_V2 extends SessionXAResponseMessage {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", error=" + error);
-      buff.append(", message=" + message);
-      buff.append(", responseCode=" + responseCode);
-      buff.append(", correlationID=" + correlationID);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", error=" + error);
+      sb.append(", message=" + message);
+      sb.append(", responseCode=" + responseCode);
+      sb.append(", correlationID=" + correlationID);
+      return sb.toString();
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (correlationID ^ (correlationID >>> 32));
-      return result;
+      return super.hashCode() + Objects.hashCode(correlationID);
    }
 
    @Override
@@ -89,13 +88,10 @@ public class SessionXAResponseMessage_V2 extends SessionXAResponseMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof SessionXAResponseMessage_V2)) {
+      if (!(obj instanceof SessionXAResponseMessage_V2 other)) {
          return false;
       }
-      SessionXAResponseMessage_V2 other = (SessionXAResponseMessage_V2) obj;
-      if (correlationID != other.correlationID) {
-         return false;
-      }
-      return true;
+
+      return correlationID == other.correlationID;
    }
 }

@@ -16,20 +16,22 @@
  */
 package org.apache.activemq.artemis.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.Deflater;
 
 import org.apache.activemq.artemis.utils.DeflaterReader;
 import org.apache.activemq.artemis.utils.InflaterReader;
 import org.apache.activemq.artemis.utils.InflaterWriter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class CompressionUtilTest extends Assert {
+public class CompressionUtilTest {
 
    @Test
    public void testDeflaterReader() throws Exception {
@@ -39,7 +41,7 @@ public class CompressionUtilTest extends Assert {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
 
       AtomicLong counter = new AtomicLong(0);
-      ArrayList<Integer> zipHolder = new ArrayList<>();
+      List<Integer> zipHolder = new ArrayList<>();
 
       try (DeflaterReader reader = new DeflaterReader(inputStream, counter)) {
          int b = reader.read();
@@ -75,7 +77,7 @@ public class CompressionUtilTest extends Assert {
       AtomicLong counter = new AtomicLong(0);
 
       byte[] buffer = new byte[7];
-      ArrayList<Integer> zipHolder = new ArrayList<>();
+      List<Integer> zipHolder = new ArrayList<>();
 
       try (DeflaterReader reader = new DeflaterReader(inputStream, counter)) {
          int n = reader.read(buffer);
@@ -118,7 +120,7 @@ public class CompressionUtilTest extends Assert {
       System.arraycopy(output, 0, zipBytes, 0, compressedDataLength);
       ByteArrayInputStream byteInput = new ByteArrayInputStream(zipBytes);
 
-      ArrayList<Integer> holder = new ArrayList<>();
+      List<Integer> holder = new ArrayList<>();
       try (InflaterReader inflater = new InflaterReader(byteInput)) {
          int read = inflater.read();
 

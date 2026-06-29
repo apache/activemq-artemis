@@ -1,6 +1,0 @@
-
-      <ha-policy>
-         <replication>
-            <slave/>
-         </replication>
-      </ha-policy>

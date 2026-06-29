@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.uri.URISupport;
 import org.apache.activemq.broker.BrokerService;
 import org.junit.Assert;
@@ -89,7 +88,7 @@ public class OpenwireArtemisBaseTest {
    public String CLUSTER_PASSWORD = "OPENWIRECLUSTER";
 
    protected Configuration createConfig(final int serverID) throws Exception {
-      return createConfig("localhost", serverID, Collections.EMPTY_MAP);
+      return createConfig("localhost", serverID, Collections.emptyMap());
    }
 
    protected Configuration createConfig(final String hostAddress, final int serverID, final int port) throws Exception {
@@ -112,7 +111,7 @@ public class OpenwireArtemisBaseTest {
    }
 
    protected Configuration createConfig(final String hostAddress, final int serverID) throws Exception {
-      return createConfig(hostAddress, serverID, Collections.EMPTY_MAP);
+      return createConfig(hostAddress, serverID, Collections.emptyMap());
    }
 
    protected Configuration createConfig(final String hostAddress,
@@ -158,14 +157,14 @@ public class OpenwireArtemisBaseTest {
    }
 
    public void deployClusterConfiguration(Configuration config, Integer... targetIDs) throws Exception {
-      StringBuffer stringBuffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       String separator = "";
       for (int x : targetIDs) {
-         stringBuffer.append(separator + newURI(x));
+         sb.append(separator + newURI(x));
          separator = ",";
       }
 
-      String ccURI = "static://(" + stringBuffer.toString() + ")?connectorName=netty-connector;retryInterval=500;messageLoadBalancingType=STRICT;maxHops=1";
+      String ccURI = "static://(" + sb.toString() + ")?connectorName=netty-connector;retryInterval=500;messageLoadBalancingType=STRICT;maxHops=1";
 
       config.addClusterConfiguration("clusterCC", ccURI);
    }
@@ -179,7 +178,7 @@ public class OpenwireArtemisBaseTest {
    }
 
    protected static String newURIwithPort(String localhostAddress, int port) throws Exception {
-      return newURIwithPort(localhostAddress, port, Collections.EMPTY_MAP);
+      return newURIwithPort(localhostAddress, port, Collections.emptyMap());
    }
 
    protected static String newURIwithPort(String localhostAddress,

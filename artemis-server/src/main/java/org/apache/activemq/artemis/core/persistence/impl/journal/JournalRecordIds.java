@@ -19,9 +19,8 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 /**
  * These record IDs definitions are meant to be public.
  * <p>
- * If any other component or any test needs to validate user-record-types from the Journal directly
- * This is where the definitions will exist and this is what these tests should be using to verify
- * the IDs.
+ * If any other component or any test needs to validate user-record-types from the Journal directly This is where the
+ * definitions will exist and this is what these tests should be using to verify the IDs.
  */
 public final class JournalRecordIds {
 
@@ -54,9 +53,7 @@ public final class JournalRecordIds {
    // Message journal record types
 
    /**
-    * This is used when a large message is created but not yet stored on the system.
-    * <p>
-    * We use this to avoid temporary files missing
+    * THIS RECORD IS NO LONGER USED, WE NOW WILL SCAN ALL PAGE FILES FOR PENDING LARGE MESSAGES
     */
    public static final byte ADD_LARGE_MESSAGE_PENDING = 29;
 
@@ -104,4 +101,8 @@ public final class JournalRecordIds {
    public static final byte KEY_VALUE_PAIR_RECORD = 50;
 
    public static final byte CONNECTOR_RECORD = 51;
+
+   public static final byte ADDRESS_SETTING_RECORD_JSON = 52;
+
+   public static final byte ACK_RETRY = 53;
 }

@@ -191,11 +191,7 @@ public class ActiveMQConnectionFactoryTest extends CombinationTestSupport {
       connection = (ActiveMQConnection) cf.createConnection();
       assertNull(connection.getExceptionListener());
 
-      ExceptionListener exListener = new ExceptionListener() {
-         @Override
-         public void onException(JMSException arg0) {
-         }
-      };
+      ExceptionListener exListener = arg0 -> {};
       cf.setExceptionListener(exListener);
       connection.close();
 
@@ -217,11 +213,7 @@ public class ActiveMQConnectionFactoryTest extends CombinationTestSupport {
       connection = (ActiveMQConnection) cf.createConnection();
       assertNull(connection.getClientInternalExceptionListener());
 
-      ClientInternalExceptionListener listener = new ClientInternalExceptionListener() {
-         @Override
-         public void onException(Throwable exception) {
-         }
-      };
+      ClientInternalExceptionListener listener = exception -> {};
       connection.setClientInternalExceptionListener(listener);
       cf.setClientInternalExceptionListener(listener);
       connection.close();

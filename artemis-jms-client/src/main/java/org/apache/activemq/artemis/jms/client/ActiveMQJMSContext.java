@@ -43,7 +43,7 @@ import javax.transaction.xa.XAResource;
 import java.io.Serializable;
 
 /**
- * ActiveMQ Artemis implementation of a JMSContext.
+ * Apache Artemis implementation of a JMSContext.
  */
 public class ActiveMQJMSContext implements JMSContext {
 
@@ -125,14 +125,12 @@ public class ActiveMQJMSContext implements JMSContext {
       return innerProducer;
    }
 
-   /**
-    *
-    */
    private void checkSession() {
       if (session == null) {
          synchronized (this) {
-            if (closed)
+            if (closed) {
                throw new IllegalStateRuntimeException("Context is closed");
+            }
             if (session == null) {
                try {
                   if (xa) {
@@ -228,8 +226,9 @@ public class ActiveMQJMSContext implements JMSContext {
       threadAwareContext.assertNotMessageListenerThreadRuntime();
       try {
          synchronized (this) {
-            if (session != null)
+            if (session != null) {
                session.close();
+            }
             connection.closeFromContext();
             closed = true;
          }
@@ -550,8 +549,9 @@ public class ActiveMQJMSContext implements JMSContext {
    @Override
    public void acknowledge() {
       checkSession();
-      if (closed)
+      if (closed) {
          throw new IllegalStateRuntimeException("Context is closed");
+      }
       try {
          if (lastMessagesWaitingAck != null) {
             lastMessagesWaitingAck.acknowledge();
@@ -562,18 +562,17 @@ public class ActiveMQJMSContext implements JMSContext {
    }
 
    /**
-    * This is to be used on tests only. It's not part of the interface and it's not guaranteed to be kept
-    * on the API contract.
-    *
-    * @return
+    * This is to be used on tests only. It's not part of the interface and it's not guaranteed to be kept on the API
+    * contract.
     */
    public Session getUsedSession() {
       return this.session;
    }
 
    private synchronized void checkAutoStart() throws JMSException {
-      if (closed)
+      if (closed) {
          throw new IllegalStateRuntimeException("Context is closed");
+      }
       if (autoStart) {
          connection.start();
       }
@@ -582,8 +581,8 @@ public class ActiveMQJMSContext implements JMSContext {
    /**
     * this is to ensure Context.acknowledge would work on ClientACK
     */
-   Message setLastMessage(final JMSConsumer consumer, final Message lastMessageReceived) {
-      if (sessionMode == CLIENT_ACKNOWLEDGE) {
+   Message setLastMessage(final Message lastMessageReceived) {
+      if (sessionMode == CLIENT_ACKNOWLEDGE && lastMessageReceived != null) {
          lastMessagesWaitingAck = lastMessageReceived;
       }
       return lastMessageReceived;

@@ -16,26 +16,27 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.security.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/**
- * tests ActiveMQSecurityManagerImpl
- */
 public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase {
 
    private ActiveMQSecurityManagerImpl securityManager;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -43,7 +44,7 @@ public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       securityManager = null;
 
@@ -55,46 +56,46 @@ public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addUser("guest", "password");
       securityManager.getConfiguration().addRole("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
-      Assert.assertTrue(securityManager.validateUser(null, null));
-      Assert.assertTrue(securityManager.validateUser("guest", "password"));
-      Assert.assertFalse(securityManager.validateUser(null, "wrongpass"));
-      HashSet<Role> roles = new HashSet<>();
-      roles.add(new Role("guest", true, true, true, true, true, true, true, true, true, true));
-      Assert.assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.CREATE_DURABLE_QUEUE));
-      Assert.assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.SEND));
-      Assert.assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.CONSUME));
+      assertTrue(securityManager.validateUser(null, null));
+      assertTrue(securityManager.validateUser("guest", "password"));
+      assertFalse(securityManager.validateUser(null, "wrongpass"));
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("guest", true, true, true, true, true, true, true, true, true, true, false, false));
+      assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.CREATE_DURABLE_QUEUE));
+      assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.SEND));
+      assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.CONSUME));
       roles = new HashSet<>();
-      roles.add(new Role("guest", true, true, false, true, true, true, true, true, true, true));
-      Assert.assertFalse(securityManager.validateUserAndRole(null, null, roles, CheckType.CREATE_DURABLE_QUEUE));
-      Assert.assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.SEND));
-      Assert.assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.CONSUME));
+      roles.add(new Role("guest", true, true, false, true, true, true, true, true, true, true, false, false));
+      assertFalse(securityManager.validateUserAndRole(null, null, roles, CheckType.CREATE_DURABLE_QUEUE));
+      assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.SEND));
+      assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.CONSUME));
       roles = new HashSet<>();
-      roles.add(new Role("guest", true, false, false, true, true, true, true, true, true, true));
-      Assert.assertFalse(securityManager.validateUserAndRole(null, null, roles, CheckType.CREATE_DURABLE_QUEUE));
-      Assert.assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.SEND));
-      Assert.assertFalse(securityManager.validateUserAndRole(null, null, roles, CheckType.CONSUME));
+      roles.add(new Role("guest", true, false, false, true, true, true, true, true, true, true, false, false));
+      assertFalse(securityManager.validateUserAndRole(null, null, roles, CheckType.CREATE_DURABLE_QUEUE));
+      assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.SEND));
+      assertFalse(securityManager.validateUserAndRole(null, null, roles, CheckType.CONSUME));
       roles = new HashSet<>();
-      roles.add(new Role("guest", false, false, false, true, true, true, true, true, true, true));
-      Assert.assertFalse(securityManager.validateUserAndRole(null, null, roles, CheckType.CREATE_DURABLE_QUEUE));
-      Assert.assertFalse(securityManager.validateUserAndRole(null, null, roles, CheckType.SEND));
-      Assert.assertFalse(securityManager.validateUserAndRole(null, null, roles, CheckType.CONSUME));
+      roles.add(new Role("guest", false, false, false, true, true, true, true, true, true, true, false, false));
+      assertFalse(securityManager.validateUserAndRole(null, null, roles, CheckType.CREATE_DURABLE_QUEUE));
+      assertFalse(securityManager.validateUserAndRole(null, null, roles, CheckType.SEND));
+      assertFalse(securityManager.validateUserAndRole(null, null, roles, CheckType.CONSUME));
    }
 
    @Test
    public void testAddingUsers() {
       securityManager.getConfiguration().addUser("newuser1", "newpassword1");
-      Assert.assertTrue(securityManager.validateUser("newuser1", "newpassword1"));
-      Assert.assertFalse(securityManager.validateUser("newuser1", "guest"));
-      Assert.assertFalse(securityManager.validateUser("newuser1", null));
+      assertTrue(securityManager.validateUser("newuser1", "newpassword1"));
+      assertFalse(securityManager.validateUser("newuser1", "guest"));
+      assertFalse(securityManager.validateUser("newuser1", null));
       try {
          securityManager.getConfiguration().addUser("newuser2", null);
-         Assert.fail("password cannot be null");
+         fail("password cannot be null");
       } catch (IllegalArgumentException e) {
          // pass
       }
       try {
          securityManager.getConfiguration().addUser(null, "newpassword2");
-         Assert.fail("password cannot be null");
+         fail("password cannot be null");
       } catch (IllegalArgumentException e) {
          // pass
       }
@@ -103,17 +104,17 @@ public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase {
    @Test
    public void testRemovingUsers() {
       securityManager.getConfiguration().addUser("newuser1", "newpassword1");
-      Assert.assertTrue(securityManager.validateUser("newuser1", "newpassword1"));
+      assertTrue(securityManager.validateUser("newuser1", "newpassword1"));
       securityManager.getConfiguration().removeUser("newuser1");
-      Assert.assertFalse(securityManager.validateUser("newuser1", "newpassword1"));
+      assertFalse(securityManager.validateUser("newuser1", "newpassword1"));
    }
 
    @Test
    public void testRemovingInvalidUsers() {
       securityManager.getConfiguration().addUser("newuser1", "newpassword1");
-      Assert.assertTrue(securityManager.validateUser("newuser1", "newpassword1"));
+      assertTrue(securityManager.validateUser("newuser1", "newpassword1"));
       securityManager.getConfiguration().removeUser("nonuser");
-      Assert.assertTrue(securityManager.validateUser("newuser1", "newpassword1"));
+      assertTrue(securityManager.validateUser("newuser1", "newpassword1"));
    }
 
    @Test
@@ -123,21 +124,21 @@ public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("newuser1", "role2");
       securityManager.getConfiguration().addRole("newuser1", "role3");
       securityManager.getConfiguration().addRole("newuser1", "role4");
-      HashSet<Role> roles = new HashSet<>();
-      roles.add(new Role("role1", true, true, true, true, true, true, true, true, true, true));
-      Assert.assertTrue(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("role1", true, true, true, true, true, true, true, true, true, true, false, false));
+      assertTrue(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
       roles = new HashSet<>();
-      roles.add(new Role("role2", true, true, true, true, true, true, true, true, true, true));
-      Assert.assertTrue(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
+      roles.add(new Role("role2", true, true, true, true, true, true, true, true, true, true, false, false));
+      assertTrue(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
       roles = new HashSet<>();
-      roles.add(new Role("role3", true, true, true, true, true, true, true, true, true, true));
-      Assert.assertTrue(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
+      roles.add(new Role("role3", true, true, true, true, true, true, true, true, true, true, false, false));
+      assertTrue(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
       roles = new HashSet<>();
-      roles.add(new Role("role4", true, true, true, true, true, true, true, true, true, true));
-      Assert.assertTrue(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
+      roles.add(new Role("role4", true, true, true, true, true, true, true, true, true, true, false, false));
+      assertTrue(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
       roles = new HashSet<>();
-      roles.add(new Role("role5", true, true, true, true, true, true, true, true, true, true));
-      Assert.assertFalse(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
+      roles.add(new Role("role5", true, true, true, true, true, true, true, true, true, true, false, false));
+      assertFalse(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
    }
 
    @Test
@@ -149,20 +150,20 @@ public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("newuser1", "role4");
       securityManager.getConfiguration().removeRole("newuser1", "role2");
       securityManager.getConfiguration().removeRole("newuser1", "role4");
-      HashSet<Role> roles = new HashSet<>();
-      roles.add(new Role("role1", true, true, true, true, true, true, true, true, true, true));
-      Assert.assertTrue(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("role1", true, true, true, true, true, true, true, true, true, true, false, false));
+      assertTrue(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
       roles = new HashSet<>();
-      roles.add(new Role("role2", true, true, true, true, true, true, true, true, true, true));
-      Assert.assertFalse(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
+      roles.add(new Role("role2", true, true, true, true, true, true, true, true, true, true, false, false));
+      assertFalse(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
       roles = new HashSet<>();
-      roles.add(new Role("role3", true, true, true, true, true, true, true, true, true, true));
-      Assert.assertTrue(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
+      roles.add(new Role("role3", true, true, true, true, true, true, true, true, true, true, false, false));
+      assertTrue(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
       roles = new HashSet<>();
-      roles.add(new Role("role4", true, true, true, true, true, true, true, true, true, true));
-      Assert.assertFalse(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
+      roles.add(new Role("role4", true, true, true, true, true, true, true, true, true, true, false, false));
+      assertFalse(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
       roles = new HashSet<>();
-      roles.add(new Role("role5", true, true, true, true, true, true, true, true, true, true));
-      Assert.assertFalse(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
+      roles.add(new Role("role5", true, true, true, true, true, true, true, true, true, true, false, false));
+      assertFalse(securityManager.validateUserAndRole("newuser1", "newpassword1", roles, CheckType.SEND));
    }
 }

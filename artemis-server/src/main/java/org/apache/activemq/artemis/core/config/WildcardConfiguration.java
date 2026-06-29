@@ -17,8 +17,11 @@
 package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class WildcardConfiguration implements Serializable {
+
+   public static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
 
    private static final long serialVersionUID = 1L;
 
@@ -27,6 +30,8 @@ public class WildcardConfiguration implements Serializable {
    static final char ANY_WORDS = '#';
 
    static final char DELIMITER = '.';
+
+   static final char ESCAPE = '\\';
 
    boolean routingEnabled = true;
 
@@ -42,28 +47,26 @@ public class WildcardConfiguration implements Serializable {
 
    String delimiterString = String.valueOf(delimiter);
 
+   String escapeString = String.valueOf(ESCAPE);
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof WildcardConfiguration)) return false;
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof WildcardConfiguration other)) {
+         return false;
+      }
 
-      WildcardConfiguration that = (WildcardConfiguration) o;
-
-      if (routingEnabled != that.routingEnabled) return false;
-      if (singleWord != that.singleWord) return false;
-      if (anyWords != that.anyWords) return false;
-      return delimiter == that.delimiter;
-
+      return routingEnabled == other.routingEnabled &&
+             singleWord == other.singleWord &&
+             anyWords == other.anyWords &&
+             delimiter == other.delimiter;
    }
 
    @Override
    public int hashCode() {
-      int result = (routingEnabled ? 1 : 0);
-      result = 31 * result + singleWord;
-      result = 31 * result + anyWords;
-      result = 31 * result + delimiter;
-      return result;
+      return Objects.hash(routingEnabled, singleWord, anyWords, delimiter);
    }
 
    @Override
@@ -80,8 +83,9 @@ public class WildcardConfiguration implements Serializable {
       return routingEnabled;
    }
 
-   public void setRoutingEnabled(boolean routingEnabled) {
+   public WildcardConfiguration setRoutingEnabled(boolean routingEnabled) {
       this.routingEnabled = routingEnabled;
+      return this;
    }
 
    public char getAnyWords() {
@@ -93,9 +97,10 @@ public class WildcardConfiguration implements Serializable {
    }
 
 
-   public void setAnyWords(char anyWords) {
+   public WildcardConfiguration setAnyWords(char anyWords) {
       this.anyWords = anyWords;
       this.anyWordsString = String.valueOf(anyWords);
+      return this;
    }
 
    public char getDelimiter() {
@@ -106,9 +111,10 @@ public class WildcardConfiguration implements Serializable {
       return delimiterString;
    }
 
-   public void setDelimiter(char delimiter) {
+   public WildcardConfiguration setDelimiter(char delimiter) {
       this.delimiter = delimiter;
       this.delimiterString = String.valueOf(delimiter);
+      return this;
    }
 
    public char getSingleWord() {
@@ -119,19 +125,130 @@ public class WildcardConfiguration implements Serializable {
       return singleWordString;
    }
 
-   public void setSingleWord(char singleWord) {
+   public WildcardConfiguration setSingleWord(char singleWord) {
       this.singleWord = singleWord;
       this.singleWordString = String.valueOf(singleWord);
+      return this;
    }
 
-   public String convert(String filter, WildcardConfiguration to) {
-      if (this.equals(to)) {
-         return filter;
+   /**
+    * Convert the input from this WildcardConfiguration into the specified WildcardConfiguration.
+    * <p>
+    * If the input already contains characters defined in the target WildcardConfiguration then those characters will be
+    * escaped and preserved as such in the returned String. That said, wildcard characters which are the same between
+    * the two configurations will not be escaped
+    * <p>
+    * If the input already contains escaped characters defined in this WildcardConfiguration then those characters will
+    * be unescaped after conversion and restored in the returned String.
+    *
+    * @param input  the String to convert
+    * @param target the WildcardConfiguration to convert the input into
+    * @return the converted String
+    */
+   public String convert(final String input, final WildcardConfiguration target) {
+      if (this.equals(target)) {
+         return input;
       } else {
-         return filter
-            .replace(getDelimiter(), to.getDelimiter())
-            .replace(getSingleWord(), to.getSingleWord())
-            .replace(getAnyWords(), to.getAnyWords());
+         boolean escaped = isEscaped(input);
+         StringBuilder result;
+         if (!escaped) {
+            result = new StringBuilder(target.escape(input, this));
+         } else {
+            result = new StringBuilder(input);
+         }
+         replaceChar(result, getDelimiter(), target.getDelimiter());
+         replaceChar(result, getSingleWord(), target.getSingleWord());
+         replaceChar(result, getAnyWords(), target.getAnyWords());
+         if (escaped) {
+            return unescape(result.toString());
+         } else {
+            return result.toString();
+         }
       }
+   }
+
+   /**
+    * Detect whether the input {@code CharSequence} contains any unescaped "single word" or "any words" characters.
+    *
+    * {@code CharSequence} is used here to support both {@code String} and {@code SimpleString} objects.
+    */
+   public boolean isWild(CharSequence input) {
+      if (input == null || input.isEmpty()) {
+         return false;
+      } else if (input.charAt(0) == getSingleWord() || input.charAt(0) == getAnyWords()) {
+         return true;
+      } else {
+         for (int i = 1; i < input.length(); i++) {
+            if ((input.charAt(i) == getSingleWord() || input.charAt(i) == getAnyWords()) && input.charAt(i - 1) != ESCAPE) {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
+
+   private String escape(final String input, WildcardConfiguration from) {
+      String result = input.replace(escapeString, escapeString + escapeString);
+      if (delimiter != from.getDelimiter()) {
+         result = result.replace(getDelimiterString(), escapeString + getDelimiterString());
+      }
+      if (singleWord != from.getSingleWord()) {
+         result = result.replace(getSingleWordString(), escapeString + getSingleWordString());
+      }
+      if (anyWords != from.getAnyWords()) {
+         result = result.replace(getAnyWordsString(), escapeString + getAnyWordsString());
+      }
+      return result;
+   }
+
+   private String unescape(final String input) {
+      return input
+         .replace(escapeString + escapeString, escapeString)
+         .replace(ESCAPE + getDelimiterString(), getDelimiterString())
+         .replace(ESCAPE + getSingleWordString(), getSingleWordString())
+         .replace(ESCAPE + getAnyWordsString(), getAnyWordsString());
+   }
+
+   /**
+    * {@return whether the input contains any escaped characters}
+    *
+    * @param input the {@code CharSequence} to inspect
+    */
+   private boolean isEscaped(final CharSequence input) {
+      for (int i = 0; i < input.length() - 1; i++) {
+         if (input.charAt(i) == ESCAPE && (input.charAt(i + 1) == getDelimiter() || input.charAt(i + 1) == getSingleWord() || input.charAt(i + 1) == getAnyWords())) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   /**
+    * This will replace one character with another while ignoring escaped characters (i.e. those proceeded with '\').
+    *
+    * @param result      the final result of the replacement
+    * @param replace     the character to replace
+    * @param replacement the replacement character to use
+    */
+   private void replaceChar(StringBuilder result, char replace, char replacement) {
+      if (replace == replacement) {
+         return;
+      }
+      for (int i = 0; i < result.length(); i++) {
+         if (result.charAt(i) == replace && (i == 0 || result.charAt(i - 1) != ESCAPE)) {
+            result.setCharAt(i, replacement);
+         }
+      }
+   }
+
+   /**
+    * Checks whether the specified character matches any of the configured wildcard characters: single word, any words,
+    * or delimiter.
+    *
+    * @param input the character to be checked
+    * @return true if the input character matches one of the wildcard characters; false otherwise
+    */
+   public boolean contains(char input) {
+      return input == getSingleWord() || input == getAnyWords() || input == getDelimiter();
    }
 }

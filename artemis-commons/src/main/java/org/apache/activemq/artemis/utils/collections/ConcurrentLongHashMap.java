@@ -19,23 +19,21 @@ package org.apache.activemq.artemis.utils.collections;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.LongFunction;
 
-import static org.apache.activemq.artemis.utils.Preconditions.checkArgument;
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
+import org.apache.activemq.artemis.utils.Preconditions;
 
 /**
  * Map from long to an Object.
- *
+ * <p>
  * Provides similar methods as a {@literal ConcurrentMap<long,Object>} with 2 differences:
  * <ol>
  * <li>No boxing/unboxing from {@literal long -> Long}
  * <li>Open hash map with linear probing, no node allocations to store the values
  * </ol>
- *
- * @param <V>
  */
 @SuppressWarnings("unchecked")
 public class ConcurrentLongHashMap<V> {
@@ -59,7 +57,7 @@ public class ConcurrentLongHashMap<V> {
    }
 
    public ConcurrentLongHashMap(int expectedItems, int numSections) {
-      checkArgument(numSections > 0);
+      Preconditions.checkArgument(numSections > 0);
       if (expectedItems < numSections) {
          expectedItems = numSections;
       }
@@ -123,19 +121,19 @@ public class ConcurrentLongHashMap<V> {
    }
 
    public V put(long key, V value) {
-      checkNotNull(value);
+      Objects.requireNonNull(value);
       long h = hash(key);
       return getSection(h).put(key, value, (int) h, false, null);
    }
 
    public V putIfAbsent(long key, V value) {
-      checkNotNull(value);
+      Objects.requireNonNull(value);
       long h = hash(key);
       return getSection(h).put(key, value, (int) h, true, null);
    }
 
    public V computeIfAbsent(long key, LongFunction<V> provider) {
-      checkNotNull(provider);
+      Objects.requireNonNull(provider);
       long h = hash(key);
       return getSection(h).put(key, null, (int) h, true, provider);
    }
@@ -146,7 +144,7 @@ public class ConcurrentLongHashMap<V> {
    }
 
    public boolean remove(long key, Object value) {
-      checkNotNull(value);
+      Objects.requireNonNull(value);
       long h = hash(key);
       return getSection(h).remove(key, value, (int) h) != null;
    }

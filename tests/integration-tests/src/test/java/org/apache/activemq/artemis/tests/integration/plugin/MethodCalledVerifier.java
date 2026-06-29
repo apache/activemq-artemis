@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.plugin;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Map;
@@ -52,9 +55,6 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.tests.util.Wait;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 public class MethodCalledVerifier implements ActiveMQServerPlugin {
 
    private final Map<String, AtomicInteger> methodCalls;
@@ -87,6 +87,7 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    public static final String AFTER_REMOVE_BINDING = "afterRemoveBinding";
    public static final String MESSAGE_EXPIRED = "messageExpired";
    public static final String MESSAGE_ACKED = "messageAcknowledged";
+   public static final String MESSAGE_MOVED = "messageMoved";
    public static final String BEFORE_SEND = "beforeSend";
    public static final String AFTER_SEND = "afterSend";
    public static final String ON_SEND_EXCEPTION = "onSendException";
@@ -300,6 +301,23 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    }
 
    @Override
+   public void messageMoved(final Transaction tx,
+                            final MessageReference ref,
+                            final AckReason reason,
+                            final SimpleString destAddress,
+                            final Long destQueueID,
+                            final ServerConsumer consumer,
+                            final Message newMessage,
+                            final RoutingStatus result) {
+      Objects.requireNonNull(ref);
+      Objects.requireNonNull(reason);
+      Objects.requireNonNull(destAddress);
+      Objects.requireNonNull(newMessage);
+      Objects.requireNonNull(result);
+      methodCalled(MESSAGE_MOVED);
+   }
+
+   @Override
    public void beforeSend(ServerSession session, Transaction tx, Message message, boolean direct,
          boolean noAutoCreateQueue) {
       Objects.requireNonNull(message);
@@ -466,7 +484,7 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
             Wait.waitFor(() -> count == methodCalls.getOrDefault(name, new AtomicInteger()).get(), timeout, sleepMillis);
          } catch (Throwable ignored) {
          }
-         assertEquals("validating method " + name, count, methodCalls.getOrDefault(name, new AtomicInteger()).get());
+         assertEquals(count, methodCalls.getOrDefault(name, new AtomicInteger()).get(), "validating method " + name);
       });
    }
 
@@ -478,7 +496,7 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
          } catch (Exception e) {
             e.printStackTrace();
          }
-         assertTrue("validating method " + name + " expected less than " + count, count <= methodCalls.getOrDefault(name, new AtomicInteger()).get());
+         assertTrue(count <= methodCalls.getOrDefault(name, new AtomicInteger()).get(), "validating method " + name + " expected less than " + count);
       });
    }
 

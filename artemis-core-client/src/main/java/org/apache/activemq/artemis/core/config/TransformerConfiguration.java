@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.config;
 
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 import org.apache.activemq.artemis.json.JsonObject;
@@ -25,6 +26,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class TransformerConfiguration implements Serializable {
 
@@ -56,10 +58,10 @@ public final class TransformerConfiguration implements Serializable {
    }
 
    /**
-    * This method returns a {@code TransformerConfiguration} created from the JSON-formatted input {@code String}.
-    * The input should contain these entries:
+    * This method returns a {@code TransformerConfiguration} created from the JSON-formatted input {@code String}. The
+    * input should contain these entries:
     *
-    * <p><ul>
+    * <ul>
     * <li>class-name - a string value,
     * <li>properties - an object containing string key-value pairs.
     * </ul>
@@ -78,7 +80,7 @@ public final class TransformerConfiguration implements Serializable {
       TransformerConfiguration result = new TransformerConfiguration(json.getString(CLASS_NAME));
 
       if (json.containsKey(PROPERTIES)) {
-         HashMap<String, String> properties = new HashMap<>();
+         Map<String, String> properties = new HashMap<>();
          for (Map.Entry<String, JsonValue> propEntry: json.getJsonObject(PROPERTIES).entrySet()) {
             if (propEntry.getValue().getValueType() == JsonValue.ValueType.STRING) {
                properties.put(propEntry.getKey(), ((JsonString) propEntry.getValue()).getString());
@@ -92,7 +94,19 @@ public final class TransformerConfiguration implements Serializable {
       return result;
    }
 
+   public JsonObjectBuilder createJsonObjectBuilder() {
+      JsonObjectBuilder tcBuilder = JsonLoader.createObjectBuilder().add(TransformerConfiguration.CLASS_NAME, getClassName());
+      if (getProperties() != null && !getProperties().isEmpty()) {
+         JsonObjectBuilder propBuilder = JsonLoader.createObjectBuilder();
+         getProperties().forEach(propBuilder::add);
+         tcBuilder.add(TransformerConfiguration.PROPERTIES, propBuilder);
+      }
+      return tcBuilder;
+   }
+
    /**
+    * add properties to this {@code TransportConfiguration}
+    *
     * @param properties the properties to set
     */
    public TransformerConfiguration setProperties(final Map<String, String> properties) {
@@ -104,33 +118,26 @@ public final class TransformerConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((className == null) ? 0 : className.hashCode());
-      result = prime * result + ((properties == null) ? 0 : properties.hashCode());
-      return result;
+      return Objects.hash(className, properties);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof TransformerConfiguration other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      TransformerConfiguration other = (TransformerConfiguration) obj;
-      if (className == null) {
-         if (other.className != null)
-            return false;
-      } else if (!className.equals(other.className))
-         return false;
-      if (properties == null) {
-         if (other.properties != null)
-            return false;
-      } else if (!properties.equals(other.properties))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(className, other.className) &&
+             Objects.equals(properties, other.properties);
    }
 
+   @Override
+   public String toString() {
+      return "TransformerConfiguration [" +
+         "className=" + className +
+         ", properties=" + properties + "]";
+   }
 }

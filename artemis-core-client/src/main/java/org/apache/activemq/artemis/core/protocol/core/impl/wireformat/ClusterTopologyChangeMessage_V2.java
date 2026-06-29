@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 
-/**
- * Clebert Suconic
- */
 public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessage {
 
    protected long uniqueEventID;
@@ -66,9 +65,6 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
       super(clusterTopologyV3);
    }
 
-   /**
-    * @return the uniqueEventID
-    */
    public long getUniqueEventID() {
       return uniqueEventID;
    }
@@ -106,9 +102,9 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
       nodeID = buffer.readString();
       uniqueEventID = buffer.readLong();
       if (!exit) {
-         boolean hasLive = buffer.readBoolean();
+         boolean hasPrimary = buffer.readBoolean();
          TransportConfiguration a;
-         if (hasLive) {
+         if (hasPrimary) {
             a = new TransportConfiguration();
             a.decode(buffer);
          } else {
@@ -132,23 +128,19 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((backupGroupName == null) ? 0 : backupGroupName.hashCode());
-      result = prime * result + (int) (uniqueEventID ^ (uniqueEventID >>> 32));
-      return result;
+      return Objects.hash(super.hashCode(), backupGroupName, uniqueEventID);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", exit=" + exit);
-      buff.append(", last=" + last);
-      buff.append(", nodeID=" + nodeID);
-      buff.append(", pair=" + pair);
-      buff.append(", backupGroupName=" + backupGroupName);
-      buff.append(", uniqueEventID=" + uniqueEventID);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", exit=" + exit);
+      sb.append(", last=" + last);
+      sb.append(", nodeID=" + nodeID);
+      sb.append(", pair=" + pair);
+      sb.append(", backupGroupName=" + backupGroupName);
+      sb.append(", uniqueEventID=" + uniqueEventID);
+      return sb.toString();
    }
 
    @Override
@@ -159,20 +151,11 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ClusterTopologyChangeMessage_V2)) {
+      if (!(obj instanceof ClusterTopologyChangeMessage_V2 other)) {
          return false;
       }
-      ClusterTopologyChangeMessage_V2 other = (ClusterTopologyChangeMessage_V2) obj;
-      if (uniqueEventID != other.uniqueEventID) {
-         return false;
-      }
-      if (backupGroupName == null) {
-         if (other.backupGroupName != null) {
-            return false;
-         }
-      } else if (!backupGroupName.equals(other.backupGroupName)) {
-         return false;
-      }
-      return true;
+
+      return uniqueEventID == other.uniqueEventID &&
+             Objects.equals(backupGroupName, other.backupGroupName);
    }
 }

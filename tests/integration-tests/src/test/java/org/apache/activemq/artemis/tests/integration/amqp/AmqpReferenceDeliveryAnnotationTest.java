@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +29,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -34,8 +38,7 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test broker behavior when creating AMQP senders
@@ -68,7 +71,7 @@ public class AmqpReferenceDeliveryAnnotationTest extends AmqpClientTestSupport {
 
    public void internalReceiveAnnotations(boolean largeMessage, boolean reboot) throws Exception {
 
-      final String uuid = RandomUtil.randomString();
+      final String uuid = RandomUtil.randomUUIDString();
 
       server.getConfiguration().registerBrokerPlugin(new ActiveMQServerMessagePlugin() {
 
@@ -89,16 +92,7 @@ public class AmqpReferenceDeliveryAnnotationTest extends AmqpClientTestSupport {
 
       AmqpMessage message = new AmqpMessage();
 
-      String body;
-      if (largeMessage) {
-         StringBuffer buffer = new StringBuffer();
-         for (int i = 0; i < 1024 * 1024; i++) {
-            buffer.append("*");
-         }
-         body = buffer.toString();
-      } else {
-         body = "test-message";
-      }
+      String body = largeMessage ? "*".repeat(1024 * 1024) : "test-message";
 
       message.setMessageId("msg" + 1);
       message.setText(body);
@@ -124,18 +118,18 @@ public class AmqpReferenceDeliveryAnnotationTest extends AmqpClientTestSupport {
       AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(2);
       AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
-      assertNotNull("Should have read message", received);
+      assertNotNull(received, "Should have read message");
       assertEquals("msg1", received.getMessageId());
       assertEquals(uuid, received.getDeliveryAnnotation("KEY"));
       received.accept();
 
       received = receiver.receive(10, TimeUnit.SECONDS);
-      assertNotNull("Should have read message", received);
+      assertNotNull(received, "Should have read message");
       assertEquals("msg2", received.getMessageId());
       assertEquals(uuid, received.getDeliveryAnnotation("KEY"));
       received.accept();
 
-      Assert.assertNull(receiver.receiveNoWait());
+      assertNull(receiver.receiveNoWait());
 
       receiver.close();
 

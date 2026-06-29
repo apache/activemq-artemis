@@ -34,11 +34,11 @@ import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * A ReferenceableTest.
- * <br>
+ * <p>
  * All administered objects should be referenceable and serializable as per spec 4.2
  */
 public class ReferenceableTest extends JMSTestCase {
@@ -71,9 +71,7 @@ public class ReferenceableTest extends JMSTestCase {
 
       String factoryName = cfRef.getFactoryClassName();
 
-      Class<?> factoryClass = Class.forName(factoryName);
-
-      ObjectFactory factory = (ObjectFactory) factoryClass.newInstance();
+      ObjectFactory factory = (ObjectFactory) Class.forName(factoryName).getDeclaredConstructor().newInstance();
 
       Object instance = factory.getObjectInstance(cfRef, null, null, null);
 
@@ -90,9 +88,7 @@ public class ReferenceableTest extends JMSTestCase {
 
       String factoryName = queueRef.getFactoryClassName();
 
-      Class<?> factoryClass = Class.forName(factoryName);
-
-      ObjectFactory factory = (ObjectFactory) factoryClass.newInstance();
+      ObjectFactory factory = (ObjectFactory) Class.forName(factoryName).getDeclaredConstructor().newInstance();
 
       Object instance = factory.getObjectInstance(queueRef, null, null, null);
 
@@ -111,9 +107,7 @@ public class ReferenceableTest extends JMSTestCase {
 
       String factoryName = topicRef.getFactoryClassName();
 
-      Class factoryClass = Class.forName(factoryName);
-
-      ObjectFactory factory = (ObjectFactory) factoryClass.newInstance();
+      ObjectFactory factory = (ObjectFactory) Class.forName(factoryName).getDeclaredConstructor().newInstance();
 
       Object instance = factory.getObjectInstance(topicRef, null, null, null);
 

@@ -25,7 +25,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -34,13 +33,14 @@ import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * This will use {@link InetAddress#isReachable(int)} to determine if the network is alive.
- * It will have a set of addresses, and if any address is reached the network will be considered alive.
+ * This will use {@link InetAddress#isReachable(int)} to determine if the network is alive. It will have a set of
+ * addresses, and if any address is reached the network will be considered alive.
  */
 public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
@@ -160,17 +160,12 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
    @Override
    protected ActiveMQThreadFactory getThreadFactory() {
-      return new ActiveMQThreadFactory("NetworkChecker", "Network-Checker-", false, getThisClassLoader());
+      return new ActiveMQThreadFactory("network-checker", false, getThisClassLoader());
    }
 
 
    private ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         @Override
-         public ClassLoader run() {
-            return NetworkHealthCheck.this.getClass().getClassLoader();
-         }
-      });
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ClassLoader>) () -> NetworkHealthCheck.this.getClass().getClassLoader());
 
    }
 
@@ -311,7 +306,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
    }
 
    /**
-    * @return true if no checks were done or if one address/url responds; false if all addresses/urls fail
+    * {@return true if no checks were done or if one address/url responds; false if all addresses/urls fail}
     */
    public boolean check() {
       if (isEmpty()) {

@@ -38,10 +38,10 @@ under the License.
 
       <ha-policy>
          <replication>
-            <master>
+            <primary>
                <!--we need this for auto failback-->
                <check-for-live-server>true</check-for-live-server>
-            </master>
+            </primary>
          </replication>
       </ha-policy>
 
@@ -83,7 +83,7 @@ under the License.
       </security-settings>
       <address-settings>
          <!-- if you define auto-create on certain queues, management has to be auto-create -->
-         <address-setting match="activemq.management#">
+         <address-setting match="activemq.management.#">
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
@@ -104,7 +104,8 @@ under the License.
             <page-size-bytes>1MB</page-size-bytes>
 
             <max-read-page-messages>-1</max-read-page-messages>
-            <max-read-page-bytes>-1</max-read-page-bytes>
+            <max-read-page-bytes>20M</max-read-page-bytes>
+            <prefetch-page-bytes>2MB</prefetch-page-bytes>
 
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -62,34 +64,28 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((largeMessage == null) ? 0 : largeMessage.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(largeMessage);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", largeMessage=" + largeMessage);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", largeMessage=" + largeMessage);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionSendLargeMessage))
+      }
+      if (!(obj instanceof SessionSendLargeMessage other)) {
          return false;
-      SessionSendLargeMessage other = (SessionSendLargeMessage) obj;
-      if (largeMessage == null) {
-         if (other.largeMessage != null)
-            return false;
-      } else if (!largeMessage.equals(other.largeMessage))
-         return false;
-      return true;
-   }
+      }
 
+      return Objects.equals(largeMessage, other.largeMessage);
+   }
 }

@@ -34,26 +34,26 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 
 /**
- * This class implements an ActiveMQ Artemis filter
- *
- * ActiveMQ Artemis filters have the same syntax as JMS 1.1 selectors, but the identifiers are different.
- *
+ * This class implements an Apache Artemis filter
+ * <p>
+ * Apache Artemis filters have the same syntax as JMS 1.1 selectors, but the identifiers are different.
+ * <p>
  * Valid identifiers that can be used are:
- *
- * AMQPriority - the priority of the message
- * AMQTimestamp - the timestamp of the message
- * AMQDurable - "DURABLE" or "NON_DURABLE"
- * AMQExpiration - the expiration of the message
- * AMQSize - the encoded size of the full message in bytes
- * AMQUserID - the user specified ID string (if any)
- * Any other identifiers that appear in a filter expression represent header values for the message
- *
- * String values must be set as <code>SimpleString</code>, not <code>java.lang.String</code> (see JBMESSAGING-1307).
- * Derived from JBoss MQ version by
+ * <ul>
+ * <li>{@code AMQPriority} - the priority of the message
+ * <li>{@code AMQTimestamp} - the timestamp of the message
+ * <li>{@code AMQDurable} - "DURABLE" or "NON_DURABLE"
+ * <li>{@code AMQExpiration} - the expiration of the message
+ * <li>{@code AMQSize} - the encoded size of the full message in bytes
+ * <li>{@code AMQUserID} - the user specified ID string (if any)
+ * <li>Any other identifiers that appear in a filter expression represent header values for the message
+ * </ul>
+ * String values must be set as {@code SimpleString}, not {@code java.lang.String}
  */
 public class FilterImpl implements Filter {
 
@@ -63,21 +63,20 @@ public class FilterImpl implements Filter {
 
    private final BooleanExpression booleanExpression;
 
-
    /**
-    * @return null if <code>filterStr</code> is null or an empty String and a valid filter else
+    * {@return null if {@code filterStr} is null or an empty String and a valid filter else}
     * @throws ActiveMQException if the string does not correspond to a valid filter
     */
    public static Filter createFilter(final String filterStr) throws ActiveMQException {
-      return FilterImpl.createFilter(SimpleString.toSimpleString(filterStr == null ? null : filterStr.trim()));
+      return FilterImpl.createFilter(SimpleString.of(filterStr == null ? null : filterStr.trim()));
    }
 
    /**
-    * @return null if <code>filterStr</code> is null or an empty String and a valid filter else
+    * {@return null if {@code filterStr} is null or an empty String and a valid filter else}
     * @throws ActiveMQException if the string does not correspond to a valid filter
     */
    public static Filter createFilter(final SimpleString filterStr) throws ActiveMQException {
-      if (filterStr == null || filterStr.length() == 0) {
+      if (filterStr == null || filterStr.isEmpty()) {
          return null;
       }
 
@@ -128,27 +127,19 @@ public class FilterImpl implements Filter {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((sfilterString == null) ? 0 : sfilterString.hashCode());
-      return result;
+      return Objects.hashCode(sfilterString);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof FilterImpl other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      FilterImpl other = (FilterImpl) obj;
-      if (sfilterString == null) {
-         if (other.sfilterString != null)
-            return false;
-      } else if (!sfilterString.equals(other.sfilterString))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(sfilterString, other.sfilterString);
    }
 
    @Override
@@ -159,21 +150,25 @@ public class FilterImpl implements Filter {
    private static Object getHeaderFieldValue(final Message msg, final SimpleString fieldName) {
       if (FilterConstants.ACTIVEMQ_USERID.equals(fieldName)) {
          if (msg.getUserID() == null) {
-            // Proton stores JMSMessageID as NATIVE_MESSAGE_ID that is an arbitrary string
+            // Artemis can store JMSMessageID as NATIVE_MESSAGE_ID that is an arbitrary string,
+            // in wrapper used internally when converting from Core to AMQP.
             String amqpNativeID = msg.getStringProperty(NATIVE_MESSAGE_ID);
             if (amqpNativeID != null) {
-               return SimpleString.toSimpleString(amqpNativeID);
+               return SimpleString.of(amqpNativeID);
+            } else {
+               return null;
+            }
+         } else {
+            // It's the stringified (hex) representation of a user id that can be used in a selector expression
+            String userID = msg.getUserID().toString();
+            if (userID.startsWith("ID:")) {
+               return SimpleString.of(userID);
+            } else {
+               return SimpleString.of("ID:" + msg.getUserID());
             }
          }
-         // It's the stringified (hex) representation of a user id that can be used in a selector expression
-         String userID = msg.getUserID().toString();
-         if (userID.startsWith("ID:")) {
-            return SimpleString.toSimpleString(userID);
-         } else {
-            return SimpleString.toSimpleString("ID:" + msg.getUserID());
-         }
       } else if (FilterConstants.ACTIVEMQ_PRIORITY.equals(fieldName)) {
-         return Integer.valueOf(msg.getPriority());
+         return (int) msg.getPriority();
       } else if (FilterConstants.ACTIVEMQ_TIMESTAMP.equals(fieldName)) {
          return msg.getTimestamp();
       } else if (FilterConstants.ACTIVEMQ_DURABLE.equals(fieldName)) {

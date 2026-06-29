@@ -16,50 +16,50 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@ExtendWith(ParameterizedTestExtension.class)
 public class ConnectorStorageTest extends StorageManagerTestBase {
+
+   @Parameters(name = "storeType={0}")
+   public static Collection<Object[]> data() {
+      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      return Arrays.asList(params);
+   }
 
    public ConnectorStorageTest(StoreConfiguration.StoreType storeType) {
       super(storeType);
    }
 
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      super.setUp();
-   }
-
-   @Test
+   @TestTemplate
    public void testStoreConnector() throws Exception {
-      final String NAME = RandomUtil.randomString();
-      final String URL = RandomUtil.randomString();
-      createStorage();
+      final String NAME = RandomUtil.randomUUIDString();
+      final String URL = RandomUtil.randomUUIDString();
 
       PersistedConnector connector = new PersistedConnector(NAME, URL);
 
       journal.storeConnector(connector);
 
-      journal.stop();
-      journal.start();
+      rebootStorage();
 
       List<PersistedConnector> connectors = journal.recoverConnectors();
 
-      Assert.assertEquals(1, connectors.size());
+      assertEquals(1, connectors.size());
 
       PersistedConnector persistedConnector = connectors.get(0);
-      Assert.assertEquals(NAME, persistedConnector.getName());
-      Assert.assertEquals(URL, persistedConnector.getUrl());
-      journal.stop();
-
-      journal = null;
-
+      assertEquals(NAME, persistedConnector.getName());
+      assertEquals(URL, persistedConnector.getUrl());
    }
 }

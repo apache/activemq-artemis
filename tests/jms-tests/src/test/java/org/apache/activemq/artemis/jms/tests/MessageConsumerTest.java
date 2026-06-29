@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -48,8 +52,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -402,7 +406,7 @@ public class MessageConsumerTest extends JMSTestCase {
          // It will be available some indeterminate time later.
          // This is fine and as per spec.
          // To implement receiveNoWait otherwise would be very costly
-         // Also other messaging systems e.g. Sun, ActiveMQ Artemis implement it this way
+         // Also other messaging systems e.g. Sun, Apache Artemis implement it this way
 
          Thread.sleep(500);
 
@@ -482,12 +486,7 @@ public class MessageConsumerTest extends JMSTestCase {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          try {
-            ps.createConsumer(new Topic() {
-               @Override
-               public String getTopicName() throws JMSException {
-                  return "NoSuchTopic";
-               }
-            });
+            ps.createConsumer((Topic) () -> "NoSuchTopic");
             ProxyAssertSupport.fail("should throw exception");
          } catch (InvalidDestinationException e) {
             // OK
@@ -509,12 +508,7 @@ public class MessageConsumerTest extends JMSTestCase {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          try {
-            ps.createConsumer(new Queue() {
-               @Override
-               public String getQueueName() throws JMSException {
-                  return "NoSuchQueue";
-               }
-            });
+            ps.createConsumer((Queue) () -> "NoSuchQueue");
             ProxyAssertSupport.fail("should throw exception");
          } catch (InvalidDestinationException e) {
             // OK
@@ -530,7 +524,8 @@ public class MessageConsumerTest extends JMSTestCase {
    // closed consumer tests
    //
 
-   /* Test that an ack can be sent after the consumer that received the message has been closed.
+   /*
+    * Test that an ack can be sent after the consumer that received the message has been closed.
     * Acks are scoped per session.
     */
 
@@ -688,8 +683,8 @@ public class MessageConsumerTest extends JMSTestCase {
    }
 
    /**
-    * Basically the same test as before, with more than one message and a slightly different
-    * way of checking the messages are back in the queue.
+    * Basically the same test as before, with more than one message and a slightly different way of checking the
+    * messages are back in the queue.
     */
    @Test
    public void testSendMessageAndCloseConsumer2() throws Exception {
@@ -1124,9 +1119,6 @@ public class MessageConsumerTest extends JMSTestCase {
       }
    }
 
-   /**
-    * http://www.jboss.org/index.html?module=bb&op=viewtopic&t=71350
-    */
    @Test
    public void testRedel7() throws Exception {
       Connection conn = null;
@@ -1178,9 +1170,6 @@ public class MessageConsumerTest extends JMSTestCase {
       }
    }
 
-   /**
-    * http://www.jboss.org/index.html?module=bb&op=viewtopic&t=71350
-    */
    @Test
    public void testRedel8() throws Exception {
       Connection conn = null;
@@ -1421,7 +1410,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          try {
             topicConsumer.getMessageSelector();
-            Assert.fail("must throw a JMS IllegalStateException");
+            fail("must throw a JMS IllegalStateException");
          } catch (javax.jms.IllegalStateException e) {
             // OK
          }
@@ -1448,7 +1437,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          try {
             topicConsumer.getNoLocal();
-            Assert.fail("must throw a JMS IllegalStateException");
+            fail("must throw a JMS IllegalStateException");
          } catch (javax.jms.IllegalStateException e) {
             // OK
          }
@@ -1495,7 +1484,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          try {
             ((TopicSubscriber) topicConsumer).getTopic();
-            Assert.fail("must throw a JMS IllegalStateException");
+            fail("must throw a JMS IllegalStateException");
          } catch (javax.jms.IllegalStateException e) {
             // OK
          }
@@ -1542,7 +1531,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          try {
             ((QueueReceiver) queueConsumer).getQueue();
-            Assert.fail("must throw a JMS IllegalStateException");
+            fail("must throw a JMS IllegalStateException");
          } catch (javax.jms.IllegalStateException e) {
             // OK
          }
@@ -1594,16 +1583,13 @@ public class MessageConsumerTest extends JMSTestCase {
          MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          final Message m = producerSession.createMessage();
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  // this is needed to make sure the main thread has enough time to block
-                  Thread.sleep(1000);
-                  topicProducer.send(m);
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
-               }
+         new Thread(() -> {
+            try {
+               // this is needed to make sure the main thread has enough time to block
+               Thread.sleep(1000);
+               topicProducer.send(m);
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "Producer").start();
 
@@ -1640,16 +1626,13 @@ public class MessageConsumerTest extends JMSTestCase {
          consumerConnection.start();
 
          final Message m1 = producerSession.createMessage();
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  // this is needed to make sure the main thread has enough time to block
-                  Thread.sleep(1000);
-                  topicProducer.send(m1);
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
-               }
+         new Thread(() -> {
+            try {
+               // this is needed to make sure the main thread has enough time to block
+               Thread.sleep(1000);
+               topicProducer.send(m1);
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "Producer").start();
 
@@ -1687,16 +1670,13 @@ public class MessageConsumerTest extends JMSTestCase {
          consumerConnection.start();
 
          final Message m1 = producerSession.createMessage();
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  // this is needed to make sure the main thread has enough time to block
-                  Thread.sleep(1000);
-                  topicProducer.send(m1);
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
-               }
+         new Thread(() -> {
+            try {
+               // this is needed to make sure the main thread has enough time to block
+               Thread.sleep(1000);
+               topicProducer.send(m1);
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "Producer").start();
 
@@ -1783,17 +1763,14 @@ public class MessageConsumerTest extends JMSTestCase {
 
          consumerConnection.start();
 
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  for (int i = 0; i < count; i++) {
-                     Message m = producerSession.createMessage();
-                     queueProducer.send(m);
-                  }
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
+         new Thread(() -> {
+            try {
+               for (int i = 0; i < count; i++) {
+                  Message m = producerSession.createMessage();
+                  queueProducer.send(m);
                }
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "ProducerTestThread").start();
 
@@ -1839,20 +1816,17 @@ public class MessageConsumerTest extends JMSTestCase {
 
          consumerConnection.start();
 
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  // this is needed to make sure the main thread has enough time to block
-                  Thread.sleep(1000);
+         new Thread(() -> {
+            try {
+               // this is needed to make sure the main thread has enough time to block
+               Thread.sleep(1000);
 
-                  for (int i = 0; i < count; i++) {
-                     Message m = producerSession.createMessage();
-                     topicProducer.send(m);
-                  }
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
+               for (int i = 0; i < count; i++) {
+                  Message m = producerSession.createMessage();
+                  topicProducer.send(m);
                }
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "ProducerTestThread").start();
 
@@ -1885,18 +1859,15 @@ public class MessageConsumerTest extends JMSTestCase {
 
          consumerConnection.start();
          final CountDownLatch latch = new CountDownLatch(1);
-         Thread closerThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  // this is needed to make sure the main thread has enough time to block
-                  Thread.sleep(1000);
-                  topicConsumer.close();
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
-               } finally {
-                  latch.countDown();
-               }
+         Thread closerThread = new Thread(() -> {
+            try {
+               // this is needed to make sure the main thread has enough time to block
+               Thread.sleep(1000);
+               topicConsumer.close();
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
+            } finally {
+               latch.countDown();
             }
          }, "closing thread");
          closerThread.start();
@@ -1914,6 +1885,7 @@ public class MessageConsumerTest extends JMSTestCase {
       }
    }
 
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
@@ -2021,7 +1993,6 @@ public class MessageConsumerTest extends JMSTestCase {
 
          // This is a really weird test - the received object is always going to be null since no message is sent!!
 
-         ActiveMQServerTestCase.forceGC(); // / If A GC need to be executed, it' s better to be executed now
          logger.trace("testTimeoutReceiveOnClose");
 
          Object monitor = new Object();
@@ -2266,14 +2237,11 @@ public class MessageConsumerTest extends JMSTestCase {
          final MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          consumerConnection.start();
-         Thread worker1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  topicConsumer.receive(3000);
-               } catch (Exception e) {
-                  e.printStackTrace();
-               }
+         Thread worker1 = new Thread(() -> {
+            try {
+               topicConsumer.receive(3000);
+            } catch (Exception e) {
+               e.printStackTrace();
             }
          }, "Receiver");
 
@@ -2395,14 +2363,11 @@ public class MessageConsumerTest extends JMSTestCase {
 
          MessageConsumer queueConsumer = consumerSession.createConsumer(queue1);
 
-         MessageListener myListener = new MessageListener() {
-            @Override
-            public void onMessage(final Message message) {
-               try {
-                  Thread.sleep(1);
-               } catch (InterruptedException e) {
-                  // Ignore
-               }
+         MessageListener myListener = message -> {
+            try {
+               Thread.sleep(1);
+            } catch (InterruptedException e) {
+               // Ignore
             }
          };
 
@@ -2723,9 +2688,8 @@ public class MessageConsumerTest extends JMSTestCase {
    }
 
    /**
-    * Topics shouldn't persist messages for non durable subscribers and redeliver them on reconnection
-    * even if delivery mode of persistent is specified
-    * See JMS spec. sec. 6.12
+    * Topics shouldn't persist messages for non durable subscribers and redeliver them on reconnection even if delivery
+    * mode of persistent is specified See JMS spec. sec. 6.12
     */
    @Test
    public void testNoRedeliveryOnNonDurableSubscriber() throws Exception {
@@ -2888,10 +2852,10 @@ public class MessageConsumerTest extends JMSTestCase {
 
          for (int count = 0; count < NUM_MESSAGES; count++) {
             TextMessage tm = (TextMessage) durable.receive(1500);
-            Assert.assertNotNull(tm);
+            assertNotNull(tm);
          }
 
-         Assert.assertNull(durable.receiveNoWait());
+         assertNull(durable.receiveNoWait());
 
          sess1.commit();
 
@@ -2952,10 +2916,10 @@ public class MessageConsumerTest extends JMSTestCase {
 
          for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = (TextMessage) durable3.receive(1000);
-            Assert.assertNotNull(tm);
+            assertNotNull(tm);
             ProxyAssertSupport.assertEquals("hello", tm.getText());
          }
-         Assert.assertNull(durable3.receiveNoWait());
+         assertNull(durable3.receiveNoWait());
 
          logger.debug("received {} messages", NUM_MESSAGES);
 
@@ -3446,7 +3410,6 @@ public class MessageConsumerTest extends JMSTestCase {
       }
    }
 
-   // http://jira.jboss.org/jira/browse/JBMESSAGING-1294 - commented out until 2.0 beta
    @Test
    public void testExceptionMessageListener1() throws Exception {
       Connection conn = createConnection();
@@ -3947,7 +3910,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
    private class MessageListenerImpl implements MessageListener {
 
-      private final List<Message> messages = Collections.synchronizedList(new ArrayList<Message>());
+      private final List<Message> messages = Collections.synchronizedList(new ArrayList<>());
 
       private CountDownLatch latch = new CountDownLatch(1);
 

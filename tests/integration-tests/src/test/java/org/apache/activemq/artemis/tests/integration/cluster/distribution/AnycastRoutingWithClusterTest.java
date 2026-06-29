@@ -16,22 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AnycastRoutingWithClusterTest extends ClusterTestBase {
 
    /**
-    * Test anycast address with single distributed queue in a 3 node cluster environment.  Messages should be
-    * "round robin"'d across the each queue
-    * @throws Exception
+    * Test anycast address with single distributed queue in a 3 node cluster environment.  Messages should be "round
+    * robin"'d across the each queue
     */
    @Test
    public void testAnycastAddressOneQueueRoutingMultiNode() throws Exception {
@@ -52,8 +52,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 2);
 
       startServers(0, 1, 2);
-
-      List<Queue> queues;
       for (int i = 0; i < 3; i++) {
          createAddressInfo(i, address, RoutingType.ANYCAST, -1, false);
          setupSessionFactory(i, isNetty());
@@ -70,13 +68,8 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       send(0, address, noMessages, true, null, null);
 
       for (int s = 0; s < 3; s++) {
-         final Queue queue = servers[s].locateQueue(new SimpleString(queueName));
-         Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return queue.getMessageCount() == noMessages / 3;
-            }
-         });
+         final Queue queue = servers[s].locateQueue(SimpleString.of(queueName));
+         Wait.waitFor(() -> queue.getMessageCount() == noMessages / 3);
       }
 
       // Each consumer should receive noMessages / noServers
@@ -91,7 +84,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
    /**
     * Test anycast address with N queues in a 3 node cluster environment.  Messages should be "round robin"'d across the
     * each queue.
-    * @throws Exception
     */
    @Test
    public void testAnycastAddressMultiQueuesRoutingMultiNode() throws Exception {
@@ -113,8 +105,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 2);
 
       startServers(0, 1, 2);
-
-      List<Queue> queues;
       for (int i = 0; i < 3; i++) {
          createAddressInfo(i, address, RoutingType.ANYCAST, -1, false);
          setupSessionFactory(i, isNetty());
@@ -131,13 +121,8 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       send(0, address, noMessages, true, null, null);
 
       for (int s = 0; s < 3; s++) {
-         final Queue queue = servers[s].locateQueue(new SimpleString(queueNamePrefix + s));
-         Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return queue.getMessageCount() == noMessages / 3;
-            }
-         });
+         final Queue queue = servers[s].locateQueue(SimpleString.of(queueNamePrefix + s));
+         Wait.waitFor(() -> queue.getMessageCount() == noMessages / 3);
       }
 
       // Each consumer should receive noMessages / noServers
@@ -151,7 +136,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
    /**
     * Test anycast address with N queues in a 3 node cluster environment.  Messages should be "round robin"'d across the
     * each queue.
-    * @throws Exception
     */
    @Test
    public void testAnycastAddressMultiQueuesWithFilterRoutingMultiNode() throws Exception {
@@ -173,8 +157,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 2);
 
       startServers(0, 1, 2);
-
-      List<Queue> queues;
       for (int i = 0; i < 3; i++) {
          createAddressInfo(i, address, RoutingType.ANYCAST, -1, false);
          setupSessionFactory(i, isNetty());
@@ -213,7 +195,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
    /**
     * Test multicast address that with N queues in a 3 node cluster environment.  Each queue should receive all messages
     * sent from the client.
-    * @throws Exception
     */
    @Test
    public void testMulitcastAddressMultiQueuesRoutingMultiNode() throws Exception {
@@ -235,8 +216,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 2);
 
       startServers(0, 1, 2);
-
-      List<Queue> queues;
       for (int i = 0; i < 3; i++) {
          createAddressInfo(i, address, RoutingType.MULTICAST, -1, false);
          setupSessionFactory(i, isNetty());
@@ -253,13 +232,8 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       send(0, address, noMessages, true, null, null);
 
       for (int s = 0; s < 3; s++) {
-         final Queue queue = servers[s].locateQueue(new SimpleString(queueNamePrefix + s));
-         Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return queue.getMessageCount() == noMessages;
-            }
-         });
+         final Queue queue = servers[s].locateQueue(SimpleString.of(queueNamePrefix + s));
+         Wait.waitFor(() -> queue.getMessageCount() == noMessages);
       }
 
       // Each consumer should receive noMessages

@@ -76,18 +76,21 @@ public class ScaleDownHandler {
    private NodeManager nodeManager;
    private final ClusterController clusterController;
    private final StorageManager storageManager;
+   private final int commitInterval;
    private String targetNodeId;
 
    public ScaleDownHandler(PagingManager pagingManager,
                            PostOffice postOffice,
                            NodeManager nodeManager,
                            ClusterController clusterController,
-                           StorageManager storageManager) {
+                           StorageManager storageManager,
+                           int commitInterval) {
       this.pagingManager = pagingManager;
       this.postOffice = postOffice;
       this.nodeManager = nodeManager;
       this.clusterController = clusterController;
       this.storageManager = storageManager;
+      this.commitInterval = commitInterval;
    }
 
    public long scaleDown(ClientSessionFactory sessionFactory,
@@ -101,7 +104,7 @@ public class ScaleDownHandler {
       ActiveMQServerLogger.LOGGER.infoScaledDownMessages(num);
       scaleDownTransactions(sessionFactory, resourceManager, clusterControl.getClusterUser(), clusterControl.getClusterPassword());
       scaleDownDuplicateIDs(duplicateIDMap, sessionFactory, managementAddress, clusterControl.getClusterUser(), clusterControl.getClusterPassword());
-      clusterControl.announceScaleDown(new SimpleString(this.targetNodeId), nodeManager.getNodeId());
+      clusterControl.announceScaleDown(SimpleString.of(this.targetNodeId), nodeManager.getNodeId());
       return num;
    }
 
@@ -124,8 +127,8 @@ public class ScaleDownHandler {
             Set<Queue> queues = new TreeSet<>(new OrderQueueByNumberOfReferencesComparator());
             if (bindings != null) {
                for (Binding binding : bindings.getBindings()) {
-                  if (binding instanceof LocalQueueBinding) {
-                     Queue queue = ((LocalQueueBinding) binding).getQueue();
+                  if (binding instanceof LocalQueueBinding localQueueBinding) {
+                     Queue queue = localQueueBinding.getQueue();
                      if (!queue.isTemporary()) {
                         // as part of scale down we will cancel any scheduled message and pass it to theWhile we scan for the queues we will also cancel any scheduled messages and deliver them right away
                         queue.deliverScheduledMessages();
@@ -135,13 +138,15 @@ public class ScaleDownHandler {
                }
             }
 
-            String sfPrefix =  ((PostOfficeImpl) postOffice).getServer().getInternalNamingPrefix() + "sf.";
+            String sfPrefix = ((PostOfficeImpl) postOffice).getServer().getInternalNamingPrefix() + "sf.";
+            long messageCountItem = 0;
             if (address.toString().startsWith(sfPrefix)) {
-               messageCount += scaleDownSNF(address, queues, producer);
+               messageCountItem += scaleDownSNF(address, queues, producer);
             } else {
-               messageCount += scaleDownRegularMessages(address, queues, session, producer);
+               messageCountItem += scaleDownRegularMessages(address, queues, session, producer);
             }
-
+            logger.debug("Scaled down {} messages on address {}", messageCountItem, address);
+            messageCount += messageCountItem;
          }
       }
 
@@ -214,6 +219,10 @@ public class ScaleDownHandler {
 
                   producer.send(address, message);
                   messageCount++;
+                  if (commitInterval > 0 && messageCount % commitInterval == 0) {
+                     tx.commit();
+                     tx = new TransactionImpl(storageManager);
+                  }
 
                   messagesIterator.remove();
 
@@ -269,7 +278,8 @@ public class ScaleDownHandler {
                MessageReference messageRef = messagesIterator.next();
                Message message = messageRef.getMessage().copy();
 
-               /* Here we are taking messages out of a store-and-forward queue and sending them to the corresponding
+               /*
+                * Here we are taking messages out of a store-and-forward queue and sending them to the corresponding
                 * address on the scale-down target server.  However, we have to take the existing _AMQ_ROUTE_TOsf.*
                 * property and put its value into the _AMQ_ROUTE_TO property so the message is routed properly.
                 */
@@ -306,6 +316,10 @@ public class ScaleDownHandler {
                producer.send(message.getAddress(), message);
 
                messageCount++;
+               if (commitInterval > 0 && messageCount % commitInterval == 0) {
+                  tx.commit();
+                  tx = new TransactionImpl(storageManager);
+               }
 
                messagesIterator.remove();
 
@@ -342,8 +356,7 @@ public class ScaleDownHandler {
          // Get the information of the Prepared TXs so it could replay the TXs
          Map<Message, Pair<List<Long>, List<Long>>> queuesToSendTo = new HashMap<>();
          for (TransactionOperation operation : allOperations) {
-            if (operation instanceof PostOfficeImpl.AddOperation) {
-               PostOfficeImpl.AddOperation addOperation = (PostOfficeImpl.AddOperation) operation;
+            if (operation instanceof PostOfficeImpl.AddOperation addOperation) {
                List<MessageReference> refs = addOperation.getRelatedMessageReferences();
                for (MessageReference ref : refs) {
                   Message message = ref.getMessage();
@@ -359,13 +372,12 @@ public class ScaleDownHandler {
                   }
                   Pair<List<Long>, List<Long>> queueIds = queuesToSendTo.get(message);
                   if (queueIds == null) {
-                     queueIds = new Pair<List<Long>, List<Long>>(new ArrayList<Long>(), new ArrayList<Long>());
+                     queueIds = new Pair<>(new ArrayList<>(), new ArrayList<>());
                      queuesToSendTo.put(message, queueIds);
                   }
                   queueIds.getA().add(queueID);
                }
-            } else if (operation instanceof RefsOperation) {
-               RefsOperation refsOperation = (RefsOperation) operation;
+            } else if (operation instanceof RefsOperation refsOperation) {
                List<MessageReference> refs = refsOperation.getReferencesToAcknowledge();
                for (MessageReference ref : refs) {
                   Message message = ref.getMessage();
@@ -381,7 +393,7 @@ public class ScaleDownHandler {
                   }
                   Pair<List<Long>, List<Long>> queueIds = queuesToSendTo.get(message);
                   if (queueIds == null) {
-                     queueIds = new Pair<List<Long>, List<Long>>(new ArrayList<Long>(), new ArrayList<Long>());
+                     queueIds = new Pair<>(new ArrayList<>(), new ArrayList<>());
                      queuesToSendTo.put(message, queueIds);
                   }
                   queueIds.getA().add(queueID);
@@ -400,7 +412,7 @@ public class ScaleDownHandler {
             Message message = entry.getKey();
             message.putBytesProperty(Message.HDR_ROUTE_TO_IDS.toString(), buffer.array());
             ids = entry.getValue().getB();
-            if (ids.size() > 0) {
+            if (!ids.isEmpty()) {
                buffer = ByteBuffer.allocate(ids.size() * 8);
                for (Long id : ids) {
                   buffer.putLong(id);
@@ -421,7 +433,6 @@ public class ScaleDownHandler {
                                      String password) throws Exception {
       try (ClientSession session = sessionFactory.createSession(user, password, true, false, false, false, 0);
            ClientProducer producer = session.createProducer(managementAddress)) {
-         //todo - https://issues.jboss.org/browse/HORNETQ-1336
          for (Map.Entry<SimpleString, List<Pair<byte[], Long>>> entry : duplicateIDMap.entrySet()) {
             ClientMessage message = session.createMessage(false);
             List<Pair<byte[], Long>> list = entry.getValue();
@@ -437,9 +448,9 @@ public class ScaleDownHandler {
    }
 
    /**
-    * Get the ID of the queues involved so the message can be routed properly.  This is done because we cannot
-    * send directly to a queue, we have to send to an address instead but not all the queues related to the
-    * address may need the message
+    * Get the ID of the queues involved so the message can be routed properly.  This is done because we cannot send
+    * directly to a queue, we have to send to an address instead but not all the queues related to the address may need
+    * the message
     */
    private long createQueueWithRoutingTypeIfNecessaryAndGetID(ClientSession session,
                                                               Queue queue,
@@ -447,7 +458,7 @@ public class ScaleDownHandler {
                                                               RoutingType routingType) throws Exception {
       long queueID = getQueueID(session, queue.getName());
       if (queueID == -1) {
-         session.createQueue(new QueueConfiguration(queue.getName()).setAddress(addressName).setRoutingType(routingType).setFilterString(queue.getFilter() == null ? null : queue.getFilter().getFilterString()).setDurable(queue.isDurable()));
+         session.createQueue(QueueConfiguration.of(queue.getName()).setAddress(addressName).setRoutingType(routingType).setFilterString(queue.getFilter() == null ? null : queue.getFilter().getFilterString()).setDurable(queue.isDurable()));
          if (logger.isDebugEnabled()) {
             logger.debug("Failed to get queue ID, creating queue [addressName={}, queueName={}, routingType={}, filter={}, durable={}]",
                       addressName, queue.getName(), queue.getRoutingType(), (queue.getFilter() == null ? "" : queue.getFilter().getFilterString()), queue.isDurable());
@@ -473,8 +484,8 @@ public class ScaleDownHandler {
          ClientMessage reply = requestor.request(managementMessage);
          result = ManagementHelper.getResult(reply);
       }
-      if (result != null && result instanceof Number) {
-         queueID = ((Number) result).longValue();
+      if (result != null && result instanceof Number number) {
+         queueID = number.longValue();
       }
       return queueID;
    }
@@ -488,26 +499,30 @@ public class ScaleDownHandler {
          final int AFTER = 1;
          int result = 0;
 
-         if (queue1 == queue2)
+         if (queue1 == queue2) {
             return EQUAL;
+         }
 
          if (queue1.getMessageCount() == queue2.getMessageCount()) {
             // if it's the same count we will use the ID as a tie breaker:
 
             long tieBreak = queue2.getID() - queue1.getID();
 
-            if (tieBreak > 0)
+            if (tieBreak > 0) {
                return AFTER;
-            else if (tieBreak < 0)
+            } else if (tieBreak < 0) {
                return BEFORE;
-            else
+            } else {
                return EQUAL; // EQUAL here shouldn't really happen... but lets do the check anyways
+            }
 
          }
-         if (queue1.getMessageCount() > queue2.getMessageCount())
+         if (queue1.getMessageCount() > queue2.getMessageCount()) {
             return BEFORE;
-         if (queue1.getMessageCount() < queue2.getMessageCount())
+         }
+         if (queue1.getMessageCount() < queue2.getMessageCount()) {
             return AFTER;
+         }
 
          return result;
       }
@@ -518,8 +533,7 @@ public class ScaleDownHandler {
    }
 
    /**
-    * this class will control iterations while
-    * looking over for messages relations
+    * this class will control iterations while looking over for messages relations
     */
    private class QueuesXRefInnerManager {
 

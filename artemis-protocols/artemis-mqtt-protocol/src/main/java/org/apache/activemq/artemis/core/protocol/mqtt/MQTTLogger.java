@@ -17,12 +17,12 @@
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.logs.BundleFactory;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
- * Logger Code 83
+ * Logger Codes 830000 - 839999
  */
 @LogBundle(projectCode = "AMQ", regexID = "83[0-9]{4}")
 public interface MQTTLogger {
@@ -58,4 +58,22 @@ public interface MQTTLogger {
 
    @LogMessage(id = 834007, value = "Authorization failure sending will message: {}", level = LogMessage.Level.ERROR)
    void authorizationFailureSendingWillMessage(String message);
+
+   @LogMessage(id = 834008, value = "Failed to remove session state for client with ID: {}", level = LogMessage.Level.ERROR)
+   void failedToRemoveSessionState(String clientID, Exception e);
+
+   @LogMessage(id = 834009, value = "Ignoring duplicate MQTT QoS2 PUBLISH packet for packet ID {} from client with ID {}.", level = LogMessage.Level.WARN)
+   void ignoringQoS2Publish(String clientId, long packetId);
+
+   @LogMessage(id = 834010, value = "Unable to scan MQTT sessions", level = LogMessage.Level.ERROR)
+   void unableToScanSessions(Exception e);
+
+   @LogMessage(id = 834011, value = "Invalid MQTT session state message. Type is incorrect: {}. Will not load this state into memory.", level = LogMessage.Level.WARN)
+   void sessionStateMessageIncorrectType(String type);
+
+   @LogMessage(id = 834012, value = "Invalid MQTT session state message. Client ID is empty or null. Will not load this state into memory.", level = LogMessage.Level.WARN)
+   void sessionStateMessageBadClientId();
+
+   @LogMessage(id = 834013, value = "Invalid MQTT session state message. Will not load this state into memory.", level = LogMessage.Level.WARN)
+   void errorDeserializingStateMessage(Exception e);
 }

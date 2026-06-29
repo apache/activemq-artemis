@@ -138,7 +138,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
    private void handleCheckForFailover(CheckFailoverMessage failoverMessage) {
       String nodeID = failoverMessage.getNodeID();
-      boolean okToFailover = nodeID == null || server.getNodeID().toString().equals(nodeID) || !(server.getHAPolicy().canScaleDown() && !server.hasScaledDown(new SimpleString(nodeID)));
+      boolean okToFailover = nodeID == null || server.getNodeID().toString().equals(nodeID) || !(server.getHAPolicy().canScaleDown() && !server.hasScaledDown(SimpleString.of(nodeID)));
       channel1.send(new CheckFailoverReplyMessage(okToFailover));
    }
 
@@ -155,7 +155,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
             throw ActiveMQMessageBundle.BUNDLE.serverNotStarted();
          }
 
-         // XXX HORNETQ-720 Taylor commented out this test. Should be verified.
+         // Taylor commented out this test. Should be verified.
          /*if (!server.checkActivate())
          {
             throw new ActiveMQException(ActiveMQException.SESSION_CREATION_REJECTED,
@@ -168,8 +168,8 @@ public class ActiveMQPacketHandler implements ChannelHandler {
             ActiveMQServerLogger.LOGGER.incompatibleVersionAfterConnect(request.getVersion(), connection.getChannelVersion());
          }
 
-         if (request instanceof CreateSessionMessage_V2) {
-            connection.setClientID(((CreateSessionMessage_V2) request).getClientID());
+         if (request instanceof CreateSessionMessage_V2 v2) {
+            connection.setClientID(v2.getClientID());
          }
 
          Channel channel = connection.getChannel(request.getSessionChannelID(), request.getWindowSize());
@@ -182,7 +182,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
          final String validatedUser = server.validateUser(activeMQPrincipal == null ? request.getUsername() : activeMQPrincipal.getUserName(), activeMQPrincipal == null ? request.getPassword() : activeMQPrincipal.getPassword(), connection, protocolManager.getSecurityDomain());
          if (connection.getTransportConnection().getRouter() != null) {
-            protocolManager.getRoutingHandler().route(connection, request);
+            protocolManager.getRoutingHandler().route(connection, validatedUser != null ? validatedUser : request.getUsername());
          }
 
          OperationContext sessionOperationContext = server.newOperationContext();
@@ -242,7 +242,6 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
          ServerSessionPacketHandler sessionHandler = protocolManager.getSessionHandler(request.getName());
 
-         // HORNETQ-720 XXX ataylor?
          if (/*!server.checkActivate() || */ sessionHandler == null) {
             response = new ReattachSessionResponseMessage(-1, false);
          } else {
@@ -275,7 +274,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
    private void handleCreateQueue(final CreateQueueMessage request) {
       try {
-         server.createQueue(new QueueConfiguration(request.getQueueName())
+         server.createQueue(QueueConfiguration.of(request.getQueueName())
                                .setAddress(request.getAddress())
                                .setFilterString(request.getFilterString())
                                .setDurable(request.isDurable())

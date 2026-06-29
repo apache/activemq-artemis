@@ -17,16 +17,21 @@
 
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
+import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.openwire.OpenWireTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +46,7 @@ import javax.jms.Session;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 
-import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class MessageIDMultiProtocolTest extends OpenWireTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -52,14 +55,14 @@ public class MessageIDMultiProtocolTest extends OpenWireTestBase {
    String protocolConsumer;
    ConnectionFactory senderCF;
    ConnectionFactory consumerCF;
-   private static final SimpleString queueName = SimpleString.toSimpleString("MessageIDueueTest");
+   private static final SimpleString queueName = SimpleString.of("MessageIDueueTest");
 
    public MessageIDMultiProtocolTest(String protocolSender, String protocolConsumer) {
       this.protocolSender = protocolSender;
       this.protocolConsumer = protocolConsumer;
    }
 
-   @Parameterized.Parameters(name = "sender={0},consumer={1}")
+   @Parameters(name = "sender={0},consumer={1}")
    public static Iterable<Object[]> data() {
       return Arrays.asList(new Object[][]{
          {"OPENWIRE", "OPENWIRE"},
@@ -75,21 +78,21 @@ public class MessageIDMultiProtocolTest extends OpenWireTestBase {
    }
 
 
-   @Before
-   public void setupCF() {
+   @BeforeEach
+   @Override
+   public void setUp() throws Exception {
+      super.setUp();
+
       senderCF = createConnectionFactory(protocolSender, urlString);
       consumerCF = createConnectionFactory(protocolConsumer, urlString);
-   }
 
-   @Before
-   public void setupQueue() throws Exception {
       Wait.assertTrue(server::isStarted);
       Wait.assertTrue(server::isActive);
-      this.server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
    }
 
 
-   @Test
+   @TestTemplate
    public void testMessageIDNotNullCorrelationIDPreserved() throws Throwable {
       Connection senderConn = senderCF.createConnection();
       Connection consumerConn = consumerCF.createConnection();
@@ -111,14 +114,14 @@ public class MessageIDMultiProtocolTest extends OpenWireTestBase {
             consumerConn.start();
 
             Message receivedMessage = consumer.receive(3000);
-            Assert.assertNotNull(receivedMessage);
+            assertNotNull(receivedMessage);
 
-            Assert.assertEquals(sentMessage.getJMSCorrelationID(), receivedMessage.getJMSCorrelationID());
+            assertEquals(sentMessage.getJMSCorrelationID(), receivedMessage.getJMSCorrelationID());
 
             String messageId = receivedMessage.getJMSMessageID();
-            Assert.assertNotNull(messageId);
+            assertNotNull(messageId);
 
-            Assert.assertTrue(messageId.startsWith("ID:"));
+            assertTrue(messageId.startsWith("ID:"));
 
             logger.debug("[{}][{}] {}", protocolSender, protocolConsumer, messageId);
             logger.debug("[{}][{}] {}", protocolSender, protocolConsumer, sentMid);

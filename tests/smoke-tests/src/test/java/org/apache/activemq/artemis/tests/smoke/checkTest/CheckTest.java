@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.check.NodeCheck;
 import org.apache.activemq.artemis.cli.commands.check.QueueCheck;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
@@ -42,11 +43,16 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class CheckTest extends SmokeTestBase {
 
@@ -57,10 +63,31 @@ public class CheckTest extends SmokeTestBase {
    private static final String SERVER_NAME_1 = "check-test/live";
    private static final String SERVER_NAME_2 = "check-test/backup";
 
-   Process liveProcess;
+   @BeforeAll
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_1);
+      File server1Location = getFileServerLocation(SERVER_NAME_2);
+      deleteDirectory(server1Location);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setSharedStore(true).setBackup(false).setSharedStore(true).setDataFolder("./target/check-test/data").setFailoverOnShutdown(true).setStaticCluster("tcp://localhost:61716").setArtemisInstance(server0Location).setArgs("--cluster-user", "my-cluster-user", "--cluster-password", "my-cluster-password");
+         cliCreateServer.createServer();
+      }
+
+      {
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setSharedStore(true).setBackup(true).setSharedStore(true).setDataFolder("./target/check-test/data").setFailoverOnShutdown(true).setStaticCluster("tcp://localhost:61616").setPortOffset(100).setArtemisInstance(server1Location).setArgs("--cluster-user", "my-cluster-user", "--cluster-password", "my-cluster-password");
+         cliCreateServer.createServer();
+      }
+   }
+
+   Process primaryProcess;
    Process backupProcess;
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_1);
       cleanupData(SERVER_NAME_2);
@@ -71,33 +98,34 @@ public class CheckTest extends SmokeTestBase {
       disableCheckThread();
    }
 
-   @Test(timeout = 60_000L)
+   @Test
+   @Timeout(60)
    public void testNodeCheckActions() throws Exception {
-      liveProcess = startServer(SERVER_NAME_1, 0, 0);
+      primaryProcess = startServer(SERVER_NAME_1, 0, 0);
       ServerUtil.waitForServerToStart("tcp://localhost:61616", 5_000);
 
       NodeCheck nodeCheck = new NodeCheck();
       nodeCheck.setUser("admin");
       nodeCheck.setPassword("admin");
-      Assert.assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
 
       nodeCheck = new NodeCheck();
       nodeCheck.setUser("admin");
       nodeCheck.setPassword("admin");
       nodeCheck.setUp(true);
-      Assert.assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
 
       nodeCheck = new NodeCheck();
       nodeCheck.setUser("admin");
       nodeCheck.setPassword("admin");
       nodeCheck.setDiskUsage(-1);
-      Assert.assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
 
       nodeCheck = new NodeCheck();
       nodeCheck.setUser("admin");
       nodeCheck.setPassword("admin");
       nodeCheck.setDiskUsage(90);
-      Assert.assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
 
       try {
          nodeCheck = new NodeCheck();
@@ -106,16 +134,16 @@ public class CheckTest extends SmokeTestBase {
          nodeCheck.setDiskUsage(0);
          nodeCheck.execute(ACTION_CONTEXT);
 
-         Assert.fail("CLIException expected.");
+         fail("CLIException expected.");
       } catch (Exception e) {
-         Assert.assertTrue("CLIException expected.", e instanceof CLIException);
+         assertInstanceOf(CLIException.class, e, "CLIException expected.");
       }
 
       nodeCheck = new NodeCheck();
       nodeCheck.setUser("admin");
       nodeCheck.setPassword("admin");
       nodeCheck.setMemoryUsage(90);
-      Assert.assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
 
       try {
          nodeCheck = new NodeCheck();
@@ -124,22 +152,23 @@ public class CheckTest extends SmokeTestBase {
          nodeCheck.setMemoryUsage(-1);
          nodeCheck.execute(ACTION_CONTEXT);
 
-         Assert.fail("CLIException expected.");
+         fail("CLIException expected.");
       } catch (Exception e) {
-         Assert.assertTrue("CLIException expected.", e instanceof CLIException);
+         assertInstanceOf(CLIException.class, e, "CLIException expected.");
       }
    }
 
-   @Test(timeout = 60_000L)
+   @Test
+   @Timeout(60)
    public void testCheckTopology() throws Exception {
-      liveProcess = startServer(SERVER_NAME_1, 0, 0);
+      primaryProcess = startServer(SERVER_NAME_1, 0, 0);
       ServerUtil.waitForServerToStart("tcp://localhost:61616", 5_000);
 
       NodeCheck nodeCheck = new NodeCheck();
       nodeCheck.setUser("admin");
       nodeCheck.setPassword("admin");
-      nodeCheck.setLive(true);
-      Assert.assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
+      nodeCheck.setPrimary(true);
+      assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
 
       try {
          nodeCheck = new NodeCheck();
@@ -148,16 +177,16 @@ public class CheckTest extends SmokeTestBase {
          nodeCheck.setBackup(true);
          nodeCheck.execute(ACTION_CONTEXT);
 
-         Assert.fail("CLIException expected.");
+         fail("CLIException expected.");
       } catch (Exception e) {
-         Assert.assertTrue("CLIException expected.", e instanceof CLIException);
+         assertInstanceOf(CLIException.class, e, "CLIException expected.");
       }
 
       nodeCheck = new NodeCheck();
       nodeCheck.setUser("admin");
       nodeCheck.setPassword("admin");
-      nodeCheck.setLive(true);
-      Assert.assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
+      nodeCheck.setPrimary(true);
+      assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
 
       try {
          nodeCheck = new NodeCheck();
@@ -166,9 +195,9 @@ public class CheckTest extends SmokeTestBase {
          nodeCheck.setBackup(true);
          nodeCheck.execute(ACTION_CONTEXT);
 
-         Assert.fail("CLIException expected.");
+         fail("CLIException expected.");
       } catch (Exception e) {
-         Assert.assertTrue("CLIException expected.", e instanceof CLIException);
+         assertInstanceOf(CLIException.class, e, "CLIException expected.");
       }
 
       backupProcess = startServer(SERVER_NAME_2, 0, 0);
@@ -178,10 +207,10 @@ public class CheckTest extends SmokeTestBase {
       nodeCheck = new NodeCheck();
       nodeCheck.setUser("admin");
       nodeCheck.setPassword("admin");
-      nodeCheck.setLive(true);
+      nodeCheck.setPrimary(true);
       nodeCheck.setBackup(true);
       nodeCheck.setPeers(2);
-      Assert.assertEquals(3, nodeCheck.execute(ACTION_CONTEXT));
+      assertEquals(3, nodeCheck.execute(ACTION_CONTEXT));
    }
 
    public boolean hasBackup(SimpleManagement simpleManagement) {
@@ -199,14 +228,15 @@ public class CheckTest extends SmokeTestBase {
       return false;
    }
 
-   @Test(timeout = 60_000L)
+   @Test
+   @Timeout(60)
    public void testQueueCheckUp() throws Exception {
-      liveProcess = startServer(SERVER_NAME_1, 0, 0);
+      primaryProcess = startServer(SERVER_NAME_1, 0, 0);
       ServerUtil.waitForServerToStart("tcp://localhost:61616", 5_000);
 
       SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", "admin", "admin");
 
-      String queueName = "Q_" + RandomUtil.randomString();
+      String queueName = "Q_" + RandomUtil.randomUUIDString();
 
       QueueCheck queueCheck;
 
@@ -217,14 +247,14 @@ public class CheckTest extends SmokeTestBase {
          queueCheck.setName(queueName);
          queueCheck.execute(ACTION_CONTEXT);
 
-         Assert.fail("CLIException expected.");
+         fail("CLIException expected.");
       } catch (Exception e) {
-         Assert.assertTrue("CLIException expected.", e instanceof CLIException);
+         assertInstanceOf(CLIException.class, e, "CLIException expected.");
       }
 
       ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
       try (ClientSessionFactory factory = locator.createSessionFactory(); ClientSession session = factory.createSession()) {
-         session.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
 
       try {
@@ -236,9 +266,9 @@ public class CheckTest extends SmokeTestBase {
          queueCheck.setTimeout(100);
          queueCheck.execute(ACTION_CONTEXT);
 
-         Assert.fail("CLIException expected.");
+         fail("CLIException expected.");
       } catch (Exception e) {
-         Assert.assertTrue("CLIException expected.", e instanceof CLIException);
+         assertInstanceOf(CLIException.class, e, "CLIException expected.");
       }
 
 
@@ -246,14 +276,14 @@ public class CheckTest extends SmokeTestBase {
       queueCheck.setUser("admin");
       queueCheck.setPassword("admin");
       queueCheck.setName(queueName);
-      Assert.assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
 
       queueCheck = new QueueCheck();
       queueCheck.setUser("admin");
       queueCheck.setPassword("admin");
       queueCheck.setUp(true);
       queueCheck.setName(queueName);
-      Assert.assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
 
       ConnectionFactory cf = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
 
@@ -264,7 +294,7 @@ public class CheckTest extends SmokeTestBase {
       queueCheck.setPassword("admin");
       queueCheck.setName(queueName);
       queueCheck.setBrowse(null);
-      Assert.assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
 
 
       queueCheck = new QueueCheck();
@@ -272,7 +302,7 @@ public class CheckTest extends SmokeTestBase {
       queueCheck.setPassword("admin");
       queueCheck.setName(queueName);
       queueCheck.setConsume(null);
-      Assert.assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
 
 
       try (Connection connection = cf.createConnection(); Session session = connection.createSession(true, Session.SESSION_TRANSACTED)) {
@@ -292,21 +322,21 @@ public class CheckTest extends SmokeTestBase {
       queueCheck.setPassword("admin");
       queueCheck.setName(queueName);
       queueCheck.setBrowse(messages);
-      Assert.assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
 
       queueCheck = new QueueCheck();
       queueCheck.setUser("admin");
       queueCheck.setPassword("admin");
       queueCheck.setName(queueName);
       queueCheck.setConsume(messages);
-      Assert.assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
 
       queueCheck = new QueueCheck();
       queueCheck.setUser("admin");
       queueCheck.setPassword("admin");
       queueCheck.setName(queueName);
       queueCheck.setProduce(messages);
-      Assert.assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
 
       Wait.assertEquals(messages, () -> getMessageCount(simpleManagement, queueName), 1_000);
 
@@ -316,7 +346,7 @@ public class CheckTest extends SmokeTestBase {
       queueCheck.setPassword("admin");
       queueCheck.setName(queueName);
       queueCheck.setConsume(messages);
-      Assert.assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
+      assertEquals(1, queueCheck.execute(ACTION_CONTEXT));
 
       Wait.assertEquals(0, () -> getMessageCount(simpleManagement, queueName), 1_000);
 
@@ -327,23 +357,8 @@ public class CheckTest extends SmokeTestBase {
       queueCheck.setProduce(messages);
       queueCheck.setBrowse(messages);
       queueCheck.setConsume(messages);
-      Assert.assertEquals(3, queueCheck.execute(ACTION_CONTEXT));
+      assertEquals(3, queueCheck.execute(ACTION_CONTEXT));
 
       Wait.assertEquals(0, () -> getMessageCount(simpleManagement, queueName), 1_000);
    }
-
-
-   // using a method here to capture eventual exceptions allowing retries
-   int getMessageCount(SimpleManagement management, String queueName) throws Exception {
-      try {
-         return (int) management.getMessageCountOnQueue(queueName);
-      } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
-         // if an exception happened during a retry
-         // we just return -1, so the retries will keep coming
-         return -1;
-      }
-   }
-
-
 }

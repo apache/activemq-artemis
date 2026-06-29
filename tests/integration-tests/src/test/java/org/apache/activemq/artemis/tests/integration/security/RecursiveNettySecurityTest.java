@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.security;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -34,11 +36,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
 import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,15 +48,8 @@ public class RecursiveNettySecurityTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /*
-    * create session tests
-    */
-   private static final String addressA = "addressA";
-
-   private static final String queueA = "queueA";
-
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
@@ -72,7 +67,7 @@ public class RecursiveNettySecurityTest extends ActiveMQTestBase {
          connection.close();
       } catch (JMSException e) {
          e.printStackTrace();
-         Assert.fail("should not throw exception");
+         fail("should not throw exception");
       }
    }
 
@@ -105,7 +100,9 @@ public class RecursiveNettySecurityTest extends ActiveMQTestBase {
             logger.warn(e.getMessage(), e);
             throw new NoCacheLoginException(e.getMessage());
          }
-         return new Subject();
+         Subject authenticatedSubject = new Subject();
+         authenticatedSubject.getPrincipals().add(new UserPrincipal(user));
+         return authenticatedSubject;
       }
 
       @Override

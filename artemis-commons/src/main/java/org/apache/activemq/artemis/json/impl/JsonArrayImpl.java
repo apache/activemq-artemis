@@ -112,8 +112,8 @@ public class JsonArrayImpl extends JsonValueImpl implements JsonArray {
 
    @Override
    public boolean contains(Object o) {
-      if (o instanceof JsonValueImpl) {
-         return rawArray.contains(((JsonValueImpl)o).getRawValue());
+      if (o instanceof JsonValueImpl jsonValue) {
+         return rawArray.contains(jsonValue.getRawValue());
       } else {
          return rawArray.contains(o);
       }
@@ -121,7 +121,7 @@ public class JsonArrayImpl extends JsonValueImpl implements JsonArray {
 
    @Override
    public Iterator<JsonValue> iterator() {
-      return new Iterator<JsonValue>() {
+      return new Iterator<>() {
          private Iterator<javax.json.JsonValue> rawIterator = rawArray.iterator();
 
          @Override

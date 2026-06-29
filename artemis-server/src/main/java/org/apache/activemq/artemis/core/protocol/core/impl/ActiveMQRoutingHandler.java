@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import org.apache.activemq.artemis.api.core.DisconnectReason;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.routing.RoutingHandler;
@@ -29,12 +28,12 @@ public class ActiveMQRoutingHandler extends RoutingHandler<ActiveMQRoutingContex
       super(server);
    }
 
-   public boolean route(CoreRemotingConnection connection, CreateSessionMessage message) throws Exception {
+   public boolean route(CoreRemotingConnection connection, String username) throws Exception {
       if (!connection.isVersionSupportRouting()) {
          throw ActiveMQMessageBundle.BUNDLE.incompatibleClientServer();
       }
 
-      return route(new ActiveMQRoutingContext(connection, message));
+      return route(new ActiveMQRoutingContext(connection, username));
    }
 
    @Override

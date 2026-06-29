@@ -16,8 +16,11 @@
  */
 package org.apache.activemq.artemis.cli.commands.queue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -29,14 +32,19 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.utils.TableOut;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "stat", description = "Print basic stats of a queue. Output includes CONSUMER_COUNT (number of consumers), MESSAGE_COUNT (current message count on the queue, including scheduled, paged and in-delivery messages), MESSAGES_ADDED (messages added to the queue), DELIVERING_COUNT (messages broker is currently delivering to consumer(s)), MESSAGES_ACKED (messages acknowledged from the consumer(s))." + " Queues can be filtered using EITHER '--queueName X' where X is contained in the queue name OR using a full filter '--field NAME --operation EQUALS --value X'.")
 public class StatQueue extends ConnectionAbstract {
 
+   private static final String NOT_APPLICABLE = "";
+
+   private static final String MANAGEMENT_QUEUE = "activemq.management";
+
    public enum FIELD {
-      NAME("name"), ADDRESS("address"), CONSUMER_COUNT("consumerCount"), MESSAGE_COUNT("messageCount"), MESSAGES_ADDED("messagesAdded"), DELIVERING_COUNT("deliveringCount"), MESSAGES_ACKED("messagesAcked"), SCHEDULED_COUNT("scheduledCount"), ROUTING_TYPE("routingType");
+      NAME("name", false), ADDRESS("address", false), CONSUMER_COUNT("consumerCount", true), MESSAGE_COUNT("messageCount", true), MESSAGES_ADDED("messagesAdded", true), DELIVERING_COUNT("deliveringCount", true), MESSAGES_ACKED("messagesAcked", true), SCHEDULED_COUNT("scheduledCount", true), ROUTING_TYPE("routingType", true), INTERNAL("internalQueue", true);
 
       private static final Map<String, FIELD> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -47,9 +55,11 @@ public class StatQueue extends ConnectionAbstract {
       }
 
       private String jsonId;
+      private boolean center;
 
-      FIELD(String jsonId) {
+      FIELD(String jsonId, boolean center) {
          this.jsonId = jsonId;
+         this.center = center;
       }
 
       String getJsonId() {
@@ -89,6 +99,34 @@ public class StatQueue extends ConnectionAbstract {
 
    @Option(names = "--clustered", description = "Expands the report for all nodes on the topology")
    private boolean clustered = false;
+
+   @Option(names = "--include-management", description = "Include queues created for notification management in the output")
+   private boolean includeManagement = false;
+
+   @Option(names = "--loop", description = "Keep Queue Stat in a forever loop, that you can interrupt with Ctrl-C, sleeping for --loop-time between each iteration.")
+   private boolean useLoop = false;
+
+   private static final long DEFAULT_SLEEP = 60_000;
+   @Option(names = "--loop-sleep", description = "Amount of Milliseconds to sleep before each iteration on queue stat. Default=60000", hidden = true)
+   private long oldSleep = -1;
+
+   @Option(names = "--sleep", description = "Amount of Milliseconds to sleep before each iteration on queue stat. Default=60000")
+   private long loopSleep = -1;
+
+   @Option(names = "--single-line-header", description = "Use a single line on the header titles")
+   private boolean singleLineHeader = false;
+
+   @Option(names = "--json", description = "Prints the queue stat information in JSON format, useful for scripts")
+   private boolean json;
+
+   public boolean isSingleLineHeader() {
+      return singleLineHeader;
+   }
+
+   public StatQueue setSingleLineHeader(boolean singleLineHeader) {
+      this.singleLineHeader = singleLineHeader;
+      return this;
+   }
 
    private int statCount = 0;
 
@@ -137,8 +175,20 @@ public class StatQueue extends ConnectionAbstract {
       return this;
    }
 
+   public boolean isJson() {
+      return json;
+   }
+
+   public StatQueue setJson(boolean json) {
+      this.json = json;
+      return this;
+   }
+
    @Override
    public Object execute(ActionContext context) throws Exception {
+      if (json) {
+         silent = true;
+      }
       super.execute(context);
       String filter = createFilter();
 
@@ -151,14 +201,65 @@ public class StatQueue extends ConnectionAbstract {
          getActionContext().out.println("filter is '" + filter + "'");
          getActionContext().out.println("maxRows='" + maxRows + "'");
       }
-      createConnectionFactory();
+      createConnectionFactory().close();
 
+      if (json) {
+         jsonExecution(context, filter);
+         return 1;
+      }
+
+      singleExeuction(context, filter);
+
+      // if using the hidden parameter
+      if (oldSleep != -1) {
+         loopSleep = oldSleep;
+      }
+
+      if (loopSleep != -1) {
+         // if --loop-sleep was passed as an argument, it is assumed the user also meant --loop
+         useLoop = true;
+      }
+
+      if (useLoop && loopSleep == -1) {
+         loopSleep = DEFAULT_SLEEP;
+      }
+
+      while (useLoop) {
+         getActionContext().out.println("Waiting " + loopSleep + " before another queue stat iteration");
+         Thread.sleep(loopSleep);
+         getActionContext().out.println(new Date() + ">> Queue stat results for " + getBrokerInstance());
+         try {
+            singleExeuction(context, filter);
+         } catch (Throwable e) {
+            e.printStackTrace(getActionContext().err);
+         }
+      }
+
+      return statCount;
+   }
+
+   private void jsonExecution(ActionContext context, String filter) throws Exception {
+      performCoreManagement(brokerURL, user, password, message -> {
+         ManagementHelper.putOperationInvocation(message, "broker", "listQueues", filter, 1, maxRows);
+      }, reply -> {
+         // some formatting, to make it more palatable
+         String result = (String) ManagementHelper.getResult(reply, String.class);
+         result = result.replace("{\"id\"", "\n   {\"id\"");
+         result = result.replace("]", "\n]");
+         context.out.println(result);
+      }, reply -> {
+         String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+         getActionContext().err.println("Failed to get Stats for Queues. Reason: " + errMsg);
+      });
+   }
+
+   private void singleExeuction(ActionContext context, String filter) throws Exception {
       try (SimpleManagement simpleManagement = new SimpleManagement(brokerURL, user, password).open()) {
          String nodeID = simpleManagement.getNodeID();
          JsonArray topology = simpleManagement.listNetworkTopology();
 
          if (clustered && topology.size() > 1) {
-            context.out.println(Terminal.YELLOW_UNICODE + "*******************************************************************************************************************************");
+            context.out.println(Terminal.INFO_COLOR_UNICODE + "*******************************************************************************************************************************");
             context.out.println(">>> Queue stats on node " + nodeID + ", url=" + brokerURL + Terminal.CLEAR_UNICODE);
             printStats(brokerURL, filter);
 
@@ -170,7 +271,7 @@ public class StatQueue extends ConnectionAbstract {
 
                String url = "tcp://" + node.getString("live");
 
-               context.out.println(Terminal.YELLOW_UNICODE + "*******************************************************************************************************************************");
+               context.out.println(Terminal.INFO_COLOR_UNICODE + "*******************************************************************************************************************************");
                context.out.println(">>> Queue stats on node " + node.getString("nodeID") + ", url=" + url + Terminal.CLEAR_UNICODE);
 
                printStats(url, filter);
@@ -179,14 +280,11 @@ public class StatQueue extends ConnectionAbstract {
             printStats(brokerURL, filter);
             if (topology.size() > 1) {
                context.out.println();
-               context.out.println("Note: Use " + Terminal.RED_UNICODE + "--clustered" + Terminal.CLEAR_UNICODE + " to expand the report to other nodes in the topology.");
+               context.out.println("Note: Use " + Terminal.WARNING_COLOR_UNICODE + "--clustered" + Terminal.CLEAR_UNICODE + " to expand the report to other nodes in the topology.");
                context.out.println();
             }
          }
       }
-
-
-      return statCount;
    }
 
    private void printStats(String uri, final String filter) throws Exception {
@@ -216,20 +314,45 @@ public class StatQueue extends ConnectionAbstract {
       JsonArray array = queuesAsJsonObject.getJsonArray("data");
 
       int[] columnSizes = new int[FIELD.values().length];
+      boolean[] centralize = new boolean[columnSizes.length];
+
+      List<String>[] fieldTitles = new ArrayList[columnSizes.length];
 
       FIELD[] fields = FIELD.values();
       for (int i = 0; i < fields.length; i++) {
-         columnSizes[i] = fields[i].toString().length();
+         if (singleLineHeader) {
+            columnSizes[i] = fields[i].toString().length();
+         } else {
+            List<String> splitTitleArrayList = new ArrayList<>();
+            String[] splitTitleStringArray = fields[i].toString().split("_");
+            centralize[i] = fields[i].center;
+
+            for (String s : splitTitleStringArray) {
+               splitTitleArrayList.add(s);
+               columnSizes[i] = Math.max(columnSizes[i], s.length());
+            }
+
+            fieldTitles[i] = splitTitleArrayList;
+         }
       }
 
       for (int i = 0; i < array.size(); i++) {
          getColumnSizes(array.getJsonObject(i), columnSizes);
       }
 
-      printHeadings(columnSizes);
+      TableOut tableOut = new TableOut("|", 2, columnSizes);
+
+      if (singleLineHeader) {
+         printHeadings(columnSizes);
+      } else {
+         tableOut.print(getActionContext().out, fieldTitles, centralize);
+      }
 
       for (int i = 0; i < array.size(); i++) {
-         printQueueStats(array.getJsonObject(i), columnSizes);
+         if (!includeManagement && array.getJsonObject(i).getString("name").contains(MANAGEMENT_QUEUE)) {
+            continue;
+         }
+         printQueueStats(array.getJsonObject(i), columnSizes, centralize, tableOut);
          statCount++;
       }
 
@@ -240,9 +363,18 @@ public class StatQueue extends ConnectionAbstract {
 
    private void getColumnSizes(JsonObject jsonObject, int[] columnSizes) {
       int i = 0;
+      if (!includeManagement && jsonObject.getString("name").startsWith(MANAGEMENT_QUEUE)) {
+         return;
+      }
       for (FIELD e: FIELD.values()) {
-         if (jsonObject.getString(e.jsonId).length() > columnSizes[i]) {
-            columnSizes[i] = jsonObject.getString(e.jsonId).length();
+         if (jsonObject.containsKey(e.jsonId)) {
+            if (jsonObject.getString(e.jsonId).length() > columnSizes[i]) {
+               columnSizes[i] = jsonObject.getString(e.jsonId).length();
+            }
+         } else {
+            if (NOT_APPLICABLE.length() > columnSizes[i]) {
+               columnSizes[i] = NOT_APPLICABLE.length();
+            }
          }
          // enforce max
          if (columnSizes[i] > maxColumnSize && maxColumnSize != -1) {
@@ -264,7 +396,8 @@ public class StatQueue extends ConnectionAbstract {
       getActionContext().out.println(stringBuilder);
    }
 
-   private void printQueueStats(JsonObject jsonObject, int[] columnSizes) {
+
+   private void printQueueStats(JsonObject jsonObject, int[] columnSizes, boolean[] center, TableOut tableOut) {
 
       //should not happen but just in case..
       if (jsonObject == null) {
@@ -274,15 +407,16 @@ public class StatQueue extends ConnectionAbstract {
          return;
       }
 
-      // add 10 for the various '|' characters
-      StringBuilder stringBuilder = new StringBuilder(Arrays.stream(columnSizes).sum() + FIELD.values().length + 1).append('|');
-
       int i = 0;
+      String[] columns = new String[columnSizes.length];
       for (FIELD e: FIELD.values()) {
-         stringBuilder.append(paddingString(new StringBuilder(jsonObject.getString(e.jsonId)), columnSizes[i++])).append('|');
+         if (!jsonObject.containsKey(e.jsonId)) {
+            columns[i++] = NOT_APPLICABLE;
+         } else {
+            columns[i++] = jsonObject.getString(e.jsonId);
+         }
       }
-
-      getActionContext().out.println(stringBuilder);
+      tableOut.print(getActionContext().out, columns, center);
    }
 
    private StringBuilder paddingString(StringBuilder value, int maxColumnSize) {
@@ -293,7 +427,7 @@ public class StatQueue extends ConnectionAbstract {
       }
 
       //would expect to have some data
-      if (value.length() == 0) {
+      if (value.isEmpty()) {
          value.append("NO DATA");
       }
 
@@ -314,14 +448,14 @@ public class StatQueue extends ConnectionAbstract {
    //creates filter used for listQueues()
    private String createFilter() {
 
-      HashMap<String, Object> filterMap = new HashMap<>();
+      Map<String, Object> filterMap = new HashMap<>();
 
-      if (((fieldName != null) && (fieldName.trim().length() > 0)) && ((queueName != null && queueName.trim().length() > 0))) {
+      if (((fieldName != null) && (!fieldName.trim().isEmpty())) && ((queueName != null && !queueName.trim().isEmpty()))) {
          getActionContext().err.println("'--field' and '--queueName' cannot be specified together.");
          return null;
       }
 
-      if ((fieldName != null) && (fieldName.trim().length() > 0)) {
+      if ((fieldName != null) && (!fieldName.trim().isEmpty())) {
          try {
             FIELD field = FIELD.valueOfJsonId(fieldName);
 
@@ -337,7 +471,7 @@ public class StatQueue extends ConnectionAbstract {
          }
 
          //full filter being set ensure value is set
-         if (value == null || value.trim().length() == 0) {
+         if (value == null || value.trim().isEmpty()) {
             getActionContext().err.println("'--value' needs to be set when '--field' is specified");
             return null;
          }
@@ -356,7 +490,7 @@ public class StatQueue extends ConnectionAbstract {
             return null;
          }
 
-      } else if (queueName != null && queueName.trim().length() > 0) {
+      } else if (queueName != null && !queueName.trim().isEmpty()) {
          filterMap.put("field", FIELD.NAME.toString());
          filterMap.put("value", queueName);
          filterMap.put("operation", OPERATION.CONTAINS.toString());

@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -23,27 +28,25 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.SpawnedVMSupport;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
- * A test that makes sure that an ActiveMQ Artemis client gracefully exists after the last session is
- * closed. Test for http://jira.jboss.org/jira/browse/JBMESSAGING-417.
- *
- * This is not technically a crash test, but it uses the same type of topology as the crash tests
- * (local server, remote VM client).
+ * A test that makes sure that an Apache Artemis client gracefully exists after the last session is closed.
+ * <p>
+ * This is not technically a crash test, but it uses the same type of topology as the crash tests (local server, remote
+ * VM client).
  */
 public class ClientExitTest extends ClientTestBase {
 
 
-   private static final String MESSAGE_TEXT = RandomUtil.randomString();
+   private static final String MESSAGE_TEXT = RandomUtil.randomUUIDString();
 
-   private static final SimpleString QUEUE = new SimpleString("ClientExitTestQueue");
+   private static final SimpleString QUEUE = SimpleString.of("ClientExitTestQueue");
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -70,7 +73,7 @@ public class ClientExitTest extends ClientTestBase {
 
       assertEquals(0, p.exitValue());
 
-      // FIXME https://jira.jboss.org/jira/browse/JBMESSAGING-1421
+      // FIXME
       // Thread.sleep(1000);
       //
       // // the local session
@@ -79,14 +82,14 @@ public class ClientExitTest extends ClientTestBase {
 
       session.close();
 
-      // FIXME https://jira.jboss.org/jira/browse/JBMESSAGING-1421
+      // FIXME
       // Thread.sleep(1000);
       // assertActiveConnections(0);
       // // assertActiveSession(0);
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -94,7 +97,7 @@ public class ClientExitTest extends ClientTestBase {
       addServerLocator(locator);
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(ClientExitTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ClientExitTest.QUEUE).setDurable(false));
       consumer = session.createConsumer(ClientExitTest.QUEUE);
       session.start();
    }

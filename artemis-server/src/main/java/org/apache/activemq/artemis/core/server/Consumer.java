@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 public interface Consumer extends PriorityAware {
 
    /**
+    * Whether this {@code Consumer} supports direct delivery.
     *
     * @see SessionCallback#supportsDirectDelivery()
     */
@@ -35,21 +36,19 @@ public interface Consumer extends PriorityAware {
    }
 
    /**
-    * There was a change on semantic during 2.3 here.<br>
+    * There was a change on semantic during 2.3 here.
+    * <p>
     * We now first accept the message, and the actual deliver is done as part of
-    * {@link #proceedDeliver(MessageReference)}. This is to avoid holding a lock on the queues while
-    * the delivery is being accomplished To avoid a lock on the queue in case of misbehaving
-    * consumers.
+    * {@link #proceedDeliver(MessageReference)}. This is to avoid holding a lock on the queues while the delivery is
+    * being accomplished To avoid a lock on the queue in case of misbehaving consumers.
     * <p>
     * This should return busy if handle is called before proceed deliver is called
-    *
-    * @param reference
-    * @return
-    * @throws Exception
     */
    HandleStatus handle(MessageReference reference) throws Exception;
 
-   /** wakes up internal threads to deliver more messages */
+   /**
+    * wakes up internal threads to deliver more messages
+    */
    default void promptDelivery() {
    }
 
@@ -58,12 +57,9 @@ public interface Consumer extends PriorityAware {
    }
 
    /**
-    * This will proceed with the actual delivery.
-    * Notice that handle should hold a readLock and proceedDelivery should release the readLock
-    * any lock operation on Consumer should also get a writeLock on the readWriteLock
-    * to guarantee there are no pending deliveries
-    *
-    * @throws Exception
+    * This will proceed with the actual delivery. Notice that handle should hold a readLock and proceedDelivery should
+    * release the readLock any lock operation on Consumer should also get a writeLock on the readWriteLock to guarantee
+    * there are no pending deliveries
     */
    void proceedDeliver(MessageReference reference) throws Exception;
 
@@ -73,18 +69,13 @@ public interface Consumer extends PriorityAware {
 
    Filter getFilter();
 
-   /**
-    * @return the list of messages being delivered
-    */
    List<MessageReference> getDeliveringMessages();
 
    String debug();
 
    /**
-    * This method will create a string representation meant for management operations.
-    * This is different from the toString method that's meant for debugging and will contain information that regular users won't understand well
-    *
-    * @return
+    * This method will create a string representation meant for management operations. This is different from the
+    * toString method that's meant for debugging and will contain information that regular users won't understand well
     */
    String toManagementString();
 
@@ -95,7 +86,9 @@ public interface Consumer extends PriorityAware {
 
    void failed(Throwable t);
 
-   /** an unique sequential ID for this consumer */
+   /**
+    * an unique sequential ID for this consumer
+    */
    long sequentialID();
 
    @Override

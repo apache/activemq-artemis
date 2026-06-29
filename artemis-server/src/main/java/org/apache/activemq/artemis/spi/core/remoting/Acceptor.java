@@ -24,24 +24,36 @@ import org.apache.activemq.artemis.core.protocol.ProtocolHandler;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.lock.LockCoordinator;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_AUTO_START;
+
 /**
- * An Acceptor is used by the RemotingService to allow clients to connect. It should take care of
- * dispatching client requests to the RemotingService's Dispatcher.
+ * An Acceptor is used by the RemotingService to allow clients to connect. It should take care of dispatching client
+ * requests to the RemotingService's Dispatcher.
  */
 public interface Acceptor extends ActiveMQComponent {
 
    /**
-    * The name of the acceptor used on the configuration.
-    * for logging and debug purposes.
+    * The name of the acceptor used on the configuration. for logging and debug purposes.
     */
    String getName();
+
+   default Acceptor setLockCoordinator(LockCoordinator lockCoordinator) {
+      return this;
+   }
+
+   default LockCoordinator getLockCoordinator() {
+      return null;
+   }
 
    /**
     * Pause the acceptor and stop it from receiving client requests.
     */
    void pause();
+
+   void notifyStop();
 
    /**
     * This will update the list of interceptors for each ProtocolManager inside the acceptor.
@@ -75,8 +87,8 @@ public interface Acceptor extends ActiveMQComponent {
    boolean isUnsecurable();
 
    /**
-    * Re-create the acceptor with the existing configuration values. Useful, for example, for reloading key/trust
-    * stores on acceptors which support SSL.
+    * Re-create the acceptor with the existing configuration values. Useful, for example, for reloading key/trust stores
+    * on acceptors which support SSL.
     */
    void reload();
 
@@ -85,13 +97,16 @@ public interface Acceptor extends ActiveMQComponent {
    }
 
    /**
-    * This is a utility method for Socket-based acceptor implementations to get the actual port used.
-    * This is useful for configurations which specify a port number of 0 which allows the JVM to select
-    * an ephemeral port.
+    * This is a utility method for Socket-based acceptor implementations to get the actual port used. This is useful for
+    * configurations which specify a port number of 0 which allows the JVM to select an ephemeral port.
     *
     * @return the actual port used if using a Socket-based acceptor implementation; -1 otherwise
     */
    default int getActualPort() {
       return -1;
+   }
+
+   default boolean isAutoStart() {
+      return DEFAULT_AUTO_START;
    }
 }

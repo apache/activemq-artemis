@@ -19,6 +19,7 @@ package org.apache.activemq;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.ExceptionListener;
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
@@ -27,7 +28,6 @@ import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,7 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.Objects;
 
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.activemq.blob.BlobTransferPolicy;
 import org.apache.activemq.broker.region.policy.RedeliveryPolicyMap;
 import org.apache.activemq.jndi.JNDIBaseStorable;
@@ -67,21 +69,15 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       String host = null;
       String port = null;
       try {
-         host = AccessController.doPrivileged(new PrivilegedAction<String>() {
-            @Override
-            public String run() {
-               String result = System.getProperty("org.apache.activemq.AMQ_HOST");
-               result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_HOST", "localhost") : result;
-               return result;
-            }
+         host = SecurityManagerShim.doPrivileged((PrivilegedAction<String>) () -> {
+            String result = System.getProperty("org.apache.activemq.AMQ_HOST");
+            result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_HOST", "localhost") : result;
+            return result;
          });
-         port = AccessController.doPrivileged(new PrivilegedAction<String>() {
-            @Override
-            public String run() {
-               String result = System.getProperty("org.apache.activemq.AMQ_PORT");
-               result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_PORT", "61616") : result;
-               return result;
-            }
+         port = SecurityManagerShim.doPrivileged((PrivilegedAction<String>) () -> {
+            String result = System.getProperty("org.apache.activemq.AMQ_PORT");
+            result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_PORT", "61616") : result;
+            return result;
          });
       } catch (Throwable e) {
          LOG.debug("Failed to look up System properties for host and port", e);
@@ -99,13 +95,10 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       String bindURL = null;
 
       try {
-         bindURL = AccessController.doPrivileged(new PrivilegedAction<String>() {
-            @Override
-            public String run() {
-               String result = System.getProperty("org.apache.activemq.BROKER_BIND_URL");
-               result = (result == null || result.isEmpty()) ? System.getProperty("BROKER_BIND_URL", defaultURL) : result;
-               return result;
-            }
+         bindURL = SecurityManagerShim.doPrivileged((PrivilegedAction<String>) () -> {
+            String result = System.getProperty("org.apache.activemq.BROKER_BIND_URL");
+            result = (result == null || result.isEmpty()) ? System.getProperty("BROKER_BIND_URL", defaultURL) : result;
+            return result;
          });
       } catch (Throwable e) {
          LOG.debug("Failed to look up System properties for host and port", e);
@@ -251,7 +244,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
             if (params == Collections.EMPTY_MAP) {
                params = new HashMap<>();
             }
-            params.put("invmBrokerId", uri.getHost() == null ? "localhost" : uri.getHost());
+            params.put("invmBrokerId", Objects.requireNonNullElse(uri.getHost(), "localhost"));
             defaultTcpUri = URISupport.createRemainingURI(defaultTcpUri, params);
             return defaultTcpUri;
          }
@@ -422,7 +415,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       System.out.println("vm uri: " + vmBrokerUri);
       if (vmBrokerUri != null)
          return vmBrokerUri.toString();
-      return brokerURL == null ? null : brokerURL.toString();
+      return Objects.toString(brokerURL, null);
    }
 
    public void setBrokerURL(String brokerURL) {
@@ -995,5 +988,25 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
 
    public boolean isTrustAllPackages() {
       return trustAllPackages;
+   }
+
+   @Override
+   public JMSContext createContext() {
+      throw new UnsupportedOperationException("OpenWire test wrapper factory does not implement createContext");
+   }
+
+   @Override
+   public JMSContext createContext(String userName, String password) {
+      throw new UnsupportedOperationException("OpenWire test wrapper factory does not implement createContext");
+   }
+
+   @Override
+   public JMSContext createContext(String userName, String password, int sessionMode) {
+      throw new UnsupportedOperationException("OpenWire test wrapper factory does not implement createContext");
+   }
+
+   @Override
+   public JMSContext createContext(int sessionMode) {
+      throw new UnsupportedOperationException("OpenWire test wrapper factory does not implement createContext");
    }
 }

@@ -31,28 +31,16 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * A wrapper for a message consumer
+ * A wrapper for a {@link MessageConsumer}.
  */
 public class ActiveMQRAMessageConsumer implements MessageConsumer {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The wrapped message consumer
-    */
    protected MessageConsumer consumer;
 
-   /**
-    * The session for this consumer
-    */
    protected ActiveMQRASession session;
 
-   /**
-    * Create a new wrapper
-    *
-    * @param consumer the consumer
-    * @param session  the session
-    */
    public ActiveMQRAMessageConsumer(final MessageConsumer consumer, final ActiveMQRASession session) {
       this.consumer = consumer;
       this.session = session;
@@ -63,9 +51,7 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
    }
 
    /**
-    * Close
-    *
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void close() throws JMSException {
@@ -78,11 +64,6 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
       }
    }
 
-   /**
-    * Check state
-    *
-    * @throws JMSException Thrown if an error occurs
-    */
    void checkState() throws JMSException {
       logger.trace("checkState()");
 
@@ -90,10 +71,7 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
    }
 
    /**
-    * Get message listener
-    *
-    * @return The listener
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public MessageListener getMessageListener() throws JMSException {
@@ -104,11 +82,9 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
       return consumer.getMessageListener();
    }
 
+
    /**
-    * Set message listener
-    *
-    * @param listener The listener
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setMessageListener(final MessageListener listener) throws JMSException {
@@ -126,11 +102,9 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
       }
    }
 
+
    /**
-    * Get message selector
-    *
-    * @return The selector
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public String getMessageSelector() throws JMSException {
@@ -140,11 +114,9 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
       return consumer.getMessageSelector();
    }
 
+
    /**
-    * Receive
-    *
-    * @return The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Message receive() throws JMSException {
@@ -167,12 +139,9 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
       }
    }
 
+
    /**
-    * Receive
-    *
-    * @param timeout The timeout value
-    * @return The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Message receive(final long timeout) throws JMSException {
@@ -197,11 +166,9 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
       }
    }
 
+
    /**
-    * Receive
-    *
-    * @return The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Message receiveNoWait() throws JMSException {
@@ -224,46 +191,29 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
       }
    }
 
-   /**
-    * Close consumer
-    *
-    * @throws JMSException Thrown if an error occurs
-    */
    void closeConsumer() throws JMSException {
       logger.trace("closeConsumer()");
 
       consumer.close();
    }
 
-   /**
-    * Wrap message
-    *
-    * @param message The message to be wrapped
-    * @return The wrapped message
-    */
    Message wrapMessage(final Message message) {
       logger.trace("wrapMessage({})", message);
 
-      if (message instanceof BytesMessage) {
-         return new ActiveMQRABytesMessage((BytesMessage) message, session);
-      } else if (message instanceof MapMessage) {
-         return new ActiveMQRAMapMessage((MapMessage) message, session);
-      } else if (message instanceof ObjectMessage) {
-         return new ActiveMQRAObjectMessage((ObjectMessage) message, session);
-      } else if (message instanceof StreamMessage) {
-         return new ActiveMQRAStreamMessage((StreamMessage) message, session);
-      } else if (message instanceof TextMessage) {
-         return new ActiveMQRATextMessage((TextMessage) message, session);
+      if (message instanceof BytesMessage bytesMessage) {
+         return new ActiveMQRABytesMessage(bytesMessage, session);
+      } else if (message instanceof MapMessage mapMessage) {
+         return new ActiveMQRAMapMessage(mapMessage, session);
+      } else if (message instanceof ObjectMessage objectMessage) {
+         return new ActiveMQRAObjectMessage(objectMessage, session);
+      } else if (message instanceof StreamMessage streamMessage) {
+         return new ActiveMQRAStreamMessage(streamMessage, session);
+      } else if (message instanceof TextMessage textMessage) {
+         return new ActiveMQRATextMessage(textMessage, session);
       }
       return new ActiveMQRAMessage(message, session);
    }
 
-   /**
-    * Wrap message listener
-    *
-    * @param listener The listener to be wrapped
-    * @return The wrapped listener
-    */
    MessageListener wrapMessageListener(final MessageListener listener) {
       logger.trace("getMessageSelector()");
 

@@ -32,11 +32,6 @@ public class JournalAddRecord extends JournalInternalRecord {
 
    protected final byte journalType;
 
-   /**
-    * @param id
-    * @param recordType
-    * @param record
-    */
    public JournalAddRecord(final byte journalType, final long id, final byte recordType, final Persister persister, Object record) {
       this.id = id;
 
@@ -49,11 +44,6 @@ public class JournalAddRecord extends JournalInternalRecord {
       this.persister = persister;
    }
 
-   /**
-    * @param id
-    * @param recordType
-    * @param record
-    */
    public JournalAddRecord(final boolean add, final long id, final byte recordType, final Persister persister, Object record) {
       this(add ? JournalImpl.ADD_RECORD : JournalImpl.UPDATE_RECORD, id, recordType, persister, record);
    }

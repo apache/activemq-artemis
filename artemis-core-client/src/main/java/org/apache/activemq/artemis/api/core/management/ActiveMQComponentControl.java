@@ -17,12 +17,12 @@
 package org.apache.activemq.artemis.api.core.management;
 
 /**
- * An ActiveMQComponentControl is used to manage the life cycle of an ActiveMQ Artemis component.
+ * An ActiveMQComponentControl is used to manage the life cycle of an Apache Artemis component.
  */
 public interface ActiveMQComponentControl {
 
    /**
-    * Returns {@code true} if this component is started, {@code false} else.
+    * {@return {@code true} if this component is started, {@code false} else.}
     */
    @Attribute(desc = "whether this component is started")
    boolean isStarted();

@@ -78,10 +78,8 @@ public class NettyTcpTransport implements NettyTransport {
    /**
     * Create a new transport instance
     *
-    * @param remoteLocation
-    *        the URI that defines the remote resource to connect to.
-    * @param options
-    *        the transport options used to configure the socket connection.
+    * @param remoteLocation the URI that defines the remote resource to connect to.
+    * @param options        the transport options used to configure the socket connection.
     */
    public NettyTcpTransport(URI remoteLocation, NettyTransportOptions options) {
       this(null, remoteLocation, options);
@@ -90,12 +88,9 @@ public class NettyTcpTransport implements NettyTransport {
    /**
     * Create a new transport instance
     *
-    * @param listener
-    *        the TransportListener that will receive events from this Transport.
-    * @param remoteLocation
-    *        the URI that defines the remote resource to connect to.
-    * @param options
-    *        the transport options used to configure the socket connection.
+    * @param listener       the TransportListener that will receive events from this Transport.
+    * @param remoteLocation the URI that defines the remote resource to connect to.
+    * @param options        the transport options used to configure the socket connection.
     */
    public NettyTcpTransport(NettyTransportListener listener, URI remoteLocation, NettyTransportOptions options) {
       if (options == null) {
@@ -135,7 +130,7 @@ public class NettyTcpTransport implements NettyTransport {
       bootstrap = new Bootstrap();
       bootstrap.group(group);
       bootstrap.channel(NioSocketChannel.class);
-      bootstrap.handler(new ChannelInitializer<Channel>() {
+      bootstrap.handler(new ChannelInitializer<>() {
          @Override
          public void initChannel(Channel connectedChannel) throws Exception {
             configureChannel(connectedChannel, sslHandler);
@@ -145,13 +140,9 @@ public class NettyTcpTransport implements NettyTransport {
       configureNetty(bootstrap, getTransportOptions());
 
       ChannelFuture future = bootstrap.connect(getRemoteHost(), getRemotePort());
-      future.addListener(new ChannelFutureListener() {
-
-         @Override
-         public void operationComplete(ChannelFuture future) throws Exception {
-            if (!future.isSuccess()) {
-               handleException(future.channel(), IOExceptionSupport.create(future.cause()));
-            }
+      future.addListener((ChannelFutureListener) future1 -> {
+         if (!future1.isSuccess()) {
+            handleException(future1.channel(), IOExceptionSupport.create(future1.cause()));
          }
       });
 
@@ -180,13 +171,9 @@ public class NettyTcpTransport implements NettyTransport {
          throw failureCause;
       } else {
          // Connected, allow any held async error to fire now and close the transport.
-         channel.eventLoop().execute(new Runnable() {
-
-            @Override
-            public void run() {
-               if (failureCause != null) {
-                  channel.pipeline().fireExceptionCaught(failureCause);
-               }
+         channel.eventLoop().execute(() -> {
+            if (failureCause != null) {
+               channel.pipeline().fireExceptionCaught(failureCause);
             }
          });
       }
@@ -369,18 +356,14 @@ public class NettyTcpTransport implements NettyTransport {
       }
    }
 
-   /*
-    * Called when the transport has successfully connected and is ready for use.
-    */
+   // Called when the transport has successfully connected and is ready for use.
    private void connectionEstablished(Channel connectedChannel) {
       channel = connectedChannel;
       connected.set(true);
       connectLatch.countDown();
    }
 
-   /*
-    * Called when the transport connection failed and an error should be returned.
-    */
+   // Called when the transport connection failed and an error should be returned.
    private void connectionFailed(Channel failedChannel, IOException cause) {
       failureCause = cause;
       channel = failedChannel;
@@ -443,16 +426,13 @@ public class NettyTcpTransport implements NettyTransport {
             handleConnected(context.channel());
          } else {
             SslHandler sslHandler = context.pipeline().get(SslHandler.class);
-            sslHandler.handshakeFuture().addListener(new GenericFutureListener<Future<Channel>>() {
-               @Override
-               public void operationComplete(Future<Channel> future) throws Exception {
-                  if (future.isSuccess()) {
-                     logger.trace("SSL Handshake has completed: {}", channel);
-                     handleConnected(channel);
-                  } else {
-                     logger.trace("SSL Handshake has failed: {}", channel);
-                     handleException(channel, future.cause());
-                  }
+            sslHandler.handshakeFuture().addListener((GenericFutureListener<Future<Channel>>) future -> {
+               if (future.isSuccess()) {
+                  logger.trace("SSL Handshake has completed: {}", channel);
+                  handleConnected(channel);
+               } else {
+                  logger.trace("SSL Handshake has failed: {}", channel);
+                  handleException(channel, future.cause());
                }
             });
          }

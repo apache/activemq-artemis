@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.QueueConnection;
 import javax.jms.QueueSession;
@@ -24,7 +26,7 @@ import javax.jms.Topic;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SessionTest extends JMSTestBase {
 
@@ -35,7 +37,7 @@ public class SessionTest extends JMSTestBase {
       Connection connClientID = null;
       ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) cf;
       try {
-         String clientID = "somethingElse" + name.getMethodName();
+         String clientID = "somethingElse" + name;
          defaultConn = cf.createConnection();
          qConn = activeMQConnectionFactory.createQueueConnection();
 

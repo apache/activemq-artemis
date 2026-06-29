@@ -17,25 +17,38 @@
 
 package org.apache.activemq.artemis.core.server.cluster.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Map;
+import java.util.concurrent.Executors;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
+import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.Executors;
+public class ClusterConnectionImplMockTest extends ServerTestBase {
 
-public class ClusterConnectionImplMockTest extends ActiveMQTestBase {
-
-    /**
-     * Verification for the fix https://issues.apache.org/jira/browse/ARTEMIS-1946
-     */
+   /**
+    * Verification for the fix https://issues.apache.org/jira/browse/ARTEMIS-1946
+    */
    @Test
    public void testRemvalOfLocalParameters() throws Exception {
       TransportConfiguration tc = new TransportConfiguration();
@@ -65,7 +78,7 @@ public class ClusterConnectionImplMockTest extends ActiveMQTestBase {
                 null, //final MessageLoadBalancingType messageLoadBalancingType,
                 0, //final int confirmationWindowSize,
                 0, //final int producerWindowSize,
-         () -> executor,//final ExecutorFactory executorFactory,
+         () -> executor, //final ExecutorFactory executorFactory,
                 new MockServer(), //final ActiveMQServer server,
                 null, //final PostOffice postOffice,
                 null, //final ManagementService managementService,
@@ -76,13 +89,57 @@ public class ClusterConnectionImplMockTest extends ActiveMQTestBase {
                 null, //final String clusterPassword,
                 true, //final boolean allowDirectConnectionsOnly,
                 0, //final long clusterNotificationInterval,
-                0 //final int clusterNotificationAttempts)
+                0, //final int clusterNotificationAttempts)
+                null,
+                0
       );
 
-      Assert.assertEquals(1, cci.allowableConnections.size());
-      Assert.assertFalse("Local address can not be part of allowable connection.", cci.allowableConnections.iterator().next().getParams().containsKey(TransportConstants.LOCAL_ADDRESS_PROP_NAME));
-      Assert.assertFalse("Local port can not be part of allowable connection.", cci.allowableConnections.iterator().next().getParams().containsKey(TransportConstants.LOCAL_PORT_PROP_NAME));
+      assertEquals(1, cci.allowableConnections.size());
+      assertFalse(cci.allowableConnections.iterator().next().getParams().containsKey(TransportConstants.LOCAL_ADDRESS_PROP_NAME), "Local address can not be part of allowable connection.");
+      assertFalse(cci.allowableConnections.iterator().next().getParams().containsKey(TransportConstants.LOCAL_PORT_PROP_NAME), "Local port can not be part of allowable connection.");
 
+   }
+
+   @Test
+   public void testNullPrimaryOnNodeUp() throws Exception {
+      TransportConfiguration tc = new TransportConfiguration();
+      tc.setFactoryClassName("mock");
+      tc.getParams().put(TransportConstants.LOCAL_ADDRESS_PROP_NAME, "localAddress");
+      tc.getParams().put(TransportConstants.LOCAL_PORT_PROP_NAME, "localPort");
+
+      ArtemisExecutor executor = ArtemisExecutor.delegate(Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+
+      try {
+         ClusterConnectionImpl cci = new ClusterConnectionImpl(null, new TransportConfiguration[]{tc}, null, null, null, 0, 0L, 0L, 0L, 0, 0L, 0, 0, 0L, 0L, false, null, 0, 0, () -> executor, new MockServer(), null, null, null, 0, new FakeNodeManager(UUIDGenerator.getInstance().generateStringUUID()), null, null, true, 0, 0, null, 0);
+
+         TopologyMember topologyMember = new TopologyMemberImpl(RandomUtil.randomUUIDString(), null, null, null, null);
+         cci.nodeUP(topologyMember, false);
+      } finally {
+         executor.shutdownNow();
+      }
+   }
+
+   @Test
+   public void testCompareTCs() {
+      TransportConfiguration netty1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), Map.of("host", "localhost", "port", 61616));
+      assertTrue(ClusterConnectionImpl.TopologyScanner.compareTCs(netty1, netty1));
+
+      TransportConfiguration netty2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), Map.of("host", "127.0.0.1", "port", 61616));
+      assertTrue(ClusterConnectionImpl.TopologyScanner.compareTCs(netty2, netty2));
+
+      assertTrue(ClusterConnectionImpl.TopologyScanner.compareTCs(netty1, netty2));
+
+      TransportConfiguration netty3 = new TransportConfiguration(NettyConnectorFactory.class.getName(), Map.of("host", "my-host", "port", 61617));
+      assertTrue(ClusterConnectionImpl.TopologyScanner.compareTCs(netty3, netty3));
+
+      TransportConfiguration netty4 = new TransportConfiguration(NettyConnectorFactory.class.getName(), Map.of("host", "192.168.0.1", "port", 61617));
+      assertTrue(ClusterConnectionImpl.TopologyScanner.compareTCs(netty4, netty4));
+
+      assertFalse(ClusterConnectionImpl.TopologyScanner.compareTCs(netty1, netty3));
+      assertFalse(ClusterConnectionImpl.TopologyScanner.compareTCs(netty1, netty4));
+      assertFalse(ClusterConnectionImpl.TopologyScanner.compareTCs(netty2, netty3));
+      assertFalse(ClusterConnectionImpl.TopologyScanner.compareTCs(netty2, netty4));
+      assertFalse(ClusterConnectionImpl.TopologyScanner.compareTCs(netty3, netty4));
    }
 
    static final class MockServer extends ActiveMQServerImpl {
@@ -94,12 +151,7 @@ public class ClusterConnectionImplMockTest extends ActiveMQTestBase {
 
       @Override
       public ExecutorFactory getExecutorFactory() {
-         return new ExecutorFactory() {
-            @Override
-            public ArtemisExecutor getExecutor() {
-               return null;
-            }
-         };
+         return () -> null;
       }
 
       @Override
@@ -115,6 +167,63 @@ public class ClusterConnectionImplMockTest extends ActiveMQTestBase {
 
             }
          };
+      }
+   }
+
+   protected final class FakeNodeManager extends NodeManager {
+
+      public FakeNodeManager(String nodeID) {
+         super(false);
+         this.setNodeID(nodeID);
+      }
+
+      @Override
+      public void awaitPrimaryNode() {
+      }
+
+      @Override
+      public void awaitActiveStatus() {
+      }
+
+      @Override
+      public void startBackup() {
+      }
+
+      @Override
+      public ActivateCallback startPrimaryNode() {
+         return new CleaningActivateCallback() {
+         };
+      }
+
+      @Override
+      public void pausePrimaryServer() {
+      }
+
+      @Override
+      public void crashPrimaryServer() {
+      }
+
+      @Override
+      public void releaseBackup() {
+      }
+
+      @Override
+      public SimpleString readNodeId() {
+         return null;
+      }
+
+      @Override
+      public boolean isAwaitingFailback() {
+         return false;
+      }
+
+      @Override
+      public boolean isBackupActive() {
+         return false;
+      }
+
+      @Override
+      public void interrupt() {
       }
    }
 }

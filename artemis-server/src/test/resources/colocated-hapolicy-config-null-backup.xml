@@ -30,11 +30,11 @@
                <max-backups>3</max-backups>
                <request-backup>false</request-backup>
                <backup-port-offset>33</backup-port-offset>
-               <master>
+               <primary>
                   <group-name>purple</group-name>
-                  <check-for-live-server>true</check-for-live-server>
+                  <check-for-active-server>true</check-for-active-server>
                   <cluster-name>abcdefg</cluster-name>
-               </master>
+               </primary>
             </colocated>
          </replication>
       </ha-policy>

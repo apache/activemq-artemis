@@ -26,7 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
@@ -92,6 +91,12 @@ public class DBOption extends OptionalLocking {
 
    @Option(names = "--jdbc-driver-class-name", description = "JDBC driver classname.")
    private String jdbcClassName = ActiveMQDefaultConfiguration.getDefaultDriverClassName();
+
+   @Option(names = "--jdbc-user", description = "JDBC username.")
+   private String jdbcUser = null;
+
+   @Option(names = "--jdbc-password", description = "JDBC password.")
+   private String jdbcPassword = null;
 
    public boolean isJDBC() throws Exception {
       parseDBConfig();
@@ -177,6 +182,23 @@ public class DBOption extends OptionalLocking {
       return this;
    }
 
+   public String getJdbcUser() {
+      return jdbcUser;
+   }
+
+   public DBOption setJdbcUser(String jdbcUser) {
+      this.jdbcUser = jdbcUser;
+      return this;
+   }
+
+   public String getJdbcPassword() {
+      return jdbcPassword;
+   }
+
+   public DBOption setJdbcPassword(String jdbcPassword) {
+      this.jdbcPassword = jdbcPassword;
+      return this;
+   }
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -217,8 +239,21 @@ public class DBOption extends OptionalLocking {
             jdbcLargeMessages = storageConfiguration.getLargeMessageTableName();
             jdbcPageStore = storageConfiguration.getPageStoreTableName();
             jdbcNodeManager = storageConfiguration.getNodeManagerStoreTableName();
-            jdbcURL = storageConfiguration.getJdbcConnectionUrl();
-            jdbcClassName = storageConfiguration.getJdbcDriverClassName();
+
+            if (jdbcURL == null || jdbcURL.equals(ActiveMQDefaultConfiguration.getDefaultDatabaseUrl())) {
+               jdbcURL = storageConfiguration.getJdbcConnectionUrl();
+            }
+
+            if (jdbcClassName == null || jdbcClassName.equals(ActiveMQDefaultConfiguration.getDefaultDriverClassName())) {
+               jdbcClassName = storageConfiguration.getJdbcDriverClassName();
+            }
+
+            if (jdbcUser == null) {
+               jdbcUser = storageConfiguration.getJdbcUser();
+            }
+            if (jdbcPassword == null) {
+               jdbcPassword = storageConfiguration.getJdbcPassword();
+            }
          }
       }
    }
@@ -235,6 +270,8 @@ public class DBOption extends OptionalLocking {
          storageConfiguration.setLargeMessageTableName(getJdbcLargeMessages());
          storageConfiguration.setPageStoreTableName(getJdbcPageStore());
          storageConfiguration.setNodeManagerStoreTableName(getJdbcNodeManager());
+         storageConfiguration.setJdbcUser(getJdbcUser());
+         storageConfiguration.setJdbcPassword(getJdbcPassword());
          configuration.setStoreConfiguration(storageConfiguration);
       } else {
          configuration.setBindingsDirectory(getBinding());
@@ -254,12 +291,7 @@ public class DBOption extends OptionalLocking {
       executor = Executors.newFixedThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       executorFactory = new OrderedExecutorFactory(executor);
 
-      scheduledExecutorService = new ScheduledThreadPoolExecutor(configuration.getScheduledThreadPoolMaxSize(), new ThreadFactory() {
-         @Override
-         public Thread newThread(Runnable r) {
-            return new Thread(r);
-         }
-      });
+      scheduledExecutorService = new ScheduledThreadPoolExecutor(configuration.getScheduledThreadPoolMaxSize(), r -> new Thread(r));
 
       HierarchicalRepository<AddressSettings> addressSettingsRepository = new HierarchicalObjectRepository<>(config.getWildcardConfiguration());
       addressSettingsRepository.setDefault(new AddressSettings());
@@ -269,12 +301,12 @@ public class DBOption extends OptionalLocking {
 
          PagingStoreFactory pageStoreFactory = new PagingStoreFactoryDatabase((DatabaseStorageConfiguration) configuration.getStoreConfiguration(),
                                                                               storageManager, 1000L,
-                                                                              scheduledExecutorService, executorFactory, executorFactory,
+                                                                              scheduledExecutorService, executorFactory,
                                                                              false, null);
          pagingmanager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository, configuration.getManagementAddress());
       } else {
          storageManager = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), executorFactory, executorFactory);
-         PagingStoreFactory pageStoreFactory = new PagingStoreFactoryNIO(storageManager, config.getPagingLocation(), 1000L, scheduledExecutorService, executorFactory, executorFactory, true, null);
+         PagingStoreFactory pageStoreFactory = new PagingStoreFactoryNIO(storageManager, config.getPagingLocation(), 1000L, scheduledExecutorService, executorFactory, true, null);
          pagingmanager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository, configuration.getManagementAddress());
 
       }

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -36,9 +40,10 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.MqttSubscription;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.eclipse.paho.mqttv5.common.packet.MqttSubAck;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-3.8.1-1] Bits 3,2,1 and 0 of the Fixed Header of the SUBSCRIBE packet are reserved and MUST be set to 0,0,1 and 0 respectively. The Server MUST treat any other value as malformed and close the Network Connection
@@ -50,17 +55,14 @@ import org.junit.Test;
 
 public class SubscribeTests extends MQTT5TestSupport {
 
-   public SubscribeTests(String protocol) {
-      super(protocol);
-   }
-
-   /*
+   /**
     * [MQTT-3.8.3-3] Bit 2 of the Subscription Options represents the No Local option. If the value is 1, Application
     * Messages MUST NOT be forwarded to a connection with a ClientID equal to the ClientID of the publishing connection.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscribeNoLocal() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch latch = new CountDownLatch(1);
 
       MqttClient client = createPahoClient("nolocal");
@@ -80,7 +82,7 @@ public class SubscribeTests extends MQTT5TestSupport {
       client.close();
    }
 
-   /*
+   /**
     * [MQTT-3.8.3-3]
     *
     * This test was adapted from Test.test_request_response in client_test5.py at https://github.com/eclipse/paho.mqtt.testing/tree/master/interoperability
@@ -88,9 +90,10 @@ public class SubscribeTests extends MQTT5TestSupport {
     * It involves 2 clients subscribing to and performing a request/response on the same topic so it's imperative they
     * don't receive the messages that they send themselves.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRequestResponseNoLocal() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final String REQUEST = "request";
       final String RESPONSE = "response";
       final CountDownLatch aclientLatch = new CountDownLatch(2);
@@ -149,12 +152,14 @@ public class SubscribeTests extends MQTT5TestSupport {
       bclient.close();
    }
 
-   /*
-    * [MQTT-3.8.4-1] When the Server receives a SUBSCRIBE packet from a Client, the Server MUST respond with a SUBACK packet.
+   /**
+    * [MQTT-3.8.4-1] When the Server receives a SUBSCRIBE packet from a Client, the Server MUST respond with a SUBACK
+    * packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubAck() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final AtomicBoolean subscribed = new AtomicBoolean(false);
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -186,12 +191,14 @@ public class SubscribeTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
-    * [MQTT-3.8.4-2] The SUBACK packet MUST have the same Packet Identifier as the SUBSCRIBE packet that it is acknowledging.
+   /**
+    * [MQTT-3.8.4-2] The SUBACK packet MUST have the same Packet Identifier as the SUBSCRIBE packet that it is
+    * acknowledging.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubAckPacketId() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final AtomicBoolean subscribed = new AtomicBoolean(false);
       final AtomicInteger packetId = new AtomicInteger(0);
       final CountDownLatch latch = new CountDownLatch(1);
@@ -226,7 +233,7 @@ public class SubscribeTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.8.4-3] If a Server receives a SUBSCRIBE packet containing a Topic Filter that is identical to a Non‑shared
     * Subscription’s Topic Filter for the current Session then it MUST replace that existing Subscription with a new
     * Subscription.
@@ -236,9 +243,10 @@ public class SubscribeTests extends MQTT5TestSupport {
     *
     * This test will be testing a difference in the "no local" subscription option
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testReplaceSubscription() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch latch = new CountDownLatch(2);
 
       MqttClient client = createPahoClient("nolocal");
@@ -264,14 +272,15 @@ public class SubscribeTests extends MQTT5TestSupport {
       client.close();
    }
 
-   /*
+   /**
     * [MQTT-3.8.4-4] If the Retain Handling option is 0, any existing retained messages matching the Topic Filter MUST
     * be re-sent, but Application Messages MUST NOT be lost due to replacing the Subscription.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testReplaceSubscriptionRetainHandling() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
       final CountDownLatch latch = new CountDownLatch(2);
 
       MqttClient client = createPahoClient(CLIENT_ID);
@@ -297,7 +306,7 @@ public class SubscribeTests extends MQTT5TestSupport {
       client.close();
    }
 
-   /*
+   /**
     * [MQTT-3.8.4-5] If a Server receives a SUBSCRIBE packet that contains multiple Topic Filters it MUST handle that
     * packet as if it had received a sequence of multiple SUBSCRIBE packets, except that it combines their responses
     * into a single SUBACK response.
@@ -308,14 +317,15 @@ public class SubscribeTests extends MQTT5TestSupport {
     * [MQTT-3.8.4-7] This Reason Code MUST either show the maximum QoS that was granted for that Subscription or
     * indicate that the subscription failed.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscribeAck() throws Exception {
       final int SUBSCRIPTION_COUNT = 30;
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final AtomicInteger subAckCount = new AtomicInteger(0);
       SimpleString[] topicNames = new SimpleString[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
-         topicNames[i] = new SimpleString(i + "-" + TOPIC);
+         topicNames[i] = SimpleString.of(i + "-" + TOPIC);
       }
 
       MQTTInterceptor outgoingInterceptor = (packet, connection) -> {
@@ -351,7 +361,7 @@ public class SubscribeTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.8.4-8] The QoS of Payload Messages sent in response to a Subscription MUST be the minimum of the QoS of
     * the originally published message and the Maximum QoS granted by the Server.
     *
@@ -360,9 +370,10 @@ public class SubscribeTests extends MQTT5TestSupport {
     * Keep in mind that the QoS set by the subscriber is the max QoS that it will accept. Messages published at a higher
     * QoS will still be dispatched to the subscriber, just at the subscriber's max QoS.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscriptionQoS() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final int PUBLISH_LOOP = 25;
       final int MESSAGES_PER_LOOP = 3;
       final int CONSUMER_COUNT = 3;
@@ -378,7 +389,7 @@ public class SubscribeTests extends MQTT5TestSupport {
       qos0Client.setCallback(new DefaultMqttCallback() {
          @Override
          public void messageArrived(String topic, MqttMessage message) throws Exception {
-            assertTrue(message.getQos() == 0);
+            assertEquals(0, message.getQos());
             qos0Total.incrementAndGet();
             qos0Latch.countDown();
          }

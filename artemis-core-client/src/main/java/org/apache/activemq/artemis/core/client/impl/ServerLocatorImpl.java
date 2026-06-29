@@ -18,15 +18,16 @@ package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Array;
 import java.net.URI;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -72,14 +73,14 @@ import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.actors.Actor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
- * This is the implementation of {@link org.apache.activemq.artemis.api.core.client.ServerLocator} and all
- * the proper javadoc is located on that interface.
+ * This is the implementation of {@link org.apache.activemq.artemis.api.core.client.ServerLocator} and all the proper
+ * javadoc is located on that interface.
  */
 public final class ServerLocatorImpl implements ServerLocatorInternal, DiscoveryListener {
 
@@ -94,19 +95,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       FluentPropertyBeanIntrospectorWithIgnores.addIgnore(ServerLocatorImpl.class.getName(), "setThreadPools");
    }
 
-   private static final long serialVersionUID = -1615857864410205260L;
-
    // This is the default value
    private ClientProtocolManagerFactory protocolManagerFactory = new ActiveMQClientProtocolManagerFactory().setLocator(this);
 
    private final boolean ha;
 
-   // this is not used... I'm only keeping it here because of Serialization compatibility and Wildfly usage on JNDI.
-   private boolean finalizeCheck;
-
    private boolean clusterConnection;
 
    private transient String identity;
+
+   // this is not used... I'm only keeping it here because of Serialization compatibility and Wildfly usage on JNDI.
+   @SuppressWarnings("unused")
+   private boolean finalizeCheck;
 
    private final Set<ClientSessionFactoryInternal> factories = new HashSet<>();
 
@@ -126,10 +126,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private volatile boolean receivedTopology;
 
-
-   /** This specifies serverLocator.connect was used,
-    *  which means it's a cluster connection.
-    *  We should not use retries */
+   /**
+    * This specifies serverLocator.connect was used, which means it's a cluster connection. We should not use retries
+    */
    private volatile boolean disableDiscoveryRetries = false;
 
    // if the system should shutdown the pool when shutting down
@@ -137,6 +136,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private transient Executor threadPool;
 
+   private transient Executor flowControlThreadPool;
    private transient ScheduledExecutorService scheduledThreadPool;
 
    private transient DiscoveryGroup discoveryGroup;
@@ -168,25 +168,30 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private TransportConfiguration clusterTransportConfiguration;
 
-   /** For tests only */
+   /**
+    * For tests only
+    */
    public DiscoveryGroup getDiscoveryGroup() {
       return discoveryGroup;
    }
 
-   /** For tests only */
+   /**
+    * For tests only
+    */
    public Set<ClientSessionFactoryInternal> getFactories() {
       return factories;
    }
-
-   private final Exception traceException = new Exception();
 
    private ServerLocatorConfig config = new ServerLocatorConfig();
 
    private String passwordCodec;
 
+   private DiscoveryListener discoveryListener;
+
    public static synchronized void clearThreadPools() {
       ActiveMQClient.clearThreadPools();
    }
+
 
    private synchronized void setThreadPools() {
       if (threadPool != null) {
@@ -194,46 +199,54 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       } else if (config.useGlobalPools) {
          threadPool = ActiveMQClient.getGlobalThreadPool();
 
+         flowControlThreadPool = ActiveMQClient.getGlobalFlowControlThreadPool();
+
          scheduledThreadPool = ActiveMQClient.getGlobalScheduledThreadPool();
       } else {
          this.shutdownPool = true;
 
-         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-client-factory-threads-" + System.identityHashCode(this), true, ServerLocatorImpl.class.getClassLoader());
-            }
-         });
-
+         ThreadFactory factory = getThreadFactory("client-factory-");
          if (config.threadPoolMaxSize == -1) {
             threadPool = Executors.newCachedThreadPool(factory);
          } else {
             threadPool = new ActiveMQThreadPoolExecutor(0, config.threadPoolMaxSize, 60L, TimeUnit.SECONDS, factory);
          }
 
-         factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-client-factory-pinger-threads-" + System.identityHashCode(this), true, ClientSessionFactoryImpl.class.getClassLoader());
-            }
-         });
+         factory = getThreadFactory("client-factory-flow-control-");
+         if (config.flowControlThreadPoolMaxSize == -1) {
+            flowControlThreadPool = Executors.newCachedThreadPool(factory);
+         } else {
+            flowControlThreadPool = new ActiveMQThreadPoolExecutor(0, config.flowControlThreadPoolMaxSize, 60L, TimeUnit.SECONDS, factory);
+         }
 
+         factory = getThreadFactory("client-factory-scheduled-");
          scheduledThreadPool = Executors.newScheduledThreadPool(config.scheduledThreadPoolMaxSize, factory);
       }
       this.updateArrayActor = new Actor<>(threadPool, this::internalUpdateArray);
    }
 
+   private ThreadFactory getThreadFactory(String groupName) {
+      return SecurityManagerShim.doPrivileged(new PrivilegedAction<>() {
+         @Override
+         public ThreadFactory run() {
+            return new ActiveMQThreadFactory(groupName + System.identityHashCode(this), true, ClientSessionFactoryImpl.class.getClassLoader());
+         }
+      });
+   }
+
    @Override
-   public synchronized boolean setThreadPools(Executor threadPool, ScheduledExecutorService scheduledThreadPool) {
+   public synchronized boolean setThreadPools(Executor threadPool, ScheduledExecutorService scheduledThreadPool, Executor flowControlThreadPool) {
 
-      if (threadPool == null || scheduledThreadPool == null)
+      if (threadPool == null || scheduledThreadPool == null) {
          return false;
+      }
 
-      if (this.threadPool == null && this.scheduledThreadPool == null) {
+      if (this.threadPool == null && this.scheduledThreadPool == null && this.flowControlThreadPool == null) {
          config.useGlobalPools = false;
          shutdownPool = false;
          this.threadPool = threadPool;
          this.scheduledThreadPool = scheduledThreadPool;
+         this.flowControlThreadPool = flowControlThreadPool;
          return true;
       } else {
          return false;
@@ -244,22 +257,21 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (config.connectionLoadBalancingPolicyClassName == null) {
          throw new IllegalStateException("Please specify a load balancing policy class name on the session factory");
       }
-      AccessController.doPrivileged(new PrivilegedAction<Object>() {
-         @Override
-         public Object run() {
-               loadBalancingPolicy = (ConnectionLoadBalancingPolicy) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, config.connectionLoadBalancingPolicyClassName);
-               return null;
-         }
+      SecurityManagerShim.doPrivileged((PrivilegedAction<Object>) () -> {
+         loadBalancingPolicy = (ConnectionLoadBalancingPolicy) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, config.connectionLoadBalancingPolicyClassName, ConnectionLoadBalancingPolicy.class);
+         return null;
       });
    }
 
    @Override
    public synchronized void initialize() throws ActiveMQException {
-      if (state == STATE.INITIALIZED)
+      if (state == STATE.INITIALIZED) {
          return;
+      }
       synchronized (stateGuard) {
-         if (state == STATE.CLOSING)
+         if (state == STATE.CLOSING) {
             throw new ActiveMQIllegalStateException();
+         }
          try {
             state = STATE.INITIALIZED;
             latch = new CountDownLatch(1);
@@ -316,16 +328,14 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private static DiscoveryGroup createDiscoveryGroup(String nodeID,
                                                       DiscoveryGroupConfiguration config) throws Exception {
-      return new DiscoveryGroup(nodeID, config.getName(), config.getRefreshTimeout(), config.getBroadcastEndpointFactory(), null);
+      return new DiscoveryGroup(nodeID, config.getName(), config.getRefreshTimeout(), config.getStoppingTimeout(), config.getBroadcastEndpointFactory(), null);
    }
 
    private ServerLocatorImpl(final Topology topology,
                              final boolean useHA,
                              final DiscoveryGroupConfiguration discoveryGroupConfiguration,
                              final TransportConfiguration[] transportConfigs) {
-      traceException.fillInStackTrace();
-
-      this.topology = topology == null ? new Topology(this) : topology;
+      this.topology = Objects.requireNonNullElseGet(topology, () -> new Topology(this));
 
       this.ha = useHA;
 
@@ -370,9 +380,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    /**
-    * Create a ServerLocatorImpl using a static list of live servers
-    *
-    * @param transportConfigs
+    * Create a ServerLocatorImpl using a static list of servers
     */
    public ServerLocatorImpl(final boolean useHA, final TransportConfiguration... transportConfigs) {
       this(new Topology(null), useHA, null, transportConfigs);
@@ -393,9 +401,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    /**
-    * Create a ServerLocatorImpl using a static list of live servers
-    *
-    * @param transportConfigs
+    * Create a ServerLocatorImpl using a static list of servers
     */
    public ServerLocatorImpl(final Topology topology,
                             final boolean useHA,
@@ -410,9 +416,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       topology.clear();
    }
 
-   /*
-    * I'm not using isAllInVM here otherwsie BeanProperties would translate this as a property for the URL
-    */
+   // I'm not using isAllInVM here otherwsie BeanProperties would translate this as a property for the URL
    @Override
    public boolean allInVM() {
       for (TransportConfiguration config : getStaticTransportConfigurations()) {
@@ -438,6 +442,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       groupID = locator.groupID;
       nodeID = locator.nodeID;
       clusterTransportConfiguration = locator.clusterTransportConfiguration;
+      discoveryListener = locator.discoveryListener;
    }
 
    private boolean useInitConnector() {
@@ -505,15 +510,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       this.startExecutor = executor;
 
       if (executor != null) {
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  connect();
-               } catch (Exception e) {
-                  if (!isClosed()) {
-                     ActiveMQClientLogger.LOGGER.errorConnectingToNodes(e);
-                  }
+         executor.execute(() -> {
+            try {
+               connect();
+            } catch (Exception e) {
+               if (!isClosed()) {
+                  ActiveMQClientLogger.LOGGER.errorConnectingToNodes(e);
                }
             }
          });
@@ -522,10 +524,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    @Override
    public ClientProtocolManager newProtocolManager() {
-      if (threadPool == null) {
-         throw new NullPointerException("No Thread Pool");
-      }
-      return getProtocolManagerFactory().newProtocolManager().setExecutor(new OrderedExecutor(threadPool));
+      return getProtocolManagerFactory().newProtocolManager().setExecutor(new OrderedExecutor(Objects.requireNonNull(threadPool, "No Thread Pool")));
    }
 
    @Override
@@ -588,6 +587,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    @Override
+   public ServerLocatorImpl setDiscoveryListener(DiscoveryListener discoveryListener) {
+      this.discoveryListener = discoveryListener;
+      return this;
+   }
+
+   @Override
    public ClientSessionFactory createSessionFactory(String nodeID) throws Exception {
       TopologyMember topologyMember = topology.getMember(nodeID);
 
@@ -598,16 +603,16 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (topologyMember == null) {
          return null;
       }
-      if (topologyMember.getLive() != null) {
-         ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) createSessionFactory(topologyMember.getLive());
+      if (topologyMember.getPrimary() != null) {
+         ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) createSessionFactory(topologyMember.getPrimary());
          if (topologyMember.getBackup() != null) {
-            factory.setBackupConnector(topologyMember.getLive(), topologyMember.getBackup());
+            factory.setBackupConnector(topologyMember.getPrimary(), topologyMember.getBackup());
          }
          return factory;
       }
-      if (topologyMember.getLive() == null && topologyMember.getBackup() != null) {
+      if (topologyMember.getPrimary() == null && topologyMember.getBackup() != null) {
          // This shouldn't happen, however I wanted this to consider all possible cases
-         return (ClientSessionFactoryInternal) createSessionFactory(topologyMember.getBackup());
+         return createSessionFactory(topologyMember.getBackup());
       }
       // it shouldn't happen
       return null;
@@ -625,7 +630,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       initialize();
 
-      ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(this, transportConfiguration, config, reconnectAttempts, threadPool, scheduledThreadPool, incomingInterceptors, outgoingInterceptors);
+      ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(this, transportConfiguration, config, reconnectAttempts, threadPool, scheduledThreadPool, flowControlThreadPool, incomingInterceptors, outgoingInterceptors);
 
       addToConnecting(factory);
       try {
@@ -684,6 +689,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          boolean topologyArrayTried = !config.useTopologyForLoadBalancing || topologyArray == null || topologyArray.length == 0;
          boolean staticTried = false;
          boolean shouldTryStatic = useInitConnector();
+         long interval = config.retryInterval;
 
          while (retry && !isClosed()) {
             retry = false;
@@ -701,7 +707,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             // try each factory in the list until we find one which works
 
             try {
-               factory = new ClientSessionFactoryImpl(this, tc, config, config.reconnectAttempts, threadPool, scheduledThreadPool, incomingInterceptors, outgoingInterceptors, initialConnectors);
+               factory = new ClientSessionFactoryImpl(this, tc, config, config.reconnectAttempts, threadPool, scheduledThreadPool, flowControlThreadPool, incomingInterceptors, outgoingInterceptors, initialConnectors);
                try {
                   addToConnecting(factory);
                   // We always try to connect here with only one attempt,
@@ -743,9 +749,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                            }
                         }
                      }
-                     if (factory.waitForRetry(config.retryInterval)) {
+                     if (factory.waitForRetry(interval)) {
                         throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToServers();
                      }
+                     interval = getNextRetryInterval(interval, config.retryIntervalMultiplier, config.maxRetryInterval);
                      retry = true;
                   } else {
                      throw e;
@@ -774,6 +781,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
 
       return factory;
+   }
+
+   @Override
+   public long getNextRetryInterval(long retryInterval, double retryIntervalMultiplier, long maxRetryInterval) {
+      // Exponential back-off
+      long nextRetryInterval = (long) (retryInterval * retryIntervalMultiplier);
+
+      if (nextRetryInterval > maxRetryInterval) {
+         nextRetryInterval = maxRetryInterval;
+      }
+
+      return nextRetryInterval;
    }
 
    private void executeDiscovery() throws ActiveMQException {
@@ -858,10 +877,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return ha;
    }
 
-   /**
-    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor needs a default Constructor to be used with this method.
-    * @return this
-    */
    @Override
    public ServerLocator setIncomingInterceptorList(String interceptorList) {
       feedInterceptors(incomingInterceptors, interceptorList);
@@ -873,10 +888,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return fromInterceptors(incomingInterceptors);
    }
 
-   /**
-    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor needs a default Constructor to be used with this method.
-    * @return this
-    */
    @Override
    public ServerLocator setOutgoingInterceptorList(String interceptorList) {
       feedInterceptors(outgoingInterceptors, interceptorList);
@@ -1128,6 +1139,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    @Override
+   public int getFlowControlThreadPoolMaxSize() {
+      return config.flowControlThreadPoolMaxSize;
+   }
+
+   @Override
+   public ServerLocatorImpl setFlowControlThreadPoolMaxSize(final int flowControlThreadPoolMaxSize) {
+      checkWrite();
+      this.config.flowControlThreadPoolMaxSize = flowControlThreadPoolMaxSize;
+      return this;
+   }
+
+   @Override
    public long getRetryInterval() {
       return config.retryInterval;
    }
@@ -1225,8 +1248,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    @Override
    public TransportConfiguration[] getStaticTransportConfigurations() {
-      if (initialConnectors == null)
-         return new TransportConfiguration[]{};
+      if (initialConnectors == null) {
+         return new TransportConfiguration[] {};
+      }
       return Arrays.copyOf(initialConnectors, initialConnectors.length);
    }
 
@@ -1266,6 +1290,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    public ServerLocatorImpl setInitialMessagePacketSize(final int size) {
       checkWrite();
       config.initialMessagePacketSize = size;
+      return this;
+   }
+
+   @Override
+   public int getOnMessageCloseTimeout() {
+      return config.onMessageCloseTimeout;
+   }
+
+   @Override
+   public ServerLocator setOnMessageCloseTimeout(int onMessageCloseTimeout) {
+      checkWrite();
+      config.onMessageCloseTimeout = onMessageCloseTimeout;
       return this;
    }
 
@@ -1312,8 +1348,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    private int getNumInitialConnectors() {
-      if (initialConnectors == null)
+      if (initialConnectors == null) {
          return 0;
+      }
       return initialConnectors.length;
    }
 
@@ -1375,8 +1412,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
          state = STATE.CLOSING;
       }
-      if (latch != null)
+      if (latch != null) {
          latch.countDown();
+      }
 
       synchronized (connectingFactories) {
          for (ClientSessionFactoryInternal csf : connectingFactories) {
@@ -1385,12 +1423,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
 
       if (discoveryGroup != null) {
-         synchronized (this) {
-            try {
-               discoveryGroup.stop();
-            } catch (Exception e) {
-               ActiveMQClientLogger.LOGGER.failedToStopDiscovery(e);
-            }
+         try {
+            discoveryGroup.stop();
+         } catch (Exception e) {
+            ActiveMQClientLogger.LOGGER.failedToStopDiscovery(e);
          }
       } else {
          staticConnector.disconnect();
@@ -1454,6 +1490,19 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                throw new ActiveMQInterruptedException(e);
             }
          }
+
+         if (flowControlThreadPool != null) {
+            ExecutorService executorService = (ExecutorService) flowControlThreadPool;
+            executorService.shutdown();
+
+            try {
+               if (!executorService.awaitTermination(10000, TimeUnit.MILLISECONDS)) {
+                  ActiveMQClientLogger.LOGGER.timedOutWaitingForTermination();
+               }
+            } catch (InterruptedException e) {
+               throw new ActiveMQInterruptedException(e);
+            }
+         }
       }
       synchronized (stateGuard) {
          state = STATE.CLOSED;
@@ -1461,12 +1510,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    /**
-    * This is directly called when the connection to the node is gone,
-    * or when the node sends a disconnection.
-    * Look for callers of this method!
+    * This is directly called when the connection to the node is gone, or when the node sends a disconnection. Look for
+    * callers of this method!
     */
    @Override
-   public void notifyNodeDown(final long eventTime, final String nodeID) {
+   public void notifyNodeDown(final long eventTime, final String nodeID, boolean disconnect) {
 
       if (!ha) {
          // there's no topology here
@@ -1477,7 +1525,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          logger.trace("nodeDown {} nodeID={} as being down", this, nodeID, new Exception("trace"));
       }
 
-      topology.removeMember(eventTime, nodeID);
+      topology.removeMember(eventTime, nodeID, disconnect);
 
       if (clusterConnection) {
          updateArraysAndPairs(eventTime);
@@ -1514,14 +1562,14 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       TopologyMember actMember = topology.getMember(nodeID);
 
-      if (actMember != null && actMember.getLive() != null && actMember.getBackup() != null) {
-         HashSet<ClientSessionFactory> clonedFactories = new HashSet<>();
+      if (actMember != null && actMember.getPrimary() != null && actMember.getBackup() != null) {
+         Set<ClientSessionFactory> clonedFactories = new HashSet<>();
          synchronized (factories) {
             clonedFactories.addAll(factories);
          }
 
          for (ClientSessionFactory factory : clonedFactories) {
-            ((ClientSessionFactoryInternal) factory).setBackupConnector(actMember.getLive(), actMember.getBackup());
+            ((ClientSessionFactoryInternal) factory).setBackupConnector(actMember.getPrimary(), actMember.getBackup());
          }
       }
 
@@ -1537,12 +1585,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (identity != null) {
          return "ServerLocatorImpl (identity=" + identity +
             ") [initialConnectors=" +
-            Arrays.toString(initialConnectors == null ? new TransportConfiguration[0] : initialConnectors) +
+            Arrays.toString(Objects.requireNonNullElseGet(initialConnectors, () -> new TransportConfiguration[0])) +
             ", discoveryGroupConfiguration=" +
             discoveryGroupConfiguration +
             "]";
       }
-      return "ServerLocatorImpl [initialConnectors=" + Arrays.toString(initialConnectors == null ? new TransportConfiguration[0] : initialConnectors) +
+      return "ServerLocatorImpl [initialConnectors=" + Arrays.toString(Objects.requireNonNullElseGet(initialConnectors, () -> new TransportConfiguration[0])) +
          ", discoveryGroupConfiguration=" +
          discoveryGroupConfiguration +
          "]";
@@ -1562,8 +1610,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       synchronized (topologyArrayGuard) {
          Collection<TopologyMemberImpl> membersCopy = topology.getMembers();
 
-         if (membersCopy.size() == 0) {
-            //it could happen when live is down, in that case we keeps the old copy
+         if (membersCopy.isEmpty()) {
+            //it could happen when primary is down, in that case we keeps the old copy
             //and don't update
             return;
          }
@@ -1583,18 +1631,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    @Override
    public synchronized void connectorsChanged(List<DiscoveryEntry> newConnectors) {
+      DiscoveryListener discoveryListener = this.discoveryListener;
+
       if (receivedTopology) {
+         if (discoveryListener != null) {
+            discoveryListener.connectorsChanged(newConnectors);
+         }
          return;
       }
 
       final List<TransportConfiguration> newInitialconnectors = new ArrayList<>(newConnectors.size());
 
       for (DiscoveryEntry entry : newConnectors) {
-         if (ha && topology.getMember(entry.getNodeID()) == null) {
-            TopologyMemberImpl member = new TopologyMemberImpl(entry.getNodeID(), null, null, entry.getConnector(), null);
-            // on this case we set it as zero as any update coming from server should be accepted
-            topology.updateMember(0, entry.getNodeID(), member);
-         }
          // ignore its own transport connector
          if (!entry.getConnector().equals(clusterTransportConfiguration)) {
             newInitialconnectors.add(entry.getConnector());
@@ -1607,14 +1655,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          // The node is alone in the cluster. We create a connection to the new node
          // to trigger the node notification to form the cluster.
 
-         Runnable connectRunnable = new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  connect();
-               } catch (ActiveMQException e) {
-                  ActiveMQClientLogger.LOGGER.errorConnectingToNodes(e);
-               }
+         Runnable connectRunnable = () -> {
+            try {
+               connect();
+            } catch (ActiveMQException e) {
+               ActiveMQClientLogger.LOGGER.errorConnectingToNodes(e);
             }
          };
          if (startExecutor != null) {
@@ -1622,6 +1667,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          } else {
             connectRunnable.run();
          }
+      }
+
+      if (discoveryListener != null) {
+         discoveryListener.connectorsChanged(newConnectors);
       }
    }
 
@@ -1672,8 +1721,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    /**
     * for tests only and not part of the public interface. Do not use it.
-    *
-    * @return
     */
    public TransportConfiguration[] getInitialConnectors() {
       return initialConnectors;
@@ -1766,18 +1813,21 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                   break;
                }
 
-               if (latch.await(config.retryInterval, TimeUnit.MILLISECONDS))
+               if (latch.await(config.retryInterval, TimeUnit.MILLISECONDS)) {
                   return null;
+               }
             }
 
          } catch (RejectedExecutionException e) {
-            if (isClosed() || skipWarnings)
+            if (isClosed() || skipWarnings) {
                return null;
+            }
             logger.trace("Rejected execution", e);
             throw e;
          } catch (Exception e) {
-            if (isClosed() || skipWarnings)
+            if (isClosed() || skipWarnings) {
                return null;
+            }
             ActiveMQClientLogger.LOGGER.errorConnectingToNodes(e);
             throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToStaticConnectors(e);
          }
@@ -1786,7 +1836,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             return null;
          }
 
-         ActiveMQClientLogger.LOGGER.errorConnectingToNodes(traceException);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Could not connect to any nodes. throwing an error now.", new Exception("trace"));
+         }
+
          throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToStaticConnectors2();
       }
 
@@ -1801,7 +1854,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          connectors = new ArrayList<>();
          if (initialConnectors != null) {
             for (TransportConfiguration initialConnector : initialConnectors) {
-               ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(ServerLocatorImpl.this, initialConnector, config, config.reconnectAttempts, threadPool, scheduledThreadPool, incomingInterceptors, outgoingInterceptors);
+               ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(ServerLocatorImpl.this, initialConnector, config, config.reconnectAttempts, threadPool, scheduledThreadPool, flowControlThreadPool, incomingInterceptors, outgoingInterceptors);
 
                connectors.add(new Connector(initialConnector, factory));
             }
@@ -1886,37 +1939,38 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return receivedTopology;
    }
 
+   public int getClientSessionFactoryCount() {
+      return factories.size();
+   }
+
    private String fromInterceptors(final List<Interceptor> interceptors) {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       boolean first = true;
       for (Interceptor value : interceptors) {
          if (!first) {
-            buffer.append(",");
+            sb.append(",");
          }
          first = false;
-         buffer.append(value.getClass().getName());
+         sb.append(value.getClass().getName());
       }
 
-      return buffer.toString();
+      return sb.toString();
    }
 
    private void feedInterceptors(final List<Interceptor> interceptors, final String interceptorList) {
       interceptors.clear();
 
-      if (interceptorList == null || interceptorList.trim().equals("")) {
+      if (interceptorList == null || interceptorList.trim().isEmpty()) {
          return;
       }
-      AccessController.doPrivileged(new PrivilegedAction<Object>() {
-         @Override
-         public Object run() {
+      SecurityManagerShim.doPrivileged((PrivilegedAction<Object>) () -> {
 
-            String[] arrayInterceptor = interceptorList.split(",");
-            for (String strValue : arrayInterceptor) {
-               Interceptor interceptor = (Interceptor) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, strValue.trim());
-               interceptors.add(interceptor);
-            }
-            return null;
+         String[] arrayInterceptor = interceptorList.split(",");
+         for (String strValue : arrayInterceptor) {
+            Interceptor interceptor = (Interceptor) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, strValue.trim(), Interceptor.class);
+            interceptors.add(interceptor);
          }
+         return null;
       });
 
    }

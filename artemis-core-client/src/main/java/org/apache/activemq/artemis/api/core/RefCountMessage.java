@@ -22,6 +22,8 @@ import java.lang.invoke.MethodHandles;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -31,12 +33,13 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
 /**
- * RefCountMessage is a base-class for any message intending to do reference counting. Currently it is used for
- * large message removal.
- *
- * Additional validation on reference counting will be done If you set a system property named "ARTEMIS_REF_DEBUG" and enable logging on this class.
- * Additional logging output will be written when reference counting is broken and these debug options are applied.
- * */
+ * RefCountMessage is a base-class for any message intending to do reference counting. Currently it is used for large
+ * message removal.
+ * <p>
+ * Additional validation on reference counting will be done If you set a system property named "ARTEMIS_REF_DEBUG" and
+ * enable logging on this class. Additional logging output will be written when reference counting is broken and these
+ * debug options are applied.
+ */
 public class RefCountMessage {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -51,8 +54,9 @@ public class RefCountMessage {
       return REF_DEBUG && logger.isTraceEnabled();
    }
 
-   /** Sub classes constructors willing to debug reference counts,
-    *  can register the objectCleaner through this method. */
+   /**
+    * Sub classes constructors willing to debug reference counts, can register the objectCleaner through this method.
+    */
    protected void registerDebug() {
       if (debugStatus == null) {
          debugStatus = new DebugState(this.toString());
@@ -61,7 +65,7 @@ public class RefCountMessage {
    }
 
    private static class DebugState implements Runnable {
-      private final ArrayList<Exception> debugCrumbs = new ArrayList<>();
+      private final List<Exception> debugCrumbs = new ArrayList<>();
 
       // this means the object is accounted for and it should not print any warnings
       volatile boolean accounted;
@@ -71,8 +75,9 @@ public class RefCountMessage {
       String description;
 
       /**
-       *  Notice: This runnable cannot hold any reference back to message otherwise it won't ever happen and you will get a memory leak.
-       *  */
+       * Notice: This runnable cannot hold any reference back to message otherwise it won't ever happen and you will get
+       * a memory leak.
+       */
       Runnable runWhenLeaked;
 
       DebugState(String description) {
@@ -80,8 +85,9 @@ public class RefCountMessage {
          addDebug("registered");
       }
 
-      /** this marks the Status as accounted for
-       *  and no need to report an issue when DEBUG hits */
+      /**
+       * this marks the Status as accounted for and no need to report an issue when DEBUG hits
+       */
       void accountedFor() {
          accounted = true;
       }
@@ -129,7 +135,7 @@ public class RefCountMessage {
    private static final AtomicIntegerFieldUpdater<RefCountMessage> REF_COUNT_UPDATER = AtomicIntegerFieldUpdater.newUpdater(RefCountMessage.class, "refCount");
    private static final AtomicIntegerFieldUpdater<RefCountMessage> REF_USAGE_UPDATER = AtomicIntegerFieldUpdater.newUpdater(RefCountMessage.class, "usageCount");
 
-   private volatile HashMap userContext;
+   private volatile Map userContext;
 
    private volatile int durableRefCount = 0;
 
@@ -141,7 +147,9 @@ public class RefCountMessage {
 
    private volatile boolean errorCheck = true;
 
-   /** has the refCount fired the action already? */
+   /**
+    * has the refCount fired the action already?
+    */
    public boolean isReleased() {
       return released;
    }
@@ -155,8 +163,8 @@ public class RefCountMessage {
    }
 
    public static void deferredDebug(Message message, String debugMessage, Object... args) {
-      if (message instanceof RefCountMessage && isRefDebugEnabled()) {
-         deferredDebug((RefCountMessage) message, debugMessage, args);
+      if (message instanceof RefCountMessage countMessage && isRefDebugEnabled()) {
+         deferredDebug(countMessage, debugMessage, args);
       }
    }
 
@@ -165,7 +173,9 @@ public class RefCountMessage {
       message.deferredDebug(formattedDebug);
    }
 
-   /** Deferred debug, that will be used in case certain conditions apply to the RefCountMessage */
+   /**
+    * Deferred debug, that will be used in case certain conditions apply to the RefCountMessage
+    */
    public void deferredDebug(String message) {
       if (parentRef != null) {
          parentRef.deferredDebug(message);
@@ -188,8 +198,8 @@ public class RefCountMessage {
    }
 
    /**
-    * in certain cases the large message is copied from another LargeServerMessage
-    * and the ref count needs to be on that place.
+    * in certain cases the large message is copied from another LargeServerMessage and the ref count needs to be on that
+    * place.
     */
    private volatile RefCountMessage parentRef;
 

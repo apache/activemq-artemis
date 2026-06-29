@@ -122,12 +122,7 @@ public class NIOSSLConcurrencyTest extends TestCase {
          consumers[i] = consumer;
       }
 
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            return failed || getReceived() == PRODUCER_COUNT * MESSAGE_COUNT;
-         }
-      }, 120000);
+      Wait.waitFor(() -> failed || getReceived() == PRODUCER_COUNT * MESSAGE_COUNT, 120000);
 
       assertEquals(PRODUCER_COUNT * MESSAGE_COUNT, getReceived());
 

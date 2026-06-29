@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -33,8 +35,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsSendReceiveTestSupport
@@ -49,7 +51,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
    protected MessageProducer producer;
    protected Destination consumerDestination;
    protected Destination producerDestination;
-   protected List<Message> messages = Collections.synchronizedList(new ArrayList<Message>());
+   protected List<Message> messages = Collections.synchronizedList(new ArrayList<>());
    protected boolean topic = true;
    protected boolean durable;
    protected int deliveryMode = DeliveryMode.PERSISTENT;
@@ -57,7 +59,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
    protected boolean useSeparateSession;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       String temp = System.getProperty("messageCount");
@@ -78,8 +80,6 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
 
    /**
     * Sends and consumes the messages.
-    *
-    * @throws Exception
     */
    @Test
    public void testSendReceive() throws Exception {
@@ -101,11 +101,9 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
     * Tests if the messages received are valid.
     *
     * @param receivedMessages - list of received messages.
-    * @throws JMSException
     */
    protected void assertMessagesReceivedAreValid(List<Message> receivedMessages) throws JMSException {
       List<Object> copyOfMessages = Arrays.asList(receivedMessages.toArray());
-      int counter = 0;
 
       if (data.length != copyOfMessages.size()) {
          for (Iterator<Object> iter = copyOfMessages.iterator(); iter.hasNext(); ) {
@@ -113,7 +111,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
          }
       }
 
-      assertEquals("Not enough messages received", data.length, receivedMessages.size());
+      assertEquals(data.length, receivedMessages.size(), "Not enough messages received");
 
       for (int i = 0; i < data.length; i++) {
          TextMessage received = (TextMessage) receivedMessages.get(i);
@@ -121,7 +119,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
          String stringProperty = received.getStringProperty("stringProperty");
          int intProperty = received.getIntProperty("intProperty");
 
-         assertEquals("Message: " + i, data[i], text);
+         assertEquals(data[i], text, "Message: " + i);
          assertEquals(data[i], stringProperty);
          assertEquals(i, intProperty);
       }
@@ -150,8 +148,6 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
 
    /**
     * Asserts messages are received.
-    *
-    * @throws JMSException
     */
    protected void assertMessagesAreReceived() throws JMSException {
       waitForMessagesToBeDelivered();
@@ -160,18 +156,11 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
 
    /**
     * Just a hook so can insert failure tests
-    *
-    * @throws Exception
     */
    protected void messageSent() throws Exception {
 
    }
 
-   /*
-    * (non-Javadoc)
-    *
-    * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
-    */
    @Override
    public synchronized void onMessage(Message message) {
       consumeMessage(message, messages);

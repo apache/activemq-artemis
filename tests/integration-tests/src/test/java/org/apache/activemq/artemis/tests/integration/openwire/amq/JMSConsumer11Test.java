@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
 import javax.jms.Session;
@@ -24,20 +27,21 @@ import java.util.Collection;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQMessageConsumer;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JMSConsumer11Test extends BasicOpenWireTest {
 
-   @Parameterized.Parameters(name = "deliveryMode={0}")
+   @Parameters(name = "deliveryMode={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT}, {DeliveryMode.PERSISTENT}});
    }
@@ -48,7 +52,7 @@ public class JMSConsumer11Test extends BasicOpenWireTest {
       this.deliveryMode = deliveryMode;
    }
 
-   @Test
+   @TestTemplate
    public void testPrefetch1MessageNotDispatched() throws Exception {
       // Set prefetch to 1
       connection.getPrefetchPolicy().setAll(1);

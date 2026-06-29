@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,13 +28,13 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RemoteBindingWithoutLoadBalancingTest extends ClusterTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -44,9 +46,8 @@ public class RemoteBindingWithoutLoadBalancingTest extends ClusterTestBase {
    }
 
    /**
-    * It's possible that when a cluster has disabled message load balancing then a message
-    * sent to a node that only has a corresponding remote queue binding will trigger a
-    * stack overflow.
+    * It's possible that when a cluster has disabled message load balancing then a message sent to a node that only has
+    * a corresponding remote queue binding will trigger a stack overflow.
     */
    @Test
    public void testStackOverflow() throws Exception {
@@ -112,7 +113,7 @@ public class RemoteBindingWithoutLoadBalancingTest extends ClusterTestBase {
 
       waitForBindings(1, QUEUE_NAME, 1, 0, true);
 
-      assertTrue(Wait.waitFor(() -> servers[1].locateQueue(SimpleString.toSimpleString(QUEUE_NAME)).getMessageCount() == 1, 2000, 100));
+      assertTrue(Wait.waitFor(() -> servers[1].locateQueue(SimpleString.of(QUEUE_NAME)).getMessageCount() == 1, 2000, 100));
 
       c1.close();
       c2.close();

@@ -16,16 +16,15 @@
  */
 package org.apache.activemq.artemis.jms.server;
 
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.logs.BundleFactory;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 import org.w3c.dom.Node;
 
 /**
- * Logger Code 12
+ * Logger Codes 120000 - 128999
  */
-@LogBundle(projectCode = "AMQ", regexID = "12[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "12[0-8][0-9]{3}", retiredIDs = {121000, 121001, 121002, 121003, 121005, 122000, 122001, 122002, 122003, 122004, 122006, 122008, 122009, 122010, 122013, 122014, 122015, 122016, 124001})
 public interface ActiveMQJMSServerLogger {
 
    ActiveMQJMSServerLogger LOGGER = BundleFactory.newBundle(ActiveMQJMSServerLogger.class, ActiveMQJMSServerLogger.class.getPackage().getName());
@@ -41,24 +40,11 @@ public interface ActiveMQJMSServerLogger {
    @LogMessage(id = 122007, value = "Queue {} does not exist on the topic {}. It was deleted manually probably.", level = LogMessage.Level.WARN)
    void noQueueOnTopic(String queueName, String name);
 
-   @LogMessage(id = 122008, value = "XA Recovery can not connect to any broker on recovery {}", level = LogMessage.Level.WARN)
-   void recoveryConnectFailed(String s);
-
    @LogMessage(id = 122011, value = "error unbinding {} from Registry", level = LogMessage.Level.WARN)
    void bindingsUnbindError(String key, Exception e);
 
    @LogMessage(id = 122012, value = "JMS Server Manager error", level = LogMessage.Level.WARN)
    void jmsServerError(Exception e);
-
-   @LogMessage(id = 122013, value = "Error in XA Recovery recover", level = LogMessage.Level.WARN)
-   void xaRecoverError(Exception e);
-
-   @LogMessage(id = 122014, value = "Notified of connection failure in xa recovery connectionFactory for provider {} will attempt reconnect on next pass",
-      level = LogMessage.Level.WARN)
-   void xaRecoverConnectionError(ClientSessionFactory csf, Exception e);
-
-   @LogMessage(id = 122016, value = "Error in XA Recovery", level = LogMessage.Level.DEBUG)
-   void xaRecoveryError(Exception e);
 
    @LogMessage(id = 122017, value = "Tried to correct invalid \"host\" value \"0.0.0.0\" for \"{}\" connector, but received an exception.",
       level = LogMessage.Level.WARN)

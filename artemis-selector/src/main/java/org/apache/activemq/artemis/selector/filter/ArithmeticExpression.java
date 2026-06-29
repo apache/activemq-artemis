@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.selector.filter;
 
 /**
  * An expression which performs an operation on two expression values
- *
- * @version $Revision: 1.2 $
  */
 public abstract class ArithmeticExpression extends BinaryExpression {
 
@@ -28,10 +26,6 @@ public abstract class ArithmeticExpression extends BinaryExpression {
    protected static final int DOUBLE = 3;
    boolean convertStringExpressions = false;
 
-   /**
-    * @param left
-    * @param right
-    */
    public ArithmeticExpression(Expression left, Expression right) {
       super(left, right);
       convertStringExpressions = ComparisonExpression.CONVERT_STRING_EXPRESSIONS.get() != null;
@@ -41,10 +35,8 @@ public abstract class ArithmeticExpression extends BinaryExpression {
       return new ArithmeticExpression(left, right) {
          @Override
          protected Object evaluate(Object lvalue, Object rvalue) {
-            if (lvalue instanceof String) {
-               String text = (String) lvalue;
-               String answer = text + rvalue;
-               return answer;
+            if (lvalue instanceof String text) {
+               return text + rvalue;
             } else {
                return plus(asNumber(lvalue), asNumber(rvalue));
             }
@@ -117,36 +109,27 @@ public abstract class ArithmeticExpression extends BinaryExpression {
    }
 
    protected Number plus(Number left, Number right) {
-      switch (numberType(left, right)) {
-         case INTEGER:
-            return left.intValue() + right.intValue();
-         case LONG:
-            return left.longValue() + right.longValue();
-         default:
-            return left.doubleValue() + right.doubleValue();
-      }
+      return switch (numberType(left, right)) {
+         case INTEGER -> left.intValue() + right.intValue();
+         case LONG -> left.longValue() + right.longValue();
+         default -> left.doubleValue() + right.doubleValue();
+      };
    }
 
    protected Number minus(Number left, Number right) {
-      switch (numberType(left, right)) {
-         case INTEGER:
-            return left.intValue() - right.intValue();
-         case LONG:
-            return left.longValue() - right.longValue();
-         default:
-            return left.doubleValue() - right.doubleValue();
-      }
+      return switch (numberType(left, right)) {
+         case INTEGER -> left.intValue() - right.intValue();
+         case LONG -> left.longValue() - right.longValue();
+         default -> left.doubleValue() - right.doubleValue();
+      };
    }
 
    protected Number multiply(Number left, Number right) {
-      switch (numberType(left, right)) {
-         case INTEGER:
-            return left.intValue() * right.intValue();
-         case LONG:
-            return left.longValue() * right.longValue();
-         default:
-            return left.doubleValue() * right.doubleValue();
-      }
+      return switch (numberType(left, right)) {
+         case INTEGER -> left.intValue() * right.intValue();
+         case LONG -> left.longValue() * right.longValue();
+         default -> left.doubleValue() * right.doubleValue();
+      };
    }
 
    protected Number divide(Number left, Number right) {
@@ -172,16 +155,15 @@ public abstract class ArithmeticExpression extends BinaryExpression {
    }
 
    protected Number asNumber(Object value) {
-      if (value instanceof Number) {
-         return (Number) value;
+      if (value instanceof Number number) {
+         return number;
       } else {
-         if (convertStringExpressions && value instanceof String) {
-            String v = (String) value;
+         if (convertStringExpressions && value instanceof String string) {
             try {
-               if (v.contains(".")) {
-                  return Double.valueOf(v);
+               if (string.contains(".")) {
+                  return Double.valueOf(string);
                } else {
-                  return Long.valueOf(v);
+                  return Long.valueOf(string);
                }
             } catch (NumberFormatException e) {
                throw new RuntimeException("Cannot convert value: " + value + " into a number");
@@ -204,11 +186,6 @@ public abstract class ArithmeticExpression extends BinaryExpression {
       return evaluate(lvalue, rvalue);
    }
 
-   /**
-    * @param lvalue
-    * @param rvalue
-    * @return
-    */
    protected abstract Object evaluate(Object lvalue, Object rvalue);
 
 }

@@ -17,24 +17,28 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
 import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.Session;
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class DrainTimeoutTest extends AmqpClientTestSupport {
 
    final int NUMBER_OF_MESSAGES = 1000;
 
-   @Test(timeout = 300_000)
+   @Test
+   @Timeout(60)
    public void testFlowControl() throws Exception {
       final AtomicInteger errors = new AtomicInteger(0);
       final String queueName = getQueueName();
@@ -83,6 +87,6 @@ public class DrainTimeoutTest extends AmqpClientTestSupport {
 
       consumerThread.join();
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 }

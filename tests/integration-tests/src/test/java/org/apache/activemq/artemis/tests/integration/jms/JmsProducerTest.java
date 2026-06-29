@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSConsumer;
@@ -37,9 +44,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQJMSContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JmsProducerTest extends JMSTestBase {
 
@@ -48,7 +54,7 @@ public class JmsProducerTest extends JMSTestBase {
    private JMSContext context;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -68,15 +74,15 @@ public class JmsProducerTest extends JMSTestBase {
    public void testSetters() {
       long v = random.nextLong();
       producer.setDeliveryDelay(v);
-      Assert.assertEquals(v, producer.getDeliveryDelay());
+      assertEquals(v, producer.getDeliveryDelay());
 
       long l = random.nextLong();
       producer.setTimeToLive(l);
-      Assert.assertEquals(l, producer.getTimeToLive());
+      assertEquals(l, producer.getTimeToLive());
 
       String id = "ID: jms2-tests-correlation-id" + random.nextLong();
       producer.setJMSCorrelationID(id);
-      Assert.assertEquals(id, producer.getJMSCorrelationID());
+      assertEquals(id, producer.getJMSCorrelationID());
 
       //set a property of an invalid type (ArrayList)
       try {
@@ -90,14 +96,14 @@ public class JmsProducerTest extends JMSTestBase {
    @Test
    public void testDisMsgID() {
       producer.setDisableMessageID(true);
-      Assert.assertEquals(true, producer.getDisableMessageID());
+      assertTrue(producer.getDisableMessageID());
       producer.setDisableMessageID(false);
-      Assert.assertEquals(false, producer.getDisableMessageID());
+      assertFalse(producer.getDisableMessageID());
    }
 
    @Test
    public void multipleSendsUsingSetters() throws Exception {
-      server.createQueue(new QueueConfiguration("q1").setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of("q1").setRoutingType(RoutingType.ANYCAST));
 
       Queue q1 = context.createQueue("q1");
 
@@ -148,10 +154,10 @@ public class JmsProducerTest extends JMSTestBase {
 
       context.createProducer().setProperty("prop1", 1).setProperty("prop2", 2).send(q1, "Text1");
 
-      org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.toSimpleString(queueName));
+      org.apache.activemq.artemis.core.server.Queue queue = server.locateQueue(SimpleString.of(queueName));
 
       assertEquals(5, queue.getMaxConsumers());
-      assertEquals(true, queue.isPurgeOnNoConsumers());
+      assertTrue(queue.isPurgeOnNoConsumers());
    }
 
    @Test
@@ -166,10 +172,10 @@ public class JmsProducerTest extends JMSTestBase {
 
       session.createProducer(session.createQueue(queueName));
 
-      org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.toSimpleString(queueName));
+      org.apache.activemq.artemis.core.server.Queue queue = server.locateQueue(SimpleString.of(queueName));
 
       assertEquals(5, queue.getMaxConsumers());
-      assertEquals(true, queue.isPurgeOnNoConsumers());
+      assertTrue(queue.isPurgeOnNoConsumers());
 
       connection.close();
    }
@@ -177,9 +183,9 @@ public class JmsProducerTest extends JMSTestBase {
    @Test
    public void testDeliveryMode() {
       producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-      Assert.assertEquals(DeliveryMode.PERSISTENT, producer.getDeliveryMode());
+      assertEquals(DeliveryMode.PERSISTENT, producer.getDeliveryMode());
       producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-      Assert.assertEquals(DeliveryMode.NON_PERSISTENT, producer.getDeliveryMode());
+      assertEquals(DeliveryMode.NON_PERSISTENT, producer.getDeliveryMode());
    }
 
    @Test
@@ -199,13 +205,14 @@ public class JmsProducerTest extends JMSTestBase {
             byte value1 = producer.getByteProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertTrue("value0: " + value0 + " value1: " + value1, value1 == value0);
+               assertEquals(value1, value0, "value0: " + value0 + " value1: " + value1);
             } else {
                fail("non existent byte property expects exception, but got value: " + value1);
             }
          } catch (Throwable t) {
-            if (expected == null)
+            if (expected == null) {
                throw t;
+            }
             if (!t.getClass().equals(expected.getClass())) {
                throw new Exception("Expected exception: " + expected.getClass().getName() +
                                       " but got: " + t.getClass(), t);
@@ -227,13 +234,14 @@ public class JmsProducerTest extends JMSTestBase {
             boolean value1 = producer.getBooleanProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertEquals("value0: " + value0 + " value1: " + value1, value1, value0);
+               assertEquals(value1, value0, "value0: " + value0 + " value1: " + value1);
             } else {
                fail("non existent boolean property expects exception, but got value: " + value1);
             }
          } catch (Throwable t) {
-            if (expected == null)
+            if (expected == null) {
                throw t;
+            }
             if (!t.getClass().equals(expected.getClass())) {
                throw new Exception("Expected exception: " + expected.getClass().getName() +
                                       " but got: " + t.getClass(), t);
@@ -255,13 +263,14 @@ public class JmsProducerTest extends JMSTestBase {
             double value1 = producer.getDoubleProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertTrue("value0: " + value0 + " value1: " + value1, value1 == value0);
+               assertEquals(value1, value0, "value0: " + value0 + " value1: " + value1);
             } else {
                fail("non existent double property expects exception, but got value: " + value1);
             }
          } catch (Throwable t) {
-            if (expected == null)
+            if (expected == null) {
                throw t;
+            }
             if (!t.getClass().equals(expected.getClass())) {
                throw new Exception("Expected exception: " + expected.getClass().getName() +
                                       " but got: " + t.getClass(), t);
@@ -283,13 +292,14 @@ public class JmsProducerTest extends JMSTestBase {
             float value1 = producer.getFloatProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertTrue("value0: " + value0 + " value1: " + value1, value1 == value0);
+               assertEquals(value1, value0, "value0: " + value0 + " value1: " + value1);
             } else {
                fail("non existent double property expects exception, but got value: " + value1);
             }
          } catch (Throwable t) {
-            if (expected == null)
+            if (expected == null) {
                throw t;
+            }
             if (!t.getClass().equals(expected.getClass())) {
                throw new Exception("Expected exception: " + expected.getClass().getName() +
                                       " but got: " + t.getClass(), t);
@@ -311,13 +321,14 @@ public class JmsProducerTest extends JMSTestBase {
             int value1 = producer.getIntProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertTrue("value0: " + value0 + " value1: " + value1, value1 == value0);
+               assertEquals(value1, value0, "value0: " + value0 + " value1: " + value1);
             } else {
                fail("non existent double property expects exception, but got value: " + value1);
             }
          } catch (Throwable t) {
-            if (expected == null)
+            if (expected == null) {
                throw t;
+            }
             if (!t.getClass().equals(expected.getClass())) {
                throw new Exception("Expected exception: " + expected.getClass().getName() +
                                       " but got: " + t.getClass(), t);
@@ -339,13 +350,14 @@ public class JmsProducerTest extends JMSTestBase {
             long value1 = producer.getLongProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertEquals("value0: " + value0 + " value1: " + value1, value1, value0);
+               assertEquals(value1, value0, "value0: " + value0 + " value1: " + value1);
             } else {
                fail("non existent double property expects exception, but got value: " + value1);
             }
          } catch (Throwable t) {
-            if (expected == null)
+            if (expected == null) {
                throw t;
+            }
             if (!t.getClass().equals(expected.getClass())) {
                throw new Exception("Expected exception: " + expected.getClass().getName() +
                                       " but got: " + t.getClass(), t);
@@ -367,13 +379,14 @@ public class JmsProducerTest extends JMSTestBase {
             short value1 = producer.getShortProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertTrue("value0: " + value0 + " value1: " + value1, value1 == value0);
+               assertEquals(value1, value0, "value0: " + value0 + " value1: " + value1);
             } else {
                fail("non existent double property expects exception, but got value: " + value1);
             }
          } catch (Throwable t) {
-            if (expected == null)
+            if (expected == null) {
                throw t;
+            }
             if (!t.getClass().equals(expected.getClass())) {
                throw new Exception("Expected exception: " + expected.getClass().getName() +
                                       " but got: " + t.getClass(), t);

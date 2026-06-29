@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import javax.jms.ConnectionFactory;
-import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -33,10 +32,12 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * adapted from: org.apache.activemq.ProducerFlowControlSendFailTest
@@ -44,13 +45,13 @@ import org.junit.Test;
 public class ProducerFlowControlSendFailTest extends ProducerFlowControlBaseTest {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
    }
@@ -88,7 +89,7 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlBaseTest
          e.printStackTrace();
       }
 
-      Assert.assertTrue(exception);
+      assertTrue(exception);
 
       // resourceException on second message, resumption if we
       // can receive 10
@@ -96,7 +97,7 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlBaseTest
       TextMessage msg;
       for (int idx = 0; idx < successSent; ++idx) {
          msg = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          if (msg != null) {
             msg.acknowledge();
          }
@@ -146,17 +147,14 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlBaseTest
             msg.acknowledge();
          }
       }
-      assertTrue("we were blocked at least 5 times", 5 < exceptionCount.get());
+      assertTrue(5 < exceptionCount.get(), "we were blocked at least 5 times");
       keepGoing.set(false);
    }
 
    protected ConnectionFactory getConnectionFactory() throws Exception {
-      factory.setExceptionListener(new ExceptionListener() {
-         @Override
-         public void onException(JMSException arg0) {
-            if (arg0 instanceof ResourceAllocationException) {
-               gotResourceException.set(true);
-            }
+      factory.setExceptionListener(arg0 -> {
+         if (arg0 instanceof ResourceAllocationException) {
+            gotResourceException.set(true);
          }
       });
       return factory;

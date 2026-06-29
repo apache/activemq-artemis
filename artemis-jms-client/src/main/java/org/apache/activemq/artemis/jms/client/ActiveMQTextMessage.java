@@ -29,9 +29,7 @@ import static org.apache.activemq.artemis.reader.TextMessageUtil.readBodyText;
 import static org.apache.activemq.artemis.reader.TextMessageUtil.writeBodyText;
 
 /**
- * ActiveMQ Artemis implementation of a JMS TextMessage.
- * <br>
- * This class was ported from SpyTextMessage in JBossMQ.
+ * Apache Artemis implementation of a JMS TextMessage.
  */
 public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage {
 
@@ -52,7 +50,7 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage 
    }
 
    /**
-    * A copy constructor for non-ActiveMQ Artemis JMS TextMessages.
+    * A copy constructor for non-Apache Artemis JMS TextMessages.
     */
    public ActiveMQTextMessage(final TextMessage foreign, final ClientSession session) throws JMSException {
       super(foreign, ActiveMQTextMessage.TYPE, session);
@@ -73,7 +71,7 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage 
       checkWrite();
 
       if (text != null) {
-         this.text = new SimpleString(text);
+         this.text = SimpleString.of(text);
       } else {
          this.text = null;
       }
@@ -114,8 +112,9 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage 
    @Override
    @SuppressWarnings("unchecked")
    public boolean isBodyAssignableTo(Class c) {
-      if (text == null)
+      if (text == null) {
          return true;
+      }
       return c.isAssignableFrom(java.lang.String.class);
    }
 }

@@ -57,10 +57,8 @@ public class NettyWSTransport extends NettyTcpTransport {
    /**
     * Create a new transport instance
     *
-    * @param remoteLocation
-    *        the URI that defines the remote resource to connect to.
-    * @param options
-    *        the transport options used to configure the socket connection.
+    * @param remoteLocation the URI that defines the remote resource to connect to.
+    * @param options        the transport options used to configure the socket connection.
     */
    public NettyWSTransport(URI remoteLocation, NettyTransportOptions options) {
       this(null, remoteLocation, options);
@@ -69,12 +67,9 @@ public class NettyWSTransport extends NettyTcpTransport {
    /**
     * Create a new transport instance
     *
-    * @param listener
-    *        the TransportListener that will receive events from this Transport.
-    * @param remoteLocation
-    *        the URI that defines the remote resource to connect to.
-    * @param options
-    *        the transport options used to configure the socket connection.
+    * @param listener       the TransportListener that will receive events from this Transport.
+    * @param remoteLocation the URI that defines the remote resource to connect to.
+    * @param options        the transport options used to configure the socket connection.
     */
    public NettyWSTransport(NettyTransportListener listener, URI remoteLocation, NettyTransportOptions options) {
       super(listener, remoteLocation, options);
@@ -139,23 +134,19 @@ public class NettyWSTransport extends NettyTcpTransport {
          }
 
          // We shouldn't get this since we handle the handshake previously.
-         if (message instanceof FullHttpResponse) {
-            FullHttpResponse response = (FullHttpResponse) message;
+         if (message instanceof FullHttpResponse response) {
             throw new IllegalStateException(
                "Unexpected FullHttpResponse (getStatus=" + response.status() + ", content=" + response.content().toString(StandardCharsets.UTF_8) + ')');
          }
 
          WebSocketFrame frame = (WebSocketFrame) message;
-         if (frame instanceof TextWebSocketFrame) {
-            TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
+         if (frame instanceof TextWebSocketFrame textFrame) {
             logger.warn("WebSocket Client received message: {}", textFrame.text());
             ctx.fireExceptionCaught(new IOException("Received invalid frame over WebSocket."));
-         } else if (frame instanceof BinaryWebSocketFrame) {
-            BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) frame;
+         } else if (frame instanceof BinaryWebSocketFrame binaryFrame) {
             logger.trace("WebSocket Client received data: {} bytes", binaryFrame.content().readableBytes());
             listener.onData(binaryFrame.content());
-         } else if (frame instanceof ContinuationWebSocketFrame) {
-            ContinuationWebSocketFrame continuationFrame = (ContinuationWebSocketFrame) frame;
+         } else if (frame instanceof ContinuationWebSocketFrame continuationFrame) {
             logger.trace("WebSocket Client received data continuation: {} bytes", continuationFrame.content().readableBytes());
             listener.onData(continuationFrame.content());
          } else if (frame instanceof PingWebSocketFrame) {

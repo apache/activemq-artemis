@@ -25,14 +25,14 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import javax.jms.IllegalStateException;
 
 /**
- * Logger Code 15
+ * Logger Codes 150000 - 158999
  */
-@LogBundle(projectCode = "AMQ", regexID = "15[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "15[0-8][0-9]{3}", retiredIDs = {152000})
 public interface ActiveMQRALogger {
 
    /**
-    * Note this uses ActiveMQRALogger.class.getName() instead of ActiveMQRALogger.class.getPackage().getName()
-    * like the other loggers, this is because some Application Servers use introspection to identify properties which can
+    * Note this uses ActiveMQRALogger.class.getName() instead of ActiveMQRALogger.class.getPackage().getName() like the
+    * other loggers, this is because some Application Servers use introspection to identify properties which can
     * sometimes use a classloader when the rar is uploaded and its possible getpackage() can return null
     */
    ActiveMQRALogger LOGGER = BundleFactory.newBundle(ActiveMQRALogger.class, ActiveMQRALogger.class.getName());
@@ -118,6 +118,6 @@ public interface ActiveMQRALogger {
    @LogMessage(id = 153004, value = "Invalid number of session (negative) {}, defaulting to {}.", level = LogMessage.Level.WARN)
    void invalidNumberOfMaxSession(int value, int defaultValue);
 
-   @LogMessage(id = 153005, value =  "Unable to retrieve \"{}\" from JNDI. Creating a new \"{}\" named \"{}\" to be used by the MDB.", level = LogMessage.Level.WARN)
+   @LogMessage(id = 153005, value = "Unable to retrieve \"{}\" from JNDI. Creating a new \"{}\" named \"{}\" to be used by the MDB.", level = LogMessage.Level.WARN)
    void unableToRetrieveDestinationName(String destinationName, String name, String calculatedDestinationName);
 }

@@ -168,7 +168,7 @@ public class WildcardAddressManagerPerfTest {
       WILDCARD_CONFIGURATION.setAnyWords('>');
    }
 
-   private static final SimpleString WILDCARD = SimpleString.toSimpleString("Topic1.>");
+   private static final SimpleString WILDCARD = SimpleString.of("Topic1.>");
 
    @Setup
    public void init() throws Exception {
@@ -179,9 +179,9 @@ public class WildcardAddressManagerPerfTest {
       topics = 1 << topicsLog2;
       addresses = new SimpleString[topics];
       for (int i = 0; i < topics; i++) {
-         Binding binding = new BindingFake(WILDCARD, SimpleString.toSimpleString("" + i), i);
+         Binding binding = new BindingFake(WILDCARD, SimpleString.of("" + i), i);
          addressManager.addBinding(binding);
-         addresses[i] = SimpleString.toSimpleString("Topic1." + i);
+         addresses[i] = SimpleString.of("Topic1." + i);
          addressManager.getBindingsForRoutingAddress(addresses[i]);
       }
       topicCounter = new AtomicLong(0);
@@ -202,7 +202,7 @@ public class WildcardAddressManagerPerfTest {
       @Setup
       public void init(WildcardAddressManagerPerfTest benchmarkState) {
          final long id = benchmarkState.nextId();
-         binding = new BindingFake(WILDCARD, SimpleString.toSimpleString("" + id), id);
+         binding = new BindingFake(WILDCARD, SimpleString.of("" + id), id);
          addresses = benchmarkState.addresses;
       }
 

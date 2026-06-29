@@ -22,33 +22,27 @@ public enum KeyType {
    public static final String validValues;
 
    static {
-      StringBuffer stringBuffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       for (KeyType type : KeyType.values()) {
 
-         if (stringBuffer.length() != 0) {
-            stringBuffer.append(",");
+         if (!sb.isEmpty()) {
+            sb.append(",");
          }
 
-         stringBuffer.append(type.name());
+         sb.append(type.name());
       }
 
-      validValues = stringBuffer.toString();
+      validValues = sb.toString();
    }
 
    public static KeyType getType(String type) {
-      switch (type) {
-         case "CLIENT_ID":
-            return CLIENT_ID;
-         case "SNI_HOST":
-            return SNI_HOST;
-         case "SOURCE_IP":
-            return SOURCE_IP;
-         case "USER_NAME":
-            return USER_NAME;
-         case "ROLE_NAME":
-            return ROLE_NAME;
-         default:
-            throw new IllegalStateException("Invalid RedirectKey:" + type + " valid Types: " + validValues);
-      }
+      return switch (type) {
+         case "CLIENT_ID" -> CLIENT_ID;
+         case "SNI_HOST" -> SNI_HOST;
+         case "SOURCE_IP" -> SOURCE_IP;
+         case "USER_NAME" -> USER_NAME;
+         case "ROLE_NAME" -> ROLE_NAME;
+         default -> throw new IllegalStateException("Invalid RedirectKey:" + type + " valid Types: " + validValues);
+      };
    }
 }

@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 /**
- * Helper class to simplify bootstrap of ActiveMQ Artemis server.  Bootstraps from classpath-based config files.
+ * Helper class to simplify bootstrap of Apache Artemis server.  Bootstraps from classpath-based config files.
  */
 public class EmbeddedActiveMQ {
 
@@ -46,8 +46,6 @@ public class EmbeddedActiveMQ {
 
    /**
     * Classpath resource for activemq server config.  Defaults to 'broker.xml'.
-    *
-    * @param filename
     */
    public EmbeddedActiveMQ setConfigResourcePath(String filename) {
       configResourcePath = filename;
@@ -56,8 +54,6 @@ public class EmbeddedActiveMQ {
 
    /**
     * Classpath resource for broker properties file.  Defaults to 'broker.properties'.
-    *
-    * @param filename
     */
    public EmbeddedActiveMQ setPropertiesResourcePath(String filename) {
       propertiesResourcePath = filename;
@@ -65,9 +61,8 @@ public class EmbeddedActiveMQ {
    }
 
    /**
-    * Set the activemq security manager.  This defaults to org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
-    *
-    * @param securityManager
+    * Set the activemq security manager. This defaults to
+    * org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
     */
    public EmbeddedActiveMQ setSecurityManager(ActiveMQSecurityManager securityManager) {
       this.securityManager = securityManager;
@@ -81,10 +76,9 @@ public class EmbeddedActiveMQ {
     * @param unit       unit of time to wait
     * @param iterations number of iterations
     * @param servers    number of minimal servers
-    * @return
     */
    public boolean waitClusterForming(long timeWait, TimeUnit unit, int iterations, int servers) throws Exception {
-      if (activeMQServer.getClusterManager().getClusterConnections() == null || activeMQServer.getClusterManager().getClusterConnections().size() == 0) {
+      if (activeMQServer.getClusterManager().getClusterConnections() == null || activeMQServer.getClusterManager().getClusterConnections().isEmpty()) {
          return servers == 0;
       }
 
@@ -102,8 +96,6 @@ public class EmbeddedActiveMQ {
 
    /**
     * Use this mbean server to register management beans.  If not set, no mbeans will be registered.
-    *
-    * @param mbeanServer
     */
    public EmbeddedActiveMQ setMbeanServer(MBeanServer mbeanServer) {
       this.mbeanServer = mbeanServer;
@@ -113,8 +105,6 @@ public class EmbeddedActiveMQ {
    /**
     * Set this object if you are not using file-based configuration.  The default implementation will load
     * configuration from a file.
-    *
-    * @param configuration
     */
    public EmbeddedActiveMQ setConfiguration(Configuration configuration) {
       this.configuration = configuration;
@@ -140,8 +130,9 @@ public class EmbeddedActiveMQ {
          return;
       }
       if (configuration == null) {
-         if (configResourcePath == null)
+         if (configResourcePath == null) {
             configResourcePath = "broker.xml";
+         }
          FileDeploymentManager deploymentManager = new FileDeploymentManager(configResourcePath);
          FileConfiguration config = new FileConfiguration();
          LegacyJMSConfiguration legacyJMSConfiguration = new LegacyJMSConfiguration(config);

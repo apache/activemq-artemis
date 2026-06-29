@@ -16,10 +16,11 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
-import java.net.SocketAddress;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -44,11 +45,9 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.IPV6Util;
+import org.apache.activemq.artemis.utils.SocketAddressUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 public class NettyConnection implements Connection {
 
@@ -61,8 +60,8 @@ public class NettyConnection implements Connection {
    private final boolean directDeliver;
    private final Map<String, Object> configuration;
    /**
-    * if {@link #isWritable(ReadyListener)} returns false, we add a callback
-    * here for when the connection (or Netty Channel) becomes available again.
+    * if {@link #isWritable(ReadyListener)} returns false, we add a callback here for when the connection (or Netty
+    * Channel) becomes available again.
     */
    private final List<ReadyListener> readyListeners = new ArrayList<>();
    private static final FastThreadLocal<ArrayList<ReadyListener>> localListenersPool = new FastThreadLocal<>();
@@ -79,17 +78,20 @@ public class NettyConnection implements Connection {
                           final BaseConnectionLifeCycleListener<?> listener,
                           boolean batchingEnabled,
                           boolean directDeliver) {
-      checkNotNull(channel);
-
       this.configuration = configuration;
 
-      this.channel = channel;
+      this.channel = Objects.requireNonNull(channel);
 
       this.listener = listener;
 
       this.directDeliver = directDeliver;
 
       this.batchingEnabled = batchingEnabled;
+   }
+
+   @Override
+   public EventLoop getEventLoop() {
+      return channel.eventLoop();
    }
 
    private static void waitFor(ChannelPromise promise, long millis) {
@@ -104,7 +106,7 @@ public class NettyConnection implements Connection {
    }
 
    /**
-    * Returns an estimation of the current size of the write buffer in the channel.
+    * {@return an estimation of the current size of the write buffer in the channel}
     */
    private static long batchBufferSize(Channel channel) {
       final ChannelOutboundBuffer outboundBuffer = channel.unsafe().outboundBuffer();
@@ -202,8 +204,6 @@ public class NettyConnection implements Connection {
 
    /**
     * This is exposed so users would have the option to look at any data through interceptors
-    *
-    * @return
     */
    public final Channel getChannel() {
       return channel;
@@ -237,7 +237,7 @@ public class NettyConnection implements Connection {
 
       closed = true;
 
-      listener.connectionDestroyed(getID());
+      listener.connectionDestroyed(getID(), false);
    }
 
    @Override
@@ -387,21 +387,17 @@ public class NettyConnection implements Connection {
    }
 
    @Override
-   public final String getRemoteAddress() {
-      SocketAddress address = channel.remoteAddress();
-      if (address == null) {
-         return null;
-      }
-      return address.toString();
+   public String getRemoteAddress() {
+      return SocketAddressUtil.toString(channel.remoteAddress());
    }
 
    @Override
    public final String getLocalAddress() {
-      SocketAddress address = channel.localAddress();
+      String address = SocketAddressUtil.toString(channel.localAddress());
       if (address == null) {
          return null;
       }
-      return "tcp://" + IPV6Util.encloseHost(address.toString());
+      return IPV6Util.encloseHost(address);
    }
 
    @Override
@@ -472,7 +468,7 @@ public class NettyConnection implements Connection {
 
    @Override
    public final String toString() {
-      return super.toString() + "[ID=" + getID() + ", local= " + channel.localAddress() + ", remote=" + channel.remoteAddress() + "]";
+      return super.toString() + "[ID=" + getID() + ", local= " + getLocalAddress() + ", remote=" + getRemoteAddress() + "]";
    }
 
    private void closeChannel(final Channel channel, boolean inEventLoop) {

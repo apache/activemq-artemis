@@ -16,8 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,8 +32,7 @@ import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessagePersisterV2;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ParseAppMultiThread {
 
@@ -38,13 +41,13 @@ public class ParseAppMultiThread {
    public void testMultiThreadParsing() throws Exception {
 
       for (int rep = 0; rep < 500; rep++) {
-         String randomStr = RandomUtil.randomString();
-         HashMap map = new HashMap();
+         String randomStr = RandomUtil.randomUUIDString();
+         Map map = new HashMap();
          map.put("color", randomStr);
          for (int i = 0; i < 10; i++) {
             map.put("stuff" + i, "value" + i); // just filling stuff
          }
-         AMQPStandardMessage originalMessage = AMQPStandardMessage.createMessage(1, 0, SimpleString.toSimpleString("duh"), null, null, null, null, map, null, null);
+         AMQPStandardMessage originalMessage = AMQPStandardMessage.createMessage(1, 0, SimpleString.of("duh"), null, null, null, null, map, null, null);
 
 
          // doing a round trip that would be made through persistence
@@ -62,7 +65,7 @@ public class ParseAppMultiThread {
             // this is to make sure the message does not have application properties parsed
             Field field = AMQPMessage.class.getDeclaredField("applicationProperties");
             field.setAccessible(true);
-            Assert.assertNull(field.get(amqpStandardMessage));
+            assertNull(field.get(amqpStandardMessage));
          }
 
 
@@ -75,7 +78,7 @@ public class ParseAppMultiThread {
             Runnable r = () -> {
                try {
                   barrier.await();
-                  Assert.assertEquals(randomStr, amqpStandardMessage.getObjectProperty(SimpleString.toSimpleString("color")));
+                  assertEquals(randomStr, amqpStandardMessage.getObjectProperty(SimpleString.of("color")));
                } catch (Throwable e) {
                   e.printStackTrace();
                   errors.incrementAndGet();
@@ -90,8 +93,8 @@ public class ParseAppMultiThread {
             t.join();
          }
 
-         Assert.assertEquals(randomStr, amqpStandardMessage.getObjectPropertyForFilter(SimpleString.toSimpleString("color")));
-         Assert.assertEquals(0, errors.get());
+         assertEquals(randomStr, amqpStandardMessage.getObjectPropertyForFilter(SimpleString.of("color")));
+         assertEquals(0, errors.get());
       }
 
    }

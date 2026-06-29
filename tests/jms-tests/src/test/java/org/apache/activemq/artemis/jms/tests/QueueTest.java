@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class QueueTest extends JMSTestCase {
 
@@ -57,7 +57,6 @@ public class QueueTest extends JMSTestCase {
       }
    }
 
-   // http://jira.jboss.com/jira/browse/JBMESSAGING-1101
    @Test
    public void testBytesMessagePersistence() throws Exception {
       Connection conn = null;
@@ -82,7 +81,7 @@ public class QueueTest extends JMSTestCase {
 
       startNoDelete();
 
-      // ActiveMQ Artemis server restart implies new ConnectionFactory lookup
+      // Apache Artemis server restart implies new ConnectionFactory lookup
       deployAndLookupAdministeredObjects();
 
       conn = createConnection();
@@ -104,7 +103,6 @@ public class QueueTest extends JMSTestCase {
       }
    }
 
-   // added for http://jira.jboss.org/jira/browse/JBMESSAGING-899
    @Test
    public void testClosedConsumerAfterStart() throws Exception {
       // This loop is to increase chances of a failure.

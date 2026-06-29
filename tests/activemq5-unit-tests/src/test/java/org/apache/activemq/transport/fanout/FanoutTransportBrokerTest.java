@@ -219,18 +219,15 @@ public class FanoutTransportBrokerTest extends OpenwireArtemisBaseTest {
       });
 
       // Send a message (async) as this will block
-      new Thread() {
-         @Override
-         public void run() {
-            // Send the message using the fail over publisher.
-            try {
-               connection3.request(createMessage(producerInfo3, destination, deliveryMode));
-            } catch (Throwable e) {
-               e.printStackTrace();
-            }
-            publishDone.countDown();
+      new Thread(() -> {
+         // Send the message using the fail over publisher.
+         try {
+            connection3.request(createMessage(producerInfo3, destination, deliveryMode));
+         } catch (Throwable e) {
+            e.printStackTrace();
          }
-      }.start();
+         publishDone.countDown();
+      }).start();
 
       // Assert that we block:
       Assert.assertFalse(publishDone.await(3, TimeUnit.SECONDS));

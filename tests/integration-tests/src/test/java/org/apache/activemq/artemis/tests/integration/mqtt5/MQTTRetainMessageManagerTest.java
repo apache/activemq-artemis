@@ -14,19 +14,25 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class MQTTRetainMessageManagerTest extends MQTT5TestSupport {
 
@@ -50,11 +56,7 @@ public class MQTTRetainMessageManagerTest extends MQTT5TestSupport {
    private final int numberOfMessages = 1000;
    private final int numberOfTests = 10;
 
-   public MQTTRetainMessageManagerTest(String protocol) {
-      super(protocol);
-   }
-
-   @Before
+   @BeforeEach
    public void beforeEach() throws MqttException {
       mqttPublisher = createPahoClient("publisher");
       mqttPublisher.connect();
@@ -98,7 +100,7 @@ public class MQTTRetainMessageManagerTest extends MQTT5TestSupport {
       mqttConsumerAfterPublish2.connect();
    }
 
-   @After
+   @AfterEach
    public void afterEach() throws MqttException {
       mqttPublisher.disconnect();
       mqttPublisher.close();
@@ -116,17 +118,20 @@ public class MQTTRetainMessageManagerTest extends MQTT5TestSupport {
       mqttConsumerAfterPublish2.close();
    }
 
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAtMostOnce() {
       IntStream.of(numberOfTests).forEach(i -> test(0));
    }
 
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAtLeastOnce() {
       IntStream.of(numberOfTests).forEach(i -> test(1));
    }
 
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testExactlyOnce() {
       IntStream.of(numberOfTests).forEach(i -> test(2));
    }
@@ -138,29 +143,32 @@ public class MQTTRetainMessageManagerTest extends MQTT5TestSupport {
             final MqttMessage message = new MqttMessage();
             message.setQos(qos);
             message.setRetained(true);
-            message.setPayload(RandomUtil.randomBytes(128));
+            message.setPayload(RandomUtil.randomUUIDString().getBytes(StandardCharsets.UTF_8));
             mqttPublisher.publish(topic, message);
             lastMessagePublished.set(message);
          }
-         Wait.waitFor(() -> server.getAddressInfo(SimpleString.toSimpleString(topic)).getRoutedMessageCount() >= numberOfMessages, 5000, 100);
+         Wait.waitFor(() -> server.getAddressInfo(SimpleString.of(topic)).getRoutedMessageCount() >= numberOfMessages, 5000, 100);
          mqttConsumerAfterPublish.subscribe(topic, qos);
          mqttConsumerAfterPublish2.subscribe(topic, qos);
          Wait.waitFor(() -> lastMessageArrivedOnConsumerAfterPublish.get() != null, 5000, 100);
          Wait.waitFor(() -> lastMessageArrivedOnConsumerAfterPublish2.get() != null, 5000, 100);
 
          assertEquals(1, arrivedCountAferPublish.get());
-         assertArrayEquals(String.format(
-                              "\nMessage arrived on consumer subscribed before the publish is different from the last published message!\nPublished: %s\nArrived  : %s\n",
-                              new String(lastMessagePublished.get().getPayload()), new String(lastMessageArrivedOnConsumerAfterPublish.get().getPayload())),
-                           lastMessagePublished.get().getPayload(), lastMessageArrivedOnConsumerBeforePublish.get().getPayload());
-         assertArrayEquals(String.format(
-                              "\nMessage arrived on consumer subscribed after the publish is different from the last published message!\nPublished: %s\nArrived  : %s\n",
-                              new String(lastMessagePublished.get().getPayload()), new String(lastMessageArrivedOnConsumerAfterPublish.get().getPayload())),
-                           lastMessagePublished.get().getPayload(), lastMessageArrivedOnConsumerAfterPublish.get().getPayload());
-         assertArrayEquals(String.format(
-                              "\nMessage arrived on consumer subscribed after the publish (2) is different from the last published message!\nPublished: %s\nArrived  : %s\n",
-                              new String(lastMessagePublished.get().getPayload()), new String(lastMessageArrivedOnConsumerAfterPublish.get().getPayload())),
-                           lastMessagePublished.get().getPayload(), lastMessageArrivedOnConsumerAfterPublish2.get().getPayload());
+         assertArrayEquals(lastMessagePublished.get().getPayload(),
+                           lastMessageArrivedOnConsumerBeforePublish.get().getPayload(),
+                           String.format("\nMessage that arrived on consumer subscribed before the publish is different from the last published message!\nPublished: %s\nArrived  : %s\n",
+                                         new String(lastMessagePublished.get().getPayload(), StandardCharsets.UTF_8),
+                                         new String(lastMessageArrivedOnConsumerBeforePublish.get().getPayload(), StandardCharsets.UTF_8)));
+         assertArrayEquals(lastMessagePublished.get().getPayload(),
+                           lastMessageArrivedOnConsumerAfterPublish.get().getPayload(),
+                           String.format("\nMessage that arrived on consumer subscribed after the publish is different from the last published message!\nPublished: %s\nArrived  : %s\n",
+                                         new String(lastMessagePublished.get().getPayload(), StandardCharsets.UTF_8),
+                                         new String(lastMessageArrivedOnConsumerAfterPublish.get().getPayload(), StandardCharsets.UTF_8)));
+         assertArrayEquals(lastMessagePublished.get().getPayload(),
+                           lastMessageArrivedOnConsumerAfterPublish2.get().getPayload(),
+                           String.format("\nMessage that arrived on consumer subscribed after the publish (2) is different from the last published message!\nPublished: %s\nArrived  : %s\n",
+                                         new String(lastMessagePublished.get().getPayload(), StandardCharsets.UTF_8),
+                                         new String(lastMessageArrivedOnConsumerAfterPublish2.get().getPayload(), StandardCharsets.UTF_8)));
       } catch (MqttException e) {
          fail(e.getMessage());
       }

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.cli.factory.security;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,8 +25,14 @@ import org.apache.activemq.artemis.dto.PropertyDTO;
 import org.apache.activemq.artemis.dto.SecurityDTO;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 public class SecurityManagerHandler implements SecurityHandler {
+
+   @Override
+   public String getName() {
+      return "security-manager";
+   }
 
    @Override
    public ActiveMQSecurityManager createSecurityManager(SecurityDTO security) {
@@ -39,6 +44,6 @@ public class SecurityManagerHandler implements SecurityHandler {
             properties.put(property.key, property.value);
          }
       }
-      return AccessController.doPrivileged((PrivilegedAction<ActiveMQSecurityManager>) () -> (ActiveMQSecurityManager) ClassloadingUtil.newInstanceFromClassLoader(SecurityManagerHandler.class, clazz)).init(properties);
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ActiveMQSecurityManager>) () -> (ActiveMQSecurityManager) ClassloadingUtil.newInstanceFromClassLoader(SecurityManagerHandler.class, clazz, ActiveMQSecurityManager.class)).init(properties);
    }
 }

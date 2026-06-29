@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -29,13 +31,12 @@ import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ExpireWhileLoadBalanceTest extends ClusterTestBase {
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -67,7 +68,7 @@ public class ExpireWhileLoadBalanceTest extends ClusterTestBase {
       waitForTopology(getServer(1), 3);
       waitForTopology(getServer(2), 3);
 
-      SimpleString expiryQueue = SimpleString.toSimpleString("expiryQueue");
+      SimpleString expiryQueue = SimpleString.of("expiryQueue");
 
       AddressSettings as = new AddressSettings();
       as.setDeadLetterAddress(expiryQueue);
@@ -75,7 +76,7 @@ public class ExpireWhileLoadBalanceTest extends ClusterTestBase {
 
       for (int i = 0; i <= 2; i++) {
          createQueue(i, "queues.testaddress", "queue0", null, true);
-         getServer(i).createQueue(new QueueConfiguration(expiryQueue).setRoutingType(RoutingType.ANYCAST));
+         getServer(i).createQueue(QueueConfiguration.of(expiryQueue).setRoutingType(RoutingType.ANYCAST));
          getServer(i).getAddressSettingsRepository().addMatch("#", as);
 
       }
@@ -105,7 +106,7 @@ public class ExpireWhileLoadBalanceTest extends ClusterTestBase {
       ClientConsumer consumer = session.createConsumer("expiryQueue");
       for (int i = 0; i < 1000; i++) {
          ClientMessage message = consumer.receive(2000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.acknowledge();
       }
 

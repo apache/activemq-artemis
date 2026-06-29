@@ -24,27 +24,25 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.junit.rules.ExternalResource;
 
 /**
- * A JUnit Rule that embeds an ActiveMQ Artemis ClientProducer bound to a specific address into a
+ * A JUnit Rule that embeds an Apache Artemis ClientProducer bound to a specific address into a
  * test.
  * <p>
- * This JUnit Rule is designed to simplify using ActiveMQ Artemis clients in unit tests. Adding the
+ * This JUnit Rule is designed to simplify using Apache Artemis clients in unit tests. Adding the
  * rule to a test will startup a ClientProducer, which can then be used to feed messages to the
- * bound address on an ActiveMQ Artemis server.
+ * bound address on an Apache Artemis server.
  *
- * <pre>
- * <code>
+ * <pre>{@code
  * public class SimpleTest {
- *     &#64;Rule
+ *     @Rule
  *     public ActiveMQProducerResource producer = new ActiveMQProducerResource( "vm://0", "test.queue");
  *
- *     &#64;Test
+ *     @Test
  *     public void testSomething() throws Exception {
  *         // Use the embedded ClientProducer here
  *         producer.sendMessage( "String Body" );
  *     }
  * }
- * </code>
- * </pre>
+ * }</pre>
  */
 public class ActiveMQProducerResource extends ExternalResource implements ActiveMQProducerOperations {
 
@@ -67,7 +65,7 @@ public class ActiveMQProducerResource extends ExternalResource implements Active
    }
 
    public ActiveMQProducerResource(String url, String address, String username, String password) {
-      activeMQProducer = new ActiveMQProducerDelegate(url, SimpleString.toSimpleString(address), username, password);
+      activeMQProducer = new ActiveMQProducerDelegate(url, SimpleString.of(address), username, password);
    }
 
    public ActiveMQProducerResource(String url, String address) {
@@ -84,11 +82,11 @@ public class ActiveMQProducerResource extends ExternalResource implements Active
 
    public ActiveMQProducerResource(ServerLocator serverLocator, String address, String username, String password) {
       activeMQProducer =
-               new ActiveMQProducerDelegate(serverLocator, SimpleString.toSimpleString(address), username, password);
+               new ActiveMQProducerDelegate(serverLocator, SimpleString.of(address), username, password);
    }
 
    public ActiveMQProducerResource(ServerLocator serverLocator, String address) {
-      activeMQProducer = new ActiveMQProducerDelegate(serverLocator, SimpleString.toSimpleString(address));
+      activeMQProducer = new ActiveMQProducerDelegate(serverLocator, SimpleString.of(address));
    }
 
    public ActiveMQProducerResource(ServerLocator serverLocator, SimpleString address, String username,

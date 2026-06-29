@@ -22,8 +22,6 @@ import org.apache.qpid.proton.amqp.Symbol;
 
 public class ActiveMQAMQPException extends ActiveMQException {
 
-   private static final String ERROR_PREFIX = "amqp:";
-
    public Symbol getAmqpError() {
       return amqpError;
    }

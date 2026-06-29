@@ -51,7 +51,9 @@
          <property key="bridgeTransformerKey2" value="bridgeTransformerValue2"/>
       </transformer>
       <producer-window-size>555k</producer-window-size>
+      <pending-ack-timeout>123456</pending-ack-timeout>
       <discovery-group-ref discovery-group-name="dg1"/>
+      <client-id>myClientID</client-id>
    </bridge>
    <bridge name="bridge4">
       <queue-name>queue3</queue-name>

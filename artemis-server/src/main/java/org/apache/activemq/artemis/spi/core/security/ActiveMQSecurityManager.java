@@ -16,15 +16,17 @@
  */
 package org.apache.activemq.artemis.spi.core.security;
 
+import javax.security.auth.Subject;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
+import org.apache.activemq.artemis.utils.SecurityManagerUtil;
 
 /**
- * Use to validate whether a user has is valid to connect to the server and perform certain
- * functions
+ * Use to validate whether a user has is valid to connect to the server and perform certain functions
  */
 public interface ActiveMQSecurityManager {
 
@@ -37,7 +39,7 @@ public interface ActiveMQSecurityManager {
     *
     * @param user     the user
     * @param password the users password
-    * @return true if a valid user
+    * @return {@code true} if a valid user
     */
    boolean validateUser(String user, String password);
 
@@ -48,19 +50,23 @@ public interface ActiveMQSecurityManager {
     * @param password  the users password
     * @param roles     the roles the user has
     * @param checkType the type of check to perform
-    * @return true if the user is valid and they have the correct roles
+    * @return {@code true} if the user is valid and they have the correct roles
     */
    boolean validateUserAndRole(String user, String password, Set<Role> roles, CheckType checkType);
 
    /**
     * Initialize the manager with the given configuration properties. This method is called by the broker when the
-    * file-based configuration is read. If you're creating/configuring the plugin programmatically then the
-    * recommended approach is to simply use the manager's getters/setters rather than this method.
+    * file-based configuration is read. If you're creating/configuring the plugin programmatically then the recommended
+    * approach is to simply use the manager's getters/setters rather than this method.
     *
     * @param properties name/value pairs used to configure the ActiveMQSecurityManager instance
     * @return {@code this} instance
     */
    default ActiveMQSecurityManager init(Map<String, String> properties) {
       return this;
+   }
+
+   default String getUserFromSubject(Subject subject) {
+      return SecurityManagerUtil.getUserFromSubject(subject, UserPrincipal.class);
    }
 }

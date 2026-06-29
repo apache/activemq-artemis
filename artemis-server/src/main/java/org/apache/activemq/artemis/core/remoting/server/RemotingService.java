@@ -35,19 +35,21 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 public interface RemotingService {
 
    /**
-    * Remove a connection from the connections held by the remoting service.
-    * <strong>This method must be used only from the management API.
-    * RemotingConnections are removed from the remoting service when their connectionTTL is hit.</strong>
+    * Remove a connection from the connections held by the remoting service. <strong>This method must be used only from
+    * the management API. RemotingConnections are removed from the remoting service when their connectionTTL is
+    * hit.</strong>
     *
     * @param remotingConnectionID the ID of the RemotingConnection to removed
     * @return the removed RemotingConnection
     */
    RemotingConnection removeConnection(Object remotingConnectionID);
 
+   RemotingConnection getConnection(Object remotingConnectionID);
+
    Set<RemotingConnection> getConnections();
 
    /**
-    * @return the number of clients connected to this server.
+    * {@return the number of clients connected to this server}
     */
    default int getConnectionCount() {
       final Set<RemotingConnection> connections = getConnections();
@@ -55,7 +57,7 @@ public interface RemotingService {
    }
 
    /**
-    * @return the number of clients which have connected to this server since it was started.
+    * {@return the number of clients which have connected to this server since it was started}
     */
    long getTotalConnectionCount();
 
@@ -73,6 +75,11 @@ public interface RemotingService {
 
    boolean removeOutgoingInterceptor(BaseInterceptor interceptor);
 
+   void notifyStop();
+
+   /** The Prepare stop will close all the connections however it will use the one used by storage manager */
+   void prepareStop(boolean criticalError, Set<RemotingConnection> ignoreConnections) throws Exception;
+
    void stop(boolean criticalError) throws Exception;
 
    void start() throws Exception;
@@ -87,8 +94,6 @@ public interface RemotingService {
     * Allow acceptors to use this as their default security Principal if applicable.
     * <p>
     * Used by AS7 integration code.
-    *
-    * @param principal
     */
    void allowInvmSecurityOverride(ActiveMQPrincipal principal);
 
@@ -103,16 +108,13 @@ public interface RemotingService {
    boolean isPaused();
 
    /**
-    * Freezes and then disconnects all connections except the given one and tells the client where else
-    * it might connect (only applicable if server is in a cluster and uses scaleDown-on-failover=true).
-    *
-    * @param scaleDownNodeID
-    * @param remotingConnection
+    * Freezes and then disconnects all connections except the given one and tells the client where else it might connect
+    * (only applicable if server is in a cluster and uses scaleDown-on-failover=true).
     */
    void freeze(String scaleDownNodeID, CoreRemotingConnection remotingConnection);
 
    /**
-    * Returns the acceptor identified by its {@code name} or {@code null} if it does not exists.
+    * {@return the acceptor identified by its {@code name} or {@code null} if it does not exists}
     *
     * @param name the name of the acceptor
     */
@@ -127,6 +129,17 @@ public interface RemotingService {
    void destroyAcceptor(String name) throws Exception;
 
    void loadProtocolServices(List<ActiveMQComponent> protocolServices);
+
+   /**
+    * Provides an entry point for protocol services offered by this service instance to react to configuration updates.
+    * If the service implementation does not have any managed services or its services do not respond to updates it can
+    * ignore this call. services added should be added to the provided protocolServices list, and any removed should be
+    * found and removed from the list.
+    *
+    * @param protocolServices The list of protocol services known to the broker.
+    * @throws Exception if an error is thrown during the services updates.
+    */
+   void updateProtocolServices(List<ActiveMQComponent> protocolServices) throws Exception;
 
    void addConnectionEntry(Connection connection, ConnectionEntry entry);
 }

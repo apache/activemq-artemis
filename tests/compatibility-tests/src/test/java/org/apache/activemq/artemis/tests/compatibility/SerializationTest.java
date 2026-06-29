@@ -17,60 +17,56 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_2_10_0;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_TEN_ZERO;
-
-@RunWith(Parameterized.class)
+// 2.10.0 fails on Java 23+ without workarounds.
+@EnabledForJreRange(max = JRE.JAVA_22)
+@ExtendWith(ParameterizedTestExtension.class)
 public class SerializationTest extends VersionedBase {
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "producer={0}, consumer={1}")
    public static Collection getParameters() {
       // we don't need every single version ever released..
       // if we keep testing current one against 2.4 and 1.4.. we are sure the wire and API won't change over time
       List<Object[]> combinations = new ArrayList<>();
 
-      /*
-      // during development sometimes is useful to comment out the combinations
-      // and add the ones you are interested.. example:
-       */
-      //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
-      //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
-
-      combinations.addAll(combinatory(new Object[]{null}, new Object[]{ONE_FIVE, SNAPSHOT}, new Object[]{ONE_FIVE, SNAPSHOT}));
-      combinations.add(new Object[] {null, TWO_TEN_ZERO, SNAPSHOT});
-      combinations.add(new Object[] {null, SNAPSHOT, TWO_TEN_ZERO});
+      combinations.add(new Object[] {ARTEMIS_2_10_0, SNAPSHOT});
+      combinations.add(new Object[] {SNAPSHOT, ARTEMIS_2_10_0});
       return combinations;
    }
 
-   public SerializationTest(String server, String sender, String receiver) throws Exception {
-      super(server, sender, receiver);
+   public SerializationTest(String sender, String receiver) throws Exception {
+      super(sender, receiver);
    }
 
-   @Before
+   @BeforeEach
    public void beforeTest() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
-      serverFolder.getRoot().mkdirs();
+      FileUtil.deleteDirectory(serverFolder);
+      serverFolder.mkdirs();
       setVariable(senderClassloader, "persistent", false);
-      startServer(serverFolder.getRoot(), senderClassloader, "1");
+      startServer(serverFolder, sender, senderClassloader, "1");
    }
 
-   @After
+   @AfterEach
    public void afterTest() {
       try {
          stopServer(senderClassloader);
@@ -79,16 +75,16 @@ public class SerializationTest extends VersionedBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSerializeFactory() throws Throwable {
-      File file = serverFolder.newFile("objects.ser");
+      File file = File.createTempFile("objects.ser", null, serverFolder);
       evaluate(senderClassloader, "serial/serial.groovy", file.getAbsolutePath(), "write", sender);
       evaluate(receiverClassloader, "serial/serial.groovy", file.getAbsolutePath(), "read", receiver);
    }
 
-   @Test
+   @TestTemplate
    public void testJBMSerializeFactory() throws Throwable {
-      File file = serverFolder.newFile("objectsjbm.ser");
+      File file = File.createTempFile("objectsjbm.ser", null, serverFolder);
       evaluate(senderClassloader, "serial/jbmserial.groovy", file.getAbsolutePath(), "write", sender);
       evaluate(receiverClassloader, "serial/jbmserial.groovy", file.getAbsolutePath(), "read", receiver);
    }

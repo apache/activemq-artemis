@@ -23,8 +23,8 @@ import java.util.zip.Inflater;
 
 /**
  * InflaterReader
- * It takes a compressed input stream and decompressed it as it is being read.
- * Not for concurrent use.
+ * <p>
+ * It takes a compressed input stream and decompressed it as it is being read. Not for concurrent use.
  */
 public class InflaterReader extends InputStream {
 
@@ -70,9 +70,8 @@ public class InflaterReader extends InputStream {
    }
 
    /*
-    * feed inflater more bytes in order to get some
-    * decompressed output.
-    * returns number of bytes actually got
+    * Feed inflater more bytes in order to get some decompressed output.
+    * returns number of bytes actually read
     */
    private int doRead(byte[] buf, int offset, int len) throws DataFormatException, IOException {
       int read = 0;

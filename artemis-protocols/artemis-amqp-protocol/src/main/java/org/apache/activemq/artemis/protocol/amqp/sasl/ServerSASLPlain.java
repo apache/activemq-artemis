@@ -64,9 +64,6 @@ public class ServerSASLPlain implements ServerSASL {
 
    /**
     * Hook for subclasses to perform the authentication here
-    *
-    * @param user
-    * @param password
     */
    protected boolean authenticate(String user, String password) {
       return true;

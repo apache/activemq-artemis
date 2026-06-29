@@ -1,20 +1,26 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * <br>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <br>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.client.impl;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -48,9 +54,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LargeMessageBufferTest extends ActiveMQTestBase {
 
@@ -59,7 +64,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -76,7 +81,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
       for (int i = 1; i <= 15; i++) {
          try {
-            Assert.assertEquals(i, buffer.readByte());
+            assertEquals(i, buffer.readByte());
          } catch (Exception e) {
             throw new Exception("Exception at position " + i, e);
          }
@@ -84,7 +89,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
       try {
          buffer.readByte();
-         Assert.fail("supposed to throw an exception");
+         fail("supposed to throw an exception");
       } catch (IndexOutOfBoundsException e) {
       }
    }
@@ -104,7 +109,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
          bytes = new byte[16];
          buffer.getBytes(0, bytes);
-         Assert.fail("supposed to throw an exception");
+         fail("supposed to throw an exception");
       } catch (java.lang.IndexOutOfBoundsException e) {
       }
    }
@@ -132,12 +137,12 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       LargeMessageControllerImpl buffer = createBufferWithIntegers(3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
 
       for (int i = 1; i <= 15; i++) {
-         Assert.assertEquals(i, buffer.readInt());
+         assertEquals(i, buffer.readInt());
       }
 
       try {
          buffer.readByte();
-         Assert.fail("supposed to throw an exception");
+         fail("supposed to throw an exception");
       } catch (IndexOutOfBoundsException e) {
       }
    }
@@ -149,7 +154,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       DataInputStream dataInput = new DataInputStream(is);
 
       for (int i = 1; i <= 15; i++) {
-         Assert.assertEquals(i, dataInput.readInt());
+         assertEquals(i, dataInput.readInt());
       }
 
       assertEquals(-1, dataInput.read());
@@ -162,12 +167,12 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       LargeMessageControllerImpl buffer = createBufferWithLongs(3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
 
       for (int i = 1; i <= 15; i++) {
-         Assert.assertEquals(i, buffer.readLong());
+         assertEquals(i, buffer.readLong());
       }
 
       try {
          buffer.readByte();
-         Assert.fail("supposed to throw an exception");
+         fail("supposed to throw an exception");
       } catch (IndexOutOfBoundsException e) {
       }
    }
@@ -179,7 +184,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       DataInputStream dataInput = new DataInputStream(is);
 
       for (int i = 1; i <= 15; i++) {
-         Assert.assertEquals(i, dataInput.readLong());
+         assertEquals(i, dataInput.readLong());
       }
 
       assertEquals(-1, dataInput.read());
@@ -190,8 +195,8 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
    public void testReadData() throws Exception {
       ActiveMQBuffer dynamic = ActiveMQBuffers.dynamicBuffer(1);
 
-      String str1 = RandomUtil.randomString();
-      String str2 = RandomUtil.randomString();
+      String str1 = RandomUtil.randomUUIDString();
+      String str2 = RandomUtil.randomUUIDString();
       double d1 = RandomUtil.randomDouble();
       float f1 = RandomUtil.randomFloat();
 
@@ -202,10 +207,10 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
       LargeMessageControllerImpl readBuffer = splitBuffer(3, dynamic.toByteBuffer().array());
 
-      Assert.assertEquals(str1, readBuffer.readUTF());
-      Assert.assertEquals(str2, readBuffer.readString());
-      Assert.assertEquals(d1, readBuffer.readDouble(), 0.000001);
-      Assert.assertEquals(f1, readBuffer.readFloat(), 0.000001);
+      assertEquals(str1, readBuffer.readUTF());
+      assertEquals(str2, readBuffer.readString());
+      assertEquals(d1, readBuffer.readDouble(), 0.000001);
+      assertEquals(f1, readBuffer.readFloat(), 0.000001);
    }
 
    private File getTestFile() {
@@ -218,8 +223,8 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
       ActiveMQBuffer dynamic = ActiveMQBuffers.dynamicBuffer(1);
 
-      String str1 = RandomUtil.randomString();
-      String str2 = RandomUtil.randomString();
+      String str1 = RandomUtil.randomUUIDString();
+      String str2 = RandomUtil.randomUUIDString();
       double d1 = RandomUtil.randomDouble();
       float f1 = RandomUtil.randomFloat();
 
@@ -230,17 +235,17 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
       LargeMessageControllerImpl readBuffer = splitBuffer(3, dynamic.toByteBuffer().array(), getTestFile());
 
-      Assert.assertEquals(str1, readBuffer.readUTF());
-      Assert.assertEquals(str2, readBuffer.readString());
-      Assert.assertEquals(d1, readBuffer.readDouble(), 0.00000001);
-      Assert.assertEquals(f1, readBuffer.readFloat(), 0.000001);
+      assertEquals(str1, readBuffer.readUTF());
+      assertEquals(str2, readBuffer.readString());
+      assertEquals(d1, readBuffer.readDouble(), 0.00000001);
+      assertEquals(f1, readBuffer.readFloat(), 0.000001);
 
       readBuffer.readerIndex(0);
 
-      Assert.assertEquals(str1, readBuffer.readUTF());
-      Assert.assertEquals(str2, readBuffer.readString());
-      Assert.assertEquals(d1, readBuffer.readDouble(), 0.00000001);
-      Assert.assertEquals(f1, readBuffer.readFloat(), 0.000001);
+      assertEquals(str1, readBuffer.readUTF());
+      assertEquals(str2, readBuffer.readString());
+      assertEquals(d1, readBuffer.readDouble(), 0.00000001);
+      assertEquals(f1, readBuffer.readFloat(), 0.000001);
 
       readBuffer.close();
    }
@@ -256,29 +261,26 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       buffer.readBytes(bytes, 0, 5);
 
       for (byte i = 0; i < 5; i++) {
-         Assert.assertEquals(i, bytes[i]);
+         assertEquals(i, bytes[i]);
       }
 
       final CountDownLatch latchGo = new CountDownLatch(1);
 
       final AtomicInteger errorCount = new AtomicInteger(0);
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
+      Thread t = new Thread(() -> {
 
-            try {
-               latchGo.countDown();
-               buffer.readBytes(new byte[5]);
-            } catch (IndexOutOfBoundsException ignored) {
-            } catch (IllegalAccessError ignored) {
+         try {
+            latchGo.countDown();
+            buffer.readBytes(new byte[5]);
+         } catch (IndexOutOfBoundsException ignored) {
+         } catch (IllegalAccessError ignored) {
 
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errorCount.incrementAndGet();
-            }
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errorCount.incrementAndGet();
          }
-      };
+      });
 
       t.start();
 
@@ -288,7 +290,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
       t.join();
 
-      Assert.assertEquals(0, errorCount.get());
+      assertEquals(0, errorCount.get());
 
    }
 
@@ -300,7 +302,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       readBuffer.readBytes(bytes, 0, 5);
 
       for (byte i = 0; i < 5; i++) {
-         Assert.assertEquals(i, bytes[i]);
+         assertEquals(i, bytes[i]);
       }
    }
 
@@ -321,13 +323,13 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
          outBuffer.readerIndex(0);
 
          for (int i = 0; i < 10240 * 10; i++) {
-            assertEquals("position " + i, getSamplebyte(i), outBuffer.readByte());
+            assertEquals(getSamplebyte(i), outBuffer.readByte(), "position " + i);
          }
 
          outBuffer.readerIndex(0);
 
          for (int i = 0; i < 10240 * 10; i++) {
-            assertEquals("position " + i, getSamplebyte(i), outBuffer.readByte());
+            assertEquals(getSamplebyte(i), outBuffer.readByte(), "position " + i);
          }
       } finally {
          outBuffer.close();
@@ -405,31 +407,31 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       twaiter.setDaemon(true);
       twaiter.start();
 
-      Assert.assertTrue(done1.await(10, TimeUnit.SECONDS));
+      assertTrue(done1.await(10, TimeUnit.SECONDS));
 
-      Assert.assertEquals(3, count.get());
-      Assert.assertEquals(1024 * 3, totalBytes.get());
+      assertEquals(3, count.get());
+      assertEquals(1024 * 3, totalBytes.get());
 
       for (int i = 0; i < 8; i++) {
          outBuffer.addPacket(new byte[1024], 1, true);
       }
 
-      Assert.assertEquals(1, waiting.getCount());
+      assertEquals(1, waiting.getCount());
 
       outBuffer.addPacket(new byte[123], 1, false);
 
-      Assert.assertTrue(done2.await(10, TimeUnit.SECONDS));
+      assertTrue(done2.await(10, TimeUnit.SECONDS));
 
-      Assert.assertTrue(waiting.await(10, TimeUnit.SECONDS));
+      assertTrue(waiting.await(10, TimeUnit.SECONDS));
 
-      Assert.assertEquals(12, count.get());
-      Assert.assertEquals(1024 * 11 + 123, totalBytes.get());
+      assertEquals(12, count.get());
+      assertEquals(1024 * 11 + 123, totalBytes.get());
 
       treader.join();
 
       twaiter.join();
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
       input.close();
    }
 
@@ -465,7 +467,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       } catch (ActiveMQException e) {
       }
 
-      assertTrue("It was supposed to wait at least 1 second", System.currentTimeMillis() - time > 1000);
+      assertTrue(System.currentTimeMillis() - time > 1000, "It was supposed to wait at least 1 second");
    }
 
    @Test
@@ -492,7 +494,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
          }
       }).start();
       outBuffer.addPacket(RandomUtil.randomBytes(), 1, true);
-      assertTrue("The IOException should trigger an immediate failure", latch.await(3, TimeUnit.SECONDS));
+      assertTrue(latch.await(3, TimeUnit.SECONDS), "The IOException should trigger an immediate failure");
    }
 
    @Test
@@ -508,20 +510,17 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
       outBuffer.setOutputStream(new FakeOutputStream());
 
-      Thread sender = new Thread() {
-         @Override
-         public void run() {
-            try {
-               Thread.sleep(100);
-               outBuffer.addPacket(new byte[]{0}, 1, true);
-               Thread.sleep(100);
-               outBuffer.addPacket(new byte[]{0}, 1, true);
-               Thread.sleep(200);
-               outBuffer.addPacket(new byte[]{0}, 1, false);
-            } catch (Exception e) {
-            }
+      Thread sender = new Thread(() -> {
+         try {
+            Thread.sleep(100);
+            outBuffer.addPacket(new byte[]{0}, 1, true);
+            Thread.sleep(100);
+            outBuffer.addPacket(new byte[]{0}, 1, true);
+            Thread.sleep(200);
+            outBuffer.addPacket(new byte[]{0}, 1, false);
+         } catch (Exception e) {
          }
-      };
+      });
 
       sender.start();
       assertTrue(outBuffer.waitCompletion(5000));
@@ -550,11 +549,11 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
       try {
          outBuffer.readByte();
-         Assert.fail("supposed to throw an exception");
+         fail("supposed to throw an exception");
       } catch (IllegalAccessError ignored) {
       }
 
-      Assert.assertTrue("It waited too much", System.currentTimeMillis() - start < 30000);
+      assertTrue(System.currentTimeMillis() - start < 30000, "It waited too much");
 
    }
 
@@ -585,9 +584,6 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       is.close();
    }
 
-   /**
-    * @return
-    */
    private LargeMessageControllerImpl create15BytesSample() throws Exception {
       return splitBuffer(5, new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
    }
@@ -647,12 +643,9 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
    }
 
-   /**
-    * @param bytes
-    */
    private void validateAgainstSample(final byte[] bytes) {
       for (int i = 1; i <= 15; i++) {
-         Assert.assertEquals(i, bytes[i - 1]);
+         assertEquals(i, bytes[i - 1]);
       }
    }
 
@@ -827,21 +820,13 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       public void resetIfSlowConsumer() {
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal#getNonXAsession()
-       */
       public ClientSessionInternal getSession() {
-
          return null;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal#prepareForClose()
-       */
       @Override
       public Thread prepareForClose(FutureLatch future) throws ActiveMQException {
          return null;
       }
    }
-
 }

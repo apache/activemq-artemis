@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
-public abstract class FederationStreamConfiguration <T extends FederationStreamConfiguration<T>> implements Serializable {
+public abstract class FederationStreamConfiguration<T extends FederationStreamConfiguration<T>> implements Serializable {
 
    private String name;
 
@@ -67,13 +67,17 @@ public abstract class FederationStreamConfiguration <T extends FederationStreamC
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (!(o instanceof FederationStreamConfiguration))
+      }
+      if (!(obj instanceof FederationStreamConfiguration other)) {
          return false;
-      FederationStreamConfiguration that = (FederationStreamConfiguration) o;
-      return Objects.equals(name, that.name) && Objects.equals(connectionConfiguration, that.connectionConfiguration) && Objects.equals(policyRefs, that.policyRefs);
+      }
+
+      return Objects.equals(name, other.name) &&
+             Objects.equals(connectionConfiguration, other.connectionConfiguration) &&
+             Objects.equals(policyRefs, other.policyRefs);
    }
 
    @Override

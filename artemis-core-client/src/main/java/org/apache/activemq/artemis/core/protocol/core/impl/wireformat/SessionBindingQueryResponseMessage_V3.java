@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -66,30 +67,28 @@ public class SessionBindingQueryResponseMessage_V3 extends SessionBindingQueryRe
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (autoCreateAddresses ? 1231 : 1237);
-      return result;
+      return super.hashCode() + Objects.hashCode(autoCreateAddresses);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", autoCreateAddresses=" + autoCreateAddresses);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", autoCreateAddresses=" + autoCreateAddresses);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionBindingQueryResponseMessage_V3))
+      }
+      if (!(obj instanceof SessionBindingQueryResponseMessage_V3 other)) {
          return false;
-      SessionBindingQueryResponseMessage_V3 other = (SessionBindingQueryResponseMessage_V3) obj;
-      if (autoCreateAddresses != other.autoCreateAddresses)
-         return false;
-      return true;
+      }
+
+      return autoCreateAddresses == other.autoCreateAddresses;
    }
 }

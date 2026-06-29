@@ -16,8 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
@@ -31,7 +34,7 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.transport.netty.NettyTransport;
 import org.apache.activemq.transport.netty.NettyTransportFactory;
 import org.apache.activemq.transport.netty.NettyTransportListener;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NettyHandshakeTimeoutTest extends ActiveMQTestBase {
 
@@ -42,7 +45,7 @@ public class NettyHandshakeTimeoutTest extends ActiveMQTestBase {
    public void testHandshakeTimeout() throws Exception {
       int handshakeTimeout = 3;
 
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HANDSHAKE_TIMEOUT, handshakeTimeout);
 
       conf = createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
@@ -67,7 +70,7 @@ public class NettyHandshakeTimeoutTest extends ActiveMQTestBase {
 
       try {
          transport.connect();
-         assertTrue("Connection should be closed now", Wait.waitFor(() -> !transport.isConnected(), TimeUnit.SECONDS.toMillis(handshakeTimeout + 10)));
+         assertTrue(Wait.waitFor(() -> !transport.isConnected(), TimeUnit.SECONDS.toMillis(handshakeTimeout + 10)), "Connection should be closed now");
       } finally {
          transport.close();
       }

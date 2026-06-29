@@ -20,16 +20,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class converts a JMS selector expression into an ActiveMQ Artemis core filter expression.
- *
- * JMS selector and ActiveMQ Artemis filters use the same syntax but have different identifiers.
- *
- * We basically just need to replace the JMS header and property Identifier names
- * with the corresponding ActiveMQ Artemis field and header Identifier names.
- *
- * We must be careful not to substitute any literals, or identifiers whose name contains the name
- * of one we want to substitute.
- *
+ * This class converts a JMS selector expression into an Apache Artemis core filter expression.
+ * <p>
+ * JMS selector and Apache Artemis filters use the same syntax but have different identifiers.
+ * <p>
+ * We basically just need to replace the JMS header and property Identifier names with the corresponding Apache
+ * Artemis field and header Identifier names.
+ * <p>
+ * We must be careful not to substitute any literals, or identifiers whose name contains the name of one we want to
+ * substitute.
+ * <p>
  * This makes it less trivial than a simple search and replace.
  */
 public class SelectorTranslator {
@@ -107,25 +107,25 @@ public class SelectorTranslator {
       }
 
       if (!positions.isEmpty()) {
-         StringBuffer buff = new StringBuffer();
+         StringBuilder sb = new StringBuilder();
 
          int startPos = 0;
 
          for (int pos : positions) {
             String substr = input.substring(startPos, pos);
 
-            buff.append(substr);
+            sb.append(substr);
 
-            buff.append(replace);
+            sb.append(replace);
 
             startPos = pos + match.length();
          }
 
          if (startPos < input.length()) {
-            buff.append(input.substring(startPos, input.length()));
+            sb.append(input.substring(startPos, input.length()));
          }
 
-         return buff.toString();
+         return sb.toString();
       } else {
          return input;
       }

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -42,7 +46,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,11 +57,11 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   final SimpleString EXPIRY = new SimpleString("my-expiry");
+   final SimpleString EXPIRY = SimpleString.of("my-expiry");
 
-   final SimpleString DLQ = new SimpleString("my-DLQ");
+   final SimpleString DLQ = SimpleString.of("my-DLQ");
 
-   final SimpleString MY_QUEUE = new SimpleString("MY-QUEUE");
+   final SimpleString MY_QUEUE = SimpleString.of("MY-QUEUE");
 
    final int messageSize = 10 * 1024;
 
@@ -78,11 +82,11 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
       server.start();
 
-      server.createQueue(new QueueConfiguration(EXPIRY).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(EXPIRY).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(DLQ).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(DLQ).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -272,11 +276,11 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
       server.start();
 
-      server.createQueue(new QueueConfiguration(EXPIRY).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(EXPIRY).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(DLQ).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(DLQ).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory connectionFactory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection();
@@ -347,8 +351,6 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
    /**
     * Tests if the system would still couple with old data where the LargeMessage was linked to its previous copy
-    *
-    * @throws Exception
     */
    @Test
    public void testCompatilityWithLinks() throws Exception {
@@ -362,11 +364,11 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
       server.start();
 
-      server.createQueue(new QueueConfiguration(EXPIRY).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(EXPIRY).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(DLQ).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(DLQ).setRoutingType(RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
 
       ServerLocator locator = createInVMNonHALocator();
 

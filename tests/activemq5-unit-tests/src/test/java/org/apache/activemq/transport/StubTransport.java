@@ -25,10 +25,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.util.ServiceStopper;
 import org.apache.activemq.wireformat.WireFormat;
 
-/**
- *
- *
- */
 public class StubTransport extends TransportSupport {
 
    private Queue<Object> queue = new ConcurrentLinkedQueue<>();

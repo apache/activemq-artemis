@@ -88,10 +88,16 @@ public class ThresholdActor<T> extends ProcessorBase<Object> {
       task(message);
    }
 
+   @Override
    public void flush() {
       if (SCHEDULED_FLUSH_UPDATER.compareAndSet(this, 0, 1)) {
          overThreshold.run();
          task(FLUSH);
       }
+   }
+
+   public void requestShutdown() {
+      requestedShutdown = true;
+      tasks.clear();
    }
 }

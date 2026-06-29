@@ -54,14 +54,14 @@ public class AddressMapPerfTest {
    }
 
    @Setup
-   public void init()  {
+   public void init() {
       objectAddressMap =
          new AddressMap<>(WILDCARD_CONFIGURATION.getAnyWordsString(), WILDCARD_CONFIGURATION.getSingleWordString(), WILDCARD_CONFIGURATION.getDelimiter());
 
       entries = 1 << entriesLog2;
       keys = new SimpleString[entries];
       for (int i = 0; i < entries; i++) {
-         keys[i] = SimpleString.toSimpleString("topic." + i % entriesLog2 + "." + i);
+         keys[i] = SimpleString.of("topic." + i % entriesLog2 + "." + i);
       }
    }
 

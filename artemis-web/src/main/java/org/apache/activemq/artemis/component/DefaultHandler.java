@@ -16,12 +16,9 @@
  */
 package org.apache.activemq.artemis.component;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.util.Callback;
 
 public class DefaultHandler extends org.eclipse.jetty.server.handler.DefaultHandler {
    private String rootRedirectLocation;
@@ -35,14 +32,13 @@ public class DefaultHandler extends org.eclipse.jetty.server.handler.DefaultHand
    }
 
    @Override
-   public void handle(String target,
-                      Request baseRequest,
-                      HttpServletRequest request,
-                      HttpServletResponse response) throws IOException, ServletException {
-      if (rootRedirectLocation != null && target.matches("^$|/")) {
-         response.sendRedirect(rootRedirectLocation);
+   public boolean handle(Request request, Response response, Callback callback) throws Exception {
+      if (rootRedirectLocation != null && request.getHttpURI().getPath().matches("^$|/")) {
+         Response.sendRedirect(request, response, callback, Response.toRedirectURI(request, rootRedirectLocation));
+         callback.succeeded();
+         return true;
       } else {
-         super.handle(target, baseRequest, request, response);
+         return super.handle(request, response, callback);
       }
    }
 }

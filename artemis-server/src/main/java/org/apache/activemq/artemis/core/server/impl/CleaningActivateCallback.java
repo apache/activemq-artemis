@@ -20,7 +20,9 @@ package org.apache.activemq.artemis.core.server.impl;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-/** This is an abstract ActivateCallback that will cleanup itself when the broker is shutodwn */
+/**
+ * This is an abstract ActivateCallback that will cleanup itself when the broker is shutodwn
+ */
 public abstract class CleaningActivateCallback implements ActivateCallback {
 
    public CleaningActivateCallback() {

@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.core.management.impl.openmbean;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
@@ -35,10 +36,10 @@ public class OpenTypeSupportTest {
       coreMessage.initBuffer(1024);
       coreMessage.setType(Message.TEXT_TYPE);
 
-      TextMessageUtil.writeBodyText(coreMessage.getBodyBuffer(), SimpleString.toSimpleString(bodyText));
+      TextMessageUtil.writeBodyText(coreMessage.getBodyBuffer(), SimpleString.of(bodyText));
 
       CompositeData cd = coreMessage.toCompositeData(256, 1);
 
-      Assert.assertEquals(bodyText, cd.get("text"));
+      assertEquals(bodyText, cd.get("text"));
    }
 }

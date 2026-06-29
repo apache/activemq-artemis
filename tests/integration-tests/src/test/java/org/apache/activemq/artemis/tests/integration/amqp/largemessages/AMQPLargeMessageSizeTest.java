@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -31,21 +33,20 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMess
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPLargeMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AMQPLargeMessageSizeTest extends ActiveMQTestBase {
 
    @Test
    public void testAMQPMockLargeMessageSize() throws Exception {
       AMQPLargeMessage amqpLargeMessage = new AMQPLargeMessage(1, 0, null, null, null, new MockLargeBody(123456));
-      Assert.assertTrue(amqpLargeMessage.getWholeMessageSize() >= 123456);
+      assertTrue(amqpLargeMessage.getWholeMessageSize() >= 123456);
    }
 
    @Test
    public void testCoreMockLargeMessageSize() throws Exception {
       LargeServerMessageImpl largeServerMessage = new LargeServerMessageImpl((byte) 0, 1, new MockSM(123456), null);
-      Assert.assertTrue(largeServerMessage.getWholeMessageSize() >= 123456);
+      assertTrue(largeServerMessage.getWholeMessageSize() >= 123456);
    }
 
    private static class MockSM extends NullStorageManager {

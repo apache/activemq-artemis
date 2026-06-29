@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopicConnectionFactory;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * @deprecated this infrastructure should not be used for new code. New tests should go into
@@ -58,7 +58,7 @@ public class JMSTestCase extends ActiveMQServerTestCase {
    protected static String conf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -105,7 +105,7 @@ public class JMSTestCase extends ActiveMQServerTestCase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
       if (cf != null) {

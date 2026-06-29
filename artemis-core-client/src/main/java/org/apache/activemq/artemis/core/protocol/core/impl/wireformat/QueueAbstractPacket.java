@@ -39,8 +39,9 @@ public abstract class QueueAbstractPacket extends PacketImpl {
    }
 
    /**
-    * It converts the given {@code queueNames} using the JMS prefix found on {@link #address} when {@code clientVersion < }{@link #ADDRESSING_CHANGE_VERSION}.
-    * If no conversion has occurred, it returns {@code queueNames}.
+    * It converts the given {@code queueNames} using the JMS prefix found on {@link #address} when
+    * {@code clientVersion < }{@link #ADDRESSING_CHANGE_VERSION}. If no conversion has occurred, it returns
+    * {@code queueNames}.
     *
     * @param clientVersion version of the client
     * @param queueNames    names of the queues to be converted

@@ -17,10 +17,14 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.apache.activemq.transport.amqp.AmqpSupport.findFilter;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -40,8 +44,8 @@ import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.engine.Receiver;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +56,8 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testUnsupportedFiltersAreNotListedAsSupported() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -95,7 +100,8 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSupportedFiltersAreListedAsSupported() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -127,7 +133,8 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testReceivedUnsignedFilter() throws Exception {
       final int NUM_MESSAGES = 100;
 
@@ -148,17 +155,17 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
 
          // Read all messages from the Queue, do not accept them yet.
          AmqpReceiver receiver = session.createReceiver(getQueueName(), "myNewID < " + (NUM_MESSAGES / 2));
-         ArrayList<AmqpMessage> messages = new ArrayList<>(NUM_MESSAGES);
+         List<AmqpMessage> messages = new ArrayList<>(NUM_MESSAGES);
          receiver.flow((NUM_MESSAGES + 2) * 2);
-         for (int i = 0; i < NUM_MESSAGES  / 2; ++i) {
+         for (int i = 0; i < NUM_MESSAGES / 2; ++i) {
             AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("Read message: {}", message.getApplicationProperty("myNewID"));
             assertNotNull(message);
             messages.add(message);
          }
 
-         Assert.assertNull(receiver.receiveNoWait());
+         assertNull(receiver.receiveNoWait());
 
       } finally {
          connection.close();

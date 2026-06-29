@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.smoke.console.pages;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.Duration;
 
 import org.openqa.selenium.By;
@@ -25,22 +23,14 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.STATUS_TAB_LOCATOR;
+
+
 public abstract class ConsolePage {
    protected WebDriver driver;
 
-   private By titleLocator = By.tagName("h1");
-
    public ConsolePage(WebDriver driver) {
       this.driver = driver;
-   }
-
-   public String getServerUrl() {
-      try {
-         URL currentUrl = new URL(driver.getCurrentUrl());
-         return currentUrl.getProtocol() + "://" + currentUrl.getAuthority();
-      } catch (MalformedURLException e) {
-         throw new RuntimeException(e);
-      }
    }
 
    public void refresh(int timeout) {
@@ -50,7 +40,7 @@ public abstract class ConsolePage {
    }
 
    public void waitForLoading(int timeout) {
-      waitForElementToBeVisible(titleLocator, timeout);
+      waitForElementToBeVisible(STATUS_TAB_LOCATOR, timeout);
    }
 
    public void waitForElementToBeVisible(final By elementLocator, int timeout) {

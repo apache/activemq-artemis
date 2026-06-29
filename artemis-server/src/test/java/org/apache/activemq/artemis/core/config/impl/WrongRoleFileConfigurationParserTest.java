@@ -16,19 +16,24 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
+import org.junit.jupiter.api.Test;
 
 /**
- * When running this test from an IDE add this to the test command line so that the AssertionLoggerHandler works properly:
- * -Dlog4j2.configurationFile=file:<path_to_source>/tests/config/log4j2-tests-config.properties
+ * When running this test from an IDE add this to the test command line so that the {@link AssertionLoggerHandler} works
+ * properly:
+ * <pre>
+ * -Dlog4j2.configurationFile=file:${path-to-source}/tests/config/log4j2-tests-config.properties
+ * </pre>
  */
-public class WrongRoleFileConfigurationParserTest extends ActiveMQTestBase {
+public class WrongRoleFileConfigurationParserTest extends ServerTestBase {
 
    @Test
    public void testParsingDefaultServerConfig() throws Exception {
@@ -43,39 +48,47 @@ public class WrongRoleFileConfigurationParserTest extends ActiveMQTestBase {
       }
    }
 
-   private static final String configuration = "<configuration xmlns=\"urn:activemq\"\n" +
-      "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-      "xsi:schemaLocation=\"urn:activemq /schema/artemis-configuration.xsd\">\n" +
-      "<name>ActiveMQ.main.config</name>" + "\n" +
-      "<log-delegate-factory-class-name>org.apache.activemq.artemis.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
-      "<bindings-directory>${jboss.server.data.dir}/activemq/bindings</bindings-directory>" + "\n" +
-      "<journal-directory>${jboss.server.data.dir}/activemq/journal</journal-directory>" + "\n" +
-      "<journal-min-files>10</journal-min-files>" + "\n" +
-      "<large-messages-directory>${jboss.server.data.dir}/activemq/largemessages</large-messages-directory>" + "\n" +
-      "<paging-directory>${jboss.server.data.dir}/activemq/paging</paging-directory>" + "\n" +
-      "<connectors>" + "\n" +
-      "<connector name=\"netty\">tcp://localhost:61616</connector>" + "\n" +
-      "<connector name=\"netty-throughput\">tcp://localhost:5545</connector>" + "\n" +
-      "<connector name=\"in-vm\">vm://0</connector>" + "\n" +
-      "</connectors>" + "\n" +
-      "<acceptors>" + "\n" +
-      "<acceptor name=\"netty\">tcp://localhost:5545</acceptor>" + "\n" +
-      "<acceptor name=\"netty-throughput\">tcp://localhost:5545</acceptor>" + "\n" +
-      "<acceptor name=\"in-vm\">vm://0</acceptor>" + "\n" +
-      "</acceptors>" + "\n" +
-      "<security-settings>" + "\n" +
-      "<security-setting match=\"#\">" + "\n" +
-      "<permission type=\"createNonDurableQueue\" roles=\"guest\"/>" + "\n" +
-      "<permission type=\"deleteNonDurableQueue\" roles=\"guest\"/>" + "\n" +
-      "<permission type=\"create-durable-queue\" roles=\"guest\"/>" + "\n" +
-      "<permission type=\"delete-durable-queue\" roles=\"guest\"/>" + "\n" +
-      "<permission type=\"consume\" roles=\"guest\"/>" + "\n" +
-      "<permission type=\"send\" roles=\"guest\"/>" + "\n" +
-      "</security-setting>" + "\n" +
-      "</security-settings>" + "\n" +
-      "<address-settings>" + "\n" +
-      "<address-setting match=\"#\">" + "\n" + "<dead-letter-address>DLQ\n</dead-letter-address>" + "\n" + "<expiry-address>ExpiryQueue\n</expiry-address>" + "\n" + "<redelivery-delay>0\n</redelivery-delay>" + "\n" + "<max-size-bytes>10485760\n</max-size-bytes>" + "\n" + "<message-counter-history-day-limit>10</message-counter-history-day-limit>" + "\n" + "<address-full-policy>BLOCK</address-full-policy>" + "\n" +
-      "</address-setting>" + "\n" +
-      "</address-settings>" + "\n" +
-      "</configuration>";
+   private static final String configuration = """
+      <configuration xmlns="urn:activemq"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+         <name>ActiveMQ.main.config</name>
+         <log-delegate-factory-class-name>org.apache.activemq.artemis.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>
+         <bindings-directory>${jboss.server.data.dir}/activemq/bindings</bindings-directory>
+         <journal-directory>${jboss.server.data.dir}/activemq/journal</journal-directory>
+         <journal-min-files>10</journal-min-files>
+         <large-messages-directory>${jboss.server.data.dir}/activemq/largemessages</large-messages-directory>
+         <paging-directory>${jboss.server.data.dir}/activemq/paging</paging-directory>
+         <connectors>
+            <connector name="netty">tcp://localhost:61616</connector>
+            <connector name="netty-throughput">tcp://localhost:5545</connector>
+            <connector name="in-vm">vm://0</connector>
+         </connectors>
+         <acceptors>
+            <acceptor name="netty">tcp://localhost:5545</acceptor>
+            <acceptor name="netty-throughput">tcp://localhost:5545</acceptor>
+            <acceptor name="in-vm">vm://0</acceptor>
+         </acceptors>
+         <security-settings>
+            <security-setting match="#">
+               <permission type="createNonDurableQueue" roles="guest"/>
+               <permission type="deleteNonDurableQueue" roles="guest"/>
+               <permission type="create-durable-queue" roles="guest"/>
+               <permission type="delete-durable-queue" roles="guest"/>
+               <permission type="consume" roles="guest"/>
+               <permission type="send" roles="guest"/>
+            </security-setting>
+         </security-settings>
+         <address-settings>
+            <address-setting match="#">
+               <dead-letter-address>DLQ</dead-letter-address>
+               <expiry-address>ExpiryQueue</expiry-address>
+               <redelivery-delay>0</redelivery-delay>
+               <max-size-bytes>10485760</max-size-bytes>
+               <message-counter-history-day-limit>10</message-counter-history-day-limit>
+               <address-full-policy>BLOCK</address-full-policy>
+            </address-setting>
+         </address-settings>
+      </configuration>
+      """;
 }

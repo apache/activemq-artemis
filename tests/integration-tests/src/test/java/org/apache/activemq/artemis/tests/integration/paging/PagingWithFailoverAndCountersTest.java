@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,8 +37,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +46,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   Process liveProcess;
+   Process primaryProcess;
    Process backupProcess;
 
    PagingWithFailoverServer inProcessBackup;
@@ -48,9 +54,9 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
    private static final int PORT1 = 5050;
    private static final int PORT2 = 5051;
 
-   private void startLive() throws Exception {
-      assertNull(liveProcess);
-      liveProcess = PagingWithFailoverServer.spawnVM(getTestDir(), PORT1, PORT2);
+   private void startPrimary() throws Exception {
+      assertNull(primaryProcess);
+      primaryProcess = PagingWithFailoverServer.spawnVM(getTestDir(), PORT1, PORT2);
    }
 
    private void startBackupInProcess() throws Exception {
@@ -61,9 +67,9 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
-      killLive();
+      killPrimary();
       killBackup();
       super.tearDown();
    }
@@ -89,14 +95,14 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
    }
 
-   private void killLive() {
+   private void killPrimary() {
       try {
-         if (liveProcess != null) {
-            liveProcess.destroy();
+         if (primaryProcess != null) {
+            primaryProcess.destroy();
          }
       } catch (Throwable ignored) {
       }
-      liveProcess = null;
+      primaryProcess = null;
    }
 
    class TestThread extends Thread {
@@ -246,7 +252,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
                ClientSessionFactory factory = locator.createSessionFactory();
                ClientSession session = factory.createSession();
 
-               session.createQueue(new QueueConfiguration("new-queue").setRoutingType(RoutingType.ANYCAST));
+               session.createQueue(QueueConfiguration.of("new-queue").setRoutingType(RoutingType.ANYCAST));
 
                session.start();
                ClientProducer prod = session.createProducer("new-queue");
@@ -261,7 +267,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
                e.printStackTrace();
                fail(e.getMessage());
             }
-            Queue queue2 = inProcessBackup.getServer().locateQueue(SimpleString.toSimpleString("cons2"));
+            Queue queue2 = inProcessBackup.getServer().locateQueue(SimpleString.of("cons2"));
 
             while (isRunning(1)) {
                long count = getMessageCount(queue2);
@@ -278,7 +284,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
    @Test
    public void testValidateDeliveryAndCounters() throws Exception {
-      startLive();
+      startPrimary();
 
       ServerLocator locator = SpawnedServerSupport.createLocator(PORT1).setInitialConnectAttempts(300).setReconnectAttempts(300).setRetryInterval(100);
 
@@ -286,8 +292,8 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
       ClientSession session = factory.createSession();
 
-      session.createQueue(new QueueConfiguration("DeadConsumer").setAddress("myAddress"));
-      session.createQueue(new QueueConfiguration("cons2").setAddress("myAddress"));
+      session.createQueue(QueueConfiguration.of("DeadConsumer").setAddress("myAddress"));
+      session.createQueue(QueueConfiguration.of("cons2").setAddress("myAddress"));
 
       startBackupInProcess();
 
@@ -306,8 +312,8 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
       long timeKill = System.currentTimeMillis() + 2000;
       while (System.currentTimeMillis() < timeRun) {
          i++;
-         if (System.currentTimeMillis() > timeKill && liveProcess != null) {
-            killLive();
+         if (System.currentTimeMillis() > timeKill && primaryProcess != null) {
+            killPrimary();
             monitor.start();
          }
 
@@ -325,7 +331,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
          monitor.stopTest();
       } finally {
          killBackup();
-         killLive();
+         killPrimary();
       }
 
       factory.close();
@@ -343,7 +349,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
       server.start();
 
       waitForServerToStart(server);
-      Queue queue = server.locateQueue(SimpleString.toSimpleString("cons2"));
+      Queue queue = server.locateQueue(SimpleString.of("cons2"));
 
       int messageCount = getMessageCount(queue);
 

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.MessageConsumer;
@@ -27,21 +31,20 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JMSConsumerDelayDispatchTest extends MultiprotocolJMSClientTestSupport {
 
-   private SimpleString queueName = SimpleString.toSimpleString("jms.consumer.delay.queue");
-   private SimpleString normalQueueName = SimpleString.toSimpleString("jms.normal.queue");
+   private SimpleString queueName = SimpleString.of("jms.consumer.delay.queue");
+   private SimpleString normalQueueName = SimpleString.of("jms.normal.queue");
 
    private static final long DELAY_BEFORE_DISPATCH = 2000L;
 
    @Override
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       super.createAddressAndQueues(server);
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setExclusive(true).setConsumersBeforeDispatch(2).setDelayBeforeDispatch(DELAY_BEFORE_DISPATCH));
-      server.createQueue(new QueueConfiguration(normalQueueName).setRoutingType(RoutingType.ANYCAST).setExclusive(true));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setExclusive(true).setConsumersBeforeDispatch(2).setDelayBeforeDispatch(DELAY_BEFORE_DISPATCH));
+      server.createQueue(QueueConfiguration.of(normalQueueName).setRoutingType(RoutingType.ANYCAST).setExclusive(true));
    }
 
    @Test
@@ -71,7 +74,7 @@ public class JMSConsumerDelayDispatchTest extends MultiprotocolJMSClientTestSupp
          Destination queue = session.createQueue(normalQueueName.toString());
          MessageConsumer consumer = session.createConsumer(queue);
 
-         Assert.assertNotNull(consumer.receive(1000));
+         assertNotNull(consumer.receive(1000));
       } finally {
          connection.close();
       }
@@ -104,10 +107,10 @@ public class JMSConsumerDelayDispatchTest extends MultiprotocolJMSClientTestSupp
          Destination queue = session.createQueue(queueName.toString());
          MessageConsumer consumer = session.createConsumer(queue);
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          Thread.sleep(DELAY_BEFORE_DISPATCH);
 
-         Assert.assertNotNull(consumer.receive(DELAY_BEFORE_DISPATCH));
+         assertNotNull(consumer.receive(DELAY_BEFORE_DISPATCH));
       } finally {
          connection.close();
       }
@@ -140,11 +143,11 @@ public class JMSConsumerDelayDispatchTest extends MultiprotocolJMSClientTestSupp
 
          MessageConsumer consumer1 = session.createConsumer(queue);
 
-         Assert.assertNull(consumer1.receiveNoWait());
+         assertNull(consumer1.receiveNoWait());
 
          MessageConsumer consumer2 = session.createConsumer(queue);
 
-         Assert.assertTrue(consumer1.receive(1000) != null || consumer2.receive(1000) != null);
+         assertTrue(consumer1.receive(1000) != null || consumer2.receive(1000) != null);
       } finally {
          connection.close();
       }
@@ -177,18 +180,18 @@ public class JMSConsumerDelayDispatchTest extends MultiprotocolJMSClientTestSupp
 
          MessageConsumer consumer1 = session.createConsumer(queue);
 
-         Assert.assertNull(consumer1.receiveNoWait());
+         assertNull(consumer1.receiveNoWait());
 
          MessageConsumer consumer2 = session.createConsumer(queue);
 
-         Assert.assertTrue(consumer1.receive(1000) != null || consumer2.receive(1000) != null);
+         assertTrue(consumer1.receive(1000) != null || consumer2.receive(1000) != null);
 
          consumer2.close();
 
          //Ensure that now dispatch is active, if we close a consumer, dispatching continues.
          sendMessage(queueName, supplier);
 
-         Assert.assertNotNull(consumer1.receiveNoWait());
+         assertNotNull(consumer1.receiveNoWait());
 
          //Stop all consumers, which should reset dispatch rules.
          consumer1.close();
@@ -200,11 +203,11 @@ public class JMSConsumerDelayDispatchTest extends MultiprotocolJMSClientTestSupp
 
          MessageConsumer consumer3 = session.createConsumer(queue);
 
-         Assert.assertNull(consumer3.receiveNoWait());
+         assertNull(consumer3.receiveNoWait());
 
          MessageConsumer consumer4 = session.createConsumer(queue);
 
-         Assert.assertTrue(consumer3.receive(1000) != null || consumer4.receive(1000) != null);
+         assertTrue(consumer3.receive(1000) != null || consumer4.receive(1000) != null);
 
 
          //Stop all consumers, which should reset dispatch rules.
@@ -218,11 +221,11 @@ public class JMSConsumerDelayDispatchTest extends MultiprotocolJMSClientTestSupp
 
          MessageConsumer consumer5 = session.createConsumer(queue);
 
-         Assert.assertNull(consumer5.receiveNoWait());
+         assertNull(consumer5.receiveNoWait());
 
          Thread.sleep(DELAY_BEFORE_DISPATCH);
 
-         Assert.assertNotNull(consumer5.receive(DELAY_BEFORE_DISPATCH));
+         assertNotNull(consumer5.receive(DELAY_BEFORE_DISPATCH));
 
       } finally {
          connection.close();

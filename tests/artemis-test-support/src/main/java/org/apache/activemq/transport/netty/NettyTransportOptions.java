@@ -48,21 +48,18 @@ public class NettyTransportOptions implements Cloneable {
    private String wsSubProtocol = DEFAULT_WS_SUBPROTOCOL;
 
    /**
-    * @return the currently set send buffer size in bytes.
+    * {@return the currently set send buffer size in bytes}
     */
    public int getSendBufferSize() {
       return sendBufferSize;
    }
 
    /**
-    * Sets the send buffer size in bytes, the value must be greater than zero or an
-    * {@link IllegalArgumentException} will be thrown.
+    * Sets the send buffer size in bytes, the value must be greater than zero or an {@link IllegalArgumentException}
+    * will be thrown.
     *
-    * @param sendBufferSize
-    *        the new send buffer size for the TCP Transport.
-    *
-    * @throws IllegalArgumentException
-    *         if the value given is not in the valid range.
+    * @param sendBufferSize the new send buffer size for the TCP Transport.
+    * @throws IllegalArgumentException if the value given is not in the valid range.
     */
    public void setSendBufferSize(int sendBufferSize) {
       if (sendBufferSize <= 0) {
@@ -73,21 +70,18 @@ public class NettyTransportOptions implements Cloneable {
    }
 
    /**
-    * @return the currently configured receive buffer size in bytes.
+    * {@return the currently configured receive buffer size in bytes}
     */
    public int getReceiveBufferSize() {
       return receiveBufferSize;
    }
 
    /**
-    * Sets the receive buffer size in bytes, the value must be greater than zero or an
-    * {@link IllegalArgumentException} will be thrown.
+    * Sets the receive buffer size in bytes, the value must be greater than zero or an {@link IllegalArgumentException}
+    * will be thrown.
     *
-    * @param receiveBufferSize
-    *        the new receive buffer size for the TCP Transport.
-    *
-    * @throws IllegalArgumentException
-    *         if the value given is not in the valid range.
+    * @param receiveBufferSize the new receive buffer size for the TCP Transport.
+    * @throws IllegalArgumentException if the value given is not in the valid range.
     */
    public void setReceiveBufferSize(int receiveBufferSize) {
       if (receiveBufferSize <= 0) {
@@ -98,7 +92,7 @@ public class NettyTransportOptions implements Cloneable {
    }
 
    /**
-    * @return the currently configured traffic class value.
+    * {@return the currently configured traffic class value}
     */
    public int getTrafficClass() {
       return trafficClass;
@@ -107,11 +101,8 @@ public class NettyTransportOptions implements Cloneable {
    /**
     * Sets the traffic class value used by the TCP connection, valid range is between 0 and 255.
     *
-    * @param trafficClass
-    *        the new traffic class value.
-    *
-    * @throws IllegalArgumentException
-    *         if the value given is not in the valid range.
+    * @param trafficClass the new traffic class value.
+    * @throws IllegalArgumentException if the value given is not in the valid range.
     */
    public void setTrafficClass(int trafficClass) {
       if (trafficClass < 0 || trafficClass > 255) {
@@ -170,7 +161,7 @@ public class NettyTransportOptions implements Cloneable {
    }
 
    /**
-    * @return true if the transport should enable byte tracing
+    * {@return true if the transport should enable byte tracing}
     */
    public boolean isTraceBytes() {
       return traceBytes;
@@ -179,8 +170,7 @@ public class NettyTransportOptions implements Cloneable {
    /**
     * Determines if the transport should add a logger for bytes in / out
     *
-    * @param traceBytes
-    *        should the transport log the bytes in and out.
+    * @param traceBytes should the transport log the bytes in and out.
     */
    public void setTraceBytes(boolean traceBytes) {
       this.traceBytes = traceBytes;

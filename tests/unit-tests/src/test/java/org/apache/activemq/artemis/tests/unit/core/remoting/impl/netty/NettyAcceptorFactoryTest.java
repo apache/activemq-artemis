@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
@@ -33,8 +32,9 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
 
@@ -43,11 +43,7 @@ public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
       NettyAcceptorFactory factory = new NettyAcceptorFactory();
 
       Map<String, Object> params = new HashMap<>();
-      BufferHandler handler = new BufferHandler() {
-
-         @Override
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
-         }
+      BufferHandler handler = (connectionID, buffer) -> {
       };
 
       ServerConnectionLifeCycleListener listener = new ServerConnectionLifeCycleListener() {
@@ -57,7 +53,7 @@ public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
          }
 
          @Override
-         public void connectionDestroyed(final Object connectionID) {
+         public void connectionDestroyed(final Object connectionID, boolean failed) {
          }
 
          @Override
@@ -72,8 +68,8 @@ public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
 
       };
 
-      Acceptor acceptor = factory.createAcceptor("netty", null, params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), new HashMap<String, ProtocolManager>());
+      Acceptor acceptor = factory.createAcceptor("netty", null, params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), new HashMap<>(), null, null);
 
-      Assert.assertTrue(acceptor instanceof NettyAcceptor);
+      assertInstanceOf(NettyAcceptor.class, acceptor);
    }
 }

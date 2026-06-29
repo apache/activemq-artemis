@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.uri;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.net.URI;
 
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ClusterConnectionConfigurationTest {
 
@@ -29,49 +30,49 @@ public class ClusterConnectionConfigurationTest {
    public void testClusterConnectionStatic() throws Exception {
       ClusterConnectionConfigurationParser parser = new ClusterConnectionConfigurationParser();
       ClusterConnectionConfiguration configuration = parser.newObject(new URI("static:(tcp://localhost:6556,tcp://localhost:6557)?minLargeMessageSize=132;s&messageLoadBalancingType=OFF"), null);
-      Assert.assertEquals(MessageLoadBalancingType.OFF, configuration.getMessageLoadBalancingType());
-      Assert.assertEquals(132, configuration.getMinLargeMessageSize());
-      Assert.assertEquals("tcp://localhost:6556", configuration.getCompositeMembers().getComponents()[0].toString());
-      Assert.assertEquals("tcp://localhost:6557", configuration.getCompositeMembers().getComponents()[1].toString());
+      assertEquals(MessageLoadBalancingType.OFF, configuration.getMessageLoadBalancingType());
+      assertEquals(132, configuration.getMinLargeMessageSize());
+      assertEquals("tcp://localhost:6556", configuration.getCompositeMembers().getComponents()[0].toString());
+      assertEquals("tcp://localhost:6557", configuration.getCompositeMembers().getComponents()[1].toString());
    }
 
    @Test
    public void testClusterConnectionStaticOffWithRedistribution() throws Exception {
       ClusterConnectionConfigurationParser parser = new ClusterConnectionConfigurationParser();
       ClusterConnectionConfiguration configuration = parser.newObject(new URI("static:(tcp://localhost:6556,tcp://localhost:6557)?minLargeMessageSize=132;s&messageLoadBalancingType=OFF_WITH_REDISTRIBUTION"), null);
-      Assert.assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, configuration.getMessageLoadBalancingType());
+      assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, configuration.getMessageLoadBalancingType());
    }
 
    @Test
    public void testClusterConnectionStatic2() throws Exception {
       ClusterConnectionConfigurationParser parser = new ClusterConnectionConfigurationParser();
       ClusterConnectionConfiguration configuration = parser.newObject(new URI("static://(tcp://localhost:6556,tcp://localhost:6557)?minLargeMessageSize=132;messageLoadBalancingType=OFF"), null);
-      Assert.assertEquals(132, configuration.getMinLargeMessageSize());
-      Assert.assertEquals(2, configuration.getCompositeMembers().getComponents().length);
-      Assert.assertEquals("tcp://localhost:6556", configuration.getCompositeMembers().getComponents()[0].toString());
-      Assert.assertEquals("tcp://localhost:6557", configuration.getCompositeMembers().getComponents()[1].toString());
+      assertEquals(132, configuration.getMinLargeMessageSize());
+      assertEquals(2, configuration.getCompositeMembers().getComponents().length);
+      assertEquals("tcp://localhost:6556", configuration.getCompositeMembers().getComponents()[0].toString());
+      assertEquals("tcp://localhost:6557", configuration.getCompositeMembers().getComponents()[1].toString());
    }
 
    @Test
    public void testClusterConnectionStaticOnConstrcutor() throws Exception {
       ClusterConnectionConfiguration configuration = new ClusterConnectionConfiguration(new URI("static:(tcp://localhost:6556,tcp://localhost:6557)?minLargeMessageSize=132"));
-      Assert.assertEquals(132, configuration.getMinLargeMessageSize());
-      Assert.assertEquals("tcp://localhost:6556", configuration.getCompositeMembers().getComponents()[0].toString());
-      Assert.assertEquals("tcp://localhost:6557", configuration.getCompositeMembers().getComponents()[1].toString());
+      assertEquals(132, configuration.getMinLargeMessageSize());
+      assertEquals("tcp://localhost:6556", configuration.getCompositeMembers().getComponents()[0].toString());
+      assertEquals("tcp://localhost:6557", configuration.getCompositeMembers().getComponents()[1].toString());
    }
 
    @Test
    public void testClusterConnectionMulticast() throws Exception {
       ClusterConnectionConfigurationParser parser = new ClusterConnectionConfigurationParser();
       ClusterConnectionConfiguration configuration = parser.newObject(new URI("multicast://myGroup?minLargeMessageSize=132"), null);
-      Assert.assertEquals("myGroup", configuration.getDiscoveryGroupName());
-      Assert.assertEquals(132, configuration.getMinLargeMessageSize());
+      assertEquals("myGroup", configuration.getDiscoveryGroupName());
+      assertEquals(132, configuration.getMinLargeMessageSize());
    }
 
    @Test
    public void testClusterConnectionProducerWindowSize() throws Exception {
       ClusterConnectionConfigurationParser parser = new ClusterConnectionConfigurationParser();
       ClusterConnectionConfiguration configuration = parser.newObject(new URI("static:(tcp://localhost:6556)?producerWindowSize=1234"), null);
-      Assert.assertEquals(1234, configuration.getProducerWindowSize());
+      assertEquals(1234, configuration.getProducerWindowSize());
    }
 }

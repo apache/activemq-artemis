@@ -18,6 +18,9 @@ package org.apache.activemq.artemis.core.paging;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessageListener;
@@ -34,14 +37,13 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 
 /**
- * <p>
  * The implementation will take care of details such as PageSize.
  * <p>
- * The producers will write directly to PagingStore, and the store will decide what Page file should
- * be used based on configured size.
- * </p>
+ * The producers will write directly to PagingStore, and the store will decide what Page file should be used based on
+ * configured size.
  *
  * @see PagingManager
  */
@@ -52,7 +54,7 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    long getNumberOfPages();
 
    /**
-    * Returns the page id of the current page in which the system is writing files.
+    * {@return the page id of the current page in which the system is writing files}
     */
    long getCurrentWritingPage();
 
@@ -60,7 +62,15 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    File getFolder();
 
+   default String getFolderName() {
+      return getFolder().getName();
+   }
+
    AddressFullMessagePolicy getAddressFullMessagePolicy();
+
+   default PagingStore enforceAddressFullMessagePolicy(AddressFullMessagePolicy enforcedAddressFullMessagePolicy) {
+      return this;
+   }
 
    PageFullMessagePolicy getPageFullMessagePolicy();
 
@@ -68,7 +78,9 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    Long getPageLimitBytes();
 
-   /** Callback to be used by a counter when the Page is full for that counter */
+   /**
+    * Callback to be used by a counter when the Page is full for that counter
+    */
    void pageFull(PageSubscription subscription);
 
    boolean isPageFull();
@@ -81,25 +93,33 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    long getAddressSize();
 
+   long getAddressElements();
+
    long getMaxSize();
 
    int getMaxPageReadBytes();
 
    int getMaxPageReadMessages();
 
+   int getPrefetchPageBytes();
+
+   int getPrefetchPageMessages();
+
    void applySetting(AddressSettings addressSettings);
 
-   /** This method will look if the current state of paging is not paging,
-    * without using a lock.
-    * For cases where you need absolutely atomic results, check it directly on the internal variables while requiring a readLock.
-    *
-    * It's ok to look for this with an estimate on starting a task or not, but you will need to recheck on actual paging operations. */
+   /**
+    * This method will look if the current state of paging is not paging, without using a lock. For cases where you need
+    * absolutely atomic results, check it directly on the internal variables while requiring a readLock.
+    * <p>
+    * It's ok to look for this with an estimate on starting a task or not, but you will need to recheck on actual paging
+    * operations.
+    */
    boolean isPaging();
 
    /**
-    * Schedules sync to the file storage.
-    */
-   void sync() throws Exception;
+    *  isPaging might return true for example if it's DROPPING.
+    *  This will only return true if there are files on the page system */
+   boolean isStorePaging();
 
    /**
     * Performs a real sync on the current IO file.
@@ -109,16 +129,22 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    /**
     * Write message to page if we are paging.
     *
-    * @return {@code true} if we are paging and have handled the data, {@code false} if the data
-    * needs to be sent to the journal
+    * @return {@code true} if we are paging and have handled the data, {@code false} if the data needs to be sent to the
+    * journal
     * @throws NullPointerException if {@code readLock} is null
     */
    boolean page(Message message, Transaction tx, RouteContextList listCtx) throws Exception;
 
+   int page(Message message, Transaction tx, RouteContextList listCtx, Function<Message, Message> pageDecorator, boolean useFlowControl) throws Exception;
+
    Page usePage(long page);
 
-   /** Use this method when you want to use the cache of used pages. If you are just using offline (e.g. print-data), use the newPageObject method.*/
+   /**
+    * Use this method when you want to use the cache of used pages. If you are just using offline (e.g. print-data), use
+    * the newPageObject method.
+    */
    Page usePage(long page, boolean create);
+   Page usePage(long page, boolean createEntry, boolean createFile);
 
    Page newPageObject(long page) throws Exception;
 
@@ -131,44 +157,61 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    void processReload() throws Exception;
 
    /**
-    * Remove the first page from the Writing Queue.
-    * The file will still exist until Page.delete is called,
-    * So, case the system is reloaded the same Page will be loaded back if delete is not called.
+    * Remove the first page from the Writing Queue. The file will still exist until Page.delete is called, So, case the
+    * system is reloaded the same Page will be loaded back if delete is not called.
     *
-    * @throws Exception Note: This should still be part of the interface, even though ActiveMQ Artemis only uses through the
+    * @throws Exception Note: This should still be part of the interface, even though Apache Artemis only uses through
+    *                   the
     */
    Page depage() throws Exception;
 
    Page removePage(int pageId);
 
-   void forceAnotherPage() throws Exception;
+   default void forceAnotherPage() throws Exception {
+      forceAnotherPage(false);
+   }
+
+   void forceAnotherPage(boolean useExecutor) throws Exception;
 
    Page getCurrentPage();
 
-   /** it will save snapshots on the counters */
+   /**
+    * Save snapshots on the counters
+    */
    void counterSnapshot();
 
    /**
-    * @return true if paging was started, or false if paging was already started before this call
+    * {@return true if paging was started, or false if paging was already started before this call}
     */
    boolean startPaging() throws Exception;
 
-   void stopPaging() throws Exception;
-
-   /** *
-    *
-    * @param size
-    * @param sizeOnly if false we won't increment the number of messages. (add references for example)
-    */
-   void addSize(int size, boolean sizeOnly);
-
-   default void addSize(int size) {
-      addSize(size, false);
+   default boolean startPaging(long timeout, TimeUnit unit) throws Exception {
+      return startPaging();
    }
 
-   boolean checkMemory(Runnable runnable);
+   void stopPaging() throws Exception;
 
-   boolean checkMemory(boolean runOnFailure, Runnable runnable, Runnable runWhenBlocking);
+   default void purgeFolder() {
+   }
+
+   /**
+    * Add size to this {@code PageStore}.
+    *
+    * @param sizeOnly if {@code false} we won't increment the number of messages. (add references for example)
+    */
+   void addSize(int size, boolean sizeOnly, boolean affectGlobal);
+
+   default void addSize(int size, boolean sizeOnly) {
+      addSize(size, sizeOnly, true);
+   }
+
+   default void addSize(int size) {
+      addSize(size, false, true);
+   }
+
+   boolean checkMemory(Runnable runnable, Consumer<AtomicRunnable> blockedCallback);
+
+   boolean checkMemory(boolean runOnFailure, Runnable runnable, Runnable runWhenBlocking, Consumer<AtomicRunnable> blockedCallback);
 
    boolean isFull();
 
@@ -179,23 +222,29 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     */
    boolean checkReleasedMemory();
 
+   void writeLock();
+
    /**
     * Write lock the PagingStore.
     *
-    * @param timeout milliseconds to wait for the lock. If value is {@literal -1} then wait
-    *                indefinitely.
+    * @param timeout milliseconds to wait for the lock. If value is {@literal -1} then wait indefinitely.
     * @return {@code true} if the lock was obtained, {@code false} otherwise
     */
-   boolean lock(long timeout);
+   boolean writeLock(long timeout);
 
    /**
-    * Releases locks acquired with {@link PagingStore#lock(long)}.
+    * Releases locks acquired with {@link PagingStore#writeLock(long)}.
     */
-   void unlock();
+   void writeUnlock();
+
+   void readLock();
+
+   boolean readLock(long timeout);
+
+   void readUnlock();
 
    /**
-    * This is used mostly by tests.
-    * We will wait any pending runnable to finish its execution
+    * This is used mostly by tests. We will wait any pending runnable to finish its execution
     */
    void flushExecutors();
 
@@ -207,7 +256,6 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     * Files to synchronize with a remote backup.
     *
     * @return a collection of page IDs which must be synchronized with a replicating backup
-    * @throws Exception
     */
    Collection<Integer> getCurrentIds() throws Exception;
 
@@ -215,10 +263,6 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     * Sends the pages with given IDs to the {@link ReplicationManager}.
     * <p>
     * Sending is done here to avoid exposing the internal {@link org.apache.activemq.artemis.core.io.SequentialFile}s.
-    *
-    * @param replicator
-    * @param pageIds
-    * @throws Exception
     */
    void sendPages(ReplicationManager replicator, Collection<Integer> pageIds) throws Exception;
 
@@ -240,7 +284,16 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    void unblock();
 
+   boolean isBlockedViaManagement();
+
+   default boolean hasPendingIO() {
+      return false;
+   }
+
    default StorageManager getStorageManager() {
       return null;
+   }
+
+   default void writeFlowControl(int credits) {
    }
 }

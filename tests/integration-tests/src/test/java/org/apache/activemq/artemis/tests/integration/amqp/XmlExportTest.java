@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
@@ -29,8 +31,7 @@ import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 public class XmlExportTest extends AmqpClientTestSupport {
@@ -62,15 +63,15 @@ public class XmlExportTest extends AmqpClientTestSupport {
       Document document = XmlProvider.newDocumentBuilder().
          parse(new ByteArrayInputStream(xmlOutputStream.toByteArray()));
 
-      Assert.assertNotNull(XPathFactory.newInstance().newXPath().
+      assertNotNull(XPathFactory.newInstance().newXPath().
          compile("//property[@name='" + AMQPMessageSupport.JMS_AMQP_ORIGINAL_ENCODING + "' and @value='" + AMQPMessageSupport.AMQP_VALUE_STRING + "']").
          evaluate(document, XPathConstants.NODE));
 
-      Assert.assertNotNull(XPathFactory.newInstance().newXPath().
+      assertNotNull(XPathFactory.newInstance().newXPath().
          compile("//property[@name='" + AMQPMessageSupport.JMS_AMQP_HEADER + "' and @value='true']").
          evaluate(document, XPathConstants.NODE));
 
-      Assert.assertNotNull(XPathFactory.newInstance().newXPath().
+      assertNotNull(XPathFactory.newInstance().newXPath().
          compile("//property[@name='" + AMQPMessageSupport.JMS_AMQP_HEADER_DURABLE + "' and @value='true']").
          evaluate(document, XPathConstants.NODE));
    }

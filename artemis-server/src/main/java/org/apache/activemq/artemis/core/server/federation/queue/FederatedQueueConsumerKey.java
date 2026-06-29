@@ -35,7 +35,7 @@ public class FederatedQueueConsumerKey implements FederatedConsumerKey {
       this.address = address;
       this.routingType = routingType;
       this.queueName = queueName;
-      this.fqqn  = CompositeAddress.toFullyQualified(address, queueName);
+      this.fqqn = CompositeAddress.toFullyQualified(address, queueName);
       this.filterString = filterString;
       this.queueFilterString = queueFilterString;
       this.priority = priority;
@@ -77,17 +77,21 @@ public class FederatedQueueConsumerKey implements FederatedConsumerKey {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof FederatedQueueConsumerKey)) return false;
-      FederatedQueueConsumerKey that = (FederatedQueueConsumerKey) o;
-      return priority == that.priority &&
-            Objects.equals(address, that.address) &&
-            Objects.equals(queueName, that.queueName) &&
-            routingType == that.routingType &&
-            Objects.equals(queueFilterString, that.queueFilterString) &&
-            Objects.equals(filterString, that.filterString) &&
-            Objects.equals(fqqn, that.fqqn);
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof FederatedQueueConsumerKey other)) {
+         return false;
+      }
+
+      return priority == other.priority &&
+             Objects.equals(address, other.address) &&
+             Objects.equals(queueName, other.queueName) &&
+             routingType == other.routingType &&
+             Objects.equals(queueFilterString, other.queueFilterString) &&
+             Objects.equals(filterString, other.filterString) &&
+             Objects.equals(fqqn, other.fqqn);
    }
 
    @Override

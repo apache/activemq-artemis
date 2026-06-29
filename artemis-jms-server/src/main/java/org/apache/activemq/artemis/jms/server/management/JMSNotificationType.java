@@ -27,7 +27,7 @@ public enum JMSNotificationType implements NotificationType {
    CONNECTION_FACTORY_CREATED(4),
    CONNECTION_FACTORY_DESTROYED(5);
 
-   public static final SimpleString MESSAGE = new SimpleString("message");
+   public static final SimpleString MESSAGE = SimpleString.of("message");
 
    private int type;
 

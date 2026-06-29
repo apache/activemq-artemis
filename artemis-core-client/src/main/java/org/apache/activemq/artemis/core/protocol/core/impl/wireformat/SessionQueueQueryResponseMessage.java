@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -143,31 +145,22 @@ public class SessionQueueQueryResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + consumerCount;
-      result = prime * result + (durable ? 1231 : 1237);
-      result = prime * result + (exists ? 1231 : 1237);
-      result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
-      result = prime * result + (int) (messageCount ^ (messageCount >>> 32));
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + (temporary ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), address, consumerCount, durable, exists, filterString, messageCount, name,
+                          temporary);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", address=" + address);
-      buff.append(", name=" + name);
-      buff.append(", consumerCount=" + consumerCount);
-      buff.append(", filterString=" + filterString);
-      buff.append(", durable=" + durable);
-      buff.append(", exists=" + exists);
-      buff.append(", temporary=" + temporary);
-      buff.append(", messageCount=" + messageCount);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", address=" + address);
+      sb.append(", name=" + name);
+      sb.append(", consumerCount=" + consumerCount);
+      sb.append(", filterString=" + filterString);
+      sb.append(", durable=" + durable);
+      sb.append(", exists=" + exists);
+      sb.append(", temporary=" + temporary);
+      sb.append(", messageCount=" + messageCount);
+      return sb.toString();
    }
 
    public ClientSession.QueueQuery toQueueQuery() {
@@ -176,39 +169,24 @@ public class SessionQueueQueryResponseMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionQueueQueryResponseMessage))
+      }
+      if (!(obj instanceof SessionQueueQueryResponseMessage other)) {
          return false;
-      SessionQueueQueryResponseMessage other = (SessionQueueQueryResponseMessage) obj;
-      if (address == null) {
-         if (other.address != null)
-            return false;
-      } else if (!address.equals(other.address))
-         return false;
-      if (consumerCount != other.consumerCount)
-         return false;
-      if (durable != other.durable)
-         return false;
-      if (exists != other.exists)
-         return false;
-      if (filterString == null) {
-         if (other.filterString != null)
-            return false;
-      } else if (!filterString.equals(other.filterString))
-         return false;
-      if (messageCount != other.messageCount)
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      if (temporary != other.temporary)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(address, other.address) &&
+             consumerCount == other.consumerCount &&
+             durable == other.durable &&
+             exists == other.exists &&
+             Objects.equals(filterString, other.filterString) &&
+             messageCount == other.messageCount &&
+             Objects.equals(name, other.name) &&
+             temporary == other.temporary;
    }
 
 }

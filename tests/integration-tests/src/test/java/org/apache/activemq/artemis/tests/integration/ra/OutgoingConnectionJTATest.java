@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
@@ -45,9 +49,9 @@ import org.apache.activemq.artemis.ra.ActiveMQRAConnectionManager;
 import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
 
@@ -63,7 +67,7 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addUser("testuser", "testpassword");
@@ -71,7 +75,7 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("testuser", "arole");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("guest", "arole");
-      Role role = new Role("arole", true, true, true, true, true, true, true, true, true, true);
+      Role role = new Role("arole", true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);
@@ -87,7 +91,7 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (resourceAdapter != null) {
          resourceAdapter.stop();
@@ -118,11 +122,11 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.rollback();
       textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.commit();
    }
 
@@ -153,7 +157,7 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
       try {
          s = queueConnection.createSession(false, Session.SESSION_TRANSACTED);
          if (inTx) {
-            assertEquals(s.getAcknowledgeMode(), Session.SESSION_TRANSACTED);
+            assertEquals(Session.SESSION_TRANSACTED, s.getAcknowledgeMode());
          } else {
             fail("didn't get expected exception creating session with SESSION_TRANSACTED mode ");
          }
@@ -167,7 +171,7 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
       try {
          s = queueConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
          if (inTx) {
-            assertEquals(s.getAcknowledgeMode(), Session.SESSION_TRANSACTED);
+            assertEquals(Session.SESSION_TRANSACTED, s.getAcknowledgeMode());
          } else {
             fail("didn't get expected exception creating session with CLIENT_ACKNOWLEDGE mode");
          }
@@ -223,7 +227,7 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
    }
 
    @Test

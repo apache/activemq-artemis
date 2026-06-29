@@ -34,7 +34,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 /**
- * Abstract class where we can replace the configuration in various places *
+ * Abstract class where we can replace the configuration in various places
  */
 public abstract class Configurable extends ActionAbstract {
 
@@ -52,9 +52,9 @@ public abstract class Configurable extends ActionAbstract {
 
    protected void treatError(Exception e, String group, String command) {
       logger.debug(e.getMessage(), e);
-      System.err.println();
-      System.err.println("Error:" + e.getMessage());
-      System.err.println();
+      getActionContext().err.println();
+      getActionContext().err.println("Error:" + e.getMessage());
+      getActionContext().err.println();
 
       if (!(e instanceof ActiveMQException)) {
          e.printStackTrace();
@@ -117,7 +117,7 @@ public abstract class Configurable extends ActionAbstract {
    }
 
    protected String getConfiguration() {
-      if (configuration == null || configuration.equals("")) {
+      if (configuration == null || configuration.isEmpty()) {
          File xmlFile = new File(new File(getBrokerEtc()), "bootstrap.xml");
          configuration = "xml:" + xmlFile.toURI().toString().substring("file:".length());
 

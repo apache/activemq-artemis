@@ -96,26 +96,14 @@ public class FailoverBackupLeakTest extends OpenwireArtemisBaseTest {
          buildConnection(factory);
       }
 
-      assertTrue(connectionProperties + " broker1 connection count not zero: was[" + getConnectionCount(s1) + "]", Wait.waitFor(new Wait.Condition() {
+      assertTrue(connectionProperties + " broker1 connection count not zero: was[" + getConnectionCount(s1) + "]", Wait.waitFor(() -> getConnectionCount(s1) == initCount1));
 
-         @Override
-         public boolean isSatisified() throws Exception {
-            return getConnectionCount(s1) == initCount1;
-         }
-      }));
-
-      assertTrue(connectionProperties + " broker2 connection count not zero: was[" + getConnectionCount(s2) + "]", Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisified() throws Exception {
-            return getConnectionCount(s2) == initCount2;
-         }
-      }));
+      assertTrue(connectionProperties + " broker2 connection count not zero: was[" + getConnectionCount(s2) + "]", Wait.waitFor(() -> getConnectionCount(s2) == initCount2));
    }
 
    private int getConnectionCount(EmbeddedJMS server) throws Exception {
       ManagementService managementService = server.getActiveMQServer().getManagementService();
-      ActiveMQServerControl jmsControl = (ActiveMQServerControl) managementService.getResource(ResourceNames.BROKER);
+      ActiveMQServerControl jmsControl = (ActiveMQServerControl) managementService.getServerControl();
       String[] ids = jmsControl.listConnectionIDs();
       if (ids != null) {
          return ids.length;

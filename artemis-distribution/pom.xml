@@ -18,89 +18,75 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-
    <parent>
-      <groupId>org.apache.activemq</groupId>
+      <groupId>org.apache.artemis</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>2.31.0-SNAPSHOT</version>
+      <version>2.56.0-SNAPSHOT</version>
+      <relativePath>../artemis-pom/pom.xml</relativePath>
    </parent>
 
    <artifactId>apache-artemis</artifactId>
    <packaging>pom</packaging>
-   <name>Apache ActiveMQ Artemis Distribution</name>
+   <name>Apache Artemis Distribution</name>
 
    <properties>
       <schemaLocation>${project.build.directory}/${project.artifactId}-${project.version}-bin/${project.artifactId}-${project.version}/schema</schemaLocation>
       <configLocation>src/main/resources/config</configLocation>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
 
    <dependencies>
-     <!-- ActiveMQ Artemis artifacts -->
+      <!-- Apache Artemis artifacts -->
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-boot</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-cli</artifactId>
-         <version>${project.version}</version>
       </dependency>
-     <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-jms-server</artifactId>
-        <version>${project.version}</version>
-     </dependency>
-     <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-jms-client</artifactId>
-        <version>${project.version}</version>
-     </dependency>
-     <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-ra</artifactId>
-        <version>${project.version}</version>
-     </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
+         <artifactId>artemis-jms-server</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.artemis</groupId>
+         <artifactId>artemis-jms-client</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.artemis</groupId>
+         <artifactId>artemis-ra</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-web</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>artemis-amqp-protocol</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>artemis-stomp-protocol</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>artemis-openwire-protocol</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>artemis-hornetq-protocol</artifactId>
-           <version>${project.version}</version>
-       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
+         <artifactId>artemis-amqp-protocol</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.artemis</groupId>
+         <artifactId>artemis-stomp-protocol</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.artemis</groupId>
+         <artifactId>artemis-openwire-protocol</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.artemis</groupId>
+         <artifactId>artemis-hornetq-protocol</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-mqtt-protocol</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -108,53 +94,37 @@
          <version>${activemq-artemis-native-version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-jdbc-store</artifactId>
-         <version>${project.version}</version>
       </dependency>
 
       <!-- Logging implementation -->
       <dependency>
          <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-slf4j-impl</artifactId>
+         <artifactId>log4j-slf4j2-impl</artifactId>
          <scope>runtime</scope>
       </dependency>
 
       <!-- dependencies -->
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>activemq-openwire-legacy</artifactId>
-       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-openwire-legacy</artifactId>
+      </dependency>
 
       <!-- Management Console Dependencies -->
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>artemis-console</artifactId>
-           <version>${project.version} </version>
-           <type>war</type>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>activemq-branding</artifactId>
-           <version>${project.version} </version>
-           <type>war</type>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>artemis-plugin</artifactId>
-           <version>${project.version} </version>
-           <type>war</type>
-       </dependency>
+      <dependency>
+         <groupId>org.apache.artemis</groupId>
+         <artifactId>artemis-console</artifactId>
+         <type>war</type>
+      </dependency>
       <!-- quorum -->
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-quorum-api</artifactId>
-         <version>${project.version}</version>
+         <groupId>org.apache.artemis</groupId>
+         <artifactId>artemis-lockmanager-api</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-quorum-ri</artifactId>
-         <version>${project.version}</version>
+         <groupId>org.apache.artemis</groupId>
+         <artifactId>artemis-lockmanager-ri</artifactId>
       </dependency>
 
       <!--TODO: no other modules seem to use this, is it equivalent to something else they do use ? -->
@@ -172,6 +142,32 @@
          </resource>
       </resources>
       <plugins>
+         <!-- This will unpack the console so we can add its NPMlicense to the assembly-->
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>unpack</id>
+                  <phase>process-resources</phase>
+                  <goals>
+                     <goal>unpack</goal>
+                  </goals>
+                  <configuration>
+                     <artifactItems>
+                        <artifactItem>
+                           <groupId>org.apache.artemis</groupId>
+                           <artifactId>apache-artemis-console</artifactId>
+                           <type>zip</type>
+                           <classifier>bin</classifier>
+                        </artifactItem>
+                     </artifactItems>
+                     <includes>**/*.txt</includes>
+                     <outputDirectory>${project.build.directory}/console</outputDirectory>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-deploy-plugin</artifactId>
@@ -183,7 +179,7 @@
                   <id>bin</id>
                   <configuration>
                      <descriptors>
-                       <descriptor>src/main/assembly/bin.xml</descriptor>
+                        <descriptor>src/main/assembly/bin.xml</descriptor>
                      </descriptors>
                      <tarLongFileMode>posix</tarLongFileMode>
                   </configuration>
@@ -197,7 +193,7 @@
                   <configuration>
                      <attach>false</attach>
                      <descriptors>
-                       <descriptor>src/main/assembly/dir.xml</descriptor>
+                        <descriptor>src/main/assembly/dir.xml</descriptor>
                      </descriptors>
                      <tarLongFileMode>posix</tarLongFileMode>
                   </configuration>
@@ -207,27 +203,6 @@
                   </goals>
                </execution>
             </executions>
-         </plugin>
-         <plugin>
-            <groupId>com.ruleoftech</groupId>
-            <artifactId>markdown-page-generator-plugin</artifactId>
-            <version>2.4.0</version>
-            <executions>
-               <execution>
-                  <phase>compile</phase>
-                  <goals>
-                     <goal>generate</goal>
-                  </goals>
-               </execution>
-            </executions>
-            <configuration>
-               <headerHtmlFile>${activemq.basedir}/examples/common/header.html</headerHtmlFile>
-               <footerHtmlFile>${activemq.basedir}/examples/common/footer.html</footerHtmlFile>
-               <inputDirectory>${activemq.basedir}/examples</inputDirectory>
-               <outputDirectory>${project.build.directory}/markdown-pages/examples</outputDirectory>
-               <recursiveInput>true</recursiveInput>
-               <pegdownExtensions>FENCED_CODE_BLOCKS</pegdownExtensions>
-            </configuration>
          </plugin>
       </plugins>
    </build>

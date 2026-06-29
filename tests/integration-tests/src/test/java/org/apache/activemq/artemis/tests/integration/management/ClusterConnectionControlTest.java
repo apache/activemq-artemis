@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.json.JsonArray;
 import javax.management.MBeanServer;
 import java.util.ArrayList;
@@ -44,10 +50,10 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.Wait;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ClusterConnectionControlTest extends ManagementTestBase {
 
@@ -69,34 +75,35 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
 
       ClusterConnectionControl clusterConnectionControl = createManagementControl(clusterConnectionConfig1.getName());
 
-      Assert.assertEquals(clusterConnectionConfig1.getName(), clusterConnectionControl.getName());
-      Assert.assertEquals(clusterConnectionConfig1.getAddress(), clusterConnectionControl.getAddress());
-      Assert.assertEquals(clusterConnectionConfig1.getDiscoveryGroupName(), clusterConnectionControl.getDiscoveryGroupName());
-      Assert.assertEquals(clusterConnectionConfig1.getRetryInterval(), clusterConnectionControl.getRetryInterval());
-      Assert.assertEquals(clusterConnectionConfig1.isDuplicateDetection(), clusterConnectionControl.isDuplicateDetection());
-      Assert.assertEquals(clusterConnectionConfig1.getMessageLoadBalancingType().toString(), clusterConnectionControl.getMessageLoadBalancingType());
-      Assert.assertEquals(clusterConnectionConfig1.getMaxHops(), clusterConnectionControl.getMaxHops());
-      Assert.assertEquals(0L, clusterConnectionControl.getMessagesPendingAcknowledgement());
-      Assert.assertEquals(0L, clusterConnectionControl.getMessagesAcknowledged());
+      assertEquals(clusterConnectionConfig1.getName(), clusterConnectionControl.getName());
+      assertEquals(clusterConnectionConfig1.getAddress(), clusterConnectionControl.getAddress());
+      assertEquals(clusterConnectionConfig1.getDiscoveryGroupName(), clusterConnectionControl.getDiscoveryGroupName());
+      assertEquals(clusterConnectionConfig1.getRetryInterval(), clusterConnectionControl.getRetryInterval());
+      assertEquals(clusterConnectionConfig1.isDuplicateDetection(), clusterConnectionControl.isDuplicateDetection());
+      assertEquals(clusterConnectionConfig1.getMessageLoadBalancingType().toString(), clusterConnectionControl.getMessageLoadBalancingType());
+      assertEquals(clusterConnectionConfig1.getMaxHops(), clusterConnectionControl.getMaxHops());
+      assertEquals(clusterConnectionConfig1.getProducerWindowSize(), clusterConnectionControl.getProducerWindowSize());
+      assertEquals(0L, clusterConnectionControl.getMessagesPendingAcknowledgement());
+      assertEquals(0L, clusterConnectionControl.getMessagesAcknowledged());
       Map<String, Object> clusterMetrics = clusterConnectionControl.getMetrics();
-      Assert.assertEquals(0L, clusterMetrics.get(ClusterConnectionMetrics.MESSAGES_PENDING_ACKNOWLEDGEMENT_KEY));
-      Assert.assertEquals(0L, clusterMetrics.get(ClusterConnectionMetrics.MESSAGES_ACKNOWLEDGED_KEY));
-      Assert.assertNull(clusterConnectionControl.getBridgeMetrics("bad"));
+      assertEquals(0L, clusterMetrics.get(ClusterConnectionMetrics.MESSAGES_PENDING_ACKNOWLEDGEMENT_KEY));
+      assertEquals(0L, clusterMetrics.get(ClusterConnectionMetrics.MESSAGES_ACKNOWLEDGED_KEY));
+      assertNull(clusterConnectionControl.getBridgeMetrics("bad"));
 
       Object[] connectors = clusterConnectionControl.getStaticConnectors();
-      Assert.assertEquals(1, connectors.length);
+      assertEquals(1, connectors.length);
       String connector = (String) connectors[0];
-      Assert.assertEquals(clusterConnectionConfig1.getStaticConnectors().get(0), connector);
+      assertEquals(clusterConnectionConfig1.getStaticConnectors().get(0), connector);
 
       String jsonString = clusterConnectionControl.getStaticConnectorsAsJSON();
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(1, array.size());
-      Assert.assertEquals(clusterConnectionConfig1.getStaticConnectors().get(0), array.getString(0));
+      assertEquals(1, array.size());
+      assertEquals(clusterConnectionConfig1.getStaticConnectors().get(0), array.getString(0));
 
-      Assert.assertNull(clusterConnectionControl.getDiscoveryGroupName());
+      assertNull(clusterConnectionControl.getDiscoveryGroupName());
 
-      Assert.assertTrue(clusterConnectionControl.isStarted());
+      assertTrue(clusterConnectionControl.isStarted());
    }
 
    @Test
@@ -105,21 +112,22 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
 
       ClusterConnectionControl clusterConnectionControl = createManagementControl(clusterConnectionConfig2.getName());
 
-      Assert.assertEquals(clusterConnectionConfig2.getName(), clusterConnectionControl.getName());
-      Assert.assertEquals(clusterConnectionConfig2.getAddress(), clusterConnectionControl.getAddress());
-      Assert.assertEquals(clusterConnectionConfig2.getDiscoveryGroupName(), clusterConnectionControl.getDiscoveryGroupName());
-      Assert.assertEquals(clusterConnectionConfig2.getRetryInterval(), clusterConnectionControl.getRetryInterval());
-      Assert.assertEquals(clusterConnectionConfig2.isDuplicateDetection(), clusterConnectionControl.isDuplicateDetection());
-      Assert.assertEquals(clusterConnectionConfig2.getMessageLoadBalancingType().toString(), clusterConnectionControl.getMessageLoadBalancingType());
-      Assert.assertEquals(clusterConnectionConfig2.getMaxHops(), clusterConnectionControl.getMaxHops());
+      assertEquals(clusterConnectionConfig2.getName(), clusterConnectionControl.getName());
+      assertEquals(clusterConnectionConfig2.getAddress(), clusterConnectionControl.getAddress());
+      assertEquals(clusterConnectionConfig2.getDiscoveryGroupName(), clusterConnectionControl.getDiscoveryGroupName());
+      assertEquals(clusterConnectionConfig2.getRetryInterval(), clusterConnectionControl.getRetryInterval());
+      assertEquals(clusterConnectionConfig2.isDuplicateDetection(), clusterConnectionControl.isDuplicateDetection());
+      assertEquals(clusterConnectionConfig2.getMessageLoadBalancingType().toString(), clusterConnectionControl.getMessageLoadBalancingType());
+      assertEquals(clusterConnectionConfig2.getMaxHops(), clusterConnectionControl.getMaxHops());
+      assertEquals(clusterConnectionConfig2.getProducerWindowSize(), clusterConnectionControl.getProducerWindowSize());
 
       Object[] connectorPairs = clusterConnectionControl.getStaticConnectors();
-      Assert.assertEquals(0, connectorPairs.length);
+      assertEquals(0, connectorPairs.length);
 
       String jsonPairs = clusterConnectionControl.getStaticConnectorsAsJSON();
-      Assert.assertEquals("[]", jsonPairs);
+      assertEquals("[]", jsonPairs);
 
-      Assert.assertEquals(clusterConnectionConfig2.getDiscoveryGroupName(), clusterConnectionControl.getDiscoveryGroupName());
+      assertEquals(clusterConnectionConfig2.getDiscoveryGroupName(), clusterConnectionControl.getDiscoveryGroupName());
    }
 
    @Test
@@ -128,13 +136,13 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
       ClusterConnectionControl clusterConnectionControl = createManagementControl(clusterConnectionConfig1.getName());
 
       // started by the server
-      Assert.assertTrue(clusterConnectionControl.isStarted());
+      assertTrue(clusterConnectionControl.isStarted());
 
       clusterConnectionControl.stop();
-      Assert.assertFalse(clusterConnectionControl.isStarted());
+      assertFalse(clusterConnectionControl.isStarted());
 
       clusterConnectionControl.start();
-      Assert.assertTrue(clusterConnectionControl.isStarted());
+      assertTrue(clusterConnectionControl.isStarted());
    }
 
    @Test
@@ -144,64 +152,44 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
       ClusterConnectionControl clusterConnectionControl = createManagementControl(clusterConnectionConfig1.getName());
 
       server_0.getManagementService().addNotificationListener(notifListener);
-
-      Assert.assertEquals(0, notifListener.getNotifications().size());
-
+      assertEquals(0, notifListener.count(CoreNotificationType.CLUSTER_CONNECTION_STOPPED));
       clusterConnectionControl.stop();
-
-      Assert.assertTrue(notifListener.getNotifications().size() > 0);
-      Notification notif = getFirstNotificationOfType(notifListener.getNotifications(), CoreNotificationType.CLUSTER_CONNECTION_STOPPED);
-      Assert.assertNotNull(notif);
-      Assert.assertEquals(clusterConnectionControl.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      Wait.assertEquals(1, () -> notifListener.count(CoreNotificationType.CLUSTER_CONNECTION_STOPPED), 5000, 100);
+      Notification notif = notifListener.findAny(CoreNotificationType.CLUSTER_CONNECTION_STOPPED);
+      assertNotNull(notif);
+      assertEquals(clusterConnectionControl.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
 
       clusterConnectionControl.start();
 
-      Assert.assertTrue(notifListener.getNotifications().size() > 0);
-      notif = getFirstNotificationOfType(notifListener.getNotifications(), CoreNotificationType.CLUSTER_CONNECTION_STARTED);
-      Assert.assertNotNull(notif);
-      Assert.assertEquals(clusterConnectionControl.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      Wait.assertTrue(() -> notifListener.size() > 0, 5000, 100);
+      notif = notifListener.findAny(CoreNotificationType.CLUSTER_CONNECTION_STARTED);
+      assertNotNull(notif);
+      assertEquals(clusterConnectionControl.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
    }
-
-   private Notification getFirstNotificationOfType(List<Notification> notifications, CoreNotificationType type) {
-      Notification result = null;
-
-      // the notifications can change while we're looping
-      List<Notification> notificationsClone = new ArrayList<>(notifications);
-
-      for (Notification notification : notificationsClone) {
-         if (notification.getType().equals(type)) {
-            result = notification;
-         }
-      }
-
-      return result;
-   }
-
-
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
       Map<String, Object> acceptorParams = new HashMap<>();
       acceptorParams.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
-      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), acceptorParams, RandomUtil.randomString());
+      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), acceptorParams, RandomUtil.randomUUIDString());
 
-      TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName(), acceptorParams, RandomUtil.randomString());
+      TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName(), acceptorParams, RandomUtil.randomUUIDString());
 
-      QueueConfiguration queueConfig = new QueueConfiguration(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration queueConfig = QueueConfiguration.of(RandomUtil.randomUUIDString()).setDurable(false);
       List<String> connectors = new ArrayList<>();
       connectors.add(connectorConfig.getName());
 
-      String discoveryGroupName = RandomUtil.randomString();
+      String discoveryGroupName = RandomUtil.randomUUIDString();
       DiscoveryGroupConfiguration discoveryGroupConfig = new DiscoveryGroupConfiguration().setName(discoveryGroupName).setRefreshTimeout(500).setDiscoveryInitialWaitTimeout(0).setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress(getUDPDiscoveryAddress()).setGroupPort(getUDPDiscoveryPort()));
 
       Configuration conf_1 = createBasicConfig().addAcceptorConfiguration(acceptorConfig).addQueueConfiguration(queueConfig);
 
-      clusterConnectionConfig1 = new ClusterConnectionConfiguration().setName(RandomUtil.randomString()).setAddress(queueConfig.getAddress().toString()).setConnectorName(connectorConfig.getName()).setRetryInterval(RandomUtil.randomPositiveLong()).setDuplicateDetection(RandomUtil.randomBoolean()).setMessageLoadBalancingType(MessageLoadBalancingType.STRICT).setMaxHops(RandomUtil.randomPositiveInt()).setConfirmationWindowSize(RandomUtil.randomPositiveInt()).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(connectors).setCallTimeout(500).setCallFailoverTimeout(500);
+      clusterConnectionConfig1 = new ClusterConnectionConfiguration().setName(RandomUtil.randomUUIDString()).setAddress(queueConfig.getAddress().toString()).setConnectorName(connectorConfig.getName()).setRetryInterval(RandomUtil.randomPositiveLong()).setDuplicateDetection(RandomUtil.randomBoolean()).setMessageLoadBalancingType(MessageLoadBalancingType.STRICT).setMaxHops(RandomUtil.randomPositiveInt()).setConfirmationWindowSize(RandomUtil.randomPositiveInt()).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(connectors).setCallTimeout(500).setCallFailoverTimeout(500).setProducerWindowSize(1234);
 
-      clusterConnectionConfig2 = new ClusterConnectionConfiguration().setName(RandomUtil.randomString()).setAddress(queueConfig.getAddress().toString()).setConnectorName(connectorConfig.getName()).setRetryInterval(RandomUtil.randomPositiveLong()).setDuplicateDetection(RandomUtil.randomBoolean()).setMessageLoadBalancingType(MessageLoadBalancingType.OFF).setMaxHops(RandomUtil.randomPositiveInt()).setConfirmationWindowSize(RandomUtil.randomPositiveInt()).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setDiscoveryGroupName(discoveryGroupName).setCallTimeout(500).setCallFailoverTimeout(500);
+      clusterConnectionConfig2 = new ClusterConnectionConfiguration().setName(RandomUtil.randomUUIDString()).setAddress(queueConfig.getAddress().toString()).setConnectorName(connectorConfig.getName()).setRetryInterval(RandomUtil.randomPositiveLong()).setDuplicateDetection(RandomUtil.randomBoolean()).setMessageLoadBalancingType(MessageLoadBalancingType.OFF).setMaxHops(RandomUtil.randomPositiveInt()).setConfirmationWindowSize(RandomUtil.randomPositiveInt()).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setDiscoveryGroupName(discoveryGroupName).setCallTimeout(500).setCallFailoverTimeout(500).setProducerWindowSize(1234);
 
       Configuration conf_0 = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName())).addConnectorConfiguration(connectorConfig.getName(), connectorConfig).addClusterConfiguration(clusterConnectionConfig1).addClusterConfiguration(clusterConnectionConfig2).addDiscoveryGroupConfiguration(discoveryGroupName, discoveryGroupConfig);
 
@@ -214,7 +202,7 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
    }

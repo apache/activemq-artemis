@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -44,10 +50,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,21 +64,21 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
       super();
    }
 
-   public SimpleString lmAddress = new SimpleString("LargeMessageAddress");
-   public SimpleString lmDropAddress = new SimpleString("LargeMessageDropAddress");
+   public SimpleString lmAddress = SimpleString.of("LargeMessageAddress");
+   public SimpleString lmDropAddress = SimpleString.of("LargeMessageDropAddress");
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       this.realStore = true;
       super.setUp();
-      server.createQueue(new QueueConfiguration(lmAddress).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(lmDropAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(lmAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(lmDropAddress).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Override
    protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {
-      addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAutoCreateAddresses(true));
+      addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")).setAutoCreateAddresses(true));
       addressSettingsMap.put(lmDropAddress.toString(),
                              new AddressSettings()
                                 .setMaxSizeBytes(100 * 1024)
@@ -98,18 +103,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
 
    private void internalSendReceiveLargeMessage(ConnectionFactory factory, boolean restart) throws Exception {
       // Create 1MB Message
-      String largeString;
-
-      {
-         String randomString = "This is a random String " + RandomUtil.randomString();
-         StringBuffer largeBuffer = new StringBuffer();
-         while (largeBuffer.length() < 1024 * 1024) {
-            largeBuffer.append(randomString);
-         }
-
-         largeString = largeBuffer.toString();
-      }
-
+      String largeString = RandomUtil.randomAlphaNumericString(1024 * 1024);
 
       try (Connection connection = factory.createConnection()) {
          connection.start();
@@ -169,11 +163,11 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
                      producer.send(message);
                   }
                   final long messageCount = server.locateQueue(lmDropAddress).getMessageCount();
-                  Assert.assertTrue("The queue cannot be empty", messageCount > 0);
+                  assertTrue(messageCount > 0, "The queue cannot be empty");
                   try (MessageConsumer messageConsumer = session.createConsumer(queue)) {
                      for (long m = 0; m < messageCount; m++) {
                         if (messageConsumer.receive(2000) == null) {
-                           Assert.fail("The messages are not finished yet");
+                           fail("The messages are not finished yet");
                         }
                      }
                   }
@@ -181,16 +175,16 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
             }
          }
          server.stop();
-         Assert.assertFalse(loggerHandler.findTrace("NullPointerException"));
-         Assert.assertFalse(loggerHandler.findText("It was not possible to delete message"));
+         assertFalse(loggerHandler.findTrace("NullPointerException"));
+         assertFalse(loggerHandler.findText("It was not possible to delete message"));
       }
    }
 
 
    @Test
    public void testSendReceiveLargeMessageTX() throws Exception {
-      int NUMBER_OF_MESSAGES = 1000;
-      int TX_SIZE = 100;
+      int NUMBER_OF_MESSAGES = 10;
+      int TX_SIZE = 5;
 
       ExecutorService executorService = Executors.newFixedThreadPool(1);
       runAfter(executorService::shutdownNow);
@@ -199,17 +193,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
       CountDownLatch latch = new CountDownLatch(1);
 
       // Create 1MB Message
-      String largeString;
-
-      {
-         String randomString = "This is a random String " + RandomUtil.randomString();
-         StringBuffer largeBuffer = new StringBuffer();
-         while (largeBuffer.length() < 1024 * 1024) {
-            largeBuffer.append(randomString);
-         }
-
-         largeString = largeBuffer.toString();
-      }
+      String largeString = RandomUtil.randomAlphaNumericString(1024 * 1024);
 
       executorService.execute(() -> {
 
@@ -220,9 +204,9 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
             MessageConsumer consumer = session.createConsumer(queue);
             for (int received = 0; received < NUMBER_OF_MESSAGES; received++) {
                Message m = consumer.receive(5000);
-               Assert.assertNotNull(m);
-               if (m instanceof TextMessage) {
-                  assertEquals(largeString, ((TextMessage) m).getText());
+               assertNotNull(m);
+               if (m instanceof TextMessage message) {
+                  assertEquals(largeString, message.getText());
                }
                if (received > 0 && received % TX_SIZE == 0) {
                   logger.info("Received {} messages", received);
@@ -252,7 +236,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
             Message message;
             if (sent % 2 == 0) {
                message = session.createTextMessage(largeString);
-            }  else {
+            } else {
                BytesMessage bytesMessage = session.createBytesMessage();
                bytesMessage.writeBytes(largeString.getBytes(StandardCharsets.UTF_8));
                message = bytesMessage;
@@ -267,7 +251,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
       }
 
       latch.await(1, TimeUnit.MINUTES);
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
 

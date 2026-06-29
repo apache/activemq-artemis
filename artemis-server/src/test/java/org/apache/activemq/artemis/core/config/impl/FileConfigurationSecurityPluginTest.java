@@ -16,33 +16,23 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class FileConfigurationSecurityPluginTest extends ConfigurationImplTest {
-
+public class FileConfigurationSecurityPluginTest extends AbstractConfigurationTestBase {
 
    protected String getConfigurationName() {
       return "ConfigurationTest-security-plugin-config.xml";
-   }
-
-   @Override
-   @Test
-   public void testDefaults() {
-      List<SecuritySettingPlugin> securitySettingPlugins = conf.getSecuritySettingPlugins();
-      Assert.assertEquals(1, securitySettingPlugins.size());
-      Assert.assertEquals("secret", MyPlugin.options.get("setting1"));
-      Assert.assertEquals("hello", MyPlugin.options.get("setting2"));
    }
 
    @Override
@@ -54,6 +44,35 @@ public class FileConfigurationSecurityPluginTest extends ConfigurationImplTest {
       return fc;
    }
 
+   @Test
+   public void testDefaults() {
+      List<SecuritySettingPlugin> securitySettingPlugins = conf.getSecuritySettingPlugins();
+      assertEquals(1, securitySettingPlugins.size());
+      assertEquals("secret", MyPlugin.options.get("setting1"));
+      assertEquals("hello", MyPlugin.options.get("setting2"));
+   }
+
+   @Test
+   public void testSetGetAttributes() throws Exception {
+      doSetGetAttributesTestImpl(conf);
+   }
+
+   @Test
+   public void testGetSetInterceptors() {
+      doGetSetInterceptorsTestImpl(conf);
+   }
+
+   @Test
+   public void testSerialize() throws Exception {
+      doSerializeTestImpl(conf);
+   }
+
+   @Test
+   public void testSetConnectionRoutersPolicyConfiguration() throws Throwable {
+      doSetConnectionRoutersPolicyConfigurationTestImpl((ConfigurationImpl) conf);
+   }
+
+   // Referenced by the configuration file
    public static class MyPlugin implements SecuritySettingPlugin {
 
       private static Map<String, String> options;

@@ -29,35 +29,41 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(Parameterized.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@ExtendWith(ParameterizedTestExtension.class)
 public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "routingType={0}")
+   @Parameters(name = "routingType={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
          {RoutingType.ANYCAST}, {RoutingType.MULTICAST}
       });
    }
 
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public RoutingType routingType;
 
    @Override
@@ -81,7 +87,7 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
       Configuration serverConfig = server.getConfiguration();
       serverConfig.setJournalType(JournalType.NIO);
       Map<String, AddressSettings> map = serverConfig.getAddressSettings();
-      if (map.size() == 0) {
+      if (map.isEmpty()) {
          AddressSettings as = new AddressSettings();
          map.put("#", as);
       }
@@ -93,7 +99,8 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
       logger.info("server config, default address routing type? {}", entry.getValue().getDefaultAddressRoutingType());
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testReattachToDurableNodeAndTryAndReceiveNewlySentMessage() throws Exception {
       final String addressName = "test-address";
       final String prefixedName = MULTICAST_PREFIX + addressName;
@@ -109,7 +116,7 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
 
       receiver.detach();
 
-      AddressQueryResult address = getProxyToAddress(addressName);
+      AddressInfo address = getProxyToAddress(addressName);
 
       assertNotNull(address);
       assertEquals(Set.of(RoutingType.MULTICAST), address.getRoutingTypes());
@@ -140,7 +147,8 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testReattachToDurableNodeAndTryAndReceivePreviouslySentMessage() throws Exception {
       final String addressName = "test-address";
       final String prefixedName = MULTICAST_PREFIX + addressName;
@@ -157,7 +165,7 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
 
       receiver.detach();
 
-      AddressQueryResult address = getProxyToAddress(addressName);
+      AddressInfo address = getProxyToAddress(addressName);
 
       assertNotNull(address);
       assertEquals(Set.of(RoutingType.MULTICAST), address.getRoutingTypes());
@@ -196,15 +204,11 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
    }
 
    private Queue lookupSubscriptionQueue() {
-      Binding binding = server.getPostOffice().getBinding(new SimpleString(getContainerID() + "." + getSubscriptionName()));
-      if (binding != null && binding instanceof LocalQueueBinding) {
-         return ((LocalQueueBinding) binding).getQueue();
+      Binding binding = server.getPostOffice().getBinding(SimpleString.of(getContainerID() + "." + getSubscriptionName()));
+      if (binding instanceof LocalQueueBinding localQueueBinding) {
+         return localQueueBinding.getQueue();
       }
 
       throw new AssertionError("Should have found an existing queue binding for the durable subscription");
-   }
-
-   private AddressQueryResult getProxyToAddress(String addressName) throws Exception {
-      return server.addressQuery(SimpleString.toSimpleString(addressName));
    }
 }

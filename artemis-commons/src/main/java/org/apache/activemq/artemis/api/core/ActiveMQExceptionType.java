@@ -283,7 +283,7 @@ public enum ActiveMQExceptionType {
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;
 
    static {
-      HashMap<Integer, ActiveMQExceptionType> map = new HashMap<>();
+      Map<Integer, ActiveMQExceptionType> map = new HashMap<>();
       for (ActiveMQExceptionType type : EnumSet.allOf(ActiveMQExceptionType.class)) {
          map.put(type.getCode(), type);
       }
@@ -310,8 +310,9 @@ public enum ActiveMQExceptionType {
 
    public static ActiveMQExceptionType getType(int code) {
       ActiveMQExceptionType type = TYPE_MAP.get(code);
-      if (type != null)
+      if (type != null) {
          return type;
+      }
       return ActiveMQExceptionType.GENERIC_EXCEPTION;
    }
 }

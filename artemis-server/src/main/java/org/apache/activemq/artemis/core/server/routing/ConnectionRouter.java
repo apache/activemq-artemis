@@ -29,11 +29,13 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 
 public class ConnectionRouter implements ActiveMQComponent {
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String CLIENT_ID_PREFIX = ActiveMQDefaultConfiguration.DEFAULT_INTERNAL_NAMING_PREFIX + "router.client.";
 
@@ -53,7 +55,9 @@ public class ConnectionRouter implements ActiveMQComponent {
 
    private final Cache cache;
 
-   private volatile boolean started = false;
+   private volatile boolean started;
+
+   private final ReentrantReadWriteLock stateLock = new ReentrantReadWriteLock();
 
    public String getName() {
       return name;
@@ -72,6 +76,8 @@ public class ConnectionRouter implements ActiveMQComponent {
    }
 
    public String getLocalTargetFilter() {
+      final Pattern localTargetFilter = this.localTargetFilter;
+
       return localTargetFilter != null ? localTargetFilter.pattern() : null;
    }
 
@@ -100,7 +106,6 @@ public class ConnectionRouter implements ActiveMQComponent {
       return started;
    }
 
-
    public ConnectionRouter(final String name,
                            final KeyType keyType,
                            final String targetKeyFilter,
@@ -128,108 +133,138 @@ public class ConnectionRouter implements ActiveMQComponent {
 
    @Override
    public void start() throws Exception {
-      if (localTarget != null) {
-         localTarget.getTarget().connect();
-      }
+      stateLock.writeLock().lock();
+      try {
+         if (localTarget != null) {
+            localTarget.getTarget().connect();
+         }
 
-      if (cache != null) {
-         cache.start();
-      }
+         if (cache != null) {
+            cache.start();
+         }
 
-      if (pool != null) {
-         pool.start();
-      }
+         if (pool != null) {
+            pool.start();
+         }
 
-      started = true;
+         started = true;
+      } finally {
+         stateLock.writeLock().unlock();
+      }
    }
 
    @Override
    public void stop() throws Exception {
-      started = false;
+      stateLock.writeLock().lock();
+      try {
+         started = false;
 
-      if (pool != null) {
-         pool.stop();
-      }
+         if (pool != null) {
+            pool.stop();
+         }
 
-      if (cache != null) {
-         cache.stop();
-      }
+         if (cache != null) {
+            cache.stop();
+         }
 
-      if (localTarget != null) {
-         localTarget.getTarget().disconnect();
+         if (localTarget != null) {
+            localTarget.getTarget().disconnect();
+         }
+      } finally {
+         stateLock.writeLock().unlock();
       }
    }
 
    public TargetResult getTarget(Connection connection, String clientID, String username) {
-      if (clientID != null && clientID.startsWith(ConnectionRouter.CLIENT_ID_PREFIX)) {
-         logger.debug("The clientID [{}] starts with ConnectionRouter.CLIENT_ID_PREFIX", clientID);
+      stateLock.readLock().lock();
+      try {
+         if (!started) {
+            return TargetResult.REFUSED_UNAVAILABLE_RESULT;
+         }
 
-         return localTarget;
+         if (clientID != null && clientID.startsWith(ConnectionRouter.CLIENT_ID_PREFIX)) {
+            logger.debug("The clientID [{}] starts with ConnectionRouter.CLIENT_ID_PREFIX", clientID);
+
+            return localTarget;
+         }
+
+         return getTarget(keyResolver.resolve(connection, clientID, username));
+      } finally {
+         stateLock.readLock().unlock();
       }
-
-      return getTarget(keyResolver.resolve(connection, clientID, username));
    }
 
    public TargetResult getTarget(String key) {
-      if (policy != null && !KeyResolver.NULL_KEY_VALUE.equals(key)) {
-         key = policy.transformKey(key);
-      }
-
-      if (this.localTargetFilter != null && this.localTargetFilter.matcher(key).matches()) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("The {}[{}] matches the localTargetFilter {}", keyType, key, localTargetFilter.pattern());
+      stateLock.readLock().lock();
+      try {
+         if (!started) {
+            return TargetResult.REFUSED_UNAVAILABLE_RESULT;
          }
 
-         return localTarget;
-      }
-
-      if (policy == null || pool == null) {
-         return TargetResult.REFUSED_USE_ANOTHER_RESULT;
-      }
-
-      TargetResult result = null;
-
-      if (cache != null) {
-         final String nodeId = cache.get(key);
-
-         if (logger.isDebugEnabled()) {
-            logger.debug("The cache returns target [{}] for {}[{}]", nodeId, keyType, key);
+         if (policy != null && !KeyResolver.NULL_KEY_VALUE.equals(key)) {
+            key = policy.transformKey(key);
          }
 
-         if (nodeId != null) {
-            Target target = pool.getReadyTarget(nodeId);
-            if (target != null) {
-               if (logger.isDebugEnabled()) {
-                  logger.debug("The target [{}] is ready for {}[{}]", nodeId, keyType, key);
+         final Pattern localTargetFilter = this.localTargetFilter;
+
+         if (localTargetFilter != null && localTargetFilter.matcher(key).matches()) {
+            if (logger.isDebugEnabled()) {
+               logger.debug("The {}[{}] matches the localTargetFilter {}", keyType, key, localTargetFilter.pattern());
+            }
+
+            return localTarget;
+         }
+
+         if (policy == null || pool == null) {
+            return TargetResult.REFUSED_USE_ANOTHER_RESULT;
+         }
+
+         TargetResult result = null;
+
+         if (cache != null) {
+            final String nodeId = cache.get(key);
+
+            if (logger.isDebugEnabled()) {
+               logger.debug("The cache returns target [{}] for {}[{}]", nodeId, keyType, key);
+            }
+
+            if (nodeId != null) {
+               Target target = pool.getReadyTarget(nodeId);
+               if (target != null) {
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("The target [{}] is ready for {}[{}]", nodeId, keyType, key);
+                  }
+
+                  return new TargetResult(target);
                }
 
-               return new TargetResult(target);
-            }
-
-            if (logger.isDebugEnabled()) {
-               logger.debug("The target [{}] is not ready for {}[{}]", nodeId, keyType, key);
+               if (logger.isDebugEnabled()) {
+                  logger.debug("The target [{}] is not ready for {}[{}]", nodeId, keyType, key);
+               }
             }
          }
-      }
 
-      final List<Target> targets = pool.getTargets();
-      final Target target = policy.selectTarget(targets, key);
+         final List<Target> targets = pool.getTargets();
+         final Target target = policy.selectTarget(targets, key);
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("The policy selects [{}] from {} for {}[{}]", target, targets, keyType, key);
-      }
-
-      if (target != null) {
-         result = new TargetResult(target);
-         if (cache != null) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("Caching {}[{}] for [{}]", keyType, key, target);
-            }
-
-            cache.put(key, target.getNodeID());
+         if (logger.isDebugEnabled()) {
+            logger.debug("The policy selects [{}] from {} for {}[{}]", target, targets, keyType, key);
          }
-      }
 
-      return result != null ? result : TargetResult.REFUSED_UNAVAILABLE_RESULT;
+         if (target != null) {
+            result = new TargetResult(target);
+            if (cache != null) {
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Caching {}[{}] for [{}]", keyType, key, target);
+               }
+
+               cache.put(key, target.getNodeID());
+            }
+         }
+
+         return Objects.requireNonNullElse(result, TargetResult.REFUSED_UNAVAILABLE_RESULT);
+      } finally {
+         stateLock.readLock().unlock();
+      }
    }
 }

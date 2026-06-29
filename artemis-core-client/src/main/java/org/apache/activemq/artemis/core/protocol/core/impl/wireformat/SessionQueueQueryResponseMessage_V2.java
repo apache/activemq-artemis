@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -85,17 +87,14 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (autoCreateQueues ? 1231 : 1237);
-      return result;
+      return super.hashCode() + Objects.hashCode(autoCreateQueues);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", autoCreationEnabled=" + autoCreateQueues);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", autoCreationEnabled=" + autoCreateQueues);
+      return sb.toString();
    }
 
    @Override
@@ -105,15 +104,16 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionQueueQueryResponseMessage_V2))
+      }
+      if (!(obj instanceof SessionQueueQueryResponseMessage_V2 other)) {
          return false;
-      SessionQueueQueryResponseMessage_V2 other = (SessionQueueQueryResponseMessage_V2) obj;
-      if (autoCreateQueues != other.autoCreateQueues)
-         return false;
-      return true;
+      }
+
+      return autoCreateQueues == other.autoCreateQueues;
    }
 }

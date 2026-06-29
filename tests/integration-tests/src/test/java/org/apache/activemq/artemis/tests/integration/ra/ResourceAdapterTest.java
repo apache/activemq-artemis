@@ -33,8 +33,6 @@ import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.api.core.management.AddressControl;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -49,7 +47,14 @@ import org.apache.activemq.artemis.tests.unit.ra.BootstrapContext;
 import org.apache.activemq.artemis.tests.unit.ra.MessageEndpointFactory;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ResourceAdapterTest extends ActiveMQRATestBase {
 
@@ -59,7 +64,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
       ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
-      session.createQueue(new QueueConfiguration(queue.getSimpleAddress()));
+      session.createQueue(QueueConfiguration.of(queue.getSimpleAddress()));
       session.close();
 
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
@@ -110,8 +115,8 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testQueuePrefixWhenUseJndiIsFalse() throws Exception {
       final String prefix = "jms.queue.";
       final String destinationName = "test";
-      final SimpleString prefixedDestinationName = SimpleString.toSimpleString(prefix + destinationName);
-      server.createQueue(new QueueConfiguration(prefixedDestinationName).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      final SimpleString prefixedDestinationName = SimpleString.of(prefix + destinationName);
+      server.createQueue(QueueConfiguration.of(prefixedDestinationName).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ra.start(new BootstrapContext());
@@ -140,7 +145,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testAutoCreateQueuePrefixWhenUseJndiIsFalse() throws Exception {
       final String prefix = "jms.queue.";
       final String destinationName = "autocreatedtest";
-      final SimpleString prefixedDestinationName = SimpleString.toSimpleString(prefix + destinationName);
+      final SimpleString prefixedDestinationName = SimpleString.of(prefix + destinationName);
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ra.start(new BootstrapContext());
@@ -169,7 +174,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testTopicPrefixWhenUseJndiIsFalse() throws Exception {
       final String prefix = "jms.topic.";
       final String destinationName = "test";
-      final SimpleString prefixedDestinationName = SimpleString.toSimpleString(prefix + destinationName);
+      final String prefixedDestinationName = prefix + destinationName;
       server.addAddressInfo(new AddressInfo(prefixedDestinationName).addRoutingType(RoutingType.MULTICAST));
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
@@ -190,7 +195,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
 
       activation.start();
 
-      assertEquals(1, ((AddressControl)server.getManagementService().getResource(ResourceNames.ADDRESS + prefixedDestinationName)).getQueueNames().length);
+      assertEquals(1, (server.getManagementService().getAddressControl(prefixedDestinationName)).getQueueNames().length);
 
       activation.stop();
    }
@@ -365,7 +370,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       assertEquals(qResourceAdapter.getUserName(), testuser);
    }
 
-   // https://issues.jboss.org/browse/JBPAPP-5790
    @Test
    public void testResourceAdapterSetup() throws Exception {
       ActiveMQResourceAdapter adapter = new ActiveMQResourceAdapter();
@@ -418,7 +422,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
 
    }
 
-   // https://issues.jboss.org/browse/JBPAPP-5836
    @Test
    public void testResourceAdapterSetupOverrideCFParams() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
@@ -512,10 +515,10 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQConnectionFactory fac = qResourceAdapter.getConnectionFactory(spec);
       DiscoveryGroupConfiguration dc = fac.getServerLocator().getDiscoveryGroupConfiguration();
       UDPBroadcastEndpointFactory udpDg = (UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory();
-      assertEquals(udpDg.getGroupAddress(), "231.6.6.6");
-      assertEquals(udpDg.getGroupPort(), 1234);
-      assertEquals(dc.getRefreshTimeout(), 1L);
-      assertEquals(dc.getDiscoveryInitialWaitTimeout(), 1L);
+      assertEquals("231.6.6.6", udpDg.getGroupAddress());
+      assertEquals(1234, udpDg.getGroupPort());
+      assertEquals(1L, dc.getRefreshTimeout());
+      assertEquals(1L, dc.getDiscoveryInitialWaitTimeout());
       qResourceAdapter.stop();
    }
 
@@ -540,10 +543,10 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQConnectionFactory fac = qResourceAdapter.getConnectionFactory(spec);
       DiscoveryGroupConfiguration dc = fac.getServerLocator().getDiscoveryGroupConfiguration();
       UDPBroadcastEndpointFactory udpDg = (UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory();
-      assertEquals(udpDg.getGroupAddress(), "231.6.6.6");
-      assertEquals(udpDg.getGroupPort(), 1234);
-      assertEquals(dc.getRefreshTimeout(), 1L);
-      assertEquals(dc.getDiscoveryInitialWaitTimeout(), 1L);
+      assertEquals("231.6.6.6", udpDg.getGroupAddress());
+      assertEquals(1234, udpDg.getGroupPort());
+      assertEquals(1L, dc.getRefreshTimeout());
+      assertEquals(1L, dc.getDiscoveryInitialWaitTimeout());
       qResourceAdapter.stop();
    }
 
@@ -687,7 +690,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
       String mask = codec.encode("helloworld");
 
       qResourceAdapter.setUseMaskedPassword(true);
@@ -723,7 +726,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
       String mask = codec.encode("helloworld");
 
       qResourceAdapter.setPassword(PasswordMaskingUtil.wrap(mask));
@@ -841,10 +844,10 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testConnectionParameterStringParsing() throws Exception {
       ActiveMQResourceAdapter resourceAdapter = new ActiveMQResourceAdapter();
       resourceAdapter.setConnectionParameters("enabledProtocols=TLS1\\,TLS1.2;sslEnabled=true");
-      assertEquals(resourceAdapter.getProperties().getParsedConnectionParameters().get(0).get("enabledProtocols"), "TLS1,TLS1.2");
+      assertEquals("TLS1,TLS1.2", resourceAdapter.getProperties().getParsedConnectionParameters().get(0).get("enabledProtocols"));
       resourceAdapter.setConnectionParameters("enabledProtocols=TLS1\\,TLS1.2;sslEnabled=true,enabledProtocols=TLS1.3\\,TLS1.4\\,TLS1.5;sslEnabled=true");
-      assertEquals(resourceAdapter.getProperties().getParsedConnectionParameters().get(0).get("enabledProtocols"), "TLS1,TLS1.2");
-      assertEquals(resourceAdapter.getProperties().getParsedConnectionParameters().get(1).get("enabledProtocols"), "TLS1.3,TLS1.4,TLS1.5");
+      assertEquals("TLS1,TLS1.2", resourceAdapter.getProperties().getParsedConnectionParameters().get(0).get("enabledProtocols"));
+      assertEquals("TLS1.3,TLS1.4,TLS1.5", resourceAdapter.getProperties().getParsedConnectionParameters().get(1).get("enabledProtocols"));
 
       try {
          resourceAdapter.setConnectionParameters("enabledProtocols=TLS1,TLS1.2;sslEnabled=true,enabledProtocols=TLS1,TLS1.2;sslEnabled=true");
@@ -860,7 +863,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
       ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
-      session.createQueue(new QueueConfiguration(queue.getSimpleAddress()));
+      session.createQueue(QueueConfiguration.of(queue.getSimpleAddress()));
       session.close();
 
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
@@ -886,6 +889,69 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       assertEquals(0, resources.size());
       locator.close();
 
+   }
+
+   @Test
+   public void testClientIDPassedToSessionWithUseLocalTx() throws Exception {
+      testClientIDPassedToSession("testClientID", ra -> ra.setUseLocalTx(true), spec -> { }, false);
+   }
+
+   @Test
+   public void testClientIDPassedToSessionWithDeliveryTransacted() throws Exception {
+      testClientIDPassedToSession("testClientIDTransacted", ra -> { }, spec -> { }, true);
+   }
+
+   @Test
+   public void testClientIDPassedToSessionWithPreAck() throws Exception {
+      testClientIDPassedToSession("testClientIDPreAck", ra -> ra.setPreAcknowledge(true), spec -> { }, false);
+   }
+
+   @Test
+   public void testClientIDPassedToSessionWithDupsOkAck() throws Exception {
+      testClientIDPassedToSession("testClientIDDupsOk",
+         ra -> ra.setDupsOKBatchSize(100),
+         spec -> spec.setAcknowledgeMode("Dups-ok-acknowledge"),
+         false);
+   }
+
+   @Test
+   public void testClientIDPassedToSessionWithAutoAck() throws Exception {
+      testClientIDPassedToSession("testClientIDAutoAck",
+         ra -> { },
+         spec -> spec.setAcknowledgeMode("Auto-acknowledge"),
+         false);
+   }
+
+   private void testClientIDPassedToSession(String clientID,
+                                             java.util.function.Consumer<ActiveMQResourceAdapter> raConfigurator,
+                                             java.util.function.Consumer<ActiveMQActivationSpec> specConfigurator,
+                                             boolean deliveryTransacted) throws Exception {
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
+      ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+      ra.setClientID(clientID);
+      raConfigurator.accept(ra);
+      ra.start(new BootstrapContext());
+
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
+      spec.setResourceAdapter(ra);
+      spec.setUseJNDI(false);
+      spec.setDestinationType("javax.jms.Queue");
+      spec.setDestination(MDBQUEUE);
+      specConfigurator.accept(spec);
+
+      CountDownLatch latch = new CountDownLatch(1);
+      DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
+      DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, deliveryTransacted);
+
+      ra.endpointActivation(endpointFactory, spec);
+
+      // Verify the clientID is set on the server-side remoting connection
+      assertFalse(server.getRemotingService().getConnections().isEmpty());
+      assertTrue(server.getRemotingService().getConnections().stream().allMatch(
+         remotingConnection -> clientID.equals(remotingConnection.getClientID())));
+
+      ra.stop();
+      assertTrue(endpoint.released);
    }
 
    @Override

@@ -16,41 +16,38 @@
  */
 package org.apache.activemq.artemis.core.server.protocol.websocket;
 
+import java.util.Arrays;
+import java.util.List;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-
-/**
- * WebSocketServerHandlerTest
- */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WebSocketServerHandlerTest {
 
    private int maxFramePayloadLength;
    private List<String> supportedProtocols;
    private WebSocketServerHandler spy;
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
       maxFramePayloadLength = 8192;
       supportedProtocols = Arrays.asList("STOMP");
-      spy = spy(new WebSocketServerHandler(supportedProtocols, maxFramePayloadLength, WebSocketFrameEncoderType.BINARY));
+      spy = spy(new WebSocketServerHandler(supportedProtocols, maxFramePayloadLength, WebSocketFrameEncoderType.BINARY, false));
    }
 
    @Test
@@ -74,6 +71,17 @@ public class WebSocketServerHandlerTest {
 
       verify(spy).channelRead0(ctx, msg);
       verify(ctx).fireChannelRead(any(ByteBuf.class));
+      verifyNoMoreInteractions(spy, ctx);
+   }
+
+   @Test
+   public void testRead0HandlePongFrame() throws Exception {
+      ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
+      Object msg = new PongWebSocketFrame();
+
+      spy.channelRead0(ctx, msg);
+
+      verify(spy).channelRead0(ctx, msg);
       verifyNoMoreInteractions(spy, ctx);
    }
 

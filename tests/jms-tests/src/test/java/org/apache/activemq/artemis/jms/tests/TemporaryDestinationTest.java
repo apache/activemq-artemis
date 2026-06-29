@@ -28,7 +28,7 @@ import javax.jms.TextMessage;
 import javax.naming.NamingException;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -123,9 +123,7 @@ public class TemporaryDestinationTest extends JMSTestCase {
          }
       }
    }
-   /**
-    * http://jira.jboss.com/jira/browse/JBMESSAGING-93
-    */
+
    @Test
    public void testTemporaryQueueOnClosedSession() throws Exception {
       Connection producerConnection = null;
@@ -285,16 +283,13 @@ public class TemporaryDestinationTest extends JMSTestCase {
 
          final Message m = producerSession.createTextMessage(messageText);
 
-         Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  // this is needed to make sure the main thread has enough time to block
-                  Thread.sleep(500);
-                  producer.send(m);
-               } catch (Exception e) {
-                  logger.error(e.getMessage(), e);
-               }
+         Thread t = new Thread(() -> {
+            try {
+               // this is needed to make sure the main thread has enough time to block
+               Thread.sleep(500);
+               producer.send(m);
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
             }
          }, "Producer");
          t.start();
@@ -313,9 +308,6 @@ public class TemporaryDestinationTest extends JMSTestCase {
       }
    }
 
-   /**
-    * http://jira.jboss.com/jira/browse/JBMESSAGING-93
-    */
    @Test
    public void testTemporaryTopicOnClosedSession() throws Exception {
       Connection producerConnection = null;
@@ -374,9 +366,6 @@ public class TemporaryDestinationTest extends JMSTestCase {
       }
    }
 
-   /**
-    * https://jira.jboss.org/jira/browse/JBMESSAGING-1566
-    */
    @Test
    public void testCanNotCreateConsumerFromAnotherConnectionForTemporaryQueue() throws Exception {
       Connection conn = createConnection();
@@ -399,9 +388,6 @@ public class TemporaryDestinationTest extends JMSTestCase {
       anotherConn.close();
    }
 
-   /**
-    * https://jira.jboss.org/jira/browse/JBMESSAGING-1566
-    */
    @Test
    public void testCanNotCreateConsumerFromAnotherCnnectionForTemporaryTopic() throws Exception {
       Connection conn = createConnection();

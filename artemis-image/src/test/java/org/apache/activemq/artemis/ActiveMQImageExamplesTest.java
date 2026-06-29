@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.core.server.embedded.Main;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class ActiveMQImageExamplesTest {
 
       EmbeddedActiveMQ server = new EmbeddedActiveMQ();
       // look for properties files to augment configuration
-      server.setPropertiesResourcePath("./src/main/resources/,./examples/amqp_sasl_scram_test__etc/");
+      server.setPropertiesResourcePath("./src/main/jib/config/,./examples/amqp_sasl_scram_test__etc/");
       server.setConfiguration(configuration);
 
       server.start();
@@ -72,7 +72,7 @@ public class ActiveMQImageExamplesTest {
       thread.start();
 
       // shut it down after it starts!
-      do  {
+      do {
          if (Main.getEmbeddedServer() != null) {
             if (Main.getEmbeddedServer().getActiveMQServer() != null) {
                if (Main.getEmbeddedServer().getActiveMQServer().getState() == ActiveMQServer.SERVER_STATE.STARTED) {

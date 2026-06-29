@@ -17,9 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import javax.jms.DeliveryMode;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.Arrays;
@@ -29,19 +27,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JMSConsumer8Test extends BasicOpenWireTest {
 
-   @Parameterized.Parameters(name = "deliveryMode={0} ackMode={1} destinationType={2}")
+   @Parameters(name = "deliveryMode={0} ackMode={1} destinationType={2}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}});
    }
@@ -56,7 +58,7 @@ public class JMSConsumer8Test extends BasicOpenWireTest {
       this.destinationType = destinationType;
    }
 
-   @Test
+   @TestTemplate
    public void testMessageListenerAutoAckOnCloseWithPrefetch1() throws Exception {
 
       final AtomicInteger counter = new AtomicInteger(0);
@@ -76,22 +78,19 @@ public class JMSConsumer8Test extends BasicOpenWireTest {
       Session session = connection.createSession(false, ackMode);
       ActiveMQDestination destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            try {
-               TextMessage tm = (TextMessage) m;
-               assertEquals("" + counter.get(), tm.getText());
-               counter.incrementAndGet();
-               m.acknowledge();
-               if (counter.get() == 2) {
-                  sendDone.await();
-                  connection.close();
-                  got2Done.countDown();
-               }
-            } catch (Throwable e) {
-               e.printStackTrace();
+      consumer.setMessageListener(m -> {
+         try {
+            TextMessage tm = (TextMessage) m;
+            assertEquals("" + counter.get(), tm.getText());
+            counter.incrementAndGet();
+            m.acknowledge();
+            if (counter.get() == 2) {
+               sendDone.await();
+               connection.close();
+               got2Done.countDown();
             }
+         } catch (Throwable e) {
+            e.printStackTrace();
          }
       });
 
@@ -112,18 +111,14 @@ public class JMSConsumer8Test extends BasicOpenWireTest {
       final CountDownLatch done2 = new CountDownLatch(1);
       session = connection.createSession(false, ackMode);
       consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            try {
-               TextMessage tm = (TextMessage) m;
-               counter.incrementAndGet();
-               if (counter.get() == 4) {
-                  done2.countDown();
-               }
-            } catch (Throwable e) {
-               System.err.println("Unexpected exception " + e);
+      consumer.setMessageListener(m -> {
+         try {
+            counter.incrementAndGet();
+            if (counter.get() == 4) {
+               done2.countDown();
             }
+         } catch (Throwable e) {
+            System.err.println("Unexpected exception " + e);
          }
       });
 

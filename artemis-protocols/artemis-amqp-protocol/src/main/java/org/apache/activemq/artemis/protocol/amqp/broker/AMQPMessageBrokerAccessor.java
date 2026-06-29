@@ -25,16 +25,22 @@ import org.apache.qpid.proton.amqp.messaging.Properties;
 
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.ACK_REASON;
 
-/** <b>Warning:</b> do not use this class outside of the broker implementation.
- *  This is exposing package methods on this package that are not meant to be used on user's application. */
+/**
+ * <b>Warning:</b> do not use this class outside of the broker implementation.
+ * This is exposing package methods on this package that are not meant to be used on user's application.
+ */
 public class AMQPMessageBrokerAccessor {
 
-   /** Warning: this is a method specific to the broker. Do not use it on user's application. */
+   /**
+    * Warning: this is a method specific to the broker. Do not use it on user's application.
+    */
    public static Object getDeliveryAnnotationProperty(AMQPMessage message, Symbol symbol) {
       return message.getDeliveryAnnotationProperty(symbol);
    }
 
-   /** Warning: this is a method specific to the broker. Do not use it on user's application. */
+   /**
+    * Warning: this is a method specific to the broker. Do not use it on user's application.
+    */
    public static Object getMessageAnnotationProperty(AMQPMessage message, Symbol symbol) {
       return message.getMessageAnnotation(symbol);
    }
@@ -44,22 +50,30 @@ public class AMQPMessageBrokerAccessor {
       return reasonVal == null ? AckReason.NORMAL : AckReason.fromValue(reasonVal.byteValue());
    }
 
-   /** Warning: this is a method specific to the broker. Do not use it on user's application. */
+   /**
+    * Warning: this is a method specific to the broker. Do not use it on user's application.
+    */
    public static Header getCurrentHeader(AMQPMessage message) {
       return message.getCurrentHeader();
    }
 
-   /** Warning: this is a method specific to the broker. Do not use it on user's application. */
+   /**
+    * Warning: this is a method specific to the broker. Do not use it on user's application.
+    */
    public static ApplicationProperties getDecodedApplicationProperties(AMQPMessage message) {
       return message.getDecodedApplicationProperties();
    }
 
-   /** Warning: this is a method specific to the broker. Do not use it on user's application. */
+   /**
+    * Warning: this is a method specific to the broker. Do not use it on user's application.
+    */
    public static int getRemainingBodyPosition(AMQPMessage message) {
       return message.remainingBodyPosition;
    }
 
-   /** Warning: this is a method specific to the broker. Do not use it on user's application. */
+   /**
+    * Warning: this is a method specific to the broker. Do not use it on user's application.
+    */
    public static Properties getCurrentProperties(AMQPMessage message) {
       return message.getCurrentProperties();
    }

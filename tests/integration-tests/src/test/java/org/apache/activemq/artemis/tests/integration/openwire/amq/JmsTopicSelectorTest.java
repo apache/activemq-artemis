@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -28,8 +31,8 @@ import javax.jms.Topic;
 
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsTopicSelectorTest
@@ -46,7 +49,7 @@ public class JmsTopicSelectorTest extends BasicOpenWireTest {
    protected int deliveryMode = DeliveryMode.PERSISTENT;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -142,7 +145,7 @@ public class JmsTopicSelectorTest extends BasicOpenWireTest {
 
          remaining--;
       }
-      assertEquals(remaining, 0);
+      assertEquals(0, remaining);
       consumer.close();
       consumeMessages(remaining);
    }
@@ -164,7 +167,7 @@ public class JmsTopicSelectorTest extends BasicOpenWireTest {
          }
          remaining--;
       }
-      assertEquals(remaining, 3);
+      assertEquals(3, remaining);
       consumer.close();
       consumeMessages(remaining);
 
@@ -187,7 +190,7 @@ public class JmsTopicSelectorTest extends BasicOpenWireTest {
          }
          remaining--;
       }
-      assertEquals(remaining, 2);
+      assertEquals(2, remaining);
       consumer.close();
       consumeMessages(remaining);
    }

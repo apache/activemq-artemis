@@ -20,6 +20,7 @@ import javax.management.remote.JMXPrincipal;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import java.security.cert.X509Certificate;
 import java.io.IOException;
@@ -28,18 +29,22 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.CertificateCallback;
 import org.apache.activemq.artemis.spi.core.security.jaas.CertificateLoginModule;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.spi.core.security.jaas.TextFileCertificateLoginModule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TextFileCertificateLoginModuleTest {
 
@@ -70,12 +75,12 @@ public class TextFileCertificateLoginModuleTest {
 
    private CertificateLoginModule loginModule;
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       loginModule = new TextFileCertificateLoginModule();
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       PropertiesLoader.resetUsersAndGroupsCache();
    }
@@ -95,9 +100,55 @@ public class TextFileCertificateLoginModuleTest {
       loginTest(CERT_USERS_FILE_REGEXP, CERT_GROUPS_FILE);
    }
 
+   @Test()
+   public void testLoginNormaliseFalseSpace() throws Exception {
+
+      Map<String, String> options = new HashMap<>();
+      options.put("org.apache.activemq.jaas.textfiledn.user", CERT_USERS_FILE_SMALL);
+      options.put("org.apache.activemq.jaas.textfiledn.role", CERT_GROUPS_FILE);
+      options.put("normalise", "false");
+
+      assertThrows(FailedLoginException.class, ()-> {
+         loginOneTest(options, "CN=TEST_CS,OU=TEST,O=TEST", "COMMA_SPACE");
+      });
+   }
+
+   @Test()
+   public void testLoginNormaliseDefaultSpace() throws Exception {
+      Map<String, String> options = new HashMap<>();
+      options.put("org.apache.activemq.jaas.textfiledn.user", CERT_USERS_FILE_SMALL);
+      options.put("org.apache.activemq.jaas.textfiledn.role", CERT_GROUPS_FILE);
+      assertThrows(FailedLoginException.class, ()-> {
+         loginOneTest(options, "CN=TEST_CS,OU=TEST,O=TEST", "COMMA_SPACE");
+      });
+   }
+
+   @Test()
+   public void testLoginNormaliseTrueCommaSpace() throws Exception {
+      Map<String, String> options = new HashMap<>();
+      options.put("org.apache.activemq.jaas.textfiledn.user", CERT_USERS_FILE_SMALL);
+      options.put("org.apache.activemq.jaas.textfiledn.role", CERT_GROUPS_FILE);
+      options.put("normalise", "true");
+      loginOneTest(options, "CN=TEST_CS,OU=TEST,O=TEST", "COMMA_SPACE");
+   }
+
+   @Test
+   public void testLoginNormaliseNoSpace() throws Exception {
+      Map<String, String> options = new HashMap<>();
+      options.put("org.apache.activemq.jaas.textfiledn.user", CERT_USERS_FILE_SMALL);
+      options.put("org.apache.activemq.jaas.textfiledn.role", CERT_GROUPS_FILE);
+      options.put("normalise", "true");
+      loginOneTest(options, "CN=TEST_CNS,OU=TEST,O=TEST", "COMMA_NO_SPACE");
+   }
+
+   private void loginOneTest(Map options, String dnFromCert, String user) throws LoginException {
+      Subject subject = doAuthenticate(options, getJaasCertificateCallbackHandler(dnFromCert));
+      assertTrue(subject.getPrincipals().stream().findFirst().toString().contains(user));
+   }
+
    private void loginTest(String usersFiles, String groupsFile) throws LoginException {
 
-      HashMap<String, String> options = new HashMap<>();
+      Map<String, String> options = new HashMap<>();
       options.put("org.apache.activemq.jaas.textfiledn.user", usersFiles);
       options.put("org.apache.activemq.jaas.textfiledn.role", groupsFile);
       options.put("reload", "true");
@@ -106,7 +157,7 @@ public class TextFileCertificateLoginModuleTest {
       Subject[] subjects = new Subject[NUMBER_SUBJECTS];
 
       for (int i = 0; i < callbackHandlers.length; i++) {
-         callbackHandlers[i] = getJaasCertificateCallbackHandler("DN=TEST_USER_" + (i + 1));
+         callbackHandlers[i] = getJaasCertificateCallbackHandler("CN=TEST_USER_" + (i + 1));
       }
 
       long startTime = System.currentTimeMillis();
@@ -135,8 +186,7 @@ public class TextFileCertificateLoginModuleTest {
          @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
             for (Callback callback : callbacks) {
-               if (callback instanceof CertificateCallback) {
-                  CertificateCallback certCallback = (CertificateCallback) callback;
+               if (callback instanceof CertificateCallback certCallback) {
                   certCallback.setCertificates(new X509Certificate[]{cert});
                } else {
                   throw new UnsupportedCallbackException(callback);
@@ -146,7 +196,7 @@ public class TextFileCertificateLoginModuleTest {
       };
    }
 
-   private Subject doAuthenticate(HashMap<String, ?> options,
+   private Subject doAuthenticate(Map<String, ?> options,
                                   JaasCallbackHandler callbackHandler) throws LoginException {
       Subject mySubject = new Subject();
       loginModule.initialize(mySubject, callbackHandler, null, options);

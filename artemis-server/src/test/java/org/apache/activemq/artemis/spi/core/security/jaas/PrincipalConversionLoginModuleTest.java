@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.security.auth.Subject;
 import java.security.Principal;
 import java.util.HashMap;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
 
 public class PrincipalConversionLoginModuleTest {
 
@@ -33,7 +33,7 @@ public class PrincipalConversionLoginModuleTest {
       PrincipalConversionLoginModule underTest = new PrincipalConversionLoginModule();
 
       final Subject subject = new Subject();
-      underTest.initialize(subject,null, null, new HashMap<>());
+      underTest.initialize(subject, null, null, new HashMap<>());
 
       assertTrue(underTest.login());
       assertFalse(underTest.commit());
@@ -44,7 +44,7 @@ public class PrincipalConversionLoginModuleTest {
    public void loginOkOnNullSubject() throws Exception {
       PrincipalConversionLoginModule underTest = new PrincipalConversionLoginModule();
 
-      underTest.initialize(null,null, null, new HashMap<>());
+      underTest.initialize(null, null, null, new HashMap<>());
 
       assertTrue(underTest.login());
       assertFalse(underTest.commit());
@@ -95,8 +95,8 @@ public class PrincipalConversionLoginModuleTest {
    static final class TestPrincipal implements Principal {
 
       @Override
-      public boolean equals(Object another) {
-         return this == another;
+      public boolean equals(Object obj) {
+         return this == obj;
       }
 
       @Override

@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.utils.Preconditions;
 
 public class FederationAddressPolicyConfiguration implements FederationPolicy<FederationAddressPolicyConfiguration>, Serializable {
 
@@ -121,7 +120,7 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
 
    @Override
    public void encode(ActiveMQBuffer buffer) {
-      Preconditions.checkArgument(name != null, "name can not be null");
+      Objects.requireNonNull(name, "name can not be null");
       buffer.writeString(name);
       buffer.writeNullableBoolean(autoDelete);
       buffer.writeNullableLong(autoDeleteDelay);
@@ -177,6 +176,9 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
       private String name;
 
       public String getName() {
+         if (name == null) {
+            return addressMatch;
+         }
          return name;
       }
 
@@ -194,20 +196,24 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) return true;
-         if (!(o instanceof Matcher)) return false;
-         Matcher matcher = (Matcher) o;
-         return Objects.equals(addressMatch, matcher.addressMatch);
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (!(obj instanceof Matcher other)) {
+            return false;
+         }
+
+         return Objects.equals(addressMatch, other.addressMatch);
       }
 
       @Override
       public int hashCode() {
-         return Objects.hash(addressMatch);
+         return Objects.hashCode(addressMatch);
       }
 
       public void encode(ActiveMQBuffer buffer) {
-         Preconditions.checkArgument(addressMatch != null, "addressMatch can not be null");
+         Objects.requireNonNull(addressMatch, "addressMatch can not be null");
          buffer.writeString(addressMatch);
       }
 
@@ -217,22 +223,27 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof FederationAddressPolicyConfiguration)) return false;
-      FederationAddressPolicyConfiguration that = (FederationAddressPolicyConfiguration) o;
-      return maxHops == that.maxHops &&
-            Objects.equals(name, that.name) &&
-            Objects.equals(includes, that.includes) &&
-            Objects.equals(excludes, that.excludes) &&
-            Objects.equals(autoDelete, that.autoDelete) &&
-            Objects.equals(autoDeleteDelay, that.autoDeleteDelay) &&
-            Objects.equals(autoDeleteMessageCount, that.autoDeleteMessageCount) &&
-            Objects.equals(transformerRef, that.transformerRef);
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof FederationAddressPolicyConfiguration other)) {
+         return false;
+      }
+
+      return maxHops == other.maxHops &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(includes, other.includes) &&
+             Objects.equals(excludes, other.excludes) &&
+             Objects.equals(autoDelete, other.autoDelete) &&
+             Objects.equals(autoDeleteDelay, other.autoDeleteDelay) &&
+             Objects.equals(autoDeleteMessageCount, other.autoDeleteMessageCount) &&
+             Objects.equals(transformerRef, other.transformerRef);
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(name, includes, excludes, autoDelete, autoDeleteDelay, autoDeleteMessageCount, maxHops, transformerRef);
+      return Objects.hash(name, includes, excludes, autoDelete, autoDeleteDelay, autoDeleteMessageCount, maxHops,
+                          transformerRef);
    }
 }

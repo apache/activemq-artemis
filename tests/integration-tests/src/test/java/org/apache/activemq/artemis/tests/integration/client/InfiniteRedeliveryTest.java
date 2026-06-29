@@ -23,9 +23,10 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -34,11 +35,13 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.cli.commands.tools.journal.CompactJournal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -46,21 +49,22 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
-@RunWith(value = Parameterized.class)
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(ParameterizedTestExtension.class)
 public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "protocol={0}, useCLI={1}")
+   @Parameters(name = "protocol={0}, useCLI={1}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{"CORE", true}, {"AMQP", false}, {"OPENWIRE", false}});
    }
@@ -74,27 +78,27 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
    String protocol;
    boolean useCLI;
 
-   TestableServer liveServer;
+   TestableServer primaryServer;
    TestableServer backupServer;
 
    Configuration backupConfig;
-   Configuration liveConfig;
+   Configuration primaryConfig;
 
    protected TestableServer createTestableServer(Configuration config, NodeManager nodeManager) throws Exception {
-      boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
+      boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreBackupPolicyConfiguration;
       return new SameProcessActiveMQServer(createInVMFailoverServer(true, config, nodeManager, isBackup ? 2 : 1));
    }
 
    // I am using a replicated config to make sure the replica will also configured replaceable records
    protected void createReplicatedConfigs() throws Exception {
-      final TransportConfiguration liveConnector = TransportConfigurationUtils.getNettyConnector(true, 0);
+      final TransportConfiguration primaryConnector = TransportConfigurationUtils.getNettyConnector(true, 0);
       final TransportConfiguration backupConnector = TransportConfigurationUtils.getNettyConnector(false, 0);
       final TransportConfiguration backupAcceptor = TransportConfigurationUtils.getNettyAcceptor(false, 0);
 
       backupConfig = createDefaultConfig(0, true);
-      liveConfig = createDefaultConfig(0, true);
+      primaryConfig = createDefaultConfig(0, true);
 
-      configureReplicationPair(backupConnector, backupAcceptor, liveConnector);
+      configureReplicationPair(backupConnector, backupAcceptor, primaryConnector);
 
       backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
 
@@ -102,21 +106,21 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
       backupServer = createTestableServer(backupConfig, new InVMNodeManager(true, backupConfig.getJournalLocation()));
 
-      liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(TransportConfigurationUtils.getNettyAcceptor(true, 0));
+      primaryConfig.clearAcceptorConfigurations().addAcceptorConfiguration(TransportConfigurationUtils.getNettyAcceptor(true, 0));
 
-      liveServer = createTestableServer(liveConfig, new InVMNodeManager(false, liveConfig.getJournalLocation()));
+      primaryServer = createTestableServer(primaryConfig, new InVMNodeManager(false, primaryConfig.getJournalLocation()));
    }
 
    protected void configureReplicationPair(TransportConfiguration backupConnector,
                                            TransportConfiguration backupAcceptor,
-                                           TransportConfiguration liveConnector) {
-      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
+                                           TransportConfiguration primaryConnector) {
+      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, null);
       ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(-1).setAllowFailBack(true);
       ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
    }
 
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -124,7 +128,7 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
    protected void startServer(boolean reschedule) throws Exception {
       createReplicatedConfigs();
-      Configuration configuration = liveServer.getServer().getConfiguration();
+      Configuration configuration = primaryServer.getServer().getConfiguration();
       configuration.getAddressSettings().clear();
       if (reschedule) {
          AddressSettings settings = new AddressSettings().setMaxDeliveryAttempts(Integer.MAX_VALUE).setRedeliveryDelay(1);
@@ -133,25 +137,25 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
          AddressSettings settings = new AddressSettings().setMaxDeliveryAttempts(Integer.MAX_VALUE).setRedeliveryDelay(0);
          configuration.getAddressSettings().put("#", settings);
       }
-      liveServer.start();
+      primaryServer.start();
       backupServer.start();
-      Wait.waitFor(liveServer.getServer()::isReplicaSync);
+      Wait.waitFor(primaryServer.getServer()::isReplicaSync);
    }
 
-   @Test
+   @TestTemplate
    public void testInifinteRedeliveryWithScheduling() throws Exception {
       testInifinteRedeliveryWithScheduling(true);
    }
 
-   @Test
+   @TestTemplate
    public void testInifinteRedeliveryWithoutScheduling() throws Exception {
       testInifinteRedeliveryWithScheduling(false);
    }
 
    public void testInifinteRedeliveryWithScheduling(boolean reschedule) throws Exception {
       startServer(reschedule);
-      liveServer.getServer().addAddressInfo(new AddressInfo("test").setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      liveServer.getServer().createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST).setAddress("test").setDurable(true));
+      primaryServer.getServer().addAddressInfo(new AddressInfo("test").setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
+      primaryServer.getServer().createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST).setAddress("test").setDurable(true));
 
       ConnectionFactory factory;
 
@@ -164,8 +168,8 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
       Connection connection = factory.createConnection();
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       Queue queue = session.createQueue("test");
-      Assert.assertNotNull(queue);
-      MessageProducer  producer = session.createProducer(queue);
+      assertNotNull(queue);
+      MessageProducer producer = session.createProducer(queue);
 
       producer.send(session.createTextMessage("hello"));
       session.commit();
@@ -175,32 +179,32 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
       connection.start();
       for (int i = 0; i < 100; i++) {
          Message message = consumer.receive(10000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          session.rollback();
       }
       connection.close();
 
       if (!useCLI) {
-         liveServer.getServer().getStorageManager().getMessageJournal().scheduleCompactAndBlock(5000);
+         primaryServer.getServer().getStorageManager().getMessageJournal().scheduleCompactAndBlock(5000);
          backupServer.getServer().getStorageManager().getMessageJournal().scheduleCompactAndBlock(5000);
       }
 
-      liveServer.stop();
+      primaryServer.stop();
       backupServer.stop();
 
       if (useCLI) {
          CompactJournal.compactJournals(backupServer.getServer().getConfiguration());
-         CompactJournal.compactJournals(liveServer.getServer().getConfiguration());
+         CompactJournal.compactJournals(primaryServer.getServer().getConfiguration());
       }
 
-      HashMap<Integer, AtomicInteger> counts = countJournal(liveServer.getServer().getConfiguration());
+      Map<Integer, AtomicInteger> counts = countJournal(primaryServer.getServer().getConfiguration());
       counts.forEach((k, v) -> logger.debug("{}={}", k, v));
-      counts.forEach((k, v) -> Assert.assertTrue("Record type " + k + " has a lot of records:" +  v, v.intValue() < 20));
+      counts.forEach((k, v) -> assertTrue(v.intValue() < 20, "Record type " + k + " has a lot of records:" + v));
 
-      HashMap<Integer, AtomicInteger> backupCounts = countJournal(backupServer.getServer().getConfiguration());
-      Assert.assertTrue(backupCounts.size() > 0);
+      Map<Integer, AtomicInteger> backupCounts = countJournal(backupServer.getServer().getConfiguration());
+      assertFalse(backupCounts.isEmpty());
       backupCounts.forEach((k, v) -> logger.debug("On Backup:{}={}", k, v));
-      backupCounts.forEach((k, v) -> Assert.assertTrue("Backup Record type " + k + " has a lot of records:" +  v, v.intValue() < 10));
+      backupCounts.forEach((k, v) -> assertTrue(v.intValue() < 10, "Backup Record type " + k + " has a lot of records:" + v));
 
 
    }

@@ -26,10 +26,6 @@ import org.apache.activemq.util.IntSequenceGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- *
- */
 public class MulticastTransportTest extends UdpTransportTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(MulticastTransportTest.class);

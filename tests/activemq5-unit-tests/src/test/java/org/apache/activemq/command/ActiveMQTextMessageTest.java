@@ -29,9 +29,6 @@ import org.apache.activemq.util.ByteArrayOutputStream;
 import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.util.MarshallingSupport;
 
-/**
- *
- */
 public class ActiveMQTextMessageTest extends TestCase {
 
    public static void main(String[] args) {

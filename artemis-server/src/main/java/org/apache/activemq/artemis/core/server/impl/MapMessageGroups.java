@@ -22,7 +22,8 @@ import java.util.function.Predicate;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
- * This is abstract implementation of MessageGroups that simply wraps the MessageGroup interface around the passed in map.
+ * This is abstract implementation of MessageGroups that simply wraps the MessageGroup interface around the passed in
+ * map.
  */
 abstract class MapMessageGroups<C> implements MessageGroups<C> {
 

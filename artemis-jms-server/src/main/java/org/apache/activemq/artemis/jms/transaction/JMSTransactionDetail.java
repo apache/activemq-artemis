@@ -38,26 +38,18 @@ public class JMSTransactionDetail extends TransactionDetail {
 
    @Override
    public String decodeMessageType(Message msg) {
-      if (!(msg instanceof ICoreMessage)) {
+      if (!(msg instanceof ICoreMessage coreMessage)) {
          return "N/A";
       }
-      int type = ((ICoreMessage) msg).getType();
-      switch (type) {
-         case ActiveMQMessage.TYPE: // 0
-            return "Default";
-         case ActiveMQObjectMessage.TYPE: // 2
-            return "ObjectMessage";
-         case ActiveMQTextMessage.TYPE: // 3
-            return "TextMessage";
-         case ActiveMQBytesMessage.TYPE: // 4
-            return "ByteMessage";
-         case ActiveMQMapMessage.TYPE: // 5
-            return "MapMessage";
-         case ActiveMQStreamMessage.TYPE: // 6
-            return "StreamMessage";
-         default:
-            return "(Unknown Type)";
-      }
+      return switch (coreMessage.getType()) {
+         case ActiveMQMessage.TYPE -> "Default"; // 0
+         case ActiveMQObjectMessage.TYPE -> "ObjectMessage"; // 2
+         case ActiveMQTextMessage.TYPE -> "TextMessage"; // 3
+         case ActiveMQBytesMessage.TYPE -> "ByteMessage"; // 4
+         case ActiveMQMapMessage.TYPE -> "MapMessage"; // 5
+         case ActiveMQStreamMessage.TYPE -> "StreamMessage"; // 6
+         default -> "(Unknown Type)";
+      };
    }
 
    @Override

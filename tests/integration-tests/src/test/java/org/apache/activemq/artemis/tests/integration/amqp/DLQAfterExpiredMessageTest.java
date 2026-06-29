@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -37,13 +40,11 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.Symbol;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * This is testing a double transfer (copy).
- * First messages will expire, then DLQ.
- * This will validate the data added to the queues.
+ * This is testing a double transfer (copy). First messages will expire, then DLQ. This will validate the data added to
+ * the queues.
  */
 public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
 
@@ -54,25 +55,25 @@ public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
    @Override
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       // Default Queue
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getQueueName()), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(getQueueName()), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST));
 
       // Default DLQ
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getDeadLetterAddress()), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(getDeadLetterAddress()).setRoutingType(RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(getDeadLetterAddress()), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getDeadLetterAddress()).setRoutingType(RoutingType.ANYCAST));
 
       // Expiry
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getExpiryQueue()), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(getExpiryQueue()).setRoutingType(RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(getExpiryQueue()), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getExpiryQueue()).setRoutingType(RoutingType.ANYCAST));
 
       // Default Topic
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getTopicName()), RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(getTopicName()));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(getTopicName()), RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of(getTopicName()));
 
       // Additional Test Queues
       for (int i = 0; i < getPrecreatedQueueSize(); ++i) {
-         server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getQueueName(i)), RoutingType.ANYCAST));
-         server.createQueue(new QueueConfiguration(getQueueName(i)).setRoutingType(RoutingType.ANYCAST));
+         server.addAddressInfo(new AddressInfo(SimpleString.of(getQueueName(i)), RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(getQueueName(i)).setRoutingType(RoutingType.ANYCAST));
       }
    }
 
@@ -84,8 +85,8 @@ public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       addressSettings.setAutoCreateQueues(isAutoCreateQueues());
       addressSettings.setAutoCreateAddresses(isAutoCreateAddresses());
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
-      addressSettings.setExpiryAddress(SimpleString.toSimpleString(getExpiryQueue()));
+      addressSettings.setDeadLetterAddress(SimpleString.of(getDeadLetterAddress()));
+      addressSettings.setExpiryAddress(SimpleString.of(getExpiryQueue()));
       addressSettings.setMaxDeliveryAttempts(1);
       server.getConfiguration().getAddressSettings().put("#", addressSettings);
       server.getConfiguration().getAddressSettings().put(getExpiryQueue(), addressSettings);
@@ -120,12 +121,12 @@ public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
          assertNotNull(expiryView);
          Wait.assertEquals(1, expiryView::getMessageCount);
 
-         HashMap<String, Object> annotations = new HashMap<>();
+         Map<String, Object> annotations = new HashMap<>();
 
          AmqpReceiver receiverDLQ = session.createReceiver(getExpiryQueue(), "\"m." + AMQPMessageSupport.HDR_ORIGINAL_ADDRESS_ANNOTATION + "\"='" + getQueueName() + "'");
          receiverDLQ.flow(1);
          AmqpMessage received = receiverDLQ.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(received);
+         assertNotNull(received);
          Map<Symbol, Object> avAnnotations = received.getWrappedMessage().getMessageAnnotations().getValue();
          avAnnotations.forEach((key, value) -> {
             annotations.put(key.toString(), value);
@@ -138,7 +139,7 @@ public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
          receiverDLQ = session.createReceiver(getDeadLetterAddress(), "\"m." + AMQPMessageSupport.HDR_ORIGINAL_ADDRESS_ANNOTATION + "\"='" + getExpiryQueue() + "'");
          receiverDLQ.flow(1);
          received = receiverDLQ.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(received);
+         assertNotNull(received);
          received.accept();
 
          assertEquals(0, received.getTimeToLive());

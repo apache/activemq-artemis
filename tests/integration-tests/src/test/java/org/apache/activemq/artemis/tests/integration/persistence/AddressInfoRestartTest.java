@@ -16,13 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AddressInfoRestartTest extends ActiveMQTestBase {
 
@@ -32,19 +33,19 @@ public class AddressInfoRestartTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString address = new SimpleString("test.address");
-      SimpleString queue = new SimpleString("test.queue");
+      SimpleString address = SimpleString.of("test.address");
+      SimpleString queue = SimpleString.of("test.queue");
 
-      server.createQueue(new QueueConfiguration(queue).setAddress(address));
+      server.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       AddressInfo addressInfo1 = server.getPostOffice().getAddressInfo(address);
-      Assert.assertTrue(addressInfo1.isAutoCreated());
+      assertTrue(addressInfo1.isAutoCreated());
 
       server.stop();
 
       server.start();
 
       AddressInfo addressInfo2 = server.getPostOffice().getAddressInfo(address);
-      Assert.assertTrue(addressInfo2.isAutoCreated());
+      assertTrue(addressInfo2.isAutoCreated());
    }
 }

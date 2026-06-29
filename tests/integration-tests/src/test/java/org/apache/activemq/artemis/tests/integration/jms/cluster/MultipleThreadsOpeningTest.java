@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import javax.jms.Connection;
 import javax.jms.Session;
 import java.lang.invoke.MethodHandles;
@@ -26,7 +29,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,8 +82,9 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
                flagStartRace.await();
 
                for (int i = 0; i < numberOfOpens; i++) {
-                  if (i > 0 && i % 100 == 0)
+                  if (i > 0 && i % 100 == 0) {
                      logger.debug("connections created on Thread {} {}", Thread.currentThread(), i);
+                  }
                   Connection conn = cf1.createConnection();
                   Session sess = conn.createSession(true, Session.AUTO_ACKNOWLEDGE);
                   sess.close();
@@ -107,7 +111,7 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
          for (ThreadOpen t : threads) {
             t.join(60000);
             assertFalse(t.isAlive());
-            assertEquals("There are Errors on the test thread", 0, t.errors);
+            assertEquals(0, t.errors, "There are Errors on the test thread");
          }
       } finally {
          for (ThreadOpen t : threads) {

@@ -20,13 +20,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -72,49 +72,52 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
    ExecutorService sendMessageExecutor;
 
-   @Before
+   @BeforeEach
    public void setupExecutor() {
       sendMessageExecutor = Executors.newCachedThreadPool();
    }
 
-   @After
+   @AfterEach
    public void teardownExecutor() {
       sendMessageExecutor.shutdownNow();
    }
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Rule
-   public TemporaryFolder brokersFolder = new TemporaryFolder();
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File brokersFolder;
 
    @Test
    public void testReplicationIfFlowControlled() throws Exception {
-      // start live
-      Configuration liveConfiguration = createLiveConfiguration();
-      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.start();
+      // start primary
+      Configuration primaryConfiguration = createPrimaryConfiguration();
+      ActiveMQServer primaryServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      primaryServer.start();
 
-      Wait.waitFor(() -> liveServer.isStarted());
+      Wait.waitFor(() -> primaryServer.isStarted());
 
       ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
       locator.setCallTimeout(60_000L);
@@ -122,7 +125,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       final ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession sess = csf.createSession();
-      sess.createQueue(new QueueConfiguration("flowcontrol").setRoutingType(RoutingType.ANYCAST));
+      sess.createQueue(QueueConfiguration.of("flowcontrol").setRoutingType(RoutingType.ANYCAST));
       sess.close();
 
       int i = 0;
@@ -164,36 +167,36 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
          i++;
       }
 
-      Assert.assertTrue("all message sent", allMessageSent.await(30, TimeUnit.SECONDS));
+      assertTrue(allMessageSent.await(30, TimeUnit.SECONDS), "all message sent");
       interceptor.setSleepTime(0);
 
       csf.close();
       locator.close();
-      Assert.assertTrue("Waiting for replica sync timeout", Wait.waitFor(liveServer::isReplicaSync, 30000));
+      assertTrue(Wait.waitFor(primaryServer::isReplicaSync, 30000), "Waiting for replica sync timeout");
       backupServer.stop(true);
-      liveServer.stop(true);
+      primaryServer.stop(true);
 
       SequentialFileFactory fileFactory;
 
-      fileFactory = new MappedSequentialFileFactory(liveConfiguration.getJournalLocation(), liveConfiguration.getJournalFileSize(), false, liveConfiguration.getJournalBufferSize_NIO(), liveConfiguration.getJournalBufferTimeout_NIO(), null);
+      fileFactory = new MappedSequentialFileFactory(primaryConfiguration.getJournalLocation(), primaryConfiguration.getJournalFileSize(), false, primaryConfiguration.getJournalBufferSize_NIO(), primaryConfiguration.getJournalBufferTimeout_NIO(), null);
 
-      JournalImpl liveMessageJournal = new JournalImpl(liveConfiguration.getJournalFileSize(), liveConfiguration.getJournalMinFiles(), liveConfiguration.getJournalPoolFiles(), liveConfiguration.getJournalCompactMinFiles(), liveConfiguration.getJournalCompactPercentage(), fileFactory, "activemq-data", "amq", fileFactory.getMaxIO());
+      JournalImpl primaryMessageJournal = new JournalImpl(primaryConfiguration.getJournalFileSize(), primaryConfiguration.getJournalMinFiles(), primaryConfiguration.getJournalPoolFiles(), primaryConfiguration.getJournalCompactMinFiles(), primaryConfiguration.getJournalCompactPercentage(), fileFactory, "activemq-data", "amq", fileFactory.getMaxIO());
 
-      liveMessageJournal.start();
-      final AtomicInteger liveJournalCounter = new AtomicInteger();
-      liveMessageJournal.load(new SharedNothingReplicationFlowControlTest.AddRecordLoaderCallback() {
+      primaryMessageJournal.start();
+      final AtomicInteger primaryJournalCounter = new AtomicInteger();
+      primaryMessageJournal.load(new SharedNothingReplicationFlowControlTest.AddRecordLoaderCallback() {
          @Override
          public void addRecord(RecordInfo info) {
             if (!(info.userRecordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL)) {
                // ignore
             }
-            liveJournalCounter.incrementAndGet();
-            logger.info("got live message {} {}, counter={}", info.id, info.userRecordType, liveJournalCounter.get());
+            primaryJournalCounter.incrementAndGet();
+            logger.info("got primary message {} {}, counter={}", info.id, info.userRecordType, primaryJournalCounter.get());
          }
       });
 
       // read backup's journal
-      File backupJournalDir = brokersFolder.getRoot().toPath().resolve("backup").resolve("data").resolve("journal").toFile();
+      File backupJournalDir = brokersFolder.toPath().resolve("backup").resolve("data").resolve("journal").toFile();
       fileFactory = new MappedSequentialFileFactory(backupConfiguration.getJournalLocation(), backupConfiguration.getJournalFileSize(), false, backupConfiguration.getJournalBufferSize_NIO(), backupConfiguration.getJournalBufferTimeout_NIO(), null);
 
       JournalImpl backupMessageJournal = new JournalImpl(backupConfiguration.getJournalFileSize(), backupConfiguration.getJournalMinFiles(), backupConfiguration.getJournalPoolFiles(), backupConfiguration.getJournalCompactMinFiles(), backupConfiguration.getJournalCompactPercentage(), fileFactory, "activemq-data", "amq", fileFactory.getMaxIO());
@@ -212,15 +215,15 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
          }
       });
 
-      logger.info("expected {} messages, live={}, backup={}", j, liveJournalCounter.get(), replicationCounter.get());
-      Assert.assertEquals("Live lost journal record", j, liveJournalCounter.get());
-      Assert.assertEquals("Backup did not replicated all journal", j, replicationCounter.get());
+      logger.info("expected {} messages, primary={}, backup={}", j, primaryJournalCounter.get(), replicationCounter.get());
+      assertEquals(j, primaryJournalCounter.get(), "Primary lost journal record");
+      assertEquals(j, replicationCounter.get(), "Backup did not replicated all journal");
    }
 
    @Test
    public void testSendPages() throws Exception {
       // start live
-      Configuration liveConfiguration = createLiveConfiguration();
+      Configuration liveConfiguration = createPrimaryConfiguration();
       ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
       liveServer.start();
 
@@ -233,9 +236,9 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       final ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession sess = csf.createSession();
-      sess.createQueue(new QueueConfiguration("flowcontrol").setRoutingType(RoutingType.ANYCAST));
+      sess.createQueue(QueueConfiguration.of("flowcontrol").setRoutingType(RoutingType.ANYCAST));
 
-      PagingStore store = liveServer.getPagingManager().getPageStore(SimpleString.toSimpleString("flowcontrol"));
+      PagingStore store = liveServer.getPagingManager().getPageStore(SimpleString.of("flowcontrol"));
       store.startPaging();
 
       ClientProducer prod = sess.createProducer("flowcontrol");
@@ -244,7 +247,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
          if (i % 10 == 0) {
             sess.commit();
-            store.forceAnotherPage();
+            store.forceAnotherPage(true);
          }
       }
 
@@ -271,13 +274,13 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       Wait.waitFor(backupServer::isReplicaSync, 30000);
 
       // Asserting for file leaks
-      if (!Wait.waitFor(() -> TestableSequentialFile.openFiles.size() == 0, 5000)) {
+      if (!Wait.waitFor(() -> TestableSequentialFile.openFiles.isEmpty(), 5000)) {
          StringWriter writer = new StringWriter();
          PrintWriter print = new PrintWriter(writer);
          for (Object fileOpen : TestableSequentialFile.openFiles.keySet()) {
             print.println("File still open ::" + fileOpen);
          }
-         Assert.fail(writer.toString());
+         fail(writer.toString());
       }
    }
 
@@ -290,7 +293,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
                                       ExecutorFactory executorFactory,
                                       boolean syncNonTransactional,
                                       IOCriticalErrorListener critialErrorListener) {
-         super(storageManager, directory, syncTimeout, scheduledExecutor, executorFactory, executorFactory, syncNonTransactional, critialErrorListener);
+         super(storageManager, directory, syncTimeout, scheduledExecutor, executorFactory, syncNonTransactional, critialErrorListener);
       }
 
       PageStoreFactoryTestable(PagingStoreFactoryNIO other) {
@@ -300,6 +303,15 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       @Override
       protected SequentialFileFactory newFileFactory(String directoryName) {
          return new TestableNIOFactory(new File(getDirectory(), directoryName), false, getCritialErrorListener(), 1);
+      }
+
+      private static File newFolder(File root, String... subDirs) throws IOException {
+         String subFolder = String.join("/", subDirs);
+         File result = new File(root, subFolder);
+         if (!result.mkdirs()) {
+            throw new IOException("Couldn't create folders " + root);
+         }
+         return result;
       }
    }
 
@@ -311,7 +323,16 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       @Override
       public SequentialFile createSequentialFile(String fileName) {
-         return new TestableSequentialFile(this, journalDir, fileName, maxIO, writeExecutor);
+         return new TestableSequentialFile(this, journalDir, fileName, maxIO);
+      }
+
+      private static File newFolder(File root, String... subDirs) throws IOException {
+         String subFolder = String.join("/", subDirs);
+         File result = new File(root, subFolder);
+         if (!result.mkdirs()) {
+            throw new IOException("Couldn't create folders " + root);
+         }
+         return result;
       }
    }
 
@@ -338,9 +359,8 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       public TestableSequentialFile(SequentialFileFactory factory,
                                     File directory,
                                     String file,
-                                    int maxIO,
-                                    Executor writerExecutor) {
-         super(factory, directory, file, maxIO, writerExecutor);
+                                    int maxIO) {
+         super(factory, directory, file, maxIO);
       }
 
       @Override
@@ -354,35 +374,44 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
          super.close(waitSync, block);
          openFiles.remove(TestableSequentialFile.this);
       }
+
+      private static File newFolder(File root, String... subDirs) throws IOException {
+         String subFolder = String.join("/", subDirs);
+         File result = new File(root, subFolder);
+         if (!result.mkdirs()) {
+            throw new IOException("Couldn't create folders " + root);
+         }
+         return result;
+      }
    }
 
-   protected HAPolicyConfiguration createReplicationLiveConfiguration() {
+   protected HAPolicyConfiguration createReplicationPrimaryConfiguration() {
       return new ReplicatedPolicyConfiguration()
          .setVoteOnReplicationFailure(false)
-         .setCheckForLiveServer(false);
+         .setCheckForActiveServer(false);
    }
 
    // Set a small call timeout and write buffer high water mark value to trigger replication flow control
-   private Configuration createLiveConfiguration() throws Exception {
+   private Configuration createPrimaryConfiguration() throws Exception {
       Configuration conf = new ConfigurationImpl();
-      conf.setName("localhost::live");
+      conf.setName("localhost::primary");
 
-      File liveDir = brokersFolder.newFolder("live");
-      conf.setBrokerInstance(liveDir);
+      File primaryDir = newFolder(brokersFolder, "primary");
+      conf.setBrokerInstance(primaryDir);
 
-      conf.addAcceptorConfiguration("live", "tcp://localhost:61616?writeBufferHighWaterMark=2048&writeBufferLowWaterMark=2048");
+      conf.addAcceptorConfiguration("primary", "tcp://localhost:61616?writeBufferHighWaterMark=2048&writeBufferLowWaterMark=2048");
       conf.addConnectorConfiguration("backup", "tcp://localhost:61617");
-      conf.addConnectorConfiguration("live", "tcp://localhost:61616");
+      conf.addConnectorConfiguration("primary", "tcp://localhost:61616");
 
       conf.setClusterUser("mycluster");
       conf.setClusterPassword("mypassword");
 
-      conf.setHAPolicyConfiguration(createReplicationLiveConfiguration());
+      conf.setHAPolicyConfiguration(createReplicationPrimaryConfiguration());
 
       ClusterConnectionConfiguration ccconf = new ClusterConnectionConfiguration();
       ccconf.setStaticConnectors(new ArrayList<>()).getStaticConnectors().add("backup");
       ccconf.setName("cluster");
-      ccconf.setConnectorName("live");
+      ccconf.setConnectorName("primary");
       ccconf.setCallTimeout(4000);
       conf.addClusterConfiguration(ccconf);
 
@@ -399,7 +428,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       Configuration conf = new ConfigurationImpl();
       conf.setName("localhost::backup");
 
-      File backupDir = brokersFolder.newFolder("backup");
+      File backupDir = newFolder(brokersFolder, "backup");
       conf.setBrokerInstance(backupDir);
 
       conf.setHAPolicyConfiguration(createReplicationBackupConfiguration());
@@ -417,10 +446,9 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       ccconf.setConnectorName("backup");
       conf.addClusterConfiguration(ccconf);
 
-      /**
-       * Set a bad url then, as a result the backup node would make a decision
-       * of replicating from live node in the case of connection failure.
-       * Set big check period to not schedule checking which would stop server.
+      /*
+       * Set a bad url then, as a result the backup node would make a decision of replicating from live node in the case
+       * of connection failure. Set big check period to not schedule checking which would stop server.
        */
       conf.setNetworkCheckPeriod(1000000).setNetworkCheckURLList("http://localhost:28787").setSecurityEnabled(false).setJMXManagementEnabled(false).setJournalType(JournalType.MAPPED).setJournalFileSize(1024 * 512).setConnectionTTLOverride(60_000L);
 
@@ -474,5 +502,13 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
          }
          return true;
       }
+   }
+
+   private static File newFolder(File root, String subFolder) throws IOException {
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

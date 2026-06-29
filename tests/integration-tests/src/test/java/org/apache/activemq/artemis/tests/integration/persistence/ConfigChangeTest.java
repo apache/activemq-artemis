@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSContext;
 import javax.jms.Message;
@@ -37,8 +39,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ConfigChangeTest extends ActiveMQTestBase {
 
@@ -53,7 +54,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration()
          .setName("myAddress")
          .addRoutingType(RoutingType.ANYCAST)
-         .addQueueConfiguration(new QueueConfiguration("myQueue")
+         .addQueueConfiguration(QueueConfiguration.of("myQueue")
                                    .setAddress("myAddress")
                                    .setRoutingType(RoutingType.ANYCAST));
       addressConfigurations.add(addressConfiguration);
@@ -73,15 +74,15 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       addressConfiguration = new CoreAddressConfiguration()
          .setName("myAddress")
          .addRoutingType(RoutingType.MULTICAST)
-         .addQueueConfiguration(new QueueConfiguration("myQueue")
+         .addQueueConfiguration(QueueConfiguration.of("myQueue")
                                    .setAddress("myAddress")
                                    .setRoutingType(RoutingType.MULTICAST));
       addressConfigurations.clear();
       addressConfigurations.add(addressConfiguration);
       configuration.setAddressConfigurations(addressConfigurations);
       server.start();
-      assertEquals(RoutingType.MULTICAST, server.getAddressInfo(SimpleString.toSimpleString("myAddress")).getRoutingType());
-      assertEquals(RoutingType.MULTICAST, server.locateQueue(SimpleString.toSimpleString("myQueue")).getRoutingType());
+      assertEquals(RoutingType.MULTICAST, server.getAddressInfo(SimpleString.of("myAddress")).getRoutingType());
+      assertEquals(RoutingType.MULTICAST, server.locateQueue(SimpleString.of("myQueue")).getRoutingType());
 
       //Ensures the queue isnt detroyed by checking message sent before change is consumable after (e.g. no message loss)
       try (JMSContext context = connectionFactory.createContext()) {
@@ -97,14 +98,14 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       final String filter1 = "x = 'x'";
       final String filter2 = "x = 'y'";
 
-      Configuration configuration = createDefaultInVMConfig(  );
+      Configuration configuration = createDefaultInVMConfig();
       configuration.addAddressSetting("#", new AddressSettings());
 
       List addressConfigurations = new ArrayList();
       CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration()
          .setName("myAddress")
          .addRoutingType(RoutingType.ANYCAST)
-         .addQueueConfiguration(new QueueConfiguration("myQueue")
+         .addQueueConfiguration(QueueConfiguration.of("myQueue")
                                    .setAddress("myAddress")
                                    .setFilterString(filter1)
                                    .setRoutingType(RoutingType.ANYCAST));
@@ -118,14 +119,14 @@ public class ConfigChangeTest extends ActiveMQTestBase {
          context.createProducer().setProperty("x", "x").send(context.createQueue("myAddress"), "hello");
       }
 
-      long originalBindingId = server.getPostOffice().getBinding(SimpleString.toSimpleString("myQueue")).getID();
+      long originalBindingId = server.getPostOffice().getBinding(SimpleString.of("myQueue")).getID();
 
       server.stop();
 
       addressConfiguration = new CoreAddressConfiguration()
          .setName("myAddress")
          .addRoutingType(RoutingType.ANYCAST)
-         .addQueueConfiguration(new QueueConfiguration("myQueue")
+         .addQueueConfiguration(QueueConfiguration.of("myQueue")
                                    .setAddress("myAddress")
                                    .setFilterString(filter2)
                                    .setRoutingType(RoutingType.ANYCAST));
@@ -134,7 +135,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       configuration.setAddressConfigurations(addressConfigurations);
 
       server.start();
-      assertEquals(filter2, server.locateQueue(SimpleString.toSimpleString("myQueue")).getFilter().getFilterString().toString());
+      assertEquals(filter2, server.locateQueue(SimpleString.of("myQueue")).getFilter().getFilterString().toString());
 
       //Ensures the queue is not destroyed by checking message sent before change is consumable after (e.g. no message loss)
       try (JMSContext context = connectionFactory.createContext()) {
@@ -142,8 +143,8 @@ public class ConfigChangeTest extends ActiveMQTestBase {
          assertEquals("hello", ((TextMessage) message).getText());
       }
 
-      long bindingId = server.getPostOffice().getBinding(SimpleString.toSimpleString("myQueue")).getID();
-      assertEquals("Ensure the original queue is not destroyed by checking the binding id is the same", originalBindingId, bindingId);
+      long bindingId = server.getPostOffice().getBinding(SimpleString.of("myQueue")).getID();
+      assertEquals(originalBindingId, bindingId, "Ensure the original queue is not destroyed by checking the binding id is the same");
 
       server.stop();
 
@@ -162,8 +163,8 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       String queue = "Q1";
       String forward = "Q2";
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(queue).setRoutingType(RoutingType.ANYCAST).setAutoDelete(false));
-      session.createQueue(new QueueConfiguration(forward).setAddress(forward).setRoutingType(RoutingType.ANYCAST).setAutoDelete(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(queue).setRoutingType(RoutingType.ANYCAST).setAutoDelete(false));
+      session.createQueue(QueueConfiguration.of(forward).setAddress(forward).setRoutingType(RoutingType.ANYCAST).setAutoDelete(false));
       session.close();
 
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName(bridgeName)
@@ -178,26 +179,26 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       server.getActiveMQServerControl().addConnector("connector2", "tcp://localhost:61616");
       server.getActiveMQServerControl().createBridge(bridgeConfiguration.toJSON());
 
-      Assert.assertEquals(2, server.getConfiguration().getConnectorConfigurations().size());
-      Assert.assertEquals(2, server.getActiveMQServerControl().getBridgeNames().length);
+      assertEquals(2, server.getConfiguration().getConnectorConfigurations().size());
+      assertEquals(2, server.getActiveMQServerControl().getBridgeNames().length);
       server.stop();
 
       // clear the in-memory connector configurations to force a reload from disk
       server.getConfiguration().getConnectorConfigurations().clear();
 
       server.start();
-      Assert.assertEquals(2, server.getConfiguration().getConnectorConfigurations().size());
-      Assert.assertEquals(2, server.getActiveMQServerControl().getBridgeNames().length);
+      assertEquals(2, server.getConfiguration().getConnectorConfigurations().size());
+      assertEquals(2, server.getActiveMQServerControl().getBridgeNames().length);
 
       server.getActiveMQServerControl().destroyBridge(bridgeName);
       server.getActiveMQServerControl().removeConnector("connector1");
       server.getActiveMQServerControl().removeConnector("connector2");
-      Assert.assertEquals(0, server.getActiveMQServerControl().getBridgeNames().length);
-      Assert.assertEquals(0, server.getConfiguration().getConnectorConfigurations().size());
+      assertEquals(0, server.getActiveMQServerControl().getBridgeNames().length);
+      assertEquals(0, server.getConfiguration().getConnectorConfigurations().size());
       server.stop();
       server.start();
-      Assert.assertEquals(0, server.getActiveMQServerControl().getBridgeNames().length);
-      Assert.assertEquals(0, server.getConfiguration().getConnectorConfigurations().size());
+      assertEquals(0, server.getActiveMQServerControl().getBridgeNames().length);
+      assertEquals(0, server.getConfiguration().getConnectorConfigurations().size());
       server.stop();
 
    }

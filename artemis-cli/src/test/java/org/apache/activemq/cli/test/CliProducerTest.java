@@ -16,13 +16,17 @@
  */
 package org.apache.activemq.cli.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -30,14 +34,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 public class CliProducerTest extends CliTestBase {
    private Connection connection;
    private ActiveMQConnectionFactory cf;
    private static final int TEST_MESSAGE_COUNT = 10;
 
-   @Before
+   @BeforeEach
    @Override
    public void setup() throws Exception {
       setupAuth();
@@ -47,7 +49,7 @@ public class CliProducerTest extends CliTestBase {
       connection = cf.createConnection("admin", "admin");
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       closeConnection(cf, connection);
@@ -55,8 +57,13 @@ public class CliProducerTest extends CliTestBase {
    }
 
    private void produceMessages(String address, String message, int msgCount) throws Exception {
+      produceMessages(address, message, msgCount, null);
+   }
+
+   private void produceMessages(String address, String message, int msgCount, String properties) throws Exception {
       new Producer()
          .setMessage(message)
+         .setProperties(properties)
          .setMessageCount(msgCount)
          .setDestination(address)
          .setUser("admin")
@@ -73,7 +80,9 @@ public class CliProducerTest extends CliTestBase {
 
       List<Message> received = consumeMessages(session, address, TEST_MESSAGE_COUNT, CompositeAddress.isFullyQualified(address));
       for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
-         if (!isCustomMessageBody) messageBody = "test message: " + String.valueOf(i);
+         if (!isCustomMessageBody) {
+            messageBody = "test message: " + String.valueOf(i);
+         }
          assertEquals(messageBody, ((TextMessage) received.get(i)).getText());
       }
    }
@@ -86,6 +95,28 @@ public class CliProducerTest extends CliTestBase {
       produceMessages(address, TEST_MESSAGE_COUNT);
 
       checkSentMessages(session, address, null);
+   }
+
+   @Test
+   public void testSendMessageWithProperties() throws Exception {
+      String address = "test";
+      Session session = createSession(connection);
+
+      String myBooleanKey = "myBooleanKey";
+      String myStringKey = "myStringKey";
+      String myStringValue = RandomUtil.randomUUIDString();
+      String propertiesJson = ("[{'type':'boolean','key':'" + myBooleanKey + "','value':'true'},{'type':'string','key':'" + myStringKey + "','value':'" + myStringValue + "'}]").replaceAll("'", "\"");
+
+      produceMessages(address, null, 1, propertiesJson);
+
+      List<Message> consumedMessages = consumeMessages(session, address, 1, false);
+      assertEquals(1, consumedMessages.size());
+
+      Message msg = consumedMessages.get(0);
+      assertTrue(msg.propertyExists(myBooleanKey));
+      assertTrue(msg.getBooleanProperty(myBooleanKey));
+      assertTrue(msg.propertyExists(myStringKey));
+      assertEquals(myStringValue, msg.getStringProperty(myStringKey));
    }
 
    @Test
@@ -107,7 +138,7 @@ public class CliProducerTest extends CliTestBase {
       String address = "test";
       String queue = "queue";
       String fqqn = address + "::" + queue;
-      String messageBody = new StringGenerator().generateRandomString(20);
+      String messageBody = RandomUtil.randomAlphaNumericString(20);
 
       createQueue(RoutingType.MULTICAST, address, queue);
       Session session = createSession(connection);
@@ -120,7 +151,7 @@ public class CliProducerTest extends CliTestBase {
    @Test
    public void testSendMessageWithCustomBody() throws Exception {
       String address = "test";
-      String messageBody = new StringGenerator().generateRandomString(20);
+      String messageBody = RandomUtil.randomAlphaNumericString(20);
 
       Session session = createSession(connection);
 
@@ -132,7 +163,7 @@ public class CliProducerTest extends CliTestBase {
    @Test
    public void testSendMessageWithCustomBodyLongString() throws Exception {
       String address = "test";
-      String messageBody = new StringGenerator().generateRandomString(500000);
+      String messageBody = RandomUtil.randomAlphaNumericString(500_000);
 
       Session session = createSession(connection);
 

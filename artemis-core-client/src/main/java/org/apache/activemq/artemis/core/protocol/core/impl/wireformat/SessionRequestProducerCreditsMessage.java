@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -65,38 +67,30 @@ public class SessionRequestProducerCreditsMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + credits;
-      return result;
+      return Objects.hash(super.hashCode(), address, credits);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", credits=" + credits);
-      buff.append(", address=" + address);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", credits=" + credits);
+      sb.append(", address=" + address);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionRequestProducerCreditsMessage))
+      }
+      if (!(obj instanceof SessionRequestProducerCreditsMessage other)) {
          return false;
-      SessionRequestProducerCreditsMessage other = (SessionRequestProducerCreditsMessage) obj;
-      if (address == null) {
-         if (other.address != null)
-            return false;
-      } else if (!address.equals(other.address))
-         return false;
-      if (credits != other.credits)
-         return false;
-      return true;
-   }
+      }
 
+      return Objects.equals(address, other.address) &&
+             credits == other.credits;
+   }
 }

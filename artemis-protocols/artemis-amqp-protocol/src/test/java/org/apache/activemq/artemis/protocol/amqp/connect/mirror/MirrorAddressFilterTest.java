@@ -16,21 +16,23 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MirrorAddressFilterTest {
 
    @Test
    public void testAddressFilter() {
-      Assert.assertTrue(new MirrorAddressFilter("").match(new SimpleString("any")));
-      Assert.assertTrue(new MirrorAddressFilter("test").match(new SimpleString("test123")));
-      Assert.assertTrue(new MirrorAddressFilter("a,b").match(new SimpleString("b")));
-      Assert.assertTrue(new MirrorAddressFilter("!c").match(new SimpleString("a")));
-      Assert.assertTrue(new MirrorAddressFilter("!a,!").match(new SimpleString("b123")));
-      Assert.assertFalse(new MirrorAddressFilter("a,b,!ab").match(new SimpleString("ab")));
-      Assert.assertFalse(new MirrorAddressFilter("!a,!b").match(new SimpleString("b123")));
-      Assert.assertFalse(new MirrorAddressFilter("a,").match(new SimpleString("b")));
+      assertTrue(new MirrorAddressFilter("").match(SimpleString.of("any")));
+      assertTrue(new MirrorAddressFilter("test").match(SimpleString.of("test123")));
+      assertTrue(new MirrorAddressFilter("a,b").match(SimpleString.of("b")));
+      assertTrue(new MirrorAddressFilter("!c").match(SimpleString.of("a")));
+      assertTrue(new MirrorAddressFilter("!a,!").match(SimpleString.of("b123")));
+      assertFalse(new MirrorAddressFilter("a,b,!ab").match(SimpleString.of("ab")));
+      assertFalse(new MirrorAddressFilter("!a,!b").match(SimpleString.of("b123")));
+      assertFalse(new MirrorAddressFilter("a,").match(SimpleString.of("b")));
    }
 }

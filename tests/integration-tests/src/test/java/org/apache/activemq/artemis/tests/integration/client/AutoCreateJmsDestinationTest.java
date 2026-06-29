@@ -36,7 +36,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
@@ -51,19 +50,24 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.api.core.management.ResourceNames.ADDRESS;
-import static org.apache.activemq.artemis.api.core.management.ResourceNames.QUEUE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
@@ -97,12 +101,12 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          Message m = messageConsumer.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
       }
 
       // make sure the JMX control was created for the address and queue
-      assertNotNull(server.getManagementService().getResource(ADDRESS + QUEUE_NAME));
-      assertNotNull(server.getManagementService().getResource(QUEUE + QUEUE_NAME));
+      assertNotNull(server.getManagementService().getAddressControl(QUEUE_NAME));
+      assertNotNull(server.getManagementService().getQueueControl(QUEUE_NAME));
 
       connection.close();
    }
@@ -111,8 +115,8 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
    public void testAutoCreateOnSendToFQQN() throws Exception {
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      String queueName = RandomUtil.randomString();
-      String addressName = RandomUtil.randomString();
+      String queueName = RandomUtil.randomUUIDString();
+      String addressName = RandomUtil.randomUUIDString();
 
       javax.jms.Queue queue = ActiveMQJMSClient.createQueue(CompositeAddress.toFullyQualified(addressName, queueName));
 
@@ -132,12 +136,12 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          Message m = messageConsumer.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
       }
 
       // make sure the JMX control was created for the address and queue
-      assertNotNull(server.getManagementService().getResource(ADDRESS + addressName));
-      assertNotNull(server.getManagementService().getResource(QUEUE + queueName));
+      assertNotNull(server.getManagementService().getAddressControl(addressName));
+      assertNotNull(server.getManagementService().getQueueControl(queueName));
 
       connection.close();
    }
@@ -165,7 +169,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          Message m = messageConsumer.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
       }
 
       connection.close();
@@ -175,8 +179,8 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
    public void testAutoCreateOnSendToFQQNAnonymousProducer() throws Exception {
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      String queueName = RandomUtil.randomString();
-      String addressName = RandomUtil.randomString();
+      String queueName = RandomUtil.randomUUIDString();
+      String addressName = RandomUtil.randomUUIDString();
 
       javax.jms.Queue queue = ActiveMQJMSClient.createQueue(CompositeAddress.toFullyQualified(addressName, queueName));
 
@@ -196,7 +200,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          Message m = messageConsumer.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
       }
 
       connection.close();
@@ -207,7 +211,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("guest", "rejectAll");
-      Role role = new Role("rejectAll", false, false, false, false, false, false, false, false, false, false);
+      Role role = new Role("rejectAll", false, false, false, false, false, false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch("#", roles);
@@ -218,9 +222,9 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       try {
          session.createProducer(queue);
-         Assert.fail("Sending a message here should throw a JMSSecurityException");
+         fail("Sending a message here should throw a JMSSecurityException");
       } catch (Exception e) {
-         Assert.assertTrue(e instanceof JMSSecurityException);
+         assertInstanceOf(JMSSecurityException.class, e);
       }
 
       connection.close();
@@ -238,7 +242,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       connection.close();
 
-      assertNotNull(server.getManagementService().getResource(ResourceNames.ADDRESS + "test"));
+      assertNotNull(server.getManagementService().getAddressControl("test"));
    }
 
    @Test
@@ -253,11 +257,11 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       connection.start();
 
       Message m = messageConsumer.receive(500);
-      Assert.assertNull(m);
+      assertNull(m);
 
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(QUEUE_NAME)).getBindable();
-      Assert.assertEquals(0, q.getMessageCount());
-      Assert.assertEquals(0, q.getMessagesAdded());
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.of(QUEUE_NAME)).getBindable();
+      assertEquals(0, q.getMessageCount());
+      assertEquals(0, q.getMessagesAdded());
       connection.close();
    }
 
@@ -266,8 +270,8 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       Connection connection = null;
       connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      String queueName = RandomUtil.randomString();
-      String addressName = RandomUtil.randomString();
+      String queueName = RandomUtil.randomUUIDString();
+      String addressName = RandomUtil.randomUUIDString();
 
       javax.jms.Queue queue = ActiveMQJMSClient.createQueue(CompositeAddress.toFullyQualified(addressName, queueName));
 
@@ -275,11 +279,11 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       connection.start();
 
       Message m = messageConsumer.receive(500);
-      Assert.assertNull(m);
+      assertNull(m);
 
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
-      Assert.assertEquals(0, q.getMessageCount());
-      Assert.assertEquals(0, q.getMessagesAdded());
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.of(queueName)).getBindable();
+      assertEquals(0, q.getMessageCount());
+      assertEquals(0, q.getMessagesAdded());
       connection.close();
    }
 
@@ -297,14 +301,14 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       connection.start();
       assertNotNull(consumer.receive(500));
 
-      assertNotNull(server.getManagementService().getResource(ResourceNames.ADDRESS + topicName));
+      assertNotNull(server.getManagementService().getAddressControl(topicName));
 
       connection.close();
 
       PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
       PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
 
-      Wait.assertTrue(() -> server.getManagementService().getResource(ResourceNames.ADDRESS + topicName) == null);
+      Wait.assertTrue(() -> server.getManagementService().getAddressControl(topicName) == null);
    }
 
    @Test
@@ -323,9 +327,9 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       connection.close();
 
-      assertNotNull(server.getManagementService().getResource(ResourceNames.ADDRESS + "test"));
+      assertNotNull(server.getManagementService().getAddressControl("test"));
 
-      assertNotNull(server.locateQueue(SimpleString.toSimpleString("myClientID.myDurableSub")));
+      assertNotNull(server.locateQueue(SimpleString.of("myClientID.myDurableSub")));
    }
 
    @Test
@@ -399,10 +403,11 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
          producer.send(session.createTextMessage("hello"));
       }
 
-      Assert.assertTrue((((ActiveMQDestination) topic).isCreated()));
+      assertTrue((((ActiveMQDestination) topic).isCreated()));
    }
 
-   @Test (timeout = 30000)
+   @Test
+   @Timeout(30)
    // QueueAutoCreationTest was created to validate auto-creation of queues
    // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
    public void testAutoCreateOnAddressOnly() throws Exception {
@@ -420,15 +425,16 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
          MessageProducer producer = session.createProducer(null);
          try {
             producer.send(queue, session.createTextMessage("hello"));
-            Assert.fail("Expected to throw exception here");
+            fail("Expected to throw exception here");
          } catch (JMSException expected) {
          }
-         Assert.assertFalse(((ActiveMQDestination) queue).isCreated());
+         assertFalse(((ActiveMQDestination) queue).isCreated());
       }
 
    }
 
-   @Test (timeout = 30000)
+   @Test
+   @Timeout(30)
    // QueueAutoCreationTest was created to validate auto-creation of queues
    // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
    public void testAutoCreateOnAddressOnlyDuringProducerCreate() throws Exception {
@@ -444,15 +450,16 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try {
          MessageProducer producer = session.createProducer(queue);
-         Assert.fail("Exception expected");
+         fail("Exception expected");
       } catch (JMSException expected) {
       }
 
-      Assert.assertFalse(((ActiveMQDestination) queue).isCreated());
+      assertFalse(((ActiveMQDestination) queue).isCreated());
    }
 
 
-   @Test (timeout = 30000)
+   @Test
+   @Timeout(30)
    // QueueAutoCreationTest was created to validate auto-creation of queues
    // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
    public void testAutoCreateOnAddressOnlyDuringProducerCreateQueueSucceed() throws Exception {
@@ -467,21 +474,21 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
          javax.jms.Queue queue = new ActiveMQQueue(addressName.toString());
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(queue);
-         Assert.assertNotNull(server.locateQueue(addressName));
+         assertNotNull(server.locateQueue(addressName));
 
-         Assert.assertTrue(((ActiveMQDestination) queue).isCreated());
+         assertTrue(((ActiveMQDestination) queue).isCreated());
       }
    }
 
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("guest", "allowAll");
-      Role role = new Role("allowAll", true, true, true, true, true, true, true, true, true, true);
+      Role role = new Role("allowAll", true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch("#", roles);
@@ -490,7 +497,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       clientSession = factory.createSession();
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       clientSession.close();

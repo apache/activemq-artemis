@@ -16,7 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -28,15 +33,17 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.io.DummyCallback;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFile;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -105,18 +112,18 @@ public class TimedBufferTest extends ActiveMQTestBase {
 
          timedBuffer.checkSize(1);
 
-         Assert.assertEquals(1, flushTimes.get());
+         assertEquals(1, flushTimes.get());
 
          ByteBuffer flushedBuffer = buffers.get(0);
 
-         Assert.assertEquals(100, flushedBuffer.limit());
+         assertEquals(100, flushedBuffer.limit());
 
-         Assert.assertEquals(100, flushedBuffer.capacity());
+         assertEquals(100, flushedBuffer.capacity());
 
          flushedBuffer.rewind();
 
          for (int i = 0; i < 100; i++) {
-            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), flushedBuffer.get());
+            assertEquals(ActiveMQTestBase.getSamplebyte(i), flushedBuffer.get());
          }
       } finally {
          timedBuffer.stop();
@@ -183,7 +190,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          timedBuffer.addBytes(buff, true, callback);
          Thread.sleep(100);
          timedBuffer.addBytes(buff, true, callback);
-         Assert.assertTrue(latchFlushed.await(5, TimeUnit.SECONDS));
+         assertTrue(latchFlushed.await(5, TimeUnit.SECONDS));
          latchFlushed.setCount(5);
 
 
@@ -195,23 +202,90 @@ public class TimedBufferTest extends ActiveMQTestBase {
             timedBuffer.addBytes(buff, true, callback);
             Thread.sleep(1);
          }
-         Assert.assertTrue(latchFlushed.await(5, TimeUnit.SECONDS));
+         assertTrue(latchFlushed.await(5, TimeUnit.SECONDS));
 
          // The purpose of the timed buffer is to batch writes up to a millisecond.. or up to the size of the buffer.
-         Assert.assertTrue("Timed Buffer is not batching accordingly, it was expected to take at least 500 seconds batching multiple writes while it took " + (System.currentTimeMillis() - time) + " milliseconds", System.currentTimeMillis() - time >= 450);
+         assertTrue(System.currentTimeMillis() - time >= 450, "Timed Buffer is not batching accordingly, it was expected to take at least 500 seconds batching multiple writes while it took " + (System.currentTimeMillis() - time) + " milliseconds");
 
          // ^^ there are some discounts that can happen inside the timed buffer that are still considered valid (like discounting the time it took to perform the operation itself
          // for that reason the test has been failing (before this commit) at 499 or 480 milliseconds. So, I'm using a reasonable number close to 500 milliseconds that would still be valid for the test
 
          // it should be in fact only writing once..
          // i will set for 3 just in case there's a GC or anything else happening on the test
-         Assert.assertTrue("Too many writes were called", flushes.get() <= 3);
+         assertTrue(flushes.get() <= 3, "Too many writes were called");
       } finally {
          timedBuffer.stop();
       }
+   }
 
+   @Test
+   public void testSyncOnNIOClosed() throws Exception {
+      TimedBuffer timedBuffer = new TimedBuffer(null, 100, 1, false);
+      timedBuffer.start();
+      runAfterEx(timedBuffer::stop);
 
+      NIOSequentialFileFactory factory = new NIOSequentialFileFactory(getTestDirfile(), 1) {
+         @Override
+         public SequentialFile createSequentialFile(final String fileName) {
+            return new NIOSequentialFile(this, journalDir, fileName, maxIO) {
+               @Override
+               protected void syncChannel(FileChannel channel) throws IOException {
+                  try {
+                     close(true, true);
+                  } catch (Throwable e) {
+                     logger.warn(e.getMessage(), e);
+                  }
+                  super.syncChannel(channel);
+               }
+            };
+         }
+      };
+      assertTrue(factory.isDatasync());
 
+      AtomicInteger errors = new AtomicInteger(0);
+
+      int x = 0;
+
+      byte[] bytes = new byte[10];
+      for (int j = 0; j < 10; j++) {
+         bytes[j] = ActiveMQTestBase.getSamplebyte(x++);
+      }
+
+      ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);
+
+      ReusableLatch done = new ReusableLatch(1);
+      IOCallback callback = new IOCallback() {
+         @Override
+         public void done() {
+            done.countDown();
+         }
+
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+            logger.warn("error= {} / {}", errorCode, errorMessage);
+            errors.incrementAndGet();
+         }
+      };
+
+      try {
+         for (int i = 0; i < 100; i++) {
+            if (i % 10 == 0) {
+               logger.info("i {}", i);
+            }
+            done.setCount(1);
+            SequentialFile closeOnSyncFile = factory.createSequentialFile("test.txt", 1);
+            closeOnSyncFile.open(100, false);
+            closeOnSyncFile.position(0);
+            closeOnSyncFile.setTimedBuffer(timedBuffer);
+            timedBuffer.addBytes(buff, true, callback);
+            assertTrue(done.await(1, TimeUnit.MINUTES));
+            assertEquals(0, errors.get());
+            closeOnSyncFile.close(true, true);
+         }
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
+         throw e;
+      }
    }
 
    private static void spinSleep(long timeout) {
@@ -354,8 +428,8 @@ public class TimedBufferTest extends ActiveMQTestBase {
    };
 
    /**
-    * This test is showing the behaviour of the TimedBuffer with a blocking API (NIO/MAPPED) and
-    * how the timeout value is not == 1/IOPS like the ASYNCIO case
+    * This test is showing the behaviour of the TimedBuffer with a blocking API (NIO/MAPPED) and how the timeout value
+    * is not == 1/IOPS like the ASYNCIO case
     */
    @Test
    public void timeoutShouldMatchFlushIOPSWithNotBlockingFlush() {
@@ -388,15 +462,15 @@ public class TimedBufferTest extends ActiveMQTestBase {
          //while it has to be IOPS = 1/timeout
          logger.debug("elapsed time: {} with timeout: {}", elapsedTime, timeout);
          final long maxExpected = timeout + deviceTime;
-         Assert.assertTrue("elapsed = " + elapsedTime + " max expected = " + maxExpected, elapsedTime <= maxExpected);
+         assertTrue(elapsedTime <= maxExpected, "elapsed = " + elapsedTime + " max expected = " + maxExpected);
       } finally {
          timedBuffer.stop();
       }
    }
 
    /**
-    * This test is showing the behaviour of the TimedBuffer with a blocking API (NIO/MAPPED) and
-    * how the timeout value is not == 1/IOPS like the ASYNCIO case
+    * This test is showing the behaviour of the TimedBuffer with a blocking API (NIO/MAPPED) and how the timeout value
+    * is not == 1/IOPS like the ASYNCIO case
     */
    @Test
    public void timeoutShouldMatchFlushIOPSWithBlockingFlush() {
@@ -429,7 +503,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          //while it has to be IOPS = 1/timeout
          logger.debug("elapsed time: {} with timeout: {}", elapsedTime, timeout);
          final long maxExpected = timeout + deviceTime;
-         Assert.assertTrue("elapsed = " + elapsedTime + " max expected = " + maxExpected, elapsedTime <= maxExpected);
+         assertTrue(elapsedTime <= maxExpected, "elapsed = " + elapsedTime + " max expected = " + maxExpected);
       } finally {
          timedBuffer.stop();
       }
@@ -483,7 +557,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
 
          Thread.sleep(200);
          int count = flushTimes.get();
-         Assert.assertTrue(count < 3);
+         assertTrue(count < 3);
 
          bytes = new byte[10];
          for (int j = 0; j < 10; j++) {
@@ -509,18 +583,18 @@ public class TimedBufferTest extends ActiveMQTestBase {
 
          Thread.sleep(500);
 
-         Assert.assertEquals(count + 2, flushTimes.get());
+         assertEquals(count + 2, flushTimes.get());
 
          ByteBuffer flushedBuffer = buffers.get(0);
 
-         Assert.assertEquals(30, flushedBuffer.limit());
+         assertEquals(30, flushedBuffer.limit());
 
-         Assert.assertEquals(30, flushedBuffer.capacity());
+         assertEquals(30, flushedBuffer.capacity());
 
          flushedBuffer.rewind();
 
          for (int i = 0; i < 30; i++) {
-            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), flushedBuffer.get());
+            assertEquals(ActiveMQTestBase.getSamplebyte(i), flushedBuffer.get());
          }
       } finally {
          timedBuffer.stop();

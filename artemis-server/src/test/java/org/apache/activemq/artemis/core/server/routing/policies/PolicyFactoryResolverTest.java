@@ -16,10 +16,11 @@
  */
 package org.apache.activemq.artemis.core.server.routing.policies;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.Test;
 
 public class PolicyFactoryResolverTest {
 
@@ -29,10 +30,12 @@ public class PolicyFactoryResolverTest {
       assertNotNull(instance.resolve(ConsistentHashPolicy.NAME));
    }
 
-   @Test(expected = ClassNotFoundException.class)
+   @Test
    public void resolveError() throws Exception {
-      PolicyFactoryResolver instance = PolicyFactoryResolver.getInstance();
-      assertNotNull(instance.resolve("NOT PRESENT"));
+      assertThrows(ClassNotFoundException.class, () -> {
+         PolicyFactoryResolver instance = PolicyFactoryResolver.getInstance();
+         assertNotNull(instance.resolve("NOT PRESENT"));
+      });
    }
 
    @Test

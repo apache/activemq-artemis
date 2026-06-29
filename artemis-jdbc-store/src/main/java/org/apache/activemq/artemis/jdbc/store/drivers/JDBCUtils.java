@@ -50,7 +50,8 @@ public class JDBCUtils {
    }
 
    /**
-    * Append to {@code errorMessage} a detailed description of the provided {@link SQLException}.<br>
+    * Append to {@code errorMessage} a detailed description of the provided {@link SQLException}.
+    * <p>
     * The information appended are:
     * <ul>
     * <li>SQL STATEMENTS</li>
@@ -71,7 +72,8 @@ public class JDBCUtils {
    }
 
    /**
-    * Append to {@code errorMessage} a detailed description of the provided {@link SQLException}.<br>
+    * Append to {@code errorMessage} a detailed description of the provided {@link SQLException}.
+    * <p>
     * The information appended are:
     * <ul>
     * <li>SQL EXCEPTIONS details ({@link SQLException#getSQLState},
@@ -88,9 +90,7 @@ public class JDBCUtils {
       int level = 0;
       do {
          errorMessage.append('\n');
-         for (int i = 0; i < level; i++) {
-            errorMessage.append(' ');
-         }
+         errorMessage.append(" ".repeat(level));
          formatSqlException(errorMessage, nextEx);
          nextEx = nextEx.getNextException();
          level++;

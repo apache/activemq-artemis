@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.server.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -56,10 +63,9 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -76,7 +82,7 @@ public class QueueImplTest extends ActiveMQTestBase {
    private ActiveMQServer defaultServer;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       scheduledExecutor = Executors.newSingleThreadScheduledExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
@@ -86,35 +92,35 @@ public class QueueImplTest extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       scheduledExecutor.shutdownNow();
       executor.shutdownNow();
       super.tearDown();
    }
 
-   private static final SimpleString queue1 = new SimpleString("queue1");
+   private static final SimpleString queue1 = SimpleString.of("queue1");
 
-   private static final SimpleString address1 = new SimpleString("address1");
+   private static final SimpleString address1 = SimpleString.of("address1");
 
    @Test
    public void testName() {
-      final SimpleString name = new SimpleString("oobblle");
+      final SimpleString name = SimpleString.of("oobblle");
 
       QueueImpl queue = getNamedQueue(name);
 
-      Assert.assertEquals(name, queue.getName());
+      assertEquals(name, queue.getName());
    }
 
    @Test
    public void testDurable() {
       QueueImpl queue = getNonDurableQueue();
 
-      Assert.assertFalse(queue.isDurable());
+      assertFalse(queue.isDurable());
 
       queue = getDurableQueue();
 
-      Assert.assertTrue(queue.isDurable());
+      assertTrue(queue.isDurable());
    }
 
    @Test
@@ -127,15 +133,15 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       QueueImpl queue = getTemporaryQueue();
 
-      Assert.assertEquals(0, queue.getConsumerCount());
+      assertEquals(0, queue.getConsumerCount());
 
       queue.addConsumer(cons1);
 
-      Assert.assertEquals(1, queue.getConsumerCount());
+      assertEquals(1, queue.getConsumerCount());
 
       queue.removeConsumer(cons1);
 
-      Assert.assertEquals(0, queue.getConsumerCount());
+      assertEquals(0, queue.getConsumerCount());
 
       queue.addConsumer(cons1);
 
@@ -143,23 +149,23 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.addConsumer(cons3);
 
-      Assert.assertEquals(3, queue.getConsumerCount());
+      assertEquals(3, queue.getConsumerCount());
 
       queue.removeConsumer(new FakeConsumer());
 
-      Assert.assertEquals(3, queue.getConsumerCount());
+      assertEquals(3, queue.getConsumerCount());
 
       queue.removeConsumer(cons1);
 
-      Assert.assertEquals(2, queue.getConsumerCount());
+      assertEquals(2, queue.getConsumerCount());
 
       queue.removeConsumer(cons2);
 
-      Assert.assertEquals(1, queue.getConsumerCount());
+      assertEquals(1, queue.getConsumerCount());
 
       queue.removeConsumer(cons3);
 
-      Assert.assertEquals(0, queue.getConsumerCount());
+      assertEquals(0, queue.getConsumerCount());
 
       queue.removeConsumer(cons3);
    }
@@ -168,7 +174,7 @@ public class QueueImplTest extends ActiveMQTestBase {
    public void testGetFilter() {
       QueueImpl queue = getTemporaryQueue();
 
-      Assert.assertNull(queue.getFilter());
+      assertNull(queue.getFilter());
 
       Filter filter = new Filter() {
          @Override
@@ -194,7 +200,7 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue = getFilteredQueue(filter);
 
-      Assert.assertEquals(filter, queue.getFilter());
+      assertEquals(filter, queue.getFilter());
 
    }
 
@@ -210,9 +216,9 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.addTail(ref);
       }
 
-      Assert.assertEquals(numMessages, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
+      assertEquals(numMessages, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
 
    }
 
@@ -234,7 +240,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       getRate.setAccessible(true);
       float rate = (float) getRate.invoke(queue, null);
 
-      Assert.assertTrue(rate <= 10.0f);
+      assertTrue(rate <= 10.0f);
       logger.debug("Rate: {}", rate);
    }
 
@@ -254,25 +260,25 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.addTail(ref);
       }
 
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
 
       // Now add a consumer
       FakeConsumer consumer = new FakeConsumer();
 
       queue.addConsumer(consumer);
 
-      Assert.assertTrue(consumer.getReferences().isEmpty());
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
+      assertTrue(consumer.getReferences().isEmpty());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
 
       queue.deliverNow();
 
       assertRefListsIdenticalRefs(refs, consumer.getReferences());
-      Assert.assertEquals(numMessages, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(numMessages, queue.getDeliveringCount());
+      assertEquals(numMessages, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(numMessages, queue.getDeliveringCount());
    }
 
    @Test
@@ -297,25 +303,25 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.addTail(ref);
       }
 
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
 
       queue.deliverNow();
 
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
-      Assert.assertTrue(consumer.getReferences().isEmpty());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
+      assertTrue(consumer.getReferences().isEmpty());
 
       consumer.setStatusImmediate(HandleStatus.HANDLED);
 
       queue.deliverNow();
 
       assertRefListsIdenticalRefs(refs, consumer.getReferences());
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(10, queue.getDeliveringCount());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(10, queue.getDeliveringCount());
    }
 
    @Test
@@ -340,16 +346,16 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.addTail(ref);
       }
 
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
 
       queue.deliverNow();
 
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
-      Assert.assertTrue(consumer.getReferences().isEmpty());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
+      assertTrue(consumer.getReferences().isEmpty());
 
       for (int i = numMessages; i < numMessages * 2; i++) {
          MessageReference ref = generateReference(queue, i);
@@ -359,10 +365,10 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.addTail(ref);
       }
 
-      Assert.assertEquals(20, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
-      Assert.assertTrue(consumer.getReferences().isEmpty());
+      assertEquals(20, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
+      assertTrue(consumer.getReferences().isEmpty());
 
       consumer.setStatusImmediate(HandleStatus.HANDLED);
 
@@ -377,9 +383,9 @@ public class QueueImplTest extends ActiveMQTestBase {
       queue.deliverNow();
 
       assertRefListsIdenticalRefs(refs, consumer.getReferences());
-      Assert.assertEquals(30, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(30, queue.getDeliveringCount());
+      assertEquals(30, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(30, queue.getDeliveringCount());
    }
 
    @Test
@@ -449,9 +455,9 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.addTail(ref);
       }
 
-      Assert.assertEquals(numMessages, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
+      assertEquals(numMessages, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
 
       FakeConsumer cons1 = new FakeConsumer();
 
@@ -459,9 +465,9 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.deliverNow();
 
-      Assert.assertEquals(numMessages, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(numMessages, queue.getDeliveringCount());
+      assertEquals(numMessages, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(numMessages, queue.getDeliveringCount());
 
       assertRefListsIdenticalRefs(refs, cons1.getReferences());
 
@@ -469,7 +475,7 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.addConsumer(cons2);
 
-      Assert.assertEquals(2, queue.getConsumerCount());
+      assertEquals(2, queue.getConsumerCount());
 
       cons1.getReferences().clear();
 
@@ -490,13 +496,13 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.deliverNow();
 
-      Assert.assertEquals(numMessages * 2, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(numMessages * 2, queue.getDeliveringCount());
+      assertEquals(numMessages * 2, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(numMessages * 2, queue.getDeliveringCount());
 
-      Assert.assertEquals(numMessages, cons1.getReferences().size());
+      assertEquals(numMessages, cons1.getReferences().size());
 
-      Assert.assertEquals(numMessages, cons2.getReferences().size());
+      assertEquals(numMessages, cons2.getReferences().size());
 
       cons1.getReferences().clear();
       cons2.getReferences().clear();
@@ -510,7 +516,7 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.addConsumer(cons3);
 
-      Assert.assertEquals(3, queue.getConsumerCount());
+      assertEquals(3, queue.getConsumerCount());
 
       for (int i = 0; i < 3 * numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
@@ -522,15 +528,15 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.deliverNow();
 
-      Assert.assertEquals(numMessages * 3, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(numMessages * 3, queue.getDeliveringCount());
+      assertEquals(numMessages * 3, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(numMessages * 3, queue.getDeliveringCount());
 
-      Assert.assertEquals(numMessages, cons1.getReferences().size());
+      assertEquals(numMessages, cons1.getReferences().size());
 
-      Assert.assertEquals(numMessages, cons2.getReferences().size());
+      assertEquals(numMessages, cons2.getReferences().size());
 
-      Assert.assertEquals(numMessages, cons3.getReferences().size());
+      assertEquals(numMessages, cons3.getReferences().size());
 
       queue.removeConsumer(cons1);
 
@@ -552,13 +558,13 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.deliverNow();
 
-      Assert.assertEquals(numMessages * 2, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(numMessages * 2, queue.getDeliveringCount());
+      assertEquals(numMessages * 2, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(numMessages * 2, queue.getDeliveringCount());
 
-      Assert.assertEquals(numMessages, cons2.getReferences().size());
+      assertEquals(numMessages, cons2.getReferences().size());
 
-      Assert.assertEquals(numMessages, cons3.getReferences().size());
+      assertEquals(numMessages, cons3.getReferences().size());
 
       queue.removeConsumer(cons3);
 
@@ -579,11 +585,11 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.deliverNow();
 
-      Assert.assertEquals(numMessages, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(numMessages, queue.getDeliveringCount());
+      assertEquals(numMessages, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(numMessages, queue.getDeliveringCount());
 
-      Assert.assertEquals(numMessages, cons2.getReferences().size());
+      assertEquals(numMessages, cons2.getReferences().size());
 
    }
 
@@ -627,16 +633,16 @@ public class QueueImplTest extends ActiveMQTestBase {
          Thread.sleep(1);
       }
 
-      Assert.assertEquals(numMessages / 2, cons1.getReferences().size());
+      assertEquals(numMessages / 2, cons1.getReferences().size());
 
-      Assert.assertEquals(numMessages / 2, cons2.getReferences().size());
+      assertEquals(numMessages / 2, cons2.getReferences().size());
 
       for (int i = 0; i < numMessages; i++) {
          MessageReference ref;
 
          ref = i % 2 == 0 ? cons1.getReferences().get(i / 2) : cons2.getReferences().get(i / 2);
 
-         Assert.assertEquals(refs.get(i), ref);
+         assertEquals(refs.get(i), ref);
       }
    }
 
@@ -670,10 +676,10 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       // Should be in reverse order
 
-      Assert.assertEquals(refs.size(), receivedRefs.size());
+      assertEquals(refs.size(), receivedRefs.size());
 
       for (int i = 0; i < numMessages; i++) {
-         Assert.assertEquals(refs.get(i), receivedRefs.get(9 - i));
+         assertEquals(refs.get(i), receivedRefs.get(9 - i));
       }
 
    }
@@ -713,7 +719,7 @@ public class QueueImplTest extends ActiveMQTestBase {
          refs.add(ref);
       }
 
-      Assert.assertEquals(numMessages, getMessageCount(queue));
+      assertEquals(numMessages, getMessageCount(queue));
 
       Iterator<MessageReference> iterator = queue.iterator();
       List<MessageReference> list = new ArrayList<>();
@@ -746,25 +752,25 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       MessageReference ref1 = generateReference(queue, 1);
 
-      ref1.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("banana"));
+      ref1.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("banana"));
 
       queue.addTail(ref1);
 
       MessageReference ref2 = generateReference(queue, 2);
 
-      ref2.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("orange"));
+      ref2.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("orange"));
 
       queue.addTail(ref2);
 
       refs.add(ref2);
 
-      Assert.assertEquals(2, getMessageCount(queue));
+      assertEquals(2, getMessageCount(queue));
 
       awaitExecution();
 
-      Assert.assertEquals(1, consumer.getReferences().size());
+      assertEquals(1, consumer.getReferences().size());
 
-      Assert.assertEquals(1, queue.getDeliveringCount());
+      assertEquals(1, queue.getDeliveringCount());
 
       assertRefListsIdenticalRefs(refs, consumer.getReferences());
 
@@ -782,25 +788,25 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       MessageReference ref3 = generateReference(queue, 3);
 
-      ref3.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("banana"));
+      ref3.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("banana"));
 
       queue.addTail(ref3);
 
       MessageReference ref4 = generateReference(queue, 4);
 
-      ref4.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("orange"));
+      ref4.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("orange"));
 
       queue.addTail(ref4);
 
       refs.add(ref4);
 
-      Assert.assertEquals(3, getMessageCount(queue));
+      assertEquals(3, getMessageCount(queue));
 
       awaitExecution();
 
-      Assert.assertEquals(1, consumer.getReferences().size());
+      assertEquals(1, consumer.getReferences().size());
 
-      Assert.assertEquals(1, queue.getDeliveringCount());
+      assertEquals(1, queue.getDeliveringCount());
 
       assertRefListsIdenticalRefs(refs, consumer.getReferences());
    }
@@ -827,9 +833,9 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.addTail(ref);
       }
 
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
 
       queue.deliverNow();
 
@@ -840,7 +846,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       List<MessageReference> receeivedRefs = consumer.getReferences();
       int currId = 0;
       for (MessageReference receeivedRef : receeivedRefs) {
-         Assert.assertEquals("messages received out of order", receeivedRef.getMessage().getMessageID(), currId++);
+         assertEquals(receeivedRef.getMessage().getMessageID(), currId++, "messages received out of order");
       }
    }
 
@@ -866,16 +872,16 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.addTail(ref);
       }
 
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
 
       queue.deliverNow();
 
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
-      Assert.assertTrue(consumer.getReferences().isEmpty());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
+      assertTrue(consumer.getReferences().isEmpty());
 
       for (int i = numMessages; i < numMessages * 2; i++) {
          MessageReference ref = generateReference(queue, i);
@@ -885,10 +891,10 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.addTail(ref);
       }
 
-      Assert.assertEquals(20, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
-      Assert.assertTrue(consumer.getReferences().isEmpty());
+      assertEquals(20, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
+      assertTrue(consumer.getReferences().isEmpty());
 
       consumer.setStatusImmediate(null);
 
@@ -902,15 +908,15 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.deliverNow();
 
-      Assert.assertEquals(numMessages, consumer.getReferences().size());
-      Assert.assertEquals(30, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(10, queue.getDeliveringCount());
+      assertEquals(numMessages, consumer.getReferences().size());
+      assertEquals(30, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(10, queue.getDeliveringCount());
 
       List<MessageReference> receeivedRefs = consumer.getReferences();
       int currId = 10;
       for (MessageReference receeivedRef : receeivedRefs) {
-         Assert.assertEquals("messages received out of order", receeivedRef.getMessage().getMessageID(), currId++);
+         assertEquals(receeivedRef.getMessage().getMessageID(), currId++, "messages received out of order");
       }
    }
 
@@ -929,15 +935,15 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.addTail(ref);
       }
 
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
 
       queue.deliverNow();
 
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
 
       for (int i = numMessages; i < numMessages * 2; i++) {
          MessageReference ref = generateReference(queue, i);
@@ -953,9 +959,9 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.deliverNow();
 
-      Assert.assertEquals(20, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(10, queue.getDeliveringCount());
+      assertEquals(20, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(10, queue.getDeliveringCount());
 
       for (int i = numMessages * 2; i < numMessages * 3; i++) {
          MessageReference ref = generateReference(queue, i);
@@ -967,10 +973,10 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.deliverNow();
 
-      Assert.assertEquals(20, consumer.getReferences().size());
-      Assert.assertEquals(30, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(20, queue.getDeliveringCount());
+      assertEquals(20, consumer.getReferences().size());
+      assertEquals(30, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(20, queue.getDeliveringCount());
    }
 
 
@@ -989,10 +995,10 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.addTail(ref);
       }
 
-      Assert.assertEquals(numMessages, getMessageCount(queue));
+      assertEquals(numMessages, getMessageCount(queue));
       queue.deliverNow();
 
-      Assert.assertEquals(numMessages, getMessageCount(queue));
+      assertEquals(numMessages, getMessageCount(queue));
 
       FakeConsumer consumer = new FakeConsumer(FilterImpl.createFilter("color = 'green'"));
       queue.addConsumer(consumer);
@@ -1001,8 +1007,8 @@ public class QueueImplTest extends ActiveMQTestBase {
       queue.addConsumer(consumer2);
 
       queue.deliverNow();
-      Assert.assertEquals(0, consumer.getReferences().size());
-      Assert.assertEquals(0, consumer2.getReferences().size());
+      assertEquals(0, consumer.getReferences().size());
+      assertEquals(0, consumer2.getReferences().size());
 
       // verify redistributor is doing some work....
       try {
@@ -1018,9 +1024,9 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.deliverNow();
 
-      Assert.assertEquals(0, consumer.getReferences().size());
-      Assert.assertEquals(0, consumer2.getReferences().size());
-      Assert.assertEquals(0, consumer3.getReferences().size());
+      assertEquals(0, consumer.getReferences().size());
+      assertEquals(0, consumer2.getReferences().size());
+      assertEquals(0, consumer3.getReferences().size());
 
       // verify redistributor not yet needed, only consumer3 gets to
       // peek at pending
@@ -1043,7 +1049,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       } catch (NullPointerException expected) {
       }
 
-      Assert.assertEquals(numMessages + 1, getMessageCount(queue));
+      assertEquals(numMessages + 1, getMessageCount(queue));
    }
 
    @Test
@@ -1063,7 +1069,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       ref.getMessage().putStringProperty("color", "blue");
       queue.addTail(ref);
 
-      Assert.assertEquals(3, getMessageCount(queue));
+      assertEquals(3, getMessageCount(queue));
 
       FakeConsumer consumerRed = new FakeConsumer(FilterImpl.createFilter("color = 'red'"));
       queue.addConsumer(consumerRed);
@@ -1072,8 +1078,8 @@ public class QueueImplTest extends ActiveMQTestBase {
       queue.addConsumer(consumerOrange);
 
       queue.deliverNow();
-      Assert.assertEquals(2, consumerRed.getReferences().size());
-      Assert.assertEquals(0, consumerOrange.getReferences().size());
+      assertEquals(2, consumerRed.getReferences().size());
+      assertEquals(0, consumerOrange.getReferences().size());
 
       // verify redistributor is doing some work....
       try {
@@ -1082,6 +1088,15 @@ public class QueueImplTest extends ActiveMQTestBase {
          fail("expect error on attempt to add addRedistributor - npe b/c no storage etc");
       } catch (NullPointerException expected) {
       }
+   }
+
+   @Test
+   public void testNoRedistributorInternalQueue() throws Exception {
+      QueueImpl queue = getTemporaryQueue();
+      queue.setInternalQueue(true);
+
+      queue.addRedistributor(0);
+      assertNull(queue.getRedistributor());
    }
 
    private void testConsumerWithFilters(final boolean direct) throws Exception {
@@ -1099,25 +1114,25 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       MessageReference ref1 = generateReference(queue, 1);
 
-      ref1.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("banana"));
+      ref1.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("banana"));
 
       queue.addTail(ref1);
 
       MessageReference ref2 = generateReference(queue, 2);
 
-      ref2.getMessage().putStringProperty(new SimpleString("cheese"), new SimpleString("stilton"));
+      ref2.getMessage().putStringProperty(SimpleString.of("cheese"), SimpleString.of("stilton"));
 
       queue.addTail(ref2);
 
       MessageReference ref3 = generateReference(queue, 3);
 
-      ref3.getMessage().putStringProperty(new SimpleString("cake"), new SimpleString("sponge"));
+      ref3.getMessage().putStringProperty(SimpleString.of("cake"), SimpleString.of("sponge"));
 
       queue.addTail(ref3);
 
       MessageReference ref4 = generateReference(queue, 4);
 
-      ref4.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("orange"));
+      ref4.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("orange"));
 
       refs.add(ref4);
 
@@ -1125,13 +1140,13 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       MessageReference ref5 = generateReference(queue, 5);
 
-      ref5.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("apple"));
+      ref5.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("apple"));
 
       queue.addTail(ref5);
 
       MessageReference ref6 = generateReference(queue, 6);
 
-      ref6.getMessage().putStringProperty(new SimpleString("fruit"), new SimpleString("orange"));
+      ref6.getMessage().putStringProperty(SimpleString.of("fruit"), SimpleString.of("orange"));
 
       refs.add(ref6);
 
@@ -1143,13 +1158,13 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.deliverNow();
       }
 
-      Assert.assertEquals(6, getMessageCount(queue));
+      assertEquals(6, getMessageCount(queue));
 
       awaitExecution();
 
-      Assert.assertEquals(2, consumer.getReferences().size());
+      assertEquals(2, consumer.getReferences().size());
 
-      Assert.assertEquals(2, queue.getDeliveringCount());
+      assertEquals(2, queue.getDeliveringCount());
 
       assertRefListsIdenticalRefs(refs, consumer.getReferences());
 
@@ -1164,11 +1179,11 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       queue.deliverNow();
 
-      Assert.assertEquals(4, getMessageCount(queue));
+      assertEquals(4, getMessageCount(queue));
 
-      Assert.assertEquals(4, consumer.getReferences().size());
+      assertEquals(4, consumer.getReferences().size());
 
-      Assert.assertEquals(4, queue.getDeliveringCount());
+      assertEquals(4, queue.getDeliveringCount());
    }
 
    @Test
@@ -1182,14 +1197,14 @@ public class QueueImplTest extends ActiveMQTestBase {
       queue.addTail(messageReference2);
       queue.addHead(messageReference3, false);
 
-      Assert.assertEquals(0, consumer.getReferences().size());
+      assertEquals(0, consumer.getReferences().size());
       queue.addConsumer(consumer);
       queue.deliverNow();
 
-      Assert.assertEquals(3, consumer.getReferences().size());
-      Assert.assertEquals(messageReference3, consumer.getReferences().get(0));
-      Assert.assertEquals(messageReference, consumer.getReferences().get(1));
-      Assert.assertEquals(messageReference2, consumer.getReferences().get(2));
+      assertEquals(3, consumer.getReferences().size());
+      assertEquals(messageReference3, consumer.getReferences().get(0));
+      assertEquals(messageReference, consumer.getReferences().get(1));
+      assertEquals(messageReference2, consumer.getReferences().get(2));
    }
 
    @Test
@@ -1201,39 +1216,11 @@ public class QueueImplTest extends ActiveMQTestBase {
       queue.addTail(messageReference);
       queue.addTail(messageReference2);
       queue.addTail(messageReference3);
-      Assert.assertEquals(getMessagesAdded(queue), 3);
-   }
-
-   @Test
-   public void testGetReference() throws Exception {
-      QueueImpl queue = getTemporaryQueue();
-      MessageReference messageReference = generateReference(queue, 1);
-      MessageReference messageReference2 = generateReference(queue, 2);
-      MessageReference messageReference3 = generateReference(queue, 3);
-      queue.addHead(messageReference, false);
-      queue.addHead(messageReference2, false);
-      queue.addHead(messageReference3, false);
-      Assert.assertEquals(queue.getReference(2), messageReference2);
-
-   }
-
-   @Test
-   public void testGetNonExistentReference() throws Exception {
-      QueueImpl queue = getTemporaryQueue();
-      MessageReference messageReference = generateReference(queue, 1);
-      MessageReference messageReference2 = generateReference(queue, 2);
-      MessageReference messageReference3 = generateReference(queue, 3);
-      queue.addHead(messageReference, false);
-      queue.addHead(messageReference2, false);
-      queue.addHead(messageReference3, false);
-      Assert.assertNull(queue.getReference(5));
-
+      assertEquals(3, getMessagesAdded(queue));
    }
 
    /**
     * Test the paused and resumed states with async deliveries.
-    *
-    * @throws Exception
     */
    @Test
    public void testPauseAndResumeWithAsync() throws Exception {
@@ -1254,41 +1241,39 @@ public class QueueImplTest extends ActiveMQTestBase {
          queue.addTail(ref);
       }
       // even as this queue is paused, it will receive the messages anyway
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
 
       // Now add a consumer
       FakeConsumer consumer = new FakeConsumer();
 
       queue.addConsumer(consumer);
 
-      Assert.assertTrue(consumer.getReferences().isEmpty());
-      Assert.assertEquals(10, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
+      assertTrue(consumer.getReferences().isEmpty());
+      assertEquals(10, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
       // explicit order of delivery
       queue.deliverNow();
       // As the queue is paused, even an explicit order of delivery will not work.
-      Assert.assertEquals(0, consumer.getReferences().size());
-      Assert.assertEquals(numMessages, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
+      assertEquals(0, consumer.getReferences().size());
+      assertEquals(numMessages, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
       // resuming work
       queue.resume();
 
       awaitExecution();
       // after resuming the delivery begins.
       assertRefListsIdenticalRefs(refs, consumer.getReferences());
-      Assert.assertEquals(numMessages, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(numMessages, queue.getDeliveringCount());
+      assertEquals(numMessages, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(numMessages, queue.getDeliveringCount());
 
    }
 
    /**
     * Test the paused and resumed states with direct deliveries.
-    *
-    * @throws Exception
     */
 
    @Test
@@ -1316,10 +1301,10 @@ public class QueueImplTest extends ActiveMQTestBase {
       // the queue even if it's paused will receive the message but won't forward
       // directly to the consumer until resumed.
 
-      Assert.assertEquals(numMessages, getMessageCount(queue));
-      Assert.assertEquals(0, queue.getScheduledCount());
-      Assert.assertEquals(0, queue.getDeliveringCount());
-      Assert.assertTrue(consumer.getReferences().isEmpty());
+      assertEquals(numMessages, getMessageCount(queue));
+      assertEquals(0, queue.getScheduledCount());
+      assertEquals(0, queue.getDeliveringCount());
+      assertTrue(consumer.getReferences().isEmpty());
 
       // brings the queue to resumed state.
       queue.resume();
@@ -1328,8 +1313,8 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       // resuming delivery of messages
       assertRefListsIdenticalRefs(refs, consumer.getReferences());
-      Assert.assertEquals(numMessages, getMessageCount(queue));
-      Assert.assertEquals(numMessages, queue.getDeliveringCount());
+      assertEquals(numMessages, getMessageCount(queue));
+      assertEquals(numMessages, queue.getDeliveringCount());
 
    }
 
@@ -1340,9 +1325,9 @@ public class QueueImplTest extends ActiveMQTestBase {
       MessageReference messageReference2 = generateReference(queue, 2);
       queue.addTail(messageReference);
       queue.addTail(messageReference2);
-      Assert.assertEquals(2, getMessagesAdded(queue));
+      assertEquals(2, getMessagesAdded(queue));
       queue.resetMessagesAdded();
-      Assert.assertEquals(0, getMessagesAdded(queue));
+      assertEquals(0, getMessagesAdded(queue));
    }
 
    class AddtoQueueRunner implements Runnable {
@@ -1395,7 +1380,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = addClientSession(factory.createSession(false, true, true));
 
-      session.createQueue(new QueueConfiguration(MY_QUEUE).setAddress(MY_ADDRESS));
+      session.createQueue(QueueConfiguration.of(MY_QUEUE).setAddress(MY_ADDRESS));
 
       ClientProducer producer = addClientProducer(session.createProducer(MY_ADDRESS));
 
@@ -1411,14 +1396,14 @@ public class QueueImplTest extends ActiveMQTestBase {
       factory.close();
       locator.close();
 
-      Queue queue = ((LocalQueueBinding) server.getPostOffice().getBinding(new SimpleString(MY_QUEUE))).getQueue();
+      Queue queue = ((LocalQueueBinding) server.getPostOffice().getBinding(SimpleString.of(MY_QUEUE))).getQueue();
       LinkedListIterator<MessageReference> totalIterator = queue.browserIterator();
 
       try {
          int i = 0;
          while (totalIterator.hasNext()) {
             MessageReference ref = totalIterator.next();
-            Assert.assertEquals(i++, ref.getMessage().getIntProperty("order").intValue());
+            assertEquals(i++, ref.getMessage().getIntProperty("order").intValue());
          }
       } finally {
          totalIterator.close();
@@ -1460,29 +1445,26 @@ public class QueueImplTest extends ActiveMQTestBase {
       final Consumer noConsumer = new FakeConsumer() {
          @Override
          public synchronized HandleStatus handle(MessageReference reference) {
-            Assert.fail("this consumer isn't allowed to consume any message");
+            fail("this consumer isn't allowed to consume any message");
             throw new AssertionError();
          }
       };
-      final QueueImpl queue = new QueueImpl(1, new SimpleString("address1"), QueueImplTest.queue1,
-                                            null, null, false, true, false,
-                                            scheduledExecutor, null, null, null,
-                                            ArtemisExecutor.delegate(executor), defaultServer, null);
+      final QueueImpl queue = new QueueImpl(QueueConfiguration.of(QueueImplTest.queue1).setAddress("address1").setRoutingType(RoutingType.MULTICAST).setId(1L).setDurable(false).setTemporary(true), null, null, null, scheduledExecutor, null, null, null, ArtemisExecutor.delegate(executor), defaultServer, null);
       queue.addConsumer(groupConsumer);
       queue.addConsumer(noConsumer);
       final MessageReference firstMessageReference = generateReference(queue, 1);
-      final SimpleString groupName = SimpleString.toSimpleString("group");
+      final SimpleString groupName = SimpleString.of("group");
       firstMessageReference.getMessage().putStringProperty(Message.HDR_GROUP_ID, groupName);
       final MessageReference secondMessageReference = generateReference(queue, 2);
       secondMessageReference.getMessage().putStringProperty(Message.HDR_GROUP_ID, groupName);
       queue.addTail(firstMessageReference, true);
-      Assert.assertTrue("first message isn't handled", firstMessageHandled.await(3000, TimeUnit.MILLISECONDS));
-      Assert.assertEquals("group consumer isn't correctly set", groupConsumer, queue.getGroups().get(groupName));
+      assertTrue(firstMessageHandled.await(3000, TimeUnit.MILLISECONDS), "first message isn't handled");
+      assertEquals(groupConsumer, queue.getGroups().get(groupName), "group consumer isn't correctly set");
       queue.addTail(secondMessageReference, true);
       final boolean atLeastTwoDeliverAttempts = finished.await(3000, TimeUnit.MILLISECONDS);
-      Assert.assertTrue(atLeastTwoDeliverAttempts);
+      assertTrue(atLeastTwoDeliverAttempts);
       Thread.sleep(1000);
-      Assert.assertEquals("The second message should be in the queue", 1, queue.getMessageCount());
+      assertEquals(1, queue.getMessageCount(), "The second message should be in the queue");
    }
 
    private QueueImpl getNonDurableQueue() {
@@ -1506,7 +1488,13 @@ public class QueueImplTest extends ActiveMQTestBase {
    }
 
    private QueueImpl getQueue(SimpleString name, boolean durable, boolean temporary, Filter filter) {
-      return new QueueImpl(1, QueueImplTest.address1, name, filter, null, durable, temporary, false, scheduledExecutor,
-                           new FakePostOffice(), null, null, ArtemisExecutor.delegate(executor), defaultServer, null);
+      return new QueueImpl(QueueConfiguration.of(name)
+                              .setAddress("address1")
+                              .setRoutingType(RoutingType.MULTICAST)
+                              .setId(1L)
+                              .setDurable(durable)
+                              .setTemporary(temporary),
+                           filter, null, null, scheduledExecutor, new FakePostOffice(), null,
+                           null, ArtemisExecutor.delegate(executor), defaultServer, null);
    }
 }

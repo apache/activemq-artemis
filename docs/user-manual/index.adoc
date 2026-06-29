@@ -4,16 +4,24 @@ It *links* to all chapters following the same basic pattern as _book.adoc. These
 ////
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
-image::images/activemq-logo.png[align="center"]
+image::images/artemis_text_black_small.png[align="center"]
 
 [.text-center]
-*An in-depth manual on all aspects of Apache ActiveMQ Artemis {project-version}*
+*User manual*
+
+[.text-center]
+*{project-version}*
 
 == Overview
-
 * xref:project-info.adoc#general-project-information[General Project Information]
-* xref:preface.adoc#why-use-apache-activemq-artemis[Why use Apache ActiveMQ Artemis?]
+* xref:preface.adoc#why-use-{project-name-full-url}[Why use {project-name-full}?]
+
+== Upgrading
+* xref:upgrading.adoc#upgrading-the-broker[Basic Upgrade Instructions]
+
+== Concepts
 * xref:messaging-concepts.adoc#messaging-concepts[Messaging Concepts]
 * xref:architecture.adoc#core-architecture[Core Architecture]
 
@@ -29,14 +37,11 @@ image::images/activemq-logo.png[align="center"]
 * xref:jms-core-mapping.adoc#mapping-jms-concepts-to-the-core-api[Mapping JMS Concepts to the Core API]
 * xref:using-jms.adoc#using-jms-or-jakarta-messaging[Using JMS or Jakarta Messaging]
 ** xref:pre-acknowledge.adoc#extra-acknowledge-modes[Extra Acknowledge Modes]
-
-== Upgrading
-
-* xref:versions.adoc#versions[Version History]
-* xref:upgrading.adoc#upgrading-the-broker[Basic Upgrade Instructions]
+* xref:proxy-protocol.adoc#proxy-protocol[PROXY Protocol]
 
 == Getting Started
 
+* xref:docker.adoc#docker[Docker]
 * xref:using-server.adoc#using-the-server[Using the Server]
 * xref:using-cli.adoc#command-line-interface[Using the Command-Line Interface]
 * xref:client-classpath.adoc#the-client-classpath[JMS & Jakarta Client Classpath]
@@ -61,19 +66,29 @@ image::images/activemq-logo.png[align="center"]
 
 * xref:core-bridges.adoc#core-bridges[Core Bridges]
 * xref:clusters.adoc#clusters[Clustering]
-* xref:federation.adoc#federation[Federation]
-** xref:federation-address.adoc#address-federation[Address Federation]
-** xref:federation-queue.adoc#queue-federation[Queue Federation]
+* xref:lock-coordination.adoc#lock-coordination[Lock Coordination / HA with Mirroring]
 * xref:ha.adoc#high-availability-and-failover[High Availability & Failover]
 ** xref:network-isolation.adoc#network-isolation-split-brain[Network Isolation]
 ** xref:restart-sequence.adoc#restart-sequence[Restart Sequence]
 ** xref:activation-tools.adoc#activation-sequence-tools[Activation Tools]
+* xref:amqp-broker-connections.adoc#broker-connections[AMQP Broker Connections]
+** xref:amqp-broker-connections.adoc#amqp-server-connections[Server Connections]
+** xref:amqp-broker-connections.adoc#mirroring[Mirroring]
+** xref:amqp-broker-connections.adoc#federation[AMQP Federation]
+*** xref:amqp-broker-connections.adoc#address-federation[Address Federation]
+*** xref:amqp-broker-connections.adoc#queue-federation[Queue Federation]
+** xref:amqp-broker-connections.adoc#bridges[AMQP Bridges]
+*** xref:amqp-broker-connections.adoc#bridging-from-remote-addresses-and-queues[Bridging From a remote]
+*** xref:amqp-broker-connections.adoc#bridging-to-remote-addresses-and-queues[Bridging To a remote]
+* xref:federation.adoc#federation[Core Federation]
+** xref:federation-address.adoc#address-federation[Address Federation]
+** xref:federation-queue.adoc#queue-federation[Queue Federation]
 * xref:connection-routers.adoc#connection-routers[Routing Connections]
-* xref:amqp-broker-connections.adoc#broker-connections[Broker Connections]
 * xref:jms-bridge.adoc#the-jms-bridge[JMS Bridge]
 
 == Security
 
+* xref:threat-model.adoc#threat-model[Threat Model]
 * xref:security.adoc#authentication-authorization[Authentication & Authorization]
 * xref:masking-passwords.adoc#masking-passwords[Masking Passwords]
 * xref:resource-limits.adoc#resource-limits[Limiting Resource Utilization]
@@ -100,8 +115,7 @@ image::images/activemq-logo.png[align="center"]
 * xref:duplicate-detection.adoc#duplicate-message-detection[Detecting Duplicate Messages]
 * xref:undelivered-messages.adoc#message-redelivery-and-undelivered-messages[Message Redelivery and Undelivered Messages]
 
-== Data & Disk
-
+== Data Storage
 * xref:persistence.adoc#persistence[Persistence]
 * xref:data-tools.adoc#data-tools[Data Tools]
 * xref:libaio.adoc#libaio-native-libraries[Libaio Native Libraries]
@@ -127,8 +141,8 @@ image::images/activemq-logo.png[align="center"]
 * xref:graceful-shutdown.adoc#graceful-server-shutdown[Graceful Server Shutdown]
 * xref:web-server.adoc#embedded-web-server[Configuring & Managing the Embedded Web Server]
 * xref:logging.adoc#logging[Logging]
-* xref:embedding-activemq.adoc#embedding-apache-activemq-artemis[Embedding Apache ActiveMQ Artemis]
-* xref:karaf.adoc#artemis-on-apache-karaf[Apache Karaf Integration]
+* xref:embedding-artemis.adoc[Embedding {project-name-full}]
+* xref:karaf.adoc#apache-karaf-integration[Apache Karaf Integration]
 * xref:tomcat.adoc#apache-tomcat-support[Apache Tomcat Support]
 * xref:cdi-integration.adoc#cdi-integration[CDI Integration]
 * xref:copied-message-properties.adoc#properties-for-copied-messages[Properties for Copied Messages]
@@ -137,4 +151,5 @@ image::images/activemq-logo.png[align="center"]
 * xref:resource-adapter.adoc#jca-resource-adapter[JCA Resource Adapter]
 * xref:configuration-index.adoc#configuration-reference[Configuration Index]
 * xref:examples.adoc#examples[Examples]
+* xref:versions.adoc#version-history[Version History]
 * xref:notice.adoc#legal-notice[Legal Notice]

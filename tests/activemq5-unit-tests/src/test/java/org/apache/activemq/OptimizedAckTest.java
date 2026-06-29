@@ -65,15 +65,10 @@ public class OptimizedAckTest extends TestSupport {
       MessageConsumer consumer = session.createConsumer(queue);
       //check queue delivering count is 10
       ArtemisBrokerWrapper broker = (ArtemisBrokerWrapper) ArtemisBrokerHelper.getBroker().getBroker();
-      Binding binding = broker.getServer().getPostOffice().getBinding(new SimpleString("test"));
+      Binding binding = broker.getServer().getPostOffice().getBinding(SimpleString.of("test"));
 
       final QueueImpl coreQueue = (QueueImpl) binding.getBindable();
-      assertTrue("delivering count is 10", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            return 10 == coreQueue.getDeliveringCount();
-         }
-      }));
+      assertTrue("delivering count is 10", Wait.waitFor(() -> 10 == coreQueue.getDeliveringCount()));
 
       for (int i = 0; i < 6; i++) {
          javax.jms.Message msg = consumer.receive(4000);
@@ -85,12 +80,7 @@ public class OptimizedAckTest extends TestSupport {
          javax.jms.Message msg = consumer.receive(4000);
          assertNotNull(msg);
 
-         assertTrue("most are acked but 3 remain", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-               return 3 == coreQueue.getDeliveringCount();
-            }
-         }));
+         assertTrue("most are acked but 3 remain", Wait.waitFor(() -> 3 == coreQueue.getDeliveringCount()));
       }
 
    }
@@ -107,15 +97,10 @@ public class OptimizedAckTest extends TestSupport {
 
       //check queue delivering count is 10
       ArtemisBrokerWrapper broker = (ArtemisBrokerWrapper) ArtemisBrokerHelper.getBroker().getBroker();
-      Binding binding = broker.getServer().getPostOffice().getBinding(new SimpleString("test"));
+      Binding binding = broker.getServer().getPostOffice().getBinding(SimpleString.of("test"));
 
       final QueueImpl coreQueue = (QueueImpl) binding.getBindable();
-      assertTrue("prefetch full", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            return 10 == coreQueue.getDeliveringCount();
-         }
-      }));
+      assertTrue("prefetch full", Wait.waitFor(() -> 10 == coreQueue.getDeliveringCount()));
 
       for (int i = 0; i < 6; i++) {
          Thread.sleep(400);
@@ -129,12 +114,7 @@ public class OptimizedAckTest extends TestSupport {
          javax.jms.Message msg = consumer.receive(4000);
          assertNotNull(msg);
 
-         assertTrue("most are acked but 3 remain", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-               return 3 == coreQueue.getDeliveringCount();
-            }
-         }));
+         assertTrue("most are acked but 3 remain", Wait.waitFor(() -> 3 == coreQueue.getDeliveringCount()));
       }
 
    }
@@ -151,15 +131,10 @@ public class OptimizedAckTest extends TestSupport {
 
       MessageConsumer consumer = session.createConsumer(queue);
       ArtemisBrokerWrapper broker = (ArtemisBrokerWrapper) ArtemisBrokerHelper.getBroker().getBroker();
-      Binding binding = broker.getServer().getPostOffice().getBinding(new SimpleString("test"));
+      Binding binding = broker.getServer().getPostOffice().getBinding(SimpleString.of("test"));
 
       final QueueImpl coreQueue = (QueueImpl) binding.getBindable();
-      assertTrue("prefetch full", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            return 10 == coreQueue.getDeliveringCount();
-         }
-      }));
+      assertTrue("prefetch full", Wait.waitFor(() -> 10 == coreQueue.getDeliveringCount()));
 
       for (int i = 0; i < 6; i++) {
          javax.jms.Message msg = consumer.receive(4000);
@@ -170,20 +145,12 @@ public class OptimizedAckTest extends TestSupport {
       for (int i = 6; i < 10; i++) {
          javax.jms.Message msg = consumer.receive(4000);
          assertNotNull(msg);
-         assertTrue("most are acked but 3 remain", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-               return 3 == coreQueue.getDeliveringCount();
-            }
-         }));
+         assertTrue("most are acked but 3 remain", Wait.waitFor(() -> 3 == coreQueue.getDeliveringCount()));
       }
 
-      assertTrue("After delay the scheduled ack should ack all inflight.", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            LOG.info("inflight count: " + coreQueue.getDeliveringCount());
-            return 0 == coreQueue.getDeliveringCount();
-         }
+      assertTrue("After delay the scheduled ack should ack all inflight.", Wait.waitFor(() -> {
+         LOG.info("inflight count: " + coreQueue.getDeliveringCount());
+         return 0 == coreQueue.getDeliveringCount();
       }));
    }
 }

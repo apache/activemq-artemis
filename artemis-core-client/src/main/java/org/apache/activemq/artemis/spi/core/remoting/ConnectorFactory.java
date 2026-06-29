@@ -52,7 +52,7 @@ public interface ConnectorFactory extends TransportConfigurationHelper {
     * Indicates if connectors from this factory are reliable or not. If a connector is reliable then connection
     * monitoring (i.e. pings/pongs) will be disabled.
     *
-    * @return whether or not connectors from this factory are reliable
+    * @return whether connectors from this factory are reliable
     */
    boolean isReliable();
 }

@@ -26,8 +26,7 @@ public interface FailureListener {
    /**
     * Notifies that a connection has failed due to the specified exception.
     *
-    * @param exception  exception which has caused the connection to fail
-    * @param failedOver
+    * @param exception exception which has caused the connection to fail
     */
    void connectionFailed(ActiveMQException exception, boolean failedOver);
 
@@ -35,7 +34,6 @@ public interface FailureListener {
     * Notifies that a connection has failed due to the specified exception.
     *
     * @param exception             exception which has caused the connection to fail
-    * @param failedOver
     * @param scaleDownTargetNodeID the ID of the node to which messages are scaling down
     */
    void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID);

@@ -16,17 +16,18 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.Message;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AnnotationNameConveterTest {
 
    @Test
    public void testAnnotationName() {
       try {
-         Assert.assertEquals("x-opt-ORIG-QUEUE", AMQPMessageSupport.toAnnotationName(Message.HDR_ORIGINAL_QUEUE.toString()));
-         Assert.assertEquals("x-opt-ORIG-MESSAGE-ID", AMQPMessageSupport.toAnnotationName(Message.HDR_ORIG_MESSAGE_ID.toString()));
+         assertEquals("x-opt-ORIG-QUEUE", AMQPMessageSupport.toAnnotationName(Message.HDR_ORIGINAL_QUEUE.toString()));
+         assertEquals("x-opt-ORIG-MESSAGE-ID", AMQPMessageSupport.toAnnotationName(Message.HDR_ORIG_MESSAGE_ID.toString()));
       } catch (Exception e) {
          e.printStackTrace();
       }

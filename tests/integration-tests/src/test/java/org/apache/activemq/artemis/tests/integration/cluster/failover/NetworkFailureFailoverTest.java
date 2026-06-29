@@ -20,6 +20,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +28,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -35,43 +35,37 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.network.NetUtil;
-import org.apache.activemq.artemis.utils.network.NetUtilResource;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
- * This test will simulate a failure where the network card is gone.
- * On that case the server should fail (as in stop) and not hung.
- * If you don't have sudoer access to ifutil, this test will skip.
- * You should add sudoer on your environment to run the test.
+ * This test will simulate a failure where the network card is gone. On that case the server should fail (as in stop)
+ * and not hung. If you don't have sudoer access to ifutil, this test will skip. You should add sudoer on your
+ * environment to run the test.
  */
 public class NetworkFailureFailoverTest extends FailoverTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Rule
-   public NetUtilResource netUtilResource = new NetUtilResource();
-
-   @BeforeClass
+   @BeforeAll
    public static void start() {
       NetUtil.skipIfNotSudo();
    }
@@ -79,17 +73,21 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
    // 192.0.2.0 is reserved for documentation (and testing on this case).
    private static final String LIVE_IP = "192.0.2.0";
 
-   private int beforeTime;
-
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       NetUtil.netUp(LIVE_IP);
       super.setUp();
    }
 
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
-      super.tearDown();
+      try {
+         super.tearDown();
+      } finally {
+         NetUtil.cleanup();
+      }
    }
 
    @Override
@@ -100,30 +98,6 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
    @Override
    protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return getNettyConnectorTransportConfiguration(live);
-   }
-
-   protected ClientSession createSession(ClientSessionFactory sf1,
-                                         boolean autoCommitSends,
-                                         boolean autoCommitAcks,
-                                         int ackBatchSize) throws Exception {
-      return addClientSession(sf1.createSession(autoCommitSends, autoCommitAcks, ackBatchSize));
-   }
-
-   protected ClientSession createSession(ClientSessionFactory sf1,
-                                         boolean autoCommitSends,
-                                         boolean autoCommitAcks) throws Exception {
-      return addClientSession(sf1.createSession(autoCommitSends, autoCommitAcks));
-   }
-
-   protected ClientSession createSession(ClientSessionFactory sf1) throws Exception {
-      return addClientSession(sf1.createSession());
-   }
-
-   protected ClientSession createSession(ClientSessionFactory sf1,
-                                         boolean xa,
-                                         boolean autoCommitSends,
-                                         boolean autoCommitAcks) throws Exception {
-      return addClientSession(sf1.createSession(xa, autoCommitSends, autoCommitAcks));
    }
 
    @Override
@@ -161,42 +135,36 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       final AtomicInteger sentMessages = new AtomicInteger(0);
       final AtomicInteger blockedAt = new AtomicInteger(0);
 
-      Assert.assertTrue(NetUtil.checkIP(LIVE_IP));
+      assertTrue(NetUtil.checkIP(LIVE_IP));
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, LIVE_IP);
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
 
       final AtomicInteger countSent = new AtomicInteger(0);
 
-      liveServer.addInterceptor(new Interceptor() {
-         @Override
-         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            //logger.debug("Received {}", packet);
-            if (packet instanceof SessionSendMessage) {
+      primaryServer.addInterceptor((packet, connection) -> {
+         //logger.debug("Received {}", packet);
+         if (packet instanceof SessionSendMessage) {
 
-               if (countSent.incrementAndGet() == 500) {
+            if (countSent.incrementAndGet() == 500) {
+               try {
+                  NetUtil.netDown(LIVE_IP);
+                  logger.debug("Blocking traffic");
+                  // Thread.sleep(3000); // this is important to let stuff to block
+                  primaryServer.crash(true, false);
+               } catch (Exception e) {
+                  e.printStackTrace();
+               }
+               new Thread(() -> {
                   try {
-                     NetUtil.netDown(LIVE_IP);
-                     logger.debug("Blocking traffic");
-                     // Thread.sleep(3000); // this is important to let stuff to block
-                     liveServer.crash(true, false);
+                     System.err.println("Stopping server");
                   } catch (Exception e) {
                      e.printStackTrace();
                   }
-                  new Thread() {
-                     @Override
-                     public void run() {
-                        try {
-                           System.err.println("Stopping server");
-                        } catch (Exception e) {
-                           e.printStackTrace();
-                        }
-                     }
-                  }.start();
-               }
+               }).start();
             }
-            return true;
          }
+         return true;
       });
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc));
@@ -228,7 +196,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       ClientSession sessionProducer = createSession(sfProducer, true, true, 0);
 
-      sessionProducer.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
+      sessionProducer.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS));
 
       ClientProducer producer = sessionProducer.createProducer(FailoverTestBase.ADDRESS);
 
@@ -244,34 +212,31 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final AtomicBoolean running = new AtomicBoolean(true);
 
-      final Thread t = new Thread() {
-         @Override
-         public void run() {
-            int received = 0;
-            int errors = 0;
-            while (running.get() && received < numMessages) {
-               try {
-                  ClientMessage msgReceived = consumer.receive(500);
-                  if (msgReceived != null) {
-                     latchReceived.countDown();
-                     msgReceived.acknowledge();
-                     if (received++ % 100 == 0) {
-                        logger.debug("Received {}", received);
-                        sessionConsumer.commit();
-                     }
-                  } else {
-                     logger.debug("Null");
+      final Thread t = new Thread(() -> {
+         int received = 0;
+         int errors = 0;
+         while (running.get() && received < numMessages) {
+            try {
+               ClientMessage msgReceived = consumer.receive(500);
+               if (msgReceived != null) {
+                  latchReceived.countDown();
+                  msgReceived.acknowledge();
+                  if (received++ % 100 == 0) {
+                     logger.debug("Received {}", received);
+                     sessionConsumer.commit();
                   }
-               } catch (Throwable e) {
-                  errors++;
-                  if (errors > 10) {
-                     break;
-                  }
-                  e.printStackTrace();
+               } else {
+                  logger.debug("Null");
                }
+            } catch (Throwable e) {
+               errors++;
+               if (errors > 10) {
+                  break;
+               }
+               e.printStackTrace();
             }
          }
-      };
+      });
 
       t.start();
 
@@ -296,7 +261,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
          latchReceived.countDown();
       }
 
-      Assert.assertTrue(latchReceived.await(1, TimeUnit.MINUTES));
+      assertTrue(latchReceived.await(1, TimeUnit.MINUTES));
 
       running.set(false);
 
@@ -321,7 +286,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       final AtomicInteger sentMessages = new AtomicInteger(0);
       final AtomicInteger blockedAt = new AtomicInteger(0);
 
-      Assert.assertTrue(NetUtil.checkIP(LIVE_IP));
+      assertTrue(NetUtil.checkIP(LIVE_IP));
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, LIVE_IP);
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
@@ -360,7 +325,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       ClientSession sessionProducer = createSession(sfProducer, true, true, 0);
 
-      sessionProducer.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
+      sessionProducer.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS));
 
       ClientProducer producer = sessionProducer.createProducer(FailoverTestBase.ADDRESS);
 
@@ -376,40 +341,37 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final AtomicBoolean running = new AtomicBoolean(true);
 
-      final Thread t = new Thread() {
-         @Override
-         public void run() {
-            int received = 0;
-            int errors = 0;
-            while (running.get() && received < numMessages) {
-               try {
-                  ClientMessage msgReceived = consumer.receive(500);
-                  if (msgReceived != null) {
-                     latchReceived.countDown();
-                     msgReceived.acknowledge();
-                     if (++received % 100 == 0) {
+      final Thread t = new Thread(() -> {
+         int received = 0;
+         int errors = 0;
+         while (running.get() && received < numMessages) {
+            try {
+               ClientMessage msgReceived = consumer.receive(500);
+               if (msgReceived != null) {
+                  latchReceived.countDown();
+                  msgReceived.acknowledge();
+                  if (++received % 100 == 0) {
 
-                        if (received == 300) {
-                           logger.debug("Shutting down IP");
-                           NetUtil.netDown(LIVE_IP);
-                           liveServer.crash(true, false);
-                        }
-                        logger.debug("Received {}", received);
-                        sessionConsumer.commit();
+                     if (received == 300) {
+                        logger.debug("Shutting down IP");
+                        NetUtil.netDown(LIVE_IP);
+                        primaryServer.crash(true, false);
                      }
-                  } else {
-                     logger.debug("Null");
+                     logger.debug("Received {}", received);
+                     sessionConsumer.commit();
                   }
-               } catch (Throwable e) {
-                  errors++;
-                  if (errors > 10) {
-                     break;
-                  }
-                  e.printStackTrace();
+               } else {
+                  logger.debug("Null");
                }
+            } catch (Throwable e) {
+               errors++;
+               if (errors > 10) {
+                  break;
+               }
+               e.printStackTrace();
             }
          }
-      };
+      });
 
 
       for (sentMessages.set(0); sentMessages.get() < numMessages; sentMessages.incrementAndGet()) {
@@ -438,7 +400,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
          latchReceived.countDown();
       }
 
-      Assert.assertTrue(latchReceived.await(1, TimeUnit.MINUTES));
+      assertTrue(latchReceived.await(1, TimeUnit.MINUTES));
 
       running.set(false);
 
@@ -450,7 +412,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       final AtomicInteger sentMessages = new AtomicInteger(0);
       final AtomicInteger blockedAt = new AtomicInteger(0);
 
-      Assert.assertTrue(NetUtil.checkIP(LIVE_IP));
+      assertTrue(NetUtil.checkIP(LIVE_IP));
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, LIVE_IP);
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
@@ -459,25 +421,22 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final CountDownLatch latchDown = new CountDownLatch(1);
 
-      liveServer.addInterceptor(new Interceptor() {
-         @Override
-         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            //logger.debug("Received {}", packet);
-            if (packet instanceof CreateSessionMessage) {
+      primaryServer.addInterceptor((packet, connection) -> {
+         //logger.debug("Received {}", packet);
+         if (packet instanceof CreateSessionMessage) {
 
-               if (countSent.incrementAndGet() == 50) {
-                  try {
-                     NetUtil.netDown(LIVE_IP);
-                     logger.debug("Blocking traffic");
-                     blockedAt.set(sentMessages.get());
-                     latchDown.countDown();
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
+            if (countSent.incrementAndGet() == 50) {
+               try {
+                  NetUtil.netDown(LIVE_IP);
+                  logger.debug("Blocking traffic");
+                  blockedAt.set(sentMessages.get());
+                  latchDown.countDown();
+               } catch (Exception e) {
+                  e.printStackTrace();
                }
             }
-            return true;
          }
+         return true;
       });
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc));
@@ -538,16 +497,16 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       t.start();
 
-      Assert.assertTrue(latchDown.await(1, TimeUnit.MINUTES));
+      assertTrue(latchDown.await(1, TimeUnit.MINUTES));
 
       Thread.sleep(1000);
 
       logger.debug("Server crashed now!!!");
 
-      liveServer.crash(true, false);
+      primaryServer.crash(true, false);
 
       try {
-         Assert.assertTrue(latchCreated.await(5, TimeUnit.MINUTES));
+         assertTrue(latchCreated.await(5, TimeUnit.MINUTES));
 
       } finally {
          running.set(false);
@@ -561,7 +520,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       final AtomicInteger sentMessages = new AtomicInteger(0);
       final AtomicInteger blockedAt = new AtomicInteger(0);
 
-      Assert.assertTrue(NetUtil.checkIP(LIVE_IP));
+      assertTrue(NetUtil.checkIP(LIVE_IP));
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, LIVE_IP);
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
@@ -570,42 +529,39 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final CountDownLatch latchBlocked = new CountDownLatch(1);
 
-      liveServer.addInterceptor(new Interceptor() {
-         @Override
-         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            //logger.debug("Received {}", packet);
-            if (packet instanceof SessionSendMessage) {
+      primaryServer.addInterceptor((packet, connection) -> {
+         //logger.debug("Received {}", packet);
+         if (packet instanceof SessionSendMessage) {
 
-               if (countSent.incrementAndGet() == 50) {
-                  try {
-                     NetUtil.netDown(LIVE_IP);
-                     logger.debug("Blocking traffic");
-                     Thread.sleep(3000); // this is important to let stuff to block
-                     blockedAt.set(sentMessages.get());
-                     latchBlocked.countDown();
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
-                  //                  new Thread()
-                  //                  {
-                  //                     public void run()
-                  //                     {
-                  //                        try
-                  //                        {
-                  //                           System.err.println("Stopping server");
-                  //                           // liveServer.stop();
-                  //                           liveServer.crash(true, false);
-                  //                        }
-                  //                        catch (Exception e)
-                  //                        {
-                  //                           e.printStackTrace();
-                  //                        }
-                  //                     }
-                  //                  }.start();
+            if (countSent.incrementAndGet() == 50) {
+               try {
+                  NetUtil.netDown(LIVE_IP);
+                  logger.debug("Blocking traffic");
+                  Thread.sleep(3000); // this is important to let stuff to block
+                  blockedAt.set(sentMessages.get());
+                  latchBlocked.countDown();
+               } catch (Exception e) {
+                  e.printStackTrace();
                }
+               //                  new Thread()
+               //                  {
+               //                     public void run()
+               //                     {
+               //                        try
+               //                        {
+               //                           System.err.println("Stopping server");
+               //                           // liveServer.stop();
+               //                           liveServer.crash(true, false);
+               //                        }
+               //                        catch (Exception e)
+               //                        {
+               //                           e.printStackTrace();
+               //                        }
+               //                     }
+               //                  }.start();
             }
-            return true;
          }
+         return true;
       });
 
       final CountDownLatch failing = new CountDownLatch(1);
@@ -642,7 +598,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final ClientSession sessionProducer = createSession(sfProducer, true, true, 0);
 
-      sessionProducer.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
+      sessionProducer.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS));
 
       final ClientProducer producer = sessionProducer.createProducer(FailoverTestBase.ADDRESS);
 
@@ -673,9 +629,9 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       t.start();
 
-      Assert.assertTrue(latchBlocked.await(1, TimeUnit.MINUTES));
+      assertTrue(latchBlocked.await(1, TimeUnit.MINUTES));
 
-      Assert.assertTrue(failing.await(1, TimeUnit.MINUTES));
+      assertTrue(failing.await(1, TimeUnit.MINUTES));
 
       for (int i = 0; i < 5; i++) {
          for (Thread tint : setThread) {
@@ -684,9 +640,9 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
          Thread.sleep(500);
       }
 
-      liveServer.crash(true, false);
+      primaryServer.crash(true, false);
 
-      Assert.assertTrue(messagesSentlatch.await(3, TimeUnit.MINUTES));
+      assertTrue(messagesSentlatch.await(3, TimeUnit.MINUTES));
 
       running.set(false);
 
@@ -698,7 +654,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
    @Override
    protected ClusterConnectionConfiguration createBasicClusterConfig(String connectorName,
                                                                          String... connectors) {
-      ArrayList<String> connectors0 = new ArrayList<>();
+      List<String> connectors0 = new ArrayList<>();
       for (String c : connectors) {
          connectors0.add(c);
       }

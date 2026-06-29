@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.discovery;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
@@ -30,6 +36,7 @@ import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.core.cluster.DiscoveryEntry;
@@ -41,31 +48,28 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.Wait;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This will test Discovery test on JGroups and UDP.
- * <br>
- * In some configurations IPV6 may be a challenge. To make sure this test works, you may add this
- * property to your JVM settings: {@literal -Djgroups.bind_addr=::1}
- * <br>
+ * <p>
+ * In some configurations IPV6 may be a challenge. To make sure this test works, you may add this property to your JVM
+ * settings: {@literal -Djgroups.bind_addr=::1}
+ * <p>
  * Or ultimately you may also turn off IPV6: {@literal -Djava.net.preferIPv4Stack=true}
- * <br>
- * Note when you are not sure about your IP settings of your test machine, you should make sure
- * that the jgroups.bind_addr and java.net.preferXXStack by defining them explicitly, for example
- * if you would like to use IPV6, set BOTH properties to your JVM like the following:
- * -Djgroups.bind_addr=::1 -Djava.net.preferIPv6Addresses=true
- * <br>
- * or if you prefer IPV4:
- * -Djgroups.bind_addr=localhost -Djava.net.preferIPv4Stack=true
- * <br>
- * Also: Make sure you add integration-tests/src/tests/resources to your project path on the
- * tests/integration-tests
+ * <p>
+ * Note when you are not sure about your IP settings of your test machine, you should make sure that the
+ * jgroups.bind_addr and java.net.preferXXStack by defining them explicitly, for example if you would like to use IPV6,
+ * set BOTH properties to your JVM like the following: -Djgroups.bind_addr=::1 -Djava.net.preferIPv6Addresses=true
+ * <p>
+ * or if you prefer IPV4: -Djgroups.bind_addr=localhost -Djava.net.preferIPv4Stack=true
+ * <p>
+ * Also: Make sure you add integration-tests/src/tests/resources to your project path on the tests/integration-tests
  */
 public class DiscoveryTest extends DiscoveryBaseTest {
 
@@ -76,16 +80,16 @@ public class DiscoveryTest extends DiscoveryBaseTest {
    BroadcastGroup bg = null, bg1 = null, bg2 = null, bg3 = null;
    DiscoveryGroup dg = null, dg1 = null, dg2 = null, dg3 = null;
 
-   @Before
+   @BeforeEach
    public void prepareLoopback() {
       JChannelManager.getInstance().setLoopbackMessages(true);
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       JChannelManager.getInstance().clear().setLoopbackMessages(false);
-      /** This file path is defined at {@link #TEST_JGROUPS_CONF_FILE} */
+      // This file path is defined by TEST_JGROUPS_CONF_FILE
       deleteDirectory(new File("./target/tmp/amqtest.ping.dir"));
       for (ActiveMQComponent component : new ActiveMQComponent[]{bg, bg1, bg2, bg3, dg, dg1, dg2, dg3}) {
          stopComponent(component);
@@ -99,9 +103,9 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      final String nodeID = RandomUtil.randomString();
+      final String nodeID = RandomUtil.randomUUIDString();
 
-      bg = newBroadcast(nodeID, RandomUtil.randomString(), null, -1, groupAddress, groupPort);
+      bg = newBroadcast(nodeID, RandomUtil.randomUUIDString(), null, -1, groupAddress, groupPort);
 
       bg.start();
 
@@ -109,7 +113,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       bg.addConnector(live1);
 
-      dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, groupPort, timeout);
+      dg = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, groupAddress, groupPort, timeout);
 
       dg.start();
 
@@ -121,7 +125,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
    @Test
    public void testSimpleBroadcastJGropus() throws Exception {
-      final String nodeID = RandomUtil.randomString();
+      final String nodeID = RandomUtil.randomUUIDString();
 
       bg = new BroadcastGroupImpl(new FakeNodeManager(nodeID), "broadcast", 100, null, new JGroupsFileBroadcastEndpointFactory().setChannelName("tst").setFile(TEST_JGROUPS_CONF_FILE));
 
@@ -131,7 +135,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       bg.addConnector(live1);
 
-      dg = new DiscoveryGroup(nodeID + "1", "broadcast", 5000L, new JGroupsFileBroadcastEndpointFactory().setChannelName("tst").setFile(TEST_JGROUPS_CONF_FILE), null);
+      dg = new DiscoveryGroup(nodeID + "1", "broadcast", 5000L, ActiveMQClient.DEFAULT_DISCOVERY_STOPPING_TIMEOUT, new JGroupsFileBroadcastEndpointFactory().setChannelName("tst").setFile(TEST_JGROUPS_CONF_FILE), null);
 
       dg.start();
 
@@ -140,11 +144,18 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       assertEqualsDiscoveryEntries(Arrays.asList(live1), entries);
    }
 
+   @Test
+   public void testJGroupsOpenClientInitializesChannel() throws Exception {
+      JGroupsFileBroadcastEndpointFactory factory = new JGroupsFileBroadcastEndpointFactory().setFile(TEST_JGROUPS_CONF_FILE).setChannelName("tst");
+      BroadcastEndpoint endpoint = factory.createBroadcastEndpoint();
+      endpoint.close(false);
+      endpoint.openClient();
+      endpoint.close(false);
+   }
+
    /**
-    * Create one broadcaster and 100 receivers. Make sure broadcasting works.
-    * Then stop 99 of the receivers, the last one could still be working.
-    *
-    * @throws Exception
+    * Create one broadcaster and 100 receivers. Make sure broadcasting works. Then stop 99 of the receivers, the last
+    * one could still be working.
     */
    @Test
    public void testJGropusChannelReferenceCounting() throws Exception {
@@ -200,11 +211,8 @@ public class DiscoveryTest extends DiscoveryBaseTest {
    }
 
    /**
-    * Create one broadcaster and 50 receivers. Make sure broadcasting works.
-    * Then stop all of the receivers, and create 50 new ones. Make sure the
-    * 50 new ones are receiving data from the broadcasting.
-    *
-    * @throws Exception
+    * Create one broadcaster and 50 receivers. Make sure broadcasting works. Then stop all of the receivers, and create
+    * 50 new ones. Make sure the 50 new ones are receiving data from the broadcasting.
     */
    @Test
    public void testJGropusChannelReferenceCounting1() throws Exception {
@@ -266,10 +274,8 @@ public class DiscoveryTest extends DiscoveryBaseTest {
    }
 
    /**
-    * Create one broadcaster and 50 receivers. Then stop half of the receivers.
-    * Then add the half back, plus some more. Make sure all receivers receive data.
-    *
-    * @throws Exception
+    * Create one broadcaster and 50 receivers. Then stop half of the receivers. Then add the half back, plus some more.
+    * Make sure all receivers receive data.
     */
    @Test
    public void testJGropusChannelReferenceCounting2() throws Exception {
@@ -370,11 +376,13 @@ public class DiscoveryTest extends DiscoveryBaseTest {
          }
       } finally {
          try {
-            if (broadcaster != null)
+            if (broadcaster != null) {
                broadcaster.close(true);
+            }
 
-            if (client != null)
+            if (client != null) {
                client.close(false);
+            }
          } catch (Exception ignored) {
             ignored.printStackTrace();
          }
@@ -388,7 +396,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      final String nodeID = RandomUtil.randomString();
+      final String nodeID = RandomUtil.randomUUIDString();
 
       // We need to choose a real NIC on the local machine - note this will silently pass if the machine
       // has no usable NIC!
@@ -399,7 +407,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       logger.debug("Local address is {}", localAddress);
 
-      bg = newBroadcast(nodeID, RandomUtil.randomString(), localAddress, -1, groupAddress, groupPort);
+      bg = newBroadcast(nodeID, RandomUtil.randomUUIDString(), localAddress, -1, groupAddress, groupPort);
 
       bg.start();
 
@@ -407,7 +415,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       bg.addConnector(live1);
 
-      dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), localAddress, groupAddress, groupPort, timeout);
+      dg = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), localAddress, groupAddress, groupPort, timeout);
 
       dg.start();
 
@@ -424,9 +432,9 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      final String nodeID = RandomUtil.randomString();
+      final String nodeID = RandomUtil.randomUUIDString();
 
-      bg = newBroadcast(nodeID, RandomUtil.randomString(), null, -1, groupAddress, groupPort);
+      bg = newBroadcast(nodeID, RandomUtil.randomUUIDString(), null, -1, groupAddress, groupPort);
 
       bg.start();
 
@@ -434,7 +442,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       bg.addConnector(live1);
 
-      dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, groupPort, timeout);
+      dg = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, groupAddress, groupPort, timeout);
 
       dg.start();
 
@@ -461,9 +469,9 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      String nodeID = RandomUtil.randomString();
+      String nodeID = RandomUtil.randomUUIDString();
 
-      bg = newBroadcast(nodeID, RandomUtil.randomString(), null, -1, groupAddress, groupPort);
+      bg = newBroadcast(nodeID, RandomUtil.randomUUIDString(), null, -1, groupAddress, groupPort);
 
       bg.start();
 
@@ -471,16 +479,16 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       bg.addConnector(live1);
 
-      dg = newDiscoveryGroup(nodeID, RandomUtil.randomString(), null, groupAddress, groupPort, timeout);
+      dg = newDiscoveryGroup(nodeID, RandomUtil.randomUUIDString(), null, groupAddress, groupPort, timeout);
 
       dg.start();
 
       verifyNonBroadcast(bg, dg);
       List<DiscoveryEntry> entries = dg.getDiscoveryEntries();
 
-      Assert.assertNotNull(entries);
+      assertNotNull(entries);
 
-      Assert.assertEquals(0, entries.size());
+      assertEquals(0, entries.size());
 
    }
 
@@ -490,7 +498,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      bg = newBroadcast(RandomUtil.randomString(), RandomUtil.randomString(), null, -1, groupAddress, groupPort);
+      bg = newBroadcast(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, -1, groupAddress, groupPort);
 
       bg.start();
 
@@ -500,7 +508,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       final int port2 = getUDPDiscoveryPort(1);
 
-      dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, port2, timeout);
+      dg = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, groupAddress, port2, timeout);
 
       dg.start();
 
@@ -513,7 +521,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      bg = newBroadcast(RandomUtil.randomString(), RandomUtil.randomString(), null, -1, groupAddress, groupPort);
+      bg = newBroadcast(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, -1, groupAddress, groupPort);
 
       bg.start();
 
@@ -524,7 +532,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       final InetAddress groupAddress2 = InetAddress.getByName(address2);
       final int port2 = getUDPDiscoveryPort(1);
 
-      dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress2, port2, timeout);
+      dg = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, groupAddress2, port2, timeout);
 
       dg.start();
 
@@ -553,11 +561,11 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       String node3 = UUIDGenerator.getInstance().generateStringUUID();
 
-      bg1 = newBroadcast(node1, RandomUtil.randomString(), null, -1, groupAddress1, groupPort1);
+      bg1 = newBroadcast(node1, RandomUtil.randomUUIDString(), null, -1, groupAddress1, groupPort1);
 
-      bg2 = newBroadcast(node2, RandomUtil.randomString(), null, -1, groupAddress2, groupPort2);
+      bg2 = newBroadcast(node2, RandomUtil.randomUUIDString(), null, -1, groupAddress2, groupPort2);
 
-      bg3 = newBroadcast(node3, RandomUtil.randomString(), null, -1, groupAddress3, groupPort3);
+      bg3 = newBroadcast(node3, RandomUtil.randomUUIDString(), null, -1, groupAddress3, groupPort3);
 
       bg2.start();
       bg1.start();
@@ -573,13 +581,13 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       bg2.addConnector(live2);
       bg3.addConnector(live3);
 
-      dg1 = newDiscoveryGroup("group-1::" + RandomUtil.randomString(), "group-1::" + RandomUtil.randomString(), null, groupAddress1, groupPort1, timeout);
+      dg1 = newDiscoveryGroup("group-1::" + RandomUtil.randomUUIDString(), "group-1::" + RandomUtil.randomUUIDString(), null, groupAddress1, groupPort1, timeout);
       dg1.start();
 
-      dg2 = newDiscoveryGroup("group-2::" + RandomUtil.randomString(), "group-2::" + RandomUtil.randomString(), null, groupAddress2, groupPort2, timeout);
+      dg2 = newDiscoveryGroup("group-2::" + RandomUtil.randomUUIDString(), "group-2::" + RandomUtil.randomUUIDString(), null, groupAddress2, groupPort2, timeout);
       dg2.start();
 
-      dg3 = newDiscoveryGroup("group-3::" + RandomUtil.randomString(), "group-3::" + RandomUtil.randomString(), null, groupAddress3, groupPort3, timeout);
+      dg3 = newDiscoveryGroup("group-3::" + RandomUtil.randomUUIDString(), "group-3::" + RandomUtil.randomUUIDString(), null, groupAddress3, groupPort3, timeout);
       dg3.start();
 
       bg1.broadcastConnectors();
@@ -589,17 +597,17 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       bg3.broadcastConnectors();
 
       boolean ok = dg1.waitForBroadcast(timeout);
-      Assert.assertTrue(ok);
+      assertTrue(ok);
       List<DiscoveryEntry> entries = dg1.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1), entries);
 
       ok = dg2.waitForBroadcast(timeout);
-      Assert.assertTrue(ok);
+      assertTrue(ok);
       entries = dg2.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live2), entries);
 
       ok = dg3.waitForBroadcast(timeout);
-      Assert.assertTrue(ok);
+      assertTrue(ok);
       entries = dg3.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live3), entries);
    }
@@ -645,7 +653,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
    //
    // boolean ok = dg.waitForBroadcast(1000);
    //
-   // Assert.assertTrue(ok);
+   // Assertions.assertTrue(ok);
    // }
 
    @Test
@@ -654,9 +662,9 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      String nodeID = RandomUtil.randomString();
+      String nodeID = RandomUtil.randomUUIDString();
 
-      bg = newBroadcast(nodeID, RandomUtil.randomString(), null, -1, groupAddress, groupPort);
+      bg = newBroadcast(nodeID, RandomUtil.randomUUIDString(), null, -1, groupAddress, groupPort);
 
       bg.start();
 
@@ -664,7 +672,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       bg.addConnector(live1);
 
-      dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, groupPort, timeout);
+      dg = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, groupAddress, groupPort, timeout);
 
       MyListener listener1 = new MyListener();
       MyListener listener2 = new MyListener();
@@ -678,9 +686,9 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       verifyBroadcast(bg, dg);
 
-      Assert.assertTrue(listener1.called);
-      Assert.assertTrue(listener2.called);
-      Assert.assertTrue(listener3.called);
+      assertTrue(listener1.called);
+      assertTrue(listener2.called);
+      assertTrue(listener3.called);
 
       listener1.called = false;
       listener2.called = false;
@@ -689,9 +697,9 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       verifyBroadcast(bg, dg);
 
       // Won't be called since connectors haven't changed
-      Assert.assertFalse(listener1.called);
-      Assert.assertFalse(listener2.called);
-      Assert.assertFalse(listener3.called);
+      assertFalse(listener1.called);
+      assertFalse(listener2.called);
+      assertFalse(listener3.called);
    }
 
    @Test
@@ -700,17 +708,17 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      String node1 = RandomUtil.randomString();
-      String node2 = RandomUtil.randomString();
-      String node3 = RandomUtil.randomString();
+      String node1 = RandomUtil.randomUUIDString();
+      String node2 = RandomUtil.randomUUIDString();
+      String node3 = RandomUtil.randomUUIDString();
 
-      bg1 = newBroadcast(node1, RandomUtil.randomString(), null, -1, groupAddress, groupPort);
+      bg1 = newBroadcast(node1, RandomUtil.randomUUIDString(), null, -1, groupAddress, groupPort);
       bg1.start();
 
-      bg2 = newBroadcast(node2, RandomUtil.randomString(), null, -1, groupAddress, groupPort);
+      bg2 = newBroadcast(node2, RandomUtil.randomUUIDString(), null, -1, groupAddress, groupPort);
       bg2.start();
 
-      bg3 = newBroadcast(node3, RandomUtil.randomString(), null, -1, groupAddress, groupPort);
+      bg3 = newBroadcast(node3, RandomUtil.randomUUIDString(), null, -1, groupAddress, groupPort);
       bg3.start();
 
       TransportConfiguration live1 = generateTC();
@@ -722,7 +730,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       TransportConfiguration live3 = generateTC();
       bg3.addConnector(live3);
 
-      dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, groupPort, timeout);
+      dg = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, groupAddress, groupPort, timeout);
 
       MyListener listener1 = new MyListener();
       dg.registerListener(listener1);
@@ -734,48 +742,48 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       verifyBroadcast(bg1, dg);
       List<DiscoveryEntry> entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1), entries);
-      Assert.assertTrue(listener1.called);
-      Assert.assertTrue(listener2.called);
+      assertTrue(listener1.called);
+      assertTrue(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
       verifyBroadcast(bg2, dg);
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live2), entries);
-      Assert.assertTrue(listener1.called);
-      Assert.assertTrue(listener2.called);
+      assertTrue(listener1.called);
+      assertTrue(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
       verifyBroadcast(bg3, dg);
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live2, live3), entries);
-      Assert.assertTrue(listener1.called);
-      Assert.assertTrue(listener2.called);
+      assertTrue(listener1.called);
+      assertTrue(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
       verifyBroadcast(bg1, dg);
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live2, live3), entries);
-      Assert.assertFalse(listener1.called);
-      Assert.assertFalse(listener2.called);
+      assertFalse(listener1.called);
+      assertFalse(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
       verifyBroadcast(bg2, dg);
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live2, live3), entries);
-      Assert.assertFalse(listener1.called);
-      Assert.assertFalse(listener2.called);
+      assertFalse(listener1.called);
+      assertFalse(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
       verifyBroadcast(bg3, dg);
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live2, live3), entries);
-      Assert.assertFalse(listener1.called);
-      Assert.assertFalse(listener2.called);
+      assertFalse(listener1.called);
+      assertFalse(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
@@ -786,8 +794,8 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live2, live3), entries);
-      Assert.assertFalse(listener1.called);
-      Assert.assertFalse(listener2.called);
+      assertFalse(listener1.called);
+      assertFalse(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
@@ -802,8 +810,8 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       entries = dg.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1, live3), entries);
-      Assert.assertTrue(listener1.called);
-      Assert.assertTrue(listener2.called);
+      assertTrue(listener1.called);
+      assertTrue(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
@@ -820,10 +828,10 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       ok = dg.waitForBroadcast(1000);
 
       entries = dg.getDiscoveryEntries();
-      Assert.assertNotNull(entries);
-      Assert.assertEquals(0, entries.size());
-      Assert.assertTrue(listener1.called);
-      Assert.assertTrue(listener2.called);
+      assertNotNull(entries);
+      assertEquals(0, entries.size());
+      assertTrue(listener1.called);
+      assertTrue(listener2.called);
       listener1.called = false;
       listener2.called = false;
 
@@ -835,10 +843,10 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       ok = dg.waitForBroadcast(1000);
 
       entries = dg.getDiscoveryEntries();
-      Assert.assertNotNull(entries);
-      Assert.assertEquals(0, entries.size());
-      Assert.assertFalse(listener1.called);
-      Assert.assertFalse(listener2.called);
+      assertNotNull(entries);
+      assertEquals(0, entries.size());
+      assertFalse(listener1.called);
+      assertFalse(listener2.called);
    }
 
    @Test
@@ -847,9 +855,9 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      String nodeID = RandomUtil.randomString();
+      String nodeID = RandomUtil.randomUUIDString();
 
-      bg = newBroadcast(nodeID, RandomUtil.randomString(), null, -1, groupAddress, groupPort);
+      bg = newBroadcast(nodeID, RandomUtil.randomUUIDString(), null, -1, groupAddress, groupPort);
 
       bg.start();
 
@@ -857,11 +865,11 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       bg.addConnector(live1);
 
-      dg1 = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, groupPort, timeout);
+      dg1 = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, groupAddress, groupPort, timeout);
 
-      dg2 = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, groupPort, timeout);
+      dg2 = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, groupAddress, groupPort, timeout);
 
-      dg3 = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, groupPort, timeout);
+      dg3 = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, groupAddress, groupPort, timeout);
 
       dg1.start();
       dg2.start();
@@ -870,17 +878,17 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       bg.broadcastConnectors();
 
       boolean ok = dg1.waitForBroadcast(1000);
-      Assert.assertTrue(ok);
+      assertTrue(ok);
       List<DiscoveryEntry> entries = dg1.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1), entries);
 
       ok = dg2.waitForBroadcast(1000);
-      Assert.assertTrue(ok);
+      assertTrue(ok);
       entries = dg2.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1), entries);
 
       ok = dg3.waitForBroadcast(1000);
-      Assert.assertTrue(ok);
+      assertTrue(ok);
       entries = dg3.getDiscoveryEntries();
       assertEqualsDiscoveryEntries(Arrays.asList(live1), entries);
 
@@ -901,23 +909,23 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, groupPort, timeout, notifService);
+      dg = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, groupAddress, groupPort, timeout, notifService);
 
-      Assert.assertEquals(0, notifListener.getNotifications().size());
+      assertEquals(0, notifListener.count(CoreNotificationType.DISCOVERY_GROUP_STARTED));
 
       dg.start();
 
-      Assert.assertEquals(1, notifListener.getNotifications().size());
-      Notification notif = notifListener.getNotifications().get(0);
-      Assert.assertEquals(CoreNotificationType.DISCOVERY_GROUP_STARTED, notif.getType());
-      Assert.assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      Wait.assertEquals(1, () -> notifListener.count(CoreNotificationType.DISCOVERY_GROUP_STARTED), 5000, 100);
+      Notification notif = notifListener.findAny(CoreNotificationType.DISCOVERY_GROUP_STARTED);
+      assertEquals(CoreNotificationType.DISCOVERY_GROUP_STARTED, notif.getType());
+      assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
 
       dg.stop();
 
-      Assert.assertEquals(2, notifListener.getNotifications().size());
-      notif = notifListener.getNotifications().get(1);
-      Assert.assertEquals(CoreNotificationType.DISCOVERY_GROUP_STOPPED, notif.getType());
-      Assert.assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      Wait.assertEquals(2, () -> notifListener.count(CoreNotificationType.DISCOVERY_GROUP_STARTED, CoreNotificationType.DISCOVERY_GROUP_STOPPED), 5000, 100);
+      notif = notifListener.findAny(CoreNotificationType.DISCOVERY_GROUP_STOPPED);
+      assertEquals(CoreNotificationType.DISCOVERY_GROUP_STOPPED, notif.getType());
+      assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
    }
 
    @Test
@@ -929,24 +937,23 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       final InetAddress groupAddress = InetAddress.getByName(address1);
       final int groupPort = getUDPDiscoveryPort();
 
-      bg = newBroadcast(RandomUtil.randomString(), RandomUtil.randomString(), null, -1, groupAddress, groupPort);
+      bg = newBroadcast(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), null, -1, groupAddress, groupPort);
 
       bg.setNotificationService(notifService);
 
-      Assert.assertEquals(0, notifListener.getNotifications().size());
+      assertEquals(0, notifListener.count(CoreNotificationType.BROADCAST_GROUP_STARTED));
 
       bg.start();
+      Wait.assertEquals(1, () -> notifListener.count(CoreNotificationType.BROADCAST_GROUP_STARTED), 5000, 100);
 
-      Assert.assertEquals(1, notifListener.getNotifications().size());
-      Notification notif = notifListener.getNotifications().get(0);
-      Assert.assertEquals(CoreNotificationType.BROADCAST_GROUP_STARTED, notif.getType());
-      Assert.assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      Notification notif = notifListener.findAny(CoreNotificationType.BROADCAST_GROUP_STARTED);
+      assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
 
       bg.stop();
 
-      Assert.assertEquals(2, notifListener.getNotifications().size());
-      notif = notifListener.getNotifications().get(1);
-      Assert.assertEquals(CoreNotificationType.BROADCAST_GROUP_STOPPED, notif.getType());
-      Assert.assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
+      Wait.assertEquals(2, () -> notifListener.count(CoreNotificationType.BROADCAST_GROUP_STARTED, CoreNotificationType.BROADCAST_GROUP_STOPPED), 5000, 100);
+      notif = notifListener.findAny(CoreNotificationType.BROADCAST_GROUP_STOPPED);
+      assertEquals(CoreNotificationType.BROADCAST_GROUP_STOPPED, notif.getType());
+      assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
    }
 }

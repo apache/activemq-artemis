@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -32,20 +36,19 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CommitRollbackTest extends ActiveMQTestBase {
 
-   public final SimpleString addressA = new SimpleString("addressA");
+   public final SimpleString addressA = SimpleString.of("addressA");
 
-   public final SimpleString addressB = new SimpleString("addressB");
+   public final SimpleString addressB = SimpleString.of("addressB");
 
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString queueA = SimpleString.of("queueA");
 
-   public final SimpleString queueB = new SimpleString("queueB");
+   public final SimpleString queueB = SimpleString.of("queueB");
 
-   public final SimpleString queueC = new SimpleString("queueC");
+   public final SimpleString queueC = SimpleString.of("queueC");
 
    @Test
    public void testReceiveWithCommit() throws Exception {
@@ -56,7 +59,7 @@ public class CommitRollbackTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession(false, false, false);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
@@ -66,13 +69,13 @@ public class CommitRollbackTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = cc.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
       }
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(numMessages, q.getDeliveringCount());
+      assertEquals(numMessages, q.getDeliveringCount());
       session.commit();
-      Assert.assertEquals(0, q.getDeliveringCount());
+      assertEquals(0, q.getDeliveringCount());
       session.close();
       sendSession.close();
    }
@@ -86,7 +89,7 @@ public class CommitRollbackTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession(false, false, false);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
@@ -96,18 +99,18 @@ public class CommitRollbackTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = cc.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
       }
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(numMessages, q.getDeliveringCount());
+      assertEquals(numMessages, q.getDeliveringCount());
       session.rollback();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = cc.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
       }
-      Assert.assertEquals(numMessages, q.getDeliveringCount());
+      assertEquals(numMessages, q.getDeliveringCount());
       session.close();
       sendSession.close();
    }
@@ -121,8 +124,8 @@ public class CommitRollbackTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession(false, false, false);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
-      sendSession.createQueue(new QueueConfiguration(queueB).setAddress(addressB).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueB).setAddress(addressB).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientProducer cp2 = sendSession.createProducer(addressB);
       ClientConsumer cc = session.createConsumer(queueA);
@@ -135,22 +138,22 @@ public class CommitRollbackTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = cc.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
          cm = cc2.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
       }
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
       Queue q2 = (Queue) server.getPostOffice().getBinding(queueB).getBindable();
-      Assert.assertEquals(numMessages, q.getDeliveringCount());
+      assertEquals(numMessages, q.getDeliveringCount());
       cc.close();
       cc2.close();
       session.rollback();
-      Assert.assertEquals(0, q2.getDeliveringCount());
-      Assert.assertEquals(numMessages, getMessageCount(q));
-      Assert.assertEquals(0, q2.getDeliveringCount());
-      Assert.assertEquals(numMessages, getMessageCount(q));
+      assertEquals(0, q2.getDeliveringCount());
+      assertEquals(numMessages, getMessageCount(q));
+      assertEquals(0, q2.getDeliveringCount());
+      assertEquals(numMessages, getMessageCount(q));
       sendSession.close();
       session.close();
    }
@@ -163,7 +166,7 @@ public class CommitRollbackTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, false);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
@@ -172,28 +175,25 @@ public class CommitRollbackTest extends ActiveMQTestBase {
       }
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
-      cc.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(final ClientMessage message) {
+      cc.setMessageHandler(message -> {
+         try {
+            message.acknowledge();
+         } catch (ActiveMQException e) {
             try {
-               message.acknowledge();
-            } catch (ActiveMQException e) {
-               try {
-                  session.close();
-               } catch (ActiveMQException e1) {
-                  e1.printStackTrace();
-               }
+               session.close();
+            } catch (ActiveMQException e1) {
+               e1.printStackTrace();
             }
-            latch.countDown();
          }
+         latch.countDown();
       });
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(numMessages, q.getDeliveringCount());
-      Assert.assertEquals(numMessages, getMessageCount(q));
+      assertEquals(numMessages, q.getDeliveringCount());
+      assertEquals(numMessages, getMessageCount(q));
       session.commit();
-      Assert.assertEquals(0, q.getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(q));
+      assertEquals(0, q.getDeliveringCount());
+      assertEquals(0, getMessageCount(q));
       sendSession.close();
       session.close();
 
@@ -207,7 +207,7 @@ public class CommitRollbackTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, false);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
@@ -217,18 +217,18 @@ public class CommitRollbackTest extends ActiveMQTestBase {
       CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
       cc.setMessageHandler(new ackHandler(session, latch));
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(numMessages, q.getDeliveringCount());
-      Assert.assertEquals(numMessages, getMessageCount(q));
+      assertEquals(numMessages, q.getDeliveringCount());
+      assertEquals(numMessages, getMessageCount(q));
       session.stop();
       session.rollback();
-      Assert.assertEquals(0, q.getDeliveringCount());
-      Assert.assertEquals(numMessages, getMessageCount(q));
+      assertEquals(0, q.getDeliveringCount());
+      assertEquals(numMessages, getMessageCount(q));
       latch = new CountDownLatch(numMessages);
       cc.setMessageHandler(new ackHandler(session, latch));
       session.start();
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
       sendSession.close();
       session.close();
       cf.close();

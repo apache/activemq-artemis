@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,28 +26,27 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class AcceptorControlImplTest extends Assert {
+public class AcceptorControlImplTest {
 
    @Test
    public void testParameters() throws Exception {
-      HashMap<String, Object> params = new HashMap<>();
-      params.put("param", RandomUtil.randomString());
+      Map<String, Object> params = new HashMap<>();
+      params.put("param", RandomUtil.randomUUIDString());
 
-      HashMap<String, Object> extraProps = new HashMap<>();
-      extraProps.put("extraProp", RandomUtil.randomString());
+      Map<String, Object> extraProps = new HashMap<>();
+      extraProps.put("extraProp", RandomUtil.randomUUIDString());
 
       Acceptor acceptor = Mockito.mock(Acceptor.class);
       StorageManager storageManager = Mockito.mock(StorageManager.class);
       TransportConfiguration transportConfiguration = new TransportConfiguration(
-         InVMAcceptorFactory.class.getName(), params, RandomUtil.randomString(), extraProps);
+         InVMAcceptorFactory.class.getName(), params, RandomUtil.randomUUIDString(), extraProps);
       AcceptorControlImpl acceptorControl = new AcceptorControlImpl(acceptor, storageManager, transportConfiguration);
 
       Map<String, Object> acceptorPrameters = acceptorControl.getParameters();
-      Assert.assertEquals(params.get("param"), acceptorPrameters.get("param"));
-      Assert.assertEquals(extraProps.get("extraProp"), acceptorPrameters.get("extraProp"));
+      assertEquals(params.get("param"), acceptorPrameters.get("param"));
+      assertEquals(extraProps.get("extraProp"), acceptorPrameters.get("extraProp"));
    }
 }

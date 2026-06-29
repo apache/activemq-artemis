@@ -294,7 +294,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
    }
 
    @Override
-   public Map<String, Object> getMetrics()  {
+   public Map<String, Object> getMetrics() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getMetrics(this.clusterConnection);
       }
@@ -319,6 +319,19 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
          blockOnIO();
       }
 
+   }
+
+   @Override
+   public long getProducerWindowSize() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getProducerWindowSize(this.clusterConnection);
+      }
+      clearIO();
+      try {
+         return clusterConnection.getProducerWindowSize();
+      } finally {
+         blockOnIO();
+      }
    }
 
 

@@ -28,8 +28,8 @@ import java.lang.invoke.MethodHandles;
 /**
  * A XAResourceRecovery instance that can be used to recover any JMS provider.
  * <p>
- * In reality only recover, rollback and commit will be called but we still need to be implement all
- * methods just in case.
+ * In reality only recover, rollback and commit will be called but we still need to be implement all methods just in
+ * case.
  * <p>
  * To enable this add the following to the jbossts-properties file
  * <pre>
@@ -37,13 +37,13 @@ import java.lang.invoke.MethodHandles;
  *                 value="org.apache.activemq.artemis.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"/&gt;
  * </pre>
  * <p>
- * you'll need something like this if the ActiveMQ Artemis Server is remote
+ * you'll need something like this if the Apache Artemis Server is remote
  * <pre>
  *      &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ACTIVEMQ2"
  *                  value="org.apache.activemq.artemis.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=61616"/&gt;
  * </pre>
  * <p>
- * you'll need something like this if the ActiveMQ Artemis Server is remote and has failover configured
+ * you'll need something like this if the Apache Artemis Server is remote and has failover configured
  * <pre>
  *             &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ACTIVEMQ2"
  *                       value="org.apache.activemq.artemis.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=61616;org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost2,port=61617"/&gt;
@@ -89,15 +89,13 @@ public class ActiveMQXAResourceRecovery {
       /*
        * The way hasMoreResources is supposed to work is as follows:
        * For each "sweep" the recovery manager will call hasMoreResources, then if it returns
-       * true it will call getXAResource.
+       * {@code true} it will call getXAResource.
        * It will repeat that until hasMoreResources returns false.
        * Then the sweep is over.
-       * For the next sweep hasMoreResources should return true, etc.
+       * For the next sweep hasMoreResources should return {@code true}, etc.
        *
        * In our case where we only need to return one XAResource per sweep,
-       * hasMoreResources should basically alternate between true and false.
-       *
-       *
+       * hasMoreResources should basically alternate between {@code true} and false.
        */
 
       hasMore = !hasMore;
@@ -126,7 +124,7 @@ public class ActiveMQXAResourceRecovery {
       private String password;
 
       public ConfigParser(final String config) {
-         if (config == null || config.length() == 0) {
+         if (config == null || config.isEmpty()) {
             throw new IllegalArgumentException("Must specify provider connector factory class name in config");
          }
 
@@ -144,7 +142,7 @@ public class ActiveMQXAResourceRecovery {
          if (strings.length >= 2) {
 
             username = strings[1].trim();
-            if (username.length() == 0) {
+            if (username.isEmpty()) {
                username = null;
             }
 
@@ -153,7 +151,7 @@ public class ActiveMQXAResourceRecovery {
             }
 
             password = strings[2].trim();
-            if (password.length() == 0) {
+            if (password.isEmpty()) {
                password = null;
             }
          }

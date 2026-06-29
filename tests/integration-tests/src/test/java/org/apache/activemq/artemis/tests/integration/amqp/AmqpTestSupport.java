@@ -22,22 +22,16 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
-import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
-import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 
 /**
- * Base test support class providing client support methods to aid in
- * creating and configuration the AMQP test client.
+ * Base test support class providing client support methods to aid in creating and configuration the AMQP test client.
  */
 public class AmqpTestSupport extends ActiveMQTestBase {
 
@@ -73,7 +67,7 @@ public class AmqpTestSupport extends ActiveMQTestBase {
 
    protected MBeanServer mBeanServer = createMBeanServer();
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       for (AmqpConnection conn : connections) {
@@ -163,17 +157,6 @@ public class AmqpTestSupport extends ActiveMQTestBase {
       return new AmqpClient(brokerURI, username, password);
    }
 
-   public static AMQPStandardMessage encodeAndDecodeMessage(int messageFormat, MessageImpl message, int expectedSize) {
-      ByteBuf nettyBuffer = Unpooled.buffer(expectedSize);
-
-      message.encode(new NettyWritable(nettyBuffer));
-      byte[] bytes = new byte[nettyBuffer.writerIndex()];
-      nettyBuffer.readBytes(bytes);
-
-      return new AMQPStandardMessage(messageFormat, bytes, null);
-   }
-
-
    protected ActiveMQServer createServer(int port, boolean start) throws Exception {
 
       final ActiveMQServer server = this.createServer(true, true);
@@ -229,10 +212,10 @@ public class AmqpTestSupport extends ActiveMQTestBase {
    }
 
    protected TransportConfiguration addAcceptorConfiguration(ActiveMQServer server, int port) {
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, String.valueOf(port));
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, getConfiguredProtocols());
-      HashMap<String, Object> amqpParams = new HashMap<>();
+      Map<String, Object> amqpParams = new HashMap<>();
       configureAMQPAcceptorParameters(amqpParams);
       TransportConfiguration tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, NETTY_ACCEPTOR, amqpParams);
       configureAMQPAcceptorParameters(tc);
@@ -240,7 +223,7 @@ public class AmqpTestSupport extends ActiveMQTestBase {
    }
 
    protected String getConfiguredProtocols() {
-      return "AMQP,OPENWIRE";
+      return "AMQP,OPENWIRE,CORE";
    }
 
 

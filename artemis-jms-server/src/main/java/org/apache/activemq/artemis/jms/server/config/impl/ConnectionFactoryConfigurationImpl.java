@@ -32,9 +32,11 @@ import org.apache.activemq.artemis.utils.DataConstants;
 /**
  * This class contains the configuration properties of a connection factory.
  * <p>
- * It is also persisted on the journal at the time of management is used to created a connection factory and set to store.
+ * It is also persisted on the journal at the time of management is used to created a connection factory and set to
+ * store.
  * <p>
- * Every property on this class has to be also set through encoders through EncodingSupport implementation at this class.
+ * Every property on this class has to be also set through encoders through EncodingSupport implementation at this
+ * class.
  */
 public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConfiguration {
 
@@ -117,9 +119,9 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private JMSFactoryType factoryType = JMSFactoryType.CF;
 
-   private String deserializationBlackList;
+   private String deserializationDenyList;
 
-   private String deserializationWhiteList;
+   private String deserializationAllowList;
 
    private int initialMessagePacketSize = ActiveMQClient.DEFAULT_INITIAL_MESSAGE_PACKET_SIZE;
 
@@ -162,17 +164,11 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       return persisted;
    }
 
-   /**
-    * @return the discoveryGroupName
-    */
    @Override
    public String getDiscoveryGroupName() {
       return discoveryGroupName;
    }
 
-   /**
-    * @param discoveryGroupName the discoveryGroupName to set
-    */
    @Override
    public ConnectionFactoryConfiguration setDiscoveryGroupName(String discoveryGroupName) {
       this.discoveryGroupName = discoveryGroupName;
@@ -646,9 +642,9 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
       protocolManagerFactoryStr = BufferHelper.readNullableSimpleStringAsString(buffer);
 
-      deserializationBlackList = BufferHelper.readNullableSimpleStringAsString(buffer);
+      deserializationDenyList = BufferHelper.readNullableSimpleStringAsString(buffer);
 
-      deserializationWhiteList = BufferHelper.readNullableSimpleStringAsString(buffer);
+      deserializationAllowList = BufferHelper.readNullableSimpleStringAsString(buffer);
 
       enable1xPrefixes = buffer.readableBytes() > 0 ? buffer.readBoolean() : ActiveMQJMSClient.DEFAULT_ENABLE_1X_PREFIXES;
 
@@ -745,9 +741,9 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
       BufferHelper.writeAsNullableSimpleString(buffer, protocolManagerFactoryStr);
 
-      BufferHelper.writeAsNullableSimpleString(buffer, deserializationBlackList);
+      BufferHelper.writeAsNullableSimpleString(buffer, deserializationDenyList);
 
-      BufferHelper.writeAsNullableSimpleString(buffer, deserializationWhiteList);
+      BufferHelper.writeAsNullableSimpleString(buffer, deserializationAllowList);
 
       buffer.writeBoolean(enable1xPrefixes);
 
@@ -867,9 +863,9 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
          BufferHelper.sizeOfNullableSimpleString(protocolManagerFactoryStr) +
 
-         BufferHelper.sizeOfNullableSimpleString(deserializationBlackList) +
+         BufferHelper.sizeOfNullableSimpleString(deserializationDenyList) +
 
-         BufferHelper.sizeOfNullableSimpleString(deserializationWhiteList) +
+         BufferHelper.sizeOfNullableSimpleString(deserializationAllowList) +
 
          DataConstants.SIZE_BOOLEAN +
          // enable1xPrefixes;
@@ -896,22 +892,42 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    @Override
    public String getDeserializationBlackList() {
-      return deserializationBlackList;
+      return deserializationDenyList;
    }
 
    @Override
-   public void setDeserializationBlackList(String blackList) {
-      this.deserializationBlackList = blackList;
+   public void setDeserializationBlackList(String denyList) {
+      this.deserializationDenyList = denyList;
    }
 
    @Override
    public String getDeserializationWhiteList() {
-      return this.deserializationWhiteList;
+      return this.deserializationAllowList;
    }
 
    @Override
-   public void setDeserializationWhiteList(String whiteList) {
-      this.deserializationWhiteList = whiteList;
+   public void setDeserializationWhiteList(String allowList) {
+      this.deserializationAllowList = allowList;
+   }
+
+   @Override
+   public String getDeserializationDenyList() {
+      return deserializationDenyList;
+   }
+
+   @Override
+   public void setDeserializationDenyList(String denyList) {
+      this.deserializationDenyList = denyList;
+   }
+
+   @Override
+   public String getDeserializationAllowList() {
+      return this.deserializationAllowList;
+   }
+
+   @Override
+   public void setDeserializationAllowList(String allowList) {
+      this.deserializationAllowList = allowList;
    }
 
    @Override

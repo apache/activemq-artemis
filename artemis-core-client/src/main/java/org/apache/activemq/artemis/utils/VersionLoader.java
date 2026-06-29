@@ -20,11 +20,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -32,6 +30,7 @@ import java.util.StringTokenizer;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.core.version.impl.VersionImpl;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 /**
  * This loads the version info in from a version.properties file.
@@ -50,12 +49,7 @@ public final class VersionLoader {
       try {
 
          try {
-            PROP_FILE_NAME = AccessController.doPrivileged(new PrivilegedAction<String>() {
-               @Override
-               public String run() {
-                  return System.getProperty(VersionLoader.VERSION_PROP_FILE_KEY);
-               }
-            });
+            PROP_FILE_NAME = SecurityManagerShim.doPrivileged((PrivilegedAction<String>) () -> System.getProperty(VersionLoader.VERSION_PROP_FILE_KEY));
          } catch (Throwable e) {
             ActiveMQClientLogger.LOGGER.unableToInitVersionLoader(e);
             PROP_FILE_NAME = null;
@@ -90,7 +84,7 @@ public final class VersionLoader {
    }
 
    public static String getClasspathString() {
-      StringBuffer classpath = new StringBuffer();
+      StringBuilder classpath = new StringBuilder();
       ClassLoader applicationClassLoader = VersionImpl.class.getClassLoader();
       URL[] urls = ((URLClassLoader) applicationClassLoader).getURLs();
       for (URL url : urls) {
@@ -111,9 +105,9 @@ public final class VersionLoader {
          try {
             versionProps.load(in);
             String versionName = versionProps.getProperty("activemq.version.versionName");
-            int majorVersion = Integer.valueOf(versionProps.getProperty("activemq.version.majorVersion"));
-            int minorVersion = Integer.valueOf(versionProps.getProperty("activemq.version.minorVersion"));
-            int microVersion = Integer.valueOf(versionProps.getProperty("activemq.version.microVersion"));
+            int majorVersion = Integer.parseInt(versionProps.getProperty("activemq.version.majorVersion"));
+            int minorVersion = Integer.parseInt(versionProps.getProperty("activemq.version.minorVersion"));
+            int microVersion = Integer.parseInt(versionProps.getProperty("activemq.version.microVersion"));
             int[] incrementingVersions = parseCompatibleVersionList(versionProps.getProperty("activemq.version.incrementingVersion"));
             int[] compatibleVersionArray = parseCompatibleVersionList(versionProps.getProperty("activemq.version.compatibleVersionList"));
             List<Version> definedVersions = new ArrayList<>(incrementingVersions.length);
@@ -121,13 +115,7 @@ public final class VersionLoader {
                definedVersions.add(new VersionImpl(versionName, majorVersion, minorVersion, microVersion, incrementingVersion, compatibleVersionArray));
             }
             //We want the higher version to be the first
-            Collections.sort(definedVersions, new Comparator<Version>() {
-               @Override
-               public int compare(Version version1, Version version2) {
-                  return version2.getIncrementingVersion() - version1.getIncrementingVersion();
-               }
-
-            });
+            Collections.sort(definedVersions, (version1, version2) -> version2.getIncrementingVersion() - version1.getIncrementingVersion());
             return definedVersions.toArray(new Version[incrementingVersions.length]);
          } catch (IOException e) {
             // if we get here then the messaging hasn't been built properly and the version.properties is skewed in some
@@ -136,8 +124,9 @@ public final class VersionLoader {
          }
       } finally {
          try {
-            if (in != null)
+            if (in != null) {
                in.close();
+            }
          } catch (Throwable ignored) {
          }
       }

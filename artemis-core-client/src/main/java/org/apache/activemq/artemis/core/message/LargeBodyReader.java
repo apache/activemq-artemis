@@ -22,45 +22,45 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 
 /**
  * Class used to readInto message body into buffers.
- * <br>
+ * <p>
  * Used to send large streams over the wire
- *
+ * <p>
  * None of these methods should be caleld from Clients
  */
 public interface LargeBodyReader extends AutoCloseable {
 
    /**
-    * This method must not be called directly by ActiveMQ Artemis clients.
+    * This method must not be called directly by Apache Artemis clients.
     */
    void open() throws ActiveMQException;
 
    /**
-    * This method must not be called directly by ActiveMQ Artemis clients.
-    *
+    * This method must not be called directly by Apache Artemis clients.
+    * <p>
     * This is the reading position.
     */
    void position(long position) throws ActiveMQException;
 
    /**
-    * This method must not be called directly by ActiveMQ Artemis clients.
-    *
+    * This method must not be called directly by Apache Artemis clients.
+    * <p>
     * This is the reading position.
     */
    long position();
 
    /**
-    * This method must not be called directly by ActiveMQ Artemis clients.
+    * This method must not be called directly by Apache Artemis clients.
     */
    @Override
    void close() throws ActiveMQException;
 
    /**
-    * This method must not be called directly by ActiveMQ Artemis clients.
+    * This method must not be called directly by Apache Artemis clients.
     */
    int readInto(ByteBuffer bufferRead) throws ActiveMQException;
 
    /**
-    * This method must not be called directly by ActiveMQ Artemis clients.
+    * This method must not be called directly by Apache Artemis clients.
     */
    long getSize() throws ActiveMQException;
 }

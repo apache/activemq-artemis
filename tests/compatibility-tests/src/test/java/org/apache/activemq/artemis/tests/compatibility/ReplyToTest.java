@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_2_4_0;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -26,38 +30,35 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.tests.compatibility.base.ServerBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ReplyToTest extends ServerBase {
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Throwable {
 
-      FileUtil.deleteDirectory(serverFolder.getRoot());
-      serverFolder.getRoot().mkdirs();
+      FileUtil.deleteDirectory(serverFolder);
+      serverFolder.mkdirs();
 
-      File file = serverFolder.newFile(ActiveMQJMSClient.class.getName() + ".properties");
+      File file = File.createTempFile(ActiveMQJMSClient.class.getName() + ".properties", null, serverFolder);
       FileOutputStream fileOutputStream = new FileOutputStream(file);
       PrintStream stream = new PrintStream(fileOutputStream);
       stream.println("enable1xPrefixes=true");
       stream.close();
 
       setVariable(serverClassloader, "persistent", Boolean.FALSE);
-      startServer(serverFolder.getRoot(), serverClassloader, "live");
+      startServer(serverFolder, server, serverClassloader, "live");
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Throwable {
       super.tearDown();
@@ -68,16 +69,16 @@ public class ReplyToTest extends ServerBase {
       localClassLoaders.clear();
    }
 
-   private static final ArrayList<ClassLoader> localClassLoaders = new ArrayList<>();
+   private static final List<ClassLoader> localClassLoaders = new ArrayList<>();
 
    @Override
    public ClassLoader getClasspath(String name) throws Exception {
       if (name.equals(SNAPSHOT)) {
 
          String snapshotPath = System.getProperty(SNAPSHOT);
-         Assume.assumeNotNull(snapshotPath);
+         assumeTrue(snapshotPath != null);
 
-         String path = serverFolder.getRoot().getAbsolutePath() + File.pathSeparator + snapshotPath;
+         String path = serverFolder.getAbsolutePath() + File.pathSeparator + snapshotPath;
 
          ClassLoader loader = defineClassLoader(path);
 
@@ -91,26 +92,15 @@ public class ReplyToTest extends ServerBase {
       }
    }
 
-   // this will ensure that all tests in this class are run twice,
-   // once with "true" passed to the class' constructor and once with "false"
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
-      // we don't need every single version ever released..
-      // if we keep testing current one against 2.4 and 1.4.. we are sure the wire and API won't change over time
       List<Object[]> combinations = new ArrayList<>();
 
-      /*
-      // during development sometimes is useful to comment out the combinations
-      // and add the ones you are interested.. example:
-       */
-      //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
-      //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
+      combinations.add(new Object[]{SNAPSHOT, ARTEMIS_2_4_0, ARTEMIS_2_4_0});
+      combinations.add(new Object[]{ARTEMIS_2_4_0, SNAPSHOT, SNAPSHOT});
 
-      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
-      combinations.add(new Object[]{ONE_FIVE, SNAPSHOT, SNAPSHOT});
-
-      combinations.add(new Object[]{ONE_FIVE, SNAPSHOT, ONE_FIVE});
-      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, SNAPSHOT});
+      combinations.add(new Object[]{ARTEMIS_2_4_0, SNAPSHOT, ARTEMIS_2_4_0});
+      combinations.add(new Object[]{ARTEMIS_2_4_0, ARTEMIS_2_4_0, SNAPSHOT});
 
       return combinations;
    }
@@ -119,7 +109,7 @@ public class ReplyToTest extends ServerBase {
       super(server, sender, receiver);
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceive() throws Throwable {
 
       setVariable(receiverClassloader, "latch", null);

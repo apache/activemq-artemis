@@ -16,9 +16,6 @@
  */
 package org.apache.activemq;
 
-/**
- *
- */
 public class JmsQueueSelectorTest extends JmsTopicSelectorTest {
 
    @Override

@@ -1,8 +1,9 @@
 = JCA Resource Adapter
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
-For using Apache ActiveMQ Artemis in a Java EE or Jakarta EE environment, you can use the JCA Resource Adapter.
+For using {project-name-full} in a Java EE or Jakarta EE environment, you can use the JCA Resource Adapter.
 
 A JCA-based JMS connection factory has 2 big advantages over a plain JMS connection factory:
 
@@ -44,7 +45,7 @@ Pick the right version of the resource adapter depending on your environment.
 == Building the RA
 
 To use the RA you have to build it.
-The simplest way to do this is with the examples is shipped with the distribution.
+The simplest way to do this is with the xref:examples.adoc[examples].
 
 [,shell]
 ----
@@ -63,7 +64,7 @@ First the config to send messages to a destination (outbound), and second the co
 Each can be configured separately or both can use the ResourceAdapter settings.
 
 Here are a few options listed.
-If you want an overview of all configuration options, consider https://github.com/apache/activemq-artemis/blob/{{ config.version }}/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/ConnectionFactoryProperties.java[ConnectionFactoryProperties] as a base and additionally the specific classes for your object.
+If you want an overview of all configuration options, consider https://github.com/apache/artemis/blob/{{ config.version }}/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/ConnectionFactoryProperties.java[ConnectionFactoryProperties] as a base and additionally the specific classes for your object.
 
 Consider also the `rar.xml` file for options and explanations in your `artemis.rar`.
 There you can set the default options for your ResourceAdapter.
@@ -72,7 +73,7 @@ With the configuration of the ConnectionFactory or the ActivationSpec, you can o
 
 === ResourceAdapter
 
-Config options https://github.com/apache/activemq-artemis/blob/{{ config.version }}/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/ActiveMQRAProperties.java[ActiveMQRAProperties]
+Config options https://github.com/apache/artemis/blob/{{ config.version }}/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/ActiveMQRAProperties.java[ActiveMQRAProperties]
 
 connectionParameters::
 key value pairs, like host=localhost;port=61616,host=anotherHost;port=61617
@@ -88,9 +89,9 @@ clientID
 
 === ConnectionFactory
 
-Config options for the outbound `ManagedConnectionFactory`: https://github.com/apache/activemq-artemis/blob/{{ config.version }}/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/ActiveMQRAMCFProperties.java[ActiveMQRAMCFProperties] The connection for the `ManagedConnectionFactory` is specified by the RA.
+Config options for the outbound `ManagedConnectionFactory`: https://github.com/apache/artemis/blob/{{ config.version }}/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/ActiveMQRAMCFProperties.java[ActiveMQRAMCFProperties] The connection for the `ManagedConnectionFactory` is specified by the RA.
 
-Config options for the inbound `ConnectionFactory` https://github.com/apache/activemq-artemis/blob/{{ config.version }}/artemis-jms-client/src/main/java/org/apache/activemq/artemis/jms/client/ActiveMQConnectionFactory.java[ActiveMQConnectionFactory]
+Config options for the inbound `ConnectionFactory` https://github.com/apache/artemis/blob/{{ config.version }}/artemis-jms-client/src/main/java/org/apache/activemq/artemis/jms/client/ActiveMQConnectionFactory.java[ActiveMQConnectionFactory]
 
 brokerUrl::
 url to broker
@@ -104,9 +105,9 @@ You can't configure any properties.
 
 === ActivationSpec
 
-Config options https://github.com/apache/activemq-artemis/blob/{{ config.version }}/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/inflow/ActiveMQActivationSpec.java[ActiveMQActivationSpec]
+Config options https://github.com/apache/artemis/blob/{{ config.version }}/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/inflow/ActiveMQActivationSpec.java[ActiveMQActivationSpec]
 
-In the activation spec you can configure all the things you need to get messages consumed from ActiveMQ Artemis.
+In the activation spec you can configure all the things you need to get messages consumed.
 
 useJndi::
 true if you want lookup destinations via jndi.
@@ -137,7 +138,7 @@ subscriptionDurability::
 Durable / NonDurable
 
 subscriptionName::
-Artemis holds all messages for this name if you use durable subscriptions
+the broker holds all messages for this name if you use durable subscriptions
 
 == Logging
 

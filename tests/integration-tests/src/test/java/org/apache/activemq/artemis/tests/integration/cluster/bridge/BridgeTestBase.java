@@ -21,26 +21,20 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.InVMNodeManagerServer;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.After;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
 
 public abstract class BridgeTestBase extends ActiveMQTestBase {
 
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
-
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       InVMConnector.failOnCreateConnection = false;
 
@@ -69,7 +63,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       }
       Configuration serviceConf = createBasicConfig().setJournalType(getDefaultJournalType()).setBindingsDirectory(getBindingsDir(id, false)).setJournalMinFiles(2).setJournalDirectory(getJournalDir(id, false)).setPagingDirectory(getPageDir(id, false)).setLargeMessagesDirectory(getLargeMessagesDir(id, false))
          // these tests don't need any big storage so limiting the size of the journal files to speed up the test
-         .setJournalFileSize(100 * 1024).addAcceptorConfiguration(tc).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
+         .setJournalFileSize(100 * 1024).addAcceptorConfiguration(tc).setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration());
 
       ActiveMQServer server;
       if (nodeManager == null) {
@@ -84,7 +78,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
    protected ActiveMQServer createBackupActiveMQServer(final int id,
                                                        final Map<String, Object> params,
                                                        final boolean netty,
-                                                       final int liveId,
+                                                       final int primaryId,
                                                        final NodeManager nodeManager) throws Exception {
       TransportConfiguration tc = new TransportConfiguration();
 
@@ -97,9 +91,9 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
          tc = new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params);
       }
 
-      Configuration serviceConf = createBasicConfig().setJournalType(getDefaultJournalType()).setBindingsDirectory(getBindingsDir(liveId, false)).setJournalMinFiles(2).setJournalDirectory(getJournalDir(liveId, false)).setPagingDirectory(getPageDir(liveId, false)).setLargeMessagesDirectory(getLargeMessagesDir(liveId, false))
+      Configuration serviceConf = createBasicConfig().setJournalType(getDefaultJournalType()).setBindingsDirectory(getBindingsDir(primaryId, false)).setJournalMinFiles(2).setJournalDirectory(getJournalDir(primaryId, false)).setPagingDirectory(getPageDir(primaryId, false)).setLargeMessagesDirectory(getLargeMessagesDir(primaryId, false))
          // these tests don't need any big storage so limiting the size of the journal files to speed up the test
-         .setJournalFileSize(100 * 1024).addAcceptorConfiguration(tc).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
+         .setJournalFileSize(100 * 1024).addAcceptorConfiguration(tc).setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration());
 
       ActiveMQServer server;
       if (nodeManager == null) {
@@ -111,7 +105,8 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
    }
 
    protected void waitForServerStart(ActiveMQServer server) throws Exception {
-      if (!server.waitForActivation(5000L, TimeUnit.MILLISECONDS))
+      if (!server.waitForActivation(5000L, TimeUnit.MILLISECONDS)) {
          throw new IllegalStateException("Timed out waiting for server starting = " + server);
+      }
    }
 }

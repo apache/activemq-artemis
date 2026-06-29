@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.JMSContext;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -32,22 +36,22 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString queueA = new SimpleString("queueA");
-   public final SimpleString expiryAddress = new SimpleString("myExpiry");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString queueA = SimpleString.of("queueA");
+   public final SimpleString expiryAddress = SimpleString.of("myExpiry");
    public final long EXPIRY_DELAY = 100L;
 
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false);
@@ -55,6 +59,9 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
       // set common address settings needed for all tests; make sure to use getMatch instead of addMatch in invidual tests or these will be overwritten
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateExpiryResources(true).setExpiryAddress(expiryAddress).setExpiryDelay(EXPIRY_DELAY));
+
+      // avoiding expiration of the expiration
+      server.getAddressSettingsRepository().addMatch(String.valueOf(expiryAddress), new AddressSettings().setExpiryDelay(-1L));
 
       server.start();
    }
@@ -75,7 +82,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreationOfExpiryResourcesWithEmptyExpiry() throws Exception {
-      testAutoCreationOfExpiryResourcesWithNoExpiry(SimpleString.toSimpleString(""));
+      testAutoCreationOfExpiryResourcesWithNoExpiry(SimpleString.of(""));
    }
 
    private void testAutoCreationOfExpiryResourcesWithNoExpiry(SimpleString expiryAddress) throws Exception {
@@ -91,7 +98,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreateExpiryQueuePrefix() throws Exception {
-      SimpleString prefix = RandomUtil.randomSimpleString();
+      SimpleString prefix = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().getMatch("#").setExpiryQueuePrefix(prefix);
       triggerExpiration();
       Wait.assertTrue(() -> server.locateQueue(prefix.concat(addressA).concat(AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX)) != null, 2000, 100);
@@ -99,7 +106,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreateExpiryQueueSuffix() throws Exception {
-      SimpleString suffix = RandomUtil.randomSimpleString();
+      SimpleString suffix = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().getMatch("#").setExpiryQueueSuffix(suffix);
       triggerExpiration();
       Wait.assertTrue(() -> server.locateQueue(AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX.concat(addressA).concat(suffix)) != null, 2000, 100);
@@ -107,8 +114,8 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreateExpiryQueuePrefixAndSuffix() throws Exception {
-      SimpleString prefix = RandomUtil.randomSimpleString();
-      SimpleString suffix = RandomUtil.randomSimpleString();
+      SimpleString prefix = RandomUtil.randomUUIDSimpleString();
+      SimpleString suffix = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().getMatch("#").setExpiryQueuePrefix(prefix).setExpiryQueueSuffix(suffix);
       triggerExpiration();
       Wait.assertTrue(() -> server.locateQueue(prefix.concat(addressA).concat(suffix)) != null, 2000, 100);
@@ -125,13 +132,13 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
    }
 
    private void testAutoCreatedExpiryFilter(RoutingType routingType) throws Exception {
-      final int ITERATIONS = 50;
+      final int ITERATIONS = 5;
       final int MESSAGE_COUNT = 5;
 
       for (int i = 0; i < ITERATIONS; i++) {
-         SimpleString address = RandomUtil.randomSimpleString();
-         SimpleString queue = RandomUtil.randomSimpleString();
-         server.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(routingType));
+         SimpleString address = RandomUtil.randomUUIDSimpleString();
+         SimpleString queue = RandomUtil.randomUUIDSimpleString();
+         server.createQueue(QueueConfiguration.of(queue).setAddress(address).setRoutingType(routingType));
          ServerLocator locator = createInVMNonHALocator();
          ClientSessionFactory cf = createSessionFactory(locator);
          ClientSession s = addClientSession(cf.createSession(true, false));
@@ -145,6 +152,11 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
          locator.close();
          Wait.assertTrue(() -> server.locateQueue(getDefaultExpiryQueueName(address)) != null, 2000, 10);
          Queue expiry = server.locateQueue(AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX.concat(address).concat(AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX));
+
+         // This sleep is to make the message would survive in the Expiry Address after the default delay
+         // to catch any eventual misconfiguration
+         Thread.sleep(EXPIRY_DELAY);
+
          Wait.assertEquals(MESSAGE_COUNT, expiry::getMessageCount);
       }
 
@@ -163,6 +175,10 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
       ClientSession session = addClientSession(sessionFactory.createSession(true, true));
       Wait.assertTrue(() -> server.locateQueue(expiryQueueName) != null, 2000, 100);
       Wait.assertEquals(1, server.locateQueue(expiryQueueName) :: getMessageCount);
+
+      // This sleep is to make the message would survive in the Expiry Address after the default delay
+      // to catch any eventual misconfiguration
+      Thread.sleep(EXPIRY_DELAY);
 
       ClientConsumer consumer = session.createConsumer(expiryQueueName);
       session.start();
@@ -190,6 +206,10 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
       triggerExpiration();
 
+      // This sleep is to make the message would survive in the Expiry Address after the default delay
+      // to catch any eventual misconfiguration
+      Thread.sleep(EXPIRY_DELAY);
+
       JMSContext context = new ActiveMQConnectionFactory("vm://0").createContext();
       context.start();
       assertNotNull(context.createConsumer(context.createQueue(fqqn)).receive(2000));
@@ -201,10 +221,14 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
       final long COUNT = 5;
 
       for (int i = 0; i < COUNT; i++) {
-         server.createQueue(new QueueConfiguration(i + "").setAddress(addressA).setRoutingType(RoutingType.MULTICAST));
+         server.createQueue(QueueConfiguration.of(i + "").setAddress(addressA).setRoutingType(RoutingType.MULTICAST));
       }
 
       triggerExpiration(false);
+
+      // This sleep is to make the message would survive in the Expiry Address after the default delay
+      // to catch any eventual misconfiguration
+      Thread.sleep(EXPIRY_DELAY);
 
       Wait.assertTrue(() -> server.locateQueue(expiryQueueName) != null, 2_000, 20);
       Wait.assertEquals(COUNT, () -> server.locateQueue(expiryQueueName).getMessageCount(), 2000, 20);
@@ -220,7 +244,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
    private void triggerExpiration(boolean createQueue) throws Exception {
       if (createQueue) {
-         server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
       }
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);

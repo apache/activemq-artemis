@@ -16,7 +16,10 @@
  */
 package org.apache.activemq.artemis.core.paging.impl;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -38,7 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-public final class Page  {
+public final class Page {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -60,7 +63,9 @@ public final class Page  {
       return referenceCounter.decrement();
    }
 
-   /** to be called when the page is supposed to be released */
+   /**
+    * to be called when the page is supposed to be released
+    */
    public void releaseTask(Consumer<Page> releaseTask) {
       referenceCounter.setTask(() -> releaseTask.accept(this));
    }
@@ -166,23 +171,25 @@ public final class Page  {
    }
 
    public String debugMessages() throws Exception {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       LinkedListIterator<PagedMessage> iter = getMessages().iterator();
       while (iter.hasNext()) {
          PagedMessage message = iter.next();
-         buffer.append(message.toString() + "\n");
+         sb.append(message.toString() + "\n");
       }
       iter.close();
-      return buffer.toString();
+      return sb.toString();
    }
 
-   public synchronized void write(final PagedMessage message) throws Exception {
+   public synchronized void write(final PagedMessage message, boolean lineUp, boolean originallyReplicated) throws Exception {
       writeDirect(message);
-      storageManager.pageWrite(message, pageId);
+      storageManager.pageWrite(storeName, message, pageId, lineUp, originallyReplicated);
    }
 
-   /** This write will not interact back with the storage manager.
-    *  To avoid ping pongs with Journal retaining events and any other stuff. */
+   /**
+    * This write will not interact back with the storage manager. To avoid ping pongs with Journal retaining events and
+    * any other stuff.
+    */
    public synchronized void writeDirect(PagedMessage message) throws Exception {
       if (!file.isOpen()) {
          throw ActiveMQMessageBundle.BUNDLE.cannotWriteToClosedFile(file);
@@ -194,6 +201,20 @@ public final class Page  {
 
    public void sync() throws Exception {
       file.sync();
+   }
+
+   public void trySync() throws IOException {
+      try {
+         if (file.isOpen()) {
+            file.sync();
+         }
+      } catch (IOException e) {
+         if (e instanceof ClosedChannelException) {
+            logger.debug("file.sync on file {} thrown a ClosedChannelException that will just be ignored", file.getFileName());
+         } else {
+            throw e;
+         }
+      }
    }
 
    public boolean isOpen() {
@@ -215,21 +236,21 @@ public final class Page  {
       return isOpen;
    }
 
-   public void close(boolean sendEvent) throws Exception {
-      close(sendEvent, true);
+   public void close(boolean sendReplicaClose) throws Exception {
+      close(sendReplicaClose, true);
    }
 
    /**
-    * sendEvent means it's a close happening from a major event such moveNext.
-    * While reading the cache we don't need (and shouldn't inform the backup
+    * sendEvent means it's a close happening from a major event such moveNext. While reading the cache we don't need
+    * (and shouldn't inform the backup
     */
-   public synchronized void close(boolean sendEvent, boolean waitSync) throws Exception {
+   public synchronized void close(boolean sendReplicaClose, boolean waitSync) throws Exception {
       if (readFileBuffer != null) {
          fileFactory.releaseDirectBuffer(readFileBuffer);
          readFileBuffer = null;
       }
 
-      if (sendEvent && storageManager != null) {
+      if (sendReplicaClose && storageManager != null) {
          storageManager.pageClosed(storeName, pageId);
       }
       file.close(waitSync, waitSync);
@@ -331,26 +352,22 @@ public final class Page  {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof Page other)) {
          return false;
+      }
 
-      Page page = (Page) o;
-
-      return pageId == page.pageId;
+      return pageId == other.pageId;
    }
 
    @Override
    public int hashCode() {
-      return (int) (pageId ^ (pageId >>> 32));
+      return Objects.hashCode(pageId);
    }
 
-   /**
-    * @param position
-    * @param msgNumber
-    */
    private void markFileAsSuspect(final String fileName, final int position, final int msgNumber) {
       ActiveMQServerLogger.LOGGER.pageSuspectFile(fileName, position, msgNumber);
       suspiciousRecords = true;

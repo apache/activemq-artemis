@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Replicatio
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageBeginMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageEndMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageWriteMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrimaryIsStoppingMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageEventMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageWriteMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrepareMessage;
@@ -143,18 +143,13 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
    public Packet decode(final ActiveMQBuffer in, CoreRemotingConnection connection) {
       final byte packetType = in.readByte();
       //optimized for the most common cases: hottest and commons methods will be inlined and this::decode too due to the byte code size
-      switch (packetType) {
-         case SESS_SEND:
-            return decodeSessionSendMessage(in, connection);
-         case SESS_ACKNOWLEDGE:
-            return decodeSessionAcknowledgeMessage(in, connection);
-         case SESS_PRODUCER_REQUEST_CREDITS:
-            return decodeRequestProducerCreditsMessage(in, connection);
-         case SESS_FLOWTOKEN:
-            return decodeSessionConsumerFlowCreditMessage(in, connection);
-         default:
-            return slowPathDecode(in, packetType, connection);
-      }
+      return switch (packetType) {
+         case SESS_SEND -> decodeSessionSendMessage(in, connection);
+         case SESS_ACKNOWLEDGE -> decodeSessionAcknowledgeMessage(in, connection);
+         case SESS_PRODUCER_REQUEST_CREDITS -> decodeRequestProducerCreditsMessage(in, connection);
+         case SESS_FLOWTOKEN -> decodeSessionConsumerFlowCreditMessage(in, connection);
+         default -> slowPathDecode(in, packetType, connection);
+      };
    }
 
 
@@ -201,7 +196,7 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
             break;
          }
          case REPLICATION_PAGE_WRITE: {
-            packet = new ReplicationPageWriteMessage(connection.isVersionUsingLongOnPageReplication());
+            packet = new ReplicationPageWriteMessage(connection.isVersionUsingLongOnPageReplication(), coreMessageObjectPools);
             break;
          }
          case REPLICATION_PAGE_EVENT: {
@@ -229,7 +224,7 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
             break;
          }
          case PacketImpl.REPLICATION_START_FINISH_SYNC: {
-            packet = new ReplicationStartSyncMessage(connection.isBeforeTwoEighteen());
+            packet = new ReplicationStartSyncMessage();
             break;
          }
          case PacketImpl.REPLICATION_SYNC_FILE: {
@@ -237,7 +232,7 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
             break;
          }
          case PacketImpl.REPLICATION_SCHEDULED_FAILOVER: {
-            packet = new ReplicationLiveIsStoppingMessage();
+            packet = new ReplicationPrimaryIsStoppingMessage();
             break;
          }
          case CLUSTER_CONNECT: {
@@ -291,11 +286,11 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
 
       packet.decode(in);
 
-      if (packet instanceof MessagePacketI) {
-         Message message = ((MessagePacketI)packet).getMessage();
-         if (message instanceof LargeServerMessage) {
+      if (packet instanceof MessagePacketI messagePacket) {
+         Message message = messagePacket.getMessage();
+         if (message instanceof LargeServerMessage largeServerMessage) {
             assert storageManager != null;
-            ((LargeServerMessage) message).setStorageManager(storageManager);
+            largeServerMessage.setStorageManager(storageManager);
          }
       }
 

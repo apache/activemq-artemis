@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -32,10 +33,6 @@ public final class ReplicationLargeMessageWriteMessage extends PacketImpl {
       super(PacketImpl.REPLICATION_LARGE_MESSAGE_WRITE);
    }
 
-   /**
-    * @param messageId
-    * @param body
-    */
    public ReplicationLargeMessageWriteMessage(final long messageId, final byte[] body) {
       this();
 
@@ -67,49 +64,39 @@ public final class ReplicationLargeMessageWriteMessage extends PacketImpl {
       buffer.readBytes(body);
    }
 
-   /**
-    * @return the messageId
-    */
    public long getMessageId() {
       return messageId;
    }
 
-   /**
-    * @return the body
-    */
    public byte[] getBody() {
       return body;
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + Arrays.hashCode(body);
-      result = prime * result + (int) (messageId ^ (messageId >>> 32));
-      return result;
+      return Objects.hash(super.hashCode(), Arrays.hashCode(body), messageId);
    }
 
    @Override
    protected String getPacketString() {
-      return  super.getPacketString() +
+      return super.getPacketString() +
          "messageId=" + messageId +
          ", body.size=" + body.length;
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReplicationLargeMessageWriteMessage))
+      }
+      if (!(obj instanceof ReplicationLargeMessageWriteMessage other)) {
          return false;
-      ReplicationLargeMessageWriteMessage other = (ReplicationLargeMessageWriteMessage) obj;
-      if (!Arrays.equals(body, other.body))
-         return false;
-      if (messageId != other.messageId)
-         return false;
-      return true;
+      }
+
+      return Arrays.equals(body, other.body) &&
+             messageId == other.messageId;
    }
 }

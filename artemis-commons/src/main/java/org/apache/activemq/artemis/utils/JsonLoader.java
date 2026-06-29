@@ -26,12 +26,17 @@ import org.apache.activemq.artemis.json.impl.JsonObjectBuilderImpl;
 import org.apache.activemq.artemis.json.impl.JsonObjectImpl;
 
 import javax.json.JsonReader;
+import javax.json.JsonWriter;
 import javax.json.spi.JsonProvider;
 import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Map;
 
 /**
- * This is to make sure we use the proper classLoader to load JSon libraries.
- * This is equivalent to using {@link javax.json.Json}
+ * This is to make sure we use the proper classLoader to load JSon libraries. This is equivalent to using
+ * {@link javax.json.Json}
  */
 public class JsonLoader {
 
@@ -40,6 +45,12 @@ public class JsonLoader {
    public static JsonObject readObject(Reader reader) {
       try (JsonReader jsonReader = provider.createReader(reader)) {
          return new JsonObjectImpl(jsonReader.readObject());
+      }
+   }
+
+   public static void writeObject(Map<String, Object> properties, Writer writer, JsonObject jsonObject) {
+      try (JsonWriter jsonReader = provider.createWriterFactory(properties).createWriter(writer)) {
+         jsonReader.writeObject((((JsonObjectImpl)jsonObject).getRawObject()));
       }
    }
 
@@ -55,5 +66,17 @@ public class JsonLoader {
 
    public static JsonObjectBuilder createObjectBuilder() {
       return new JsonObjectBuilderImpl(provider.createObjectBuilder());
+   }
+
+   // Please do not remove this method as it's useful for debugging purposes
+   public static String prettyPrint(String json) {
+      String result = json;
+      try (StringReader reader = new StringReader(json);
+           StringWriter writer = new StringWriter()) {
+         JsonLoader.writeObject(Map.of(javax.json.stream.JsonGenerator.PRETTY_PRINTING, true), writer, JsonLoader.readObject(reader));
+         result = writer.toString();
+      } catch (Exception e) {
+      }
+      return result;
    }
 }

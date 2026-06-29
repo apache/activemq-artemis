@@ -29,12 +29,11 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * Simulates the journal being updated, compacted cleared up,
- * and having multiple restarts,
- * To make sure the journal would survive at multiple restarts of the server
+ * Simulates the journal being updated, compacted cleared up, and having multiple restarts, To make sure the journal
+ * would survive at multiple restarts of the server
  */
 public class JournalRestartStressTest extends ActiveMQTestBase {
 
@@ -60,7 +59,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
          ClientSession session = sf.createSession(true, true);
 
          try {
-            session.createQueue(new QueueConfiguration("slow-queue"));
+            session.createQueue(QueueConfiguration.of("slow-queue"));
          } catch (Exception ignored) {
          }
 
@@ -85,13 +84,6 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
 
    }
 
-   /**
-    * @param sf
-    * @param NMSGS
-    * @throws ActiveMQException
-    * @throws InterruptedException
-    * @throws Throwable
-    */
    private void produceMessages(final ClientSessionFactory sf, final int NMSGS) throws Throwable {
 
       final int TIMEOUT = 5000;
@@ -103,7 +95,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
       ClientProducer prod2 = sessionSend.createProducer("slow-queue");
 
       try {
-         sessionSend.createQueue(new QueueConfiguration("Queue"));
+         sessionSend.createQueue(QueueConfiguration.of("Queue"));
       } catch (Exception ignored) {
       }
 
@@ -112,31 +104,28 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
 
       final ArrayList<Throwable> errors = new ArrayList<>();
 
-      Thread tReceive = new Thread() {
-         @Override
-         public void run() {
-            try {
-               ClientConsumer consumer = sessionReceive.createConsumer("Queue");
+      Thread tReceive = new Thread(() -> {
+         try {
+            ClientConsumer consumer = sessionReceive.createConsumer("Queue");
 
-               for (int i = 0; i < NMSGS; i++) {
-                  if (i % 500 == 0) {
-                     double percent = (double) i / (double) NMSGS;
-                     System.out.println("msgs " + i + " of " + NMSGS + ", " + (int) (percent * 100) + "%");
-                     Thread.sleep(100);
-                  }
-
-                  ClientMessage msg = consumer.receive(TIMEOUT);
-                  if (msg == null) {
-                     errors.add(new Exception("Didn't receive msgs"));
-                     break;
-                  }
-                  msg.acknowledge();
+            for (int i = 0; i < NMSGS; i++) {
+               if (i % 500 == 0) {
+                  double percent = (double) i / (double) NMSGS;
+                  System.out.println("msgs " + i + " of " + NMSGS + ", " + (int) (percent * 100) + "%");
+                  Thread.sleep(100);
                }
-            } catch (Exception e) {
-               errors.add(e);
+
+               ClientMessage msg = consumer.receive(TIMEOUT);
+               if (msg == null) {
+                  errors.add(new Exception("Didn't receive msgs"));
+                  break;
+               }
+               msg.acknowledge();
             }
+         } catch (Exception e) {
+            errors.add(e);
          }
-      };
+      });
 
       tReceive.start();
 

@@ -23,11 +23,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.qpid.jms.JmsConnection;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Test connections can be established to remote peers via WebSockets
@@ -44,8 +44,6 @@ public class WebSocketConnectionTest extends JMSClientTestSupport {
       JmsConnectionFactory factory = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
 
       produceAndConsumeInNewConnection(factory);
-
-      assertKeepAliveCounterIsZero();
    }
 
    @Test
@@ -57,8 +55,6 @@ public class WebSocketConnectionTest extends JMSClientTestSupport {
       produceAndConsumeInNewConnection(factory);
       produceAndConsumeInNewConnection(factory);
       produceAndConsumeInNewConnection(factory);
-
-      assertKeepAliveCounterIsZero();
    }
 
    private void produceAndConsumeInNewConnection(JmsConnectionFactory factory) throws JMSException {
@@ -81,13 +77,5 @@ public class WebSocketConnectionTest extends JMSClientTestSupport {
       } finally {
          connection.close();
       }
-   }
-
-   private void assertKeepAliveCounterIsZero() {
-      NettyAcceptor nettyAcceptor = (NettyAcceptor) server.getRemotingService().getAcceptor(NETTY_ACCEPTOR);
-
-      int httpAcceptorHandlerCount = nettyAcceptor.getProtocolHandler().getHttpKeepAliveRunnable().getHandlers().size();
-
-      Assert.assertEquals(0, httpAcceptorHandlerCount);
    }
 }

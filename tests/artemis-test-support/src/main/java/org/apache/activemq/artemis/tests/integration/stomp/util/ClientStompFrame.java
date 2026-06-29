@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 import io.netty.buffer.ByteBuf;
 
 /**
- * pls use factory to create frames.
+ * Use factory to create frames.
  */
 public interface ClientStompFrame {
 

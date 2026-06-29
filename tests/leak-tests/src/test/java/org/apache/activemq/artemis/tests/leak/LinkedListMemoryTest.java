@@ -17,20 +17,16 @@
 
 package org.apache.activemq.artemis.tests.leak;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import io.github.checkleak.core.CheckLeak;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
 
-public class LinkedListMemoryTest {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+public class LinkedListMemoryTest extends AbstractLeakTest {
 
    Random random = new Random();
 
@@ -50,7 +46,7 @@ public class LinkedListMemoryTest {
       linkedList.addSorted("Test");
 
       int iterators = 100;
-      ArrayList<LinkedListIterator> listIerators = new ArrayList();
+      List<LinkedListIterator> listIerators = new ArrayList();
 
       for (int i = 0; i < iterators; i++) {
          listIerators.add(linkedList.iterator());
@@ -58,7 +54,7 @@ public class LinkedListMemoryTest {
 
       int countRemoved = 0;
 
-      while (listIerators.size() > 0) {
+      while (!listIerators.isEmpty()) {
          int removeElement = randomInt(0, listIerators.size() - 1);
          countRemoved++;
          LinkedListIterator toRemove = listIerators.remove(removeElement);

@@ -16,11 +16,9 @@
  */
 
 /**
- * The SimpleQueueReceiver class consists only of a main method,
- * which fetches one or more messages from a queue using
- * synchronous message delivery.  Run this program in conjunction
- * with SimpleQueueSender.  Specify a queue name on the command
- * line when you run the program.
+ * The SimpleQueueReceiver class consists only of a main method, which fetches one or more messages from a queue using
+ * synchronous message delivery.  Run this program in conjunction with SimpleQueueSender.  Specify a queue name on the
+ * command line when you run the program.
  */
 package org.apache.activemq.demo;
 
@@ -62,9 +60,7 @@ public final class SimpleQueueReceiver {
       QueueReceiver queueReceiver = null;
       TextMessage message = null;
 
-        /*
-         * Read queue name from command line and display it.
-         */
+      // Read queue name from command line and display it.
       if (args.length != 1) {
          LOG.info("Usage: java " + "SimpleQueueReceiver <queue-name>");
          System.exit(1);
@@ -72,9 +68,7 @@ public final class SimpleQueueReceiver {
       queueName = args[0];
       LOG.info("Queue name is " + queueName);
 
-        /*
-         * Create a JNDI API InitialContext object if none exists yet.
-         */
+      // Create a JNDI API InitialContext object if none exists yet.
       try {
          jndiContext = new InitialContext();
       } catch (NamingException e) {
@@ -82,9 +76,7 @@ public final class SimpleQueueReceiver {
          System.exit(1);
       }
 
-        /*
-         * Look up connection factory and queue. If either does not exist, exit.
-         */
+      // Look up connection factory and queue. If either does not exist, exit.
       try {
          queueConnectionFactory = (QueueConnectionFactory) jndiContext.lookup("QueueConnectionFactory");
          queue = (Queue) jndiContext.lookup(queueName);
@@ -93,13 +85,11 @@ public final class SimpleQueueReceiver {
          System.exit(1);
       }
 
-        /*
-         * Create connection. Create session from connection; false means
-         * session is not transacted. Create receiver, then start message
-         * delivery. Receive all text messages from queue until a non-text
-         * message is received indicating end of message stream. Close
-         * connection.
-         */
+      /*
+       * Create connection. Create session from connection; false means session is not transacted. Create receiver, then
+       * start message delivery. Receive all text messages from queue until a non-text message is received indicating end
+       * of message stream. Close connection.
+       */
       try {
          queueConnection = queueConnectionFactory.createQueueConnection();
          queueSession = queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);

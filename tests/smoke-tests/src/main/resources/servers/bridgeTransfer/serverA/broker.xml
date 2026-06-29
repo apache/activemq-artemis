@@ -152,6 +152,8 @@ under the License.
             <queue-name>bridgeQueue</queue-name>
             <retry-interval>100</retry-interval>
             <reconnect-attempts>-1</reconnect-attempts>
+            <user>artemis</user>
+            <password>artemis</password>
             <static-connectors>
                <connector-ref>other-side</connector-ref>
             </static-connectors>
@@ -179,7 +181,7 @@ under the License.
 
       <address-settings>
          <!-- if you define auto-create on certain queues, management has to be auto-create -->
-         <address-setting match="activemq.management#">
+         <address-setting match="activemq.management.#">
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>

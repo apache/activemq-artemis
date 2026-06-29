@@ -25,7 +25,6 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
@@ -62,12 +61,12 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
@@ -75,18 +74,25 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.state.SessionState;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SimpleOpenWireTest extends BasicOpenWireTest {
 
@@ -103,7 +109,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       //this system property is used to construct the executor in
       //org.apache.activemq.transport.AbstractInactivityMonitor.createExecutor()
@@ -140,8 +146,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
       int tempDestinationCount = 0;
       for (RemotingConnection remotingConnection : server.getRemotingService().getConnections()) {
-         if (remotingConnection instanceof OpenWireConnection) {
-            OpenWireConnection openWireConnection = (OpenWireConnection) remotingConnection;
+         if (remotingConnection instanceof OpenWireConnection openWireConnection) {
             if (openWireConnection.getState() != null && openWireConnection.getState().getTempDestinations() != null) {
                tempDestinationCount += openWireConnection.getState().getTempDestinations().size();
             }
@@ -165,13 +170,13 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          producer.send(session.createTextMessage("test"));
          session.commit();
 
-         Assert.assertNull(consumer.receive(100));
+         assertNull(consumer.receive(100));
          connection.start();
 
          TextMessage message = (TextMessage) consumer.receive(5000);
-         Assert.assertEquals("test", message.getText());
+         assertEquals("test", message.getText());
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
          message.acknowledge();
       }
@@ -187,12 +192,12 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          MessageConsumer consumer = session.createConsumer(queue);
          producer.send(session.createTextMessage());
 
-         Assert.assertNull(consumer.receive(100));
+         assertNull(consumer.receive(100));
          connection.start();
 
          TextMessage message = (TextMessage) consumer.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
          message.acknowledge();
       }
@@ -208,12 +213,12 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          MessageConsumer consumer = session.createConsumer(queue);
          producer.send(session.createMapMessage());
 
-         Assert.assertNull(consumer.receive(100));
+         assertNull(consumer.receive(100));
          connection.start();
 
          MapMessage message = (MapMessage) consumer.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
          message.acknowledge();
       }
@@ -223,7 +228,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testSendEmptyMessages() throws Exception {
       Queue dest = new ActiveMQQueue(queueName);
 
-      QueueSession defaultQueueSession =  connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+      QueueSession defaultQueueSession = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
       QueueSender defaultSender = defaultQueueSession.createSender(dest);
       defaultSender.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
       connection.start();
@@ -233,37 +238,37 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       defaultSender.send(msg);
 
       QueueReceiver queueReceiver = defaultQueueSession.createReceiver(dest);
-      assertNotNull("Didn't receive message", queueReceiver.receive(1000));
+      assertNotNull(queueReceiver.receive(1000), "Didn't receive message");
 
       //bytes
       BytesMessage bytesMessage = defaultQueueSession.createBytesMessage();
       bytesMessage.setStringProperty("testName", "testSendEmptyMessages");
       defaultSender.send(bytesMessage);
-      assertNotNull("Didn't receive message", queueReceiver.receive(1000));
+      assertNotNull(queueReceiver.receive(1000), "Didn't receive message");
 
       //map
       MapMessage mapMessage = defaultQueueSession.createMapMessage();
       mapMessage.setStringProperty("testName", "testSendEmptyMessages");
       defaultSender.send(mapMessage);
-      assertNotNull("Didn't receive message", queueReceiver.receive(1000));
+      assertNotNull(queueReceiver.receive(1000), "Didn't receive message");
 
       //object
       ObjectMessage objMessage = defaultQueueSession.createObjectMessage();
       objMessage.setStringProperty("testName", "testSendEmptyMessages");
       defaultSender.send(objMessage);
-      assertNotNull("Didn't receive message", queueReceiver.receive(1000));
+      assertNotNull(queueReceiver.receive(1000), "Didn't receive message");
 
       //stream
       StreamMessage streamMessage = defaultQueueSession.createStreamMessage();
       streamMessage.setStringProperty("testName", "testSendEmptyMessages");
       defaultSender.send(streamMessage);
-      assertNotNull("Didn't receive message", queueReceiver.receive(1000));
+      assertNotNull(queueReceiver.receive(1000), "Didn't receive message");
 
       //text
       TextMessage textMessage = defaultQueueSession.createTextMessage();
       textMessage.setStringProperty("testName", "testSendEmptyMessages");
       defaultSender.send(textMessage);
-      assertNotNull("Didn't receive message", queueReceiver.receive(1000));
+      assertNotNull(queueReceiver.receive(1000), "Didn't receive message");
    }
 
    @Test
@@ -294,12 +299,12 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          MessageConsumer consumer = session.createConsumer(queue);
          producer.send(session.createTextMessage("test"));
 
-         Assert.assertNull(consumer.receive(100));
+         assertNull(consumer.receive(100));
          connection.start();
 
          TextMessage message = (TextMessage) consumer.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
          message.acknowledge();
 
@@ -355,15 +360,15 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          producer.send(session.createTextMessage("test"));
          producer.send(session.createTextMessage("test2"));
          connection.start();
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          session.rollback();
          producer.send(session.createTextMessage("test2"));
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          session.commit();
          TextMessage msg = (TextMessage) consumer.receive(1000);
 
-         Assert.assertNotNull(msg);
-         Assert.assertEquals("test2", msg.getText());
+         assertNotNull(msg);
+         assertEquals("test2", msg.getText());
       }
    }
 
@@ -381,12 +386,12 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       msg.setStringProperty("abc", "testAutoACK");
       producer.send(msg);
 
-      Assert.assertNull(consumer.receive(100));
+      assertNull(consumer.receive(100));
       connection.start();
 
       TextMessage message = (TextMessage) consumer.receive(5000);
 
-      Assert.assertNotNull(message);
+      assertNotNull(message);
 
       connection.close();
 
@@ -466,7 +471,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          BytesMessage receivedByteMessage = sendAndReceive(byteMessage, producer, consumer);
          long receivedBodylength = receivedByteMessage.getBodyLength();
 
-         assertEquals("bodylength Correct", bytes.length, receivedBodylength);
+         assertEquals(bytes.length, receivedBodylength, "bodylength Correct");
 
          byte[] receivedBytes = new byte[(int) receivedBodylength];
          receivedByteMessage.readBytes(receivedBytes);
@@ -585,7 +590,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    }
 
    @Test
-   @Ignore("ignored for now")
+   @Disabled("ignored for now")
    public void testKeepAlive() throws Exception {
       connection.start();
 
@@ -641,7 +646,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
       MessageConsumer nolocalConsumer = session.createConsumer(dest, null, true);
       MessageConsumer consumer = session.createConsumer(dest, null, false);
-      MessageConsumer selectorConsumer  = session.createConsumer(dest,"TESTKEY = 'test'", false);
+      MessageConsumer selectorConsumer = session.createConsumer(dest, "TESTKEY = 'test'", false);
 
       MessageProducer producer = session.createProducer(dest);
 
@@ -656,7 +661,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
       //receive nolocal
       TextMessage receivedMsg = (TextMessage) nolocalConsumer.receive(1000);
-      assertNull("nolocal consumer got: " + receivedMsg, receivedMsg);
+      assertNull(receivedMsg, "nolocal consumer got: " + receivedMsg);
 
       //receive normal consumer
       receivedMsg = (TextMessage) consumer.receive(1000);
@@ -723,7 +728,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
       //receive nolocal
       TextMessage receivedMsg = (TextMessage) nolocalConsumer.receive(1000);
-      assertNull("nolocal consumer got: " + receivedMsg, receivedMsg);
+      assertNull(receivedMsg, "nolocal consumer got: " + receivedMsg);
 
       //receive normal consumer
       receivedMsg = (TextMessage) consumer.receive(1000);
@@ -817,6 +822,8 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       try {
          QueueSession newQueueSession = newConn.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
          QueueSender queueSender = newQueueSession.createSender(tempQueue);
+         // The advisory consumer is sending the notification to the client about the temporary destinations asynchronously
+         Wait.assertFalse(() -> newConn.isDeleted((ActiveMQDestination) tempQueue), 5000, 100);
 
          Message msg = queueSession.createMessage();
          queueSender.send(msg);
@@ -830,12 +837,19 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
          connection.close();
 
+         Wait.assertTrue(() -> newConn.isDeleted((ActiveMQDestination) tempQueue), 5000, 100);
+
+         boolean failed = false;
+
          try {
             Message newMsg = newQueueSession.createMessage();
             queueSender.send(newMsg);
          } catch (JMSException e) {
+            failed = true;
             //ok
          }
+
+         assertTrue(failed);
 
       } finally {
          newConn.close();
@@ -932,6 +946,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    @Test
    public void testAutoDestinationCreationOnProducerSend() throws JMSException {
+      final String sentMessageText = "bar";
       AddressSettings addressSetting = new AddressSettings();
       addressSetting.setAutoCreateQueues(true);
       addressSetting.setAutoCreateAddresses(true);
@@ -942,19 +957,20 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      TextMessage message = session.createTextMessage("bar");
+      TextMessage sentMessage = session.createTextMessage(sentMessageText);
       Queue queue = new ActiveMQQueue(address);
 
       MessageProducer producer = session.createProducer(null);
-      producer.send(queue, message);
+      producer.send(queue, sentMessage);
 
       MessageConsumer consumer = session.createConsumer(queue);
-      TextMessage message1 = (TextMessage) consumer.receive(1000);
-      assertTrue(message1.getText().equals(message.getText()));
+      TextMessage receivedMessage = (TextMessage) consumer.receive(1000);
+      assertEquals(sentMessageText, receivedMessage.getText());
    }
 
    @Test
    public void testAutoDestinationCreationAndDeletionOnConsumer() throws Exception {
+      final String sentMessageText = "bar";
       AddressSettings addressSetting = new AddressSettings();
       addressSetting.setAutoCreateQueues(true);
       addressSetting.setAutoCreateAddresses(true);
@@ -967,27 +983,27 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      TextMessage message = session.createTextMessage("bar");
+      TextMessage sentMessage = session.createTextMessage(sentMessageText);
       Queue queue = new ActiveMQQueue(address);
 
       MessageConsumer consumer = session.createConsumer(queue);
 
-      assertTrue(Wait.waitFor(() -> (server.locateQueue(SimpleString.toSimpleString("foo")) != null), 2000, 100));
-      assertTrue(Wait.waitFor(() -> (server.getAddressInfo(SimpleString.toSimpleString("foo")) != null), 2000, 100));
+      assertTrue(Wait.waitFor(() -> (server.locateQueue(SimpleString.of("foo")) != null), 2000, 100));
+      assertTrue(Wait.waitFor(() -> (server.getAddressInfo(SimpleString.of("foo")) != null), 2000, 100));
 
       MessageProducer producer = session.createProducer(null);
-      producer.send(queue, message);
+      producer.send(queue, sentMessage);
 
-      TextMessage message1 = (TextMessage) consumer.receive(1000);
-      assertTrue(message1.getText().equals(message.getText()));
+      TextMessage receivedMessage = (TextMessage) consumer.receive(1000);
+      assertEquals(sentMessageText, receivedMessage.getText());
 
-      assertNotNull(server.locateQueue(SimpleString.toSimpleString("foo")));
+      assertNotNull(server.locateQueue(SimpleString.of("foo")));
 
       consumer.close();
       connection.close();
 
-      assertTrue(Wait.waitFor(() -> (server.locateQueue(SimpleString.toSimpleString("foo")) == null), 2000, 100));
-      assertTrue(Wait.waitFor(() -> (server.getAddressInfo(SimpleString.toSimpleString("foo")) == null), 2000, 100));
+      assertTrue(Wait.waitFor(() -> (server.locateQueue(SimpleString.of("foo")) == null), 2000, 100));
+      assertTrue(Wait.waitFor(() -> (server.getAddressInfo(SimpleString.of("foo")) == null), 2000, 100));
    }
 
    @Test
@@ -1049,15 +1065,12 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    /**
     * This is the example shipped with the distribution
-    *
-    * @throws Exception
     */
    @Test
    public void testOpenWireExample() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of("exampleQueue").setRoutingType(RoutingType.ANYCAST));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -1091,15 +1104,12 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    /**
     * This is the example shipped with the distribution
-    *
-    * @throws Exception
     */
    @Test
    public void testMultipleConsumers() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of("exampleQueue").setRoutingType(RoutingType.ANYCAST));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -1135,12 +1145,12 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMixedOpenWireExample() throws Exception {
       Connection openConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      String durableQueue = "exampleQueue";
+      this.server.createQueue(QueueConfiguration.of(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       ActiveMQConnectionFactory openCF = new ActiveMQConnectionFactory();
 
-      Queue queue = new ActiveMQQueue("exampleQueue");
+      Queue queue = new ActiveMQQueue(durableQueue);
 
       openConn = openCF.createConnection();
 
@@ -1175,10 +1185,10 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMixedOpenWireExample2() throws Exception {
       Connection conn1 = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      String durableQueue = "exampleQueue";
+      this.server.createQueue(QueueConfiguration.of(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
-      Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
+      Queue queue = ActiveMQJMSClient.createQueue(durableQueue);
 
       org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory artemisCF = new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory();
 
@@ -1232,8 +1242,8 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          xaconnection.start();
          for (int i = 0; i < 5; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("test" + i, message.getText());
+            assertNotNull(message);
+            assertEquals("test" + i, message.getText());
          }
          session.getXAResource().end(xid, XAResource.TMSUCCESS);
          session.getXAResource().rollback(xid);
@@ -1246,7 +1256,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          MessageConsumer consumer = session.createConsumer(queue);
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             //            Assert.assertEquals("test" + i, message.getText());
          }
          checkDuplicate(consumer);
@@ -1279,8 +1289,8 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          xaconnection.start();
          for (int i = 0; i < 5; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("test" + i, message.getText());
+            assertNotNull(message);
+            assertEquals("test" + i, message.getText());
          }
          session.getXAResource().end(xid, XAResource.TMSUCCESS);
          session.getXAResource().rollback(xid);
@@ -1290,8 +1300,8 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("test" + i, message.getText());
+            assertNotNull(message);
+            assertEquals("test" + i, message.getText());
          }
 
          checkDuplicate(consumer);
@@ -1328,6 +1338,35 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    }
 
    @Test
+   public void testXAFailureBeforeSend() throws Exception {
+      try {
+         XAConnection connection = xaFactory.createXAConnection();
+
+         XASession xasession = connection.createXASession();
+
+         Xid xid = newXID();
+         xasession.getXAResource().start(xid, XAResource.TMNOFLAGS);
+         Queue queue = xasession.createQueue(queueName);
+         MessageProducer producer = xasession.createProducer(queue);
+         // removing the tx here should cause the send to fail on the broker
+         server.getResourceManager().removeTransaction(xid, null);
+         try {
+            producer.send(xasession.createTextMessage("hello"));
+            xasession.getXAResource().end(xid, XAResource.TMSUCCESS);
+            fail("Should have thrown an exception here");
+         } catch (XAException e) {
+            // ignore
+         }
+
+         connection.close();
+
+         assertEquals(0, server.locateQueue(queueName).getMessageCount());
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
+   }
+
+   @Test
    public void testAutoSend() throws Exception {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -1344,7 +1383,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       for (int i = 0; i < 10; i++) {
          TextMessage txt = (TextMessage) consumer.receive(5000);
 
-         Assert.assertEquals("testXX" + i, txt.getText());
+         assertEquals("testXX" + i, txt.getText());
       }
    }
 
@@ -1412,7 +1451,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
       for (int i = 0; i < 5; i++) {
          TextMessage txt = (TextMessage) consumer.receive(5000);
-         Assert.assertEquals("testXX" + i, txt.getText());
+         assertEquals("testXX" + i, txt.getText());
       }
       if (closeBefore) {
          consumer.close();
@@ -1430,10 +1469,10 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       //      Assert.assertNull(consumer.receiveNoWait());
       for (int i = 5; i < 10; i++) {
          TextMessage txt = (TextMessage) consumer.receive(5000);
-         Assert.assertEquals("testXX" + i, txt.getText());
+         assertEquals("testXX" + i, txt.getText());
       }
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
 
    }
 
@@ -1456,7 +1495,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
       for (int i = 0; i < 5; i++) {
          TextMessage txt = (TextMessage) consumer.receive(5000);
-         Assert.assertEquals("testXX" + i, txt.getText());
+         assertEquals("testXX" + i, txt.getText());
       }
 
       session.rollback();
@@ -1467,7 +1506,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       //      Assert.assertNull(consumer.receiveNoWait());
       for (int i = 0; i < 10; i++) {
          TextMessage txt = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(txt);
+         assertNotNull(txt);
          //         Assert.assertEquals("testXX" + i, txt.getText());
       }
       session.commit();
@@ -1495,15 +1534,15 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
       for (int i = 0; i < 5; i++) {
          TextMessage txt = (TextMessage) consumer.receive(500);
-         Assert.assertEquals("testXX" + i, txt.getText());
+         assertEquals("testXX" + i, txt.getText());
       }
 
       session.rollback();
 
       for (int i = 0; i < 10; i++) {
          TextMessage txt = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(txt);
-         Assert.assertEquals("testXX" + i, txt.getText());
+         assertNotNull(txt);
+         assertEquals("testXX" + i, txt.getText());
       }
 
       checkDuplicate(consumer);
@@ -1524,7 +1563,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          }
       }
 
-      Assert.assertFalse("received messages in duplicate", duplicatedMessages);
+      assertFalse(duplicatedMessages, "received messages in duplicate");
    }
 
    @Test
@@ -1548,7 +1587,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          if (i == 4) {
             txt.acknowledge();
          }
-         Assert.assertEquals("testXX" + i, txt.getText());
+         assertEquals("testXX" + i, txt.getText());
       }
 
       consumer.close();
@@ -1558,18 +1597,18 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       for (int i = 0; i < 4; i++) {
          TextMessage txt = (TextMessage) consumer.receive(5000);
          txt.acknowledge();
-         Assert.assertEquals("testXX" + i, txt.getText());
+         assertEquals("testXX" + i, txt.getText());
       }
 
       for (int i = 5; i < 10; i++) {
          TextMessage txt = (TextMessage) consumer.receive(5000);
          txt.acknowledge();
-         Assert.assertEquals("testXX" + i, txt.getText());
+         assertEquals("testXX" + i, txt.getText());
       }
 
       checkDuplicate(consumer);
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
 
    }
 
@@ -1602,7 +1641,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
          for (int i = 0; i < 5; i++) {
             TextMessage txt = (TextMessage) consumer.receive(5000);
-            Assert.assertEquals("testXX" + i, txt.getText());
+            assertEquals("testXX" + i, txt.getText());
          }
 
          consumer.close();
@@ -1620,7 +1659,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          try (MessageConsumer consumer = session.createConsumer(queue)) {
             for (int i = 5; i < 10; i++) {
                TextMessage txt = (TextMessage) consumer.receive(5000);
-               Assert.assertEquals("testXX" + i, txt.getText());
+               assertEquals("testXX" + i, txt.getText());
             }
          }
 
@@ -1661,7 +1700,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          connection1.close();
 
          // need to wait here because the ActiveMQ client's temp destination map is updated asynchronously, not waiting can introduce a race
-         assertTrue(Wait.waitFor(() -> ((ActiveMQConnection)connection2).activeTempDestinations.size() == 0, 2000, 100));
+         assertTrue(Wait.waitFor(() -> ((ActiveMQConnection) connection2).activeTempDestinations.isEmpty(), 2000, 100));
 
          waitForBindings(this.server, tempQueue.getQueueName(), true, 0, 0, 5000);
          //send again
@@ -1691,9 +1730,9 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          subscriber.setMessageListener(receivedMessages::add);
          topicConnection.start();
 
-         Wait.waitFor(() -> receivedMessages.size() > 0);
+         Wait.waitFor(() -> !receivedMessages.isEmpty());
 
-         Assert.assertTrue(receivedMessages.size() > 0);
+         assertFalse(receivedMessages.isEmpty());
 
          for (Message message : receivedMessages) {
             assertNotNull(message);
@@ -1704,18 +1743,16 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    @Test
    public void testXAResourceCommitSuspendedNotRemoved() throws Exception {
-      Queue queue = null;
 
       Xid xid = newXID();
       try (XAConnection xaconnection = xaFactory.createXAConnection()) {
          XASession session = xaconnection.createXASession();
-         queue = session.createQueue(queueName);
          session.getXAResource().start(xid, XAResource.TMNOFLAGS);
          session.getXAResource().end(xid, XAResource.TMSUSPEND);
 
          XidImpl xid1 = new XidImpl(xid);
          Transaction transaction = server.getResourceManager().getTransaction(xid1);
-         //amq5.x doesn't pass suspend flags to broker,
+         //ActiveMQ Classic doesn't pass suspend flags to broker,
          //directly suspend the tx
          transaction.suspend();
 
@@ -1731,12 +1768,10 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    @Test
    public void testXAResourceRolledBackSuspendedNotRemoved() throws Exception {
-      Queue queue = null;
 
       Xid xid = newXID();
       try (XAConnection xaconnection = xaFactory.createXAConnection()) {
          XASession session = xaconnection.createXASession();
-         queue = session.createQueue(queueName);
          session.getXAResource().start(xid, XAResource.TMNOFLAGS);
          session.getXAResource().end(xid, XAResource.TMSUSPEND);
 
@@ -1795,9 +1830,9 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    @Test
    public void testPropertyConversions() throws Exception {
-      final String BROKER_PATH = RandomUtil.randomString();
-      final String CLUSTER = RandomUtil.randomString();
-      final String USER_ID = RandomUtil.randomString();
+      final String BROKER_PATH = RandomUtil.randomUUIDString();
+      final String CLUSTER = RandomUtil.randomUUIDString();
+      final String USER_ID = RandomUtil.randomUUIDString();
 
       try (Connection connection = factory.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -1820,7 +1855,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    private void checkQueueEmpty(String qName) {
       PostOffice po = server.getPostOffice();
-      LocalQueueBinding binding = (LocalQueueBinding) po.getBinding(SimpleString.toSimpleString(qName));
+      LocalQueueBinding binding = (LocalQueueBinding) po.getBinding(SimpleString.of(qName));
       try {
          //waiting for last ack to finish
          Thread.sleep(1000);
@@ -1848,30 +1883,27 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          Session session = receiveConnection.createSession(false, ackMode);
          Queue queue = session.createQueue(queueName);
          consumer = session.createConsumer(queue);
-         consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-               messages.add(message);
+         consumer.setMessageListener(message -> {
+            messages.add(message);
 
-               if (messages.size() < expectedMsgs) {
-                  //delay
-                  try {
-                     TimeUnit.SECONDS.sleep(delay);
-                  } catch (InterruptedException e) {
-                     e.printStackTrace();
-                  }
+            if (messages.size() < expectedMsgs) {
+               //delay
+               try {
+                  TimeUnit.SECONDS.sleep(delay);
+               } catch (InterruptedException e) {
+                  e.printStackTrace();
                }
-               if (ackMode == Session.CLIENT_ACKNOWLEDGE) {
-                  try {
-                     message.acknowledge();
-                  } catch (JMSException e) {
-                     System.err.println("Failed to acknowledge " + message);
-                     e.printStackTrace();
-                  }
+            }
+            if (ackMode == Session.CLIENT_ACKNOWLEDGE) {
+               try {
+                  message.acknowledge();
+               } catch (JMSException e) {
+                  System.err.println("Failed to acknowledge " + message);
+                  e.printStackTrace();
                }
-               if (messages.size() == expectedMsgs) {
-                  latch.countDown();
-               }
+            }
+            if (messages.size() == expectedMsgs) {
+               latch.countDown();
             }
          });
          receiveConnection.start();

@@ -64,12 +64,16 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
+import static org.apache.activemq.artemis.utils.RandomUtil.randomUUIDString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddressControlTest extends ManagementTestBase {
 
@@ -84,222 +88,227 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testManagementAddressAlwaysExists() throws Exception {
-      ClientSession.AddressQuery query = session.addressQuery(new SimpleString("activemq.management"));
+      ClientSession.AddressQuery query = session.addressQuery(SimpleString.of("activemq.management"));
       assertTrue(query.isExists());
    }
 
    @Test
    public void testGetAddress() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       AddressControl addressControl = createManagementControl(address);
 
-      Assert.assertEquals(address.toString(), addressControl.getAddress());
+      assertEquals(address.toString(), addressControl.getAddress());
 
       session.deleteQueue(queue);
    }
 
    @Test
    public void testIsRetroactiveResource() throws Exception {
-      SimpleString baseAddress = RandomUtil.randomSimpleString();
+      SimpleString baseAddress = RandomUtil.randomUUIDSimpleString();
       SimpleString address = ResourceNames.getRetroactiveResourceAddressName(server.getInternalNamingPrefix(), server.getConfiguration().getWildcardConfiguration().getDelimiterString(), baseAddress);
 
       session.createAddress(address, RoutingType.MULTICAST, false);
 
       AddressControl addressControl = createManagementControl(address);
 
-      Assert.assertTrue(addressControl.isRetroactiveResource());
+      assertTrue(addressControl.isRetroactiveResource());
    }
 
    @Test
    public void testGetLocalQueueNames() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString anotherQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString anotherQueue = RandomUtil.randomUUIDSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       // add a fake RemoteQueueBinding to simulate being in a cluster; we don't want this binding to be returned by getQueueNames()
-      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, RandomUtil.randomSimpleString(), RandomUtil.randomSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
+      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomUUIDSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
       server.getPostOffice().addBinding(binding);
 
       AddressControl addressControl = createManagementControl(address);
       String[] queueNames = addressControl.getQueueNames();
-      Assert.assertEquals(1, queueNames.length);
-      Assert.assertEquals(queue.toString(), queueNames[0]);
+      assertEquals(1, queueNames.length);
+      assertEquals(queue.toString(), queueNames[0]);
 
-      session.createQueue(new QueueConfiguration(anotherQueue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(anotherQueue).setAddress(address).setDurable(false));
       queueNames = addressControl.getQueueNames();
-      Assert.assertEquals(2, queueNames.length);
+      assertEquals(2, queueNames.length);
 
       session.deleteQueue(queue);
 
       queueNames = addressControl.getQueueNames();
-      Assert.assertEquals(1, queueNames.length);
-      Assert.assertEquals(anotherQueue.toString(), queueNames[0]);
+      assertEquals(1, queueNames.length);
+      assertEquals(anotherQueue.toString(), queueNames[0]);
 
       session.deleteQueue(anotherQueue);
    }
 
    @Test
    public void testGetRemoteQueueNames() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createAddress(address, RoutingType.MULTICAST, false);
 
       // add a fake RemoteQueueBinding to simulate being in a cluster; this should be returned by getRemoteQueueNames()
-      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, queue, RandomUtil.randomSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
+      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, queue, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
       server.getPostOffice().addBinding(binding);
 
       AddressControl addressControl = createManagementControl(address);
       String[] queueNames = addressControl.getRemoteQueueNames();
-      Assert.assertEquals(1, queueNames.length);
-      Assert.assertEquals(queue.toString(), queueNames[0]);
+      assertEquals(1, queueNames.length);
+      assertEquals(queue.toString(), queueNames[0]);
    }
 
    @Test
    public void testGetAllQueueNames() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString anotherQueue = RandomUtil.randomSimpleString();
-      SimpleString remoteQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString anotherQueue = RandomUtil.randomUUIDSimpleString();
+      SimpleString remoteQueue = RandomUtil.randomUUIDSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       // add a fake RemoteQueueBinding to simulate being in a cluster
-      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, remoteQueue, RandomUtil.randomSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
+      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, remoteQueue, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
       server.getPostOffice().addBinding(binding);
 
       AddressControl addressControl = createManagementControl(address);
       String[] queueNames = addressControl.getAllQueueNames();
-      Assert.assertEquals(2, queueNames.length);
-      Assert.assertTrue(Arrays.asList(queueNames).contains(queue.toString()));
-      Assert.assertTrue(Arrays.asList(queueNames).contains(remoteQueue.toString()));
+      assertEquals(2, queueNames.length);
+      assertTrue(Arrays.asList(queueNames).contains(queue.toString()));
+      assertTrue(Arrays.asList(queueNames).contains(remoteQueue.toString()));
 
-      session.createQueue(new QueueConfiguration(anotherQueue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(anotherQueue).setAddress(address).setDurable(false));
       queueNames = addressControl.getAllQueueNames();
-      Assert.assertEquals(3, queueNames.length);
-      Assert.assertTrue(Arrays.asList(queueNames).contains(anotherQueue.toString()));
+      assertEquals(3, queueNames.length);
+      assertTrue(Arrays.asList(queueNames).contains(anotherQueue.toString()));
 
       session.deleteQueue(queue);
 
       queueNames = addressControl.getAllQueueNames();
-      Assert.assertEquals(2, queueNames.length);
-      Assert.assertTrue(Arrays.asList(queueNames).contains(anotherQueue.toString()));
-      Assert.assertFalse(Arrays.asList(queueNames).contains(queue.toString()));
+      assertEquals(2, queueNames.length);
+      assertTrue(Arrays.asList(queueNames).contains(anotherQueue.toString()));
+      assertFalse(Arrays.asList(queueNames).contains(queue.toString()));
 
       session.deleteQueue(anotherQueue);
    }
 
    @Test
    public void testGetBindingNames() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      String divertName = RandomUtil.randomString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      String divertName = RandomUtil.randomUUIDString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       AddressControl addressControl = createManagementControl(address);
       String[] bindingNames = addressControl.getBindingNames();
       assertEquals(1, bindingNames.length);
       assertEquals(queue.toString(), bindingNames[0]);
 
-      server.getActiveMQServerControl().createDivert(divertName, randomString(), address.toString(), RandomUtil.randomString(), false, null, null);
+      server.getActiveMQServerControl().createDivert(divertName, randomUUIDString(), address.toString(), RandomUtil.randomUUIDString(), false, null, null);
 
       bindingNames = addressControl.getBindingNames();
-      Assert.assertEquals(2, bindingNames.length);
+      assertEquals(2, bindingNames.length);
 
       session.deleteQueue(queue);
 
       bindingNames = addressControl.getBindingNames();
       assertEquals(1, bindingNames.length);
-      assertEquals(divertName.toString(), bindingNames[0]);
+      assertEquals(divertName, bindingNames[0]);
    }
 
    @Test
    public void testGetRoles() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      Role role = new Role(RandomUtil.randomString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean());
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      Role role = new Role(RandomUtil.randomUUIDString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), false, false);
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       AddressControl addressControl = createManagementControl(address);
       Object[] roles = addressControl.getRoles();
-      Assert.assertEquals(0, roles.length);
+      assertEquals(0, roles.length);
 
       Set<Role> newRoles = new HashSet<>();
       newRoles.add(role);
       server.getSecurityRepository().addMatch(address.toString(), newRoles);
 
       roles = addressControl.getRoles();
-      Assert.assertEquals(1, roles.length);
+      assertEquals(1, roles.length);
       Object[] r = (Object[]) roles[0];
-      Assert.assertEquals(role.getName(), r[0]);
-      Assert.assertEquals(CheckType.SEND.hasRole(role), (boolean)r[1]);
-      Assert.assertEquals(CheckType.CONSUME.hasRole(role), (boolean)r[2]);
-      Assert.assertEquals(CheckType.CREATE_DURABLE_QUEUE.hasRole(role), (boolean)r[3]);
-      Assert.assertEquals(CheckType.DELETE_DURABLE_QUEUE.hasRole(role), (boolean)r[4]);
-      Assert.assertEquals(CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role), (boolean)r[5]);
-      Assert.assertEquals(CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role), (boolean)r[6]);
-      Assert.assertEquals(CheckType.MANAGE.hasRole(role), (boolean)r[7]);
-      Assert.assertEquals(CheckType.BROWSE.hasRole(role), (boolean)r[8]);
-      Assert.assertEquals(CheckType.CREATE_ADDRESS.hasRole(role), (boolean)r[9]);
-      Assert.assertEquals(CheckType.DELETE_ADDRESS.hasRole(role), (boolean)r[10]);
+      assertEquals(role.getName(), r[0]);
+      assertEquals(CheckType.SEND.hasRole(role), (boolean)r[1]);
+      assertEquals(CheckType.CONSUME.hasRole(role), (boolean)r[2]);
+      assertEquals(CheckType.CREATE_DURABLE_QUEUE.hasRole(role), (boolean)r[3]);
+      assertEquals(CheckType.DELETE_DURABLE_QUEUE.hasRole(role), (boolean)r[4]);
+      assertEquals(CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role), (boolean)r[5]);
+      assertEquals(CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role), (boolean)r[6]);
+      assertEquals(CheckType.MANAGE.hasRole(role), (boolean)r[7]);
+      assertEquals(CheckType.BROWSE.hasRole(role), (boolean)r[8]);
+      assertEquals(CheckType.CREATE_ADDRESS.hasRole(role), (boolean)r[9]);
+      assertEquals(CheckType.DELETE_ADDRESS.hasRole(role), (boolean)r[10]);
 
-      Assert.assertEquals(CheckType.values().length + 1, r.length);
+      assertEquals(CheckType.values().length + 1, r.length);
 
       session.deleteQueue(queue);
    }
 
    @Test
    public void testGetRolesAsJSON() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      Role role = new Role(RandomUtil.randomString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean());
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      Role role = new Role(RandomUtil.randomUUIDString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), false, false);
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       AddressControl addressControl = createManagementControl(address);
       String jsonString = addressControl.getRolesAsJSON();
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       RoleInfo[] roles = RoleInfo.from(jsonString);
-      Assert.assertEquals(0, roles.length);
+      assertEquals(0, roles.length);
 
       Set<Role> newRoles = new HashSet<>();
       newRoles.add(role);
       server.getSecurityRepository().addMatch(address.toString(), newRoles);
 
       jsonString = addressControl.getRolesAsJSON();
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       roles = RoleInfo.from(jsonString);
-      Assert.assertEquals(1, roles.length);
+      assertEquals(1, roles.length);
       RoleInfo r = roles[0];
-      Assert.assertEquals(role.getName(), roles[0].getName());
-      Assert.assertEquals(role.isSend(), r.isSend());
-      Assert.assertEquals(role.isConsume(), r.isConsume());
-      Assert.assertEquals(role.isCreateDurableQueue(), r.isCreateDurableQueue());
-      Assert.assertEquals(role.isDeleteDurableQueue(), r.isDeleteDurableQueue());
-      Assert.assertEquals(role.isCreateNonDurableQueue(), r.isCreateNonDurableQueue());
-      Assert.assertEquals(role.isDeleteNonDurableQueue(), r.isDeleteNonDurableQueue());
-      Assert.assertEquals(role.isManage(), r.isManage());
+      assertEquals(role.getName(), roles[0].getName());
+      assertEquals(role.isSend(), r.isSend());
+      assertEquals(role.isConsume(), r.isConsume());
+      assertEquals(role.isCreateDurableQueue(), r.isCreateDurableQueue());
+      assertEquals(role.isDeleteDurableQueue(), r.isDeleteDurableQueue());
+      assertEquals(role.isCreateNonDurableQueue(), r.isCreateNonDurableQueue());
+      assertEquals(role.isDeleteNonDurableQueue(), r.isDeleteNonDurableQueue());
+      assertEquals(role.isManage(), r.isManage());
 
       session.deleteQueue(queue);
    }
 
    @Test
-   public void testGetNumberOfPages() throws Exception {
+   public void testGetPageAttributes() throws Exception {
       session.close();
       server.stop();
       server.getConfiguration().setPersistenceEnabled(true);
 
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
-      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(1024).setMaxSizeBytes(10 * 1024);
+      int maxReadBytes = 555;
+      int maxReadMessages = 666;
+      int prefetchBytes = 777;
+      int prefetchMessages = 888;
+
+      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(1024).setMaxSizeBytes(10 * 1024).setMaxReadPageBytes(maxReadBytes).setMaxReadPageMessages(maxReadMessages).setPrefetchPageMessages(prefetchMessages).setPrefetchPageBytes(prefetchBytes);
       final int NUMBER_MESSAGES_BEFORE_PAGING = 7;
 
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
@@ -310,7 +319,7 @@ public class AddressControlTest extends ManagementTestBase {
 
       session = sf2.createSession(false, true, false);
       session.start();
-      session.createQueue(new QueueConfiguration(address));
+      session.createQueue(QueueConfiguration.of(address));
 
       QueueImpl serverQueue = (QueueImpl) server.locateQueue(address);
 
@@ -324,21 +333,21 @@ public class AddressControlTest extends ManagementTestBase {
       session.commit();
 
       AddressControl addressControl = createManagementControl(address);
-      Assert.assertEquals(0, addressControl.getNumberOfPages());
+      assertEquals(0, addressControl.getNumberOfPages());
 
       ClientMessage msg = session.createMessage(true);
       msg.getBodyBuffer().writeBytes(new byte[896]);
       producer.send(msg);
 
       session.commit();
-      Assert.assertEquals(1, addressControl.getNumberOfPages());
+      assertEquals(1, addressControl.getNumberOfPages());
 
       msg = session.createMessage(true);
       msg.getBodyBuffer().writeBytes(new byte[896]);
       producer.send(msg);
 
       session.commit();
-      Assert.assertEquals(1, addressControl.getNumberOfPages());
+      assertEquals(1, addressControl.getNumberOfPages());
 
       msg = session.createMessage(true);
       msg.getBodyBuffer().writeBytes(new byte[896]);
@@ -346,9 +355,14 @@ public class AddressControlTest extends ManagementTestBase {
 
       session.commit();
 
-      Assert.assertEquals("# of pages is 2", 2, addressControl.getNumberOfPages());
+      assertEquals(2, addressControl.getNumberOfPages(), "# of pages is 2");
 
-      Assert.assertEquals(serverQueue.getPageSubscription().getPagingStore().getAddressSize(), addressControl.getAddressSize());
+      assertEquals(serverQueue.getPageSubscription().getPagingStore().getAddressSize(), addressControl.getAddressSize());
+
+      assertEquals(maxReadBytes, addressControl.getMaxPageReadBytes());
+      assertEquals(maxReadMessages, addressControl.getMaxPageReadMessages());
+      assertEquals(prefetchBytes, addressControl.getPrefetchPageBytes());
+      assertEquals(prefetchMessages, addressControl.getPrefetchPageMessages());
    }
 
 
@@ -356,14 +370,14 @@ public class AddressControlTest extends ManagementTestBase {
    public void testScheduleCleanup() throws Exception {
       server.getConfiguration().setPersistenceEnabled(true);
 
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(1024).setMaxSizeBytes(10 * 1024);
 
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       server.addAddressInfo(new AddressInfo(address).addRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(address).setName(address).setDurable(true));
+      server.createQueue(QueueConfiguration.of(address).setName(address).setDurable(true));
 
 
       AddressControl addressControl = createManagementControl(address);
@@ -371,7 +385,7 @@ public class AddressControlTest extends ManagementTestBase {
       Queue queue = server.locateQueue(address);
       queue.getPagingStore().startPaging();
 
-      Assert.assertTrue(addressControl.isPaging());
+      assertTrue(addressControl.isPaging());
 
       addressControl.schedulePageCleanup();
 
@@ -381,11 +395,11 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetNumberOfBytesPerPage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      session.createQueue(new QueueConfiguration(address));
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      session.createQueue(QueueConfiguration.of(address));
 
       AddressControl addressControl = createManagementControl(address);
-      Assert.assertEquals(AddressSettings.DEFAULT_PAGE_SIZE, addressControl.getNumberOfBytesPerPage());
+      assertEquals(AddressSettings.DEFAULT_PAGE_SIZE, addressControl.getNumberOfBytesPerPage());
 
       session.close();
       server.stop();
@@ -399,34 +413,34 @@ public class AddressControlTest extends ManagementTestBase {
       ClientSessionFactory sf2 = createSessionFactory(locator2);
 
       session = sf2.createSession(false, true, false);
-      Assert.assertEquals(1024, addressControl.getNumberOfBytesPerPage());
+      assertEquals(1024, addressControl.getNumberOfBytesPerPage());
    }
 
    @Test
    public void testGetRoutingTypes() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
       String[] routingTypes = addressControl.getRoutingTypes();
-      Assert.assertEquals(1, routingTypes.length);
-      Assert.assertEquals(RoutingType.ANYCAST.toString(), routingTypes[0]);
+      assertEquals(1, routingTypes.length);
+      assertEquals(RoutingType.ANYCAST.toString(), routingTypes[0]);
 
-      address = RandomUtil.randomSimpleString();
+      address = RandomUtil.randomUUIDSimpleString();
       EnumSet<RoutingType> types = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       session.createAddress(address, types, false);
 
       addressControl = createManagementControl(address);
       routingTypes = addressControl.getRoutingTypes();
       Set<String> strings = new HashSet<>(Arrays.asList(routingTypes));
-      Assert.assertEquals(2, strings.size());
-      Assert.assertTrue(strings.contains(RoutingType.ANYCAST.toString()));
-      Assert.assertTrue(strings.contains(RoutingType.MULTICAST.toString()));
+      assertEquals(2, strings.size());
+      assertTrue(strings.contains(RoutingType.ANYCAST.toString()));
+      assertTrue(strings.contains(RoutingType.MULTICAST.toString()));
    }
 
    @Test
    public void testGetRoutingTypesAsJSON() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -438,7 +452,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetMessageCount() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -448,18 +462,18 @@ public class AddressControlTest extends ManagementTestBase {
       producer.send(session.createMessage(false));
       assertEquals(0, addressControl.getMessageCount());
 
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
       producer.send(session.createMessage(false));
       assertTrue(Wait.waitFor(() -> addressControl.getMessageCount() == 1, 2000, 100));
 
-      session.createQueue(new QueueConfiguration(address.concat('2')).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(address.concat('2')).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       producer.send(session.createMessage(false));
       assertTrue(Wait.waitFor(() -> addressControl.getMessageCount() == 2, 2000, 100));
    }
 
    @Test
    public void testNumberOfMessages() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -469,7 +483,7 @@ public class AddressControlTest extends ManagementTestBase {
       producer.send(session.createMessage(false));
       assertEquals(0, addressControl.getNumberOfMessages());
 
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
       producer.send(session.createMessage(false));
       Wait.assertTrue(() -> addressControl.getNumberOfMessages() == 1, 2000, 100);
 
@@ -478,9 +492,9 @@ public class AddressControlTest extends ManagementTestBase {
       Queue queue = Mockito.mock(Queue.class);
       Mockito.when(queue.getMessageCount()).thenReturn((long) 999);
       Mockito.when(binding.getQueue()).thenReturn(queue);
-      Mockito.when(binding.getUniqueName()).thenReturn(RandomUtil.randomSimpleString());
-      Mockito.when(binding.getRoutingName()).thenReturn(RandomUtil.randomSimpleString());
-      Mockito.when(binding.getClusterName()).thenReturn(RandomUtil.randomSimpleString());
+      Mockito.when(binding.getUniqueName()).thenReturn(RandomUtil.randomUUIDSimpleString());
+      Mockito.when(binding.getRoutingName()).thenReturn(RandomUtil.randomUUIDSimpleString());
+      Mockito.when(binding.getClusterName()).thenReturn(RandomUtil.randomUUIDSimpleString());
       Mockito.when(binding.getType()).thenReturn(BindingType.REMOTE_QUEUE);
       server.getPostOffice().addBinding(binding);
 
@@ -489,7 +503,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetRoutedMessageCounts() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -500,12 +514,12 @@ public class AddressControlTest extends ManagementTestBase {
       assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 0, 2000, 100));
       assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 1, 2000, 100));
 
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
       producer.send(session.createMessage(false));
       assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 1, 2000, 100));
       assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 1, 2000, 100));
 
-      session.createQueue(new QueueConfiguration(address.concat('2')).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(address.concat('2')).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       producer.send(session.createMessage(false));
       assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 2, 2000, 100));
       assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 1, 2000, 100));
@@ -518,18 +532,37 @@ public class AddressControlTest extends ManagementTestBase {
    }
 
    @Test
-   public void testSendMessage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+   public void testGetRoutedMessageCountWithFilter() throws Exception {
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
-      Assert.assertEquals(0, addressControl.getQueueNames().length);
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
-      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      assertEquals(0, addressControl.getMessageCount());
+
+      ClientProducer producer = session.createProducer(address.toString());
+      producer.send(session.createMessage(false));
+      assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 0, 2000, 100));
+      assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 1, 2000, 100));
+
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST).setFilterString("key='foo'"));
+      producer.send(session.createMessage(false));
+      assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 0, 2000, 100));
+      assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 2, 2000, 100));
+   }
+
+   @Test
+   public void testSendMessage() throws Exception {
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      session.createAddress(address, RoutingType.ANYCAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+      assertEquals(0, addressControl.getQueueNames().length);
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
+      assertEquals(1, addressControl.getQueueNames().length);
       addressControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null);
 
       Wait.waitFor(() -> addressControl.getMessageCount() == 1);
-      Assert.assertEquals(1, addressControl.getMessageCount());
+      assertEquals(1, addressControl.getMessageCount());
 
       ClientConsumer consumer = session.createConsumer(address);
       ClientMessage message = consumer.receive(500);
@@ -541,20 +574,20 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testSendMessageWithProperties() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
-      Assert.assertEquals(0, addressControl.getQueueNames().length);
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
-      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      assertEquals(0, addressControl.getQueueNames().length);
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
+      assertEquals(1, addressControl.getQueueNames().length);
       Map<String, String> headers = new HashMap<>();
       headers.put("myProp1", "myValue1");
       headers.put("myProp2", "myValue2");
       addressControl.sendMessage(headers, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null);
 
       Wait.waitFor(() -> addressControl.getMessageCount() == 1);
-      Assert.assertEquals(1, addressControl.getMessageCount());
+      assertEquals(1, addressControl.getMessageCount());
 
       ClientConsumer consumer = session.createConsumer(address);
       ClientMessage message = consumer.receive(500);
@@ -568,18 +601,18 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testSendMessageWithMessageId() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
-      Assert.assertEquals(0, addressControl.getQueueNames().length);
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
-      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      assertEquals(0, addressControl.getQueueNames().length);
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
+      assertEquals(1, addressControl.getQueueNames().length);
       addressControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null, true);
       addressControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null, false);
 
       Wait.waitFor(() -> addressControl.getMessageCount() == 2);
-      Assert.assertEquals(2, addressControl.getMessageCount());
+      assertEquals(2, addressControl.getMessageCount());
 
       ClientConsumer consumer = session.createConsumer(address);
       ClientMessage message = consumer.receive(500);
@@ -607,13 +640,13 @@ public class AddressControlTest extends ManagementTestBase {
 
    private void internalDuplicateIdTest(boolean clear) throws Exception {
       server.getConfiguration().setPersistIDCache(false);
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
-      Assert.assertEquals(0, addressControl.getQueueNames().length);
+      assertEquals(0, addressControl.getQueueNames().length);
       session.createQueue(address, RoutingType.ANYCAST, address);
-      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      assertEquals(1, addressControl.getQueueNames().length);
       Map<String, String> headers = new HashMap<>();
       headers.put(Message.HDR_DUPLICATE_DETECTION_ID.toString(), UUID.randomUUID().toString());
       addressControl.sendMessage(headers, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null);
@@ -632,22 +665,22 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testPurge() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
-      Assert.assertNotNull(addressControl);
+      assertNotNull(addressControl);
       assertEquals(0, addressControl.getMessageCount());
 
       ClientProducer producer = session.createProducer(address.toString());
       producer.send(session.createMessage(false));
       assertEquals(0, addressControl.getMessageCount());
 
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
       producer.send(session.createMessage(false));
       assertTrue(Wait.waitFor(() -> addressControl.getMessageCount() == 1, 2000, 100));
 
-      session.createQueue(new QueueConfiguration(address.concat('2')).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(address.concat('2')).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       producer.send(session.createMessage(false));
       assertTrue(Wait.waitFor(() -> addressControl.getMessageCount() == 2, 2000, 100));
 
@@ -668,10 +701,10 @@ public class AddressControlTest extends ManagementTestBase {
 
    private void testReplaySimple(boolean useDate) throws Exception {
 
-      String queue = "testQueue" + RandomUtil.randomString();
+      String queue = "testQueue" + RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
-      AddressControl addressControl = createManagementControl(SimpleString.toSimpleString(queue));
+      server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
+      AddressControl addressControl = createManagementControl(SimpleString.of(queue));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {
@@ -682,12 +715,12 @@ public class AddressControlTest extends ManagementTestBase {
 
          connection.start();
          MessageConsumer consumer = session.createConsumer(jmsQueue);
-         Assert.assertNotNull(consumer.receive(5000));
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNotNull(consumer.receive(5000));
+         assertNull(consumer.receiveNoWait());
 
          addressControl.replay(queue, null);
-         Assert.assertNotNull(consumer.receive(5000));
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNotNull(consumer.receive(5000));
+         assertNull(consumer.receiveNoWait());
 
          if (useDate) {
             addressControl.replay("dontexist", null); // just to force a move next file, and copy stuff into place
@@ -702,24 +735,24 @@ public class AddressControlTest extends ManagementTestBase {
                producer.send(session.createTextMessage("after receiving"));
             }
             for (int i = 0; i < 100; i++) {
-               Assert.assertNotNull(consumer.receive());
+               assertNotNull(consumer.receive());
             }
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
             addressControl.replay(dateStart, dateEnd, queue, null);
             for (int i = 0; i < 2; i++) { // replay of the replay will contain two messages
                TextMessage message = (TextMessage) consumer.receive(5000);
-               Assert.assertNotNull(message);
-               Assert.assertEquals("before", message.getText());
+               assertNotNull(message);
+               assertEquals("before", message.getText());
             }
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
          } else {
             addressControl.replay(queue, null);
 
             // replay of the replay, there will be two messages
             for (int i = 0; i < 2; i++) {
-               Assert.assertNotNull(consumer.receive(5000));
+               assertNotNull(consumer.receive(5000));
             }
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
          }
       }
    }
@@ -727,11 +760,11 @@ public class AddressControlTest extends ManagementTestBase {
    @Test
    public void testReplayFilter() throws Exception {
 
-      String queue = "testQueue" + RandomUtil.randomString();
+      String queue = "testQueue" + RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
+      server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
 
-      AddressControl addressControl = createManagementControl(SimpleString.toSimpleString(queue));
+      AddressControl addressControl = createManagementControl(SimpleString.of(queue));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {
@@ -747,16 +780,16 @@ public class AddressControlTest extends ManagementTestBase {
          connection.start();
          MessageConsumer consumer = session.createConsumer(jmsQueue);
          for (int i = 0; i < 10; i++) {
-            Assert.assertNotNull(consumer.receive(5000));
+            assertNotNull(consumer.receive(5000));
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
 
          addressControl.replay(queue, "i=5");
          TextMessage message = (TextMessage)consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(5, message.getIntProperty("i"));
-         Assert.assertEquals("message 5", message.getText());
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNotNull(message);
+         assertEquals(5, message.getIntProperty("i"));
+         assertEquals("message 5", message.getText());
+         assertNull(consumer.receiveNoWait());
       }
    }
 
@@ -766,7 +799,7 @@ public class AddressControlTest extends ManagementTestBase {
       server.stop();
       server.getConfiguration().setPersistenceEnabled(true);
 
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       server.start();
       ServerLocator locator2 = createInVMNonHALocator();
@@ -775,7 +808,7 @@ public class AddressControlTest extends ManagementTestBase {
 
       session = sf2.createSession(false, true, false);
       session.start();
-      session.createQueue(new QueueConfiguration(address));
+      session.createQueue(QueueConfiguration.of(address));
 
       ClientProducer producer = session.createProducer(address);
 
@@ -789,14 +822,14 @@ public class AddressControlTest extends ManagementTestBase {
       session.commit();
 
       AddressControl addressControl = createManagementControl(address);
-      Assert.assertTrue(addressControl.getAddressSize() > numMessages * payLoadSize );
+      assertTrue(addressControl.getAddressSize() > numMessages * payLoadSize);
 
       // restart to reload journal
       server.stop();
       server.start();
 
       addressControl = createManagementControl(address);
-      Assert.assertTrue(addressControl.getAddressSize() > numMessages * payLoadSize );
+      assertTrue(addressControl.getAddressSize() > numMessages * payLoadSize);
    }
 
 
@@ -808,7 +841,7 @@ public class AddressControlTest extends ManagementTestBase {
 
       final int payLoadSize = 896;
       final int pageLimitNumberOfMessages = 4;
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(payLoadSize * 2).setMaxSizeBytes(payLoadSize * pageLimitNumberOfMessages);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
@@ -819,7 +852,7 @@ public class AddressControlTest extends ManagementTestBase {
 
       session = sf2.createSession(false, true, false);
       session.start();
-      session.createQueue(new QueueConfiguration(address));
+      session.createQueue(QueueConfiguration.of(address));
 
       ClientProducer producer = session.createProducer(address);
 
@@ -832,7 +865,7 @@ public class AddressControlTest extends ManagementTestBase {
       session.commit();
 
       AddressControl addressControl = createManagementControl(address);
-      Assert.assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize );
+      assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize);
 
       final long exactSizeValueBeforeRestart = addressControl.getAddressSize();
       final int exactPercentBeforeRestart = addressControl.getAddressLimitPercent();
@@ -842,14 +875,32 @@ public class AddressControlTest extends ManagementTestBase {
       server.start();
 
       addressControl = createManagementControl(address);
-      Assert.assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize );
-      Assert.assertEquals(exactSizeValueBeforeRestart, addressControl.getAddressSize());
-      Assert.assertEquals(exactPercentBeforeRestart, addressControl.getAddressLimitPercent());
+      assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize);
+      assertEquals(exactSizeValueBeforeRestart, addressControl.getAddressSize());
+      assertEquals(exactPercentBeforeRestart, addressControl.getAddressLimitPercent());
+   }
+
+   @Test
+   public void testIsBlockedViaManagement() throws Exception {
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
+
+      AddressControl addressControl = createManagementControl(address);
+
+      assertFalse(addressControl.isBlockedViaManagement());
+      addressControl.block();
+      assertTrue(addressControl.isBlockedViaManagement());
+      addressControl.unblock();
+      assertFalse(addressControl.isBlockedViaManagement());
+
+      session.deleteQueue(queue);
    }
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

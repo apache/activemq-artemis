@@ -28,16 +28,15 @@ import org.junit.Test;
 import org.objectweb.jtests.jms.framework.PTPTestCase;
 
 /**
- * Test the <code>javax.jms.Message</code> properties.
- * <br />
+ * Test the {@code javax.jms.Message} properties.
+ * <p>
  * See JMS Specification, sec. 3.5 Message Properties (p.32-37)
  */
 public class MessagePropertyTest extends PTPTestCase {
 
    /**
-    * Test that any other class than <code>Boolean, Byte, Short, Integer, Long,
-    * Float, Double</code> and <code>String</code> used in the <code>Message.setObjectProperty()</code>
-    * method throws a <code>javax.jms.MessageFormatException</code>.
+    * Test that any other class than {@code Boolean, Byte, Short, Integer, Long, Float, Double} and {@code String} used
+    * in the {@code Message.setObjectProperty()} method throws a {@code javax.jms.MessageFormatException}.
     */
    @Test
    public void testSetObjectProperty_2() {
@@ -52,14 +51,14 @@ public class MessagePropertyTest extends PTPTestCase {
    }
 
    /**
-    * if a property is set as a <code>Float</code> with the <code>Message.setObjectProperty()</code>
-    * method, it can be retrieve directly as a <code>double</code> by <code>Message.getFloatProperty()</code>
+    * if a property is set as a {@code Float} with the {@code Message.setObjectProperty()} method, it can be retrieve
+    * directly as a {@code double} by {@code Message.getFloatProperty()}
     */
    @Test
    public void testSetObjectProperty_1() {
       try {
          Message message = senderSession.createMessage();
-         message.setObjectProperty("pi", Float.valueOf(3.14159f));
+         message.setObjectProperty("pi", 3.14159f);
          Assert.assertEquals(3.14159f, message.getFloatProperty("pi"), 0);
       } catch (JMSException e) {
          fail(e);
@@ -67,36 +66,36 @@ public class MessagePropertyTest extends PTPTestCase {
    }
 
    /**
-    * Test that a <code>null</code> value is returned by the <code>Message.getObjectProperty()</code> method
-    * if a property by the specified name does not exits.
+    * Test that a {@code null} value is returned by the {@code Message.getObjectProperty()} method if a property by the
+    * specified name does not exits.
     */
    @Test
    public void testGetObjectProperty() {
       try {
          Message message = senderSession.createMessage();
-         Assert.assertEquals("sec. 3.5.5 A null value is returned [by the getObjectProperty method] if a property by the specified " + "name does not exits.\n", null, message.getObjectProperty("prop"));
+         Assert.assertNull("sec. 3.5.5 A null value is returned [by the getObjectProperty method] if a property by the specified " + "name does not exits.\n", message.getObjectProperty("prop"));
       } catch (JMSException e) {
          fail(e);
       }
    }
 
    /**
-    * Test that a <code>null</code> value is returned by the <code>Message.getStringProperty()</code> method
-    * if a property by the specified name does not exits.
+    * Test that a {@code null} value is returned by the {@code Message.getStringProperty()} method if a property by the
+    * specified name does not exits.
     */
    @Test
    public void testGetStringProperty() {
       try {
          Message message = senderSession.createMessage();
-         Assert.assertEquals("sec. 3.5.5 A null value is returned [by the getStringProperty method] if a property by the specified " + "name does not exits.\n", null, message.getStringProperty("prop"));
+         Assert.assertNull("sec. 3.5.5 A null value is returned [by the getStringProperty method] if a property by the specified " + "name does not exits.\n", message.getStringProperty("prop"));
       } catch (JMSException e) {
          fail(e);
       }
    }
 
    /**
-    * Test that an attempt to get a <code>double</code> property which does not exist throw
-    * a <code>java.lang.NullPointerException</code>
+    * Test that an attempt to get a {@code double} property which does not exist throw a
+    * {@code java.lang.NullPointerException}
     */
    @Test
    public void testGetDoubleProperty() {
@@ -111,8 +110,8 @@ public class MessagePropertyTest extends PTPTestCase {
    }
 
    /**
-    * Test that an attempt to get a <code>float</code> property which does not exist throw
-    * a <code>java.lang.NullPointerException</code>
+    * Test that an attempt to get a {@code float} property which does not exist throw a
+    * {@code java.lang.NullPointerException}
     */
    @Test
    public void testGetFloatProperty() {
@@ -127,8 +126,8 @@ public class MessagePropertyTest extends PTPTestCase {
    }
 
    /**
-    * Test that an attempt to get a <code>long</code> property which does not exist throw
-    * a <code>java.lang.NumberFormatException</code>
+    * Test that an attempt to get a {@code long} property which does not exist throw a
+    * {@code java.lang.NumberFormatException}
     */
    @Test
    public void testGetLongProperty() {
@@ -143,8 +142,8 @@ public class MessagePropertyTest extends PTPTestCase {
    }
 
    /**
-    * Test that an attempt to get a <code>int</code> property which does not exist throw
-    * a <code>java.lang.NumberFormatException</code>
+    * Test that an attempt to get a {@code int} property which does not exist throw a
+    * {@code java.lang.NumberFormatException}
     */
    @Test
    public void testGetIntProperty() {
@@ -159,8 +158,8 @@ public class MessagePropertyTest extends PTPTestCase {
    }
 
    /**
-    * Test that an attempt to get a <code>short</code> property which does not exist throw
-    * a <code>java.lang.NumberFormatException</code>
+    * Test that an attempt to get a {@code short} property which does not exist throw a
+    * {@code java.lang.NumberFormatException}
     */
    @Test
    public void testGetShortProperty() {
@@ -175,8 +174,8 @@ public class MessagePropertyTest extends PTPTestCase {
    }
 
    /**
-    * Test that an attempt to get a <code>byte</code> property which does not exist throw
-    * a <code>java.lang.NumberFormatException</code>
+    * Test that an attempt to get a {@code byte} property which does not exist throw a
+    * {@code java.lang.NumberFormatException}
     */
    @Test
    public void testGetByteProperty() {
@@ -190,23 +189,23 @@ public class MessagePropertyTest extends PTPTestCase {
       }
    }
 
-   /**
-    * Test that an attempt to get a <code>boolean</code> property which does not exist
-    * returns <code>false</code>
+   /*
+    * Test that an attempt to get a {@code boolean} property which does not exist
+    * returns {@code false}
     */
    @Test
    public void testGetBooleanProperty() {
       try {
          Message message = senderSession.createMessage();
-         Assert.assertEquals(false, message.getBooleanProperty("prop"));
+         Assert.assertFalse(message.getBooleanProperty("prop"));
       } catch (JMSException e) {
          fail(e);
       }
    }
 
    /**
-    * Test that the <code>Message.getPropertyNames()</code> method does not return
-    * the name of the JMS standard header fields (e.g. <code>JMSCorrelationID</code>).
+    * Test that the {@code Message.getPropertyNames()} method does not return the name of the JMS standard header fields
+    * (e.g. {@code JMSCorrelationID}).
     */
    @Test
    public void testGetPropertyNames() {
@@ -226,7 +225,7 @@ public class MessagePropertyTest extends PTPTestCase {
    }
 
    /**
-    * Test that the <code>Message.getPropertyNames()</code> methods.
+    * Test that the {@code Message.getPropertyNames()} methods.
     */
    @Test
    public void testPropertyIteration() {
@@ -258,8 +257,7 @@ public class MessagePropertyTest extends PTPTestCase {
    }
 
    /**
-    * Test that the <code>Message.clearProperties()</code> method does not clear the
-    * value of the Message's body.
+    * Test that the {@code Message.clearProperties()} method does not clear the value of the Message's body.
     */
    @Test
    public void testClearProperties_2() {
@@ -274,8 +272,7 @@ public class MessagePropertyTest extends PTPTestCase {
    }
 
    /**
-    * Test that the <code>Message.clearProperties()</code> method deletes all the
-    * properties of the Message.
+    * Test that the {@code Message.clearProperties()} method deletes all the properties of the Message.
     */
    @Test
    public void testClearProperties_1() {
@@ -283,7 +280,7 @@ public class MessagePropertyTest extends PTPTestCase {
          TextMessage message = senderSession.createTextMessage();
          message.setStringProperty("prop", "foo");
          message.clearProperties();
-         Assert.assertEquals("sec. 3.5.7 A message's properties are deleted by the clearProperties method.\n", null, message.getStringProperty("prop"));
+         Assert.assertNull("sec. 3.5.7 A message's properties are deleted by the clearProperties method.\n", message.getStringProperty("prop"));
       } catch (JMSException e) {
          fail(e);
       }

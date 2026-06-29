@@ -392,16 +392,16 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
 
    @Override
    public ActiveMQBuffer readSlice(final int length) {
-      if ( isPooled ) {
+      if (isPooled) {
          ByteBuf fromBuffer = buffer.readSlice(length);
          ByteBuf newNettyBuffer = Unpooled.buffer(fromBuffer.capacity());
          int read = fromBuffer.readerIndex();
          int writ = fromBuffer.writerIndex();
          fromBuffer.readerIndex(0);
-         fromBuffer.readBytes(newNettyBuffer,0,writ);
-         newNettyBuffer.setIndex(read,writ);
-         ActiveMQBuffer returnBuffer = new ChannelBufferWrapper(newNettyBuffer,releasable,false);
-         returnBuffer.setIndex(read,writ);
+         fromBuffer.readBytes(newNettyBuffer, 0, writ);
+         newNettyBuffer.setIndex(read, writ);
+         ActiveMQBuffer returnBuffer = new ChannelBufferWrapper(newNettyBuffer, releasable, false);
+         returnBuffer.setIndex(read, writ);
          return returnBuffer;
       }
       return new ChannelBufferWrapper(buffer.readSlice(length), releasable, isPooled);
@@ -530,7 +530,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
 
    @Override
    public void release() {
-      if ( this.isPooled ) {
+      if (this.isPooled) {
          buffer.release();
       }
    }

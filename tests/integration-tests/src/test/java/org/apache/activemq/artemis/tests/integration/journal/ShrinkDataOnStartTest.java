@@ -16,11 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ShrinkDataOnStartTest extends ActiveMQTestBase {
 
@@ -32,12 +33,12 @@ public class ShrinkDataOnStartTest extends ActiveMQTestBase {
       server.getConfiguration().setJournalPoolFiles(2);
       server.start();
       Wait.waitFor(server::isActive);
-      Assert.assertEquals(10, server.getStorageManager().getMessageJournal().getFileFactory().listFiles("amq").size());
+      assertEquals(10, server.getStorageManager().getMessageJournal().getFileFactory().listFiles("amq").size());
       server.stop();
       server.getConfiguration().setJournalMinFiles(2);
       server.getConfiguration().setJournalPoolFiles(2);
       server.start();
-      Assert.assertEquals(2, server.getStorageManager().getMessageJournal().getFileFactory().listFiles("amq").size());
+      assertEquals(2, server.getStorageManager().getMessageJournal().getFileFactory().listFiles("amq").size());
    }
 
 }

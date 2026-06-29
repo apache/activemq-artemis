@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.persistence.impl.nullpm;
 
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
@@ -40,6 +40,11 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
 
    @Override
    public void releaseResources(boolean sync, boolean sendEvent) {
+   }
+
+   @Override
+   public boolean isOpen() {
+      return false;
    }
 
    @Override
@@ -68,8 +73,8 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
    }
 
    @Override
-   public void validateFile() throws ActiveMQException {
-
+   public Message getMessage() {
+      return this;
    }
 
    @Override
@@ -131,13 +136,14 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
    }
 
    @Override
-   public Message copy() {
+   public ICoreMessage copy() {
       // This is a simple copy, used only to avoid changing original properties
       return new NullStorageLargeServerMessage(this);
    }
 
    @Override
    public void setPaged() {
+      super.setPaged();
    }
 
    @Override

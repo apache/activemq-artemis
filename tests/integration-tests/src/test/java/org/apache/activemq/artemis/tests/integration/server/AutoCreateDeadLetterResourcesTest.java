@@ -27,27 +27,32 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString queueA = new SimpleString("queueA");
-   public final SimpleString dla = new SimpleString("myDLA");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString queueA = SimpleString.of("queueA");
+   public final SimpleString dla = SimpleString.of("myDLA");
 
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false);
@@ -75,7 +80,7 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreationOfDeadLetterResourcesWithEmptyDLA() throws Exception {
-      testAutoCreationOfDeadLetterResourcesWithNoDLA(SimpleString.toSimpleString(""));
+      testAutoCreationOfDeadLetterResourcesWithNoDLA(SimpleString.of(""));
    }
 
    private void testAutoCreationOfDeadLetterResourcesWithNoDLA(SimpleString dla) throws Exception {
@@ -91,7 +96,7 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreateDeadLetterQueuePrefix() throws Exception {
-      SimpleString prefix = RandomUtil.randomSimpleString();
+      SimpleString prefix = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().getMatch("#").setDeadLetterQueuePrefix(prefix);
       triggerDlaDelivery();
       assertNotNull(server.locateQueue(prefix.concat(addressA).concat(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX)));
@@ -99,7 +104,7 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreateDeadLetterQueueSuffix() throws Exception {
-      SimpleString suffix = RandomUtil.randomSimpleString();
+      SimpleString suffix = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().getMatch("#").setDeadLetterQueueSuffix(suffix);
       triggerDlaDelivery();
       assertNotNull(server.locateQueue(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX.concat(addressA).concat(suffix)));
@@ -107,8 +112,8 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreateDeadLetterQueuePrefixAndSuffix() throws Exception {
-      SimpleString prefix = RandomUtil.randomSimpleString();
-      SimpleString suffix = RandomUtil.randomSimpleString();
+      SimpleString prefix = RandomUtil.randomUUIDSimpleString();
+      SimpleString suffix = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().getMatch("#").setDeadLetterQueuePrefix(prefix).setDeadLetterQueueSuffix(suffix);
       triggerDlaDelivery();
       assertNotNull(server.locateQueue(prefix.concat(addressA).concat(suffix)));
@@ -129,9 +134,9 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
       final int MESSAGE_COUNT = 10;
 
       for (int i = 0; i < ITERATIONS; i++) {
-         SimpleString address = RandomUtil.randomSimpleString();
-         SimpleString queue = RandomUtil.randomSimpleString();
-         server.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(routingType));
+         SimpleString address = RandomUtil.randomUUIDSimpleString();
+         SimpleString queue = RandomUtil.randomUUIDSimpleString();
+         server.createQueue(QueueConfiguration.of(queue).setAddress(address).setRoutingType(routingType));
          ServerLocator locator = createInVMNonHALocator();
          ClientSessionFactory cf = createSessionFactory(locator);
          ClientSession s = addClientSession(cf.createSession(true, false));
@@ -204,7 +209,7 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
 
       server.deployDivert(new DivertConfiguration().setName("testDivert").setAddress(divertAddress).setForwardingAddress(addressA.toString()));
 
-      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
 
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
@@ -229,10 +234,10 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
    @Test
    public void testMovedMessage() throws Exception {
       SimpleString dlqName = AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX.concat(addressA).concat(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX);
-      final SimpleString moveFromAddress = new SimpleString("moveFromAddress");
-      final SimpleString moveFromQueue = new SimpleString("moveFromQueue");
-      server.createQueue(new QueueConfiguration(moveFromQueue).setAddress(moveFromAddress).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+      final SimpleString moveFromAddress = SimpleString.of("moveFromAddress");
+      final SimpleString moveFromQueue = SimpleString.of("moveFromQueue");
+      server.createQueue(QueueConfiguration.of(moveFromQueue).setAddress(moveFromAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
 
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
@@ -256,9 +261,44 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
       message.acknowledge();
    }
 
+   @Test
+   public void testOngoingSendToDLAPreventAutoDelete() throws Exception {
+      final int messageCount = 100;
+      SimpleString dlqName = AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX.concat(addressA).concat(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX);
+
+      server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory sessionFactory = createSessionFactory(locator);
+      ClientSession session = addClientSession(sessionFactory.createSession(true, true));
+      ClientProducer producer = addClientProducer(session.createProducer(addressA));
+
+      ClientMessage message = session.createMessage(true);
+      message.getBodyBuffer().writeBytes(createFakeLargeStream(1024 * 1024).readAllBytes());
+
+      for (int i = 0; i < messageCount; i++) {
+         producer.send(message);
+      }
+
+      QueueControl queueControl = server.getManagementService().getQueueControl(queueA.toString());
+      queueControl.sendMessagesToDeadLetterAddress(null);
+
+      QueueControl dlqControl = server.getManagementService().getQueueControl(dlqName.toString());
+      dlqControl.retryMessages();
+
+      for (int i = 0; i < 10; i++) {
+         queueControl.sendMessagesToDeadLetterAddress(null);
+         dlqControl.retryMessages();
+      }
+
+      Wait.assertTrue(() -> queueControl.getMessageCount() == messageCount, 2000);
+      Wait.assertTrue(() -> server.locateQueue(dlqName) == null, 2000);
+
+   }
+
    private void triggerDlaDelivery() throws Exception {
       try {
-         server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
       } catch (Exception e) {
          // ignore
       }

@@ -16,27 +16,27 @@
  */
 package org.apache.activemq.artemis.journal;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class JournalLogBundlesTest {
 
    private static final String LOGGER_NAME = ActiveMQJournalLogger.class.getPackage().getName();
    private static LogLevel origLevel;
 
-   @BeforeClass
+   @BeforeAll
    public static void setLogLevel() {
       origLevel = AssertionLoggerHandler.setLevel(LOGGER_NAME, LogLevel.INFO);
    }
 
-   @AfterClass
+   @AfterAll
    public static void restoreLogLevel() throws Exception {
       AssertionLoggerHandler.setLevel(LOGGER_NAME, origLevel);
    }
@@ -56,8 +56,8 @@ public class JournalLogBundlesTest {
 
       String message = e.getMessage();
       assertNotNull(message);
-      assertTrue("unexpected message: " + message, message.startsWith("AMQ149000"));
-      assertTrue("unexpected message: " + message, message.contains(String.valueOf("oldFileNameBreadCrumb")));
-      assertTrue("unexpected message: " + message, message.contains(String.valueOf("oldFileNameBreadCrumb")));
+      assertTrue(message.startsWith("AMQ149000"), "unexpected message: " + message);
+      assertTrue(message.contains(String.valueOf("oldFileNameBreadCrumb")), "unexpected message: " + message);
+      assertTrue(message.contains(String.valueOf("oldFileNameBreadCrumb")), "unexpected message: " + message);
    }
 }

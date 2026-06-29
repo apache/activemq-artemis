@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.smoke.retention;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -26,25 +30,43 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import java.io.File;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ReplayTest extends SmokeTestBase {
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT_0 = 1099;
    static String liveURI = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT_0 + "/jmxrmi";
-   static ObjectNameBuilder liveNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "replay", true);
+   static ObjectNameBuilder nameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "replay", true);
 
    public static final String SERVER_NAME_0 = "replay/replay";
 
-   @Before
+   @BeforeAll
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/replay/replay");
+         cliCreateServer.setArgs("--java-options", "-Djava.rmi.server.hostname=localhost", "--journal-retention", "1", "--queues", "RetentionTest", "--name", "replay");
+         cliCreateServer.createServer();
+      }
+   }
+
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       startServer(SERVER_NAME_0, 0, 30000);
@@ -75,16 +97,9 @@ public class ReplayTest extends SmokeTestBase {
 
       final String queueName = "RetentionTest";
 
-      ActiveMQServerControl serverControl = getServerControl(liveURI, liveNameBuilder, 5000);
+      ActiveMQServerControl serverControl = getServerControl(liveURI, nameBuilder, 5000);
 
-      String bufferStr;
-      {
-         StringBuffer buffer = new StringBuffer();
-         for (int i = 0; i < bodySize; i++) {
-            buffer.append("*");
-         }
-         bufferStr = RandomUtil.randomString() + buffer.toString();
-      }
+      String bufferStr = RandomUtil.randomUUIDString() + "*".repeat(bodySize);
 
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {
@@ -106,36 +121,36 @@ public class ReplayTest extends SmokeTestBase {
          MessageConsumer consumer = session.createConsumer(queue);
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(bufferStr, message.getText());
+            assertNotNull(message);
+            assertEquals(bufferStr, message.getText());
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          session.commit();
 
          serverControl.replay(queueName, queueName, null);
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(bufferStr, message.getText());
+            assertNotNull(message);
+            assertEquals(bufferStr, message.getText());
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          session.commit();
 
          serverControl.replay(queueName, queueName, "i=1");
 
          for (int i = 0; i < 2; i++) { // replay of a replay will give you 2 messages
             TextMessage message = (TextMessage)consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(1, message.getIntProperty("i"));
-            Assert.assertEquals(bufferStr, message.getText());
+            assertNotNull(message);
+            assertEquals(1, message.getIntProperty("i"));
+            assertEquals(bufferStr, message.getText());
          }
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          session.commit();
 
          serverControl.replay(queueName, queueName, "foo='foo'");
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
    }
 

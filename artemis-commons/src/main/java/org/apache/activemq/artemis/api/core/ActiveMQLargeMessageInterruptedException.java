@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.api.core;
 
-/**
- */
-// XXX
 public class ActiveMQLargeMessageInterruptedException extends ActiveMQException {
 
    private static final long serialVersionUID = 0;

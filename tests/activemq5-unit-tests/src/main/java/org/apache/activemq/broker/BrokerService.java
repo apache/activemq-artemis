@@ -36,6 +36,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Objects;
 
 import org.apache.activemq.ActiveMQConnectionMetaData;
 import org.apache.activemq.Service;
@@ -71,9 +72,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manages the life-cycle of an ActiveMQ Broker. A BrokerService consists of a
- * number of transport connectors, network connectors and a bunch of properties
- * which can be used to configure the broker as its lazily created.
+ * Manages the life-cycle of an ActiveMQ Broker. A BrokerService consists of a number of transport connectors, network
+ * connectors and a bunch of properties which can be used to configure the broker as its lazily created.
  */
 public class BrokerService implements Service {
 
@@ -109,7 +109,7 @@ public class BrokerService implements Service {
 
    private TemporaryFolder tmpfolder;
 
-   public static WeakHashMap<Broker, Exception> map = new WeakHashMap<>();
+   public static Map<Broker, Exception> map = new WeakHashMap<>();
 
    static {
       InputStream in;
@@ -174,7 +174,7 @@ public class BrokerService implements Service {
       broker = getBroker();
       brokerId = broker.getBrokerId();
 
-      LOG.info("Apache ActiveMQ Artemis Wrapper {} ({}, {}) is starting", new Object[]{getBrokerVersion(), getBrokerName(), brokerId});
+      LOG.info("Apache Apache Artemis Wrapper {} ({}, {}) is starting", new Object[]{getBrokerVersion(), getBrokerName(), brokerId});
 
       try {
          broker.start();
@@ -184,7 +184,7 @@ public class BrokerService implements Service {
          throw new Exception(t);
       }
 
-      LOG.info("Apache ActiveMQ Artemis Wrapper {} ({}, {}) started", new Object[]{getBrokerVersion(), getBrokerName(), brokerId});
+      LOG.info("Apache Apache Artemis Wrapper {} ({}, {}) started", new Object[]{getBrokerVersion(), getBrokerName(), brokerId});
       LOG.info("For help or more information please see: http://activemq.apache.org");
 
    }
@@ -193,14 +193,14 @@ public class BrokerService implements Service {
    public void stop() throws Exception {
       System.out.println("broker is: " + broker);
 
-      LOG.info("Apache ActiveMQ Artemis{} ({}, {}) is shutting down", new Object[]{getBrokerVersion(), getBrokerName(), brokerId});
+      LOG.info("Apache Apache Artemis{} ({}, {}) is shutting down", new Object[]{getBrokerVersion(), getBrokerName(), brokerId});
 
       if (broker != null) {
          broker.stop();
          broker = null;
       }
       tmpfolder.delete();
-      LOG.info("Apache ActiveMQ Artemis {} ({}, {}) is shutdown", new Object[]{getBrokerVersion(), getBrokerName(), brokerId});
+      LOG.info("Apache Apache Artemis {} ({}, {}) is shutdown", new Object[]{getBrokerVersion(), getBrokerName(), brokerId});
    }
 
    // Properties
@@ -218,9 +218,7 @@ public class BrokerService implements Service {
    }
 
    public void setBrokerName(String brokerName) {
-      if (brokerName == null) {
-         throw new NullPointerException("The broker name cannot be null");
-      }
+      Objects.requireNonNull(brokerName, "The broker name cannot be null");
       String str = brokerName.replaceAll("[^a-zA-Z0-9\\.\\_\\-\\:]", "_");
       if (!str.equals(brokerName)) {
          LOG.error("Broker Name: {} contained illegal characters - replaced with {}", brokerName, str);
@@ -499,21 +497,18 @@ public class BrokerService implements Service {
       connector.setLocalUri(this.getConnectURI());
       // Set a connection filter so that the connector does not establish loop
       // back connections.
-      connector.setConnectionFilter(new ConnectionFilter() {
-         @Override
-         public boolean connectTo(URI location) {
-            List<TransportConnector> transportConnectors = getTransportConnectors();
-            for (Iterator<TransportConnector> iter = transportConnectors.iterator(); iter.hasNext(); ) {
-               try {
-                  TransportConnector tc = iter.next();
-                  if (location.equals(tc.getConnectUri())) {
-                     return false;
-                  }
-               } catch (Throwable e) {
+      connector.setConnectionFilter(location -> {
+         List<TransportConnector> transportConnectors = getTransportConnectors();
+         for (Iterator<TransportConnector> iter = transportConnectors.iterator(); iter.hasNext(); ) {
+            try {
+               TransportConnector tc = iter.next();
+               if (location.equals(tc.getConnectUri())) {
+                  return false;
                }
+            } catch (Throwable e) {
             }
-            return true;
          }
+         return true;
       });
 
       networkConnectors.add(connector);

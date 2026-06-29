@@ -22,7 +22,7 @@ import org.jgroups.JChannel;
 
 /**
  * An implementation of JGroupsBroadcastEndpoint that uses an externally managed JChannel for its operations.
- *
+ * <p>
  * Note - this implementation does not close the JChannel, since its externally created.
  */
 public class JGroupsChannelBroadcastEndpoint extends JGroupsBroadcastEndpoint {

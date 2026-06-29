@@ -107,9 +107,6 @@ public final class ThreadDumpUtil {
                   sb.append('\n');
                   break;
                case WAITING:
-                  sb.append("\t-  waiting on " + threadInfo.getLockInfo());
-                  sb.append('\n');
-                  break;
                case TIMED_WAITING:
                   sb.append("\t-  waiting on " + threadInfo.getLockInfo());
                   sb.append('\n');

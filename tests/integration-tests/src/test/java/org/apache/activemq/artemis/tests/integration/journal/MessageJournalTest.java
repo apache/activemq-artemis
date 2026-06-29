@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,9 +36,7 @@ import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import io.netty.buffer.Unpooled;
 
 public class MessageJournalTest extends ActiveMQTestBase {
@@ -52,7 +53,7 @@ public class MessageJournalTest extends ActiveMQTestBase {
 
       CoreProtocolManagerFactory factory = (CoreProtocolManagerFactory) server.getRemotingService().getProtocolFactoryMap().get("CORE");
 
-      Assert.assertNotNull(factory);
+      assertNotNull(factory);
 
       message.getBodyBuffer().writeByte((byte)'Z');
 
@@ -66,19 +67,14 @@ public class MessageJournalTest extends ActiveMQTestBase {
 
       List<PreparedTransactionInfo> preparedTransactions = new LinkedList<>();
 
-      TransactionFailureCallback transactionFailure = new TransactionFailureCallback() {
-         @Override
-         public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
-
-         }
-      };
+      TransactionFailureCallback transactionFailure = (transactionID, records, recordsToDelete) -> { };
 
       try {
          journalStorageManager.getMessageJournal().start();
 
          journalStorageManager.getMessageJournal().load(committedRecords, preparedTransactions, transactionFailure);
 
-         Assert.assertEquals(1, committedRecords.size());
+         assertEquals(1, committedRecords.size());
       } finally {
          journalStorageManager.getMessageJournal().stop();
       }
@@ -86,7 +82,7 @@ public class MessageJournalTest extends ActiveMQTestBase {
 
    @Test
    public void testStoreAMQP() throws Throwable {
-      ActiveMQServer server = createServer(true);
+      ActiveMQServer server = createServer(true, true);
 
       server.start();
 
@@ -98,7 +94,7 @@ public class MessageJournalTest extends ActiveMQTestBase {
 
       message.setMessageID(333);
 
-      Assert.assertNotNull(factory);
+      assertNotNull(factory);
 
       server.getStorageManager().storeMessage(message);
 
@@ -110,17 +106,12 @@ public class MessageJournalTest extends ActiveMQTestBase {
 
       List<PreparedTransactionInfo> preparedTransactions = new LinkedList<>();
 
-      TransactionFailureCallback transactionFailure = new TransactionFailureCallback() {
-         @Override
-         public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
-
-         }
-      };
+      TransactionFailureCallback transactionFailure = (transactionID, records, recordsToDelete) -> { };
 
       try {
          journalStorageManager.getMessageJournal().start();
          journalStorageManager.getMessageJournal().load(committedRecords, preparedTransactions, transactionFailure);
-         Assert.assertEquals(1, committedRecords.size());
+         assertEquals(1, committedRecords.size());
       } finally {
          journalStorageManager.getMessageJournal().stop();
       }

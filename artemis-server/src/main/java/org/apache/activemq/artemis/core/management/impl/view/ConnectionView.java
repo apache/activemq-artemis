@@ -16,23 +16,25 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view;
 
-import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.management.impl.view.predicate.ConnectionPredicateFilterPart;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConnectionFilterPredicate;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.StringUtil;
 
-public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
+public class ConnectionView extends ActiveMQAbstractView<RemotingConnection, ConnectionPredicateFilterPart> {
 
-   private static final String defaultSortColumn = ConnectionField.CONNECTION_ID.getName();
+   private static final String defaultSortField = ConnectionField.CONNECTION_ID.getName();
 
    private final ActiveMQServer server;
 
@@ -52,14 +54,8 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
 
       List<ServerSession> sessions = server.getSessions(connection.getID().toString());
       Set<String> users = new TreeSet<>();
-      String jmsSessionClientID = null;
       for (ServerSession session : sessions) {
-         String username = session.getUsername() == null ? "" : session.getUsername();
-         users.add(username);
-         //for the special case for JMS
-         if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
-            jmsSessionClientID = session.getMetaData("jms-client-id");
-         }
+         users.add(Objects.requireNonNullElse(session.getUsername(), ""));
       }
 
       return JsonLoader.createObjectBuilder()
@@ -69,9 +65,11 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          .add(ConnectionField.CREATION_TIME.getName(), new Date(connection.getCreationTime()).toString())
          .add(ConnectionField.IMPLEMENTATION.getName(), toString(connection.getClass().getSimpleName()))
          .add(ConnectionField.PROTOCOL.getName(), toString(connection.getProtocolName()))
-         .add(ConnectionField.CLIENT_ID.getName(), toString(connection.getClientID() != null ? connection.getClientID() : jmsSessionClientID))
+         .add(ConnectionField.CLIENT_ID.getName(), toString(connection.getClientID()))
          .add(ConnectionField.LOCAL_ADDRESS.getName(), toString(connection.getTransportLocalAddress()))
-         .add(ConnectionField.SESSION_COUNT.getName(), sessions.size());
+         .add(ConnectionField.SESSION_COUNT.getName(), sessions.size())
+         .add(ConnectionField.PROXY_ADDRESS.getName(), toString(NettyServerConnection.getProxyAddress(connection.getTransportConnection())))
+         .add(ConnectionField.PROXY_PROTOCOL_VERSION.getName(), toString(NettyServerConnection.getProxyProtocolVersion(connection.getTransportConnection())));
    }
 
    @Override
@@ -87,8 +85,7 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
             Set<String> users = new TreeSet<>();
             List<ServerSession> sessions = server.getSessions(connection.getID().toString());
             for (ServerSession session : sessions) {
-               String username = session.getUsername() == null ? "" : session.getUsername();
-               users.add(username);
+               users.add(Objects.requireNonNullElse(session.getUsername(), ""));
             }
             return StringUtil.joinStringList(users, ",");
          case CREATION_TIME:
@@ -103,6 +100,10 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
             return connection.getTransportLocalAddress();
          case SESSION_COUNT:
             return server.getSessions(connection.getID().toString()).size();
+         case PROXY_ADDRESS:
+            return NettyServerConnection.getProxyAddress(connection.getTransportConnection());
+         case PROXY_PROTOCOL_VERSION:
+            return NettyServerConnection.getProxyProtocolVersion(connection.getTransportConnection());
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);
       }
@@ -110,6 +111,6 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
 
    @Override
    public String getDefaultOrderColumn() {
-      return defaultSortColumn;
+      return defaultSortField;
    }
 }

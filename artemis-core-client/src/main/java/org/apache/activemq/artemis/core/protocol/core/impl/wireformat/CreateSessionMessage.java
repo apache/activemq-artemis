@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -195,86 +197,51 @@ public class CreateSessionMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (autoCommitAcks ? 1231 : 1237);
-      result = prime * result + (autoCommitSends ? 1231 : 1237);
-      result = prime * result + ((defaultAddress == null) ? 0 : defaultAddress.hashCode());
-      result = prime * result + minLargeMessageSize;
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + ((password == null) ? 0 : password.hashCode());
-      result = prime * result + (preAcknowledge ? 1231 : 1237);
-      result = prime * result + (int) (sessionChannelID ^ (sessionChannelID >>> 32));
-      result = prime * result + ((username == null) ? 0 : username.hashCode());
-      result = prime * result + version;
-      result = prime * result + windowSize;
-      result = prime * result + (xa ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), autoCommitAcks, autoCommitSends, defaultAddress, minLargeMessageSize, name,
+                          password, preAcknowledge, sessionChannelID, username, version, windowSize, xa);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", autoCommitAcks=" + autoCommitAcks);
-      buff.append(", autoCommitSends=" + autoCommitSends);
-      buff.append(", defaultAddress=" + defaultAddress);
-      buff.append(", minLargeMessageSize=" + minLargeMessageSize);
-      buff.append(", name=" + name);
-      buff.append(", password=****");
-      buff.append(", preAcknowledge=" + preAcknowledge);
-      buff.append(", sessionChannelID=" + sessionChannelID);
-      buff.append(", username=" + username);
-      buff.append(", version=" + version);
-      buff.append(", windowSize=" + windowSize);
-      buff.append(", xa=" + xa);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", autoCommitAcks=" + autoCommitAcks);
+      sb.append(", autoCommitSends=" + autoCommitSends);
+      sb.append(", defaultAddress=" + defaultAddress);
+      sb.append(", minLargeMessageSize=" + minLargeMessageSize);
+      sb.append(", name=" + name);
+      sb.append(", password=****");
+      sb.append(", preAcknowledge=" + preAcknowledge);
+      sb.append(", sessionChannelID=" + sessionChannelID);
+      sb.append(", username=" + username);
+      sb.append(", version=" + version);
+      sb.append(", windowSize=" + windowSize);
+      sb.append(", xa=" + xa);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof CreateSessionMessage))
+      }
+      if (!(obj instanceof CreateSessionMessage other)) {
          return false;
-      CreateSessionMessage other = (CreateSessionMessage) obj;
-      if (autoCommitAcks != other.autoCommitAcks)
-         return false;
-      if (autoCommitSends != other.autoCommitSends)
-         return false;
-      if (defaultAddress == null) {
-         if (other.defaultAddress != null)
-            return false;
-      } else if (!defaultAddress.equals(other.defaultAddress))
-         return false;
-      if (minLargeMessageSize != other.minLargeMessageSize)
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      if (password == null) {
-         if (other.password != null)
-            return false;
-      } else if (!password.equals(other.password))
-         return false;
-      if (preAcknowledge != other.preAcknowledge)
-         return false;
-      if (sessionChannelID != other.sessionChannelID)
-         return false;
-      if (username == null) {
-         if (other.username != null)
-            return false;
-      } else if (!username.equals(other.username))
-         return false;
-      if (version != other.version)
-         return false;
-      if (windowSize != other.windowSize)
-         return false;
-      if (xa != other.xa)
-         return false;
-      return true;
+      }
+
+      return autoCommitAcks == other.autoCommitAcks &&
+             autoCommitSends == other.autoCommitSends &&
+             Objects.equals(defaultAddress, other.defaultAddress) &&
+             minLargeMessageSize == other.minLargeMessageSize &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(password, other.password) &&
+             preAcknowledge == other.preAcknowledge &&
+             sessionChannelID == other.sessionChannelID &&
+             Objects.equals(username, other.username) &&
+             version == other.version &&
+             windowSize == other.windowSize &&
+             xa == other.xa;
    }
 }

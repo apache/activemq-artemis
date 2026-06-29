@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.core.server.routing.caches;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedKeyValuePair;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +43,7 @@ public class LocalCacheTest {
 
       try {
          cache.put(CACHE_ENTRY_KEY, CACHE_ENTRY_VALUE);
-         Assert.assertEquals(CACHE_ENTRY_VALUE, cache.get(CACHE_ENTRY_KEY));
+         assertEquals(CACHE_ENTRY_VALUE, cache.get(CACHE_ENTRY_KEY));
       } finally {
          cache.stop();
       }
@@ -55,7 +57,7 @@ public class LocalCacheTest {
 
       try {
          cache.put(CACHE_ENTRY_KEY, CACHE_ENTRY_VALUE);
-         Assert.assertEquals(CACHE_ENTRY_VALUE, cache.get(CACHE_ENTRY_KEY));
+         assertEquals(CACHE_ENTRY_VALUE, cache.get(CACHE_ENTRY_KEY));
          Wait.assertTrue(() -> cache.get(CACHE_ENTRY_KEY) == null, CACHE_TIMEOUT * 2, CACHE_TIMEOUT);
       } finally {
          cache.stop();
@@ -72,24 +74,24 @@ public class LocalCacheTest {
 
       try {
          cacheBeforeStop.put(CACHE_ENTRY_KEY, CACHE_ENTRY_VALUE);
-         Assert.assertEquals(CACHE_ENTRY_VALUE, cacheBeforeStop.get(CACHE_ENTRY_KEY));
+         assertEquals(CACHE_ENTRY_VALUE, cacheBeforeStop.get(CACHE_ENTRY_KEY));
       } finally {
          cacheBeforeStop.stop();
       }
 
-      Assert.assertEquals(CACHE_ENTRY_VALUE, storageManager.getPersistedKeyValuePairs(CACHE_NAME).get(CACHE_ENTRY_KEY).getValue());
+      assertEquals(CACHE_ENTRY_VALUE, storageManager.getPersistedKeyValuePairs(CACHE_NAME).get(CACHE_ENTRY_KEY).getValue());
 
       LocalCache cacheAfterStop = new LocalCache(CACHE_NAME, true, 0, storageManager);
 
       cacheAfterStop.start();
 
       try {
-         Assert.assertEquals(CACHE_ENTRY_VALUE, cacheAfterStop.get(CACHE_ENTRY_KEY));
+         assertEquals(CACHE_ENTRY_VALUE, cacheAfterStop.get(CACHE_ENTRY_KEY));
       } finally {
          cacheAfterStop.stop();
       }
 
-      Assert.assertEquals(CACHE_ENTRY_VALUE, storageManager.getPersistedKeyValuePairs(CACHE_NAME).get(CACHE_ENTRY_KEY).getValue());
+      assertEquals(CACHE_ENTRY_VALUE, storageManager.getPersistedKeyValuePairs(CACHE_NAME).get(CACHE_ENTRY_KEY).getValue());
    }
 
    @Test
@@ -102,26 +104,26 @@ public class LocalCacheTest {
 
       try {
          cacheBeforeStop.put(CACHE_ENTRY_KEY, CACHE_ENTRY_VALUE);
-         Assert.assertEquals(CACHE_ENTRY_VALUE, cacheBeforeStop.get(CACHE_ENTRY_KEY));
+         assertEquals(CACHE_ENTRY_VALUE, cacheBeforeStop.get(CACHE_ENTRY_KEY));
       } finally {
          cacheBeforeStop.stop();
       }
 
-      Assert.assertEquals(CACHE_ENTRY_VALUE, storageManager.getPersistedKeyValuePairs(CACHE_NAME).get(CACHE_ENTRY_KEY).getValue());
+      assertEquals(CACHE_ENTRY_VALUE, storageManager.getPersistedKeyValuePairs(CACHE_NAME).get(CACHE_ENTRY_KEY).getValue());
 
       LocalCache cacheAfterStop = new LocalCache(CACHE_NAME, true, CACHE_TIMEOUT, storageManager);
 
       cacheAfterStop.start();
 
       try {
-         Assert.assertEquals(CACHE_ENTRY_VALUE, cacheAfterStop.get(CACHE_ENTRY_KEY));
+         assertEquals(CACHE_ENTRY_VALUE, cacheAfterStop.get(CACHE_ENTRY_KEY));
          Thread.sleep(CACHE_TIMEOUT * 2);
-         Assert.assertNull(cacheAfterStop.get(CACHE_ENTRY_KEY));
+         assertNull(cacheAfterStop.get(CACHE_ENTRY_KEY));
       } finally {
          cacheAfterStop.stop();
       }
 
-      Assert.assertNull(storageManager.getPersistedKeyValuePairs(CACHE_NAME).get(CACHE_ENTRY_KEY));
+      assertNull(storageManager.getPersistedKeyValuePairs(CACHE_NAME).get(CACHE_ENTRY_KEY));
    }
 
    static class DummyKeyValuePairStorageManager extends NullStorageManager {

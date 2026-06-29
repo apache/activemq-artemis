@@ -47,8 +47,8 @@ public interface GroupingHandler extends NotificationListener, ActiveMQComponent
    void awaitBindings() throws Exception;
 
    /**
-    * this will force a removal of the group everywhere with an unproposal (dinstance=0).
-    * This is for the case where a node goes missing
+    * this will force a removal of the group everywhere with an unproposal (dinstance=0). This is for the case where a
+    * node goes missing
     */
    void forceRemove(SimpleString groupid, SimpleString clusterName) throws Exception;
 

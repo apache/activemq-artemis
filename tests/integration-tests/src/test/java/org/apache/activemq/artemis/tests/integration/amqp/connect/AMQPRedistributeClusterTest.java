@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -39,9 +39,8 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -62,11 +61,15 @@ import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.qpid.proton.amqp.Symbol;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AMQPRedistributeClusterTest extends AmqpTestSupport {
 
@@ -74,7 +77,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
 
    private static final String QUEUE_NAME = "REDIST_QUEUE";
    private static final String TOPIC_NAME = "REDIST_TOPIC";
-   private static final SimpleString TOPIC_NAME_SIMPLE_STRING = SimpleString.toSimpleString("REDIST_TOPIC");
+   private static final SimpleString TOPIC_NAME_SIMPLE_STRING = SimpleString.of("REDIST_TOPIC");
 
    protected static final int A_1_PORT = 5673;
    protected static final int A_2_PORT = 5674;
@@ -88,7 +91,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
    ActiveMQServer b1;
    ActiveMQServer b2;
 
-   @Before
+   @BeforeEach
    public void setCluster() throws Exception {
       a1 = createClusteredServer("A_1", A_1_PORT, A_2_PORT, B_1_PORT);
       a2 = createClusteredServer("A_2", A_2_PORT, A_1_PORT, B_2_PORT);
@@ -105,20 +108,20 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
 
    private ActiveMQServer createClusteredServer(String name, int thisPort, int clusterPort, int mirrorPort) throws Exception {
       ActiveMQServer server = createServer(thisPort, false);
-      server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(QUEUE_NAME).addRoutingType(RoutingType.ANYCAST).addQueueConfig(new QueueConfiguration(QUEUE_NAME).setDurable(true).setRoutingType(RoutingType.ANYCAST)));
+      server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(QUEUE_NAME).addRoutingType(RoutingType.ANYCAST).addQueueConfig(QueueConfiguration.of(QUEUE_NAME).setDurable(true).setRoutingType(RoutingType.ANYCAST)));
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(TOPIC_NAME).addRoutingType(RoutingType.MULTICAST));
       server.getConfiguration().clearAddressSettings();
       server.getConfiguration().addAddressSetting("#", new AddressSettings().setRedistributionDelay(0));
 
 
       server.setIdentity(name);
-      server.getConfiguration().setName("node").setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration()).addConnectorConfiguration("thisNode", "tcp://localhost:" + thisPort).addConnectorConfiguration("otherNode", "tcp://localhost:" + clusterPort);
+      server.getConfiguration().setName("node").setHAPolicyConfiguration(new PrimaryOnlyPolicyConfiguration()).addConnectorConfiguration("thisNode", "tcp://localhost:" + thisPort).addConnectorConfiguration("otherNode", "tcp://localhost:" + clusterPort);
 
       ClusterConnectionConfiguration clusterConfiguration = new ClusterConnectionConfiguration().setName("cluster").setConnectorName("thisNode").setMessageLoadBalancingType(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION).setStaticConnectors(Collections.singletonList("otherNode"));
       server.getConfiguration().addClusterConfiguration(clusterConfiguration);
 
       if (mirrorPort > 0) {
-         server.getConfiguration().addAMQPConnection(new AMQPBrokerConnectConfiguration("myMirror" + mirrorPort, "tcp://localhost:" + mirrorPort).setReconnectAttempts(-1).setRetryInterval(100).addConnectionElement(new AMQPMirrorBrokerConnectionElement().setDurable(true).setMirrorSNF(new SimpleString(mirrorName(mirrorPort)))));
+         server.getConfiguration().addAMQPConnection(new AMQPBrokerConnectConfiguration("myMirror" + mirrorPort, "tcp://localhost:" + mirrorPort).setReconnectAttempts(-1).setRetryInterval(100).addConnectionElement(new AMQPMirrorBrokerConnectionElement().setDurable(true).setMirrorSNF(SimpleString.of(mirrorName(mirrorPort)))));
       }
 
       return server;
@@ -172,7 +175,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
                consumer = sessionA2.createConsumer(sessionA2.createQueue(QUEUE_NAME));
             }
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("Received message {} from {}", message, place);
             consumer.close();
          }
@@ -184,8 +187,8 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
       assertEmptyQueue(b2.locateQueue(QUEUE_NAME));
 
       // if you see this message, most likely the notifications are being copied to the mirror
-      Assert.assertFalse(loggerHandler.findText("AMQ222196"));
-      Assert.assertFalse(loggerHandler.findText("AMQ224037"));
+      assertFalse(loggerHandler.findText("AMQ222196"));
+      assertFalse(loggerHandler.findText("AMQ224037"));
    }
 
    @Test
@@ -235,37 +238,35 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
       String subscriptionQueueName;
 
       {
-         HashSet<String> subscriptionSet = new HashSet<>();
+         Set<String> subscriptionSet = new HashSet<>();
          // making sure the queues created on a1 are propagated into b1
          a1.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).forEach((n, b) -> {
             logger.debug("{} = {}", n, b);
-            if (b instanceof LocalQueueBinding) {
-               QueueBinding qb = (QueueBinding) b;
-               subscriptionSet.add(qb.getUniqueName().toString());
-               Wait.assertTrue(() -> b1.locateQueue(qb.getUniqueName()) != null);
+            if (b instanceof LocalQueueBinding localQueueBinding) {
+               subscriptionSet.add(localQueueBinding.getUniqueName().toString());
+               Wait.assertTrue(() -> b1.locateQueue(localQueueBinding.getUniqueName()) != null);
             }
          });
-         Assert.assertEquals(1, subscriptionSet.size());
+         assertEquals(1, subscriptionSet.size());
          subscriptionQueueName = subscriptionSet.iterator().next();
       }
 
       // making sure the queues created on a2 are propagated into b2
       a2.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).forEach((n, b) -> {
          logger.debug("{} = {}", n, b);
-         if (b instanceof LocalQueueBinding) {
-            QueueBinding qb = (QueueBinding) b;
-            Wait.assertTrue(() -> b2.locateQueue(qb.getUniqueName()) != null);
+         if (b instanceof LocalQueueBinding localQueueBinding) {
+            Wait.assertTrue(() -> b2.locateQueue(localQueueBinding.getUniqueName()) != null);
          }
       });
 
       Queue a1TopicSubscription = a1.locateQueue(subscriptionQueueName);
-      Assert.assertNotNull(a1TopicSubscription);
+      assertNotNull(a1TopicSubscription);
       Queue a2TopicSubscription = a2.locateQueue(subscriptionQueueName);
-      Assert.assertNotNull(a2TopicSubscription);
+      assertNotNull(a2TopicSubscription);
       Queue b1TopicSubscription = b1.locateQueue(subscriptionQueueName);
-      Assert.assertNotNull(b1TopicSubscription);
+      assertNotNull(b1TopicSubscription);
       Queue b2TopicSubscription = b2.locateQueue(subscriptionQueueName);
-      Assert.assertNotNull(a2);
+      assertNotNull(a2);
 
 
       try (Connection conn = cfA1.createConnection()) {
@@ -276,10 +277,10 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
          }
       }
 
-      Assert.assertFalse(loggerHandler.findText("AMQ222196"));
-      Assert.assertFalse(loggerHandler.findText("AMQ224037"));
+      assertFalse(loggerHandler.findText("AMQ222196"));
+      assertFalse(loggerHandler.findText("AMQ224037"));
 
-      Assert.assertEquals(0, a1TopicSubscription.getConsumerCount());
+      assertEquals(0, a1TopicSubscription.getConsumerCount());
       Wait.assertEquals(numMessages / 2, a1TopicSubscription::getMessageCount);
       Wait.assertEquals(numMessages / 2, a2TopicSubscription::getMessageCount);
 
@@ -308,15 +309,15 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
                consumer = sessionA2.createSharedDurableConsumer(topic, subscriptionName);
             }
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.debug("Received message {} from {}", message, place);
             consumer.close();
          }
       }
 
       // if you see this message, most likely the notifications are being copied to the mirror
-      Assert.assertFalse(loggerHandler.findText("AMQ222196"));
-      Assert.assertFalse(loggerHandler.findText("AMQ224037"));
+      assertFalse(loggerHandler.findText("AMQ222196"));
+      assertFalse(loggerHandler.findText("AMQ224037"));
 
       assertEmptyQueue(a1TopicSubscription);
       assertEmptyQueue(a2TopicSubscription);
@@ -359,13 +360,13 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
       List<RemoteQueueBinding> remoteQueueBindings_a2 = new ArrayList<>();
       // making sure the queues created on a2 are propagated into b2
       a2.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).forEach((a, b) -> {
-         if (b instanceof RemoteQueueBindingImpl && b.getClusterName().toString().startsWith(subscriptionName + "_0")) {
+         if (b instanceof RemoteQueueBindingImpl impl && b.getClusterName().toString().startsWith(subscriptionName + "_0")) {
             logger.debug("{} = {}", a, b);
-            remoteQueueBindings_a2.add((RemoteQueueBinding) b);
+            remoteQueueBindings_a2.add(impl);
          }
       });
 
-      Assert.assertEquals(1, remoteQueueBindings_a2.size());
+      assertEquals(1, remoteQueueBindings_a2.size());
 
       RoutingContext routingContext = new RoutingContextImpl(new TransactionImpl(a2.getStorageManager())).setMirrorOption(MirrorOption.individualRoute);
 
@@ -440,13 +441,13 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
       List<RemoteQueueBinding> remoteQueueBindings_a2 = new ArrayList<>();
       // making sure the queues created on a2 are propagated into b2
       a2.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).forEach((a, b) -> {
-         if (b instanceof RemoteQueueBindingImpl && b.getClusterName().toString().startsWith(subscriptionName + "_0")) {
+         if (b instanceof RemoteQueueBindingImpl impl && b.getClusterName().toString().startsWith(subscriptionName + "_0")) {
             logger.debug("{} = {}", a, b);
-            remoteQueueBindings_a2.add((RemoteQueueBinding) b);
+            remoteQueueBindings_a2.add(impl);
          }
       });
 
-      Assert.assertEquals(1, remoteQueueBindings_a2.size());
+      assertEquals(1, remoteQueueBindings_a2.size());
       AmqpConnection connection = createAmqpConnection(new URI("tcp://localhost:" + A_1_PORT));
       runAfter(connection::close);
       AmqpSession session = connection.createSession();
@@ -476,7 +477,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
 
       message = new AmqpMessage();
       message.setAddress(TOPIC_NAME);
-      ArrayList<String> singleQueue = new ArrayList<>();
+      List<String> singleQueue = new ArrayList<>();
       singleQueue.add("my-topic-shared-subscription_3:global");
       singleQueue.add("IDONTEXIST");
       message.setDeliveryAnnotation(AMQPMirrorControllerSource.TARGET_QUEUES.toString(), singleQueue);
@@ -561,12 +562,12 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
    }
 
    private void assertEmptyQueue(Queue queue) {
-      Assert.assertNotNull(queue);
+      assertNotNull(queue);
       try {
          Wait.assertEquals(0, queue::getMessageCount);
       } catch (Throwable e) {
-         if (e instanceof AssertionError) {
-            throw (AssertionError) e;
+         if (e instanceof AssertionError error) {
+            throw error;
          } else {
             throw new RuntimeException(e.getMessage(), e);
          }

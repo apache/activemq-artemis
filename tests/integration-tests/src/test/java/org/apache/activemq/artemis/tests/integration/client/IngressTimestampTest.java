@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -38,24 +42,25 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.message.JmsTextMessage;
 import org.apache.qpid.jms.provider.amqp.message.AmqpJmsMessageFacade;
 import org.apache.qpid.proton.amqp.Symbol;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class IngressTimestampTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
-   @Parameterized.Parameters(name = "restart={0}, large={1}")
+   @Parameters(name = "restart={0}, large={1}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
          {true, true},
@@ -65,63 +70,63 @@ public class IngressTimestampTest extends ActiveMQTestBase {
       });
    }
 
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public boolean restart;
 
-   @Parameterized.Parameter(1)
+   @Parameter(index = 1)
    public boolean large;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
       server.start();
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setEnableIngressTimestamp(true));
-      server.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
    }
 
-   @Test
+   @TestTemplate
    public void testSendCoreReceiveAMQP() throws Throwable {
       internalSendReceive(Protocol.CORE, Protocol.AMQP);
    }
 
-   @Test
+   @TestTemplate
    public void testSendAMQPReceiveAMQP() throws Throwable {
       internalSendReceive(Protocol.AMQP, Protocol.AMQP);
    }
 
-   @Test
+   @TestTemplate
    public void testSendOpenWireReceiveAMQP() throws Throwable {
       internalSendReceive(Protocol.OPENWIRE, Protocol.AMQP);
    }
 
-   @Test
+   @TestTemplate
    public void testSendCoreReceiveCore() throws Throwable {
       internalSendReceive(Protocol.CORE, Protocol.CORE);
    }
 
-   @Test
+   @TestTemplate
    public void testSendAMQPReceiveCore() throws Throwable {
       internalSendReceive(Protocol.AMQP, Protocol.CORE);
    }
 
-   @Test
+   @TestTemplate
    public void testSendOpenWireReceiveCore() throws Throwable {
       internalSendReceive(Protocol.OPENWIRE, Protocol.CORE);
    }
 
-   @Test
+   @TestTemplate
    public void testSendCoreReceiveOpenwire() throws Throwable {
       internalSendReceive(Protocol.CORE, Protocol.OPENWIRE);
    }
 
-   @Test
+   @TestTemplate
    public void testSendAMQPReceiveOpenWire() throws Throwable {
       internalSendReceive(Protocol.AMQP, Protocol.OPENWIRE);
    }
 
-   @Test
+   @TestTemplate
    public void testSendOpenWireReceiveOpenWire() throws Throwable {
       internalSendReceive(Protocol.OPENWIRE, Protocol.OPENWIRE);
    }
@@ -156,7 +161,7 @@ public class IngressTimestampTest extends ActiveMQTestBase {
             javax.jms.Queue queue = session.createQueue(QUEUE.toString());
             try (MessageConsumer consumer = session.createConsumer(queue)) {
                TextMessage message = (TextMessage) consumer.receive(1000);
-               Assert.assertNotNull(message);
+               assertNotNull(message);
                Enumeration e = message.getPropertyNames();
                while (e.hasMoreElements()) {
                   System.out.println(e.nextElement());
@@ -171,34 +176,25 @@ public class IngressTimestampTest extends ActiveMQTestBase {
                   ingressTimestampHeader = message.getObjectProperty(Message.HDR_INGRESS_TIMESTAMP.toString());
                }
                assertNotNull(ingressTimestampHeader);
-               assertTrue(ingressTimestampHeader instanceof Long);
+               assertInstanceOf(Long.class, ingressTimestampHeader);
                long ingressTimestamp = (Long) ingressTimestampHeader;
-               assertTrue("Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend,ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend);
+               assertTrue(ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend, "Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend);
             }
          }
       }
    }
 
    private String getMessagePayload() {
-      StringBuilder result = new StringBuilder();
-      if (large) {
-         for (int i = 0; i < ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 20; i++) {
-            result.append("AB");
-         }
-      } else {
-         result.append("AB");
-      }
-
-      return result.toString();
+      return large ? "AB".repeat(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 20) : "AB";
    }
 
    private ConnectionFactory createFactory(Protocol protocol) {
-      switch (protocol) {
-         case CORE: return new ActiveMQConnectionFactory(); // core protocol
-         case AMQP: return new JmsConnectionFactory("amqp://localhost:61616"); // amqp
-         case OPENWIRE: return new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"); // openwire
-         default: return null;
-      }
+      return switch (protocol) {
+         case CORE -> new ActiveMQConnectionFactory(); // core protocol
+         case AMQP -> new JmsConnectionFactory("amqp://localhost:61616"); // amqp
+         case OPENWIRE -> new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"); // openwire
+         default -> null;
+      };
    }
 
    private enum Protocol {

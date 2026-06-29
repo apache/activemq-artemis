@@ -88,16 +88,13 @@ public class JMSConsumerTest extends JmsTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = createDestination(session, destinationType);
       ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            counter.incrementAndGet();
-            if (counter.get() == 1) {
-               done1.countDown();
-            }
-            if (counter.get() == 2) {
-               done2.countDown();
-            }
+      consumer.setMessageListener(m -> {
+         counter.incrementAndGet();
+         if (counter.get() == 1) {
+            done1.countDown();
+         }
+         if (counter.get() == 2) {
+            done2.countDown();
          }
       });
 
@@ -135,13 +132,10 @@ public class JMSConsumerTest extends JmsTestSupport {
 
       final ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(destination);
 
-      final Map<Thread, Throwable> exceptions = Collections.synchronizedMap(new HashMap<Thread, Throwable>());
-      Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-         @Override
-         public void uncaughtException(Thread t, Throwable e) {
-            LOG.error("Uncaught exception:", e);
-            exceptions.put(t, e);
-         }
+      final Map<Thread, Throwable> exceptions = Collections.synchronizedMap(new HashMap<>());
+      Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+         LOG.error("Uncaught exception:", e);
+         exceptions.put(t, e);
       });
 
       final class AckAndClose implements Runnable {
@@ -174,12 +168,9 @@ public class JMSConsumerTest extends JmsTestSupport {
       }
 
       final ExecutorService executor = Executors.newCachedThreadPool();
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            // ack and close eventually in separate thread
-            executor.execute(new AckAndClose(m));
-         }
+      consumer.setMessageListener(m -> {
+         // ack and close eventually in separate thread
+         executor.execute(new AckAndClose(m));
       });
 
       assertTrue(closeDone.await(20, TimeUnit.SECONDS));
@@ -310,13 +301,10 @@ public class JMSConsumerTest extends JmsTestSupport {
       sendMessages(session, destination, 4);
 
       // See if the message get sent to the listener
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            counter.incrementAndGet();
-            if (counter.get() == 4) {
-               done.countDown();
-            }
+      consumer.setMessageListener(m -> {
+         counter.incrementAndGet();
+         if (counter.get() == 4) {
+            done.countDown();
          }
       });
 
@@ -340,13 +328,10 @@ public class JMSConsumerTest extends JmsTestSupport {
       connection.start();
       ActiveMQSession session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = createDestination(session, destinationType);
-      MessageConsumer consumer = session.createConsumer(destination, new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            counter.incrementAndGet();
-            if (counter.get() == 4) {
-               done.countDown();
-            }
+      MessageConsumer consumer = session.createConsumer(destination, m -> {
+         counter.incrementAndGet();
+         if (counter.get() == 4) {
+            done.countDown();
          }
       });
       assertNotNull(consumer);
@@ -386,23 +371,20 @@ public class JMSConsumerTest extends JmsTestSupport {
       Session session = connection.createSession(false, ackMode);
       destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            try {
-               TextMessage tm = (TextMessage) m;
-               LOG.info("Got in first listener: " + tm.getText());
-               assertEquals("" + counter.get(), tm.getText());
-               counter.incrementAndGet();
-               if (counter.get() == 2) {
-                  sendDone.await();
-                  connection.close();
-                  got2Done.countDown();
-               }
-               tm.acknowledge();
-            } catch (Throwable e) {
-               e.printStackTrace();
+      consumer.setMessageListener(m -> {
+         try {
+            TextMessage tm = (TextMessage) m;
+            LOG.info("Got in first listener: " + tm.getText());
+            assertEquals("" + counter.get(), tm.getText());
+            counter.incrementAndGet();
+            if (counter.get() == 2) {
+               sendDone.await();
+               connection.close();
+               got2Done.countDown();
             }
+            tm.acknowledge();
+         } catch (Throwable e) {
+            e.printStackTrace();
          }
       });
 
@@ -424,21 +406,18 @@ public class JMSConsumerTest extends JmsTestSupport {
       final CountDownLatch done2 = new CountDownLatch(1);
       session = connection.createSession(false, ackMode);
       consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            try {
-               TextMessage tm = (TextMessage) m;
-               LOG.info("Got in second listener: " + tm.getText());
-               // order is not guaranteed as the connection is started before the listener is set.
-               // assertEquals("" + counter.get(), tm.getText());
-               counter.incrementAndGet();
-               if (counter.get() == 4) {
-                  done2.countDown();
-               }
-            } catch (Throwable e) {
-               LOG.error("unexpected ex onMessage: ", e);
+      consumer.setMessageListener(m -> {
+         try {
+            TextMessage tm = (TextMessage) m;
+            LOG.info("Got in second listener: " + tm.getText());
+            // order is not guaranteed as the connection is started before the listener is set.
+            // assertEquals("" + counter.get(), tm.getText());
+            counter.incrementAndGet();
+            if (counter.get() == 4) {
+               done2.countDown();
             }
+         } catch (Throwable e) {
+            LOG.error("unexpected ex onMessage: ", e);
          }
       });
 
@@ -474,23 +453,20 @@ public class JMSConsumerTest extends JmsTestSupport {
       Session session = connection.createSession(false, ackMode);
       destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            try {
-               TextMessage tm = (TextMessage) m;
-               LOG.info("Got in first listener: " + tm.getText());
-               assertEquals("" + counter.get(), tm.getText());
-               counter.incrementAndGet();
-               m.acknowledge();
-               if (counter.get() == 2) {
-                  sendDone.await();
-                  connection.close();
-                  got2Done.countDown();
-               }
-            } catch (Throwable e) {
-               e.printStackTrace();
+      consumer.setMessageListener(m -> {
+         try {
+            TextMessage tm = (TextMessage) m;
+            LOG.info("Got in first listener: " + tm.getText());
+            assertEquals("" + counter.get(), tm.getText());
+            counter.incrementAndGet();
+            m.acknowledge();
+            if (counter.get() == 2) {
+               sendDone.await();
+               connection.close();
+               got2Done.countDown();
             }
+         } catch (Throwable e) {
+            e.printStackTrace();
          }
       });
 
@@ -512,19 +488,16 @@ public class JMSConsumerTest extends JmsTestSupport {
       final CountDownLatch done2 = new CountDownLatch(1);
       session = connection.createSession(false, ackMode);
       consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            try {
-               TextMessage tm = (TextMessage) m;
-               LOG.info("Got in second listener: " + tm.getText());
-               counter.incrementAndGet();
-               if (counter.get() == 4) {
-                  done2.countDown();
-               }
-            } catch (Throwable e) {
-               LOG.error("unexpected ex onMessage: ", e);
+      consumer.setMessageListener(m -> {
+         try {
+            TextMessage tm = (TextMessage) m;
+            LOG.info("Got in second listener: " + tm.getText());
+            counter.incrementAndGet();
+            if (counter.get() == 4) {
+               done2.countDown();
             }
+         } catch (Throwable e) {
+            LOG.error("unexpected ex onMessage: ", e);
          }
       });
 
@@ -553,13 +526,10 @@ public class JMSConsumerTest extends JmsTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            counter.incrementAndGet();
-            if (counter.get() == 4) {
-               done.countDown();
-            }
+      consumer.setMessageListener(m -> {
+         counter.incrementAndGet();
+         if (counter.get() == 4) {
+            done.countDown();
          }
       });
 
@@ -588,13 +558,10 @@ public class JMSConsumerTest extends JmsTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            counter.incrementAndGet();
-            if (counter.get() == 4) {
-               done.countDown();
-            }
+      consumer.setMessageListener(m -> {
+         counter.incrementAndGet();
+         if (counter.get() == 4) {
+            done.countDown();
          }
       });
 
@@ -909,7 +876,7 @@ public class JMSConsumerTest extends JmsTestSupport {
    private QueueControl createQueueControl(String destName) throws Exception {
       ArtemisBrokerWrapper wrapper = (ArtemisBrokerWrapper) broker.getBroker();
       MBeanServer beanServer = wrapper.getMbeanServer();
-      SimpleString address = new SimpleString(destName);
+      SimpleString address = SimpleString.of(destName);
       ObjectName objName = ObjectNameBuilder.DEFAULT.getQueueObjectName(address, address, RoutingType.ANYCAST);
       return MBeanServerInvocationHandler.newProxyInstance(beanServer, objName, QueueControl.class, false);
    }

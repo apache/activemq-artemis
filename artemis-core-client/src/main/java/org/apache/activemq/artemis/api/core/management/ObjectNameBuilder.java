@@ -23,13 +23,13 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 
 /**
- * Helper class to build ObjectNames for ActiveMQ Artemis resources.
+ * Helper class to build ObjectNames for Apache Artemis resources.
  */
 public final class ObjectNameBuilder {
 
 
    /**
-    * Default JMX domain for ActiveMQ Artemis resources.
+    * Default JMX domain for Apache Artemis resources.
     */
    public static final ObjectNameBuilder DEFAULT = new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "localhost", true);
 
@@ -74,14 +74,14 @@ public final class ObjectNameBuilder {
    }
 
    /**
-    * Returns the ObjectName used by the single {@link ActiveMQServerControl}.
+    * {@return the ObjectName used by the single {@link ActiveMQServerControl}}
     */
    public ObjectName getActiveMQServerObjectName() throws Exception {
       return ObjectName.getInstance(getActiveMQServerName());
    }
 
    /**
-    * Returns the ObjectName used by AddressControl.
+    * {@return the ObjectName used by AddressControl}
     *
     * @see AddressControl
     */
@@ -90,7 +90,7 @@ public final class ObjectNameBuilder {
    }
 
    /**
-    * Returns the ObjectName used by QueueControl.
+    * {@return the ObjectName used by QueueControl}
     *
     * @see QueueControl
     */
@@ -100,16 +100,16 @@ public final class ObjectNameBuilder {
 
 
    /**
-    * Returns the ObjectName used by DivertControl.
+    * {@return the ObjectName used by DivertControl}
     *
     * @see DivertControl
     */
    public ObjectName getDivertObjectName(final String name, String address) throws Exception {
-      return ObjectName.getInstance(String.format("%s,component=addresses,address=%s,subcomponent=diverts,divert=%s", getActiveMQServerName(), ObjectName.quote(address.toString()), ObjectName.quote(name.toString())));
+      return ObjectName.getInstance(String.format("%s,component=addresses,address=%s,subcomponent=diverts,divert=%s", getActiveMQServerName(), ObjectName.quote(address), ObjectName.quote(name)));
    }
 
    /**
-    * Returns the ObjectName used by AcceptorControl.
+    * {@return the ObjectName used by AcceptorControl}
     *
     * @see AcceptorControl
     */
@@ -118,7 +118,7 @@ public final class ObjectNameBuilder {
    }
 
    /**
-    * Returns the ObjectName used by BroadcastGroupControl.
+    * {@return the ObjectName used by BroadcastGroupControl}
     *
     * @see BroadcastGroupControl
     */
@@ -127,7 +127,56 @@ public final class ObjectNameBuilder {
    }
 
    /**
-    * Returns the ObjectName used by BridgeControl.
+    * {@return the ObjectName used by broker connection management objects for outgoing connections}
+    *
+    * @see BrokerConnectionControl
+    */
+   public ObjectName getBrokerConnectionObjectName(String name) throws Exception {
+      return ObjectName.getInstance(getBrokerConnectionBaseObjectNameString(name));
+   }
+
+   /**
+    * Returns the base ObjectName string used by for outgoing broker connections and possibly broker connection services
+    * that are registered by broker connection specific features. This value is pre-quoted and ready for use in an
+    * ObjectName.getIstnace call but is intended for use by broker connection components to create names specific to a
+    * broker connection feature that registers its own object for management.
+    *
+    * @param name The broker connection name
+    * @return the base object name string that is used for broker connection Object names
+    * @see BrokerConnectionControl
+    */
+   public String getBrokerConnectionBaseObjectNameString(String name) throws Exception {
+      return getActiveMQServerName() + ",component=broker-connections,name=" + ObjectName.quote(name);
+   }
+
+   /**
+    * {@return the ObjectName used by remote broker connection management objects for incoming connections}
+    *
+    * @see RemoteBrokerConnectionControl
+    */
+   public ObjectName getRemoteBrokerConnectionObjectName(String nodeId, String name) throws Exception {
+      return ObjectName.getInstance(getRemoteBrokerConnectionBaseObjectNameString(nodeId, name));
+   }
+
+   /**
+    * Returns the base ObjectName string used by for incoming broker connections and possibly broker connection services
+    * that are registered by broker connection specific features. This value is pre-quoted and ready for use in an
+    * ObjectName.getIstnace call but is intended for use by broker connection components to create names specific to a
+    * broker connection feature that registers its own object for management.
+    *
+    * @param nodeId The node ID of the remote broker that initiated the broker connection.
+    * @param name   The broker connection name configured on the initiating broker.
+    * @return the base object name string that is used for broker connection Object names
+    */
+   public String getRemoteBrokerConnectionBaseObjectNameString(String nodeId, String name) throws Exception {
+      return getActiveMQServerName() +
+             ",component=remote-broker-connections" +
+             ",nodeId=" + ObjectName.quote(nodeId) +
+             ",name=" + ObjectName.quote(name);
+   }
+
+   /**
+    * {@return the ObjectName used by BridgeControl}
     *
     * @see BridgeControl
     */
@@ -136,7 +185,7 @@ public final class ObjectNameBuilder {
    }
 
    /**
-    * Returns the ObjectName used by ClusterConnectionControl.
+    * {@return the ObjectName used by ClusterConnectionControl}
     *
     * @see ClusterConnectionControl
     */
@@ -145,7 +194,7 @@ public final class ObjectNameBuilder {
    }
 
    /**
-    * Returns the ObjectName used by ConnectionRouterControl.
+    * {@return the ObjectName used by ConnectionRouterControl}
     *
     * @see ConnectionRouterControl
     */
@@ -161,7 +210,12 @@ public final class ObjectNameBuilder {
       return String.format("%s:broker=%s", domain, (jmxUseBrokerName && brokerName != null) ? ObjectName.quote(brokerName) : "artemis");
    }
 
+   @Deprecated()
    public ObjectName getManagementContextObjectName() throws Exception {
-      return ObjectName.getInstance(String.format("hawtio:type=security,area=jmx,name=ArtemisJMXSecurity"));
+      return getSecurityObjectName();
+   }
+
+   public ObjectName getSecurityObjectName() throws Exception {
+      return ObjectName.getInstance("hawtio:type=security,area=jmx,name=ArtemisJMXSecurity");
    }
 }

@@ -16,8 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.apache.activemq.transport.amqp.AmqpSupport.LIFETIME_POLICY;
-
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -34,10 +33,16 @@ import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.Target;
 import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.apache.activemq.transport.amqp.AmqpSupport.LIFETIME_POLICY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for temporary destination handling over AMQP
@@ -46,12 +51,14 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreateDynamicSenderToTopic() throws Exception {
       doTestCreateDynamicSender(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreateDynamicSenderToQueue() throws Exception {
       doTestCreateDynamicSender(false);
    }
@@ -69,26 +76,30 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
       Target remoteTarget = (Target) sender.getEndpoint().getRemoteTarget();
       assertTrue(remoteTarget.getDynamic());
-      assertTrue(remoteTarget.getDurable().equals(TerminusDurability.NONE));
-      assertTrue(remoteTarget.getExpiryPolicy().equals(TerminusExpiryPolicy.LINK_DETACH));
+      assertEquals(TerminusDurability.NONE, remoteTarget.getDurable());
+      assertEquals(TerminusExpiryPolicy.LINK_DETACH, remoteTarget.getExpiryPolicy());
 
       // Check the dynamic node lifetime-policy
       Map<Symbol, Object> dynamicNodeProperties = remoteTarget.getDynamicNodeProperties();
       assertTrue(dynamicNodeProperties.containsKey(LIFETIME_POLICY));
       assertEquals(DeleteOnClose.getInstance(), dynamicNodeProperties.get(LIFETIME_POLICY));
 
-      Queue queueView = getProxyToQueue(remoteTarget.getAddress());
-      assertNotNull(queueView);
+      assertNotNull(getProxyToAddress(remoteTarget.getAddress()));
+      if (!topic) {
+         assertNotNull(getProxyToQueue(remoteTarget.getAddress()));
+      }
 
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDynamicSenderLifetimeBoundToLinkTopic() throws Exception {
       doTestDynamicSenderLifetimeBoundToLinkQueue(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDynamicSenderLifetimeBoundToLinkQueue() throws Exception {
       doTestDynamicSenderLifetimeBoundToLinkQueue(false);
    }
@@ -104,23 +115,29 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       assertNotNull(sender);
 
       Target remoteTarget = (Target) sender.getEndpoint().getRemoteTarget();
-      Queue queueView = getProxyToQueue(remoteTarget.getAddress());
-      assertNotNull(queueView);
+      assertNotNull(getProxyToAddress(remoteTarget.getAddress()));
+      if (!topic) {
+         assertNotNull(getProxyToQueue(remoteTarget.getAddress()));
+      }
 
       sender.close();
 
-      queueView = getProxyToQueue(remoteTarget.getAddress());
-      assertNull(queueView);
+      assertNull(getProxyToAddress(remoteTarget.getAddress()));
+      if (!topic) {
+         assertNull(getProxyToQueue(remoteTarget.getAddress()));
+      }
 
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreateDynamicReceiverToTopic() throws Exception {
       doTestCreateDynamicSender(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreateDynamicReceiverToQueue() throws Exception {
       doTestCreateDynamicSender(false);
    }
@@ -138,8 +155,8 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
       Source remoteSource = (Source) receiver.getEndpoint().getRemoteSource();
       assertTrue(remoteSource.getDynamic());
-      assertTrue(remoteSource.getDurable().equals(TerminusDurability.NONE));
-      assertTrue(remoteSource.getExpiryPolicy().equals(TerminusExpiryPolicy.LINK_DETACH));
+      assertEquals(TerminusDurability.NONE, remoteSource.getDurable());
+      assertEquals(TerminusExpiryPolicy.LINK_DETACH, remoteSource.getExpiryPolicy());
 
       // Check the dynamic node lifetime-policy
       Map<Symbol, Object> dynamicNodeProperties = remoteSource.getDynamicNodeProperties();
@@ -152,12 +169,14 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDynamicReceiverLifetimeBoundToLinkTopic() throws Exception {
       doTestDynamicReceiverLifetimeBoundToLinkQueue(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDynamicReceiverLifetimeBoundToLinkQueue() throws Exception {
       doTestDynamicReceiverLifetimeBoundToLinkQueue(false);
    }
@@ -184,12 +203,14 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void TestCreateDynamicQueueSenderAndPublish() throws Exception {
       doTestCreateDynamicSenderAndPublish(false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void TestCreateDynamicTopicSenderAndPublish() throws Exception {
       doTestCreateDynamicSenderAndPublish(true);
    }
@@ -205,8 +226,10 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       assertNotNull(sender);
 
       Target remoteTarget = (Target) sender.getEndpoint().getRemoteTarget();
-      Queue queueView = getProxyToQueue(remoteTarget.getAddress());
-      assertNotNull(queueView);
+      assertNotNull(getProxyToAddress(remoteTarget.getAddress()));
+      if (!topic) {
+         assertNotNull(getProxyToQueue(remoteTarget.getAddress()));
+      }
 
       // Get the new address
       String address = sender.getSender().getRemoteTarget().getAddress();
@@ -224,7 +247,7 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       sender.send(message);
 
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
-      assertNotNull("Should have read a message", received);
+      assertNotNull(received, "Should have read a message");
       received.accept();
 
       receiver.close();
@@ -233,12 +256,14 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreateDynamicReceiverToTopicAndSend() throws Exception {
       doTestCreateDynamicSender(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreateDynamicReceiverToQueueAndSend() throws Exception {
       doTestCreateDynamicSender(false);
    }
@@ -272,7 +297,7 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
       receiver.flow(1);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
-      assertNotNull("Should have read a message", received);
+      assertNotNull(received, "Should have read a message");
       received.accept();
 
       sender.close();

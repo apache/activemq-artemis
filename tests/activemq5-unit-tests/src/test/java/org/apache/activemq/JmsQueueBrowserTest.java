@@ -45,8 +45,6 @@ public class JmsQueueBrowserTest extends JmsTestSupport {
    /**
     * Tests the queue browser. Browses the messages then the consumer tries to receive them. The messages should still
     * be in the queue even when it was browsed.
-    *
-    * @throws Exception
     */
    public void testReceiveBrowseReceive() throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

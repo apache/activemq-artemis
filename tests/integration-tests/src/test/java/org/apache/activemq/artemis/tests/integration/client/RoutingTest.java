@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.EnumSet;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -30,25 +34,24 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RoutingTest extends ActiveMQTestBase {
 
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString addressB = new SimpleString("addressB");
-   public final SimpleString queueA = new SimpleString("queueA");
-   public final SimpleString queueB = new SimpleString("queueB");
-   public final SimpleString queueC = new SimpleString("queueC");
-   public final SimpleString queueD = new SimpleString("queueD");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString addressB = SimpleString.of("addressB");
+   public final SimpleString queueA = SimpleString.of("queueA");
+   public final SimpleString queueB = SimpleString.of("queueB");
+   public final SimpleString queueC = SimpleString.of("queueC");
+   public final SimpleString queueD = SimpleString.of("queueD");
 
    private ServerLocator locator;
    private ActiveMQServer server;
    private ClientSessionFactory cf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
@@ -61,9 +64,9 @@ public class RoutingTest extends ActiveMQTestBase {
    @Test
    public void testRouteToMultipleQueues() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
-      sendSession.createQueue(new QueueConfiguration(queueB).setAddress(addressA).setDurable(false));
-      sendSession.createQueue(new QueueConfiguration(queueC).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueB).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueC).setAddress(addressA).setDurable(false));
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
@@ -76,18 +79,18 @@ public class RoutingTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          c2.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          c3.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
-      Assert.assertNull(c1.receiveImmediate());
-      Assert.assertNull(c2.receiveImmediate());
-      Assert.assertNull(c3.receiveImmediate());
+      assertNull(c1.receiveImmediate());
+      assertNull(c2.receiveImmediate());
+      assertNull(c3.receiveImmediate());
       sendSession.close();
       session.close();
    }
@@ -95,7 +98,7 @@ public class RoutingTest extends ActiveMQTestBase {
    @Test
    public void testRouteToSingleNonDurableQueue() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
@@ -106,10 +109,10 @@ public class RoutingTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
-      Assert.assertNull(c1.receiveImmediate());
+      assertNull(c1.receiveImmediate());
       sendSession.close();
       session.close();
    }
@@ -117,7 +120,7 @@ public class RoutingTest extends ActiveMQTestBase {
    @Test
    public void testRouteToSingleDurableQueue() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA));
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
@@ -128,10 +131,10 @@ public class RoutingTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
-      Assert.assertNull(c1.receiveImmediate());
+      assertNull(c1.receiveImmediate());
       sendSession.close();
       session.close();
    }
@@ -139,12 +142,12 @@ public class RoutingTest extends ActiveMQTestBase {
    @Test
    public void testRouteToSingleQueueWithFilter() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setFilterString(new SimpleString("foo = 'bar'")).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setFilterString("foo = 'bar'").setDurable(false));
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
          ClientMessage clientMessage = sendSession.createMessage(false);
-         clientMessage.putStringProperty(new SimpleString("foo"), new SimpleString("bar"));
+         clientMessage.putStringProperty(SimpleString.of("foo"), SimpleString.of("bar"));
          p.send(clientMessage);
       }
       ClientSession session = cf.createSession(false, true, true);
@@ -152,10 +155,10 @@ public class RoutingTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
-      Assert.assertNull(c1.receiveImmediate());
+      assertNull(c1.receiveImmediate());
       sendSession.close();
       session.close();
    }
@@ -163,19 +166,19 @@ public class RoutingTest extends ActiveMQTestBase {
    @Test
    public void testRouteToMultipleQueueWithFilters() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setFilterString(new SimpleString("foo = 'bar'")).setDurable(false));
-      sendSession.createQueue(new QueueConfiguration(queueB).setAddress(addressA).setFilterString(new SimpleString("x = 1")).setDurable(false));
-      sendSession.createQueue(new QueueConfiguration(queueC).setAddress(addressA).setFilterString(new SimpleString("b = false")).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setFilterString("foo = 'bar'").setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueB).setAddress(addressA).setFilterString("x = 1").setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueC).setAddress(addressA).setFilterString("b = false").setDurable(false));
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
          ClientMessage clientMessage = sendSession.createMessage(false);
          if (i % 3 == 0) {
-            clientMessage.putStringProperty(new SimpleString("foo"), new SimpleString("bar"));
+            clientMessage.putStringProperty(SimpleString.of("foo"), SimpleString.of("bar"));
          } else if (i % 3 == 1) {
-            clientMessage.putIntProperty(new SimpleString("x"), 1);
+            clientMessage.putIntProperty(SimpleString.of("x"), 1);
          } else {
-            clientMessage.putBooleanProperty(new SimpleString("b"), false);
+            clientMessage.putBooleanProperty(SimpleString.of("b"), false);
          }
          p.send(clientMessage);
       }
@@ -186,18 +189,18 @@ public class RoutingTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages / 3; i++) {
          ClientMessage m = c1.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          m = c2.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          m = c3.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
-      Assert.assertNull(c1.receiveImmediate());
-      Assert.assertNull(c2.receiveImmediate());
-      Assert.assertNull(c3.receiveImmediate());
+      assertNull(c1.receiveImmediate());
+      assertNull(c2.receiveImmediate());
+      assertNull(c3.receiveImmediate());
       sendSession.close();
       session.close();
    }
@@ -205,7 +208,7 @@ public class RoutingTest extends ActiveMQTestBase {
    @Test
    public void testRouteToSingleTemporaryQueue() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false).setTemporary(true));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false).setTemporary(true));
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
@@ -216,10 +219,10 @@ public class RoutingTest extends ActiveMQTestBase {
       session.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
-      Assert.assertNull(c1.receiveImmediate());
+      assertNull(c1.receiveImmediate());
       sendSession.close();
       session.close();
    }
@@ -229,9 +232,9 @@ public class RoutingTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, true, true);
       EnumSet<RoutingType> routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       sendSession.createAddress(addressA, routingTypes, false);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
-      sendSession.createQueue(new QueueConfiguration(queueB).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
-      sendSession.createQueue(new QueueConfiguration(queueC).setAddress(addressA));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+      sendSession.createQueue(QueueConfiguration.of(queueB).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+      sendSession.createQueue(QueueConfiguration.of(queueC).setAddress(addressA));
       ClientProducer p = sendSession.createProducer(addressA);
       ClientMessage message = sendSession.createMessage(false);
       message.setRoutingType(RoutingType.ANYCAST);
@@ -246,9 +249,9 @@ public class RoutingTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, true, true);
       EnumSet<RoutingType> routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       sendSession.createAddress(addressA, routingTypes, false);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
-      sendSession.createQueue(new QueueConfiguration(queueB).setAddress(addressA));
-      sendSession.createQueue(new QueueConfiguration(queueC).setAddress(addressA));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+      sendSession.createQueue(QueueConfiguration.of(queueB).setAddress(addressA));
+      sendSession.createQueue(QueueConfiguration.of(queueC).setAddress(addressA));
       ClientProducer p = sendSession.createProducer(addressA);
       ClientMessage message = sendSession.createMessage(false);
       message.setRoutingType(RoutingType.MULTICAST);
@@ -263,10 +266,10 @@ public class RoutingTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, true, true);
       EnumSet<RoutingType> routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       sendSession.createAddress(addressA, routingTypes, false);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
-      sendSession.createQueue(new QueueConfiguration(queueB).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
-      sendSession.createQueue(new QueueConfiguration(queueC).setAddress(addressA));
-      sendSession.createQueue(new QueueConfiguration(queueD).setAddress(addressA));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+      sendSession.createQueue(QueueConfiguration.of(queueB).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
+      sendSession.createQueue(QueueConfiguration.of(queueC).setAddress(addressA));
+      sendSession.createQueue(QueueConfiguration.of(queueD).setAddress(addressA));
       ClientProducer p = sendSession.createProducer(addressA);
       ClientMessage message = sendSession.createMessage(false);
       p.send(message);

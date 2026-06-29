@@ -39,17 +39,15 @@ public class Federation {
    private final FederationConfiguration config;
    private FederationManager.State state;
 
-   private final Map<String, FederationConnection> connections = new HashMap<>();
-
    enum State {
       STOPPED,
       STOPPING,
       /**
-       * Deployed means {@link FederationManager#deploy()} was called but
-       * {@link FederationManager#start()} was not called.
+       * Deployed means {@link FederationManager#deploy()} was called but {@link FederationManager#start()} was not
+       * called.
        * <p>
-       * We need the distinction if {@link FederationManager#stop()} is called before 'start'. As
-       * otherwise we would leak locators.
+       * We need the distinction if {@link FederationManager#stop()} is called before 'start'. As otherwise we would
+       * leak locators.
        */
       DEPLOYED, STARTED,
    }
@@ -59,11 +57,13 @@ public class Federation {
       this.server = server;
       this.config = config;
       Objects.requireNonNull(config.getName());
-      this.name = SimpleString.toSimpleString(config.getName());
+      this.name = SimpleString.of(config.getName());
    }
 
    public synchronized void start() throws ActiveMQException {
-      if (state == FederationManager.State.STARTED) return;
+      if (state == FederationManager.State.STARTED) {
+         return;
+      }
       deploy();
       for (FederationUpstream connection : upstreams.values()) {
          connection.start();
@@ -75,7 +75,9 @@ public class Federation {
    }
 
    public synchronized void stop() {
-      if (state == FederationManager.State.STOPPED) return;
+      if (state == FederationManager.State.STOPPED) {
+         return;
+      }
       state = FederationManager.State.STOPPING;
 
       for (FederationUpstream connection : upstreams.values()) {

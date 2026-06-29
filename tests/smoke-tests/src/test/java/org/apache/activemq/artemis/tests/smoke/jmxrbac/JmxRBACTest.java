@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.smoke.jmxrbac;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
@@ -23,6 +26,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import java.io.File;
 import java.util.Collections;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -34,9 +38,10 @@ import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JmxRBACTest extends SmokeTestBase {
    // This test will use a smoke created by the pom on this project (smoke-tsts)
@@ -53,7 +58,22 @@ public class JmxRBACTest extends SmokeTestBase {
 
    public static final String ADDRESS_TEST = "TEST";
 
-   @Before
+   @BeforeAll
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(false).setNoWeb(true).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/jmx-rbac").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.createServer();
+      }
+   }
+
+
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       disableCheckThread();
@@ -63,8 +83,6 @@ public class JmxRBACTest extends SmokeTestBase {
 
    @Test
    public void testManagementRoleAccess() throws Exception {
-      // Without this, the RMI server would bind to the default interface IP (the user's local IP mostly)
-      System.setProperty("java.rmi.server.hostname", JMX_SERVER_HOSTNAME);
 
       // I don't specify both ports here manually on purpose. See actual RMI registry connection port extraction below.
       String urlString = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT + "/jmxrmi";
@@ -80,7 +98,7 @@ public class JmxRBACTest extends SmokeTestBase {
       } catch (Exception e) {
          jmxConnector = null;
          e.printStackTrace();
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
 
       try {
@@ -100,9 +118,9 @@ public class JmxRBACTest extends SmokeTestBase {
 
          try {
             mBeanServerConnection.invoke(memoryObjectName, "gc", null, null);
-            Assert.fail(SERVER_ADMIN + " should not access to " + memoryObjectName);
+            fail(SERVER_ADMIN + " should not access to " + memoryObjectName);
          } catch (Exception e) {
-            Assert.assertEquals(SecurityException.class, e.getClass());
+            assertEquals(SecurityException.class, e.getClass());
          }
       } finally {
          jmxConnector.close();
@@ -116,7 +134,7 @@ public class JmxRBACTest extends SmokeTestBase {
       } catch (Exception e) {
          jmxConnector = null;
          e.printStackTrace();
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
 
 
@@ -130,9 +148,9 @@ public class JmxRBACTest extends SmokeTestBase {
 
          try {
             activeMQServerControl.getVersion();
-            Assert.fail(SERVER_USER + " should not access to " + objectNameBuilder.getActiveMQServerObjectName());
+            fail(SERVER_USER + " should not access to " + objectNameBuilder.getActiveMQServerObjectName());
          } catch (Exception e) {
-            Assert.assertEquals(SecurityException.class, e.getClass());
+            assertEquals(SecurityException.class, e.getClass());
          }
       } finally {
          jmxConnector.close();
@@ -141,8 +159,6 @@ public class JmxRBACTest extends SmokeTestBase {
 
    @Test
    public void testSendMessageWithoutUserAndPassword() throws Exception {
-      // Without this, the RMI server would bind to the default interface IP (the user's local IP mostly)
-      System.setProperty("java.rmi.server.hostname", JMX_SERVER_HOSTNAME);
 
       // I don't specify both ports here manually on purpose. See actual RMI registry connection port extraction below.
       String urlString = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT + "/jmxrmi";
@@ -158,7 +174,7 @@ public class JmxRBACTest extends SmokeTestBase {
       } catch (Exception e) {
          jmxConnector = null;
          e.printStackTrace();
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
 
       try {
@@ -167,7 +183,7 @@ public class JmxRBACTest extends SmokeTestBase {
          ActiveMQServerControl activeMQServerControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
 
          activeMQServerControl.createAddress(ADDRESS_TEST, RoutingType.MULTICAST.name());
-         AddressControl testAddressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(SimpleString.toSimpleString(ADDRESS_TEST)), AddressControl.class, false);
+         AddressControl testAddressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(SimpleString.of(ADDRESS_TEST)), AddressControl.class, false);
 
          testAddressControl.sendMessage(null, Message.TEXT_TYPE, ADDRESS_TEST, true, null, null);
 
@@ -189,19 +205,19 @@ public class JmxRBACTest extends SmokeTestBase {
       } catch (Exception e) {
          jmxConnector = null;
          e.printStackTrace();
-         Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
 
       try {
          MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
          ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), BROKER_NAME, true);
-         AddressControl testAddressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(SimpleString.toSimpleString("TEST")), AddressControl.class, false);
+         AddressControl testAddressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(SimpleString.of("TEST")), AddressControl.class, false);
 
          try {
             testAddressControl.sendMessage(null, Message.TEXT_TYPE, ADDRESS_TEST, true, null, null);
-            Assert.fail(SERVER_USER + " should not have permissions to send a message to the address " + ADDRESS_TEST);
+            fail(SERVER_USER + " should not have permissions to send a message to the address " + ADDRESS_TEST);
          } catch (Exception e) {
-            Assert.assertEquals(SecurityException.class, e.getClass());
+            assertEquals(SecurityException.class, e.getClass());
          }
       } finally {
          jmxConnector.close();

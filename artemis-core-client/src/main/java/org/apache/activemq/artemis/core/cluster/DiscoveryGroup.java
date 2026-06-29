@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.cluster;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,15 +39,16 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
  * This class is used to search for members on the cluster through the opaque interface {@link BroadcastEndpoint}.
- *
+ * <p>
  * There are two current implementations, and that's probably all we will ever need.
- *
+ * <p>
  * We will probably keep both interfaces for a while as UDP is a simple solution requiring no extra dependencies which
  * is suitable for users looking for embedded solutions.
  */
@@ -80,24 +80,21 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
    private final NotificationService notificationService;
 
+   private final long stoppingTimeout;
+
    /**
     * This is the main constructor, intended to be used
-    *
-    * @param nodeID
-    * @param name
-    * @param timeout
-    * @param endpointFactory
-    * @param service
-    * @throws Exception
     */
    public DiscoveryGroup(final String nodeID,
                          final String name,
                          final long timeout,
+                         final long stoppingTimeout,
                          BroadcastEndpointFactory endpointFactory,
                          NotificationService service) throws Exception {
       this.nodeID = nodeID;
       this.name = name;
       this.timeout = timeout;
+      this.stoppingTimeout = stoppingTimeout;
       this.endpoint = endpointFactory.createBroadcastEndpoint();
       this.notificationService = service;
    }
@@ -114,12 +111,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
       started = true;
 
-      ThreadFactory tfactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-         @Override
-         public ThreadFactory run() {
-            return new ActiveMQThreadFactory("DiscoveryGroup-" + System.identityHashCode(this), "activemq-discovery-group-thread-" + name, true, DiscoveryGroup.class.getClassLoader());
-         }
-      });
+      ThreadFactory tfactory = SecurityManagerShim.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("discovery-group-" + name, true, DiscoveryGroup.class.getClassLoader()));
 
       thread = tfactory.newThread(new DiscoveryRunnable());
 
@@ -130,7 +122,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
 
-         props.putSimpleStringProperty(new SimpleString("name"), new SimpleString(name));
+         props.putSimpleStringProperty(SimpleString.of("name"), SimpleString.of(name));
 
          Notification notification = new Notification(nodeID, CoreNotificationType.DISCOVERY_GROUP_STARTED, props);
 
@@ -139,8 +131,8 @@ public final class DiscoveryGroup implements ActiveMQComponent {
    }
 
    /**
-    * This will start the DiscoveryRunnable and run it directly.
-    * This is useful for a test process where we need this execution blocking a thread.
+    * This will start the DiscoveryRunnable and run it directly. This is useful for a test process where we need this
+    * execution blocking a thread.
     */
    public void internalRunning() throws Exception {
       endpoint.openClient();
@@ -177,7 +169,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
       try {
          if (thread != null) {
             thread.interrupt();
-            thread.join(10000);
+            thread.join(stoppingTimeout);
             if (thread.isAlive()) {
                ActiveMQClientLogger.LOGGER.timedOutStoppingDiscovery();
             }
@@ -191,7 +183,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), new SimpleString(name));
+         props.putSimpleStringProperty(SimpleString.of("name"), SimpleString.of(name));
          Notification notification = new Notification(nodeID, CoreNotificationType.DISCOVERY_GROUP_STOPPED, props);
          try {
             notificationService.sendNotification(notification);

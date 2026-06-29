@@ -47,11 +47,15 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
    // the journal record id that is holding the current value
    private long recordID = -1;
 
-   /** while we rebuild the counters, we will use the recordedValues */
+   /**
+    * while we rebuild the counters, we will use the recordedValues
+    */
    private volatile long recordedValue = -1;
    private static final AtomicLongFieldUpdater<PageSubscriptionCounterImpl> recordedValueUpdater = AtomicLongFieldUpdater.newUpdater(PageSubscriptionCounterImpl.class, "recordedValue");
 
-   /** while we rebuild the counters, we will use the recordedValues */
+   /**
+    * while we rebuild the counters, we will use the recordedValues
+    */
    private volatile long recordedSize = -1;
    private static final AtomicLongFieldUpdater<PageSubscriptionCounterImpl> recordedSizeUpdater = AtomicLongFieldUpdater.newUpdater(PageSubscriptionCounterImpl.class, "recordedSize");
 
@@ -156,9 +160,6 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
 
    /**
     * This method will install the TXs
-    *
-    * @param tx
-    * @param add
     */
    @Override
    public void applyIncrementOnTX(Transaction tx, int add, long size) {
@@ -183,10 +184,10 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
       recordedSizeUpdater.set(this, size);
       valueUpdater.set(this, value);
       persistentSizeUpdater.set(this, size);
-      addedUpdater.set(this, size);
+      addedUpdater.set(this, value);
    }
 
-   private void process(int add, long size) {
+   private void process(final int add, final long size) {
       if (logger.isTraceEnabled()) {
          logger.trace("process subscription={} add={}, size={}", subscriptionID, add, size);
       }
@@ -203,7 +204,7 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
       }
 
       if (isRebuilding()) {
-         recordedValueUpdater.addAndGet(this, value);
+         recordedValueUpdater.addAndGet(this, add);
          recordedSizeUpdater.addAndGet(this, size);
       }
    }
@@ -247,6 +248,9 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
       try (ArtemisCloseable lock = storage.closeableReadLock()) {
          synchronized (this) {
             if (recordID >= 0) {
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Deleting page counter with recordID={}, using TX={}", this.recordID, tx.getID());
+               }
                storage.deletePageCounter(tx.getID(), this.recordID);
                tx.setContainsPersistent();
             }
@@ -399,32 +403,21 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
       private volatile int count;
       private volatile long persistentSize;
 
-      /**
-       * @param id
-       * @param count
-       * @param persistentSize
-       */
       PendingCounter(long id, int count, long persistentSize) {
          super();
          this.id = id;
          this.count = count;
          this.persistentSize = persistentSize;
       }
-      /**
-       * @return the id
-       */
+
       public long getId() {
          return id;
       }
-      /**
-       * @return the count
-       */
+
       public int getCount() {
          return count;
       }
-      /**
-       * @return the size
-       */
+
       public long getPersistentSize() {
          return persistentSize;
       }

@@ -30,8 +30,7 @@ public class UpdatableIterator<E> implements ResettableIterator<E>, RepeatableIt
    }
 
    /**
-    * This can be called by another thread.
-    * It sets a new iterator, that will be picked up on the next reset.
+    * This can be called by another thread. It sets a new iterator, that will be picked up on the next reset.
     *
     * @param iterator the new iterator to update to.
     */
@@ -46,12 +45,12 @@ public class UpdatableIterator<E> implements ResettableIterator<E>, RepeatableIt
     */
 
    /**
-    * When reset is called, then if a new iterator has been provided by another thread via update method,
-    * then we switch over to using the new iterator.
-    *
-    * It is important that on nulling off the changedIterator, we atomically compare and set as the
-    * changedIterator could be further updated by another thread whilst we are resetting,
-    * the subsequent update simply would be picked up on the next reset.
+    * When reset is called, then if a new iterator has been provided by another thread via update method, then we switch
+    * over to using the new iterator.
+    * <p>
+    * It is important that on nulling off the changedIterator, we atomically compare and set as the changedIterator
+    * could be further updated by another thread whilst we are resetting, the subsequent update simply would be picked
+    * up on the next reset.
     */
    @Override
    public void reset() {

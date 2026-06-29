@@ -12,44 +12,37 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq</groupId>
+      <groupId>org.apache.artemis</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>2.31.0-SNAPSHOT</version>
+      <version>2.56.0-SNAPSHOT</version>
+      <relativePath>../artemis-pom/pom.xml</relativePath>
    </parent>
 
    <artifactId>artemis-jms-client-osgi</artifactId>
    <packaging>bundle</packaging>
-   <name>ActiveMQ Artemis JMS Client OSGi</name>
+   <name>Apache Artemis JMS Client OSGi</name>
 
    <description>
       Combines the commons, jms-client and core-client as they contain too many duplicate packages
       to be deployed separately.
    </description>
 
-   <properties>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
-   </properties>
-
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-selector</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-jms-client</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <!-- logging -->
       <dependency>
@@ -58,7 +51,7 @@
       </dependency>
       <dependency>
          <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-slf4j-impl</artifactId>
+         <artifactId>log4j-slf4j2-impl</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -81,9 +74,11 @@
             <extensions>true</extensions>
             <configuration>
                <instructions>
-                  <Embed-Dependency>*;scope=compile|runtime;groupId=org.apache.activemq</Embed-Dependency>
+                  <Bundle-SymbolicName>org.apache.activemq.artemis-jms-client-osgi</Bundle-SymbolicName>
+                  <Embed-Dependency>*;scope=compile|runtime;groupId=org.apache.artemis</Embed-Dependency>
                   <Import-Package>
                      org.glassfish.json*;resolution:=optional,
+                     de.dentrassi.crypto.pem;resolution:=optional,
                      io.netty.buffer;io.netty.*;version="[4.1,5)",
                      *
                   </Import-Package>

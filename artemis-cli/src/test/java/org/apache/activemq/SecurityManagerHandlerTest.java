@@ -19,7 +19,7 @@ package org.apache.activemq;
 import org.apache.activemq.artemis.cli.factory.security.SecurityManagerHandler;
 import org.apache.activemq.artemis.dto.SecurityManagerDTO;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SecurityManagerHandlerTest {
 

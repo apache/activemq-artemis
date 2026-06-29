@@ -32,10 +32,15 @@ import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-@SuppressWarnings("deprecation")
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class StompWithClientIdValidationTest extends StompTestBase {
+
+   public StompWithClientIdValidationTest() {
+      super("tcp+v10.stomp");
+   }
 
    @Override
    public boolean isSecurityEnabled() {
@@ -62,10 +67,8 @@ public class StompWithClientIdValidationTest extends StompTestBase {
 
             if ("STOMP".equals(remotingConnection.getProtocolName())) {
                final String clientId = remotingConnection.getClientID();
-               /*
-                * perform some kind of clientId validation, e.g. check presence or format
-                */
-               if (clientId == null || clientId.length() == 0) {
+               // perform some kind of clientId validation, e.g. check presence or format
+               if (clientId == null || clientId.isEmpty()) {
                   System.err.println("ClientID not set!");
                   return null;
                }

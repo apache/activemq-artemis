@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -32,8 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MixRoutingTest extends SingleServerTestBase {
 
@@ -44,8 +47,8 @@ public class MixRoutingTest extends SingleServerTestBase {
 
    @Test
    public void testMix() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(getName());
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      SimpleString queueName = SimpleString.of(getName());
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
       Connection connection = factory.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -74,29 +77,28 @@ public class MixRoutingTest extends SingleServerTestBase {
       for (int i = 0; i < NMESSAGES; i++) {
          TextMessage tmpMessage = (TextMessage) consumerTemp.receive(5000);
          TextMessage permanent = (TextMessage) consumerQueue.receive(5000);
-         Assert.assertNotNull(tmpMessage);
-         Assert.assertNotNull(permanent);
-         Assert.assertEquals("tmp", tmpMessage.getText());
-         Assert.assertEquals("permanent", permanent.getText());
-         Assert.assertEquals(i, tmpMessage.getIntProperty("i"));
-         Assert.assertEquals(i, permanent.getIntProperty("i"));
+         assertNotNull(tmpMessage);
+         assertNotNull(permanent);
+         assertEquals("tmp", tmpMessage.getText());
+         assertEquals("permanent", permanent.getText());
+         assertEquals(i, tmpMessage.getIntProperty("i"));
+         assertEquals(i, permanent.getIntProperty("i"));
       }
 
-      Assert.assertNull(consumerQueue.receiveNoWait());
-      Assert.assertNull(consumerTemp.receiveNoWait());
+      assertNull(consumerQueue.receiveNoWait());
+      assertNull(consumerTemp.receiveNoWait());
       connection.close();
       factory.close();
    }
 
    @Test
    public void testMix2() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(getName());
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST));
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
       Connection connection = factory.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      Queue queue = session.createQueue(queueName.toString());
+      Queue queue = session.createQueue(getName());
 
       MessageProducer prodQueue = session.createProducer(queue);
 
@@ -124,27 +126,27 @@ public class MixRoutingTest extends SingleServerTestBase {
       for (int i = 0; i < NMESSAGES; i++) {
          TextMessage tmpMessage = (TextMessage) consumerTemp.receive(5000);
          TextMessage permanent = (TextMessage) consumerQueue.receive(5000);
-         Assert.assertNotNull(tmpMessage);
-         Assert.assertNotNull(permanent);
-         Assert.assertEquals("tmp", tmpMessage.getText());
-         Assert.assertEquals("permanent", permanent.getText());
-         Assert.assertEquals(i, tmpMessage.getIntProperty("i"));
-         Assert.assertEquals(i, permanent.getIntProperty("i"));
+         assertNotNull(tmpMessage);
+         assertNotNull(permanent);
+         assertEquals("tmp", tmpMessage.getText());
+         assertEquals("permanent", permanent.getText());
+         assertEquals(i, tmpMessage.getIntProperty("i"));
+         assertEquals(i, permanent.getIntProperty("i"));
       }
 
-      Assert.assertNull(consumerQueue.receiveNoWait());
-      Assert.assertNull(consumerTemp.receiveNoWait());
+      assertNull(consumerQueue.receiveNoWait());
+      assertNull(consumerTemp.receiveNoWait());
       connection.close();
       factory.close();
    }
 
    @Test
    public void testMixWithTopics() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(getName());
-      SimpleString topicName = SimpleString.toSimpleString("topic" + getName());
+      SimpleString queueName = SimpleString.of(getName());
+      SimpleString topicName = SimpleString.of("topic" + getName());
       AddressInfo info = new AddressInfo(topicName, RoutingType.MULTICAST);
       server.addAddressInfo(info);
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
       Connection connection = factory.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -171,12 +173,12 @@ public class MixRoutingTest extends SingleServerTestBase {
 
       for (int i = 0; i < NMESSAGES; i++) {
          TextMessage permanent = (TextMessage) consumerQueue.receive(5000);
-         Assert.assertNotNull(permanent);
-         Assert.assertEquals("permanent", permanent.getText());
-         Assert.assertEquals(i, permanent.getIntProperty("i"));
+         assertNotNull(permanent);
+         assertEquals("permanent", permanent.getText());
+         assertEquals(i, permanent.getIntProperty("i"));
       }
 
-      Assert.assertNull(consumerQueue.receiveNoWait());
+      assertNull(consumerQueue.receiveNoWait());
       connection.close();
       factory.close();
    }

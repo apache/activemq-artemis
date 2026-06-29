@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -33,20 +39,21 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.tests.integration.server.FakeStorageManager;
-import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
+import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes.FakeQueue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 public class ManagementServiceImplTest extends ActiveMQTestBase {
 
    @Test
    public void testHandleManagementMessageWithOperation() throws Exception {
-      String queue = RandomUtil.randomString();
-      String address = RandomUtil.randomString();
+      String queue = RandomUtil.randomUUIDString();
+      String address = RandomUtil.randomUUIDString();
 
       Configuration config = createBasicConfig().setJMXManagementEnabled(false);
 
@@ -57,9 +64,9 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       CoreMessage message = new CoreMessage(1, 100);
       ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "createQueue", queue, address);
 
-      Message reply = server.getManagementService().handleMessage(message);
+      Message reply = server.getManagementService().handleMessage(null, message);
 
-      Assert.assertTrue(ManagementHelper.hasOperationSucceeded(reply));
+      assertTrue(ManagementHelper.hasOperationSucceeded(reply));
    }
 
    @Test
@@ -73,10 +80,10 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       CoreMessage message = new CoreMessage(1, 100);
       ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "thereIsNoSuchOperation");
 
-      ICoreMessage reply = server.getManagementService().handleMessage(message);
+      ICoreMessage reply = server.getManagementService().handleMessage(null, message);
 
-      Assert.assertFalse(ManagementHelper.hasOperationSucceeded(reply));
-      Assert.assertNotNull(ManagementHelper.getResult(reply));
+      assertFalse(ManagementHelper.hasOperationSucceeded(reply));
+      assertNotNull(ManagementHelper.getResult(reply));
    }
 
    @Test
@@ -90,10 +97,10 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       ICoreMessage message = new CoreMessage(1, 100);
       ManagementHelper.putOperationInvocation(message, "Resouce.Does.Not.Exist", "toString");
 
-      ICoreMessage reply = server.getManagementService().handleMessage(message);
+      ICoreMessage reply = server.getManagementService().handleMessage(null, message);
 
-      Assert.assertFalse(ManagementHelper.hasOperationSucceeded(reply));
-      Assert.assertNotNull(ManagementHelper.getResult(reply));
+      assertFalse(ManagementHelper.hasOperationSucceeded(reply));
+      assertNotNull(ManagementHelper.getResult(reply));
    }
 
    @Test
@@ -108,10 +115,10 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
       ManagementHelper.putAttribute(message, ResourceNames.BROKER, "started");
 
-      ICoreMessage reply = server.getManagementService().handleMessage(message);
+      ICoreMessage reply = server.getManagementService().handleMessage(null, message);
 
-      Assert.assertTrue(ManagementHelper.hasOperationSucceeded(reply));
-      Assert.assertTrue((Boolean) ManagementHelper.getResult(reply));
+      assertTrue(ManagementHelper.hasOperationSucceeded(reply));
+      assertTrue((Boolean) ManagementHelper.getResult(reply));
    }
 
    @Test
@@ -126,10 +133,10 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
       ManagementHelper.putAttribute(message, ResourceNames.BROKER, "attribute.Does.Not.Exist");
 
-      ICoreMessage reply = server.getManagementService().handleMessage(message);
+      ICoreMessage reply = server.getManagementService().handleMessage(null, message);
 
-      Assert.assertFalse(ManagementHelper.hasOperationSucceeded(reply));
-      Assert.assertNotNull(ManagementHelper.getResult(reply));
+      assertFalse(ManagementHelper.hasOperationSucceeded(reply));
+      assertNotNull(ManagementHelper.getResult(reply));
    }
 
    @Test
@@ -138,28 +145,30 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       ManagementServiceImpl managementService = new ManagementServiceImpl(null, config);
       managementService.setStorageManager(new NullStorageManager());
 
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       managementService.registerAddress(new AddressInfo(address));
-      Queue queue = new FakeQueue(RandomUtil.randomSimpleString());
-      managementService.registerQueue(queue, RandomUtil.randomSimpleString(), new FakeStorageManager());
+      Queue queue = new FakeQueue(RandomUtil.randomUUIDSimpleString());
+      managementService.registerQueue(queue, RandomUtil.randomUUIDSimpleString(), new FakeStorageManager());
 
-      Object[] addresses = managementService.getResources(AddressControl.class);
-      Assert.assertEquals(1, addresses.length);
-      Assert.assertTrue(addresses[0] instanceof AddressControl);
-      AddressControl addressControl = (AddressControl) addresses[0];
-      Assert.assertEquals(address.toString(), addressControl.getAddress());
+      List<AddressControl> addresses = managementService.getAddressControls();
+      assertEquals(1, addresses.size());
+      assertInstanceOf(AddressControl.class, addresses.get(0));
+      AddressControl addressControl = addresses.get(0);
+      assertEquals(address.toString(), addressControl.getAddress());
+      assertEquals(1, managementService.getAddressControlCount());
 
-      Object[] queues = managementService.getResources(QueueControl.class);
-      Assert.assertEquals(1, queues.length);
-      Assert.assertTrue(queues[0] instanceof QueueControl);
-      QueueControl queueControl = (QueueControl) queues[0];
-      Assert.assertEquals(queue.getName().toString(), queueControl.getName());
+      List<QueueControl> queues = managementService.getQueueControls();
+      assertEquals(1, queues.size());
+      assertInstanceOf(QueueControl.class, queues.get(0));
+      QueueControl queueControl = queues.get(0);
+      assertEquals(queue.getName().toString(), queueControl.getName());
+      assertEquals(1, managementService.getQueueControlCount());
    }
 
    @Test
    public void testCorrelateResponseByCorrelationID() throws Exception {
-      String queue = RandomUtil.randomString();
-      String address = RandomUtil.randomString();
+      String queue = RandomUtil.randomUUIDString();
+      String address = RandomUtil.randomUUIDString();
       String correlationID = UUIDGenerator.getInstance().generateStringUUID();
 
       Configuration config = createBasicConfig().setJMXManagementEnabled(false);
@@ -172,16 +181,16 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       MessageUtil.setJMSCorrelationID(message, correlationID);
       ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "createQueue", queue, address);
 
-      Message reply = server.getManagementService().handleMessage(message);
-      Assert.assertTrue(ManagementHelper.hasOperationSucceeded(reply));
-      Assert.assertEquals(correlationID, MessageUtil.getJMSCorrelationID(reply));
+      Message reply = server.getManagementService().handleMessage(null, message);
+      assertTrue(ManagementHelper.hasOperationSucceeded(reply));
+      assertEquals(correlationID, MessageUtil.getJMSCorrelationID(reply));
    }
 
    @Test
    public void testCorrelateResponseByMessageID() throws Exception {
-      String queue = RandomUtil.randomString();
-      String address = RandomUtil.randomString();
-      UUID messageId =  UUIDGenerator.getInstance().generateUUID();
+      String queue = RandomUtil.randomUUIDString();
+      String address = RandomUtil.randomUUIDString();
+      UUID messageId = UUIDGenerator.getInstance().generateUUID();
 
       Configuration config = createBasicConfig().setJMXManagementEnabled(false);
 
@@ -193,9 +202,9 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       message.setUserID(messageId);
       ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "createQueue", queue, address);
 
-      Message reply = server.getManagementService().handleMessage(message);
-      Assert.assertTrue(ManagementHelper.hasOperationSucceeded(reply));
-      Assert.assertEquals(messageId.toString(), MessageUtil.getJMSCorrelationID(reply));
+      Message reply = server.getManagementService().handleMessage(null, message);
+      assertTrue(ManagementHelper.hasOperationSucceeded(reply));
+      assertEquals(messageId.toString(), MessageUtil.getJMSCorrelationID(reply));
    }
 
 

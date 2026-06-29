@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -26,8 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -36,9 +38,9 @@ public class ConsumerRoundRobinTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public final SimpleString addressA = new SimpleString("addressA");
+   public final SimpleString addressA = SimpleString.of("addressA");
 
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString queueA = SimpleString.of("queueA");
 
    @Test
    public void testConsumersRoundRobinCorrectly() throws Exception {
@@ -47,7 +49,7 @@ public class ConsumerRoundRobinTest extends ActiveMQTestBase {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = addClientSession(cf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
 
       ClientConsumer[] consumers = new ClientConsumer[5];
       // start the session before we create the consumers, this is because start is non blocking and we have to
@@ -73,8 +75,8 @@ public class ConsumerRoundRobinTest extends ActiveMQTestBase {
          for (int j = 0; j < 5; j++) {
             logger.debug("j is {}", j);
             ClientMessage cm = consumers[j].receive(5000);
-            Assert.assertNotNull(cm);
-            Assert.assertEquals(currMessage++, cm.getBodyBuffer().readInt());
+            assertNotNull(cm);
+            assertEquals(currMessage++, cm.getBodyBuffer().readInt());
             cm.acknowledge();
          }
       }

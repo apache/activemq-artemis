@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -24,13 +28,15 @@ import javax.jms.Session;
 import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
@@ -49,7 +55,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
       return false;
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testAnycastMessageRoutingExclusivityUsingPrefix() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
@@ -58,17 +65,18 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       ActiveMQServerControl serverControl = server.getActiveMQServerControl();
       serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
-      serverControl.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
-      serverControl.createQueue(new QueueConfiguration(queueB).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
-      serverControl.createQueue(new QueueConfiguration(queueC).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(queueB).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(queueC).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).toJSON());
 
       sendMessages(ANYCAST_PREFIX + addressA, 1);
 
-      Wait.assertEquals(1, () -> (server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
-      Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC))::getMessageCount);
+      Wait.assertEquals(1, () -> (server.locateQueue(SimpleString.of(queueA)).getMessageCount() + server.locateQueue(SimpleString.of(queueB)).getMessageCount()));
+      Wait.assertEquals(0, server.locateQueue(SimpleString.of(queueC))::getMessageCount);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testAnycastMessageRoutingExclusivityUsingProperty() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
@@ -77,17 +85,18 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       ActiveMQServerControl serverControl = server.getActiveMQServerControl();
       serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
-      serverControl.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
-      serverControl.createQueue(new QueueConfiguration(queueB).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
-      serverControl.createQueue(new QueueConfiguration(queueC).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(queueB).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(queueC).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).toJSON());
 
       sendMessages(addressA, 1, RoutingType.ANYCAST);
 
-      Wait.assertEquals(1, () -> (server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
-      Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC))::getMessageCount);
+      Wait.assertEquals(1, () -> (server.locateQueue(SimpleString.of(queueA)).getMessageCount() + server.locateQueue(SimpleString.of(queueB)).getMessageCount()));
+      Wait.assertEquals(0, server.locateQueue(SimpleString.of(queueC))::getMessageCount);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMulticastMessageRoutingExclusivityUsingPrefix() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
@@ -96,17 +105,18 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       ActiveMQServerControl serverControl = server.getActiveMQServerControl();
       serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
-      serverControl.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
-      serverControl.createQueue(new QueueConfiguration(queueB).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).toJSON());
-      serverControl.createQueue(new QueueConfiguration(queueC).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(queueB).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(queueC).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).toJSON());
 
       sendMessages(MULTICAST_PREFIX + addressA, 1);
 
-      Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA))::getMessageCount);
-      Wait.assertEquals(2, () -> (server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
+      Wait.assertEquals(0, server.locateQueue(SimpleString.of(queueA))::getMessageCount);
+      Wait.assertEquals(2, () -> (server.locateQueue(SimpleString.of(queueC)).getMessageCount() + server.locateQueue(SimpleString.of(queueB)).getMessageCount()));
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMulticastMessageRoutingExclusivityUsingProperty() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
@@ -115,36 +125,35 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       ActiveMQServerControl serverControl = server.getActiveMQServerControl();
       serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
-      serverControl.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
-      serverControl.createQueue(new QueueConfiguration(queueB).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).toJSON());
-      serverControl.createQueue(new QueueConfiguration(queueC).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(queueB).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(queueC).setAddress(addressA).setRoutingType(RoutingType.MULTICAST).toJSON());
 
       sendMessages(addressA, 1, RoutingType.MULTICAST);
 
-      Wait.assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA))::getMessageCount);
-      Wait.assertEquals(2, () -> (server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount()));
+      Wait.assertEquals(0, server.locateQueue(SimpleString.of(queueA))::getMessageCount);
+      Wait.assertEquals(2, () -> (server.locateQueue(SimpleString.of(queueC)).getMessageCount() + server.locateQueue(SimpleString.of(queueB)).getMessageCount()));
    }
 
    /**
     * If we have an address configured with both ANYCAST and MULTICAST routing types enabled, we must ensure that any
-    * messages sent specifically to MULTICAST (e.g. JMS TopicProducer) are only delivered to MULTICAST queues (e.g.
-    * i.e. subscription queues) and **NOT** to ANYCAST queues (e.g. JMS Queue).
-    *
-    * @throws Exception
+    * messages sent specifically to MULTICAST (e.g. JMS TopicProducer) are only delivered to MULTICAST queues (e.g. i.e.
+    * subscription queues) and **NOT** to ANYCAST queues (e.g. JMS Queue).
     */
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testRoutingExclusivity() throws Exception {
 
       // Create Address with both ANYCAST and MULTICAST enabled
       String testAddress = "testRoutingExclusivity-mixed-mode";
-      SimpleString ssTestAddress = new SimpleString(testAddress);
+      SimpleString ssTestAddress = SimpleString.of(testAddress);
 
       AddressInfo addressInfo = new AddressInfo(ssTestAddress);
       addressInfo.addRoutingType(RoutingType.MULTICAST);
       addressInfo.addRoutingType(RoutingType.ANYCAST);
 
       server.addAddressInfo(addressInfo);
-      server.createQueue(new QueueConfiguration(ssTestAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ssTestAddress).setRoutingType(RoutingType.ANYCAST));
 
       Connection connection = createConnection(UUIDGenerator.getInstance().generateStringUUID());
 
@@ -169,17 +178,20 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
    }
 
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testAMQPRouteMessageToJMSOpenWire() throws Throwable {
-      testAMQPRouteMessageToJMS(createOpenWireConnection());
+      testAMQPRouteMessageToJMS(createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, true, false));
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testAMQPRouteMessageToJMSAMQP() throws Throwable {
       testAMQPRouteMessageToJMS(createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testAMQPRouteMessageToJMSCore() throws Throwable {
       testAMQPRouteMessageToJMS(createCoreConnection());
    }
@@ -189,7 +201,7 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
       ActiveMQServerControl serverControl = server.getActiveMQServerControl();
       serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
-      serverControl.createQueue(new QueueConfiguration(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
+      serverControl.createQueue(QueueConfiguration.of(addressA).setRoutingType(RoutingType.ANYCAST).toJSON());
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

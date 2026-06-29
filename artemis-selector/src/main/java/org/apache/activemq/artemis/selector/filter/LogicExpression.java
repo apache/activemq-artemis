@@ -21,7 +21,6 @@ import java.util.List;
 
 /**
  * A sequence of expressions, to be combined with OR or AND conjunctions.
- *
  */
 public abstract class LogicExpression implements BooleanExpression {
 
@@ -51,10 +50,7 @@ public abstract class LogicExpression implements BooleanExpression {
    }
 
    /**
-    * Returns the symbol that represents this binary expression.  For example, addition is
-    * represented by "+"
-    *
-    * @return
+    * {@return the symbol that represents this binary expression.  For example, addition is represented by "+"}
     */
    public abstract String getExpressionSymbol();
 
@@ -76,8 +72,7 @@ public abstract class LogicExpression implements BooleanExpression {
    }
 
    public static BooleanExpression createOR(BooleanExpression lvalue, BooleanExpression rvalue) {
-      if (lvalue instanceof ORExpression) {
-         ORExpression orExpression = (ORExpression) lvalue;
+      if (lvalue instanceof ORExpression orExpression) {
          orExpression.addExpression(rvalue);
          return orExpression;
       } else {
@@ -86,10 +81,9 @@ public abstract class LogicExpression implements BooleanExpression {
    }
 
    public static BooleanExpression createAND(BooleanExpression lvalue, BooleanExpression rvalue) {
-      if (lvalue instanceof ANDExpression) {
-         ANDExpression orExpression = (ANDExpression) lvalue;
-         orExpression.addExpression(rvalue);
-         return orExpression;
+      if (lvalue instanceof ANDExpression andExpression) {
+         andExpression.addExpression(rvalue);
+         return andExpression;
       } else {
          return new ANDExpression(lvalue, rvalue);
       }

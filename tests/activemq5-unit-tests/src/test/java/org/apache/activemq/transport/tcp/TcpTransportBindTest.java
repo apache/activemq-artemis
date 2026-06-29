@@ -31,8 +31,6 @@ public class TcpTransportBindTest extends EmbeddedBrokerTestSupport {
 
    /**
     * exercise some server side socket options
-    *
-    * @throws Exception
     */
    @Override
    protected void setUp() throws Exception {

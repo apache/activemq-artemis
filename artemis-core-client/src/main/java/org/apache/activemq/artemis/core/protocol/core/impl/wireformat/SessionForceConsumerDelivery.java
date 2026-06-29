@@ -16,12 +16,11 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-/**
- * A SessionConsumerForceDelivery
- */
 public class SessionForceConsumerDelivery extends PacketImpl {
 
    private long consumerID;
@@ -60,35 +59,31 @@ public class SessionForceConsumerDelivery extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buf = new StringBuffer(super.getPacketString());
-      buf.append(", consumerID=" + consumerID);
-      buf.append(", sequence=" + sequence);
-      return buf.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", consumerID=" + consumerID);
+      sb.append(", sequence=" + sequence);
+      return sb.toString();
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
-      result = prime * result + (int) (sequence ^ (sequence >>> 32));
-      return result;
+      return Objects.hash(super.hashCode(), consumerID, sequence);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionForceConsumerDelivery))
+      }
+      if (!(obj instanceof SessionForceConsumerDelivery other)) {
          return false;
-      SessionForceConsumerDelivery other = (SessionForceConsumerDelivery) obj;
-      if (consumerID != other.consumerID)
-         return false;
-      if (sequence != other.sequence)
-         return false;
-      return true;
+      }
+
+      return consumerID == other.consumerID &&
+             sequence == other.sequence;
    }
 
 }

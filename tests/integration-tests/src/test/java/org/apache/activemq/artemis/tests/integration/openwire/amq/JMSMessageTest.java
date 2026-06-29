@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -32,23 +38,25 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * adapted from: org.apache.activemq.JMSMessageTest
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JMSMessageTest extends BasicOpenWireTest {
 
-   @Parameterized.Parameters(name = "deliveryMode={0} destinationType={1}")
+   @Parameters(name = "deliveryMode={0} destinationType={1}")
    public static Collection<Object[]> getParams() {
-      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE},});
+      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE}});
    }
 
    public int deliveryMode = DeliveryMode.NON_PERSISTENT;
@@ -61,7 +69,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
       this.destinationType = destinationType;
    }
 
-   @Test
+   @TestTemplate
    public void testTextMessage() throws Exception {
 
       // Receive a message with the JMS API
@@ -88,7 +96,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
       assertNull(consumer.receiveNoWait());
    }
 
-   @Test
+   @TestTemplate
    public void testBytesMessageLength() throws Exception {
 
       // Receive a message with the JMS API
@@ -118,7 +126,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
       assertNull(consumer.receiveNoWait());
    }
 
-   @Test
+   @TestTemplate
    public void testObjectMessage() throws Exception {
       // Receive a message with the JMS API
       connection.start();
@@ -143,7 +151,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
       assertNull(consumer.receiveNoWait());
    }
 
-   @Test
+   @TestTemplate
    public void testBytesMessage() throws Exception {
 
       // Receive a message with the JMS API
@@ -176,7 +184,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
       assertNull(consumer.receiveNoWait());
    }
 
-   @Test
+   @TestTemplate
    public void testStreamMessage() throws Exception {
 
       // Receive a message with the JMS API
@@ -219,7 +227,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
       assertNull(consumer.receiveNoWait());
    }
 
-   @Test
+   @TestTemplate
    public void testMapMessage() throws Exception {
 
       // Receive a message with the JMS API
@@ -259,7 +267,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
       private long expiration;
       private int priority;
       private String text;
-      private final HashMap<String, Object> props = new HashMap<>();
+      private final Map<String, Object> props = new HashMap<>();
 
       @Override
       public String getJMSMessageID() throws JMSException {
@@ -509,7 +517,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testForeignMessage() throws Exception {
 
       // Receive a message with the JMS API

@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.spi.core.remoting;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 import java.util.EnumSet;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -78,9 +78,7 @@ public abstract class SessionContext {
    /**
     * it will either reattach or reconnect, preferably reattaching it.
     *
-    * @param newConnection
     * @return true if it was possible to reattach
-    * @throws ActiveMQException
     */
    public abstract boolean reattachOnNewConnection(RemotingConnection newConnection) throws ActiveMQException;
 
@@ -148,10 +146,6 @@ public abstract class SessionContext {
 
    /**
     * it should return the number of credits (or bytes) used to send this packet
-    *
-    * @param msgI
-    * @return
-    * @throws ActiveMQException
     */
    public abstract int sendInitialChunkOnLargeMessage(Message msgI) throws ActiveMQException;
 
@@ -177,17 +171,8 @@ public abstract class SessionContext {
    public abstract SendAcknowledgementHandler getSendAcknowledgementHandler();
 
    /**
-    * Creates a shared queue using the routing type set by the Address.  If the Address supports more than one type of delivery
-    * then the default delivery mode (MULTICAST) is used.
-    *
-    * @param address
-    * @param queueName
-    * @param routingType
-    * @param filterString
-    * @param durable
-    * @param exclusive
-    * @param lastValue
-    * @throws ActiveMQException
+    * Creates a shared queue using the routing type set by the Address.  If the Address supports more than one type of
+    * delivery then the default delivery mode (MULTICAST) is used.
     */
    @Deprecated
    public abstract void createSharedQueue(SimpleString address,
@@ -201,13 +186,8 @@ public abstract class SessionContext {
                                           Boolean lastValue) throws ActiveMQException;
 
    /**
-    * Creates a shared queue using the routing type set by the Address.  If the Address supports more than one type of delivery
-    * then the default delivery mode (MULTICAST) is used.
-    *
-    * @param address
-    * @param queueName
-    * @param queueAttributes
-    * @throws ActiveMQException
+    * Creates a shared queue using the routing type set by the Address.  If the Address supports more than one type of
+    * delivery then the default delivery mode (MULTICAST) is used.
     */
    @Deprecated
    public abstract void createSharedQueue(SimpleString address,
@@ -291,9 +271,6 @@ public abstract class SessionContext {
     * otherwise DLQ won't work.
     * <p>
     * this is because we only ACK after on the RA, We may review this if we always acked earlier.
-    *
-    * @param lastMessageAsDelivered
-    * @throws ActiveMQException
     */
    public abstract void simpleRollback(boolean lastMessageAsDelivered) throws ActiveMQException;
 
@@ -340,12 +317,11 @@ public abstract class SessionContext {
                                                          int ackBatchSize,
                                                          boolean browseOnly,
                                                          Executor executor,
-                                                         Executor flowControlExecutor) throws ActiveMQException;
+                                                         Executor flowControlExecutor,
+                                                         int onMessageCloseTimeout) throws ActiveMQException;
 
    /**
     * Performs a round trip to the server requesting what is the current tx timeout on the session
-    *
-    * @return
     */
    public abstract int recoverSessionTimeout() throws ActiveMQException;
 
@@ -365,7 +341,7 @@ public abstract class SessionContext {
 
    public abstract void restartSession() throws ActiveMQException;
 
-   public abstract void resetMetadata(HashMap<String, String> metaDataToSend);
+   public abstract void resetMetadata(Map<String, String> metaDataToSend);
 
    public abstract int getDefaultConsumerWindowSize(SessionQueueQueryResponseMessage response) throws ActiveMQException;
 
@@ -377,8 +353,8 @@ public abstract class SessionContext {
    public abstract void returnBlocking(ActiveMQException cause);
 
    /**
-    * it will lock the communication channel of the session avoiding anything to come while failover is happening.
-    * It happens on preFailover from ClientSessionImpl
+    * it will lock the communication channel of the session avoiding anything to come while failover is happening. It
+    * happens on preFailover from ClientSessionImpl
     */
    public abstract void lockCommunications();
 

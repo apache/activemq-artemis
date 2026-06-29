@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -31,13 +35,13 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * Validates if a JMS management operations will wait until the server is activated.  If the server is not active
- * then JMS management operations (e.g. create connection factory, create queue, etc.) should be stored in a cache
- * and then executed once the server becomes active.  The normal use-case for this involves a live/backup pair.
+ * Validates if a JMS management operations will wait until the server is activated.  If the server is not active then
+ * JMS management operations (e.g. create connection factory, create queue, etc.) should be stored in a cache and then
+ * executed once the server becomes active.  The normal use-case for this involves a live/backup pair.
  */
 public class ManagementActivationTest extends FailoverTestBase {
 
@@ -58,7 +62,7 @@ public class ManagementActivationTest extends FailoverTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       backupJmsServer = new JMSServerManagerImpl(backupServer.getServer());
@@ -82,9 +86,9 @@ public class ManagementActivationTest extends FailoverTestBase {
          exception = true;
       }
 
-      assertTrue("exception expected", exception);
+      assertTrue(exception, "exception expected");
 
-      liveServer.crash();
+      primaryServer.crash();
 
       long timeout = System.currentTimeMillis() + 5000;
 
@@ -116,9 +120,9 @@ public class ManagementActivationTest extends FailoverTestBase {
          exception = true;
       }
 
-      assertTrue("exception expected", exception);
+      assertTrue(exception, "exception expected");
 
-      liveServer.crash();
+      primaryServer.crash();
 
       long timeout = System.currentTimeMillis() + 5000;
 
@@ -150,9 +154,9 @@ public class ManagementActivationTest extends FailoverTestBase {
          exception = true;
       }
 
-      assertTrue("exception expected", exception);
+      assertTrue(exception, "exception expected");
 
-      liveServer.crash();
+      primaryServer.crash();
 
       long timeout = System.currentTimeMillis() + 5000;
 
@@ -174,10 +178,8 @@ public class ManagementActivationTest extends FailoverTestBase {
    }
 
    /**
-    * Since the back-up server is *not* active the "destroyConnectionFactory" operation should be cached and not run.
-    * If it was run we would receive an exception.  This is for HORNETQ-911.
-    *
-    * @throws Exception
+    * Since the back-up server is *not* active the "destroyConnectionFactory" operation should be cached and not run. If
+    * it was run we would receive an exception.
     */
    @Test
    public void testDestroyConnectionFactory() throws Exception {
@@ -199,10 +201,8 @@ public class ManagementActivationTest extends FailoverTestBase {
    }
 
    /**
-    * Since the back-up server is *not* active the "removeQueueFromJNDI" operation should be cached and not run.
-    * If it was run we would receive an exception.  This is for HORNETQ-911.
-    *
-    * @throws Exception
+    * Since the back-up server is *not* active the "removeQueueFromJNDI" operation should be cached and not run. If it
+    * was run we would receive an exception.
     */
    @Test
    public void testRemoveQueue() throws Exception {
@@ -217,10 +217,8 @@ public class ManagementActivationTest extends FailoverTestBase {
    }
 
    /**
-    * Since the back-up server is *not* active the "removeTopicFromJNDI" operation should be cached and not run.
-    * If it was run we would receive an exception.  This is for HORNETQ-911.
-    *
-    * @throws Exception
+    * Since the back-up server is *not* active the "removeTopicFromJNDI" operation should be cached and not run. If it
+    * was run we would receive an exception.
     */
    @Test
    public void testRemoveTopic() throws Exception {

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -66,10 +68,7 @@ public class ActiveMQExceptionMessage_V2 extends ActiveMQExceptionMessage {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (correlationID ^ (correlationID >>> 32));
-      return result;
+      return super.hashCode() + Objects.hashCode(correlationID);
    }
 
    @Override
@@ -80,13 +79,9 @@ public class ActiveMQExceptionMessage_V2 extends ActiveMQExceptionMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ActiveMQExceptionMessage_V2)) {
+      if (!(obj instanceof ActiveMQExceptionMessage_V2 other)) {
          return false;
       }
-      ActiveMQExceptionMessage_V2 other = (ActiveMQExceptionMessage_V2) obj;
-      if (correlationID != other.correlationID) {
-         return false;
-      }
-      return true;
+      return correlationID == other.correlationID;
    }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -30,6 +32,7 @@ import javax.jms.Session;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -40,9 +43,8 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,14 +68,11 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
    private static final int NUM = 20;
 
-   private final ExceptionListener exceptionListener = new ExceptionListener() {
-      @Override
-      public void onException(final JMSException e) {
-         exceptionLatch.countDown();
-         disconnect();
-         connect();
-         reconnectionLatch.countDown();
-      }
+   private final ExceptionListener exceptionListener = (e) -> {
+      exceptionLatch.countDown();
+      disconnect();
+      connect();
+      reconnectionLatch.countDown();
    };
 
    private Listener listener;
@@ -86,7 +85,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
       ConnectionFactory cf = new ActiveMQConnectionFactory(BROKER_URL);
 
-      Destination dest = (Destination) ActiveMQJMSClient.createQueue(QUEUE_NAME);
+      Destination dest = ActiveMQJMSClient.createQueue(QUEUE_NAME);
       Connection conn = cf.createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer prod = sess.createProducer(dest);
@@ -100,7 +99,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
             conn.close();
             server.stop();
             server.start();
-            cf =  new ActiveMQConnectionFactory(BROKER_URL);
+            cf = new ActiveMQConnectionFactory(BROKER_URL);
             dest = (Destination) ActiveMQJMSClient.createQueue(QUEUE_NAME);
             conn = cf.createConnection();
             sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -111,14 +110,14 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
       conn.close();
 
       boolean gotException = exceptionLatch.await(10, SECONDS);
-      Assert.assertTrue(gotException);
+      assertTrue(gotException);
 
       boolean clientReconnected = reconnectionLatch.await(10, SECONDS);
 
-      Assert.assertTrue("client did not reconnect after server was restarted", clientReconnected);
+      assertTrue(clientReconnected, "client did not reconnect after server was restarted");
 
       boolean gotAllMessages = allMessagesReceived.await(10, SECONDS);
-      Assert.assertTrue(gotAllMessages);
+      assertTrue(gotAllMessages);
 
       connection.close();
 
@@ -127,7 +126,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -135,9 +134,9 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
       Configuration configuration = new ConfigurationImpl();
 
-      configuration.getQueueConfigs().add(new QueueConfiguration(QUEUE_NAME));
+      configuration.getQueueConfigs().add(QueueConfiguration.of(QUEUE_NAME));
 
-      ArrayList<TransportConfiguration> configs = new ArrayList<>();
+      List<TransportConfiguration> configs = new ArrayList<>();
       configs.add(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
       server.start();
 
@@ -179,8 +178,9 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
                cf = new ActiveMQConnectionFactory(BROKER_URL);
                break;
             } catch (Exception e) {
-               if (retries++ > retryLimit)
+               if (retries++ > retryLimit) {
                   throw e;
+               }
                // retry until server is up
                Thread.sleep(100);
             }

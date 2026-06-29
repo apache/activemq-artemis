@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -37,11 +36,12 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ConnectionCreator;
+import org.apache.activemq.artemis.core.remoting.impl.netty.HAProxyMessageEnforcer;
 import org.apache.activemq.artemis.core.remoting.impl.netty.HttpAcceptorHandler;
-import org.apache.activemq.artemis.core.remoting.impl.netty.HttpKeepAliveRunnable;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettySNIHostnameHandler;
@@ -52,6 +52,8 @@ import org.apache.activemq.artemis.core.server.protocol.websocket.WebSocketFrame
 import org.apache.activemq.artemis.core.server.protocol.websocket.WebSocketServerHandler;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.utils.ProxyProtocolUtil;
+import org.apache.activemq.artemis.utils.SocketAddressUtil;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
@@ -63,8 +65,6 @@ public class ProtocolHandler {
    private NettyAcceptor nettyAcceptor;
 
    private ScheduledExecutorService scheduledThreadPool;
-
-   private HttpKeepAliveRunnable httpKeepAliveRunnable;
 
    private final List<String> websocketSubprotocolIds;
 
@@ -89,16 +89,6 @@ public class ProtocolHandler {
 
    public ChannelHandler getProtocolDecoder() {
       return new ProtocolDecoder(true, false);
-   }
-
-   public HttpKeepAliveRunnable getHttpKeepAliveRunnable() {
-      return httpKeepAliveRunnable;
-   }
-
-   public void close() {
-      if (httpKeepAliveRunnable != null) {
-         httpKeepAliveRunnable.close();
-      }
    }
 
    public ProtocolManager getProtocol(String name) {
@@ -130,8 +120,8 @@ public class ProtocolHandler {
          nettySNIHostnameHandler = ctx.pipeline().get(NettySNIHostnameHandler.class);
 
          if (handshakeTimeout > 0) {
-            timeoutFuture = scheduledThreadPool.schedule( () -> {
-               ActiveMQServerLogger.LOGGER.handshakeTimeout(handshakeTimeout, nettyAcceptor.getName(), ctx.channel().remoteAddress().toString());
+            timeoutFuture = scheduledThreadPool.schedule(() -> {
+               ActiveMQServerLogger.LOGGER.handshakeTimeout(handshakeTimeout, nettyAcceptor.getName(), ProxyProtocolUtil.getRemoteAddress(ctx.channel()));
                ctx.channel().close();
             }, handshakeTimeout, TimeUnit.SECONDS);
          }
@@ -148,24 +138,35 @@ public class ProtocolHandler {
 
       @Override
       public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-         if (msg instanceof FullHttpRequest) {
-            FullHttpRequest request = (FullHttpRequest) msg;
-            HttpHeaders headers = request.headers();
+         if (msg instanceof FullHttpRequest httpRequest) {
+            HttpHeaders headers = httpRequest.headers();
             String upgrade = headers.get("upgrade");
+
             if (upgrade != null && upgrade.equalsIgnoreCase("websocket")) {
                int stompMaxFramePayloadLength = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MAX_FRAME_PAYLOAD_LENGTH, -1, nettyAcceptor.getConfiguration());
                if (stompMaxFramePayloadLength != -1) {
-                  ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption(TransportConstants.STOMP_MAX_FRAME_PAYLOAD_LENGTH);
+                  ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption(TransportConstants.STOMP_MAX_FRAME_PAYLOAD_LENGTH, TransportConstants.WEB_SOCKET_MAX_FRAME_PAYLOAD_LENGTH);
                }
                stompMaxFramePayloadLength = stompMaxFramePayloadLength != -1 ? stompMaxFramePayloadLength : TransportConstants.DEFAULT_WEB_SOCKET_MAX_FRAME_PAYLOAD_LENGTH;
+
                int webSocketMaxFramePayloadLength = ConfigurationHelper.getIntProperty(TransportConstants.WEB_SOCKET_MAX_FRAME_PAYLOAD_LENGTH, -1, nettyAcceptor.getConfiguration());
-               String encoderConfigType = ConfigurationHelper.getStringProperty(TransportConstants.WEB_SOCKET_ENCODER_TYPE, TransportConstants.DEFAULT_WEB_SOCKET_ENCODER_TYPE, nettyAcceptor.getConfiguration());
-               ctx.pipeline().addLast("websocket-handler", new WebSocketServerHandler(websocketSubprotocolIds, webSocketMaxFramePayloadLength != -1 ? webSocketMaxFramePayloadLength : stompMaxFramePayloadLength, WebSocketFrameEncoderType.valueOfType(encoderConfigType)));
+               webSocketMaxFramePayloadLength = webSocketMaxFramePayloadLength != -1 ? webSocketMaxFramePayloadLength : stompMaxFramePayloadLength;
+
+               final boolean enableCompression = ConfigurationHelper.getBooleanProperty(
+                  TransportConstants.WEB_SOCKET_COMPRESSION_SUPPORTED, TransportConstants.DEFAULT_WEB_SOCKET_COMPRESSION_SUPPORTED, nettyAcceptor.getConfiguration());
+               final String encoderConfigType = ConfigurationHelper.getStringProperty(
+                  TransportConstants.WEB_SOCKET_ENCODER_TYPE, TransportConstants.DEFAULT_WEB_SOCKET_ENCODER_TYPE, nettyAcceptor.getConfiguration());
+
+               if (enableCompression) {
+                  ctx.pipeline().addLast(new WebSocketServerCompressionHandler());
+               }
+
+               ctx.pipeline().addLast("websocket-handler", new WebSocketServerHandler(websocketSubprotocolIds, webSocketMaxFramePayloadLength, WebSocketFrameEncoderType.valueOfType(encoderConfigType), enableCompression));
                ctx.pipeline().addLast(new ProtocolDecoder(false, false));
                ctx.pipeline().remove(this);
                ctx.pipeline().remove(HTTP_HANDLER);
                ctx.fireChannelRead(msg);
-            } else if (upgrade != null && upgrade.equalsIgnoreCase(NettyConnector.ACTIVEMQ_REMOTING)) { // HORNETQ-1391
+            } else if (upgrade != null && upgrade.equalsIgnoreCase(NettyConnector.ACTIVEMQ_REMOTING)) {
                // Send the response and close the connection if necessary.
                ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN)).addListener(ChannelFutureListener.CLOSE);
             }
@@ -190,9 +191,12 @@ public class ProtocolHandler {
             timeoutFuture = null;
          }
 
-         final int magic1 = in.getUnsignedByte(in.readerIndex());
-         final int magic2 = in.getUnsignedByte(in.readerIndex() + 1);
-         if (http && isHttp(magic1, magic2)) {
+         if (HAProxyMessageEnforcer.isProxyProtocol(in)) {
+            ActiveMQServerLogger.LOGGER.proxyProtocolViolation(SocketAddressUtil.toString(ctx.channel().remoteAddress()), nettyAcceptor.getName(), false, "used");
+            ctx.channel().close();
+         }
+
+         if (http && isHttp(in)) {
             switchToHttp(ctx);
             return;
          }
@@ -200,7 +204,6 @@ public class ProtocolHandler {
          Set<String> protocolSet = protocolMap.keySet();
          if (!protocolSet.isEmpty()) {
             // Use getBytes(...) as this works with direct and heap buffers.
-            // See https://issues.jboss.org/browse/HORNETQ-1406
             byte[] bytes = new byte[8];
             in.getBytes(0, bytes);
 
@@ -228,7 +231,7 @@ public class ProtocolHandler {
 
          ProtocolManager protocolManagerToUse = protocolMap.get(protocolToUse);
          if (protocolManagerToUse == null) {
-            ActiveMQServerLogger.LOGGER.failedToFindProtocolManager(ctx.channel() == null ? null : ctx.channel().remoteAddress() == null ? null : ctx.channel().remoteAddress().toString(), ctx.channel() == null ? null : ctx.channel().localAddress() == null ? null : ctx.channel().localAddress().toString(), protocolToUse, protocolMap.keySet().toString());
+            ActiveMQServerLogger.LOGGER.failedToFindProtocolManager(ctx.channel() == null ? null : ProxyProtocolUtil.getRemoteAddress(ctx.channel()), ctx.channel() == null ? null : SocketAddressUtil.toString(ctx.channel().localAddress()), protocolToUse, protocolMap.keySet().toString());
             return;
          }
          ConnectionCreator channelHandler = nettyAcceptor.createConnectionCreator();
@@ -246,13 +249,15 @@ public class ProtocolHandler {
       @Override
       public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
          try {
-            ActiveMQServerLogger.LOGGER.failureDuringProtocolHandshake(ctx.channel().localAddress(), ctx.channel().remoteAddress(), cause);
+            ActiveMQServerLogger.LOGGER.failureDuringProtocolHandshake(SocketAddressUtil.toString(ctx.channel().localAddress()), ProxyProtocolUtil.getRemoteAddress(ctx.channel()), cause);
          } finally {
             ctx.close();
          }
       }
 
-      private boolean isHttp(int magic1, int magic2) {
+      private boolean isHttp(ByteBuf in) {
+         final int magic1 = in.getUnsignedByte(in.readerIndex());
+         final int magic2 = in.getUnsignedByte(in.readerIndex() + 1);
          return magic1 == 'G' && magic2 == 'E' || // GET
             magic1 == 'P' && magic2 == 'O' || // POST
             magic1 == 'P' && magic2 == 'U' || // PUT
@@ -269,16 +274,8 @@ public class ProtocolHandler {
          p.addLast("http-decoder", new HttpRequestDecoder());
          p.addLast("http-aggregator", new HttpObjectAggregator(Integer.MAX_VALUE));
          p.addLast("http-encoder", new HttpResponseEncoder());
-         //create it lazily if and when we need it
-         if (httpKeepAliveRunnable == null) {
-            long httpServerScanPeriod = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_SERVER_SCAN_PERIOD_PROP_NAME, TransportConstants.DEFAULT_HTTP_SERVER_SCAN_PERIOD, nettyAcceptor.getConfiguration());
-            httpKeepAliveRunnable = new HttpKeepAliveRunnable();
-            Future<?> future = scheduledThreadPool.scheduleAtFixedRate(httpKeepAliveRunnable, httpServerScanPeriod, httpServerScanPeriod, TimeUnit.MILLISECONDS);
-            httpKeepAliveRunnable.setFuture(future);
-         }
-         long httpResponseTime = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_RESPONSE_TIME_PROP_NAME, TransportConstants.DEFAULT_HTTP_RESPONSE_TIME, nettyAcceptor.getConfiguration());
-         HttpAcceptorHandler httpHandler = new HttpAcceptorHandler(httpKeepAliveRunnable, httpResponseTime, ctx.channel());
-         ctx.pipeline().addLast(HTTP_HANDLER, httpHandler);
+         HttpAcceptorHandler httpHandler = new HttpAcceptorHandler(ctx.channel());
+         p.addLast(HTTP_HANDLER, httpHandler);
          p.addLast(new ProtocolDecoder(false, true));
          p.remove(this);
       }

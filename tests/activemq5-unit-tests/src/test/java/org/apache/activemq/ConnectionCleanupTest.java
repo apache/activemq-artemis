@@ -21,9 +21,6 @@ import javax.jms.Session;
 
 import junit.framework.TestCase;
 
-/**
- *
- */
 public class ConnectionCleanupTest extends TestCase {
 
    private ActiveMQConnection connection;
@@ -34,17 +31,11 @@ public class ConnectionCleanupTest extends TestCase {
       connection = (ActiveMQConnection) factory.createConnection();
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       connection.close();
    }
 
-   /**
-    * @throws JMSException
-    */
    public void testChangeClientID() throws JMSException {
 
       connection.setClientID("test");

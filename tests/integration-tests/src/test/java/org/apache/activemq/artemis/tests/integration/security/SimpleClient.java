@@ -41,15 +41,15 @@ final class SimpleClient {
 
          String connectorFactoryClassName = args[0];
 
-         String queueName = RandomUtil.randomString();
-         String messageText = RandomUtil.randomString();
+         String queueName = RandomUtil.randomUUIDString();
+         String messageText = RandomUtil.randomUUIDString();
 
          ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(connectorFactoryClassName)).setReconnectAttempts(1).setInitialConnectAttempts(1);
          try {
             ClientSessionFactory sf = locator.createSessionFactory();
             ClientSession session = sf.createSession(false, true, true);
 
-            session.createQueue(new QueueConfiguration(queueName).setDurable(false));
+            session.createQueue(QueueConfiguration.of(queueName).setDurable(false));
             ClientProducer producer = session.createProducer(queueName);
             ClientConsumer consumer = session.createConsumer(queueName);
 

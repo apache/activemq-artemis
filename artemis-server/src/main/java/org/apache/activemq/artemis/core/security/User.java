@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.security;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 
 public class User {
@@ -30,21 +32,15 @@ public class User {
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof User other)) {
          return false;
       }
 
-      User user1 = (User) o;
-
-      if (!user.equals(user1.user)) {
-         return false;
-      }
-
-      return true;
+      return Objects.equals(user, other.user);
    }
 
    @Override

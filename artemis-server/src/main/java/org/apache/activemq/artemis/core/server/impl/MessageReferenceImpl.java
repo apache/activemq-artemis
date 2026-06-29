@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.Consumer;
 
@@ -33,17 +34,21 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  */
 public class MessageReferenceImpl extends AbstractProtocolReference implements MessageReference, Runnable {
 
-   private static final MessageReferenceComparatorByID idComparator = new MessageReferenceComparatorByID();
+   private static final MessageReferenceComparatorSequence sequenceComparator = new MessageReferenceComparatorSequence();
 
-   public static Comparator<MessageReference> getIDComparator() {
-      return idComparator;
+   public static Comparator<MessageReference> getSequenceComparator() {
+      return sequenceComparator;
    }
 
-   private static class MessageReferenceComparatorByID implements Comparator<MessageReference> {
+   private static class MessageReferenceComparatorSequence implements Comparator<MessageReference> {
 
       @Override
       public int compare(MessageReference o1, MessageReference o2) {
-         long value = o2.getMessage().getMessageID() - o1.getMessage().getMessageID();
+         // ID is assigned to the producer on send via the message store and order can depend on producer interleaving
+         // and transaction completion order.
+         // ID gives a relative producer view order but not a total queue order.
+         // each queue needs to track its own sequence to be able to preserve queue order wit rollback, redelivery and cancel
+         long value = o2.getSequence() - o1.getSequence();
          if (value > 0) {
             return 1;
          } else if (value < 0) {
@@ -100,6 +105,7 @@ public class MessageReferenceImpl extends AbstractProtocolReference implements M
 
       this.queue = queue;
 
+      sequence = other.sequence;
    }
 
    public MessageReferenceImpl(final Message message, final Queue queue) {
@@ -121,7 +127,8 @@ public class MessageReferenceImpl extends AbstractProtocolReference implements M
    }
 
    /**
-    * It will call {@link Consumer#accept(Object)} on {@code this} of the {@link Consumer} registered in {@link #onDelivery(Consumer)}, if any.
+    * It will call {@link Consumer#accept(Object)} on {@code this} of the {@link Consumer} registered in
+    * {@link #onDelivery(Consumer)}, if any.
     */
    @Override
    public void run() {
@@ -135,19 +142,11 @@ public class MessageReferenceImpl extends AbstractProtocolReference implements M
       }
    }
 
-
-
-   /**
-    * @return the persistedCount
-    */
    @Override
    public int getPersistedCount() {
       return persistedCount;
    }
 
-   /**
-    * @param persistedCount the persistedCount to set
-    */
    @Override
    public void setPersistedCount(int persistedCount) {
       this.persistedCount = persistedCount;
@@ -261,10 +260,15 @@ public class MessageReferenceImpl extends AbstractProtocolReference implements M
 
    @Override
    public void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer) throws Exception {
+      acknowledge(tx, reason, consumer, true);
+   }
+
+   @Override
+   public void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer, boolean delivering) throws Exception {
       if (tx == null) {
          getQueue().acknowledge(this, reason, consumer);
       } else {
-         getQueue().acknowledge(tx, this, reason, consumer, true);
+         getQueue().acknowledge(tx, this, reason, consumer, delivering);
       }
    }
 
@@ -321,19 +325,15 @@ public class MessageReferenceImpl extends AbstractProtocolReference implements M
    }
 
    @Override
-   public boolean equals(Object other) {
-      if (this == other) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (other instanceof MessageReferenceImpl) {
-         MessageReferenceImpl reference = (MessageReferenceImpl) other;
-
-         if (this.getMessage().equals(reference.getMessage()))
-            return true;
+      if (!(obj instanceof MessageReferenceImpl other)) {
+         return false;
       }
 
-      return false;
+      return Objects.equals(this.getMessage(), other.getMessage());
    }
 
    @Override

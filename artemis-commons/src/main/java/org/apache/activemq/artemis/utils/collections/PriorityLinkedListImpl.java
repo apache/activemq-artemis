@@ -20,6 +20,7 @@ import java.lang.reflect.Array;
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.function.Supplier;
 
 /**
  * A priority linked list implementation
@@ -39,6 +40,10 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
    private int highestPriority = -1;
 
    private int lastPriority = -1;
+
+   protected void removed(final int level, final E element) {
+      exclusiveIncrementSize(-1);
+   }
 
    public PriorityLinkedListImpl(final int priorities) {
       this(priorities, null);
@@ -96,9 +101,10 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
    }
 
    @Override
-   public void setNodeStore(NodeStore<E> supplier) {
+   public void setNodeStore(Supplier<NodeStore<E>> supplier) {
       for (LinkedList<E> list : levels) {
-         list.setNodeStore(supplier);
+         NodeStore<E> nodeStore = supplier.get();
+         list.setNodeStore(nodeStore);
       }
    }
 
@@ -109,7 +115,7 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
          for (int l = 4; l < levels.length; l++) {
             E removed = levels[l].removeWithID(listID, id);
             if (removed != null) {
-               exclusiveIncrementSize(-1);
+               removed(l, removed);
                return removed;
             }
          }
@@ -118,7 +124,7 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
       for (int l = Math.min(3, levels.length); l >= 0; l--) {
          E removed = levels[l].removeWithID(listID, id);
          if (removed != null) {
-            exclusiveIncrementSize(-1);
+            removed(l, removed);
             return removed;
          }
       }
@@ -155,7 +161,7 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
             e = ll.poll();
 
             if (e != null) {
-               exclusiveIncrementSize(-1);
+               removed(i, e);
 
                if (ll.size() == 0) {
                   if (highestPriority == i) {
@@ -211,6 +217,8 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
 
       private LinkedListIterator<E> lastIter;
 
+      private int lastLevel = -1;
+
       private int resetCount = lastReset;
 
       volatile boolean closed = false;
@@ -233,6 +241,7 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
          if (!closed) {
             closed = true;
             lastIter = null;
+            lastLevel = -1;
 
             for (LinkedListIterator<E> iter : cachedIters) {
                if (iter != null) {
@@ -256,6 +265,7 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
 
          while (index >= 0) {
             lastIter = cachedIters[index];
+            lastLevel = index;
 
             if (lastIter == null) {
                lastIter = cachedIters[index] = levels[index].iterator();
@@ -289,24 +299,25 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
 
       @Override
       public void remove() {
+         removeLastElement();
+      }
+
+      @Override
+      public E removeLastElement() {
          if (lastIter == null) {
             throw new NoSuchElementException();
          }
 
-         lastIter.remove();
+         E returningElement = lastIter.removeLastElement();
 
-         // This next statement would be the equivalent of:
-         // if (index == highestPriority && levels[index].size() == 0)
-         // However we have to keep checking all the previous levels
-         // otherwise we would cache a max that will not exist
-         // what would make us eventually having hasNext() returning false
-         // as a bug
-         // Part of the fix for HORNETQ-705
-         for (int i = index; i >= 0 && levels[index].size() == 0; i--) {
+         // If the last message in the current priority is removed then find the next highest
+         for (int i = index; i >= 0 && levels[i].size() == 0; i--) {
             highestPriority = i;
          }
 
-         exclusiveIncrementSize(-1);
+         removed(lastLevel, returningElement);
+
+         return returningElement;
       }
    }
 }

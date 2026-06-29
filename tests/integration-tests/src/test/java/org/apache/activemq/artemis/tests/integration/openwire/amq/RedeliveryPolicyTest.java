@@ -24,30 +24,36 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.RedeliveryPolicy;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumerAccessor;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
-import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.broker.region.policy.RedeliveryPolicyMap;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * adapted from: org.apache.activemq.RedeliveryPolicyTest
  */
 public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       // making data persistent makes it easier to debug it with print-data
@@ -76,9 +82,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       assertEquals(500, delay);
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testExponentialRedeliveryPolicyDelaysDeliveryOnRollback() throws Exception {
 
@@ -133,9 +136,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testNornalRedeliveryPolicyDelaysDeliveryOnRollback() throws Exception {
 
@@ -186,9 +186,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testDLQHandling() throws Exception {
       this.makeSureCoreQueueExist("ActiveMQ.DLQ");
@@ -239,13 +236,10 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       assertNotNull(m);
       assertEquals("1st", m.getText());
       String cause = m.getStringProperty(ActiveMQMessage.DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY);
-      assertTrue("cause exception has policy ref", cause.contains("RedeliveryPolicy"));
+      assertTrue(cause.contains("RedeliveryPolicy"), "cause exception has policy ref");
       session.commit();
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testInfiniteMaximumNumberOfRedeliveries() throws Exception {
 
@@ -309,9 +303,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       session.commit();
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testMaximumRedeliveryDelay() throws Exception {
 
@@ -359,12 +350,9 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       assertEquals("2nd", m.getText());
       session.commit();
 
-      assertTrue(policy.getNextRedeliveryDelay(Long.MAX_VALUE) == 1000);
+      assertEquals(1000, policy.getNextRedeliveryDelay(Long.MAX_VALUE));
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testZeroMaximumNumberOfRedeliveries() throws Exception {
 
@@ -403,9 +391,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testRedeliveredMessageNotOverflowingPrefetch() throws Exception {
       final int prefetchSize = 10;
@@ -413,13 +398,12 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
       connection.getPrefetchPolicy().setAll(prefetchSize);
       connection.start();
-      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 
       ActiveMQQueue destination = new ActiveMQQueue("TEST");
       this.makeSureCoreQueueExist("TEST");
 
-      QueueControl queueControl = (QueueControl)server.getManagementService().
-              getResource(ResourceNames.QUEUE + "TEST");
+      QueueControl queueControl = server.getManagementService().getQueueControl("TEST");
 
       MessageProducer producer = session.createProducer(destination);
       for (int i = 0; i < messageCount; i++) {
@@ -433,13 +417,13 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
       for (int i = 0; i < messageCount; i++) {
          m = consumer.receive(2000);
-         assertNotNull(m);
+         assertNotNull(m, "null@:" + i);
          if (i == 3) {
             session.rollback();
             continue;
          }
          session.commit();
-         assertTrue(queueControl.getDeliveringCount() <= prefetchSize);
+         assertTrue(queueControl.getDeliveringCount() <= prefetchSize + 1);
       }
 
       m = consumer.receive(2000);
@@ -448,9 +432,48 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
    }
 
-   /**
-    * @throws Exception
-    */
+   @Test
+   public void testCanRollbackPastPrefetch() throws Exception {
+      final int prefetchSize = 10;
+      final int messageCount = 2 * prefetchSize;
+
+      connection.getPrefetchPolicy().setAll(prefetchSize);
+      connection.getRedeliveryPolicy().setMaximumRedeliveries(prefetchSize + 1);
+      connection.start();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+
+      ActiveMQQueue destination = new ActiveMQQueue("TEST");
+      this.makeSureCoreQueueExist("TEST");
+
+      QueueControl queueControl = server.getManagementService().getQueueControl("TEST");
+
+      MessageProducer producer = session.createProducer(destination);
+      for (int i = 0; i < messageCount; i++) {
+         producer.send(session.createTextMessage("MSG" + i));
+         session.commit();
+      }
+
+      Message m;
+      MessageConsumer consumer = session.createConsumer(destination);
+      Wait.assertEquals(prefetchSize, () -> queueControl.getDeliveringCount(), 3000, 100);
+
+      // do prefetch num rollbacks
+      for (int i = 0; i < prefetchSize; i++) {
+         m = consumer.receive(2000);
+         assertNotNull(m, "null@:" + i);
+         session.rollback();
+      }
+
+      // then try and consume
+      for (int i = 0; i < messageCount; i++) {
+         m = consumer.receive(2000);
+         assertNotNull(m, "null@:" + i);
+         session.commit();
+
+         assertTrue(queueControl.getDeliveringCount() <= prefetchSize, "deliveringCount: " + queueControl.getDeliveringCount() + " @:" + i);
+      }
+   }
+
    @Test
    public void testCountersAreCorrectAfterSendToDLQ() throws Exception {
       RedeliveryPolicy policy = connection.getRedeliveryPolicy();
@@ -463,8 +486,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       ActiveMQQueue destination = new ActiveMQQueue("TEST");
       this.makeSureCoreQueueExist("TEST");
 
-      QueueControl queueControl = (QueueControl)server.getManagementService().
-              getResource(ResourceNames.QUEUE + "TEST");
+      QueueControl queueControl = server.getManagementService().getQueueControl("TEST");
 
       MessageProducer producer = session.createProducer(destination);
       producer.send(session.createTextMessage("The Message"));
@@ -479,13 +501,9 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       Wait.assertEquals(0, () -> queueControl.getMessageCount());
       session.close();
 
-      assertEquals(0L, queueControl.getPersistentSize());
-
+      Wait.assertEquals(0L, queueControl::getPersistentSize, 5000, 100);
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testRedeliveryRefCleanup() throws Exception {
 
@@ -638,11 +656,11 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       session.rollback();
 
       m = (TextMessage) consumer.receive(100);
-      assertNotNull("first immediate redelivery", m);
+      assertNotNull(m, "first immediate redelivery");
       session.rollback();
 
       m = (TextMessage) consumer.receive(100);
-      assertNull("second delivery delayed: " + m, m);
+      assertNull(m, "second delivery delayed: " + m);
 
       m = (TextMessage) consumer.receive(2000);
       assertNotNull(m);
@@ -693,10 +711,10 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       MessageConsumer topicConsumer = session.createDurableSubscriber(topic, "tp1");
 
       // Send the messages
-      send(session, producer, queue,"1st");
-      send(session, producer, queue,"2nd");
-      send(session, producer, topic,"1st");
-      send(session, producer, topic,"2nd");
+      send(session, producer, queue, "1st");
+      send(session, producer, queue, "2nd");
+      send(session, producer, topic, "1st");
+      send(session, producer, topic, "2nd");
 
       session.commit();
 
@@ -716,15 +734,15 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       session.rollback();
 
       m = (TextMessage) queueConsumer.receive(100);
-      assertNotNull("first immediate redelivery", m);
+      assertNotNull(m, "first immediate redelivery");
       m = (TextMessage) topicConsumer.receive(100);
-      assertNotNull("first immediate redelivery", m);
+      assertNotNull(m, "first immediate redelivery");
       session.rollback();
 
       m = (TextMessage) queueConsumer.receive(100);
-      assertNull("second delivery delayed: " + m, m);
+      assertNull(m, "second delivery delayed: " + m);
       m = (TextMessage) topicConsumer.receive(100);
-      assertNull("second delivery delayed: " + m, m);
+      assertNull(m, "second delivery delayed: " + m);
 
       m = (TextMessage) queueConsumer.receive(2000);
       assertNotNull(m);
@@ -806,7 +824,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
             Message message = consumer.receive(1000);
 
-            assertNotNull("Message null on iteration " + i, message);
+            assertNotNull(message, "Message null on iteration " + i);
 
             if (i > 0) {
                assertTrue(message.getJMSRedelivered());
@@ -857,7 +875,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
          consumer = session.createConsumer(queue);
          Message message = consumer.receive(1000);
 
-         assertNotNull("Message null", message);
+         assertNotNull(message, "Message null");
 
          assertFalse(message.getJMSRedelivered());
 

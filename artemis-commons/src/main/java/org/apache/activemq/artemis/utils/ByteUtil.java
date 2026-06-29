@@ -77,28 +77,28 @@ public class ByteUtil {
    }
 
    public static String formatGroup(String str, int groupSize, int lineBreak) {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
 
       int line = 1;
-      buffer.append("/*  0 */ \"");
+      sb.append("/*  0 */ \"");
       for (int i = 0; i < str.length(); i += groupSize) {
-         buffer.append(str.substring(i, i + Math.min(str.length() - i, groupSize)));
+         sb.append(str.substring(i, i + Math.min(str.length() - i, groupSize)));
 
          if ((i + groupSize) % lineBreak == 0) {
-            buffer.append("\" +\n/* ");
+            sb.append("\" +\n/* ");
             line++;
             if (line < 10) {
-               buffer.append(" ");
+               sb.append(" ");
             }
-            buffer.append(Integer.toString(i) + " */ \"");
+            sb.append(Integer.toString(i) + " */ \"");
          } else if ((i + groupSize) % groupSize == 0 && str.length() - i > groupSize) {
-            buffer.append("\" + \"");
+            sb.append("\" + \"");
          }
       }
 
-      buffer.append("\";");
+      sb.append("\";");
 
-      return buffer.toString();
+      return sb.toString();
 
    }
 
@@ -120,7 +120,9 @@ public class ByteUtil {
       return new String(hexChars);
    }
 
-   /** Simplify reading of a byte array in a programmers understable way */
+   /**
+    * Simplify reading of a byte array in a programmers understable way
+    */
    public static String debugByteArray(byte[] byteArray) {
       StringWriter builder = new StringWriter();
       PrintWriter writer = new PrintWriter(builder);
@@ -167,7 +169,7 @@ public class ByteUtil {
    }
 
    public static String toSimpleString(byte[] bytes) {
-      SimpleString simpleString = new SimpleString(bytes);
+      SimpleString simpleString = SimpleString.of(bytes);
       String value = simpleString.toString();
 
       for (char c : value.toCharArray()) {
@@ -229,7 +231,7 @@ public class ByteUtil {
       output[offset + 3] = (byte)(x >>> 32);
       output[offset + 4] = (byte)(x >>> 24);
       output[offset + 5] = (byte)(x >>> 16);
-      output[offset + 6] = (byte)(x >>>  8);
+      output[offset + 6] = (byte)(x >>> 8);
       output[offset + 7] = (byte)(x);
    }
 
@@ -262,22 +264,22 @@ public class ByteUtil {
       try {
          Matcher m = ONE.matcher(text);
          if (m.matches()) {
-            return Long.valueOf(Long.parseLong(m.group(1)));
+            return Long.parseLong(m.group(1));
          }
 
          m = KILO.matcher(text);
          if (m.matches()) {
-            return Long.valueOf(Long.parseLong(m.group(1)) * 1024);
+            return Long.parseLong(m.group(1)) * 1024;
          }
 
          m = MEGA.matcher(text);
          if (m.matches()) {
-            return Long.valueOf(Long.parseLong(m.group(1)) * 1024 * 1024);
+            return Long.parseLong(m.group(1)) * 1024 * 1024;
          }
 
          m = GIGA.matcher(text);
          if (m.matches()) {
-            return Long.valueOf(Long.parseLong(m.group(1)) * 1024 * 1024 * 1024);
+            return Long.parseLong(m.group(1)) * 1024 * 1024 * 1024;
          }
 
          return Long.parseLong(text);
@@ -340,12 +342,15 @@ public class ByteUtil {
                                 final byte[] right,
                                 final int rightOffset,
                                 final int rightLength) {
-      if (left == right)
+      if (left == right) {
          return true;
-      if (left == null || right == null)
+      }
+      if (left == null || right == null) {
          return false;
-      if (left.length != rightLength)
+      }
+      if (left.length != rightLength) {
          return false;
+      }
       if (PlatformDependent.isUnaligned() && PlatformDependent.hasUnsafe()) {
          return equalsUnsafe(left, right, rightOffset, rightLength);
       } else {
@@ -354,9 +359,11 @@ public class ByteUtil {
    }
 
    private static boolean equalsSafe(byte[] left, byte[] right, int rightOffset, int rightLength) {
-      for (int i = 0; i < rightLength; i++)
-         if (left[i] != right[rightOffset + i])
+      for (int i = 0; i < rightLength; i++) {
+         if (left[i] != right[rightOffset + i]) {
             return false;
+         }
+      }
       return true;
    }
 
@@ -390,7 +397,8 @@ public class ByteUtil {
    }
 
    /**
-    * This ensure a more exact resizing then {@link ByteBuf#ensureWritable(int)}, if needed.<br>
+    * This ensure a more exact resizing then {@link ByteBuf#ensureWritable(int)}, if needed.
+    * <p>
     * It won't try to trim a large enough buffer.
     */
    public static void ensureExactWritable(ByteBuf buffer, int minWritableBytes) {
@@ -399,17 +407,17 @@ public class ByteUtil {
       }
    }
 
-
    /**
-    * Returns {@code true} if  the {@link SimpleString} encoded content into {@code bytes} is equals to {@code s},
+    * {@return {@code true} if  the {@link SimpleString} encoded content into {@code bytes} is equals to {@code s}
     * {@code false} otherwise.
     * <p>
-    * It assumes that the {@code bytes} content is read using {@link SimpleString#readSimpleString(ByteBuf, int)} ie starting right after the
-    * length field.
+    * It assumes that the {@code bytes} content is read using {@link SimpleString#readSimpleString(ByteBuf, int)} ie
+    * starting right after the length field.}
     */
    public static boolean equals(final byte[] bytes, final ByteBuf byteBuf, final int offset, final int length) {
-      if (bytes.length != length)
+      if (bytes.length != length) {
          return false;
+      }
       if (PlatformDependent.isUnaligned() && PlatformDependent.hasUnsafe()) {
          if ((offset + length) > byteBuf.writerIndex()) {
             throw new IndexOutOfBoundsException();
@@ -424,11 +432,14 @@ public class ByteUtil {
    }
 
    private static boolean equalsOnHeap(final byte[] bytes, final ByteBuf byteBuf, final int offset, final int length) {
-      if (bytes.length != length)
+      if (bytes.length != length) {
          return false;
-      for (int i = 0; i < length; i++)
-         if (bytes[i] != byteBuf.getByte(offset + i))
+      }
+      for (int i = 0; i < length; i++) {
+         if (bytes[i] != byteBuf.getByte(offset + i)) {
             return false;
+         }
+      }
       return true;
    }
 
@@ -479,7 +490,8 @@ public class ByteUtil {
    /**
     * It zeroes {@code bytes} of the given {@code buffer}, starting (inclusive) from {@code offset}.
     *
-    * @throws IndexOutOfBoundsException if {@code offset + bytes > }{@link ByteBuffer#capacity()} or {@code offset >= }{@link ByteBuffer#capacity()}
+    * @throws IndexOutOfBoundsException if {@code offset + bytes > }{@link ByteBuffer#capacity()} or
+    *                                   {@code offset >= }{@link ByteBuffer#capacity()}
     * @throws IllegalArgumentException  if {@code offset} or {@code capacity} are less then 0
     * @throws ReadOnlyBufferException   if {@code buffer} is read-only
     */

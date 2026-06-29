@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -24,29 +25,41 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
+import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeTestAccessor;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * This will simulate a failure of a failure.
- * The bridge could eventually during a race or multiple failures not be able to reconnect because it failed again.
- * this should make the bridge to always reconnect itself.
+ * This will simulate a failure of a failure. The bridge could eventually during a race or multiple failures not be able
+ * to reconnect because it failed again. this should make the bridge to always reconnect itself.
  */
-
 public class ClusteredBridgeReconnectTest extends ClusterTestBase {
 
    @Test
@@ -86,16 +99,16 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       int NUMBER_OF_MESSAGES = 100;
       int REPEATS = 5;
 
-      Assert.assertEquals(1, servers[0].getClusterManager().getClusterConnections().size());
+      assertEquals(1, servers[0].getClusterManager().getClusterConnections().size());
 
       ClusterConnectionImpl connection = servers[0].getClusterManager().getClusterConnections().toArray(new ClusterConnectionImpl[0])[0];
-      Assert.assertEquals(1, connection.getRecords().size());
+      assertEquals(1, connection.getRecords().size());
 
       MessageFlowRecord record = connection.getRecords().values().toArray(new MessageFlowRecord[1])[0];
       ClusterConnectionBridge bridge = (ClusterConnectionBridge) record.getBridge();
 
       Wait.assertEquals(2, () -> bridge.getSessionFactory().getServerLocator().getTopology().getMembers().size());
-      ArrayList<TopologyMemberImpl> originalmembers = new ArrayList<>(bridge.getSessionFactory().getServerLocator().getTopology().getMembers());
+      List<TopologyMemberImpl> originalmembers = new ArrayList<>(bridge.getSessionFactory().getServerLocator().getTopology().getMembers());
 
       AtomicInteger errors = new AtomicInteger(0);
 
@@ -123,11 +136,11 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
 
          Executor executorFail = servers[0].getExecutorFactory().getExecutor();
 
-         Assert.assertTrue(latchSent.await(10, TimeUnit.SECONDS));
+         assertTrue(latchSent.await(10, TimeUnit.SECONDS));
 
          Wait.waitFor(() -> BridgeTestAccessor.withinRefs(bridge, (refs) -> {
             synchronized (refs) {
-               if (refs.size() > 0) {
+               if (!refs.isEmpty()) {
                   executorFail.execute(() -> {
                      bridge.connectionFailed(new ActiveMQException("bye"), false);
                   });
@@ -145,10 +158,10 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       }
 
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
       Wait.assertEquals(2, () -> bridge.getSessionFactory().getServerLocator().getTopology().getMembers().size());
 
-      ArrayList<TopologyMemberImpl> afterReconnectedMembers = new ArrayList<>(bridge.getSessionFactory().getServerLocator().getTopology().getMembers());
+      List<TopologyMemberImpl> afterReconnectedMembers = new ArrayList<>(bridge.getSessionFactory().getServerLocator().getTopology().getMembers());
 
       boolean allFound = true;
 
@@ -166,7 +179,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
          }
       }
 
-      Assert.assertTrue("The topology is slightly different after a reconnect", allFound);
+      assertTrue(allFound, "The topology is slightly different after a reconnect");
 
       int cons0Count = 0, cons1Count = 0;
 
@@ -190,14 +203,14 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
          session1.commit();
       }
 
-      Assert.assertEquals("cons0 = " + cons0Count + ", cons1 = " + cons1Count, NUMBER_OF_MESSAGES * REPEATS, cons0Count + cons1Count);
+      assertEquals(NUMBER_OF_MESSAGES * REPEATS, cons0Count + cons1Count, "cons0 = " + cons0Count + ", cons1 = " + cons1Count);
 
       session0.commit();
       session1.commit();
 
       connection = servers[0].getClusterManager().getClusterConnections().toArray(new ClusterConnectionImpl[0])[0];
-      Assert.assertEquals(1, connection.getRecords().size());
-      Assert.assertNotNull(bridge.getSessionFactory());
+      assertEquals(1, connection.getRecords().size());
+      assertNotNull(bridge.getSessionFactory());
 
       stopServers(0, 1);
 
@@ -267,7 +280,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       //is created on the other node.
       removeConsumer(0);
       servers[0].getManagementService().enableNotifications(false);
-      servers[0].destroyQueue(new SimpleString(QUEUE));
+      servers[0].destroyQueue(SimpleString.of(QUEUE));
       servers[0].getManagementService().enableNotifications(true);
 
       createQueue(0, ADDRESS, QUEUE, null, false);
@@ -302,9 +315,238 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
       stopServers(0, 1);
    }
 
+   @Test
+   public void testPauseAddressBlockingSnFQueue() throws Exception {
+      setupServer(0, isFileStorage(), isNetty());
+      setupServer(1, isFileStorage(), isNetty());
+
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
+
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0);
+
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setRedistributionDelay(0);
+
+      servers[0].getAddressSettingsRepository().addMatch("#", addressSettings);
+      servers[1].getAddressSettingsRepository().addMatch("#", addressSettings);
+
+      startServers(0, 1);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      ClientSession session0 = sfs[0].createSession();
+      ClientSession session1 = sfs[1].createSession();
+
+      session0.start();
+      session1.start();
+
+      createQueue(0, "queues.testaddress", "queue1", null, true);
+      createQueue(1, "queues.testaddress", "queue1", null, true);
+      ClientConsumer consumer1 = session1.createConsumer("queue1");
+
+      waitForBindings(0, "queues.testaddress", 1, 0, true);
+      waitForBindings(1, "queues.testaddress", 1, 1, true);
+
+      waitForBindings(0, "queues.testaddress", 1, 1, false);
+      waitForBindings(1, "queues.testaddress", 1, 0, false);
+
+      final int num = 10;
+      //normal message flow should work
+      ClientProducer goodProducer0 = session0.createProducer("queues.testaddress");
+      for (int i = 0; i < num; i++) {
+         Message msg = session0.createMessage(true);
+         msg.putStringProperty("origin", "from producer 0");
+         goodProducer0.send(msg);
+      }
+
+      //consumer1 can receive from node0
+      for (int i = 0; i < num; i++) {
+         ClientMessage m = consumer1.receive(5000);
+         assertNotNull(m);
+         String propValue = m.getStringProperty("origin");
+         assertEquals("from producer 0", propValue);
+         m.acknowledge();
+      }
+      assertNull(consumer1.receiveImmediate());
+
+      //pause address from node0
+      AddressControl addressControl0 = servers[0].getManagementService().getAddressControl("queues.testaddress");
+      addressControl0.pause();
+
+      Bindings bindings0 = servers[0].getPostOffice().getBindingsForAddress(SimpleString.of("queues.testaddress"));
+      assertNotNull(bindings0);
+      assertEquals(2, bindings0.getBindings().size());
+      boolean localBindingPaused = false;
+      boolean remoteBindingPaused = true;
+      for (Binding bd : bindings0.getBindings()) {
+         if (bd instanceof LocalQueueBinding localQueueBinding) {
+            localBindingPaused = localQueueBinding.getQueue().isPaused();
+         }
+         if (bd instanceof RemoteQueueBinding remoteQueueBinding) {
+            remoteBindingPaused = remoteQueueBinding.getQueue().isPaused();
+         }
+      }
+      assertTrue(localBindingPaused);
+      assertFalse(remoteBindingPaused);
+
+      //now message should flow to node 1 regardless of the pause
+      for (int i = 0; i < num; i++) {
+         Message msg = session0.createMessage(true);
+         msg.putStringProperty("origin", "from producer 0");
+         goodProducer0.send(msg);
+      }
+
+      //consumer1 can receive from node0
+      for (int i = 0; i < num; i++) {
+         ClientMessage m = consumer1.receive(5000);
+         assertNotNull(m);
+         String propValue = m.getStringProperty("origin");
+         assertEquals("from producer 0", propValue);
+         m.acknowledge();
+      }
+      assertNull(consumer1.receiveImmediate());
+
+      stopServers(0, 1);
+   }
+
+   @Test
+   public void testBadClientSendMessagesToSnFQueue() throws Exception {
+      setupServer(0, isFileStorage(), isNetty());
+      setupServer(1, isFileStorage(), isNetty());
+
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
+
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0);
+
+      String dla = "DLA";
+      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(SimpleString.of(dla));
+
+      servers[0].getAddressSettingsRepository().addMatch("#", addressSettings);
+      servers[1].getAddressSettingsRepository().addMatch("#", addressSettings);
+
+      startServers(0, 1);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      createQueue(0, dla, dla, null, true);
+      createQueue(1, dla, dla, null, true);
+
+      waitForBindings(0, dla, 1, 0, true);
+      waitForBindings(1, dla, 1, 0, true);
+
+      ClientSession session0 = sfs[0].createSession();
+      ClientSession session1 = sfs[1].createSession();
+
+      session0.start();
+      session1.start();
+
+      final long num = 10;
+
+      SimpleString nodeId1 = servers[1].getNodeID();
+      ClusterConnectionImpl cc0 = (ClusterConnectionImpl) servers[0].getClusterManager().getClusterConnection("cluster0");
+      SimpleString snfQueue0Name = cc0.getSfQueueName(nodeId1.toString());
+
+      ClientProducer badProducer0 = session0.createProducer(snfQueue0Name);
+      for (int i = 0; i < num; i++) {
+         Message msg = session0.createMessage(true);
+         msg.putStringProperty("origin", "from producer 0");
+         badProducer0.send(msg);
+      }
+
+      // add a remote queue and consumer to enable message to flow from node 0 to node 1
+      createQueue(1, "queues.testaddress", "queue0", null, true);
+      ClientConsumer consumer1 = session1.createConsumer("queue0");
+
+      waitForBindings(0, "queues.testaddress", 0, 0, true);
+      waitForBindings(1, "queues.testaddress", 1, 1, true);
+
+      waitForBindings(0, "queues.testaddress", 1, 1, false);
+      waitForBindings(1, "queues.testaddress", 0, 0, false);
+
+      for (int i = 0; i < num; i++) {
+         Message msg = session0.createMessage(true);
+         msg.putStringProperty("origin", "from producer 0");
+         badProducer0.send(msg);
+      }
+
+      // verify metrics on the SnF queue
+      Queue snfQueue0 = servers[0].locateQueue(snfQueue0Name);
+      Wait.assertEquals(num * 2, () -> snfQueue0.getMessagesAdded(), 2000, 10);
+      Wait.assertEquals(num * 2, () -> snfQueue0.getMessagesKilled(), 2000, 10);
+      Wait.assertEquals(0L, () -> snfQueue0.getMessageCount(), 2000, 10);
+      Wait.assertEquals(0L, () -> snfQueue0.getDeliveringCount(), 2000, 10);
+      Wait.assertEquals(0L, () -> snfQueue0.getDeliveringSize(), 2000, 10);
+
+      // verify metrics on the DLA queue
+      Queue dlaQueue0 = servers[0].locateQueue(dla);
+      Wait.assertEquals(num * 2, () -> dlaQueue0.getMessagesAdded(), 2000, 10);
+      Wait.assertEquals(num * 2, () -> dlaQueue0.getMessageCount(), 2000, 10);
+
+      // messages will never reach the consumer
+      assertNull(consumer1.receiveImmediate());
+
+      ClientConsumer dlqConsumer = session0.createConsumer(dla);
+
+      for (int i = 0; i < num * 2; i++) {
+         ClientMessage m = dlqConsumer.receive(5000);
+         assertNotNull(m);
+         String propValue = m.getStringProperty("origin");
+         assertEquals("from producer 0", propValue);
+         m.acknowledge();
+      }
+      session0.commit();
+      assertNull(dlqConsumer.receiveImmediate());
+      Wait.assertEquals(num * 2, () -> dlaQueue0.getMessagesAcknowledged(), 2000, 10);
+      Wait.assertEquals(0L, () -> dlaQueue0.getMessageCount(), 2000, 10);
+      Wait.assertEquals(0L, () -> dlaQueue0.getDeliveringCount(), 2000, 10);
+      Wait.assertEquals(0L, () -> dlaQueue0.getDeliveringSize(), 2000, 10);
+
+      // normal message flow should work
+      ClientProducer goodProducer0 = session0.createProducer("queues.testaddress");
+      for (int i = 0; i < num; i++) {
+         Message msg = session0.createMessage(true);
+         msg.putStringProperty("origin", "from producer 0");
+         goodProducer0.send(msg);
+      }
+
+      // consumer1 can receive from node0
+      for (int i = 0; i < num; i++) {
+         ClientMessage m = consumer1.receive(5000);
+         assertNotNull(m);
+         String propValue = m.getStringProperty("origin");
+         assertEquals("from producer 0", propValue);
+         m.acknowledge();
+      }
+      assertNull(consumer1.receiveImmediate());
+
+      stopServers(0, 1);
+
+      // restart and verify all metrics again to ensure messages don't come back
+      startServers(0, 1);
+
+      // verify metrics on the SnF queue
+      Queue snfQueue0AfterRestart = servers[0].locateQueue(snfQueue0Name);
+      Wait.assertEquals(0L, () -> snfQueue0AfterRestart.getMessagesAdded(), 2000, 10);
+      Wait.assertEquals(0L, () -> snfQueue0AfterRestart.getMessagesKilled(), 2000, 10);
+      Wait.assertEquals(0L, () -> snfQueue0AfterRestart.getMessageCount(), 2000, 10);
+      Wait.assertEquals(0L, () -> snfQueue0AfterRestart.getDeliveringCount(), 2000, 10);
+      Wait.assertEquals(0L, () -> snfQueue0AfterRestart.getDeliveringSize(), 2000, 10);
+
+      // verify metrics on the DLA queue
+      Queue dlaQueue0AfterRestart = servers[0].locateQueue(dla);
+      Wait.assertEquals(0L, () -> dlaQueue0AfterRestart.getMessagesAdded(), 2000, 10);
+      Wait.assertEquals(0L, () -> dlaQueue0AfterRestart.getMessagesAcknowledged(), 2000, 10);
+      Wait.assertEquals(0L, () -> dlaQueue0AfterRestart.getMessageCount(), 2000, 10);
+      Wait.assertEquals(0L, () -> dlaQueue0AfterRestart.getDeliveringCount(), 2000, 10);
+      Wait.assertEquals(0L, () -> dlaQueue0AfterRestart.getDeliveringSize(), 2000, 10);
+
+      stopServers(0, 1);
+   }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       closeAllConsumers();
       closeAllSessionFactories();

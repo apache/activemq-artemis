@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -25,14 +30,15 @@ import io.netty.handler.codec.mqtt.MqttReasonCodeAndPropertiesVariableHeader;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-3.14.1-1] The Client or Server MUST validate that reserved bits are set to 0. If they are not zero it sends a DISCONNECT packet with a Reason code of 0x81 (Malformed Packet).
@@ -51,11 +57,7 @@ import org.junit.Test;
  * [MQTT-3.14.2-4] The sender MUST NOT send this property if it would increase the size of the DISCONNECT packet beyond the Maximum Packet Size specified by the receiver.
  */
 
-public class DisconnectTests  extends MQTT5TestSupport {
-
-   public DisconnectTests(String protocol) {
-      super(protocol);
-   }
+public class DisconnectTests extends MQTT5TestSupport {
 
    /*
     * [MQTT-3.14.2-1] The Client or Server sending the DISCONNECT packet MUST use one of the DISCONNECT Reason Codes.
@@ -65,7 +67,8 @@ public class DisconnectTests  extends MQTT5TestSupport {
     * Currently the only way to trigger a DISCONNECT from the broker is to "take over" an existing session at which
     * point the broker will disconnect the existing session.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testDisconnectReasonCode() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -95,9 +98,10 @@ public class DisconnectTests  extends MQTT5TestSupport {
     * [MQTT-3.14.4-3] On receipt of DISCONNECT with a Reason Code of 0x00 (Success) the Server MUST discard any Will
     * Message associated with the current Connection without publishing it.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillMessageRemovedOnDisconnect() throws Exception {
-      final String CLIENT_ID = org.apache.activemq.artemis.tests.util.RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
       final byte[] WILL = RandomUtil.randomBytes();
 
       MqttClient client = createPahoClient(CLIENT_ID);

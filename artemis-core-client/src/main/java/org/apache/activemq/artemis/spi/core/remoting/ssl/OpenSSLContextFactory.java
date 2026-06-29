@@ -21,11 +21,10 @@ import java.util.Map;
 import io.netty.handler.ssl.SslContext;
 
 /**
- * Service interface to create an {@link SslContext} for a configuration.
- * This is ONLY used with OpenSSL.
- * To create and use your own implementation you need to create a file
- * <code>META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactory</code>
- * in your jar and fill it with the full qualified name of your implementation.
+ * Service interface to create an {@link SslContext} for a configuration. This is ONLY used with OpenSSL. To create and
+ * use your own implementation you need to create a file
+ * {@code META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactory} in your jar and
+ * fill it with the full qualified name of your implementation.
  */
 public interface OpenSSLContextFactory extends Comparable<OpenSSLContextFactory> {
 
@@ -42,22 +41,20 @@ public interface OpenSSLContextFactory extends Comparable<OpenSSLContextFactory>
 
    /**
     * @param additionalOpts implementation specific additional options.
-    *
-    * @return an {@link SslContext} instance for the given configuration.
+    * @return an {@link SslContext} instance for the given configuration
     */
    SslContext getClientSslContext(SSLContextConfig config, Map<String, Object> additionalOpts) throws Exception;
 
    /**
     * @param additionalOpts implementation specific additional options.
-    *
-    * @return an {@link SslContext} instance for the given configuration.
+    * @return an {@link SslContext} instance for the given configuration
     */
    SslContext getServerSslContext(SSLContextConfig config, Map<String, Object> additionalOpts) throws Exception;
 
    /**
-    * The priority for the {@link OpenSSLContextFactory} when resolving the service to get the implementation.
-    * This is used when selecting the implementation when several implementations are loaded.
-    * The highest priority implementation will be used.
+    * The priority for the {@link OpenSSLContextFactory} when resolving the service to get the implementation. This is
+    * used when selecting the implementation when several implementations are loaded. The highest priority
+    * implementation will be used.
     */
    int getPriority();
 }

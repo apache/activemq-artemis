@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Default values of ActiveMQ Artemis configuration parameters.
+ * Default values of Apache Artemis configuration parameters.
  */
 public final class ActiveMQDefaultConfiguration {
 
@@ -101,14 +101,11 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    //shared by client and core/server
-   // XXX not on schema?
    private static long DEFAULT_CLIENT_FAILURE_CHECK_PERIOD = 30000;
 
-   // XXX not on schema?
    private static long DEFAULT_FILE_DEPLOYER_SCAN_PERIOD = 5000;
 
-   // These defaults are applied depending on whether the journal type
-   // is NIO or AIO.
+   // These defaults are applied depending on whether the journal type is NIO or AIO.
    private static int DEFAULT_JOURNAL_MAX_IO_AIO = 4096;
    private static int DEFAULT_JOURNAL_POOL_FILES = -1;
    private static int DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO = ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO;
@@ -117,7 +114,6 @@ public final class ActiveMQDefaultConfiguration {
    private static int DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO = ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO;
    private static int DEFAULT_JOURNAL_BUFFER_SIZE_NIO = ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO;
 
-   // XXX not on schema.
    //properties passed to acceptor/connectors.
    private static String PROP_MASK_PASSWORD = "activemq.usemaskedpassword";
    private static String PROP_PASSWORD_CODEC = "activemq.passwordcodec";
@@ -132,7 +128,7 @@ public final class ActiveMQDefaultConfiguration {
    // Following fields are generated from the activemq-schema.xsd annotations
    // -------------------------------------------------------------------
 
-   // If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
+   // If true then the Apache Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
    private static boolean DEFAULT_RESOLVE_PROTOCOLS = true;
 
    // true means that the server will load configuration from the configuration files
@@ -171,15 +167,21 @@ public final class ActiveMQDefaultConfiguration {
    // how long (in ms) to wait to acquire a file lock on the journal
    private static long DEFAULT_JOURNAL_LOCK_ACQUISITION_TIMEOUT = -1;
 
+   // how long (in ms) between journal lock health checks
+   private static long DEFAULT_JOURNAL_LOCK_MONITOR_TIMEOUT = 2000;
+
+   // how many times to retry a failed journal lock health check before declaring the lock lost
+   private static int DEFAULT_JOURNAL_LOCK_MONITOR_MAX_RETRIES = 0;
+
    // true means that the server supports wild card routing
    private static boolean DEFAULT_WILDCARD_ROUTING_ENABLED = true;
 
    private static String DEFAULT_ADDRESS_PATH_SEPARATOR = ".";
 
-   private static SimpleString DEFAULT_MANAGEMENT_ADDRESS = new SimpleString("activemq.management");
+   private static SimpleString DEFAULT_MANAGEMENT_ADDRESS = SimpleString.of("activemq.management");
 
    // the name of the address that consumers bind to receive management notifications
-   private static SimpleString DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS = new SimpleString("activemq.notifications");
+   private static SimpleString DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS = SimpleString.of("activemq.notifications");
 
    // The default address used for clustering, empty string means all addresses
    private static String DEFAULT_CLUSTER_ADDRESS = "";
@@ -190,22 +192,19 @@ public final class ActiveMQDefaultConfiguration {
    // Cluster password. It applies to all cluster configurations.
    private static String DEFAULT_CLUSTER_PASSWORD = "CHANGE ME!!";
 
-   // Cluster username. It applies to all cluster configurations.
-   private static String DEFAULT_FEDERATION_USER = "ACTIVEMQ.CLUSTER.ADMIN.USER";
-
-   // Cluster password. It applies to all cluster configurations.
-   private static String DEFAULT_FEDERATION_PASSWORD = "CHANGE ME!!";
-
    // This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked.
    private static Boolean DEFAULT_MASK_PASSWORD = null;
 
    // true means that the management API is available via JMX
    private static boolean DEFAULT_JMX_MANAGEMENT_ENABLED = true;
 
-   // the JMX domain used to registered ActiveMQ Artemis MBeans in the MBeanServer
+   // true means that management notifications are reproduced as JMX notifications
+   private static boolean DEFAULT_JMX_NOTIFICATION_ENABLED = true;
+
+   // the JMX domain used to registered Apache Artemis MBeans in the MBeanServer
    private static String DEFAULT_JMX_DOMAIN = "org.apache.activemq.artemis";
 
-   // the JMX domain used to registered ActiveMQ Artemis MBeans in the MBeanServer
+   // the JMX domain used to registered Apache Artemis MBeans in the MBeanServer
    private static boolean DEFAULT_JMX_IS_USE_BROKER_NAME = true;
 
    // true means that message counters are enabled
@@ -277,6 +276,8 @@ public final class ActiveMQDefaultConfiguration {
 
    // if true wait for transaction data to be synchronized to the journal before returning response to client
    private static boolean DEFAULT_JOURNAL_SYNC_TRANSACTIONAL = true;
+
+   private static boolean DEFAULT_LARGE_MESSAGE_SYNC = true;
 
    // if true wait for non transaction data to be synced to the journal before returning response to client.
    private static boolean DEFAULT_JOURNAL_SYNC_NON_TRANSACTIONAL = true;
@@ -406,20 +407,20 @@ public final class ActiveMQDefaultConfiguration {
    // If true then the server will request a backup on another node
    private static boolean DEFAULT_HAPOLICY_REQUEST_BACKUP = false;
 
-   // How many times the live server will try to request a backup, -1 means for ever.
+   // How many times this server will try to request a backup, -1 means for ever.
    private static int DEFAULT_HAPOLICY_BACKUP_REQUEST_RETRIES = -1;
 
    // How long to wait for retries between attempts to request a backup server.
    private static long DEFAULT_HAPOLICY_BACKUP_REQUEST_RETRY_INTERVAL = 5000;
 
-   // Whether or not this live server will accept backup requests from other live servers.
+   // Whether or not this server will accept backup requests from other servers.
    private static int DEFAULT_HAPOLICY_MAX_BACKUPS = 1;
 
    // The offset to use for the Connectors and Acceptors when creating a new backup server.
    private static int DEFAULT_HAPOLICY_BACKUP_PORT_OFFSET = 100;
 
-   // Whether to check the cluster for a (live) server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers. Strictly speaking this setting only applies to live servers and not to backups.
-   private static boolean DEFAULT_CHECK_FOR_LIVE_SERVER = false;
+   // Whether to check the cluster for an active server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers. Strictly speaking this setting only applies to primary servers and not to backups.
+   private static boolean DEFAULT_CHECK_FOR_ACTIVE_SERVER = false;
 
    // This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back.
    private static int DEFAULT_MAX_SAVED_REPLICATED_JOURNALS_SIZE = 2;
@@ -433,11 +434,11 @@ public final class ActiveMQDefaultConfiguration {
    // When a replica comes online this is how long the replicating server will wait for a confirmation from the replica that the replication synchronization process is complete
    private static long DEFAULT_INITIAL_REPLICATION_SYNC_TIMEOUT = 30000;
 
-   // Will this backup server come live on a normal server shutdown
+   // Will this backup server become active on a normal server shutdown
    private static boolean DEFAULT_FAILOVER_ON_SERVER_SHUTDOWN = false;
 
-   // Will a shared-store master startup wait for activation
-   private static boolean  DEFAULT_WAIT_FOR_ACTIVATION = true;
+   // Will a shared-store primary startup wait for activation
+   private static boolean DEFAULT_WAIT_FOR_ACTIVATION = true;
 
    // Will the broker populate the message with the name of the validated user
    private static boolean DEFAULT_POPULATE_VALIDATED_USER = false;
@@ -447,6 +448,9 @@ public final class ActiveMQDefaultConfiguration {
 
    // its possible that you only want a server to partake in scale down as a receiver, via a group. In this case set scale-down to false
    private static boolean DEFAULT_SCALE_DOWN_ENABLED = true;
+
+   // How often to commit transactions for moving messages during scale-down
+   private static int DEFAULT_SCALE_DOWN_COMMIT_INTERVAL = -1;
 
    // How long to wait for a decision
    private static int DEFAULT_GROUPING_HANDLER_TIMEOUT = 5000;
@@ -496,6 +500,8 @@ public final class ActiveMQDefaultConfiguration {
 
    private static final long DEFAULT_JDBC_ALLOWED_TIME_DIFF_MILLIS = 250;
 
+   private static final int DEFAULT_JDBC_MAX_PAGE_SIZE_BYTES = 100 * 1024;
+
    // Default period to wait between connection TTL checks
    public static final long DEFAULT_CONNECTION_TTL_CHECK_INTERVAL = 2000;
 
@@ -504,9 +510,11 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final boolean DEFAULT_AMQP_USE_CORE_SUBSCRIPTION_NAMING = false;
 
-   public static final long DEFAULT_GLOBAL_MAX_SIZE = Runtime.getRuntime().maxMemory() / 2;
+   public static final int DEFAULT_GLOBAL_MAX_MEMORY_PERCENT = 50;
 
    public static final long DEFAULT_GLOBAL_MAX_MESSAGES = -1;
+
+   public static final int INITIAL_QUEUE_BUFFER_SIZE = 8192;
 
    public static final int DEFAULT_MAX_DISK_USAGE;
 
@@ -521,6 +529,8 @@ public final class ActiveMQDefaultConfiguration {
       }
       DEFAULT_MAX_DISK_USAGE = maxDisk;
    }
+
+   public static final long DEFAULT_MIN_DISK_FREE = -1;
 
    public static final int DEFAULT_DISK_SCAN = 5000;
 
@@ -569,6 +579,12 @@ public final class ActiveMQDefaultConfiguration {
    public static final String DEFAULT_SYSTEM_PROPERTY_PREFIX = "brokerconfig.";
 
    public static final String DEFAULT_SYSTEM_WEB_PROPERTY_PREFIX = "webconfig.";
+
+   public static final String DEFAULT_SYSTEM_SECURITY_PROPERTY_PREFIX = "securityconfig.";
+
+   public static final String DEFAULT_SYSTEM_SECURITY_JAAS_PROPERTY_PREFIX = "jaas.";
+
+   public static final String DEFAULT_SYSTEM_SECURITY_MANAGER_PROPERTY_PREFIX = "manager.";
 
    public static final String BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME = "broker.properties";
 
@@ -651,12 +667,21 @@ public final class ActiveMQDefaultConfiguration {
    // Whether or not to report JVM thread metrics
    private static final boolean DEFAULT_JVM_THREAD_METRICS = false;
 
-   public static final String DEFAULT_TEMPORARY_QUEUE_NAMESPACE = "";
+   // Whether or not to report executor service metrics
+   private static final boolean DEFAULT_EXECUTOR_SERVICE_METRICS = false;
 
-   private static final String DEFAULT_DISTRIBUTED_PRIMITIVE_MANAGER_CLASS_NAME = "org.apache.activemq.artemis.quorum.zookeeper.CuratorDistributedPrimitiveManager";
+   public static final String DEFAULT_UUID_NAMESPACE = "";
+
+   @Deprecated(forRemoval = true)
+   public static final String DEFAULT_TEMPORARY_QUEUE_NAMESPACE = DEFAULT_UUID_NAMESPACE;
+
+   private static final String DEFAULT_DISTRIBUTED_PRIMITIVE_MANAGER_CLASS_NAME = "org.apache.activemq.artemis.lockmanager.zookeeper.CuratorDistributedLockManager";
 
    // Number of concurrent workers for a core bridge
    public static int DEFAULT_BRIDGE_CONCURRENCY = 1;
+
+   // How long to wait for acknowledgements to arrive from the bridge's target while stopping or pausing the bridge
+   public static long DEFAULT_BRIDGE_PENDING_ACK_TIMEOUT = 60000;
 
    // Whether or not to report Netty pool metrics
    private static final boolean DEFAULT_NETTY_POOL_METRICS = false;
@@ -670,30 +695,68 @@ public final class ActiveMQDefaultConfiguration {
    // Whether or not to report uptime metrics
    private static final boolean DEFAULT_UPTIME_METRICS = false;
 
+   // Whether or not to report logging metrics
+   private static final boolean DEFAULT_LOGGING_METRICS = false;
+
+   // Whether or not to report security cache metrics
+   private static final boolean DEFAULT_SECURITY_CACHE_METRICS = false;
+
    // How often (in ms) to scan for expired MQTT sessions
-   private static long DEFAULT_MQTT_SESSION_SCAN_INTERVAL = 500;
+   private static long DEFAULT_MQTT_SESSION_SCAN_INTERVAL = 5000;
+
+   // How long (in ms) to wait to persist MQTT session state
+   private static long DEFAULT_MQTT_SESSION_STATE_PERSISTENCE_TIMEOUT = 5000;
+
+   // Whether to persist MQTT subscriptions
+   private static boolean DEFAULT_MQTT_SUBSCRIPTION_PERSISTENCE_ENABLED = true;
 
    // If SESSION-notifications should be suppressed or not
    public static boolean DEFAULT_SUPPRESS_SESSION_NOTIFICATIONS = false;
 
    public static final long DEFAULT_EMBEDDED_WEB_SERVER_RESTART_TIMEOUT = 5000;
 
+   public static final String DEFAULT_LITERAL_MATCH_MARKERS = null;
+
+   private static final String DEFAULT_VIEW_PERMISSION_METHOD_MATCH_PATTERN = "^(get|is|count|list|browse|query).*$";
+
+   private static final String DEFAULT_MANAGEMENT_RBAC_PREFIX = "mops";
+
+   private static final boolean DEFAULT_MANAGEMENT_MESSAGE_RBAC = false;
+
+
+   // These properties used to defined with this prefix.
+   // I'm keeping the older property name in an attempt to guarantee compatibility
+   private static final String FORMER_ACK_RETRY_CLASS_NAME = "org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckRetry";
+   private static final int DEFAULT_MIRROR_ACK_MANAGER_QUEUE_ATTEMPTS = Integer.parseInt(System.getProperty(FORMER_ACK_RETRY_CLASS_NAME + ".MIN_QUEUE_ATTEMPTS", "5"));
+   private static final int DEFAULT_MIRROR_ACK_MANAGER_PAGE_ATTEMPTS = Integer.parseInt(System.getProperty(FORMER_ACK_RETRY_CLASS_NAME + ".MAX_PAGE_ATTEMPT", "2"));
+
+   private static final int DEFAULT_MIRROR_ACK_MANAGER_RETRY_DELAY = Integer.parseInt(System.getProperty(FORMER_ACK_RETRY_CLASS_NAME + ".RETRY_DELAY", "100"));
+
+   private static final boolean DEFAULT_MIRROR_ACK_MANAGER_WARN_UNACKED = false;
+   private static final boolean DEFAULT_MIRROR_PAGE_TRANSACTION = false;
+
+   private static final boolean DEFAULT_PURGE_PAGE_FOLDERS = false;
+
+   private static final int DEFAULT_CLUSTER_TOPOLOGY_SCANNER_ATTEMPTS = 30;
+
    /**
-    * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
+    * If {@code true} then the Apache Artemis Server will make use of any Protocol Managers that are in available on
+    * the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can
+    * inject their own Protocol Managers.
     */
    public static boolean isDefaultResolveProtocols() {
       return DEFAULT_RESOLVE_PROTOCOLS;
    }
 
    /**
-    * true means that the server will load configuration from the configuration files
+    * {@code true} means that the server will load configuration from the configuration files
     */
    public static boolean isDefaultFileDeploymentEnabled() {
       return DEFAULT_FILE_DEPLOYMENT_ENABLED;
    }
 
    /**
-    * true means that the server will use the file based journal for persistence.
+    * {@code true} means that the server will use the file based journal for persistence.
     */
    public static boolean isDefaultPersistenceEnabled() {
       return DEFAULT_PERSISTENCE_ENABLED;
@@ -722,21 +785,21 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * true means that security is enabled
+    * {@code true} means that security is enabled
     */
    public static boolean isDefaultSecurityEnabled() {
       return DEFAULT_SECURITY_ENABLED;
    }
 
    /**
-    * true means that graceful shutdown is enabled
+    * {@code true} means that graceful shutdown is enabled
     */
    public static boolean isDefaultGracefulShutdownEnabled() {
       return DEFAULT_GRACEFUL_SHUTDOWN_ENABLED;
    }
 
    /**
-    * true means that graceful shutdown is enabled
+    * {@code true} means that graceful shutdown is enabled
     */
    public static long getDefaultGracefulShutdownTimeout() {
       return DEFAULT_GRACEFUL_SHUTDOWN_TIMEOUT;
@@ -771,7 +834,21 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * true means that the server supports wild card routing
+    * how long (in ms) between journal lock health checks
+    */
+   public static long getDefaultJournalLockMonitorTimeout() {
+      return DEFAULT_JOURNAL_LOCK_MONITOR_TIMEOUT;
+   }
+
+   /**
+    * how many times to retry a failed journal lock health check before declaring the lock lost
+    */
+   public static int getDefaultJournalLockMonitorMaxRetries() {
+      return DEFAULT_JOURNAL_LOCK_MONITOR_MAX_RETRIES;
+   }
+
+   /**
+    * {@code true} means that the server supports wild card routing
     */
    public static boolean isDefaultWildcardRoutingEnabled() {
       return DEFAULT_WILDCARD_ROUTING_ENABLED;
@@ -782,7 +859,8 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * the name of the management address to send management messages to. It is prefixed with "jms.queue" so that JMS clients can send messages to it.
+    * the name of the management address to send management messages to. It is prefixed with "jms.queue" so that JMS
+    * clients can send messages to it.
     */
    public static SimpleString getDefaultManagementAddress() {
       return DEFAULT_MANAGEMENT_ADDRESS;
@@ -831,21 +909,29 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked.
+    * This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are
+    * masked.
     */
    public static Boolean isDefaultMaskPassword() {
       return DEFAULT_MASK_PASSWORD;
    }
 
    /**
-    * true means that the management API is available via JMX
+    * {@code true} means that the management API is available via JMX
     */
    public static boolean isDefaultJmxManagementEnabled() {
       return DEFAULT_JMX_MANAGEMENT_ENABLED;
    }
 
    /**
-    * the JMX domain used to registered ActiveMQ Artemis MBeans in the MBeanServer
+    * {@code true} means that management notifications are reproduced as JMX notifications
+    */
+   public static boolean isDefaultJmxNotificationEnabled() {
+      return DEFAULT_JMX_NOTIFICATION_ENABLED;
+   }
+
+   /**
+    * the JMX domain used to registered Apache Artemis MBeans in the MBeanServer
     */
    public static String getDefaultJmxDomain() {
       return DEFAULT_JMX_DOMAIN;
@@ -856,7 +942,7 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * true means that message counters are enabled
+    * {@code true} means that message counters are enabled
     */
    public static boolean isDefaultMessageCounterEnabled() {
       return DEFAULT_MESSAGE_COUNTER_ENABLED;
@@ -877,14 +963,16 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * if set, this will override how long (in ms) to keep a connection alive without receiving a ping. -1 disables this setting.
+    * if set, this will override how long (in ms) to keep a connection alive without receiving a ping. -1 disables this
+    * setting.
     */
    public static long getDefaultConnectionTtlOverride() {
       return DEFAULT_CONNECTION_TTL_OVERRIDE;
    }
 
    /**
-    * should certain incoming packets on the server be handed off to a thread from the thread pool for processing or should they be handled on the remoting thread?
+    * should certain incoming packets on the server be handed off to a thread from the thread pool for processing or
+    * should they be handled on the remoting thread?
     */
    public static boolean isDefaultAsyncConnectionExecutionEnabled() {
       return DEFAULT_ASYNC_CONNECTION_EXECUTION_ENABLED;
@@ -939,14 +1027,15 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * true means that ID's are persisted to the journal
+    * {@code true} means that ID's are persisted to the journal
     */
    public static boolean isDefaultPersistIdCache() {
       return DEFAULT_PERSIST_ID_CACHE;
    }
 
    /**
-    * True means that the delivery count is persisted before delivery. False means that this only happens after a message has been cancelled.
+    * {@code true} means that the delivery count is persisted before delivery. False means that this only happens after
+    * a message has been cancelled.
     */
    public static boolean isDefaultPersistDeliveryCountBeforeDelivery() {
       return DEFAULT_PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY;
@@ -967,7 +1056,7 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * true means that the server will create the bindings directory on start up
+    * {@code true} means that the server will create the bindings directory on start up
     */
    public static boolean isDefaultCreateBindingsDir() {
       return DEFAULT_CREATE_BINDINGS_DIR;
@@ -1000,21 +1089,25 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * true means that the journal directory will be created
+    * {@code true} means that the journal directory will be created
     */
    public static boolean isDefaultCreateJournalDir() {
       return DEFAULT_CREATE_JOURNAL_DIR;
    }
 
    /**
-    * if true wait for transaction data to be synchronized to the journal before returning response to client
+    * if {@code true} wait for transaction data to be synchronized to the journal before returning response to client
     */
    public static boolean isDefaultJournalSyncTransactional() {
       return DEFAULT_JOURNAL_SYNC_TRANSACTIONAL;
    }
 
+   public static boolean isDefaultLargeMessageSync() {
+      return DEFAULT_LARGE_MESSAGE_SYNC;
+   }
+
    /**
-    * if true wait for non transaction data to be synced to the journal before returning response to client.
+    * if {@code true} wait for non transaction data to be synced to the journal before returning response to client.
     */
    public static boolean isDefaultJournalSyncNonTransactional() {
       return DEFAULT_JOURNAL_SYNC_NON_TRANSACTIONAL;
@@ -1043,8 +1136,6 @@ public final class ActiveMQDefaultConfiguration {
 
    /**
     * How many journal files can be resued
-    *
-    * @return
     */
    public static int getDefaultJournalPoolFiles() {
       return DEFAULT_JOURNAL_POOL_FILES;
@@ -1111,14 +1202,16 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Period the discovery group waits after receiving the last broadcast from a particular server before removing that servers connector pair entry from its list.
+    * Period the discovery group waits after receiving the last broadcast from a particular server before removing that
+    * servers connector pair entry from its list.
     */
    public static int getDefaultBroadcastRefreshTimeout() {
       return DEFAULT_BROADCAST_REFRESH_TIMEOUT;
    }
 
    /**
-    * how long to keep a connection alive in the absence of any data arriving from the client. This should be greater than the ping period.
+    * how long to keep a connection alive in the absence of any data arriving from the client. This should be greater
+    * than the ping period.
     */
    public static long getDefaultConnectionTtl() {
       return DEFAULT_CONNECTION_TTL;
@@ -1174,14 +1267,16 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Upon reconnection this configures the number of time the same node on the topology will be retried before reseting the server locator and using the initial connectors
+    * Upon reconnection this configures the number of time the same node on the topology will be retried before reseting
+    * the server locator and using the initial connectors
     */
    public static int getDefaultBridgeConnectSameNode() {
       return DEFAULT_BRIDGE_CONNECT_SAME_NODE;
    }
 
    /**
-    * The period (in milliseconds) used to check if the cluster connection has failed to receive pings from another server
+    * The period (in milliseconds) used to check if the cluster connection has failed to receive pings from another
+    * server
     */
    public static long getDefaultClusterFailureCheckPeriod() {
       return DEFAULT_CLUSTER_FAILURE_CHECK_PERIOD;
@@ -1311,14 +1406,14 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * If true then the server will request a backup on another node
+    * If {@code true} then the server will request a backup on another node
     */
    public static boolean isDefaultHapolicyRequestBackup() {
       return DEFAULT_HAPOLICY_REQUEST_BACKUP;
    }
 
    /**
-    * How many times the live server will try to request a backup, -1 means for ever.
+    * How many times the primary server will try to request a backup, -1 means for ever.
     */
    public static int getDefaultHapolicyBackupRequestRetries() {
       return DEFAULT_HAPOLICY_BACKUP_REQUEST_RETRIES;
@@ -1332,7 +1427,7 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Whether or not this live server will accept backup requests from other live servers.
+    * Whether this server will accept backup requests from other servers.
     */
    public static int getDefaultHapolicyMaxBackups() {
       return DEFAULT_HAPOLICY_MAX_BACKUPS;
@@ -1346,14 +1441,17 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Whether to check the cluster for a (live) server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers. Strictly speaking this setting only applies to live servers and not to backups.
+    * Whether to check the cluster for an active server using our own server ID when starting up. This option is only
+    * necessary for performing 'fail-back' on replicating servers. Strictly speaking this setting only applies to
+    * primary servers and not to backups.
     */
-   public static boolean isDefaultCheckForLiveServer() {
-      return DEFAULT_CHECK_FOR_LIVE_SERVER;
+   public static boolean isDefaultCheckForActiveServer() {
+      return DEFAULT_CHECK_FOR_ACTIVE_SERVER;
    }
 
    /**
-    * This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back.
+    * This specifies how many times a replicated backup server can restart after moving its files on start. Once there
+    * are this number of backup journal files the server will stop permanently after if fails back.
     */
    public static int getDefaultMaxSavedReplicatedJournalsSize() {
       return DEFAULT_MAX_SAVED_REPLICATED_JOURNALS_SIZE;
@@ -1367,7 +1465,9 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Whether a server will automatically stop when another places a request to take over its place. The use case is when a regular server stops and its backup takes over its duties, later the main server restarts and requests the server (the former backup) to stop operating.
+    * Whether a server will automatically stop when another places a request to take over its place. The use case is
+    * when a regular server stops and its backup takes over its duties, later the main server restarts and requests the
+    * server (the former backup) to stop operating.
     */
    public static boolean isDefaultAllowAutoFailback() {
       return DEFAULT_ALLOW_AUTO_FAILBACK;
@@ -1391,14 +1491,14 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Will this backup server come live on a normal server shutdown
+    * Will this backup server become active on a normal server shutdown
     */
    public static boolean isDefaultFailoverOnServerShutdown() {
       return DEFAULT_FAILOVER_ON_SERVER_SHUTDOWN;
    }
 
    /**
-    * Will a shared-store master startup wait for activation
+    * Will a shared-store primary startup wait for activation
     */
    public static boolean isDefaultWaitForActivation() {
       return DEFAULT_WAIT_FOR_ACTIVATION;
@@ -1416,10 +1516,18 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * its possible that you only want a server to partake in scale down as a receiver, via a group. In this case set scale-down to false
+    * its possible that you only want a server to partake in scale down as a receiver, via a group. In this case set
+    * scale-down to false
     */
    public static boolean isDefaultScaleDownEnabled() {
       return DEFAULT_SCALE_DOWN_ENABLED;
+   }
+
+   /**
+    * How often to commit transactions for moving messages during scale-down
+    */
+   public static int getDefaultScaleDownCommitInterval() {
+      return DEFAULT_SCALE_DOWN_COMMIT_INTERVAL;
    }
 
    /**
@@ -1430,7 +1538,9 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * How long a group binding will be used, -1 means for ever. Bindings are removed after this wait elapses. On the remote node this is used to determine how often you should re-query the main coordinator in order to update the last time used accordingly.
+    * How long a group binding will be used, -1 means for ever. Bindings are removed after this wait elapses. On the
+    * remote node this is used to determine how often you should re-query the main coordinator in order to update the
+    * last time used accordingly.
     */
    public static int getDefaultGroupingHandlerGroupTimeout() {
       return DEFAULT_GROUPING_HANDLER_GROUP_TIMEOUT;
@@ -1512,6 +1622,10 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_JDBC_ALLOWED_TIME_DIFF_MILLIS;
    }
 
+   public static int getDefaultJdbcMaxPageSizeBytes() {
+      return DEFAULT_JDBC_MAX_PAGE_SIZE_BYTES;
+   }
+
    public static long getDefaultConnectionTtlCheckInterval() {
       return DEFAULT_CONNECTION_TTL_CHECK_INTERVAL;
    }
@@ -1524,11 +1638,8 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_AMQP_USE_CORE_SUBSCRIPTION_NAMING;
    }
 
-   /**
-    * The default global max size. -1 = no global max size.
-    */
-   public static long getDefaultMaxGlobalSize() {
-      return DEFAULT_GLOBAL_MAX_SIZE;
+   public static long getDefaultMaxGlobalSizeAsPercentOfJvmMaxMemory(int percentOfJvmMaxMemory) {
+      return (long) (Runtime.getRuntime().maxMemory() * (percentOfJvmMaxMemory / 100.0f));
    }
 
    public static long getDefaultMaxGlobalMessages() {
@@ -1537,6 +1648,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int getDefaultMaxDiskUsage() {
       return DEFAULT_MAX_DISK_USAGE;
+   }
+
+   public static long getDefaultMinDiskFree() {
+      return DEFAULT_MIN_DISK_FREE;
    }
 
    public static int getDefaultDiskScanPeriod() {
@@ -1647,6 +1762,18 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_SYSTEM_WEB_PROPERTY_PREFIX;
    }
 
+   public static String getDefaultSystemSecurityPropertyPrefix() {
+      return DEFAULT_SYSTEM_SECURITY_PROPERTY_PREFIX;
+   }
+
+   public static String getDefaultSystemSecurityJaasPropertyPrefix() {
+      return getDefaultSystemSecurityPropertyPrefix() + DEFAULT_SYSTEM_SECURITY_JAAS_PROPERTY_PREFIX;
+   }
+
+   public static String getDefaultSystemSecurityManagerPropertyPrefix() {
+      return getDefaultSystemSecurityPropertyPrefix() + DEFAULT_SYSTEM_SECURITY_MANAGER_PROPERTY_PREFIX;
+   }
+
    public static String getDefaultBrokerPropertiesKeySurround() {
       return BROKER_PROPERTIES_KEY_SURROUND;
    }
@@ -1719,7 +1846,8 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * The period (in milliseconds) used to check if the federation connection has failed to receive pings from another server
+    * The period (in milliseconds) used to check if the federation connection has failed to receive pings from another
+    * server
     */
    public static long getDefaultFederationFailureCheckPeriod() {
       return DEFAULT_FEDERATION_FAILURE_CHECK_PERIOD;
@@ -1782,31 +1910,40 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Whether or not to report JVM memory metrics
+    * Whether to report JVM memory metrics
     */
    public static boolean getDefaultJvmMemoryMetrics() {
       return DEFAULT_JVM_MEMORY_METRICS;
    }
 
    /**
-    * Whether or not to report JVM GC metrics
+    * Whether to report JVM GC metrics
     */
    public static boolean getDefaultJvmGcMetrics() {
       return DEFAULT_JVM_GC_METRICS;
    }
 
    /**
-    * Whether or not to report JVM thread metrics
+    * Whether to report JVM thread metrics
     */
    public static boolean getDefaultJvmThreadMetrics() {
       return DEFAULT_JVM_THREAD_METRICS;
    }
 
-   public static String getDefaultTemporaryQueueNamespace() {
-      return DEFAULT_TEMPORARY_QUEUE_NAMESPACE;
+   public static boolean getDefaultExecutorServiceMetrics() {
+      return DEFAULT_EXECUTOR_SERVICE_METRICS;
    }
 
-   public static String getDefaultDistributedPrimitiveManagerClassName() {
+   public static String getDefaultUuidNamespace() {
+      return DEFAULT_UUID_NAMESPACE;
+   }
+
+   @Deprecated(forRemoval = true)
+   public static String getDefaultTemporaryQueueNamespace() {
+      return DEFAULT_UUID_NAMESPACE;
+   }
+
+   public static String getDefaultDistributedLockManagerClassName() {
       return DEFAULT_DISTRIBUTED_PRIMITIVE_MANAGER_CLASS_NAME;
    }
 
@@ -1814,32 +1951,50 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_BRIDGE_CONCURRENCY;
    }
 
+   public static long getDefaultBridgePendingAckTimeout() {
+      return DEFAULT_BRIDGE_PENDING_ACK_TIMEOUT;
+   }
+
    /**
-    * Whether or not to report Netty pool metrics
+    * Whether to report Netty pool metrics
     */
    public static Boolean getDefaultNettyPoolMetrics() {
       return DEFAULT_NETTY_POOL_METRICS;
    }
 
    /**
-    * Whether or not to report file descriptor metrics
+    * Whether to report file descriptor metrics
     */
    public static Boolean getDefaultFileDescriptorsMetrics() {
       return DEFAULT_FILE_DESCRIPTORS_METRICS;
    }
 
    /**
-    * Whether or not to report processor metrics
+    * Whether to report processor metrics
     */
    public static Boolean getDefaultProcessorMetrics() {
       return DEFAULT_PROCESSOR_METRICS;
    }
 
    /**
-    * Whether or not to report uptime metrics
+    * Whether to report uptime metrics
     */
    public static Boolean getDefaultUptimeMetrics() {
       return DEFAULT_UPTIME_METRICS;
+   }
+
+   /**
+    * Whether to report logging metrics
+    */
+   public static Boolean getDefaultLoggingMetrics() {
+      return DEFAULT_LOGGING_METRICS;
+   }
+
+   /**
+    * Whether to report security cache metrics
+    */
+   public static Boolean getDefaultSecurityCacheMetrics() {
+      return DEFAULT_SECURITY_CACHE_METRICS;
    }
 
    /**
@@ -1847,6 +2002,20 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static long getMqttSessionScanInterval() {
       return DEFAULT_MQTT_SESSION_SCAN_INTERVAL;
+   }
+
+   /**
+    * How long (in ms) to wait to persist MQTT session state
+    */
+   public static long getMqttSessionStatePersistenceTimeout() {
+      return DEFAULT_MQTT_SESSION_STATE_PERSISTENCE_TIMEOUT;
+   }
+
+   /**
+    * Whether to persist MQTT subscriptions
+    */
+   public static boolean getMqttSubscriptionPersistenceEnabled() {
+      return DEFAULT_MQTT_SUBSCRIPTION_PERSISTENCE_ENABLED;
    }
 
    public static boolean getDefaultSuppressSessionNotifications() {
@@ -1857,4 +2026,60 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_EMBEDDED_WEB_SERVER_RESTART_TIMEOUT;
    }
 
+   public static String getLiteralMatchMarkers() {
+      return DEFAULT_LITERAL_MATCH_MARKERS;
+   }
+
+   public static String getViewPermissionMethodMatchPattern() {
+      return DEFAULT_VIEW_PERMISSION_METHOD_MATCH_PATTERN;
+   }
+
+   public static String getManagementRbacPrefix() {
+      return DEFAULT_MANAGEMENT_RBAC_PREFIX;
+   }
+
+   public static boolean getManagementMessagesRbac() {
+      return DEFAULT_MANAGEMENT_MESSAGE_RBAC;
+   }
+
+
+   /*
+    * This configures the Mirror Ack Manager number of attempts on queues before trying page acks.
+    * It is not intended to be configured through the XML.
+    * The default value here is 5.
+    */
+   public static int getMirrorAckManagerQueueAttempts() {
+      return DEFAULT_MIRROR_ACK_MANAGER_QUEUE_ATTEMPTS;
+   }
+
+   public static int getMirrorAckManagerPageAttempts() {
+      return DEFAULT_MIRROR_ACK_MANAGER_PAGE_ATTEMPTS;
+   }
+
+   public static boolean getMirrorAckManagerWarnUnacked() {
+      return DEFAULT_MIRROR_ACK_MANAGER_WARN_UNACKED;
+   }
+
+   public static int getMirrorAckManagerRetryDelay() {
+      return DEFAULT_MIRROR_ACK_MANAGER_RETRY_DELAY;
+   }
+
+   public static boolean getMirrorPageTransaction() {
+      return DEFAULT_MIRROR_PAGE_TRANSACTION;
+   }
+
+   public static boolean getPurgePageFolders() {
+      return DEFAULT_PURGE_PAGE_FOLDERS;
+   }
+
+   /**
+    * the initial size of the intermediate message buffer used for queues
+    */
+   public static int getInitialQueueBufferSize() {
+      return INITIAL_QUEUE_BUFFER_SIZE;
+   }
+
+   public static int getClusterTopologyScannerAttempts() {
+      return DEFAULT_CLUSTER_TOPOLOGY_SCANNER_ATTEMPTS;
+   }
 }

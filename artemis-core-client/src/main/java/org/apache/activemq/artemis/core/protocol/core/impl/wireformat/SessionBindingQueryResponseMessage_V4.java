@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -151,76 +152,43 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (defaultPurgeOnNoConsumers ? 1231 : 1237);
-      result = prime * result + defaultMaxConsumers;
-      result = prime * result + (defaultExclusive == null ? 0 : defaultExclusive ? 1231 : 1237);
-      result = prime * result + (defaultLastValue == null ? 0 : defaultLastValue ? 1231 : 1237);
-      result = prime * result + (defaultLastValueKey == null ? 0 : defaultLastValueKey.hashCode());
-      result = prime * result + (defaultNonDestructive == null ? 0 : defaultNonDestructive ? 1231 : 1237);
-      result = prime * result + (defaultConsumersBeforeDispatch == null ? 0 : defaultConsumersBeforeDispatch.hashCode());
-      result = prime * result + (defaultDelayBeforeDispatch == null ? 0 : defaultDelayBeforeDispatch.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), defaultPurgeOnNoConsumers, defaultMaxConsumers, defaultExclusive,
+                          defaultLastValue, defaultLastValueKey, defaultNonDestructive, defaultConsumersBeforeDispatch,
+                          defaultDelayBeforeDispatch);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", defaultPurgeOnNoConsumers=" + defaultPurgeOnNoConsumers);
-      buff.append(", defaultMaxConsumers=" + defaultMaxConsumers);
-      buff.append(", defaultExclusive=" + defaultExclusive);
-      buff.append(", defaultLastValue=" + defaultLastValue);
-      buff.append(", defaultLastValueKey=" + defaultLastValueKey);
-      buff.append(", defaultNonDestructive=" + defaultNonDestructive);
-      buff.append(", defaultConsumersBeforeDispatch=" + defaultConsumersBeforeDispatch);
-      buff.append(", defaultDelayBeforeDispatch=" + defaultDelayBeforeDispatch);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", defaultPurgeOnNoConsumers=" + defaultPurgeOnNoConsumers);
+      sb.append(", defaultMaxConsumers=" + defaultMaxConsumers);
+      sb.append(", defaultExclusive=" + defaultExclusive);
+      sb.append(", defaultLastValue=" + defaultLastValue);
+      sb.append(", defaultLastValueKey=" + defaultLastValueKey);
+      sb.append(", defaultNonDestructive=" + defaultNonDestructive);
+      sb.append(", defaultConsumersBeforeDispatch=" + defaultConsumersBeforeDispatch);
+      sb.append(", defaultDelayBeforeDispatch=" + defaultDelayBeforeDispatch);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionBindingQueryResponseMessage_V4))
+      }
+      if (!(obj instanceof SessionBindingQueryResponseMessage_V4 other)) {
          return false;
-      SessionBindingQueryResponseMessage_V4 other = (SessionBindingQueryResponseMessage_V4) obj;
-      if (defaultPurgeOnNoConsumers != other.defaultPurgeOnNoConsumers)
-         return false;
-      if (defaultMaxConsumers != other.defaultMaxConsumers)
-         return false;
-      if (defaultExclusive == null) {
-         if (other.defaultExclusive != null)
-            return false;
-      } else if (!defaultExclusive.equals(other.defaultExclusive))
-         return false;
-      if (defaultLastValue == null) {
-         if (other.defaultLastValue != null)
-            return false;
-      } else if (!defaultLastValue.equals(other.defaultLastValue))
-         return false;
-      if (defaultLastValueKey == null) {
-         if (other.defaultLastValueKey != null)
-            return false;
-      } else if (!defaultLastValueKey.equals(other.defaultLastValueKey))
-         return false;
-      if (defaultNonDestructive == null) {
-         if (other.defaultNonDestructive != null)
-            return false;
-      } else if (!defaultNonDestructive.equals(other.defaultNonDestructive))
-         return false;
-      if (defaultConsumersBeforeDispatch == null) {
-         if (other.defaultConsumersBeforeDispatch != null)
-            return false;
-      } else if (!defaultConsumersBeforeDispatch.equals(other.defaultConsumersBeforeDispatch))
-         return false;
-      if (defaultDelayBeforeDispatch == null) {
-         if (other.defaultDelayBeforeDispatch != null)
-            return false;
-      } else if (!defaultDelayBeforeDispatch.equals(other.defaultDelayBeforeDispatch))
-         return false;
-      return true;
+      }
+      return defaultPurgeOnNoConsumers == other.defaultPurgeOnNoConsumers &&
+             defaultMaxConsumers == other.defaultMaxConsumers &&
+             Objects.equals(defaultExclusive, other.defaultExclusive) &&
+             Objects.equals(defaultLastValue, other.defaultLastValue) &&
+             Objects.equals(defaultLastValueKey, other.defaultLastValueKey) &&
+             Objects.equals(defaultNonDestructive, other.defaultNonDestructive) &&
+             Objects.equals(defaultConsumersBeforeDispatch, other.defaultConsumersBeforeDispatch) &&
+             Objects.equals(defaultDelayBeforeDispatch, other.defaultDelayBeforeDispatch);
    }
 }

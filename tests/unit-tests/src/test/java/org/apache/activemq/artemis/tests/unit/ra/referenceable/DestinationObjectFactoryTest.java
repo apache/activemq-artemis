@@ -23,8 +23,11 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class DestinationObjectFactoryTest extends ActiveMQTestBase {
 
@@ -32,15 +35,14 @@ public class DestinationObjectFactoryTest extends ActiveMQTestBase {
 
    @Test
    public void testReference() throws Exception {
-      ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomString());
+      ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomUUIDString());
       Reference reference = queue.getReference();
       String factoryName = reference.getFactoryClassName();
-      Class<?> factoryClass = Class.forName(factoryName);
-      ObjectFactory factory = (ObjectFactory) factoryClass.newInstance();
+      ObjectFactory factory = (ObjectFactory) Class.forName(factoryName).getDeclaredConstructor().newInstance();
       Object object = factory.getObjectInstance(reference, null, null, null);
-      Assert.assertNotNull(object);
-      Assert.assertTrue(object instanceof ActiveMQDestination);
-      Assert.assertEquals(queue, object);
+      assertNotNull(object);
+      assertInstanceOf(ActiveMQDestination.class, object);
+      assertEquals(queue, object);
    }
 
 

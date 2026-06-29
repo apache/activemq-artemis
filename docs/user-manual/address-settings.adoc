@@ -1,17 +1,20 @@
 = Address Settings
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 With address settings you can provide a block of settings which will be applied to any addresses that match the string in the `match` attribute.
 In the below example the settings would only be applied to the address `order.foo` address, but it is also possible to use xref:wildcard-syntax.adoc#wildcard-syntax[wildcards] to apply settings.
 
-For example, if you used the `match` string `queue.#` the settings would be applied to all addresses which start with `queue.`
+For example, if you used the `match` string `queue.#` the settings would be applied to _all_ addresses which start with `queue.`.
 
 Address settings are *hierarchical*.
 Therefore, if more than one `address-setting` would match then the settings are applied in order of their specificity with the more specific match taking priority.
-A match on the any-words delimiter (`#`) is considered less specific than a match without it.
-A match with a single word delimiter `*` is considered less specific than a match on an exact queue name.
+A match on the any-words delimiter (`#` by default) is considered less specific than a match without it.
+A match with a single word delimiter (`*` by default) is considered less specific than a match on an exact queue name.
 In this way settings can be "layered" so that configuration details don't need to be repeated.
+
+Address setting matches can also be "literal" which can be used to match wildcards literally, for further details see <<literal-matches,literal matches>>.
 
 The meaning of the specific settings are explained fully throughout the user manual, however here is a brief description with a link to the appropriate chapter if available.
 
@@ -23,31 +26,35 @@ Here an example of an `address-setting` entry that might be found in the `broker
    <address-setting match="order.foo">
       <dead-letter-address>DLA</dead-letter-address>
       <auto-create-dead-letter-resources>false</auto-create-dead-letter-resources>
-      <dead-letter-queue-prefix>DLQ.</dead-letter-queue-prefix>
+      <dead-letter-queue-prefix></dead-letter-queue-prefix>
       <dead-letter-queue-suffix></dead-letter-queue-suffix>
       <expiry-address>ExpiryQueue</expiry-address>
       <auto-create-expiry-resources>false</auto-create-expiry-resources>
-      <expiry-queue-prefix>EXP.</expiry-queue-prefix>
+      <expiry-queue-prefix></expiry-queue-prefix>
       <expiry-queue-suffix></expiry-queue-suffix>
-      <expiry-delay>123</expiry-delay>
+      <no-expiry>false</no-expiry>
+      <expiry-delay>-1</expiry-delay>
+      <min-expiry-delay>-1</min-expiry-delay>
+      <max-expiry-delay>-1</max-expiry-delay>
       <redelivery-delay>5000</redelivery-delay>
       <redelivery-delay-multiplier>1.0</redelivery-delay-multiplier>
       <redelivery-collision-avoidance-factor>0.0</redelivery-collision-avoidance-factor>
       <max-redelivery-delay>10000</max-redelivery-delay>
       <max-delivery-attempts>3</max-delivery-attempts>
-      <max-size-bytes>100000</max-size-bytes>
-      <max-size-messages>1000</max-size-messages>
+      <max-size-bytes>-1</max-size-bytes>
+      <max-size-messages>-1</max-size-messages>
       <max-size-bytes-reject-threshold>-1</max-size-bytes-reject-threshold>
-      <page-size-bytes>20000</page-size-bytes>
+      <page-size-bytes>10MB</page-size-bytes>
       <address-full-policy>PAGE</address-full-policy>
+      <disk-full-policy>BLOCK</disk-full-policy>
       <message-counter-history-day-limit></message-counter-history-day-limit>
-      <last-value-queue>true</last-value-queue> <!-- deprecated! see default-last-value-queue -->
+      <last-value-queue>false</last-value-queue> <!-- deprecated! see default-last-value-queue -->
       <default-last-value-queue>false</default-last-value-queue>
       <default-non-destructive>false</default-non-destructive>
       <default-exclusive-queue>false</default-exclusive-queue>
       <default-consumers-before-dispatch>0</default-consumers-before-dispatch>
       <default-delay-before-dispatch>-1</default-delay-before-dispatch>
-      <redistribution-delay>0</redistribution-delay>
+      <redistribution-delay>-1</redistribution-delay>
       <send-to-dla-on-no-route>false</send-to-dla-on-no-route>
       <slow-consumer-threshold>-1</slow-consumer-threshold>
       <slow-consumer-threshold-measurement-unit>MESSAGES_PER_SECOND</slow-consumer-threshold-measurement-unit>
@@ -70,13 +77,15 @@ Here an example of an `address-setting` entry that might be found in the `broker
       <management-message-attribute-size-limit>256</management-message-attribute-size-limit>
       <default-purge-on-no-consumers>false</default-purge-on-no-consumers>
       <default-max-consumers>-1</default-max-consumers>
-      <default-queue-routing-type></default-queue-routing-type>
-      <default-address-routing-type></default-address-routing-type>
+      <default-queue-routing-type>MULTICAST</default-queue-routing-type>
+      <default-address-routing-type>MULTICAST</default-address-routing-type>
+      <default-consumer-window-size>1048576</default-consumer-window-size>
       <default-ring-size>-1</default-ring-size>
       <retroactive-message-count>0</retroactive-message-count>
       <enable-metrics>true</enable-metrics>
       <enable-ingress-timestamp>false</enable-ingress-timestamp>
-      <id-cache-size>500</id-cache-size>
+      <id-cache-size>20000</id-cache-size>
+      <initial-queue-buffer-size>8192</initial-queue-buffer-size>
    </address-setting>
 </address-settings>
 ----
@@ -92,10 +101,12 @@ Read more in the chapter about xref:undelivered-messages.adoc#message-redelivery
 
 dead-letter-queue-prefix::
 The prefix used for automatically created dead-letter queues.
+Default is empty.
 Read more in the chapter about xref:undelivered-messages.adoc#message-redelivery-and-undelivered-messages[undelivered messages].
 
 dead-letter-queue-suffix::
 The suffix used for automatically created dead-letter queues.
+Default is empty.
 Read more in the chapter about xref:undelivered-messages.adoc#message-redelivery-and-undelivered-messages[undelivered messages].
 
 expiry-address::
@@ -109,18 +120,32 @@ Read more in the chapter about xref:undelivered-messages.adoc#message-redelivery
 
 expiry-queue-prefix::
 The prefix used for automatically created expiry queues.
+Default is empty.
 Read more in the chapter about xref:message-expiry.adoc#message-expiry[message expiry].
 
 expiry-queue-suffix::
 The suffix used for automatically created expiry queues.
+Default is empty.
 Read more in the chapter about xref:message-expiry.adoc#message-expiry[message expiry].
 
+no-expiry::
+If `true` this overrides the expiration time for _all_ messages so that they never expire.
+The default is `false`.
+Read more about xref:message-expiry.adoc#configuring-expiry-delay[message expiry].
+
 expiry-delay::
-The expiration time that will be used for messages which are using the default expiration time (i.e. 0).
-For example, if `expiry-delay` is set to "10" and a message which is using the default expiration time (i.e. 0) arrives then its expiration time of "0" will be changed to "10." However, if a message which is using an expiration time of "20" arrives then its expiration time will remain unchanged.
-Setting `expiry-delay` to "-1" will disable this feature.
-The default is "-1".
-Read more about xref:message-expiry.adoc#configuring-expiry-addresses[message expiry].
+The expiration time that will be used for messages which are using the default expiration time (i.e. `0`).
+For example, if `expiry-delay` is set to `10` and a message which is using the default expiration time (i.e. `0`) arrives then its expiration time of `0` will be changed to `10`.
+However, if a message which is using an expiration time of `20` arrives then its expiration time will remain unchanged.
+Setting `expiry-delay` to `-1` will disable this feature.
+The default is `-1`.
+Read more about xref:message-expiry.adoc#configuring-expiry-delay[message expiry].
+
+min-expiry-delay::
+max-expiry-delay::
+These are applied if the aforementioned `expiry-delay` isn't set.
+Unlike `expiry-delay`, they can impact the expiration of a message even if that message is using a non-default expiration time.
+There are a xref:message-expiry.adoc#configuring-expiry-delay[handful of rules] which dictate the behavior of these settings.
 
 max-delivery-attempts::
 defines how many time a cancelled message can be redelivered before sending to the `dead-letter-address`.
@@ -141,9 +166,14 @@ defines an additional factor used to calculate an adjustment to the `redelivery-
 Default is `0.0`.
 Valid values are between 0.0 and 1.0.
 Read more about xref:undelivered-messages.adoc#configuring-delayed-redelivery[undelivered messages].
-+
-`max-size-bytes`, `max-size-messages`, `page-size-bytes`, `max-read-page-messages` & `max-read-page-bytes` are used to configure paging on an address.
-This is explained xref:paging.adoc#configuration[here].
+
+max-size-bytes::
+max-size-messages::
+page-size-bytes::
+max-read-page-messages::
+max-read-page-bytes::
+All these are used to configure paging on an address.
+This is explained in the xref:paging.adoc#configuration[paging documentation].
 
 max-size-bytes-reject-threshold::
 is used with the address full `BLOCK` policy, the maximum size (in bytes) an address can reach before messages start getting rejected.
@@ -158,6 +188,15 @@ If the value is `DROP` then further messages will be silently dropped.
 If the value is `FAIL` then further messages will be dropped and an exception will be thrown on the client-side.
 If the value is `BLOCK` then client message producers will block when they try and send further messages.
 See the xref:flow-control.adoc#flow-control[Flow Control] and xref:paging.adoc#paging[Paging] chapters for more info.
+
+disk-full-policy::
+This attribute can have one of the following values: `DROP`, `FAIL` or `BLOCK` and determines what happens when a disk becomes full.
+The default value is `BLOCK`.
+If the value is `DROP` then further messages will be silently dropped.
+If the value is `FAIL` then further messages will be dropped and an exception will be thrown on the client-side.
+If the value is `BLOCK` then client message producers will block when they try and send further messages.
+See the xref:flow-control.adoc#flow-control[Flow Control], xref:paging.adoc#paging[Paging] and xref:paging.adoc#monitoring-disk[Monitoring Disk] chapters for more info.
+
 
 message-counter-history-day-limit::
 is the number of days to keep message counter history for this address assuming that `message-counter-enabled` is `true`.
@@ -187,6 +226,7 @@ Default is `-1` (wait forever).
 
 redistribution-delay::
 How long to wait when the last consumer is closed on a queue before redistributing any messages.
+Default is `-1`.
 Read more about xref:clusters.adoc#message-redistribution[clusters].
 
 send-to-dla-on-no-route::
@@ -234,12 +274,14 @@ Whether or not the broker should automatically create a queue when a message is 
 Queues which are auto-created are durable, non-temporary, and non-transient.
 Default is `true`.
 +
-NOTE: automatic queue creation does _not_ work for the core client.
-The core API is a low-level API and is not meant to have such automation.
+NOTE: Automatic queue creation does _not_ work for the Core client.
+The Core API is a low-level API and is not meant to have such automation.
+
+include::_auto-queue-creation-note.adoc[]
 
 auto-delete-queues::
 Whether or not the broker should automatically delete auto-created queues when they have both 0 consumers and the message count is  less than or equal to `auto-delete-queues-message-count`.
-Default is `true`.
+Default is xref:configuration-index.adoc#regarding-default-values[`true`].
 
 auto-delete-created-queues::
 Whether or not the broker should automatically delete created queues when they have both 0 consumers and the message count is  less than or equal to `auto-delete-queues-message-count`.
@@ -283,12 +325,12 @@ auto-create-addresses::
 Whether or not the broker should automatically create an address when a message is sent to or a consumer tries to consume from a queue which is mapped to an address whose name fits the address `match`.
 Default is `true`.
 +
-NOTE: automatic address creation does _not_ work for the core client.
-The core API is a low-level API and is not meant to have such automation.
+NOTE: automatic address creation does _not_ work for the Core client.
+The Core API is a low-level API and is not meant to have such automation.
 
 auto-delete-addresses::
 Whether or not the broker should automatically delete auto-created addresses once the address no longer has any queues.
-Default is `true`.
+Default is xref:configuration-index.adoc#regarding-default-values[`true`].
 
 auto-delete-addresses-delay::
 How long to wait (in milliseconds) before deleting auto-created addresses after they no longer have any queues.
@@ -376,5 +418,46 @@ Default is `false`.
 id-cache-size::
 defines the maximum size of the duplicate ID cache for an address, as each address has it's own cache
 that helps to detect and prevent the processing of duplicate messages based on their unique identification.
-By default, the `id-cache-size` setting inherits from the global `id-cache-size`, with a default of `20000`
-elements if not explicitly configured. Read more about xref:duplicate-detection.adoc#configuring-the-duplicate-id-cache[duplicate id cache sizes].
+By default, the `id-cache-size` setting inherits from the global `id-cache-size`, with a default of `20000` elements if not explicitly configured.
+Read more about xref:duplicate-detection.adoc#configuring-the-duplicate-id-cache[duplicate id cache sizes].
+
+initial-queue-buffer-size::
+defines the initial number of elements allocated initially on the JVM heap for the message reference buffer. This is allocated for each queue.
+If there are many queues that are created but unlikely to be used, this can be configured to a smaller value to prevent large initial allocation.
+By default, this value is `8192` if not explicitly configured. This must be a positive power of 2 (i.e. `0` is not an option).
+
+## Literal Matches
+
+A _literal_ match is a match that contains wildcards but should be applied _without regard_ to those wildcards. In other words, the wildcards should be ignored and the address settings should only be applied to the literal (i.e. exact) match.
+
+This can be useful when an application uses a xref:wildcard-routing.adoc[wildcard address]. For example, if an application creates a multicast queue on the address `orders.#` and that queue needs a different configuration than other matching addresses like `orders.retail` and `orders.wholesale`. Generally speaking this kind of use-case is rare, but wildcard addresses are often used by MQTT clients, and this kind of configuration flexiblity is useful.
+
+### Configuring a Literal Match
+
+If you want to configure a literal match the first thing to do is to configure the `literal-match-markers` parameter in `broker.xml`. This defines the beginning and ending characters used to mark the literal match, e.g.:
+
+[,xml]
+----
+<core>
+   ...
+   <literal-match-markers>()</literal-match-markers>
+   ...
+</core>
+----
+
+By default, no value is defined for `literal-match-markers` which means that literal matches are disabled by default. The value must be only 2 characters.
+
+Once `literal-match-markers` is defined you can then use those markers in the `match` of the address setting, e.g.
+
+[,xml]
+----
+<address-settings>
+   <address-setting match="(orders.#)">
+      <enable-metrics>true</enable-metrics>
+   </address-setting>
+   <address-setting match="orders.#">
+      <enable-metrics>false</enable-metrics>
+   </address-setting>
+</address-settings>
+----
+Using these settings metrics will be enabled on the address `orders.#` and any queues bound directly on that address, but metrics will _not_ be enabled for other matching addresses like `orders.retail` or `orders.wholesale` and any queues bound to those addresses.

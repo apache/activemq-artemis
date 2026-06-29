@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMessage;
 
 /**
- * ActiveMQ Artemis implementation of a JMS MessageConsumer.
+ * Apache Artemis implementation of a JMS MessageConsumer.
  */
 public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscriber {
 
@@ -155,6 +155,10 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
       }
    }
 
+   public SimpleString getAutoDeleteQueueName() {
+      return autoDeleteQueueName;
+   }
+
    // QueueReceiver implementation ----------------------------------
 
    @Override
@@ -239,8 +243,8 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
                throw ioob;
             }
 
-            // We Do the ack after doBeforeReceive, as in the case of large messages, this may fail so we don't want messages redelivered
-            // https://issues.jboss.org/browse/JBPAPP-6110
+            // We Do the ack after doBeforeReceive, as in the case of large messages, this may fail so we don't want
+            // messages redelivered
             if (session.getAcknowledgeMode() == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE) {
                jmsMsg.setIndividualAcknowledge();
             } else if (session.getAcknowledgeMode() == Session.CLIENT_ACKNOWLEDGE) {

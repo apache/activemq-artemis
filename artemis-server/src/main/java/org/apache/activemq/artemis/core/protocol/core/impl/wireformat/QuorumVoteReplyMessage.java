@@ -20,8 +20,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteHandler;
-import org.apache.activemq.artemis.core.server.cluster.qourum.Vote;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumVoteHandler;
+import org.apache.activemq.artemis.core.server.cluster.quorum.Vote;
 
 public class QuorumVoteReplyMessage extends PacketImpl {
 

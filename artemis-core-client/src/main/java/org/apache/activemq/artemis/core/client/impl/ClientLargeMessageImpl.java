@@ -28,8 +28,8 @@ import org.apache.activemq.artemis.utils.DataConstants;
 /**
  * ClientLargeMessageImpl is only created when receiving large messages.
  * <p>
- * At the time of sending a regular Message is sent as we won't know the message is considered large
- * until the buffer is filled up or the user set a streaming.
+ * At the time of sending a regular Message is sent as we won't know the message is considered large until the buffer is
+ * filled up or the user set a streaming.
  */
 public final class ClientLargeMessageImpl extends ClientMessageImpl implements ClientLargeMessageInternal {
 
@@ -38,9 +38,6 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
 
    private long largeMessageSize;
 
-   /**
-    * @param largeMessageSize the largeMessageSize to set
-    */
    @Override
    public void setLargeMessageSize(long largeMessageSize) {
       this.largeMessageSize = largeMessageSize;
@@ -64,9 +61,6 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
       }
    }
 
-   /**
-    * @return the largeMessage
-    */
    @Override
    public boolean isLargeMessage() {
       return true;
@@ -155,6 +149,14 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
          writableBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer.duplicate(), this);
 
          largeMessageController.saveBuffer(new ActiveMQOutputStream(writableBuffer));
+
+         unsetCompressionPropertyIfNeeded();
+      }
+   }
+
+   private void unsetCompressionPropertyIfNeeded() {
+      if (largeMessageController instanceof CompressedLargeMessageControllerImpl) {
+         putBooleanProperty(Message.HDR_LARGE_COMPRESSED, false);
       }
    }
 
@@ -170,6 +172,17 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
       public void write(int b) throws IOException {
          bufferOut.writeByte((byte) (b & 0xff));
       }
+
+      @Override
+      public void write(byte[] b, int off, int len) throws IOException {
+         bufferOut.writeBytes(b, off, len);
+      }
+
+   }
+
+   @Override
+   public boolean isOriginallyRegular() {
+      return largeMessageController.isOriginallyRegular();
    }
 
    public void retrieveExistingData(ClientMessageInternal clMessage) {

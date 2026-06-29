@@ -22,9 +22,6 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
-/**
- *
- */
 public interface ActiveMQServerAddressPlugin extends ActiveMQServerBasePlugin {
 
    /**
@@ -32,7 +29,6 @@ public interface ActiveMQServerAddressPlugin extends ActiveMQServerBasePlugin {
     *
     * @param addressInfo The addressInfo that will be added
     * @param reload If the address is being reloaded
-    * @throws ActiveMQException
     */
    default void beforeAddAddress(AddressInfo addressInfo, boolean reload) throws ActiveMQException {
 
@@ -43,7 +39,6 @@ public interface ActiveMQServerAddressPlugin extends ActiveMQServerBasePlugin {
     *
     * @param addressInfo The newly added address
     * @param reload If the address is being reloaded
-    * @throws ActiveMQException
     */
    default void afterAddAddress(AddressInfo addressInfo, boolean reload) throws ActiveMQException {
 
@@ -55,7 +50,6 @@ public interface ActiveMQServerAddressPlugin extends ActiveMQServerBasePlugin {
     *
     * @param address The existing address info that is about to be updated
     * @param routingTypes The new routing types that the address will be updated with
-    * @throws ActiveMQException
     */
    default void beforeUpdateAddress(SimpleString address, EnumSet<RoutingType> routingTypes) throws ActiveMQException {
 
@@ -65,7 +59,6 @@ public interface ActiveMQServerAddressPlugin extends ActiveMQServerBasePlugin {
     * After an address has been updated
     *
     * @param addressInfo The newly updated address info
-    * @throws ActiveMQException
     */
    default void afterUpdateAddress(AddressInfo addressInfo) throws ActiveMQException {
 
@@ -75,7 +68,6 @@ public interface ActiveMQServerAddressPlugin extends ActiveMQServerBasePlugin {
     * Before an address is removed
     *
     * @param address The address that will be removed
-    * @throws ActiveMQException
     */
    default void beforeRemoveAddress(SimpleString address) throws ActiveMQException {
 
@@ -86,7 +78,6 @@ public interface ActiveMQServerAddressPlugin extends ActiveMQServerBasePlugin {
     *
     * @param address The address that has been removed
     * @param addressInfo The address info that has been removed or null if not removed
-    * @throws ActiveMQException
     */
    default void afterRemoveAddress(SimpleString address, AddressInfo addressInfo) throws ActiveMQException {
 

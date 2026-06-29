@@ -18,11 +18,13 @@ package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.Queue;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
- * ActiveMQ Artemis implementation of a JMS Queue.
- * <br>
+ * Apache Artemis implementation of a JMS Queue.
+ * <p>
  * This class can be instantiated directly.
  */
 public class ActiveMQQueue extends ActiveMQDestination implements Queue {
@@ -51,11 +53,6 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
       super(address, temporary ? TYPE.TEMP_QUEUE : TYPE.QUEUE, null);
    }
 
-   /**
-    * @param address
-    * @param temporary
-    * @param session
-    */
    public ActiveMQQueue(String address, boolean temporary, ActiveMQSession session) {
       super(address, temporary ? TYPE.TEMP_QUEUE : TYPE.QUEUE, session);
    }
@@ -75,18 +72,15 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (!(o instanceof ActiveMQQueue)) {
+      if (!(obj instanceof ActiveMQQueue other)) {
          return false;
       }
 
-      ActiveMQQueue that = (ActiveMQQueue) o;
-
-      return super.getAddress().equals(that.getAddress());
+      return Objects.equals(super.getAddress(), other.getAddress());
    }
 
    @Override

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.junit.jupiter.api.BeforeEach;
 
 import javax.jms.DeliveryMode;
 
@@ -26,6 +27,7 @@ import javax.jms.DeliveryMode;
  */
 public class JmsDurableQueueWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       topic = false;

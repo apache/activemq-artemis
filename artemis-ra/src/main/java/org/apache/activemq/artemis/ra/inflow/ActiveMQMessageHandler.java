@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSClientLogger;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMessage;
@@ -55,25 +56,17 @@ import org.apache.activemq.artemis.utils.VersionLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 
-/**
- * The message handler
- */
 public class ActiveMQMessageHandler implements MessageHandler, FailoverEventListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The session
-    */
    private final ClientSessionInternal session;
 
    private ClientConsumerInternal consumer;
 
-   /**
-    * The endpoint
-    */
    private MessageEndpoint endpoint;
 
    private final ConnectionFactoryOptions options;
@@ -119,14 +112,14 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       String selector = spec.getMessageSelector();
 
       // Create the message consumer
-      SimpleString selectorString = selector == null || selector.trim().equals("") ? null : new SimpleString(selector);
+      SimpleString selectorString = selector == null || selector.trim().isEmpty() ? null : SimpleString.of(selector);
       if (activation.isTopic() && spec.isSubscriptionDurable()) {
          SimpleString queueName = ActiveMQDestination.createQueueNameForSubscription(true, spec.getClientID(), spec.getSubscriptionName());
 
          QueueQuery subResponse = session.queueQuery(queueName);
 
          if (!subResponse.isExists()) {
-            session.createQueue(new QueueConfiguration(queueName).setAddress(activation.getAddress()).setFilterString(selectorString));
+            session.createQueue(QueueConfiguration.of(queueName).setAddress(activation.getAddress()).setFilterString(selectorString));
          } else {
             // The check for already exists should be done only at the first session
             // As a deployed MDB could set up multiple instances in order to process messages in parallel.
@@ -143,7 +136,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
 
             boolean selectorChanged = selector == null && oldFilterString != null || oldFilterString == null && selector != null || (oldFilterString != null && selector != null && !oldFilterString.toString().equals(selector));
 
-            SimpleString oldTopicName = (enable1XPrefix && !subResponse.getAddress().startsWith(PacketImpl.OLD_TOPIC_PREFIX) ? PacketImpl.OLD_TOPIC_PREFIX : SimpleString.toSimpleString("")).concat(subResponse.getAddress());
+            SimpleString oldTopicName = (enable1XPrefix && !subResponse.getAddress().startsWith(PacketImpl.OLD_TOPIC_PREFIX) ? PacketImpl.OLD_TOPIC_PREFIX : SimpleString.of("")).concat(subResponse.getAddress());
 
             boolean topicChanged = !oldTopicName.equals(activation.getAddress());
 
@@ -152,7 +145,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                session.deleteQueue(queueName);
 
                // Create the new one
-               session.createQueue(new QueueConfiguration(queueName).setAddress(activation.getAddress()).setFilterString(selectorString));
+               session.createQueue(QueueConfiguration.of(queueName).setAddress(activation.getAddress()).setFilterString(selectorString));
             }
          }
          consumer = (ClientConsumerInternal) session.createConsumer(queueName, null, false);
@@ -160,8 +153,8 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          SimpleString tempQueueName;
          if (activation.isTopic()) {
             if (activation.getTopicTemporaryQueue() == null) {
-               tempQueueName = new SimpleString(UUID.randomUUID().toString());
-               session.createQueue(new QueueConfiguration(tempQueueName).setAddress(activation.getAddress()).setFilterString(selectorString).setDurable(false).setTemporary(true));
+               tempQueueName = SimpleString.of(UUID.randomUUID().toString());
+               session.createQueue(QueueConfiguration.of(tempQueueName).setAddress(activation.getAddress()).setFilterString(selectorString).setDurable(false).setTemporary(true));
                activation.setTopicTemporaryQueue(tempQueueName);
             } else {
                tempQueueName = activation.getTopicTemporaryQueue();
@@ -169,7 +162,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                if (!queueQuery.isExists()) {
                   // this is because we could be using remote servers (in cluster maybe)
                   // and the queue wasn't created on that node yet.
-                  session.createQueue(new QueueConfiguration(tempQueueName).setAddress(activation.getAddress()).setFilterString(selectorString).setDurable(false).setTemporary(true));
+                  session.createQueue(QueueConfiguration.of(tempQueueName).setAddress(activation.getAddress()).setFilterString(selectorString).setDurable(false).setTemporary(true));
                }
             }
          } else {
@@ -186,7 +179,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       if (activation.isDeliveryTransacted() && !activation.getActivationSpec().isUseLocalTx()) {
          Map<String, Object> xaResourceProperties = new HashMap<>();
          xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_JNDI_NAME, ((ActiveMQResourceAdapter) spec.getResourceAdapter()).getJndiName());
-         xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_NODE_ID, ((ClientSessionFactoryInternal) cf).getLiveNodeId());
+         xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_NODE_ID, ((ClientSessionFactoryInternal) cf).getPrimaryNodeId());
          xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_NAME, ActiveMQResourceAdapter.PRODUCT_NAME);
          xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_VERSION, VersionLoader.getVersion().getFullVersion());
          XAResource xaResource = ServiceUtils.wrapXAResource(session, xaResourceProperties);
@@ -288,7 +281,6 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
    @Override
    public void onMessage(final ClientMessage message) {
       logger.trace("onMessage({})", message);
-
       ActiveMQMessage msg;
       if (enable1XPrefix) {
          msg = ActiveMQCompatibleMessage.createMessage(message, session, options);
@@ -379,6 +371,15 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          session.markRollbackOnly();
       } finally {
          try {
+            if (activation.getActivationSpec().getTransactionTimeout() > 0) {
+               TransactionManager tm = ServiceUtils.getTransactionManager();
+               if (tm != null) {
+                  try {
+                     tm.setTransactionTimeout(0);
+                  } catch (SystemException ex) {
+                  }
+               }
+            }
             session.resetIfNeeded();
          } catch (ActiveMQException e) {
             ActiveMQRALogger.LOGGER.unableToResetSession(activation.toString(), e);
@@ -386,6 +387,16 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          }
       }
 
+   }
+
+
+   @Override
+   public void onMessageExpired(ClientMessage message) {
+      try {
+         message.checkCompletion();
+      } catch (ActiveMQException e) {
+         ActiveMQJMSClientLogger.LOGGER.errorProcessingMessage(e);
+      }
    }
 
    public void start() throws ActiveMQException {

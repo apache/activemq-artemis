@@ -1,14 +1,15 @@
 = Paging
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
-Apache ActiveMQ Artemis transparently supports huge queues containing millions of messages while the server is running with limited memory.
+The broker transparently supports huge queues containing millions of messages with limited memory.
 
-In such a situation it's not possible to store all of the queues in memory at any one time, so Apache ActiveMQ Artemis transparently _pages_ messages into and out of memory as they are needed, thus allowing massive queues with a low memory footprint.
+In such a situation it's not possible to store all of the queues in memory at any one time, so the broker transparently _pages_ messages into and out of memory as they are needed, thus allowing massive queues with a low memory footprint.
 
-Apache ActiveMQ Artemis will start paging messages to disk, when the size of all messages in memory for an address exceeds a configured maximum size.
+The broker will start paging messages to disk when the size of all messages in memory for an address exceeds a configured maximum size.
 
-The default configuration from Artemis has destinations with paging.
+The default configuration uses paging.
 
 == Page Files
 
@@ -35,7 +36,7 @@ This is different to browsing as we will "browse" the entire queue looking for m
 You can configure the location of the paging folder in `broker.xml`.
 
 * `paging-directory` Where page files are stored.
-Apache ActiveMQ Artemis will create one folder for each address being paged under this configured location.
+The broker will create one folder for each address being paged under this configured location.
 Default is `data/paging`.
 
 == Paging Mode
@@ -99,14 +100,20 @@ If the value is `BLOCK` then client message producers will block when they try a
 | `PAGE`
 
 | `max-read-page-messages`
-| how many message can be read from paging into the Queue whenever more messages are needed.
-The system wtill stop reading if `max-read-page-bytes hits the limit first.
-| -1
+|  Maximum number of paged messages that the broker can read into memory per-queue. The default value is -1, which means that no limit applies.
+| -1 (disabled)
 
 | `max-read-page-bytes`
-| how much memory the messages read from paging can take on the Queue whenever more messages are needed.
-The system will stop reading if `max-read-page-messages` hits the limit first.
+|Maximum memory, in bytes, that can be used to read paged messages into memory per-queue. When applying this limit, the broker takes into account both messages that are currently delivering and messages that are ready to be delivered to consumers. The default value is 2 * page-size (usually being 20 MB). If consumers are slow to acknowledge messages, you can increase the default value to ensure that the memory is not consumed by messages pending acknowledgment, which can starve the broker of messages.
 | 2 * page-size-bytes
+
+|prefetch-page-messages
+|Number of paged messages that the broker can read from disk into memory per-queue. The default value is taken from max-read-page-messages, usually at -1, which means that no limit applies.
+|`max-read-page-messages`
+
+|prefetch-page-bytes
+|Number of paged messages that the broker can read from disk into memory per-queue. The default value is taken from max-read-page-messages, usually at -1, which means that no limit applies.
+|if not defined, `max-read-page-bytes`
 
 | `page-limit-bytes`
 | After entering page mode, how much data would the system allow incoming.
@@ -123,6 +130,11 @@ This tells what to do if the system is reaching `page-limit-bytes` or `page-limi
 |
 |===
 
+
+[NOTE]
+
+When using the JDBC storage, the effective page-size-bytes used is limited to jdbc-max-page-size-bytes, configured in the JDBC storage section.
+
 === max-size-bytes and max-size-messages simultaneous usage
 
 It is possible to define max-size-messages (as the maximum number of messages) and max-messages-size (as the max number of estimated memory used by the address) concurrently.
@@ -130,26 +142,34 @@ The configured policy will start based on the first value to reach its mark.
 
 ==== Maximum read from page
 
-`max-read-page-messages` and `max-read-page-bytes` are used to control messaging reading from paged file into the Queue.
-The broker will add messages on the Queue until either `max-read-page-meessages` or `max-read-page-bytes` reaches the limit.
+`max-read-page-messages`, `max-read-page-bytes`, `prefetch-page-messages` and `prefetch-page-bytes` are used to control reading from paged file into the Queue.
+The broker will add messages as long as all these limits are satisfied.
 
-If both values are set to -1 the broker will keep reading messages as long as the consumer is reaching for more messages.
+If all these values are set to -1 the broker will keep reading messages as long as the consumer is reaching for more messages.
 However this would keep the broker unprotected from consumers allocating huge transactions or consumers that don't have flow control enabled.
 
-== Global Max Size
+== Global Settings
 
-Beyond the `max-size-bytes` on the address you can also set the global-max-size on the main configuration.
-If you set `max-size-bytes` = `-1` on paging the `global-max-size` can still be used.
+Aside from `max-size-bytes` and `max-messages`, which operate on a per-address basis, there are also _global_ settings which apply to all addresses.
 
-== Global Max Messages
+When the total accumulated size or number of messages sent to a the broker exceeds the global limit then the `address-full-policy` for the corresponding address will be enforced.
 
-You can also specify `global-max-messages` on the main configuration, specifying how many messages the system would accept before entering into the configured full policy mode configured.
+If both `max-size-bytes` and `max-messages` are set to `-1` on a particular address the global setting will still be enforced.
 
-When you have more messages than what is configured `global-max-size` any new produced message will make that destination to go through its paging policy.
+=== Global Max Size
 
-`global-max-size` is calculated as half of the max memory available to the Java Virtual Machine, unless specified on the `broker.xml` configuration.
+The `global-max-size` is the total number of bytes that can be sent to all the addresses on the broker.
+It is calculated as a percentage of the max memory available to the Java Virtual Machine (i.e. the value of `-Xmx`), unless specified explicitly in `broker.xml`.
+By default, 50% of the max memory is used.
+However, this percentage can be changed using `global-max-size-percent-of-jvm-max-memory` in `broker.xml`.
 
-By default `global-max-messages` = `-1` meaning it's disabled.
+Use `-1` to disable this functionality.
+
+=== Global Max Messages
+
+The `global-max-messages` is the total number of messages that can be sent to all the addresses on the broker.
+
+By default `global-max-messages` is `-1` (i.e. disabled).
 
 == Dropping messages
 
@@ -191,12 +211,32 @@ For example:
 In this example all the other 9 queues will be consuming messages from the page system.
 This may cause performance issues if this is an undesirable state.
 
-== Max Disk Usage
+== Monitoring Disk
 
-The System will perform scans on the disk to determine if the disk is beyond a configured limit.
-These are configured through `max-disk-usage` in percentage.
-Once that limit is reached any message will be blocked.
-(unless the protocol doesn't support flow control on which case there will be an exception thrown and the connection for those clients dropped).
+The broker can be configured to perform scans on the disk to determine if it is beyond a configured limit.
+Since the disk is a critical piece of infrastructure for data integrity the broker will automatically shut itself down if it runs out of disk space.
+
+Configuring a limit allows the broker to enforce flow control on clients sending messages to the broker so that the disk never fills up.
+The `disk-full-policy` controls what the broker will do when the configured limit is exceeded.
+Similar to `address-full-policy`, valid values are `DROP`, `FAIL`, and `BLOCK`.
+The default is `BLOCK`.
+
+WARNING: If the protocol used to send the messages doesn't support flow control (e.g. STOMP) then an exception will be thrown and the connection for the client will be dropped so that it can no longer send messages and consume disk space.
+
+=== Max Disk Usage
+
+A limit on the _maximum_ disk space used can be configured through `max-disk-usage`
+This is the *percentage* of disk used.
+For example, if the disk's capacity was 500GiB and `max-disk-usage` was `50` then the broker would start blocking producers once 250GiB of disk space was used.
+
+=== Minimum Disk Free
+
+A limit on the _minimum_ disk space free can be configured through `min-disk-free`
+This is specific amount and not a percentage like with `max-disk-usage`.
+For example, if the disk's capacity was 500GiB and `min-disk-free` was `100GiB` then the broker would start blocking producers once 400GiB of disk space was used.
+
+NOTE: If _both_ `max-disk-usage` and `min-disk-free` are configured then `min-disk-free` will take priority.
+
 
 == Page Sync Timeout
 
@@ -217,8 +257,14 @@ This is to avoid a single destination using the entire disk in case their consum
 
 You can configure either `page-limit-bytes` or `page-limit-messages`, along with `page-full-policy` on the address settings limiting how much data will be recorded in paging.
 
-If you configure `page-full-policy` as DROP, messages will be simplify dropped while the clients will not get any exceptions, while if you configured FAIL the producers will receive a JMS Exception for the error condition.
+If you configure `page-full-policy` as DROP, messages will be simply dropped while the clients will not get any exceptions, while if you configured FAIL the producers will receive a JMS Exception for the error condition.
+
+[NOTE]
+
+The `page-limit-bytes` is used to identify a maximum number of page files internally (i.e. `page-limit-bytes` / `page-size-bytes`) which is then compared against the current number of page files.
+If configured, `page-limit-bytes` must be equal or greater than `page-size-bytes` or it will cause immediate block.
+If the limit determined from `page-limit-bytes`, once converted to a number of pages, is less than the current number of page files in the store then paging will be blocked based on `page-full-policy` until the number of current page files drops to less than or equal to the calculated file limit. It will become blocked again once the number of page files is greater than the value determined by `page-limit-bytes` (`page-limit-bytes` / `page-size-bytes`).
 
 == Example
 
-See the xref:examples.adoc#paging[Paging Example] which shows how to use paging with  Apache ActiveMQ Artemis.
+See the xref:examples.adoc#paging[Paging Example] which shows how to use paging.

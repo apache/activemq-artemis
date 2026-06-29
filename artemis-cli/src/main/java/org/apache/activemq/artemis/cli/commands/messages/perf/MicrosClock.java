@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.cli.commands.messages.perf;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 public class MicrosClock {
@@ -23,6 +25,8 @@ public class MicrosClock {
    // no need for volatile here
    private static long offset = -1;
    private static long NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
+   private static Class vm;
+   private static Method getNanoTimeAdjustment;
 
    private static final boolean AVAILABLE = checkAvailable();
 
@@ -43,23 +47,32 @@ public class MicrosClock {
    }
 
    public static long now() {
-      long epochSecond = offset;
-      long nanoAdjustment = jdk.internal.misc.VM.getNanoTimeAdjustment(epochSecond);
-
-      if (nanoAdjustment == -1) {
-         epochSecond = System.currentTimeMillis() / 1000 - 1024;
-         nanoAdjustment = jdk.internal.misc.VM.getNanoTimeAdjustment(epochSecond);
-         if (nanoAdjustment == -1) {
-            throw new InternalError("Offset " + epochSecond + " is not in range");
-         } else {
-            offset = epochSecond;
+      try {
+         long epochSecond = offset;
+         if (vm == null) {
+            vm = Class.forName("jdk.internal.misc.VM");
          }
-      }
-      final long secs = Math.addExact(epochSecond, Math.floorDiv(nanoAdjustment, NANOS_PER_SECOND));
-      final long secsInUs = TimeUnit.SECONDS.toMicros(secs);
-      final long nsOffset = (int) Math.floorMod(nanoAdjustment, NANOS_PER_SECOND);
-      final long usOffset = TimeUnit.NANOSECONDS.toMicros(nsOffset);
-      return secsInUs + usOffset;
-   }
+         if (getNanoTimeAdjustment == null) {
+            getNanoTimeAdjustment = vm.getMethod("getNanoTimeAdjustment", long.class);
+         }
+         long nanoAdjustment = (long) getNanoTimeAdjustment.invoke(getNanoTimeAdjustment, epochSecond);
 
+         if (nanoAdjustment == -1) {
+            epochSecond = System.currentTimeMillis() / 1000 - 1024;
+            nanoAdjustment = (long) getNanoTimeAdjustment.invoke(getNanoTimeAdjustment, epochSecond);
+            if (nanoAdjustment == -1) {
+               throw new InternalError("Offset " + epochSecond + " is not in range");
+            } else {
+               offset = epochSecond;
+            }
+         }
+         final long secs = Math.addExact(epochSecond, Math.floorDiv(nanoAdjustment, NANOS_PER_SECOND));
+         final long secsInUs = TimeUnit.SECONDS.toMicros(secs);
+         final long nsOffset = (int) Math.floorMod(nanoAdjustment, NANOS_PER_SECOND);
+         final long usOffset = TimeUnit.NANOSECONDS.toMicros(nsOffset);
+         return secsInUs + usOffset;
+      } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+         throw new IllegalStateException(e);
+      }
+   }
 }

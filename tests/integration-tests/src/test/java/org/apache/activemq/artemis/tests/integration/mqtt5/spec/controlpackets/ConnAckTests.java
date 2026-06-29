@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -32,7 +39,7 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttClient;
@@ -41,11 +48,11 @@ import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.client.MqttDisconnectResponse;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.packet.MqttReturnCode;
-import org.junit.Assume;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-3.2.2-1] Byte 1 is the "Connect Acknowledge Flags". Bits 7-1 are reserved and MUST be set to 0.
@@ -77,14 +84,9 @@ import org.junit.Test;
  *
  * [MQTT-3.2.2-19] The Server MUST NOT send this (i.e. Reason String) property if it would increase the size of the CONNACK packet beyond the Maximum Packet Size specified by the Client.
  * [MQTT-3.2.2-20] The Server MUST NOT send this (i.e. User Property) property if it would increase the size of the CONNACK packet beyond the Maximum Packet Size specified by the Client.
- *
  */
 
-public class ConnAckTests  extends MQTT5TestSupport {
-
-   public ConnAckTests(String protocol) {
-      this.protocol = protocol;
-   }
+public class ConnAckTests extends MQTT5TestSupport {
 
    /*
     * [MQTT-3.1.3-6] A Server MAY allow a Client to supply a ClientID that has a length of zero bytes, however if it
@@ -97,10 +99,9 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * CONNACK containing an Assigned Client Identifier. The Assigned Client Identifier MUST be a new Client Identifier
     * not used by any other Session currently in the Server.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testEmptyClientID() throws Exception {
-      // This is apparently broken with the Paho client + web socket. The broker never even receives a CONNECT packet.
-      Assume.assumeTrue(protocol.equals(TCP));
 
       // no session should exist
       assertEquals(0, getSessionStates().size());
@@ -125,9 +126,10 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * the ClientID, it MUST set Session Present to 1 in the CONNACK packet, otherwise it MUST set Session Present to 0
     * in the CONNACK packet. In both cases it MUST set a 0x00 (Success) Reason Code in the CONNACK packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnackWhenCleanStartFalse() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
 
       // no session should exist
       assertEquals(0, getSessionStates().size());
@@ -157,9 +159,10 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * [MQTT-3.2.2-2] If the Server accepts a connection with Clean Start set to 1, the Server MUST set Session Present
     * to 0 in the CONNACK packet in addition to setting a 0x00 (Success) Reason Code in the CONNACK packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnackWhenCleanStartTrue() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
 
       // no session should exist
       assertEquals(0, getSessionStates().size());
@@ -182,9 +185,10 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * If the Session Expiry Interval is absent the value 0 is used. If it is set to 0, or is absent, the Session ends
     * when the Network Connection is closed.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithAbsentSessionExpiryInterval() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       MqttClient consumer = createPahoClient(CONSUMER_ID);
@@ -209,9 +213,10 @@ public class ConnAckTests  extends MQTT5TestSupport {
     *
     * If the Session Expiry Interval is 0xFFFFFFFF (UINT_MAX), the Session does not expire.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithMaxSessionExpiryInterval() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final long EXPIRY_INTERVAL = 2000L;
 
@@ -225,7 +230,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       consumer.disconnect();
 
       // session should still exist since session expiry interval used the max value
-      assertFalse(Wait.waitFor(() -> getSessionStates().size() == 0, EXPIRY_INTERVAL * 2, 100));
+      assertFalse(Wait.waitFor(() -> getSessionStates().isEmpty(), EXPIRY_INTERVAL * 2, 100));
       assertNotNull(getSessionStates().get(CONSUMER_ID));
    }
 
@@ -233,9 +238,10 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * [MQTT-3.2.0-1] The Server MUST send a CONNACK with a 0x00 (Success) Reason Code before sending any Packet other
     * than AUTH.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnackSentFirst() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       CountDownLatch latch = new CountDownLatch(1);
       AtomicBoolean failed = new AtomicBoolean(false);
 
@@ -266,10 +272,9 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * This test *only* exercises one scenario where a CONNACK packet contains a non-zero Reason Code (i.e. when the
     * client ID is invalid)
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSessionPresentWithNonZeroConnackReasonCode() throws Exception {
-      // This is apparently broken with the Paho client + web socket. The broker never even receives a CONNECT packet.
-      Assume.assumeTrue(protocol.equals(TCP));
       CountDownLatch latch = new CountDownLatch(1);
 
       MQTTInterceptor outgoingInterceptor = (packet, connection) -> {
@@ -302,7 +307,8 @@ public class ConnAckTests  extends MQTT5TestSupport {
    /*
     * [MQTT-3.2.2-8] The Server sending the CONNACK packet MUST use one of the Connect Reason Code values.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnackReasonCode() throws Exception {
       CountDownLatch latch = new CountDownLatch(1);
 
@@ -315,7 +321,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       };
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       client.connect();
 
       assertTrue(latch.await(2, TimeUnit.SECONDS));
@@ -326,20 +332,16 @@ public class ConnAckTests  extends MQTT5TestSupport {
     *
     * The normal use-case with a postive maximum packet size.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMaxPacketSize() throws Exception {
       final int SIZE = 256;
       setAcceptorProperty("maximumPacketSize=" + SIZE);
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch latch = new CountDownLatch(1);
-      StringBuilder builder = new StringBuilder(SIZE * 2);
+      byte[] bytes = "=".repeat(SIZE * 2).getBytes(StandardCharsets.UTF_8);
 
-      for (int i = 0; i < SIZE * 2; i++) {
-         builder.append("=");
-      }
-      byte[] bytes = builder.toString().getBytes(StandardCharsets.UTF_8);
-
-      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      MqttClient producer = createPahoClient(RandomUtil.randomUUIDString());
       producer.connect();
       producer.setCallback(new DefaultMqttCallback() {
          @Override
@@ -368,12 +370,13 @@ public class ConnAckTests  extends MQTT5TestSupport {
     *
     * Disable maximum packet size on the broker so that it doesn't appear in the CONNACK at all.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMaxPacketSizeNegativeOne() throws Exception {
       final int SIZE = -1;
       setAcceptorProperty("maximumPacketSize=" + SIZE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       IMqttToken result = client.connectWithResult(null);
       assertNotNull(result.getResponseProperties());
       assertNull(result.getResponseProperties().getMaximumPacketSize());
@@ -386,13 +389,14 @@ public class ConnAckTests  extends MQTT5TestSupport {
     *
     * I expected the Paho client to validate the returning maximumPacketSize in the CONNACK, but it doesn't. :(
     */
-   @Ignore
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Disabled
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMaxPacketSizeZero() throws Exception {
       final int SIZE = 0;
       setAcceptorProperty("maximumPacketSize=" + SIZE);
 
-      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      MqttClient producer = createPahoClient(RandomUtil.randomUUIDString());
       try {
          producer.connect();
          fail("Connecting should have thrown an exception");
@@ -407,18 +411,19 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * [MQTT-3.2.2-18] If Topic Alias Maximum is absent or 0, the Client MUST NOT send any Topic Aliases on to the
     * Server.
     *
-    * This doesn't test whether or not the client actually sends topic aliases as that's up to the client
+    * This doesn't test whether the client actually sends topic aliases as that's up to the client
     * implementation. This just tests that the expected property value is returned to the client based on the broker's
     * setting.
     *
     * Disable topic alias maximum on the broker so that it is absent from the CONNACK.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTopicAliasMaxNegativeOne() throws Exception {
       final int SIZE = -1;
       setAcceptorProperty("topicAliasMaximum=" + SIZE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       IMqttToken result = client.connectWithResult(null);
       assertNotNull(result.getResponseProperties());
       assertNull(result.getResponseProperties().getTopicAliasMaximum());
@@ -427,18 +432,19 @@ public class ConnAckTests  extends MQTT5TestSupport {
    /*
     * [MQTT-3.2.2-18] Topic Alias Maximum is absent, the Client MUST NOT send any Topic Aliases on to the Server.
     *
-    * This doesn't test whether or not the client actually sends topic aliases as that's up to the client
+    * This doesn't test whether the client actually sends topic aliases as that's up to the client
     * implementation. This just tests that the expected property value is returned to the client based on the broker's
     * setting.
     *
     * Disable topic alias maximum on the broker.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTopicAliasMaxZero() throws Exception {
       final int SIZE = 0;
       setAcceptorProperty("topicAliasMaximum=" + SIZE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       IMqttToken result = client.connectWithResult(null);
       assertNotNull(result.getResponseProperties());
       assertEquals(0, result.getResponseProperties().getTopicAliasMaximum().intValue());
@@ -448,12 +454,13 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * [MQTT-3.2.2-21] If the Server sends a Server Keep Alive on the CONNACK packet, the Client MUST use this value
     * instead of the Keep Alive value the Client sent on CONNECT.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testServerKeepAlive() throws Exception {
       final int SERVER_KEEP_ALIVE = 123;
       setAcceptorProperty("serverKeepAlive=" + SERVER_KEEP_ALIVE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setKeepAliveInterval(1234);
       IMqttToken result = client.connectWithResult(options);
@@ -466,12 +473,13 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * [MQTT-3.2.2-22] If the Server does not send the Server Keep Alive, the Server MUST use the Keep Alive value set by
     * the Client on CONNECT.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testServerKeepAliveNegativeOne() throws Exception {
       final int KEEP_ALIVE = 1234;
       setAcceptorProperty("serverKeepAlive=-1");
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setKeepAliveInterval(KEEP_ALIVE);
       IMqttToken result = client.connectWithResult(options);
@@ -479,7 +487,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       boolean found = false;
       // make sure the keep-alive set by the client is used by the server (multiplied by 1500 because the client uses milliseconds instead of seconds and the value is modified by 1.5 per the spec)
       for (ConnectionEntry entry : ((RemotingServiceImpl)getServer().getRemotingService()).getConnectionEntries()) {
-         assertEquals(entry.ttl, KEEP_ALIVE * MQTTUtil.KEEP_ALIVE_ADJUSTMENT);
+         assertEquals(KEEP_ALIVE * MQTTUtil.KEEP_ALIVE_ADJUSTMENT, entry.ttl);
          found = true;
       }
       assertTrue(found);
@@ -492,19 +500,20 @@ public class ConnAckTests  extends MQTT5TestSupport {
     *
     * serverKeepAlive=0 completely disables keep alives no matter the client's keep alive value.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testServerKeepAliveZero() throws Exception {
       final int SERVER_KEEP_ALIVE = 0;
       setAcceptorProperty("serverKeepAlive=" + SERVER_KEEP_ALIVE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setKeepAliveInterval(1234);
       IMqttToken result = client.connectWithResult(options);
       assertEquals(SERVER_KEEP_ALIVE, (long) result.getResponseProperties().getServerKeepAlive());
       boolean found = false;
       for (ConnectionEntry entry : ((RemotingServiceImpl)getServer().getRemotingService()).getConnectionEntries()) {
-         assertEquals(entry.ttl, -1);
+         assertEquals(-1, entry.ttl);
          found = true;
       }
       assertTrue(found);
@@ -515,19 +524,20 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * [MQTT-3.2.2-22] If the Server does not send the Server Keep Alive, the Server MUST use the Keep Alive value set by
     * the Client on CONNECT.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testServerKeepAliveWithClientKeepAliveZero() throws Exception {
       final int SERVER_KEEP_ALIVE = 123;
       setAcceptorProperty("serverKeepAlive=" + SERVER_KEEP_ALIVE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setKeepAliveInterval(0);
       IMqttToken result = client.connectWithResult(options);
       assertEquals(SERVER_KEEP_ALIVE, (long) result.getResponseProperties().getServerKeepAlive());
       boolean found = false;
       for (ConnectionEntry entry : ((RemotingServiceImpl)getServer().getRemotingService()).getConnectionEntries()) {
-         assertEquals(entry.ttl, SERVER_KEEP_ALIVE * MQTTUtil.KEEP_ALIVE_ADJUSTMENT);
+         assertEquals(SERVER_KEEP_ALIVE * MQTTUtil.KEEP_ALIVE_ADJUSTMENT, entry.ttl);
          found = true;
       }
       assertTrue(found);

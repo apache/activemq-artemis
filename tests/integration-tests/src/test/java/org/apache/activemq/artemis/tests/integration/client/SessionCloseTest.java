@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.tests.integration.client;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -30,13 +30,15 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.apache.activemq.artemis.tests.util.RandomUtil.randomXid;
+import static org.apache.activemq.artemis.utils.RandomUtil.randomBytes;
+import static org.apache.activemq.artemis.utils.RandomUtil.randomInt;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SessionCloseTest extends ActiveMQTestBase {
 
@@ -55,77 +57,27 @@ public class SessionCloseTest extends ActiveMQTestBase {
 
       session.close();
 
-      Assert.assertTrue(session.isClosed());
+      assertTrue(session.isClosed());
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.createProducer();
-         }
-      });
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.createProducer());
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.createConsumer(RandomUtil.randomSimpleString());
-         }
-      });
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.createConsumer(RandomUtil.randomUUIDSimpleString()));
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.createQueue(new QueueConfiguration(RandomUtil.randomSimpleString()).setDurable(RandomUtil.randomBoolean()));
-         }
-      });
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.createQueue(QueueConfiguration.of(RandomUtil.randomUUIDSimpleString()).setDurable(RandomUtil.randomBoolean())));
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.createQueue(new QueueConfiguration(RandomUtil.randomSimpleString()).setAddress(RandomUtil.randomSimpleString()).setDurable(false).setTemporary(true));
-         }
-      });
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.createQueue(QueueConfiguration.of(RandomUtil.randomUUIDSimpleString()).setAddress(RandomUtil.randomUUIDSimpleString()).setDurable(false).setTemporary(true)));
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.start();
-         }
-      });
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.start());
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.stop();
-         }
-      });
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.stop());
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.commit();
-         }
-      });
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.commit());
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.rollback();
-         }
-      });
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.rollback());
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.queueQuery(RandomUtil.randomSimpleString());
-         }
-      });
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.queueQuery(RandomUtil.randomUUIDSimpleString()));
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.addressQuery(RandomUtil.randomSimpleString());
-         }
-      });
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.addressQuery(RandomUtil.randomUUIDSimpleString()));
 
    }
 
@@ -136,91 +88,55 @@ public class SessionCloseTest extends ActiveMQTestBase {
 
       session.close();
 
-      Assert.assertTrue(session.isXA());
-      Assert.assertTrue(session.isClosed());
+      assertTrue(session.isXA());
+      assertTrue(session.isClosed());
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
-         @Override
-         public void run() throws XAException {
-            session.commit(randomXid(), true);
-         }
-      });
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, () -> session.commit(randomXid(), true));
 
-      ActiveMQTestBase.expectXAException(XAException.XA_RETRY, new ActiveMQAction() {
-         @Override
-         public void run() throws XAException {
-            session.commit(randomXid(), false);
-         }
-      });
+      ActiveMQTestBase.expectXAException(XAException.XA_RETRY, () -> session.commit(randomXid(), false));
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
-         @Override
-         public void run() throws XAException {
-            session.end(randomXid(), XAResource.TMSUCCESS);
-         }
-      });
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, () -> session.end(randomXid(), XAResource.TMSUCCESS));
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
-         @Override
-         public void run() throws XAException {
-            session.forget(randomXid());
-         }
-      });
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, () -> session.forget(randomXid()));
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
-         @Override
-         public void run() throws XAException {
-            session.prepare(randomXid());
-         }
-      });
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, () -> session.prepare(randomXid()));
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
-         @Override
-         public void run() throws XAException {
-            session.recover(XAResource.TMSTARTRSCAN);
-         }
-      });
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, () -> session.recover(XAResource.TMSTARTRSCAN));
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
-         @Override
-         public void run() throws XAException {
-            session.rollback(randomXid());
-         }
-      });
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, () -> session.rollback(randomXid()));
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
-         @Override
-         public void run() throws XAException {
-            session.start(randomXid(), XAResource.TMNOFLAGS);
-         }
-      });
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, () -> session.start(randomXid(), XAResource.TMNOFLAGS));
 
+   }
+
+   private static Xid randomXid() {
+      return new XidImpl(randomBytes(), randomInt(), randomBytes());
    }
 
    @Test
    public void testCloseHierarchy() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientConsumer consumer = session.createConsumer(queue);
 
       session.close();
 
-      Assert.assertTrue(session.isClosed());
-      Assert.assertTrue(producer.isClosed());
-      Assert.assertTrue(consumer.isClosed());
+      assertTrue(session.isClosed());
+      assertTrue(producer.isClosed());
+      assertTrue(consumer.isClosed());
 
    }
 
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));

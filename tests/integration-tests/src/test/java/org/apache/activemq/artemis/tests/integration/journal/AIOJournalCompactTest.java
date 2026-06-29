@@ -22,13 +22,13 @@ import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 public class AIOJournalCompactTest extends NIOJournalCompactTest {
 
-   @BeforeClass
+   @BeforeAll
    public static void hasAIO() {
-      org.junit.Assume.assumeTrue("Test case needs AIO to run", AIOSequentialFileFactory.isSupported());
+      org.junit.jupiter.api.Assumptions.assumeTrue(AIOSequentialFileFactory.isSupported(), "Test case needs AIO to run");
    }
 
    @Override

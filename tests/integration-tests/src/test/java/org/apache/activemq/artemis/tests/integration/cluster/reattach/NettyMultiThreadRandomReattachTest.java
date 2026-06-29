@@ -25,8 +25,8 @@ public class NettyMultiThreadRandomReattachTest extends MultiThreadRandomReattac
 
    @Override
    protected void start() throws Exception {
-      Configuration liveConf = createDefaultNettyConfig();
-      server = createServer(false, liveConf);
+      Configuration primaryConf = createDefaultNettyConfig();
+      server = createServer(false, primaryConf);
       server.getConfiguration().getAddressConfigurations().add(new CoreAddressConfiguration().setName(ADDRESS.toString()).addRoutingType(RoutingType.MULTICAST));
       server.start();
       waitForServerToStart(server);

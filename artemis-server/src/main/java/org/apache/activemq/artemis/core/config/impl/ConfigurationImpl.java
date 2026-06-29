@@ -18,41 +18,58 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import java.beans.IndexedPropertyDescriptor;
 import java.beans.PropertyDescriptor;
-import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.Adler32;
+import java.util.zip.CheckedInputStream;
+import java.util.zip.Checksum;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JsonUtil;
@@ -60,9 +77,6 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.config.TransformerConfiguration;
-import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
-import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -73,18 +87,33 @@ import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.JaasAppConfiguration;
+import org.apache.activemq.artemis.core.config.LockCoordinatorConfiguration;
 import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationBrokerPlugin;
+import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationPolicy;
+import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
 import org.apache.activemq.artemis.core.config.routing.NamedPropertyConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
@@ -107,14 +136,23 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonString;
+import org.apache.activemq.artemis.json.JsonValue;
+import org.snakeyaml.engine.v2.api.Load;
+import org.snakeyaml.engine.v2.api.LoadSettings;
+
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.XMLUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
+import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
+import org.apache.activemq.artemis.utils.uri.URISupport;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.Converter;
@@ -123,25 +161,25 @@ import org.apache.commons.beanutils.MappedPropertyDescriptor;
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.expression.DefaultResolver;
+import org.apache.commons.beanutils.expression.Resolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import java.util.zip.Adler32;
-import java.util.zip.Checksum;
 
-import org.apache.commons.beanutils.expression.Resolver;
+import javax.security.auth.login.AppConfigurationEntry;
 
-public class ConfigurationImpl implements Configuration, Serializable {
+import static org.apache.activemq.artemis.utils.PasswordMaskingUtil.isEncMasked;
+
+public class ConfigurationImpl extends javax.security.auth.login.Configuration implements Configuration, Serializable {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final JournalType DEFAULT_JOURNAL_TYPE = JournalType.ASYNCIO;
 
-   private static final int DEFAULT_JMS_MESSAGE_SIZE = 1864;
+   public static final String PROPERTY_CLASS_SUFFIX = ".class";
 
-   private static final int RANGE_SIZE_MIN = 0;
+   public static final String REDACTED = "**redacted**";
 
-   private static final int RANGE_SZIE_MAX = 4;
+   private static final String FILTER_QUERY_PARAMETER_KEY = "filter";
 
    private static final long serialVersionUID = 4077088945050267843L;
 
@@ -175,6 +213,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected boolean jmxManagementEnabled = ActiveMQDefaultConfiguration.isDefaultJmxManagementEnabled();
 
+   protected boolean jmxNotificationEnabled = ActiveMQDefaultConfiguration.isDefaultJmxNotificationEnabled();
+
    protected String jmxDomain = ActiveMQDefaultConfiguration.getDefaultJmxDomain();
 
    protected boolean jmxUseBrokerName = ActiveMQDefaultConfiguration.isDefaultJMXUseBrokerName();
@@ -192,6 +232,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected int idCacheSize = ActiveMQDefaultConfiguration.getDefaultIdCacheSize();
 
    private boolean persistIDCache = ActiveMQDefaultConfiguration.isDefaultPersistIdCache();
+
+   private Set<LockCoordinatorConfiguration> lockCoordinatorConfigurations = new HashSet<>();
 
    private List<String> incomingInterceptorClassNames = new ArrayList<>();
 
@@ -212,6 +254,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected List<AMQPBrokerConnectConfiguration> amqpBrokerConnectConfigurations = new ArrayList<>();
 
    protected List<FederationConfiguration> federationConfigurations = new ArrayList<>();
+
+   protected List<String> downstreamAuthorization = new ArrayList<>();
 
    @Deprecated
    // this can eventually be replaced with List<QueueConfiguration>, but to keep existing semantics it must stay as is for now
@@ -252,6 +296,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected boolean createJournalDir = ActiveMQDefaultConfiguration.isDefaultCreateJournalDir();
 
    public JournalType journalType = ConfigurationImpl.DEFAULT_JOURNAL_TYPE;
+
+   protected boolean largeMessageSync = ActiveMQDefaultConfiguration.isDefaultLargeMessageSync();
 
    protected boolean journalSyncTransactional = ActiveMQDefaultConfiguration.isDefaultJournalSyncTransactional();
 
@@ -341,6 +387,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private final List<ActiveMQServerBridgePlugin> brokerBridgePlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerCriticalPlugin> brokerCriticalPlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerFederationPlugin> brokerFederationPlugins = new CopyOnWriteArrayList<>();
+   private final List<AMQPFederationBrokerPlugin> brokerAMQPFederationPlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerResourcePlugin> brokerResourcePlugins = new CopyOnWriteArrayList<>();
 
    private Map<String, Set<String>> securityRoleNameMappings = new HashMap<>();
@@ -354,6 +401,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private boolean resolveProtocols = ActiveMQDefaultConfiguration.isDefaultResolveProtocols();
 
    private long journalLockAcquisitionTimeout = ActiveMQDefaultConfiguration.getDefaultJournalLockAcquisitionTimeout();
+
+   private long journalLockMonitorTimeout = ActiveMQDefaultConfiguration.getDefaultJournalLockMonitorTimeout();
+
+   private int journalLockMonitorMaxRetries = ActiveMQDefaultConfiguration.getDefaultJournalLockMonitorMaxRetries();
 
    private HAPolicyConfiguration haPolicyConfiguration;
 
@@ -376,6 +427,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private boolean amqpUseCoreSubscriptionNaming = ActiveMQDefaultConfiguration.getDefaultAmqpUseCoreSubscriptionNaming();
 
    private int maxDiskUsage = ActiveMQDefaultConfiguration.getDefaultMaxDiskUsage();
+
+   private long minDiskFree = ActiveMQDefaultConfiguration.getDefaultMinDiskFree();
 
    private int diskScanPeriod = ActiveMQDefaultConfiguration.getDefaultDiskScanPeriod();
 
@@ -411,19 +464,47 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private int pageSyncTimeout = ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio();
 
-   private String temporaryQueueNamespace = ActiveMQDefaultConfiguration.getDefaultTemporaryQueueNamespace();
+   private String uuidNamespace = ActiveMQDefaultConfiguration.getDefaultUuidNamespace();
 
    private long mqttSessionScanInterval = ActiveMQDefaultConfiguration.getMqttSessionScanInterval();
 
+   private long mqttSessionStatePersistenceTimeout = ActiveMQDefaultConfiguration.getMqttSessionStatePersistenceTimeout();
+
+   private boolean mqttSessionStatePersistenceEnabled = ActiveMQDefaultConfiguration.getMqttSubscriptionPersistenceEnabled();
+
    private boolean suppressSessionNotifications = ActiveMQDefaultConfiguration.getDefaultSuppressSessionNotifications();
+
+   private String literalMatchMarkers = ActiveMQDefaultConfiguration.getLiteralMatchMarkers();
+
+   private String viewPermissionMethodMatchPattern = ActiveMQDefaultConfiguration.getViewPermissionMethodMatchPattern();
+
+   private String managementRbacPrefix = ActiveMQDefaultConfiguration.getManagementRbacPrefix();
+
+   private boolean managementMessagesRbac = ActiveMQDefaultConfiguration.getManagementMessagesRbac();
+
+   private int mirrorAckManagerQueueAttempts = ActiveMQDefaultConfiguration.getMirrorAckManagerQueueAttempts();
+
+   private int mirrorAckManagerPageAttempts = ActiveMQDefaultConfiguration.getMirrorAckManagerPageAttempts();
+
+   private boolean mirrorAckManagerWarnUnacked = ActiveMQDefaultConfiguration.getMirrorAckManagerWarnUnacked();
+
+   private int mirrorAckManagerRetryDelay = ActiveMQDefaultConfiguration.getMirrorAckManagerRetryDelay();
+
+   private boolean mirrorPageTransaction = ActiveMQDefaultConfiguration.getMirrorPageTransaction();
+
+   private int globalMaxSizePercentOfJvmMaxMemory = ActiveMQDefaultConfiguration.DEFAULT_GLOBAL_MAX_MEMORY_PERCENT;
+
+   private boolean purgePageFolders = ActiveMQDefaultConfiguration.getPurgePageFolders();
+
+   private Map<String, JaasAppConfiguration> jaasConfigs = new ConcurrentHashMap<>();
 
    /**
     * Parent folder for all data folders.
     */
    private File artemisInstance;
    private transient JsonObject jsonStatus = JsonLoader.createObjectBuilder().build();
-   private transient Checksum transientChecksum = null;
-
+   private final Set<String> keysToRedact = new HashSet<>();
+   private static final Pattern defaultPropertiesFileNamePattern = Pattern.compile(".*\\.(json|yaml|properties)");
 
    private JsonObject getJsonStatus() {
       if (jsonStatus == null) {
@@ -431,17 +512,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
       }
       return jsonStatus;
    }
-
-   // Checksum would be otherwise final
-   // however some Quorum actiations are using Serialization to make a deep copy of ConfigurationImpl and it would become null
-   // for that reason this i making the proper initialization when needed.
-   private Checksum getCheckSun() {
-      if (transientChecksum == null) {
-         transientChecksum = new Adler32();
-      }
-      return transientChecksum;
-   }
-
 
    @Override
    public String getJournalRetentionDirectory() {
@@ -478,6 +548,15 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   // from properties, as milli
+   public void setJournalRetentionPeriod(long periodMillis) {
+      if (periodMillis <= 0) {
+         this.journalRetentionPeriod = -1;
+      } else {
+         this.journalRetentionPeriod = periodMillis;
+      }
+   }
+
    @Override
    public long getJournalRetentionMaxBytes() {
       return journalRetentionMaxBytes;
@@ -512,51 +591,63 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return brokerPropertiesRemoveValue;
    }
 
-   public void setBrokerPropertiesRemoveValue(String brokerPropertiesRemoveValue) {
-      this.brokerPropertiesRemoveValue = brokerPropertiesRemoveValue;
-   }
-
    @Override
-   public Configuration parseProperties(String fileUrlToProperties) throws Exception {
+   public Configuration parseProperties(String pathsToProperties) throws Exception {
       // system property overrides location of file(s)
-      fileUrlToProperties = resolvePropertiesSources(fileUrlToProperties);
-      if (fileUrlToProperties != null) {
-         for (String fileUrl : fileUrlToProperties.split(",")) {
-            Properties brokerProperties = new InsertionOrderedProperties();
-            if (fileUrl.endsWith("/")) {
+      pathsToProperties = resolvePropertiesSources(pathsToProperties);
+      if (pathsToProperties != null) {
+         for (String path : pathsToProperties.split(",")) {
+            Pattern patternToUse = defaultPropertiesFileNamePattern;
+            if (URISupport.containsQuery(path)) {
+               Map<String, String> parameters = URISupport.parseQuery(path);
+               if (parameters.containsKey(FILTER_QUERY_PARAMETER_KEY)) {
+                  patternToUse = Pattern.compile(parameters.get(FILTER_QUERY_PARAMETER_KEY));
+               }
+               path = URISupport.stripQuery(path);
+            }
+            if (path.endsWith("/")) {
                // treat as a directory and parse every property file in alphabetical order
-               File dir = new File(fileUrl);
+               File dir = new File(path);
                if (dir.exists()) {
-                  String[] files = dir.list(new FilenameFilter() {
-                     @Override
-                     public boolean accept(File file, String s) {
-                        return s.endsWith(".properties");
-                     }
-                  });
+                  final Pattern forLambda = patternToUse;
+                  String[] files = dir.list((file, s) -> forLambda.matcher(s).matches());
                   if (files != null && files.length > 0) {
                      Arrays.sort(files);
                      for (String fileName : files) {
-                        try (FileInputStream fileInputStream = new FileInputStream(new File(dir, fileName));
-                             BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
-                           brokerProperties.clear();
-                           brokerProperties.load(reader);
-                           parsePrefixedProperties(this, fileName, brokerProperties, null);
-                        }
+                        parseFileProperties(new File(dir, fileName));
                      }
                   }
                }
             } else {
-               File file = new File(fileUrl);
-               try (FileInputStream fileInputStream = new FileInputStream(file);
-                    BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
-                  brokerProperties.load(reader);
-                  parsePrefixedProperties(this, file.getName(), brokerProperties, null);
-               }
+               parseFileProperties(new File(path));
             }
          }
       }
       parsePrefixedProperties(System.getProperties(), systemPropertyPrefix);
       return this;
+   }
+
+   public void parseFileProperties(File file) throws Exception {
+      final ConfigurationImpl configuration = this;
+      InsertionOrderedProperties brokerProperties = new InsertionOrderedProperties();
+      try (CheckedInputStream checkedInputStream = new CheckedInputStream(new FileInputStream(file), new Adler32())) {
+         try {
+            String fileName = file.getName();
+            if (fileName.endsWith(".json")) {
+               brokerProperties.loadJson(configuration, checkedInputStream);
+            } else if (fileName.endsWith(".yaml")) {
+               brokerProperties.loadYaml(configuration, checkedInputStream);
+            } else {
+               brokerProperties.load(checkedInputStream);
+            }
+            brokerProperties.setFileChecksum(checkedInputStream.getChecksum().getValue());
+         } catch (Exception readOrParseError) {
+            logger.debug("Properties config load error on file {}, {}", file.getName(), readOrParseError);
+            updateApplyStatus(file.getName(), Map.of("loadError", String.valueOf(readOrParseError)));
+            return;
+         }
+      }
+      parsePrefixedProperties(this, file.getName(), brokerProperties, null);
    }
 
    public void parsePrefixedProperties(Properties properties, String prefix) throws Exception {
@@ -566,44 +657,93 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public void parsePrefixedProperties(Object target, String name, Properties properties, String prefix) throws Exception {
       Map<String, Object> beanProperties = new LinkedHashMap<>();
-      long alder32Hash = 0;
+      final Checksum checksum = new Adler32();
       synchronized (properties) {
-         Checksum checksum = getCheckSun();
-
-         checksum.reset();
          String key = null;
          for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-            key = entry.getKey().toString();
+            key = String.valueOf(entry.getKey());
             if (prefix != null) {
                if (!key.startsWith(prefix)) {
                   continue;
                }
-               key = entry.getKey().toString().substring(prefix.length());
+               key = String.valueOf(entry.getKey()).substring(prefix.length());
             }
-            String value = entry.getValue().toString();
+            String value = String.valueOf(entry.getValue());
 
             checksum.update(key.getBytes(StandardCharsets.UTF_8));
             checksum.update('=');
             checksum.update(value.getBytes(StandardCharsets.UTF_8));
 
             value = XMLUtil.replaceSystemPropsInString(value);
-            value = PasswordMaskingUtil.resolveMask(isMaskPassword(), value, getPasswordCodec());
             key = XMLUtil.replaceSystemPropsInString(key);
-            logger.debug("Property config, {}={}", key, value);
+            final boolean masked = isEncMasked(value);
+            if (masked) {
+               value = PasswordMaskingUtil.resolveMask(null, value, getPasswordCodec());
+               keysToRedact.add(key);
+            }
+            logger.debug("Property config, {}={}", key, (masked || shouldRedact(key)) ? REDACTED : value);
             beanProperties.put(key, value);
          }
-         alder32Hash = checksum.getValue();
       }
-      updateReadPropertiesStatus(name, alder32Hash);
+      long fileAdler32 = 0;
+      if (properties instanceof InsertionOrderedProperties insertionOrderedProperties) {
+         fileAdler32 = insertionOrderedProperties.getFileChecksum();
+      }
+      updateReadPropertiesStatus(name, checksum.getValue(), fileAdler32);
 
       if (!beanProperties.isEmpty()) {
          populateWithProperties(target, name, beanProperties);
+      }
+      if (!jaasConfigs.isEmpty()) {
+         initJaasConfigOverride();
+      }
+   }
+
+   private javax.security.auth.login.Configuration defaultJaasConfiguration = null;
+   private void initJaasConfigOverride() {
+      if (defaultJaasConfiguration == null) {
+         defaultJaasConfiguration = javax.security.auth.login.Configuration.getConfiguration();
+         javax.security.auth.login.Configuration.setConfiguration(this);
+      }
+   }
+
+   @Override
+   public AppConfigurationEntry[] getAppConfigurationEntry(String realm) {
+      if (getJaasConfigs().containsKey(realm)) {
+         return JaasAppConfiguration.asAppConfigurationEntry(getJaasConfigs().get(realm));
+      } else {
+         return defaultJaasConfiguration.getAppConfigurationEntry(realm);
       }
    }
 
    public void populateWithProperties(final Object target, final String propsId, Map<String, Object> beanProperties) throws InvocationTargetException, IllegalAccessException {
       CollectionAutoFillPropertiesUtil autoFillCollections = new CollectionAutoFillPropertiesUtil(getBrokerPropertiesRemoveValue(beanProperties));
       BeanUtilsBean beanUtils = new BeanUtilsBean(new ConvertUtilsBean(), autoFillCollections) {
+
+         // initialize the given property of the given bean with a new instance of the property class
+         private Object initProperty(Object bean, String name) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+            PropertyDescriptor descriptor = getPropertyUtils().getPropertyDescriptor(bean, name);
+            if (descriptor == null) {
+               throw new InvocationTargetException(null, "No accessor method descriptor for: " + name + " on: " + bean.getClass());
+            }
+
+            Method writeMethod = descriptor.getWriteMethod();
+            if (writeMethod == null) {
+               throw new InvocationTargetException(null, "No Write method for: " + name + " on: " + bean.getClass());
+            }
+
+            Object propertyInstance;
+            try {
+               propertyInstance = descriptor.getPropertyType().getDeclaredConstructor().newInstance();
+            } catch (InstantiationException e) {
+               throw new InvocationTargetException(e);
+            }
+
+            writeMethod.invoke(bean, propertyInstance);
+
+            return propertyInstance;
+         }
+
          // override to treat missing properties as errors, not skip as the default impl does
          @Override
          public void setProperty(final Object bean, String name, final Object value) throws InvocationTargetException, IllegalAccessException {
@@ -616,10 +756,15 @@ public class ConfigurationImpl implements Configuration, Serializable {
                final Resolver resolver = getPropertyUtils().getResolver();
                while (resolver.hasNested(name)) {
                   try {
-                     target = getPropertyUtils().getProperty(target, resolver.next(name));
-                     if (target == null) {
-                        throw new InvocationTargetException(null, "Resolved nested property for:" + name + ", on: " + bean + " was null");
+                     String nextName = resolver.next(name);
+                     Object nextTarget = getPropertyUtils().getProperty(target, nextName);
+                     if (nextTarget == null) {
+                        if (resolver.isMapped(nextName)) {
+                           throw new InvocationTargetException(null, "Entry does not exist in: " + resolver.getProperty(name) + " for mapped key: " + resolver.getKey(name));
+                        }
+                        nextTarget = initProperty(target, nextName);
                      }
+                     target = nextTarget;
                      name = resolver.remove(name);
                   } catch (final NoSuchMethodException e) {
                      throw new InvocationTargetException(e, "No getter for property:" + name + ", on: " + bean);
@@ -635,8 +780,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
                   if (!autoFillCollections.collections.isEmpty()) {
                      autoFillCollections.collections.pop();
                   }
-                  if (target instanceof Map) {
-                     Map targetMap = (Map) target;
+                  if (target instanceof Map targetMap) {
                      Iterator<Map.Entry<String, Object>> i = targetMap.entrySet().iterator();
                      while (i.hasNext()) {
                         String key = i.next().getKey();
@@ -645,14 +789,26 @@ public class ConfigurationImpl implements Configuration, Serializable {
                            break;
                         }
                      }
-                  } else if (target instanceof Collection) {
+                  } else if (target instanceof Collection targetCollection) {
                      try {
-                        autoFillCollections.removeByNameProperty(propName, (Collection) target);
+                        autoFillCollections.removeByNameProperty(propName, targetCollection);
                      } catch (NoSuchMethodException e) {
-                        throw new InvocationTargetException(e, "Can only remove named entries from collections or maps" + name + ", on: " + target);
+                        throw new InvocationTargetException(e, "Can only remove named entries from collections or maps. property: " + name + ", on: " + target);
                      }
                   } else {
-                     throw new InvocationTargetException(null, "Can only remove entries from collections or maps" + name + ", on: " + target);
+                     // empty the collection referenced by this property
+                     try {
+                        target = getPropertyUtils().getProperty(target, name);
+                     } catch (NoSuchMethodException e) {
+                        throw new InvocationTargetException(e, "Can only clear entries from collection or map properties that are accessible. property: " + name + ", on: " + target);
+                     }
+                     if (target instanceof Map mapToClear) {
+                        mapToClear.clear();
+                     } else if (target instanceof Collection collectionToClear) {
+                        collectionToClear.clear();
+                     } else {
+                        throw new InvocationTargetException(null, "Can only clear entries from collection or map properties. property: " + name + ", on: " + target);
+                     }
                   }
 
                   logger.trace("removed from target, bean: {}, name: {}", target.getClass(), name);
@@ -680,16 +836,16 @@ public class ConfigurationImpl implements Configuration, Serializable {
                   } catch (final NoSuchMethodException e) {
                      throw new InvocationTargetException(e, "Failed to get descriptor for: " + name + " on: " + target.getClass());
                   }
-                  if (descriptor instanceof MappedPropertyDescriptor) {
-                     if (((MappedPropertyDescriptor) descriptor).getMappedWriteMethod() == null) {
+                  if (descriptor instanceof MappedPropertyDescriptor mappedPropertyDescriptor) {
+                     if (mappedPropertyDescriptor.getMappedWriteMethod() == null) {
                         throw new InvocationTargetException(null, "No mapped Write method for: " + name + " on: " + target.getClass());
                      }
-                     type = ((MappedPropertyDescriptor) descriptor).getMappedPropertyType();
-                  } else if (index >= 0 && descriptor instanceof IndexedPropertyDescriptor) {
-                     if (((IndexedPropertyDescriptor) descriptor).getIndexedWriteMethod() == null) {
+                     type = mappedPropertyDescriptor.getMappedPropertyType();
+                  } else if (index >= 0 && descriptor instanceof IndexedPropertyDescriptor indexedPropertyDescriptor) {
+                     if (indexedPropertyDescriptor.getIndexedWriteMethod() == null) {
                         throw new InvocationTargetException(null, "No indexed Write method for: " + name + " on: " + target.getClass());
                      }
-                     type = ((IndexedPropertyDescriptor) descriptor).getIndexedPropertyType();
+                     type = indexedPropertyDescriptor.getIndexedPropertyType();
                   } else if (index >= 0 && List.class.isAssignableFrom(descriptor.getPropertyType())) {
                      type = Object.class;
                   } else if (key != null) {
@@ -714,24 +870,33 @@ public class ConfigurationImpl implements Configuration, Serializable {
                      newValue = getConvertUtils().convert(values, type);
                   } else if (value instanceof String) {
                      newValue = getConvertUtils().convert(value, type);
-                  } else if (value instanceof String[]) {
-                     newValue = getConvertUtils().convert((String[]) value, type);
+                  } else if (value instanceof String[] strings) {
+                     newValue = getConvertUtils().convert(strings, type);
                   } else {
                      newValue = convert(value, type);
                   }
                } else if (type.isArray()) {         // Indexed value into array
                   if (value instanceof String || value == null) {
                      newValue = getConvertUtils().convert((String) value, type.getComponentType());
-                  } else if (value instanceof String[]) {
-                     newValue = getConvertUtils().convert(((String[]) value)[0], type.getComponentType());
+                  } else if (value instanceof String[] strings) {
+                     newValue = getConvertUtils().convert(strings[0], type.getComponentType());
                   } else {
                      newValue = convert(value, type.getComponentType());
                   }
                } else {                             // Value into scalar
-                  if (value instanceof String) {
-                     newValue = getConvertUtils().convert((String) value, type);
-                  } else if (value instanceof String[]) {
-                     newValue = getConvertUtils().convert(((String[]) value)[0], type);
+                  if (value instanceof String possibleDotClassValue) {
+                     if (type != String.class && isClassProperty(possibleDotClassValue)) {
+                        final String clazzName = extractPropertyClassName(possibleDotClassValue);
+                        try {
+                           newValue = ClassloadingUtil.getInstanceWithTypeCheck(clazzName, type, this.getClass().getClassLoader());
+                        } catch (Exception e) {
+                           throw new InvocationTargetException(e, " for dot class value: " + possibleDotClassValue + ", on: " + bean);
+                        }
+                     } else {
+                        newValue = getConvertUtils().convert(possibleDotClassValue, type);
+                     }
+                  } else if (value instanceof String[] strings) {
+                     newValue = getConvertUtils().convert(strings[0], type);
                   } else {
                      newValue = convert(value, type);
                   }
@@ -752,7 +917,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       beanUtils.getConvertUtils().register(new Converter() {
          @Override
          public <T> T convert(Class<T> type, Object value) {
-            return (T) SimpleString.toSimpleString(value.toString());
+            return (T) SimpleString.of(String.valueOf(value));
          }
       }, SimpleString.class);
 
@@ -760,7 +925,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
          @Override
          public <T> T convert(Class<T> type, Object value) {
             NamedPropertyConfiguration instance = new NamedPropertyConfiguration();
-            instance.setName(value.toString());
+            instance.setName(String.valueOf(value));
             instance.setProperties(new HashMap<>());
             return (T) instance;
          }
@@ -769,16 +934,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
       beanUtils.getConvertUtils().register(new Converter() {
          @Override
          public <T> T convert(Class<T> type, Object value) {
-            TransformerConfiguration instance = new TransformerConfiguration(value.toString());
-            return (T) instance;
-         }
-      }, TransformerConfiguration.class);
-
-      beanUtils.getConvertUtils().register(new Converter() {
-         @Override
-         public <T> T convert(Class<T> type, Object value) {
             //we only care about DATABASE type as it is the only one used
-            if (StoreConfiguration.StoreType.DATABASE.toString().equals(value)) {
+            if (String.valueOf(StoreConfiguration.StoreType.DATABASE).equals(value)) {
                return (T) new DatabaseStorageConfiguration();
             }
             throw ActiveMQMessageBundle.BUNDLE.unsupportedStorePropertyType();
@@ -788,8 +945,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
       beanUtils.getConvertUtils().register(new Converter() {
          @Override
          public <T> T convert(Class<T> type, Object value) {
-            List convertedValue = new ArrayList<String>();
-            for (String entry : value.toString().split(",")) {
+            List<String> convertedValue = new ArrayList<>();
+            for (String entry : String.valueOf(value).split(",")) {
                convertedValue.add(entry);
             }
             return (T) convertedValue;
@@ -800,31 +957,70 @@ public class ConfigurationImpl implements Configuration, Serializable {
          @Override
          public <T> T convert(Class<T> type, Object value) {
             Set convertedValue = new HashSet();
-            for (String entry : value.toString().split(",")) {
+            for (String entry : String.valueOf(value).split(",")) {
                convertedValue.add(entry);
             }
             return (T) convertedValue;
          }
       }, java.util.Set.class);
 
+      beanUtils.getConvertUtils().register(new Converter() {
+         @Override
+         public <T> T convert(Class<T> type, Object value) {
+            Map convertedValue = new HashMap();
+            for (String entry : String.valueOf(value).split(",")) {
+               if (!entry.isBlank()) {
+                  String[] kv = entry.split("=");
+                  if (2 != kv.length) {
+                     throw new IllegalArgumentException("map value " + value + " not in k=v format");
+                  }
+                  convertedValue.put(kv[0], kv[1]);
+               }
+            }
+            return (T) convertedValue;
+         }
+      }, java.util.Map.class);
+
       // support 25K or 25m etc like xml config
       beanUtils.getConvertUtils().register(new Converter() {
          @Override
          public <T> T convert(Class<T> type, Object value) {
-            return (T) (Long) ByteUtil.convertTextBytes(value.toString());
+            return (T) (Long) ByteUtil.convertTextBytes(String.valueOf(value));
          }
       }, Long.TYPE);
+
+      beanUtils.getConvertUtils().register(new Converter() {
+         @Override
+         public <T> T convert(Class<T> type, Object value) {
+            HAPolicyConfiguration.TYPE haPolicyType =
+               HAPolicyConfiguration.TYPE.valueOf(String.valueOf(value));
+
+            return switch (haPolicyType) {
+               case PRIMARY_ONLY -> (T) new LiveOnlyPolicyConfiguration();
+               case REPLICATION_PRIMARY_QUORUM_VOTING -> (T) new ReplicatedPolicyConfiguration();
+               case REPLICATION_BACKUP_QUORUM_VOTING -> (T) new ReplicaPolicyConfiguration();
+               case SHARED_STORE_PRIMARY -> (T) new SharedStorePrimaryPolicyConfiguration();
+               case SHARED_STORE_BACKUP -> (T) new SharedStoreBackupPolicyConfiguration();
+               case COLOCATED -> (T) new ColocatedPolicyConfiguration();
+               case REPLICATION_PRIMARY_LOCK_MANAGER -> (T) ReplicationPrimaryPolicyConfiguration.withDefault();
+               case REPLICATION_BACKUP_LOCK_MANAGER -> (T) ReplicationBackupPolicyConfiguration.withDefault();
+            };
+         }
+      }, HAPolicyConfiguration.class);
 
       BeanSupport.customise(beanUtils);
 
       logger.trace("populate: bean: {} with {}", this, beanProperties);
 
-      HashMap<String, String> errors = new HashMap<>();
+      Map<String, String> errors = new LinkedHashMap<>();
       // Loop through the property name/value pairs to be set
       for (final Map.Entry<String, ? extends Object> entry : beanProperties.entrySet()) {
          // Identify the property name and value(s) to be assigned
          final String name = entry.getKey();
          try {
+            if (logger.isDebugEnabled()) {
+               logger.debug("set property target={}, name = {}, value = {}", target.getClass(), name, entry.getValue());
+            }
             // Perform the assignment for this property
             beanUtils.setProperty(target, name, entry.getValue());
          } catch (InvocationTargetException invocationTargetException) {
@@ -842,12 +1038,257 @@ public class ConfigurationImpl implements Configuration, Serializable {
       updateApplyStatus(propsId, errors);
    }
 
-   private void trackError(HashMap<String, String> errors, Map.Entry<String,?> entry, Throwable oops) {
-      logger.debug("failed to populate property entry({}), reason: {}", entry, oops);
-      errors.put(entry.toString(), oops.getLocalizedMessage());
+   @Override
+   public void exportAsProperties(File file) throws Exception {
+      try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
+         writeProperties(writer);
+      }
    }
 
-   private synchronized void updateApplyStatus(String propsId, HashMap<String, String> errors) {
+   @Override
+   public Map<String, JaasAppConfiguration> getJaasConfigs() {
+      return jaasConfigs;
+   }
+
+   public void addJaasConfig(JaasAppConfiguration config) {
+      jaasConfigs.put(config.getName(), config);
+   }
+
+   @Override
+   public Configuration setJaasConfigs(Map<String, JaasAppConfiguration> configs) {
+      jaasConfigs.putAll(configs);
+      // prune removed entries after update to retain existing entries, this is live config referenced by jaas
+      // see org.apache.activemq.artemis.core.config.impl.ConfigurationImpl.getAppConfigurationEntry
+      jaasConfigs.keySet().retainAll(configs.keySet());
+      return this;
+   }
+
+   private void writeProperties(FileWriter writer) throws Exception {
+      final BeanUtilsBean beanUtilsBean = new BeanUtilsBean();
+      beanUtilsBean.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospectorWithIgnores());
+
+      try (BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
+         export(beanUtilsBean, new Stack<String>(), bufferedWriter, this);
+      }
+   }
+
+   static final Set<String> defaultIgnoredForExportProperties = Set.of(
+      // we report errors through the status, it should not typically be set
+      "status",
+      // we cannot import a map<string,set<string>> property and this feature is only applied by the xml parser
+      "securityRoleNameMappings",
+      // using a deprecated config object
+      "queueConfigurations",
+      "queueConfigs",
+      "encodeSize",
+      // duplicates
+      "federationPolicyMap",       // core federation
+      "policySets",
+      "AMQPConnection",
+      "AMQPConnectionConfigurations",
+      "combinedParams",
+      "type",
+      // AMQPBrokerConnectConfiguration
+      // needs uri first
+      "uri",
+      // this relation breaks recursion
+      "parent",
+      // and connectionElements need to be split
+      "connectionElements"
+   );
+
+   static Map<Class, Set<String>> ignoredByType = Map.of(
+      CoreAddressConfiguration.class, Set.of("queueConfigurations")
+   );
+
+   static boolean isIgnored(Class clazz, PropertyDescriptor descriptor) {
+      Set<String> ignoredByTypeSet = ignoredByType.get(clazz);
+      if (ignoredByTypeSet != null) {
+         return ignoredByTypeSet.contains(descriptor.getName());
+      }
+      return defaultIgnoredForExportProperties.contains(descriptor.getName());
+   }
+
+   private void export(BeanUtilsBean beanUtils, Stack<String> nested, BufferedWriter bufferedWriter, Object value) {
+
+      if (value instanceof Collection collection) {
+         if (!collection.isEmpty()) {
+            // collection of strings, as a comma list
+            if (collection.stream().findFirst().orElseThrow() instanceof String) {
+               exportKeyValue(nested, bufferedWriter, (String) collection.stream().collect(Collectors.joining(",")));
+            } else if (collection instanceof EnumSet enumSet) {
+               exportKeyValue(nested, bufferedWriter, (String) enumSet.stream().map(Object::toString).collect(Collectors.joining(",")));
+            } else {
+
+               Stream stream = collection.stream();
+               if (collection.stream().findFirst().orElseThrow() instanceof AMQPBrokerConnectionElement amqpBrokerConnectionElement) {
+                  // filter type from the shared underlying collection
+                  String collectionName = nested.peek();
+                  AMQPBrokerConnectionAddressType subsetType = AMQPBrokerConnectionAddressType.valueOf(collectionName.substring(0, collectionName.length() - 1).toUpperCase(Locale.ENGLISH));
+                  stream = stream.filter((Object connectionElement)-> subsetType == ((AMQPBrokerConnectionElement)connectionElement).getType());
+               }
+               // output nested by name
+               stream.forEach((Consumer<Object>) o -> {
+                  nested.push(extractName(o));
+                  export(beanUtils, nested, bufferedWriter, o);
+                  nested.pop();
+               });
+            }
+         }
+      } else if (value instanceof Map map) {
+         if (!map.isEmpty()) {
+            // possibly filter
+            Stream<Map.Entry<?, ?>> stream = map.entrySet().stream();
+            if (map.values().stream().findFirst().orElseThrow() instanceof FederationPolicy) {
+               // filter type from the shared underlying collection
+               final Class filterOn = "addressPolicies".equals(nested.peek()) ? FederationAddressPolicyConfiguration.class : FederationQueuePolicyConfiguration.class;
+               stream = stream.filter((Map.Entry<?, ?> entry)-> filterOn.isAssignableFrom(entry.getClass()));
+            }
+            stream.forEach(entry -> {
+               nested.push(String.valueOf(entry.getKey()));
+               export(beanUtils, nested, bufferedWriter, entry.getValue());
+               nested.pop();
+            });
+         }
+      } else if (isComplexConfigObject(value)) {
+
+         // these need constructor properties or .class values or particular attributes as first entry
+         if (value instanceof BrokerConnectConfiguration brokerConnectConfiguration) {
+            nested.push("uri"); // is in the ignored list so won't get duplicated
+            exportKeyValue(nested, bufferedWriter, brokerConnectConfiguration.getUri());
+            nested.pop();
+         } else if (value instanceof AMQPBrokerConnectionElement connectionElement) {
+            nested.push("type"); // is in the ignored list so won't get duplicated
+            exportKeyValue(nested, bufferedWriter, String.valueOf(connectionElement.getType()));
+            nested.pop();
+         } else if (value instanceof HAPolicyConfiguration haPolicyConfiguration) {
+            exportKeyValue(nested, bufferedWriter, String.valueOf(haPolicyConfiguration.getType()));
+         } else if (value instanceof StoreConfiguration storeConfiguration) {
+            exportKeyValue(nested, bufferedWriter, String.valueOf(storeConfiguration.getStoreType()));
+         } else if (value instanceof NamedPropertyConfiguration namedPropertyConfiguration) {
+            exportKeyValue(nested, bufferedWriter, namedPropertyConfiguration.getName());
+         } else if (value instanceof BroadcastEndpointFactory broadcastEndpointFactory) {
+            exportKeyValue(nested, bufferedWriter, broadcastEndpointFactory.getClass().getCanonicalName() + ".class");
+         } else if (value instanceof ActiveMQMetricsPlugin plugin) {
+            exportKeyValue(nested, bufferedWriter, plugin.getClass().getCanonicalName() + ".class");
+            nested.push("init");
+            exportKeyValue(nested, bufferedWriter, "");
+            nested.pop();
+         }
+         // recursive export via accessors
+         Arrays.stream(beanUtils.getPropertyUtils().getPropertyDescriptors(value)).filter(propertyDescriptor -> {
+
+            if (isIgnored(value.getClass(), propertyDescriptor)) {
+               return false;
+            }
+            final Method descriptorReadMethod = propertyDescriptor.getReadMethod();
+            if (descriptorReadMethod == null) {
+               return false;
+            }
+            Method descriptorWriteMethod = propertyDescriptor.getWriteMethod();
+            if (descriptorWriteMethod == null) {
+               // we can write to a returned simple map or collection ok
+               final Class type = propertyDescriptor.getPropertyType();
+               return Map.class.isAssignableFrom(type) || Collection.class.isAssignableFrom(type);
+            }
+            return true;
+         }).sorted((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(a.getName(), b.getName())).forEach(propertyDescriptor -> {
+            Object attributeValue = null;
+            try {
+               attributeValue = propertyDescriptor.getReadMethod().invoke(value, null);
+            } catch (Exception e) {
+               throw new RuntimeException("accessing: " + propertyDescriptor.getName() + "@" + nested, e);
+            }
+            if (attributeValue != null) {
+               nested.push(propertyDescriptor.getName());
+               export(beanUtils, nested, bufferedWriter, attributeValue);
+               nested.pop();
+            }
+         });
+      } else {
+         // string form works ok otherwise, however we want an empty string for null to match properties syntax
+         exportKeyValue(nested, bufferedWriter, value == null ? "" : String.valueOf(value));
+      }
+   }
+
+   private void exportKeyValue(Stack<String> nested, BufferedWriter bufferedWriter, String value) {
+      String key = writeKeyEquals(nested, bufferedWriter);
+
+      try {
+         if (shouldRedact(key)) {
+            bufferedWriter.write(REDACTED);
+         } else {
+            bufferedWriter.write(value);
+         }
+         bufferedWriter.newLine();
+      } catch (IOException e) {
+         throw new RuntimeException("error accessing: " + nested, e);
+      }
+   }
+
+   private boolean isComplexConfigObject(Object value) {
+      if (value == null) {
+         return false;
+      }
+      return !(value instanceof SimpleString || value instanceof Enum<?>) && value.getClass().getPackage().getName().contains("artemis");
+   }
+
+   private boolean shouldRedact(String name) {
+      return name.toUpperCase(Locale.ENGLISH).contains("PASSWORD") || keysToRedact.contains(name);
+   }
+
+   private String writeKeyEquals(Stack<String> nested, BufferedWriter bufferedWriter) {
+
+      String key = nested.stream().sequential().map(ConfigurationImpl::quote).collect(Collectors.joining("."));
+      try {
+         bufferedWriter.write(key);
+         bufferedWriter.write("=");
+      } catch (IOException e) {
+         throw new RuntimeException("error accessing: " + nested, e);
+      }
+      return key;
+   }
+
+   public static String quote(String s) {
+      String escaped = s.replace("=", "\\\\=").replace(":", "\\\\:");
+      if (s.contains(".")) {
+         escaped = "\"" + escaped + "\"";
+      }
+      return escaped;
+   }
+
+   String extractName(Object o) {
+      if (o instanceof String s) {
+         return s;
+      }
+      try {
+         Method m = o.getClass().getMethod("getName", null);
+         if (m != null) {
+            Object nameVal = m.invoke(o, null);
+            if (nameVal == null) {
+               return "name-attribute-must-be-set-for-properties-key-export";
+            }
+            return String.valueOf(nameVal);
+         }
+      } catch (Exception expectedAndWillDefaultToStringForm) {
+      }
+      return String.valueOf(o);
+   }
+
+   protected static boolean isClassProperty(String property) {
+      return property.endsWith(PROPERTY_CLASS_SUFFIX);
+   }
+
+   protected static String extractPropertyClassName(String property) {
+      return property.substring(0, property.length() - PROPERTY_CLASS_SUFFIX.length());
+   }
+
+   private void trackError(Map<String, String> errors, Map.Entry<String, ?> entry, Throwable oops) {
+      logger.debug("failed to populate property entry({}), reason: {}", entry, oops);
+      errors.put(String.valueOf(entry), String.valueOf(oops));
+   }
+
+   private synchronized void updateApplyStatus(String propsId, Map<String, String> errors) {
       JsonArrayBuilder errorsObjectArrayBuilder = JsonLoader.createArrayBuilder();
       for (Map.Entry<String, String> entry : errors.entrySet()) {
          errorsObjectArrayBuilder.add(JsonLoader.createObjectBuilder().add("value", entry.getKey()).add("reason", entry.getValue()));
@@ -859,9 +1300,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
       this.jsonStatus = JsonUtil.mergeAndUpdate(status, jsonObjectBuilder.build());
    }
 
-   private synchronized void updateReadPropertiesStatus(String propsId, long alder32Hash) {
+   private synchronized void updateReadPropertiesStatus(String propsId, long adler32Hash, long fileAdler32) {
       JsonObjectBuilder propertiesReadStatusBuilder = JsonLoader.createObjectBuilder();
-      propertiesReadStatusBuilder.add("alder32", String.valueOf(alder32Hash));
+      propertiesReadStatusBuilder.add("adler32", String.valueOf(adler32Hash));
+      propertiesReadStatusBuilder.add("fileAdler32", String.valueOf(fileAdler32));
       JsonObjectBuilder jsonObjectBuilder = JsonUtil.objectBuilderWithValueAtPath("properties/" + propsId, propertiesReadStatusBuilder.build());
       JsonObject jsonStatus = getJsonStatus();
       this.jsonStatus = JsonUtil.mergeAndUpdate(jsonStatus, jsonObjectBuilder.build());
@@ -905,6 +1347,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public long getMinDiskFree() {
+      return minDiskFree;
+   }
+
+   @Override
+   public ConfigurationImpl setMinDiskFree(long minDiskFree) {
+      this.minDiskFree = minDiskFree;
+      return this;
+   }
+
+   @Override
    public ConfigurationImpl setGlobalMaxSize(long maxSize) {
       this.globalMaxSize = maxSize;
       return this;
@@ -913,7 +1366,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public long getGlobalMaxSize() {
       if (globalMaxSize == null) {
-         this.globalMaxSize = ActiveMQDefaultConfiguration.getDefaultMaxGlobalSize();
+         this.globalMaxSize = ActiveMQDefaultConfiguration.getDefaultMaxGlobalSizeAsPercentOfJvmMaxMemory(getGlobalMaxSizePercentOfJvmMaxMemory());
          if (!Env.isTestEnv()) {
             ActiveMQServerLogger.LOGGER.usingDefaultPaging(globalMaxSize);
          }
@@ -921,6 +1374,16 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return globalMaxSize;
    }
 
+   @Override
+   public int getGlobalMaxSizePercentOfJvmMaxMemory() {
+      return globalMaxSizePercentOfJvmMaxMemory;
+   }
+
+   @Override
+   public ConfigurationImpl setGlobalMaxSizePercentOfJvmMaxMemory(int percentOfJvmMaxMemory) {
+      this.globalMaxSizePercentOfJvmMaxMemory = percentOfJvmMaxMemory;
+      return this;
+   }
 
    @Override
    public ConfigurationImpl setGlobalMaxMessages(long maxMessages) {
@@ -975,9 +1438,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
-   /**
-    * @return the persistDeliveryCountBeforeDelivery
-    */
    @Override
    public boolean isPersistDeliveryCountBeforeDelivery() {
       return persistDeliveryCountBeforeDelivery;
@@ -1258,6 +1718,19 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public Configuration setAMQPConnectionConfigurations(List<AMQPBrokerConnectConfiguration> amqpConnectionConfiugrations) {
+      this.amqpBrokerConnectConfigurations.clear();
+      this.amqpBrokerConnectConfigurations.addAll(amqpConnectionConfiugrations);
+      return this;
+   }
+
+   @Override
+   public Configuration clearAMQPConnectionConfigurations() {
+      this.amqpBrokerConnectConfigurations.clear();
+      return this;
+   }
+
+   @Override
    public ConfigurationImpl clearClusterConfigurations() {
       clusterConfigurations.clear();
       return this;
@@ -1304,9 +1777,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
-   /**
-    * Note: modifying the returned {@code List} will not impact the underlying {@code List}.
-    */
    public List<QueueConfiguration> getQueueConfigs() {
       List<QueueConfiguration> result = new ArrayList<>();
       for (CoreQueueConfiguration coreQueueConfiguration : coreQueueConfigurations) {
@@ -1331,6 +1801,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   @Deprecated
    public ConfigurationImpl addQueueConfiguration(final CoreQueueConfiguration config) {
       coreQueueConfigurations.add(config);
       return this;
@@ -1715,6 +2186,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public boolean isJMXNotificationEnabled() {
+      return jmxNotificationEnabled;
+   }
+
+   @Override
+   public ConfigurationImpl setJMXNotificationEnabled(final boolean enabled) {
+      jmxNotificationEnabled = enabled;
+      return this;
+   }
+
+   @Override
    public String getJMXDomain() {
       return jmxDomain;
    }
@@ -2041,7 +2523,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public ConfigurationImpl addResourceLimitSettings(ResourceLimitSettings resourceLimitSettings) {
-      this.resourceLimitSettings.put(resourceLimitSettings.getMatch().toString(), resourceLimitSettings);
+      this.resourceLimitSettings.put(String.valueOf(resourceLimitSettings.getMatch()), resourceLimitSettings);
       return this;
    }
 
@@ -2124,39 +2606,45 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public void registerBrokerPlugin(final ActiveMQServerBasePlugin plugin) {
-      brokerPlugins.add(plugin);
-      if (plugin instanceof ActiveMQServerConnectionPlugin) {
-         brokerConnectionPlugins.add((ActiveMQServerConnectionPlugin) plugin);
+      // programmatic call can be a duplicate if used before server start
+      if (!brokerPlugins.contains(plugin)) {
+         brokerPlugins.add(plugin);
       }
-      if (plugin instanceof ActiveMQServerSessionPlugin) {
-         brokerSessionPlugins.add((ActiveMQServerSessionPlugin) plugin);
+      if (plugin instanceof ActiveMQServerConnectionPlugin connectionPlugin && !brokerConnectionPlugins.contains(plugin)) {
+         brokerConnectionPlugins.add(connectionPlugin);
       }
-      if (plugin instanceof ActiveMQServerConsumerPlugin) {
-         brokerConsumerPlugins.add((ActiveMQServerConsumerPlugin) plugin);
+      if (plugin instanceof ActiveMQServerSessionPlugin sessionPlugin && !brokerSessionPlugins.contains(plugin)) {
+         brokerSessionPlugins.add(sessionPlugin);
       }
-      if (plugin instanceof ActiveMQServerAddressPlugin) {
-         brokerAddressPlugins.add((ActiveMQServerAddressPlugin) plugin);
+      if (plugin instanceof ActiveMQServerConsumerPlugin consumerPlugin && !brokerConsumerPlugins.contains(plugin)) {
+         brokerConsumerPlugins.add(consumerPlugin);
       }
-      if (plugin instanceof ActiveMQServerQueuePlugin) {
-         brokerQueuePlugins.add((ActiveMQServerQueuePlugin) plugin);
+      if (plugin instanceof ActiveMQServerAddressPlugin addressPlugin && !brokerAddressPlugins.contains(plugin)) {
+         brokerAddressPlugins.add(addressPlugin);
       }
-      if (plugin instanceof ActiveMQServerBindingPlugin) {
-         brokerBindingPlugins.add((ActiveMQServerBindingPlugin) plugin);
+      if (plugin instanceof ActiveMQServerQueuePlugin queuePlugin && !brokerQueuePlugins.contains(plugin)) {
+         brokerQueuePlugins.add(queuePlugin);
       }
-      if (plugin instanceof ActiveMQServerMessagePlugin) {
-         brokerMessagePlugins.add((ActiveMQServerMessagePlugin) plugin);
+      if (plugin instanceof ActiveMQServerBindingPlugin bindingPlugin && !brokerBindingPlugins.contains(plugin)) {
+         brokerBindingPlugins.add(bindingPlugin);
       }
-      if (plugin instanceof ActiveMQServerBridgePlugin) {
-         brokerBridgePlugins.add((ActiveMQServerBridgePlugin) plugin);
+      if (plugin instanceof ActiveMQServerMessagePlugin messagePlugin && !brokerMessagePlugins.contains(plugin)) {
+         brokerMessagePlugins.add(messagePlugin);
       }
-      if (plugin instanceof ActiveMQServerCriticalPlugin) {
-         brokerCriticalPlugins.add((ActiveMQServerCriticalPlugin) plugin);
+      if (plugin instanceof ActiveMQServerBridgePlugin bridgePlugin && !brokerBridgePlugins.contains(plugin)) {
+         brokerBridgePlugins.add(bridgePlugin);
       }
-      if (plugin instanceof ActiveMQServerFederationPlugin) {
-         brokerFederationPlugins.add((ActiveMQServerFederationPlugin) plugin);
+      if (plugin instanceof ActiveMQServerCriticalPlugin criticalPlugin && !brokerCriticalPlugins.contains(plugin)) {
+         brokerCriticalPlugins.add(criticalPlugin);
       }
-      if (plugin instanceof ActiveMQServerResourcePlugin) {
-         brokerResourcePlugins.add((ActiveMQServerResourcePlugin) plugin);
+      if (plugin instanceof ActiveMQServerFederationPlugin federationPlugin && !brokerFederationPlugins.contains(plugin)) {
+         brokerFederationPlugins.add(federationPlugin);
+      }
+      if (plugin instanceof AMQPFederationBrokerPlugin brokerPlugin && !brokerAMQPFederationPlugins.contains(plugin)) {
+         brokerAMQPFederationPlugins.add(brokerPlugin);
+      }
+      if (plugin instanceof ActiveMQServerResourcePlugin resourcePlugin && !brokerResourcePlugins.contains(plugin)) {
+         brokerResourcePlugins.add(resourcePlugin);
       }
    }
 
@@ -2193,6 +2681,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (plugin instanceof ActiveMQServerFederationPlugin) {
          brokerFederationPlugins.remove(plugin);
       }
+      if (plugin instanceof AMQPFederationBrokerPlugin) {
+         brokerAMQPFederationPlugins.remove(plugin);
+      }
       if (plugin instanceof ActiveMQServerResourcePlugin) {
          brokerResourcePlugins.remove(plugin);
       }
@@ -2201,6 +2692,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public List<ActiveMQServerBasePlugin> getBrokerPlugins() {
       return brokerPlugins;
+   }
+
+   // for properties type inference
+   public void addBrokerPlugin(ActiveMQServerBasePlugin type) {
+      registerBrokerPlugin(type);
    }
 
    @Override
@@ -2254,6 +2750,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public List<AMQPFederationBrokerPlugin> getBrokerAMQPFederationPlugins() {
+      return brokerAMQPFederationPlugins;
+   }
+
+   @Override
    public List<FederationConfiguration> getFederationConfigurations() {
       return federationConfigurations;
    }
@@ -2289,17 +2790,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
       this.artemisInstance = directory;
    }
 
-   public boolean isCheckForLiveServer() {
+   public boolean isCheckForPrimaryServer() {
       if (haPolicyConfiguration instanceof ReplicaPolicyConfiguration) {
-         return ((ReplicatedPolicyConfiguration) haPolicyConfiguration).isCheckForLiveServer();
+         return ((ReplicatedPolicyConfiguration) haPolicyConfiguration).isCheckForActiveServer();
       } else {
          return false;
       }
    }
 
-   public ConfigurationImpl setCheckForLiveServer(boolean checkForLiveServer) {
+   public ConfigurationImpl setCheckForPrimaryServer(boolean checkForPrimaryServer) {
       if (haPolicyConfiguration instanceof ReplicaPolicyConfiguration) {
-         ((ReplicatedPolicyConfiguration) haPolicyConfiguration).setCheckForLiveServer(checkForLiveServer);
+         ((ReplicatedPolicyConfiguration) haPolicyConfiguration).setCheckForActiveServer(checkForPrimaryServer);
       }
 
       return this;
@@ -2420,7 +2921,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
          TransportConfiguration connector = getConnectorConfigurations().get(connectorName);
 
          if (connector == null) {
-            ActiveMQServerLogger.LOGGER.connectionConfigurationIsNull(connectorName == null ? "null" : connectorName);
+            ActiveMQServerLogger.LOGGER.connectionConfigurationIsNull(Objects.requireNonNullElse(connectorName, "null"));
             return null;
          }
 
@@ -2495,353 +2996,133 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((acceptorConfigs == null) ? 0 : acceptorConfigs.hashCode());
-      result = prime * result + ((addressSettings == null) ? 0 : addressSettings.hashCode());
-      result = prime * result + (asyncConnectionExecutionEnabled ? 1231 : 1237);
-      result = prime * result + ((bindingsDirectory == null) ? 0 : bindingsDirectory.hashCode());
-      result = prime * result + ((bridgeConfigurations == null) ? 0 : bridgeConfigurations.hashCode());
-      result = prime * result + ((broadcastGroupConfigurations == null) ? 0 : broadcastGroupConfigurations.hashCode());
-      result = prime * result + ((clusterConfigurations == null) ? 0 : clusterConfigurations.hashCode());
-      result = prime * result + ((clusterPassword == null) ? 0 : clusterPassword.hashCode());
-      result = prime * result + ((clusterUser == null) ? 0 : clusterUser.hashCode());
-      result = prime * result + (int) (connectionTTLOverride ^ (connectionTTLOverride >>> 32));
-      result = prime * result + ((connectorConfigs == null) ? 0 : connectorConfigs.hashCode());
-      result = prime * result + ((connectorServiceConfigurations == null) ? 0 : connectorServiceConfigurations.hashCode());
-      result = prime * result + (createBindingsDir ? 1231 : 1237);
-      result = prime * result + (createJournalDir ? 1231 : 1237);
-      result = prime * result + ((discoveryGroupConfigurations == null) ? 0 : discoveryGroupConfigurations.hashCode());
-      result = prime * result + ((divertConfigurations == null) ? 0 : divertConfigurations.hashCode());
-      result = prime * result + (failoverOnServerShutdown ? 1231 : 1237);
-      result = prime * result + (int) (fileDeploymentScanPeriod ^ (fileDeploymentScanPeriod >>> 32));
-      result = prime * result + ((groupingHandlerConfiguration == null) ? 0 : groupingHandlerConfiguration.hashCode());
-      result = prime * result + idCacheSize;
-      result = prime * result + ((incomingInterceptorClassNames == null) ? 0 : incomingInterceptorClassNames.hashCode());
-      result = prime * result + ((jmxDomain == null) ? 0 : jmxDomain.hashCode());
-      result = prime * result + (jmxManagementEnabled ? 1231 : 1237);
-      result = prime * result + journalBufferSize_AIO;
-      result = prime * result + journalBufferSize_NIO;
-      result = prime * result + journalBufferTimeout_AIO;
-      result = prime * result + journalBufferTimeout_NIO;
-      result = prime * result + journalCompactMinFiles;
-      result = prime * result + journalCompactPercentage;
-      result = prime * result + ((journalDirectory == null) ? 0 : journalDirectory.hashCode());
-      result = prime * result + journalFileSize;
-      result = prime * result + journalMaxIO_AIO;
-      result = prime * result + journalMaxIO_NIO;
-      result = prime * result + journalMinFiles;
-      result = prime * result + (journalSyncNonTransactional ? 1231 : 1237);
-      result = prime * result + (journalSyncTransactional ? 1231 : 1237);
-      result = prime * result + ((journalType == null) ? 0 : journalType.hashCode());
-      result = prime * result + ((largeMessagesDirectory == null) ? 0 : largeMessagesDirectory.hashCode());
-      result = prime * result + (logJournalWriteRate ? 1231 : 1237);
-      result = prime * result + ((managementAddress == null) ? 0 : managementAddress.hashCode());
-      result = prime * result + ((managementNotificationAddress == null) ? 0 : managementNotificationAddress.hashCode());
-      result = prime * result + (maskPassword == null ? 0 : maskPassword.hashCode());
-      result = prime * result + maxConcurrentPageIO;
-      result = prime * result + (int) (memoryMeasureInterval ^ (memoryMeasureInterval >>> 32));
-      result = prime * result + memoryWarningThreshold;
-      result = prime * result + (messageCounterEnabled ? 1231 : 1237);
-      result = prime * result + messageCounterMaxDayHistory;
-      result = prime * result + (int) (messageCounterSamplePeriod ^ (messageCounterSamplePeriod >>> 32));
-      result = prime * result + (int) (messageExpiryScanPeriod ^ (messageExpiryScanPeriod >>> 32));
-      result = prime * result + messageExpiryThreadPriority;
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + ((outgoingInterceptorClassNames == null) ? 0 : outgoingInterceptorClassNames.hashCode());
-      result = prime * result + ((pagingDirectory == null) ? 0 : pagingDirectory.hashCode());
-      result = prime * result + (persistDeliveryCountBeforeDelivery ? 1231 : 1237);
-      result = prime * result + (persistIDCache ? 1231 : 1237);
-      result = prime * result + (persistenceEnabled ? 1231 : 1237);
-//      result = prime * result + ((queueConfigurations == null) ? 0 : queueConfigurations.hashCode());
-      result = prime * result + scheduledThreadPoolMaxSize;
-      result = prime * result + (securityEnabled ? 1231 : 1237);
-      result = prime * result + (populateValidatedUser ? 1231 : 1237);
-      result = prime * result + (int) (securityInvalidationInterval ^ (securityInvalidationInterval >>> 32));
-      result = prime * result + ((securitySettings == null) ? 0 : securitySettings.hashCode());
-      result = prime * result + (int) (serverDumpInterval ^ (serverDumpInterval >>> 32));
-      result = prime * result + threadPoolMaxSize;
-      result = prime * result + (int) (transactionTimeout ^ (transactionTimeout >>> 32));
-      result = prime * result + (int) (transactionTimeoutScanPeriod ^ (transactionTimeoutScanPeriod >>> 32));
-      result = prime * result + ((wildcardConfiguration == null) ? 0 : wildcardConfiguration.hashCode());
-      result = prime * result + (resolveProtocols ? 1231 : 1237);
-      result = prime * result + (int) (journalLockAcquisitionTimeout ^ (journalLockAcquisitionTimeout >>> 32));
-      result = prime * result + (int) (connectionTtlCheckInterval ^ (connectionTtlCheckInterval >>> 32));
-      return result;
+      return Objects.hash(acceptorConfigs, addressSettings, asyncConnectionExecutionEnabled, bindingsDirectory,
+                          bridgeConfigurations, broadcastGroupConfigurations, clusterConfigurations, clusterPassword,
+                          clusterUser, connectionTTLOverride, connectorConfigs, connectorServiceConfigurations,
+                          createBindingsDir, createJournalDir, discoveryGroupConfigurations, divertConfigurations,
+                          failoverOnServerShutdown, fileDeploymentScanPeriod, groupingHandlerConfiguration, idCacheSize,
+                          incomingInterceptorClassNames, jmxDomain, jmxManagementEnabled, journalBufferSize_AIO,
+                          journalBufferSize_NIO, journalBufferTimeout_AIO, journalBufferTimeout_NIO,
+                          journalCompactMinFiles, journalCompactPercentage, journalDirectory, journalFileSize,
+                          journalMaxIO_AIO, journalMaxIO_NIO, journalMinFiles, journalSyncNonTransactional,
+                          journalSyncTransactional, journalType, largeMessagesDirectory, logJournalWriteRate,
+                          managementAddress, managementNotificationAddress, maskPassword, maxConcurrentPageIO,
+                          memoryMeasureInterval, memoryWarningThreshold, messageCounterEnabled,
+                          messageCounterMaxDayHistory, messageCounterSamplePeriod, messageExpiryScanPeriod,
+                          messageExpiryThreadPriority, name, outgoingInterceptorClassNames, pagingDirectory,
+                          persistDeliveryCountBeforeDelivery, persistIDCache, persistenceEnabled,
+                          scheduledThreadPoolMaxSize, securityEnabled, populateValidatedUser,
+                          securityInvalidationInterval, securitySettings, serverDumpInterval, threadPoolMaxSize,
+                          transactionTimeout, transactionTimeoutScanPeriod, wildcardConfiguration, resolveProtocols,
+                          journalLockAcquisitionTimeout, journalLockMonitorTimeout, journalLockMonitorMaxRetries, connectionTtlCheckInterval);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
-         return false;
-      if (!(obj instanceof ConfigurationImpl))
-         return false;
-      ConfigurationImpl other = (ConfigurationImpl) obj;
-      if (acceptorConfigs == null) {
-         if (other.acceptorConfigs != null)
-            return false;
-      } else if (!acceptorConfigs.equals(other.acceptorConfigs))
-         return false;
-      if (addressSettings == null) {
-         if (other.addressSettings != null)
-            return false;
-      } else if (!addressSettings.equals(other.addressSettings))
-         return false;
-      if (asyncConnectionExecutionEnabled != other.asyncConnectionExecutionEnabled)
-         return false;
-      if (bindingsDirectory == null) {
-         if (other.bindingsDirectory != null)
-            return false;
-      } else if (!bindingsDirectory.equals(other.bindingsDirectory))
-         return false;
-      if (bridgeConfigurations == null) {
-         if (other.bridgeConfigurations != null)
-            return false;
-      } else if (!bridgeConfigurations.equals(other.bridgeConfigurations))
-         return false;
-      if (broadcastGroupConfigurations == null) {
-         if (other.broadcastGroupConfigurations != null)
-            return false;
-      } else if (!broadcastGroupConfigurations.equals(other.broadcastGroupConfigurations))
-         return false;
-
-      if (clusterConfigurations == null) {
-         if (other.clusterConfigurations != null)
-            return false;
-      } else if (!clusterConfigurations.equals(other.clusterConfigurations))
-         return false;
-
-      if (clusterPassword == null) {
-         if (other.clusterPassword != null)
-            return false;
-      } else if (!clusterPassword.equals(other.clusterPassword))
-         return false;
-      if (clusterUser == null) {
-         if (other.clusterUser != null)
-            return false;
-      } else if (!clusterUser.equals(other.clusterUser))
-         return false;
-      if (connectionTTLOverride != other.connectionTTLOverride)
-         return false;
-      if (connectorConfigs == null) {
-         if (other.connectorConfigs != null)
-            return false;
-      } else if (!connectorConfigs.equals(other.connectorConfigs))
-         return false;
-      if (connectorServiceConfigurations == null) {
-         if (other.connectorServiceConfigurations != null)
-            return false;
-      } else if (!connectorServiceConfigurations.equals(other.connectorServiceConfigurations))
-         return false;
-      if (createBindingsDir != other.createBindingsDir)
-         return false;
-      if (createJournalDir != other.createJournalDir)
-         return false;
-
-      if (discoveryGroupConfigurations == null) {
-         if (other.discoveryGroupConfigurations != null)
-            return false;
-      } else if (!discoveryGroupConfigurations.equals(other.discoveryGroupConfigurations))
-         return false;
-      if (divertConfigurations == null) {
-         if (other.divertConfigurations != null)
-            return false;
-      } else if (!divertConfigurations.equals(other.divertConfigurations))
-         return false;
-      if (failoverOnServerShutdown != other.failoverOnServerShutdown)
-         return false;
-      if (fileDeploymentScanPeriod != other.fileDeploymentScanPeriod)
-         return false;
-      if (groupingHandlerConfiguration == null) {
-         if (other.groupingHandlerConfiguration != null)
-            return false;
-      } else if (!groupingHandlerConfiguration.equals(other.groupingHandlerConfiguration))
-         return false;
-      if (idCacheSize != other.idCacheSize)
-         return false;
-      if (incomingInterceptorClassNames == null) {
-         if (other.incomingInterceptorClassNames != null)
-            return false;
-      } else if (!incomingInterceptorClassNames.equals(other.incomingInterceptorClassNames))
-         return false;
-      if (jmxDomain == null) {
-         if (other.jmxDomain != null)
-            return false;
-      } else if (!jmxDomain.equals(other.jmxDomain))
-         return false;
-      if (jmxManagementEnabled != other.jmxManagementEnabled)
-         return false;
-      if (journalBufferSize_AIO != other.journalBufferSize_AIO)
-         return false;
-      if (journalBufferSize_NIO != other.journalBufferSize_NIO)
-         return false;
-      if (journalBufferTimeout_AIO != other.journalBufferTimeout_AIO)
-         return false;
-      if (journalBufferTimeout_NIO != other.journalBufferTimeout_NIO)
-         return false;
-      if (journalCompactMinFiles != other.journalCompactMinFiles)
-         return false;
-      if (journalCompactPercentage != other.journalCompactPercentage)
-         return false;
-      if (journalDirectory == null) {
-         if (other.journalDirectory != null)
-            return false;
-      } else if (!journalDirectory.equals(other.journalDirectory))
-         return false;
-      if (journalFileSize != other.journalFileSize)
-         return false;
-      if (journalMaxIO_AIO != other.journalMaxIO_AIO)
-         return false;
-      if (journalMaxIO_NIO != other.journalMaxIO_NIO)
-         return false;
-      if (journalMinFiles != other.journalMinFiles)
-         return false;
-      if (journalSyncNonTransactional != other.journalSyncNonTransactional)
-         return false;
-      if (journalSyncTransactional != other.journalSyncTransactional)
-         return false;
-      if (journalType != other.journalType)
-         return false;
-      if (largeMessagesDirectory == null) {
-         if (other.largeMessagesDirectory != null)
-            return false;
-      } else if (!largeMessagesDirectory.equals(other.largeMessagesDirectory))
-         return false;
-      if (logJournalWriteRate != other.logJournalWriteRate)
-         return false;
-      if (managementAddress == null) {
-         if (other.managementAddress != null)
-            return false;
-      } else if (!managementAddress.equals(other.managementAddress))
-         return false;
-      if (managementNotificationAddress == null) {
-         if (other.managementNotificationAddress != null)
-            return false;
-      } else if (!managementNotificationAddress.equals(other.managementNotificationAddress))
-         return false;
-
-      if (this.maskPassword == null) {
-         if (other.maskPassword != null)
-            return false;
-      } else {
-         if (!this.maskPassword.equals(other.maskPassword))
-            return false;
       }
-
-      if (maxConcurrentPageIO != other.maxConcurrentPageIO)
-         return false;
-      if (memoryMeasureInterval != other.memoryMeasureInterval)
-         return false;
-      if (memoryWarningThreshold != other.memoryWarningThreshold)
-         return false;
-      if (messageCounterEnabled != other.messageCounterEnabled)
-         return false;
-      if (messageCounterMaxDayHistory != other.messageCounterMaxDayHistory)
-         return false;
-      if (messageCounterSamplePeriod != other.messageCounterSamplePeriod)
-         return false;
-      if (messageExpiryScanPeriod != other.messageExpiryScanPeriod)
-         return false;
-      if (messageExpiryThreadPriority != other.messageExpiryThreadPriority)
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      if (outgoingInterceptorClassNames == null) {
-         if (other.outgoingInterceptorClassNames != null)
-            return false;
-      } else if (!outgoingInterceptorClassNames.equals(other.outgoingInterceptorClassNames))
-         return false;
-      if (pagingDirectory == null) {
-         if (other.pagingDirectory != null)
-            return false;
-      } else if (!pagingDirectory.equals(other.pagingDirectory))
-         return false;
-      if (persistDeliveryCountBeforeDelivery != other.persistDeliveryCountBeforeDelivery)
-         return false;
-      if (persistIDCache != other.persistIDCache)
-         return false;
-      if (persistenceEnabled != other.persistenceEnabled)
-         return false;
-//      if (queueConfigurations == null) {
-//         if (other.queueConfigurations != null)
-//            return false;
-//      } else if (!queueConfigurations.equals(other.queueConfigurations))
-//         return false;
-      if (scheduledThreadPoolMaxSize != other.scheduledThreadPoolMaxSize)
-         return false;
-      if (securityEnabled != other.securityEnabled)
-         return false;
-      if (populateValidatedUser != other.populateValidatedUser)
-         return false;
-      if (securityInvalidationInterval != other.securityInvalidationInterval)
-         return false;
-      if (securitySettings == null) {
-         if (other.securitySettings != null)
-            return false;
-      } else if (!securitySettings.equals(other.securitySettings))
-         return false;
-      if (serverDumpInterval != other.serverDumpInterval)
-         return false;
-      if (threadPoolMaxSize != other.threadPoolMaxSize)
-         return false;
-      if (transactionTimeout != other.transactionTimeout)
-         return false;
-      if (transactionTimeoutScanPeriod != other.transactionTimeoutScanPeriod)
-         return false;
-      if (wildcardConfiguration == null) {
-         if (other.wildcardConfiguration != null)
-            return false;
-      } else if (!wildcardConfiguration.equals(other.wildcardConfiguration))
-         return false;
-      if (resolveProtocols != other.resolveProtocols)
-         return false;
-      if (journalLockAcquisitionTimeout != other.journalLockAcquisitionTimeout)
-         return false;
-      if (connectionTtlCheckInterval != other.connectionTtlCheckInterval)
-         return false;
-      if (journalDatasync != other.journalDatasync) {
+      if (!(obj instanceof ConfigurationImpl other)) {
          return false;
       }
 
-      if (globalMaxSize != null && !globalMaxSize.equals(other.globalMaxSize)) {
-         return false;
-      }
-      if (maxDiskUsage != other.maxDiskUsage) {
-         return false;
-      }
-      if (diskScanPeriod != other.diskScanPeriod) {
-         return false;
-      }
-
-      return true;
+      return Objects.equals(acceptorConfigs, other.acceptorConfigs) &&
+             Objects.equals(addressSettings, other.addressSettings) &&
+             asyncConnectionExecutionEnabled == other.asyncConnectionExecutionEnabled &&
+             Objects.equals(bindingsDirectory, other.bindingsDirectory) &&
+             Objects.equals(bridgeConfigurations, other.bridgeConfigurations) &&
+             Objects.equals(broadcastGroupConfigurations, other.broadcastGroupConfigurations) &&
+             Objects.equals(clusterConfigurations, other.clusterConfigurations) &&
+             Objects.equals(clusterPassword, other.clusterPassword) &&
+             Objects.equals(clusterUser, other.clusterUser) &&
+             connectionTTLOverride == other.connectionTTLOverride &&
+             Objects.equals(connectorConfigs, other.connectorConfigs) &&
+             Objects.equals(connectorServiceConfigurations, other.connectorServiceConfigurations) &&
+             createBindingsDir == other.createBindingsDir &&
+             createJournalDir == other.createJournalDir &&
+             Objects.equals(discoveryGroupConfigurations, other.discoveryGroupConfigurations) &&
+             Objects.equals(divertConfigurations, other.divertConfigurations) &&
+             failoverOnServerShutdown == other.failoverOnServerShutdown &&
+             fileDeploymentScanPeriod == other.fileDeploymentScanPeriod &&
+             Objects.equals(groupingHandlerConfiguration, other.groupingHandlerConfiguration) &&
+             idCacheSize == other.idCacheSize &&
+             Objects.equals(incomingInterceptorClassNames, other.incomingInterceptorClassNames) &&
+             Objects.equals(jmxDomain, other.jmxDomain) &&
+             jmxManagementEnabled == other.jmxManagementEnabled &&
+             journalBufferSize_AIO == other.journalBufferSize_AIO &&
+             journalBufferSize_NIO == other.journalBufferSize_NIO &&
+             journalBufferTimeout_AIO == other.journalBufferTimeout_AIO &&
+             journalBufferTimeout_NIO == other.journalBufferTimeout_NIO &&
+             journalCompactMinFiles == other.journalCompactMinFiles &&
+             journalCompactPercentage == other.journalCompactPercentage &&
+             Objects.equals(journalDirectory, other.journalDirectory) &&
+             journalFileSize == other.journalFileSize &&
+             journalMaxIO_AIO == other.journalMaxIO_AIO &&
+             journalMaxIO_NIO == other.journalMaxIO_NIO &&
+             journalMinFiles == other.journalMinFiles &&
+             journalSyncNonTransactional == other.journalSyncNonTransactional &&
+             journalSyncTransactional == other.journalSyncTransactional &&
+             journalType == other.journalType &&
+             Objects.equals(largeMessagesDirectory, other.largeMessagesDirectory) &&
+             logJournalWriteRate == other.logJournalWriteRate &&
+             Objects.equals(managementAddress, other.managementAddress) &&
+             Objects.equals(managementNotificationAddress, other.managementNotificationAddress) &&
+             Objects.equals(maskPassword, other.maskPassword) &&
+             maxConcurrentPageIO == other.maxConcurrentPageIO &&
+             memoryMeasureInterval == other.memoryMeasureInterval &&
+             memoryWarningThreshold == other.memoryWarningThreshold &&
+             messageCounterEnabled == other.messageCounterEnabled &&
+             messageCounterMaxDayHistory == other.messageCounterMaxDayHistory &&
+             messageCounterSamplePeriod == other.messageCounterSamplePeriod &&
+             messageExpiryScanPeriod == other.messageExpiryScanPeriod &&
+             messageExpiryThreadPriority == other.messageExpiryThreadPriority &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(outgoingInterceptorClassNames, other.outgoingInterceptorClassNames) &&
+             Objects.equals(pagingDirectory, other.pagingDirectory) &&
+             persistDeliveryCountBeforeDelivery ==
+             other.persistDeliveryCountBeforeDelivery &&
+             persistIDCache == other.persistIDCache &&
+             persistenceEnabled == other.persistenceEnabled &&
+             scheduledThreadPoolMaxSize == other.scheduledThreadPoolMaxSize &&
+             securityEnabled == other.securityEnabled &&
+             populateValidatedUser == other.populateValidatedUser &&
+             securityInvalidationInterval == other.securityInvalidationInterval &&
+             Objects.equals(securitySettings, other.securitySettings) &&
+             serverDumpInterval == other.serverDumpInterval &&
+             threadPoolMaxSize == other.threadPoolMaxSize &&
+             transactionTimeout == other.transactionTimeout &&
+             transactionTimeoutScanPeriod == other.transactionTimeoutScanPeriod &&
+             Objects.equals(wildcardConfiguration, other.wildcardConfiguration) &&
+             resolveProtocols == other.resolveProtocols &&
+             journalLockAcquisitionTimeout == other.journalLockAcquisitionTimeout &&
+             journalLockMonitorTimeout == other.journalLockMonitorTimeout &&
+             journalLockMonitorMaxRetries == other.journalLockMonitorMaxRetries &&
+             connectionTtlCheckInterval == other.connectionTtlCheckInterval &&
+             journalDatasync == other.journalDatasync &&
+             Objects.equals(globalMaxSize, other.globalMaxSize) &&
+             maxDiskUsage == other.maxDiskUsage &&
+             minDiskFree == other.minDiskFree &&
+             diskScanPeriod == other.diskScanPeriod;
    }
 
    @Override
    public Configuration copy() throws Exception {
-      return AccessController.doPrivileged(new PrivilegedExceptionAction<Configuration>() {
-         @Override
-         public Configuration run() throws Exception {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream os = new ObjectOutputStream(bos);
-            os.writeObject(ConfigurationImpl.this);
-            Configuration config;
-            try (ObjectInputStream ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(bos.toByteArray()))) {
-               config = (Configuration) ois.readObject();
-            }
-
-            // this is transient because of possible jgroups integration, we need to copy it manually
-            config.setBroadcastGroupConfigurations(ConfigurationImpl.this.getBroadcastGroupConfigurations());
-
-            // this is transient because of possible jgroups integration, we need to copy it manually
-            config.setDiscoveryGroupConfigurations(ConfigurationImpl.this.getDiscoveryGroupConfigurations());
-
-            return config;
+      return SecurityManagerShim.doPrivileged((PrivilegedExceptionAction<Configuration>) () -> {
+         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         ObjectOutputStream os = new ObjectOutputStream(bos);
+         os.writeObject(ConfigurationImpl.this);
+         Configuration config;
+         try (ObjectInputStream ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(bos.toByteArray()))) {
+            config = (Configuration) ois.readObject();
          }
+
+         // this is transient because of possible jgroups integration, we need to copy it manually
+         config.setBroadcastGroupConfigurations(ConfigurationImpl.this.getBroadcastGroupConfigurations());
+
+         // this is transient because of possible jgroups integration, we need to copy it manually
+         config.setDiscoveryGroupConfigurations(ConfigurationImpl.this.getDiscoveryGroupConfigurations());
+
+         return config;
       });
 
    }
@@ -2855,6 +3136,28 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public long getJournalLockAcquisitionTimeout() {
       return journalLockAcquisitionTimeout;
+   }
+
+   @Override
+   public ConfigurationImpl setJournalLockMonitorTimeout(long journalLockMonitorTimeout) {
+      this.journalLockMonitorTimeout = journalLockMonitorTimeout;
+      return this;
+   }
+
+   @Override
+   public long getJournalLockMonitorTimeout() {
+      return journalLockMonitorTimeout;
+   }
+
+   @Override
+   public ConfigurationImpl setJournalLockMonitorMaxRetries(int journalLockMonitorMaxRetries) {
+      this.journalLockMonitorMaxRetries = journalLockMonitorMaxRetries;
+      return this;
+   }
+
+   @Override
+   public int getJournalLockMonitorMaxRetries() {
+      return journalLockMonitorMaxRetries;
    }
 
    @Override
@@ -3059,26 +3362,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
-   public static boolean checkoutDupCacheSize(final int windowSize, final int idCacheSize) {
-      final int msgNumInFlight = windowSize / DEFAULT_JMS_MESSAGE_SIZE;
-
-      if (msgNumInFlight == 0) {
-         return true;
-      }
-
-      boolean sizeGood = false;
-
-      if (idCacheSize >= msgNumInFlight) {
-         int r = idCacheSize / msgNumInFlight;
-
-         // This setting is here to accomodate the current default setting.
-         if ( (r >= RANGE_SIZE_MIN) && (r <= RANGE_SZIE_MAX)) {
-            sizeGood = true;
-         }
-      }
-      return sizeGood;
-   }
-
    /**
     * It will find the right location of a subFolder, related to artemisInstance
     */
@@ -3092,12 +3375,22 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public String getTemporaryQueueNamespace() {
-      return temporaryQueueNamespace;
+      return getUuidNamespace();
    }
 
    @Override
    public ConfigurationImpl setTemporaryQueueNamespace(final String temporaryQueueNamespace) {
-      this.temporaryQueueNamespace = temporaryQueueNamespace;
+      return setUuidNamespace(temporaryQueueNamespace);
+   }
+
+   @Override
+   public String getUuidNamespace() {
+      return uuidNamespace;
+   }
+
+   @Override
+   public ConfigurationImpl setUuidNamespace(final String uuidNamespace) {
+      this.uuidNamespace = uuidNamespace;
       return this;
    }
 
@@ -3124,6 +3417,28 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public long getMqttSessionStatePersistenceTimeout() {
+      return mqttSessionStatePersistenceTimeout;
+   }
+
+   @Override
+   public Configuration setMqttSessionStatePersistenceTimeout(long mqttSessionStatePersistenceTimeout) {
+      this.mqttSessionStatePersistenceTimeout = mqttSessionStatePersistenceTimeout;
+      return this;
+   }
+
+   @Override
+   public boolean isMqttSubscriptionPersistenceEnabled() {
+      return mqttSessionStatePersistenceEnabled;
+   }
+
+   @Override
+   public Configuration setMqttSubscriptionPersistenceEnabled(boolean mqttSubscriptionPersistenceEnabled) {
+      this.mqttSessionStatePersistenceEnabled = mqttSubscriptionPersistenceEnabled;
+      return this;
+   }
+
+   @Override
    public boolean isSuppressSessionNotifications() {
       return suppressSessionNotifications;
    }
@@ -3136,13 +3451,163 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public synchronized String getStatus() {
-      return getJsonStatus().toString();
+      return String.valueOf(getJsonStatus());
    }
 
    @Override
    public synchronized void setStatus(String status) {
       JsonObject update = JsonUtil.readJsonObject(status);
       this.jsonStatus = JsonUtil.mergeAndUpdate(getJsonStatus(), update);
+   }
+
+   @Override
+   public String getLiteralMatchMarkers() {
+      return literalMatchMarkers;
+   }
+
+   @Override
+   public Configuration setLiteralMatchMarkers(String literalMatchMarkers) {
+      this.literalMatchMarkers = literalMatchMarkers;
+      return this;
+   }
+
+
+   @Override
+   public Configuration setLargeMessageSync(boolean largeMessageSync) {
+      this.largeMessageSync = largeMessageSync;
+      return this;
+   }
+
+   @Override
+   public boolean isLargeMessageSync() {
+      return largeMessageSync;
+   }
+
+   @Override
+   public String getViewPermissionMethodMatchPattern() {
+      return viewPermissionMethodMatchPattern;
+   }
+
+   @Override
+   public void setViewPermissionMethodMatchPattern(String permissionMatchPattern) {
+      viewPermissionMethodMatchPattern = permissionMatchPattern;
+   }
+
+   @Override
+   public boolean isManagementMessageRbac() {
+      return managementMessagesRbac;
+   }
+
+   @Override
+   public void setManagementMessageRbac(boolean val) {
+      this.managementMessagesRbac = val;
+   }
+
+   @Override
+   public String getManagementRbacPrefix() {
+      return managementRbacPrefix;
+   }
+
+   @Override
+   public void setManagementRbacPrefix(String prefix) {
+      this.managementRbacPrefix = prefix;
+   }
+
+
+   @Override
+   public int getMirrorAckManagerQueueAttempts() {
+      return mirrorAckManagerQueueAttempts;
+   }
+
+   @Override
+   public boolean isMirrorAckManagerWarnUnacked() {
+      return mirrorAckManagerWarnUnacked;
+   }
+
+   @Override
+   public ConfigurationImpl setMirrorAckManagerWarnUnacked(boolean warnUnacked) {
+      this.mirrorAckManagerWarnUnacked = warnUnacked;
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl setMirrorAckManagerQueueAttempts(int minQueueAttempts) {
+      logger.debug("Setting mirrorAckManagerMinQueueAttempts = {}", minQueueAttempts);
+      this.mirrorAckManagerQueueAttempts = minQueueAttempts;
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl setPurgePageFolders(boolean purgePageFolders) {
+      this.purgePageFolders = purgePageFolders;
+      return this;
+   }
+
+   @Override
+   public boolean isPurgePageFolders() {
+      return purgePageFolders;
+   }
+
+   @Override
+   public int getMirrorAckManagerPageAttempts() {
+      return this.mirrorAckManagerPageAttempts;
+   }
+
+   @Override
+   public ConfigurationImpl setMirrorAckManagerPageAttempts(int maxPageAttempts) {
+      logger.debug("Setting mirrorAckManagerMaxPageAttempts = {}", maxPageAttempts);
+      this.mirrorAckManagerPageAttempts = maxPageAttempts;
+      return this;
+   }
+
+   @Override
+   public int getMirrorAckManagerRetryDelay() {
+      return mirrorAckManagerRetryDelay;
+   }
+
+   @Override
+   public ConfigurationImpl setMirrorAckManagerRetryDelay(int delay) {
+      logger.debug("Setting mirrorAckManagerRetryDelay = {}", delay);
+      this.mirrorAckManagerRetryDelay = delay;
+      return this;
+   }
+
+   @Override
+   public boolean isMirrorPageTransaction() {
+      return mirrorPageTransaction;
+   }
+
+   @Override
+   public Configuration setMirrorPageTransaction(boolean ignorePageTransactions) {
+      logger.debug("Setting mirrorIgnorePageTransactions={}", ignorePageTransactions);
+      this.mirrorPageTransaction = ignorePageTransactions;
+      return this;
+   }
+
+   @Override
+   public Set<LockCoordinatorConfiguration> getLockCoordinatorConfigurations() {
+      return lockCoordinatorConfigurations;
+   }
+
+   @Override
+   public void addLockCoordinatorConfiguration(LockCoordinatorConfiguration configuration) {
+      lockCoordinatorConfigurations.add(configuration);
+   }
+
+   @Override
+   public List<String> getFederationDownstreamAuthorization() {
+      return downstreamAuthorization;
+   }
+
+   @Override
+   public void setFederationDownstreamAuthorization(List<String> roles) {
+      this.downstreamAuthorization = roles;
+   }
+
+   @Override
+   public Configuration addFederationDownstreamAuthorization(String role) {
+      downstreamAuthorization.add(role);
+      return this;
    }
 
    // extend property utils with ability to auto-fill and locate from collections
@@ -3164,7 +3629,13 @@ public class ConfigurationImpl implements Configuration, Serializable {
          if (!collections.isEmpty()) {
             Pair<String, Object> collectionInfo = collections.pop();
          }
-         super.setProperty(bean, name, value);
+
+         if (bean instanceof Map) {
+            String property = getResolver().getProperty(name);
+            this.setPropertyOfMapBean((Map)bean, property, value);
+         } else {
+            super.setProperty(bean, name, value);
+         }
       }
 
       // need to track collections such that we can locate or create entries on demand
@@ -3175,8 +3646,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
          if (!collections.isEmpty()) {
             final String key = getResolver().getProperty(name);
             Pair<String, Object> collectionInfo = collections.pop();
-            if (bean instanceof Map) {
-               Map map = (Map) bean;
+            if (bean instanceof Map map) {
                if (!map.containsKey(key)) {
                   map.put(key, newNamedInstanceForCollection(collectionInfo.getA(), collectionInfo.getB(), key));
                }
@@ -3214,10 +3684,19 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
       private Object findByNameProperty(String key, Collection collection) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
          // locate on name property, may be a SimpleString
-         for (Object candidate : collection) {
-            Object candidateName = getProperty(candidate, "name");
-            if (candidateName != null && key.equals(candidateName.toString())) {
-               return candidate;
+         if (isClassProperty(key)) {
+            Object propertyClassName = extractPropertyClassName(key);
+            for (Object candidate : collection) {
+               if (candidate.getClass().getName().equals(propertyClassName)) {
+                  return candidate;
+               }
+            }
+         } else {
+            for (Object candidate : collection) {
+               Object candidateName = getProperty(candidate, "name");
+               if (candidateName != null && key.equals(String.valueOf(candidateName))) {
+                  return candidate;
+               }
             }
          }
          return null;
@@ -3227,7 +3706,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
          // locate on name property, may be a SimpleString
          for (Object candidate : collection) {
             Object candidateName = getProperty(candidate, "name");
-            if (candidateName != null && key.equals(candidateName.toString())) {
+            if (candidateName != null && key.equals(String.valueOf(candidateName))) {
                collection.remove(candidate);
                break;
             }
@@ -3263,9 +3742,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
                                                name + "'+ on bean class '" + bean.getClass() + "'");
          }
 
-         if (descriptor instanceof MappedPropertyDescriptor) {
+         if (descriptor instanceof MappedPropertyDescriptor mappedPropertyDescriptor) {
             // Call the keyed getter method if there is one
-            Method readMethod = ((MappedPropertyDescriptor) descriptor).
+            Method readMethod = mappedPropertyDescriptor.
                getMappedReadMethod();
             readMethod = MethodUtils.getAccessibleMethod(bean.getClass(), readMethod);
             if (readMethod != null) {
@@ -3281,10 +3760,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
             final Method readMethod = MethodUtils.getAccessibleMethod(bean.getClass(), descriptor.getReadMethod());
             if (readMethod != null) {
                final Object invokeResult = readMethod.invoke(bean, EMPTY_OBJECT_ARRAY);
-               if (invokeResult instanceof Map) {
-                  result = ((Map<?, ?>)invokeResult).get(key);
-               } else if (invokeResult instanceof Collection) {
-                  result = findByNameProperty(key, (Collection) invokeResult);
+               if (invokeResult instanceof Map<?, ?> map) {
+                  result = map.get(key);
+               } else if (invokeResult instanceof Collection collection) {
+                  result = findByNameProperty(key, collection);
                }
             } else {
                throw new NoSuchMethodException("Property '" + name +
@@ -3299,48 +3778,68 @@ public class ConfigurationImpl implements Configuration, Serializable {
          // find the add X and init an instance of the type with name=name
 
          StringBuilder addPropertyNameBuilder = new StringBuilder("add");
-         // expect an add... without the plural for named accessors
-         if (collectionPropertyName != null && collectionPropertyName.length() > 0) {
+         // expect an add... without the plural for named access methods that add a single instance.
+         if (collectionPropertyName != null && !collectionPropertyName.isEmpty()) {
             addPropertyNameBuilder.append(Character.toUpperCase(collectionPropertyName.charAt(0)));
-            addPropertyNameBuilder.append(collectionPropertyName, 1, collectionPropertyName.length() - 1);
+            if (collectionPropertyName.endsWith("ies")) {
+               // Plural form would convert to a singular ending in 'y' e.g. policies becomes policy
+               // or strategies becomes strategy etc.
+               addPropertyNameBuilder.append(collectionPropertyName, 1, collectionPropertyName.length() - 3);
+               addPropertyNameBuilder.append('y');
+            } else if (collectionPropertyName.endsWith("Map")) {
+               addPropertyNameBuilder.append(collectionPropertyName, 1, collectionPropertyName.length() - 3);
+            } else {
+               addPropertyNameBuilder.append(collectionPropertyName, 1, collectionPropertyName.length() - 1);
+            }
          }
 
-         // we don't know the type, infer from add method add(X x) or add(String key, X x)
-         final String addPropertyName = addPropertyNameBuilder.toString();
-         final Method[] methods = hostingBean.getClass().getMethods();
-         final Method candidate = Arrays.stream(methods).filter(method -> method.getName().equals(addPropertyName) &&
-            ((method.getParameterCount() == 1) || (method.getParameterCount() == 2
+         Object instance = null;
+         try {
+            // we don't know the type, infer from add method add(X x) or add(String key, X x)
+            final String addPropertyName = addPropertyNameBuilder.toString();
+            final Method[] methods = hostingBean.getClass().getMethods();
+            final Method candidate = Arrays.stream(methods).filter(method -> method.getName().equals(addPropertyName) && ((method.getParameterCount() == 1) || (method.getParameterCount() == 2
                // has a String key
                && String.class.equals(method.getParameterTypes()[0])
                // but not initialised from a String form (eg: uri)
-               && !String.class.equals(method.getParameterTypes()[1]))))
-            .sorted((method1, method2) -> method2.getParameterCount() - method1.getParameterCount()).findFirst().orElse(null);
+               && !String.class.equals(method.getParameterTypes()[1])))).sorted((method1, method2) -> {
+                  int result = method2.getParameterCount() - method1.getParameterCount();
+                  if (result == 0) {
+                     // choose non deprecated
+                     if (method1.getDeclaredAnnotation(Deprecated.class) == null) {
+                        result = 1;
+                     } else {
+                        result = -1;
+                     }
+                  }
+                  return result;
+               }).findFirst().orElse(null);
 
-         if (candidate == null) {
-            throw new IllegalArgumentException("failed to locate add method for collection property " + addPropertyName);
-         }
+            if (candidate == null) {
+               throw new IllegalArgumentException("failed to locate add method for collection property " + addPropertyName);
+            }
+            Class type = candidate.getParameterTypes()[candidate.getParameterCount() - 1];
 
-         // create one and initialise with name
-         try {
-            Object instance = candidate.getParameterTypes()[candidate.getParameterCount() - 1].getDeclaredConstructor().newInstance();
-
+            if (isClassProperty(name)) {
+               final String clazzName = extractPropertyClassName(name);
+               instance = ClassloadingUtil.getInstanceWithTypeCheck(clazzName, type, this.getClass().getClassLoader());
+            } else {
+               instance = type.getDeclaredConstructor().newInstance();
+            }
+            // initialise with name
             try {
                beanUtilsBean.setProperty(instance, "name", name);
             } catch (Throwable ignored) {
                // for maps a name attribute is not mandatory
             }
 
-            // this is always going to be a little hacky b/c our config is not natively property friendly
-            if (instance instanceof TransportConfiguration) {
-               beanUtilsBean.setProperty(instance, "factoryClassName", "invm".equals(name) ? InVMConnectorFactory.class.getName() : NettyConnectorFactory.class.getName());
-            }
             return instance;
 
          } catch (Exception e) {
             if (logger.isDebugEnabled()) {
-               logger.debug("Failed to add entry for {} with method: {}", name, candidate, e);
+               logger.debug("Failed to add entry for {} to collection: {}", name, hostingBean, e);
             }
-            throw new IllegalArgumentException("failed to add entry for collection key " + name, e);
+            throw new IllegalArgumentException("failed to add entry for collection key " + name + ", cause " + e.getMessage(), e);
          }
       }
 
@@ -3386,10 +3885,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public static class InsertionOrderedProperties extends Properties {
 
       final LinkedHashMap<Object, Object> orderedMap = new LinkedHashMap<>();
+      long fileChecksum = 0;
 
       @Override
       public Object put(Object key, Object value) {
-         return orderedMap.put(key.toString(), value.toString());
+         return orderedMap.put(String.valueOf(key), String.valueOf(value));
       }
 
       @Override
@@ -3400,6 +3900,127 @@ public class ConfigurationImpl implements Configuration, Serializable {
       @Override
       public void clear() {
          orderedMap.clear();
+      }
+
+      public synchronized boolean loadJson(ConfigurationImpl configuration, InputStream inputStream) throws IOException {
+         try (Reader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            return loadJson(configuration, reader);
+         }
+      }
+
+      public synchronized boolean loadJson(ConfigurationImpl configuration, Reader reader) throws IOException {
+         JsonObject jsonObject = JsonLoader.readObject(reader);
+         final String surroundString = determineSurroundString(configuration, jsonObject);
+         loadJsonObject(surroundString, "", jsonObject);
+
+         return true;
+      }
+
+      public synchronized boolean loadYaml(ConfigurationImpl configuration, InputStream inputStream) {
+         LoadSettings settings = LoadSettings.builder()
+            .setMaxAliasesForCollections(50)
+            .setCodePointLimit(3 * 1024 * 1024)
+            .build();
+         Load yamlLoad = new Load(settings);
+         @SuppressWarnings("unchecked")
+         Map<String, Object> yamlMap = (Map<String, Object>) yamlLoad.loadFromInputStream(inputStream);
+         if (yamlMap == null) {
+            return false;
+         }
+         final String surroundString = determineSurroundString(configuration, yamlMap);
+         loadYamlMap(surroundString, "", yamlMap);
+         return true;
+      }
+
+      @SuppressWarnings("unchecked")
+      private void loadYamlMap(String keySurroundString, String parentKey, Map<String, Object> map) {
+         for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String key = entry.getKey();
+            key = autoSurroundIfNecessary(key, keySurroundString);
+            String propertyKey = parentKey + key;
+            Object value = entry.getValue();
+            if (value instanceof Map) {
+               loadYamlMap(keySurroundString, propertyKey + ".", (Map<String, Object>) value);
+            } else if (value instanceof List<?> list) {
+               put(propertyKey, list.stream()
+                  .map(String::valueOf)
+                  .collect(java.util.stream.Collectors.joining(",")));
+            } else if (value != null) {
+               put(propertyKey, String.valueOf(value));
+            }
+         }
+      }
+
+      private String determineSurroundString(ConfigurationImpl configuration, Map<String, Object> yamlMap) {
+         Object surroundValue = yamlMap.get(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_KEY_SURROUND_PROPERTY);
+         if (surroundValue != null) {
+            return String.valueOf(surroundValue);
+         }
+         Object brokerSurroundValue = yamlMap.get("brokerPropertiesKeySurround");
+         if (brokerSurroundValue != null) {
+            return String.valueOf(brokerSurroundValue);
+         }
+         return configuration.getBrokerPropertiesKeySurround();
+      }
+
+      private void loadJsonObject(String keySurroundString, String parentKey, JsonObject jsonObject) {
+         jsonObject.entrySet().stream().forEach(jsonEntry -> {
+            JsonValue jsonValue = jsonEntry.getValue();
+            JsonValue.ValueType jsonValueType = jsonValue.getValueType();
+            String jsonKey = jsonEntry.getKey();
+            jsonKey = autoSurroundIfNecessary(jsonKey, keySurroundString);
+            String propertyKey = parentKey + jsonKey;
+            switch (jsonValueType) {
+               case OBJECT:
+                  loadJsonObject(keySurroundString, propertyKey + ".", jsonValue.asJsonObject());
+                  break;
+               case STRING:
+                  put(propertyKey, ((JsonString)jsonValue).getString());
+                  break;
+               case NUMBER:
+               case TRUE:
+               case FALSE:
+                  put(propertyKey, String.valueOf(jsonValue));
+                  break;
+               case ARRAY:
+                  put(propertyKey, jsonValue.asJsonArray().stream()
+                     .map(v -> v.getValueType() == JsonValue.ValueType.STRING
+                        ? ((JsonString) v).getString()
+                        : String.valueOf(v))
+                     .collect(java.util.stream.Collectors.joining(",")));
+                  break;
+               default:
+                  throw new IllegalStateException("JSON value type not supported: " + jsonValueType);
+            }
+         });
+      }
+
+      private String autoSurroundIfNecessary(String jsonKey, String keySurroundString) {
+         String result = jsonKey;
+         if (keyNeedsAutoSurround(jsonKey, keySurroundString)) {
+            result = keySurroundString + jsonKey + keySurroundString;
+         }
+         return result;
+      }
+
+      private boolean keyNeedsAutoSurround(String jsonKey, String keySurroundString) {
+         return jsonKey.contains(".") && !jsonKey.startsWith("key.") && !(jsonKey.startsWith(keySurroundString) && jsonKey.endsWith(keySurroundString));
+      }
+
+      private String determineSurroundString(ConfigurationImpl configuration, JsonObject jsonObject) {
+         String surroundString = jsonObject.getString(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_KEY_SURROUND_PROPERTY, null);
+         if (surroundString == null) {
+            surroundString = jsonObject.getString("brokerPropertiesKeySurround", configuration.getBrokerPropertiesKeySurround());
+         }
+         return surroundString;
+      }
+
+      public void setFileChecksum(long value) {
+         fileChecksum = value;
+      }
+
+      public long getFileChecksum() {
+         return fileChecksum;
       }
    }
 }

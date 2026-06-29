@@ -16,16 +16,18 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view;
 
+import org.apache.activemq.artemis.core.management.impl.view.predicate.SessionPredicateFilterPart;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import java.util.Date;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.core.management.impl.view.predicate.SessionFilterPredicate;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
-public class SessionView extends ActiveMQAbstractView<ServerSession> {
+public class SessionView extends ActiveMQAbstractView<ServerSession, SessionPredicateFilterPart> {
 
-   private static final String defaultSortColumn = SessionField.ID.getName();
+   private static final String defaultSortField = SessionField.ID.getName();
 
    public SessionView() {
       super();
@@ -46,7 +48,8 @@ public class SessionView extends ActiveMQAbstractView<ServerSession> {
          .add(SessionField.CREATION_TIME.getName(), new Date(session.getCreationTime()).toString())
          .add(SessionField.CONSUMER_COUNT.getName(), session.getConsumerCount())
          .add(SessionField.PRODUCER_COUNT.getName(), session.getProducerCount())
-         .add(SessionField.CONNECTION_ID.getName(), session.getConnectionID().toString());
+         .add(SessionField.CONNECTION_ID.getName(), session.getConnectionID().toString())
+         .add(SessionField.CLIENT_ID.getName(), Objects.requireNonNullElse(session.getRemotingConnection().getClientID(), ""));
       return obj;
    }
 
@@ -54,28 +57,21 @@ public class SessionView extends ActiveMQAbstractView<ServerSession> {
    public Object getField(ServerSession session, String fieldName) {
       SessionField field = SessionField.valueOfName(fieldName);
 
-      switch (field) {
-         case ID:
-            return session.getName();
-         case USER:
-            return session.getUsername();
-         case VALIDATED_USER:
-            return session.getValidatedUser();
-         case CREATION_TIME:
-            return new Date(session.getCreationTime());
-         case CONSUMER_COUNT:
-            return session.getConsumerCount();
-         case PRODUCER_COUNT:
-            return session.getProducerCount();
-         case CONNECTION_ID:
-            return session.getConnectionID();
-         default:
-            throw new IllegalArgumentException("Unsupported field, " + fieldName);
-      }
+      return switch (field) {
+         case ID -> session.getName();
+         case USER -> session.getUsername();
+         case VALIDATED_USER -> session.getValidatedUser();
+         case CREATION_TIME -> new Date(session.getCreationTime());
+         case CONSUMER_COUNT -> session.getConsumerCount();
+         case PRODUCER_COUNT -> session.getProducerCount();
+         case CONNECTION_ID -> session.getConnectionID();
+         case CLIENT_ID -> session.getRemotingConnection().getClientID();
+         default -> throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      };
    }
 
    @Override
    public String getDefaultOrderColumn() {
-      return defaultSortColumn;
+      return defaultSortField;
    }
 }

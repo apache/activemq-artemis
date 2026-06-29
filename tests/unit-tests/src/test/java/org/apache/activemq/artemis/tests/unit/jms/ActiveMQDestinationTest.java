@@ -25,11 +25,15 @@ import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX;
 import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ActiveMQDestinationTest extends ActiveMQTestBase {
 
@@ -37,43 +41,43 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
 
    @Test
    public void testEquals() throws Exception {
-      String destinationName = RandomUtil.randomString();
+      String destinationName = RandomUtil.randomUUIDString();
       String address = QUEUE_QUALIFIED_PREFIX + destinationName;
-      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
-      ActiveMQDestination sameDestination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
-      ActiveMQDestination differentDestination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address + RandomUtil.randomString());
+      ActiveMQDestination destination = ActiveMQDestination.fromPrefixedName(address);
+      ActiveMQDestination sameDestination = ActiveMQDestination.fromPrefixedName(address);
+      ActiveMQDestination differentDestination = ActiveMQDestination.fromPrefixedName(address + RandomUtil.randomUUIDString());
 
-      Assert.assertFalse(destination.equals(null));
-      Assert.assertTrue(destination.equals(destination));
-      Assert.assertTrue(destination.equals(sameDestination));
-      Assert.assertFalse(destination.equals(differentDestination));
+      assertFalse(destination.equals(null));
+      assertTrue(destination.equals(destination));
+      assertTrue(destination.equals(sameDestination));
+      assertFalse(destination.equals(differentDestination));
    }
 
    @Test
    public void testFromAddressWithQueueAddressPrefix() throws Exception {
-      String destinationName = RandomUtil.randomString();
+      String destinationName = RandomUtil.randomUUIDString();
       String address = QUEUE_QUALIFIED_PREFIX + destinationName;
-      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
-      Assert.assertTrue(destination instanceof Queue);
-      Assert.assertEquals(destinationName, ((Queue) destination).getQueueName());
+      ActiveMQDestination destination = ActiveMQDestination.fromPrefixedName(address);
+      assertInstanceOf(Queue.class, destination);
+      assertEquals(destinationName, ((Queue) destination).getQueueName());
    }
 
    @Test
    public void testFromAddressWithTopicAddressPrefix() throws Exception {
-      String destinationName = RandomUtil.randomString();
+      String destinationName = RandomUtil.randomUUIDString();
       String address = TOPIC_QUALIFIED_PREFIX + destinationName;
-      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
-      Assert.assertTrue(destination instanceof Topic);
-      Assert.assertEquals(destinationName, ((Topic) destination).getTopicName());
+      ActiveMQDestination destination = ActiveMQDestination.fromPrefixedName(address);
+      assertInstanceOf(Topic.class, destination);
+      assertEquals(destinationName, ((Topic) destination).getTopicName());
    }
 
    @Test
    public void testFromAddressWithInvalidPrefix() throws Exception {
       String invalidPrefix = "junk";
-      String destinationName = RandomUtil.randomString();
+      String destinationName = RandomUtil.randomUUIDString();
       String address = invalidPrefix + destinationName;
-      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
-      Assert.assertTrue(destination instanceof Destination);
+      ActiveMQDestination destination = ActiveMQDestination.fromPrefixedName(address);
+      assertInstanceOf(Destination.class, destination);
    }
 
    @Test
@@ -82,7 +86,7 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       try {
          System.out.println("Destination: " + destination.toString());
       } catch (NullPointerException npe) {
-         Assert.fail("Caught NPE!");
+         fail("Caught NPE!");
       }
    }
 
@@ -92,7 +96,7 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       try {
          System.out.println("Destination: " + destination.toString());
       } catch (NullPointerException npe) {
-         Assert.fail("Caught NPE!");
+         fail("Caught NPE!");
       }
    }
 

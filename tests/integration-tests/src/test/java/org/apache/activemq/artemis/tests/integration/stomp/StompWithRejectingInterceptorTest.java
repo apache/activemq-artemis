@@ -29,10 +29,15 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StompWithRejectingInterceptorTest extends StompTestBase {
+
+   public StompWithRejectingInterceptorTest() {
+      super("tcp+v10.stomp");
+   }
 
    @Override
    public List<String> getIncomingInterceptors() {
@@ -48,25 +53,21 @@ public class StompWithRejectingInterceptorTest extends StompTestBase {
 
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
+      Wait.assertEquals(1, () -> IncomingStompFrameRejectInterceptor.interceptedFrames.size(), 500, 10);
+      assertEquals("CONNECT", IncomingStompFrameRejectInterceptor.interceptedFrames.get(0).getCommand());
 
       ClientStompFrame frame = conn.createFrame("SEND");
       frame.addHeader("destination", getQueuePrefix() + getQueueName());
       frame.setBody("Hello World");
       conn.sendFrame(frame);
+      Wait.assertEquals(2, () -> IncomingStompFrameRejectInterceptor.interceptedFrames.size(), 500, 10);
+      assertEquals("SEND", IncomingStompFrameRejectInterceptor.interceptedFrames.get(1).getCommand());
+
       conn.disconnect();
+      Wait.assertEquals(3, () -> IncomingStompFrameRejectInterceptor.interceptedFrames.size(), 500, 10);
+      assertEquals("DISCONNECT", IncomingStompFrameRejectInterceptor.interceptedFrames.get(2).getCommand());
 
-      assertTrue(Wait.waitFor(() -> IncomingStompFrameRejectInterceptor.interceptedFrames.size() == 3, 10000, 50));
-
-      List<String> incomingCommands = new ArrayList<>(4);
-      incomingCommands.add("CONNECT");
-      incomingCommands.add("SEND");
-      incomingCommands.add("DISCONNECT");
-
-      for (int i = 0; i < IncomingStompFrameRejectInterceptor.interceptedFrames.size(); i++) {
-         Assert.assertEquals(incomingCommands.get(i), IncomingStompFrameRejectInterceptor.interceptedFrames.get(i).getCommand());
-      }
-
-      Wait.assertFalse(() -> server.locateQueue(SimpleString.toSimpleString(getQueuePrefix() + getQueueName())).getMessageCount() > 0, 1000, 100);
+      Wait.assertFalse(() -> server.locateQueue(SimpleString.of(getQueuePrefix() + getQueueName())).getMessageCount() > 0, 1000, 100);
    }
 
    public static class IncomingStompFrameRejectInterceptor implements StompFrameInterceptor {

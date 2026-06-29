@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -35,9 +40,8 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ExpiryAddressTest extends ActiveMQTestBase {
 
@@ -48,14 +52,14 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicSend() throws Exception {
-      SimpleString ea = new SimpleString("EA");
-      SimpleString adSend = new SimpleString("a1");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString eq = new SimpleString("EA1");
+      SimpleString ea = SimpleString.of("EA");
+      SimpleString adSend = SimpleString.of("a1");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString eq = SimpleString.of("EA1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(adSend).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(adSend).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(adSend);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
@@ -65,31 +69,31 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
       clientConsumer = clientSession.createConsumer(eq);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
-      Assert.assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
+      assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 
 
    @Test
    public void testExpireSingleMessage() throws Exception {
-      SimpleString ea = new SimpleString("EA");
-      SimpleString adSend = new SimpleString("a1");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString eq = new SimpleString("EA1");
+      SimpleString ea = SimpleString.of("EA");
+      SimpleString adSend = SimpleString.of("a1");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString eq = SimpleString.of("EA1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(adSend).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(adSend).setDurable(false));
 
 
       ClientProducer producer = clientSession.createProducer(adSend);
@@ -112,36 +116,36 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
          queueQ1.expireReferences(latch::countDown);
       }
 
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
 
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(eq);
       ClientMessage m = clientConsumer.receive(5000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
-      Assert.assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
+      assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 
    @Test
    public void testBasicSendWithRetroActiveAddressSettings() throws Exception {
       // apply "original" address settings
-      SimpleString expiryAddress1 = new SimpleString("expiryAddress1");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString expiryQueue1 = new SimpleString("expiryQueue1");
+      SimpleString expiryAddress1 = SimpleString.of("expiryAddress1");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString expiryQueue1 = SimpleString.of("expiryQueue1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress1);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      clientSession.createQueue(new QueueConfiguration(expiryQueue1).setAddress(expiryAddress1).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(expiryQueue1).setAddress(expiryAddress1).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
 
       // override "original" address settings
-      SimpleString expiryAddress2 = new SimpleString("expiryAddress2");
-      SimpleString expiryQueue2 = new SimpleString("expiryQueue2");
+      SimpleString expiryAddress2 = SimpleString.of("expiryAddress2");
+      SimpleString expiryQueue2 = SimpleString.of("expiryQueue2");
       addressSettings = new AddressSettings().setExpiryAddress(expiryAddress2);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      clientSession.createQueue(new QueueConfiguration(expiryQueue2).setAddress(expiryAddress2).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(expiryQueue2).setAddress(expiryAddress2).setDurable(false));
 
       // send message that will expire ASAP
       ClientProducer producer = clientSession.createProducer(qName);
@@ -154,38 +158,38 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       // make sure the message has expired from the original queue
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       // make sure the message wasn't sent to the original expiry address
       clientConsumer = clientSession.createConsumer(expiryQueue1);
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       // make sure the message was sent to the expected expected expiry address
       clientConsumer = clientSession.createConsumer(expiryQueue2);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 
    @Test
    public void testBasicSendToMultipleQueues() throws Exception {
-      SimpleString ea = new SimpleString("EA");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString eq = new SimpleString("EQ1");
-      SimpleString eq2 = new SimpleString("EQ2");
+      SimpleString ea = SimpleString.of("EA");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString eq = SimpleString.of("EQ1");
+      SimpleString eq2 = SimpleString.of("EQ2");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(eq2).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq2).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
       clientMessage.setExpiration(System.currentTimeMillis());
@@ -196,7 +200,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
 
-      Assert.assertNull(m);
+      assertNull(m);
 
       clientConsumer.close();
 
@@ -204,14 +208,14 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
       m = clientConsumer.receive(500);
 
-      Assert.assertNotNull(m);
+      assertNotNull(m);
 
       assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
       assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
 
       m.acknowledge();
 
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
 
       clientConsumer.close();
 
@@ -219,14 +223,14 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
       m = clientConsumer.receive(500);
 
-      Assert.assertNotNull(m);
+      assertNotNull(m);
 
       assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
       assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
 
       m.acknowledge();
 
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
 
       clientConsumer.close();
 
@@ -235,13 +239,13 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicSendToNoQueue() throws Exception {
-      SimpleString ea = new SimpleString("EA");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString eq = new SimpleString("EQ1");
-      SimpleString eq2 = new SimpleString("EQ2");
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(eq2).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      SimpleString ea = SimpleString.of("EA");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString eq = SimpleString.of("EQ1");
+      SimpleString eq2 = SimpleString.of("EQ2");
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq2).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
       clientMessage.setExpiration(System.currentTimeMillis());
@@ -249,7 +253,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
 
       clientConsumer.close();
    }
@@ -257,13 +261,13 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
    @Test
    public void testHeadersSet() throws Exception {
       final int NUM_MESSAGES = 5;
-      SimpleString ea = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
+      SimpleString ea = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      SimpleString eq = new SimpleString("EA1");
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      SimpleString eq = SimpleString.of("EA1");
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       ServerLocator locator1 = createInVMNonHALocator();
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator1);
@@ -281,7 +285,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       clientSession.start();
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       // All the messages should now be in the EQ
 
       ClientConsumer cc3 = clientSession.createConsumer(eq);
@@ -289,14 +293,14 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = cc3.receive(1000);
 
-         Assert.assertNotNull(tm);
+         assertNotNull(tm);
 
          String text = tm.getBodyBuffer().readString();
-         Assert.assertEquals("Message:" + i, text);
+         assertEquals("Message:" + i, text);
 
          // Check the headers
          Long actualExpiryTime = (Long) tm.getObjectProperty(Message.HDR_ACTUAL_EXPIRY_TIME);
-         Assert.assertTrue(actualExpiryTime >= expiration);
+         assertTrue(actualExpiryTime >= expiration);
       }
 
       sendSession.close();
@@ -307,13 +311,13 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testExpireWithDefaultAddressSettings() throws Exception {
-      SimpleString ea = new SimpleString("EA");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString eq = new SimpleString("EA1");
+      SimpleString ea = SimpleString.of("EA");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString eq = SimpleString.of("EA1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().setDefault(addressSettings);
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(qName);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
@@ -323,25 +327,25 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       clientConsumer = clientSession.createConsumer(eq);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 
    @Test
    public void testExpireWithWildcardAddressSettings() throws Exception {
-      SimpleString ea = new SimpleString("EA");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString eq = new SimpleString("EA1");
+      SimpleString ea = SimpleString.of("EA");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString eq = SimpleString.of("EA1");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
-      clientSession.createQueue(new QueueConfiguration(eq).setAddress(ea).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(eq).setAddress(ea).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(qName);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
@@ -351,33 +355,33 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       clientConsumer = clientSession.createConsumer(eq);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 
    @Test
    public void testExpireWithOverridenSublevelAddressSettings() throws Exception {
-      SimpleString address = new SimpleString("prefix.address");
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString defaultExpiryAddress = RandomUtil.randomSimpleString();
-      SimpleString defaultExpiryQueue = RandomUtil.randomSimpleString();
-      SimpleString specificExpiryAddress = RandomUtil.randomSimpleString();
-      SimpleString specificExpiryQueue = RandomUtil.randomSimpleString();
+      SimpleString address = SimpleString.of("prefix.address");
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString defaultExpiryAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString defaultExpiryQueue = RandomUtil.randomUUIDSimpleString();
+      SimpleString specificExpiryAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString specificExpiryQueue = RandomUtil.randomUUIDSimpleString();
 
       AddressSettings defaultAddressSettings = new AddressSettings().setExpiryAddress(defaultExpiryAddress);
       server.getAddressSettingsRepository().addMatch("prefix.*", defaultAddressSettings);
       AddressSettings specificAddressSettings = new AddressSettings().setExpiryAddress(specificExpiryAddress);
       server.getAddressSettingsRepository().addMatch("prefix.address", specificAddressSettings);
 
-      clientSession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(defaultExpiryQueue).setAddress(defaultExpiryAddress).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(specificExpiryQueue).setAddress(specificExpiryAddress).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(defaultExpiryQueue).setAddress(defaultExpiryAddress).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(specificExpiryQueue).setAddress(specificExpiryAddress).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
@@ -387,23 +391,23 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(queue);
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       clientConsumer = clientSession.createConsumer(defaultExpiryQueue);
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       clientConsumer = clientSession.createConsumer(specificExpiryQueue);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));

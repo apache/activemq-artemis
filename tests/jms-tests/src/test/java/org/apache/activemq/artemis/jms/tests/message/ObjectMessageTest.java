@@ -24,12 +24,13 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * A test that sends/receives object messages to the JMS provider and verifies their integrity.
@@ -37,14 +38,14 @@ import org.junit.Test;
 public class ObjectMessageTest extends MessageTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       message = session.createObjectMessage();
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       message = null;
       super.tearDown();
@@ -192,7 +193,7 @@ public class ObjectMessageTest extends MessageTestBase {
          pathIgnore = classLocation.toString();
       }
 
-      ArrayList<URL> urls = new ArrayList<>();
+      List<URL> urls = new ArrayList<>();
       while (tokenString.hasMoreElements()) {
          String value = tokenString.nextToken();
          URL itemLocation = new File(value).toURI().toURL();
@@ -203,9 +204,9 @@ public class ObjectMessageTest extends MessageTestBase {
 
       URL[] urlArray = urls.toArray(new URL[urls.size()]);
 
-      ClassLoader masterClassLoader = URLClassLoader.newInstance(urlArray, null);
+      ClassLoader mainClassLoader = URLClassLoader.newInstance(urlArray, null);
 
-      ClassLoader appClassLoader = URLClassLoader.newInstance(new URL[]{classLocation}, masterClassLoader);
+      ClassLoader appClassLoader = URLClassLoader.newInstance(new URL[]{classLocation}, mainClassLoader);
 
       return appClassLoader;
    }

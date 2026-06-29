@@ -16,15 +16,18 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Supplier;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Utility adapted from: org.apache.activemq.util.Wait
@@ -51,12 +54,15 @@ public class Wait {
    }
 
    public interface Condition {
-
       boolean isSatisfied() throws Exception;
    }
 
    public interface LongCondition {
       long getCount() throws Exception;
+   }
+
+   public interface ExceptionCondition {
+      void isSatisfied() throws Exception;
    }
 
    public interface ObjectCondition {
@@ -96,7 +102,7 @@ public class Wait {
          if (printThreadDump) {
             callThreadDumpUtil("thread dump");
          }
-         Assert.assertEquals(size.longValue(), condition.getCount());
+         Assertions.assertEquals(size.longValue(), condition.getCount());
       }
    }
 
@@ -114,7 +120,7 @@ public class Wait {
       boolean result = waitFor(() -> (obj == condition || (obj != null && obj.equals(condition.getObject()))), timeout, sleepMillis);
 
       if (!result) {
-         Assert.assertEquals(obj, condition.getObject());
+         Assertions.assertEquals(obj, condition.getObject());
       }
    }
 
@@ -122,7 +128,40 @@ public class Wait {
       boolean result = waitFor(() -> condition.getCount() == size, timeout, sleepMillis);
 
       if (!result) {
-         Assert.assertEquals(size, condition.getCount());
+         Assertions.assertEquals(size, condition.getCount());
+      }
+   }
+
+   public static void assertEquals(int size, IntCondition condition, long timeout, long sleepMillis, Supplier<String> messageSupplier) throws Exception {
+      boolean result = waitFor(() -> condition.getCount() == size, timeout, sleepMillis);
+
+      if (!result) {
+         Assertions.assertEquals(size, condition.getCount(), messageSupplier);
+      }
+   }
+
+   public static void assertThrows(Class type, ExceptionCondition condition, long timeout, long sleepMillis, Supplier<String> messageSupplier) throws Exception {
+      AtomicReference<Exception> ref = new AtomicReference();
+      boolean result = waitFor(() -> {
+         try {
+            condition.isSatisfied();
+         } catch (Exception e) {
+            ref.set(e);
+            if (type.isInstance(e)) {
+               return true;
+            }
+         }
+         return false;
+      }, timeout, sleepMillis);
+
+      if (!result) {
+         Assertions.assertThrows(type, () -> {
+            if (ref.get() != null) {
+               throw ref.get();
+            } else {
+               return;
+            }
+         }, messageSupplier);
       }
    }
 
@@ -142,6 +181,10 @@ public class Wait {
       assertTrue(failureMessage, () -> !condition.isSatisfied(), duration, SLEEP_MILLIS);
    }
 
+   public static void assertFalse(Supplier<String> failureMessage, Condition condition, final long duration, final long sleep) {
+      assertTrue(failureMessage, () -> !condition.isSatisfied(), duration, sleep);
+   }
+
    public static void assertFalse(Condition condition, final long duration, final long sleep) {
       assertTrue(DEFAULT_FAILURE_MESSAGE, () -> !condition.isSatisfied(), duration, sleep);
    }
@@ -158,6 +201,19 @@ public class Wait {
       assertTrue(failureMessage, condition, duration, SLEEP_MILLIS);
    }
 
+   public static <T> T assertNotNull(Supplier<T> supplier, final long duration, final long sleep) throws Exception {
+      Assertions.assertTrue(waitFor(() -> supplier.get() != null, duration, sleep));
+      return supplier.get();
+   }
+
+   public static void assertNull(ObjectCondition condition, final long duration, final long sleep) throws Exception {
+      boolean result = waitFor(() -> (condition.getObject() == null), duration, sleep);
+
+      if (!result) {
+         Assertions.assertNull(condition.getObject());
+      }
+   }
+
    public static void assertTrue(Condition condition, final long duration, final long sleep) {
       assertTrue(DEFAULT_FAILURE_MESSAGE, condition, duration, sleep);
    }
@@ -171,7 +227,7 @@ public class Wait {
       boolean result = waitFor(condition, duration, sleep);
 
       if (!result) {
-         Assert.fail(failureMessage.get());
+         fail(failureMessage.get());
       }
    }
 

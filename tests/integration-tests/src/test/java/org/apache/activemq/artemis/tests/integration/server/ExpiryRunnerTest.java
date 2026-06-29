@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -40,9 +45,8 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ExpiryRunnerTest extends ActiveMQTestBase {
 
@@ -50,9 +54,9 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
 
    private ClientSession clientSession;
 
-   private final SimpleString qName = new SimpleString("ExpiryRunnerTestQ");
+   private final SimpleString qName = SimpleString.of("ExpiryRunnerTestQ");
 
-   private final SimpleString qName2 = new SimpleString("ExpiryRunnerTestQ2");
+   private final SimpleString qName2 = SimpleString.of("ExpiryRunnerTestQ2");
 
    private SimpleString expiryQueue;
 
@@ -73,14 +77,14 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          producer.send(m);
       }
       Thread.sleep(1600);
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
    }
 
    @Test
    public void testExpireFromMultipleQueues() throws Exception {
       ClientProducer producer = clientSession.createProducer(qName);
-      clientSession.createQueue(new QueueConfiguration(qName2).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName2).setDurable(false));
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
       ClientProducer producer2 = clientSession.createProducer(qName2);
@@ -95,8 +99,8 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          producer2.send(m);
       }
       Thread.sleep(1600);
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
    }
 
    @Test
@@ -112,8 +116,8 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          producer.send(m);
       }
       Thread.sleep(1600);
-      Assert.assertEquals(numMessages / 2, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
+      assertEquals(numMessages / 2, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
    }
 
    @Test
@@ -130,9 +134,9 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
       clientSession.start();
       for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(500);
-         Assert.assertNotNull("message not received " + i, cm);
+         assertNotNull(cm, "message not received " + i);
          cm.acknowledge();
-         Assert.assertEquals("m" + i, cm.getBodyBuffer().readString());
+         assertEquals("m" + i, cm.getBodyBuffer().readString());
       }
       consumer.close();
       Wait.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable())::getMessageCount);
@@ -145,8 +149,8 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
       clientSession.deleteQueue(qName);
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName2).setAddress(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName2).setAddress(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       int numMessages = 100;
       long expiration = System.currentTimeMillis();
@@ -156,22 +160,22 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          producer.send(m);
       }
       Thread.sleep(1600);
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
 
       ClientConsumer consumer = clientSession.createConsumer(expiryQueue);
       clientSession.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = consumer.receive(500);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          // assertEquals("m" + i, cm.getBody().getString());
       }
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = consumer.receive(500);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          // assertEquals("m" + i, cm.getBody().getString());
       }
-      Assert.assertEquals(100, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessagesExpired());
+      assertEquals(100, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessagesExpired());
       consumer.close();
    }
 
@@ -194,7 +198,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          Thread.sleep(100);
       }
       while (System.currentTimeMillis() < sendMessagesUntil);
-      Assert.assertTrue(latch.await(10000, TimeUnit.MILLISECONDS));
+      assertTrue(latch.await(10000, TimeUnit.MILLISECONDS));
       consumer.close();
 
       consumer = clientSession.createConsumer(expiryQueue);
@@ -205,7 +209,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          }
          String text = cm.getBodyBuffer().readString();
          cm.acknowledge();
-         Assert.assertFalse(dummyMessageHandler.payloads.contains(text));
+         assertFalse(dummyMessageHandler.payloads.contains(text));
          dummyMessageHandler.payloads.add(text);
       }
       while (true);
@@ -214,7 +218,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          if (dummyMessageHandler.payloads.isEmpty()) {
             break;
          }
-         Assert.assertTrue("m" + i, dummyMessageHandler.payloads.remove("m" + i));
+         assertTrue(dummyMessageHandler.payloads.remove("m" + i), "m" + i);
       }
       consumer.close();
       thr.join();
@@ -242,12 +246,12 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          }
       });
 
-      Assert.assertTrue(server.hasBrokerQueuePlugins());
+      assertTrue(server.hasBrokerQueuePlugins());
 
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setExpiryAddress(expiryAddress));
       for (int ad = 0; ad < 1000; ad++) {
          server.addAddressInfo(new AddressInfo("test" + ad));
-         server.createQueue(new QueueConfiguration("test" + ad).setAddress("test" + ad).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of("test" + ad).setAddress("test" + ad).setRoutingType(RoutingType.ANYCAST));
       }
 
       ClientProducer producer = clientSession.createProducer();
@@ -261,12 +265,12 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
       Wait.assertEquals(1000, artemisExpiryQueue::getMessageCount);
 
       // The system should not burst itself looking for expiration, that would use too many resources from the broker itself
-      Assert.assertTrue("The System had " + maxExpiryHappening + " threads in parallel scanning for expiration", maxExpiryHappening.get() == 1);
+      assertEquals(1, maxExpiryHappening.get(), "The System had " + maxExpiryHappening + " threads in parallel scanning for expiration");
 
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -280,15 +284,15 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
 
       clientSession = sessionFactory.createSession(false, true, true);
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
-      expiryAddress = new SimpleString("EA");
-      expiryQueue = new SimpleString("expiryQ");
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
+      expiryAddress = SimpleString.of("EA");
+      expiryQueue = SimpleString.of("expiryQ");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
-      clientSession.createQueue(new QueueConfiguration(expiryQueue).setAddress(expiryAddress).setDurable(true));
+      clientSession.createQueue(QueueConfiguration.of(expiryQueue).setAddress(expiryAddress).setDurable(true));
       artemisExpiryQueue = server.locateQueue(expiryQueue);
-      Assert.assertNotNull(artemisExpiryQueue);
+      assertNotNull(artemisExpiryQueue);
    }
 
    private static class DummyMessageHandler implements Runnable {

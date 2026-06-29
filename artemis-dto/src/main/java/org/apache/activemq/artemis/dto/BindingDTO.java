@@ -49,7 +49,13 @@ public class BindingDTO {
    public String keyStorePath;
 
    @XmlAttribute
+   public String keyStoreType;
+
+   @XmlAttribute
    public String trustStorePath;
+
+   @XmlAttribute
+   public String trustStoreType;
 
    @XmlAttribute
    private String includedTLSProtocols;
@@ -74,6 +80,12 @@ public class BindingDTO {
 
    @XmlAttribute
    private Boolean sniRequired;
+
+   @XmlAttribute
+   private Boolean sslAutoReload;
+
+   @XmlAttribute
+   private Boolean http2;
 
    public String getKeyStorePassword() throws Exception {
       return getPassword(this.keyStorePassword);
@@ -171,12 +183,28 @@ public class BindingDTO {
       this.keyStorePath = keyStorePath;
    }
 
+   public String getKeyStoreType() {
+      return keyStoreType;
+   }
+
+   public void setKeyStoreType(String keyStoreType) {
+      this.keyStoreType = keyStoreType;
+   }
+
    public String getTrustStorePath() {
       return trustStorePath;
    }
 
    public void setTrustStorePath(String trustStorePath) {
       this.trustStorePath = trustStorePath;
+   }
+
+   public String getTrustStoreType() {
+      return trustStoreType;
+   }
+
+   public void setTrustStoreType(String trustStoreType) {
+      this.trustStoreType = trustStoreType;
    }
 
    public List<AppDTO> getApps() {
@@ -201,6 +229,22 @@ public class BindingDTO {
 
    public void setSniRequired(Boolean sniRequired) {
       this.sniRequired = sniRequired;
+   }
+
+   public Boolean getSslAutoReload() {
+      return sslAutoReload;
+   }
+
+   public void setSslAutoReload(Boolean sslAutoReload) {
+      this.sslAutoReload = sslAutoReload;
+   }
+
+   public Boolean getHttp2() {
+      return http2;
+   }
+
+   public void setHttp2(Boolean http2) {
+      this.http2 = http2;
    }
 
    public BindingDTO() {

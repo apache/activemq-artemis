@@ -30,9 +30,6 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-/**
- *
- */
 public class JmsConnectionStartStopTest extends TestSupport {
 
    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JmsConnectionStartStopTest.class);
@@ -40,9 +37,6 @@ public class JmsConnectionStartStopTest extends TestSupport {
    private Connection startedConnection;
    private Connection stoppedConnection;
 
-   /**
-    * @see junit.framework.TestCase#setUp()
-    */
    @Override
    protected void setUp() throws Exception {
 
@@ -54,9 +48,6 @@ public class JmsConnectionStartStopTest extends TestSupport {
       stoppedConnection = factory.createConnection();
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       stoppedConnection.close();
@@ -66,8 +57,6 @@ public class JmsConnectionStartStopTest extends TestSupport {
    /**
     * Tests if the consumer receives the messages that were sent before the
     * connection was started.
-    *
-    * @throws JMSException
     */
    public void testStoppedConsumerHoldsMessagesTillStarted() throws JMSException {
       Session startedSession = startedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -101,8 +90,6 @@ public class JmsConnectionStartStopTest extends TestSupport {
    /**
     * Tests if the consumer is able to receive messages eveb when the
     * connecction restarts multiple times.
-    *
-    * @throws Exception
     */
    public void testMultipleConnectionStops() throws Exception {
       testStoppedConsumerHoldsMessagesTillStarted();
@@ -113,31 +100,25 @@ public class JmsConnectionStartStopTest extends TestSupport {
    }
 
    public void testConcurrentSessionCreateWithStart() throws Exception {
-      ThreadPoolExecutor executor = new ThreadPoolExecutor(50, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+      ThreadPoolExecutor executor = new ThreadPoolExecutor(50, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>());
       final Vector<Throwable> exceptions = new Vector<>();
       final Random rand = new Random();
-      Runnable createSessionTask = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
-               stoppedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            } catch (Exception e) {
-               exceptions.add(e);
-            }
+      Runnable createSessionTask = () -> {
+         try {
+            TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
+            stoppedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         } catch (Exception e) {
+            exceptions.add(e);
          }
       };
 
-      Runnable startStopTask = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
-               stoppedConnection.start();
-               stoppedConnection.stop();
-            } catch (Exception e) {
-               exceptions.add(e);
-            }
+      Runnable startStopTask = () -> {
+         try {
+            TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
+            stoppedConnection.start();
+            stoppedConnection.stop();
+         } catch (Exception e) {
+            exceptions.add(e);
          }
       };
 

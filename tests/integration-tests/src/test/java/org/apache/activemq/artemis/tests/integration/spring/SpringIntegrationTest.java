@@ -16,28 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.spring;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 public class SpringIntegrationTest extends ActiveMQTestBase {
-
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      super.setUp();
-      // Need to force GC as the connection on the spring needs to be cleared
-      // otherwise the sprint thread may leak here
-      forceGC();
-   }
 
    @Test
    public void testSpring() throws Exception {
@@ -49,7 +40,7 @@ public class SpringIntegrationTest extends ActiveMQTestBase {
          sender.send("Hello world");
          ExampleListener.latch.await(10, TimeUnit.SECONDS);
          Thread.sleep(500);
-         Assert.assertEquals(ExampleListener.lastMessage, "Hello world");
+         assertEquals("Hello world", ExampleListener.lastMessage);
          ((ActiveMQConnectionFactory) sender.getConnectionFactory()).close();
       } finally {
          try {

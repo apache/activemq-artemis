@@ -47,9 +47,9 @@ public class DisconnectConsumerWithKillMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", nodeID=" + nodeID);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", nodeID=" + nodeID);
+      return sb.toString();
    }
 
    public SimpleString getNodeID() {

@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -31,9 +36,9 @@ import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.JMSContext;
@@ -62,7 +67,7 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       useDummyTransactionManager();
       super.setUp();
@@ -71,7 +76,7 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("testuser", "arole");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("guest", "arole");
-      Role role = new Role("arole", true, true, true, true, true, true, true, true, true, true);
+      Role role = new Role("arole", true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);
@@ -88,7 +93,7 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = null;
       if (resourceAdapter != null) {
@@ -120,11 +125,11 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.rollback();
       textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.commit();
       textMessage = (TextMessage) consumer.receiveNoWait();
       assertNull(textMessage);
@@ -151,11 +156,11 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.rollback();
       textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.commit();
       textMessage = (TextMessage) consumer.receiveNoWait();
       assertNull(textMessage);
@@ -182,11 +187,11 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.rollback();
       textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.commit();
       textMessage = (TextMessage) consumer.receiveNoWait();
       assertNull(textMessage);
@@ -195,7 +200,7 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
    @Test
    public void sessionNotTransactedTestNoActiveJTATx() throws Exception {
       JMSContext context = qraConnectionFactory.createContext(JMSContext.AUTO_ACKNOWLEDGE);
-      assertEquals(context.getSessionMode(), JMSContext.AUTO_ACKNOWLEDGE);
+      assertEquals(JMSContext.AUTO_ACKNOWLEDGE, context.getSessionMode());
    }
 
    @Test
@@ -253,7 +258,7 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
    }
 
    @Test

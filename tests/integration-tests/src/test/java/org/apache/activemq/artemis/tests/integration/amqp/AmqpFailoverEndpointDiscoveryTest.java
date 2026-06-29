@@ -16,35 +16,40 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AmqpFailoverEndpointDiscoveryTest extends FailoverTestBase {
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
-   @Parameterized.Parameters(name = "{0}")
+   @Parameters(name = "{0}")
    public static Collection<?> getParameters() {
 
       // these 3 are for comparison
@@ -59,6 +64,21 @@ public class AmqpFailoverEndpointDiscoveryTest extends FailoverTestBase {
    }
 
    @Override
+   protected void createConfigs() throws Exception {
+      nodeManager = createNodeManager();
+      TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
+      TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
+
+      backupConfig = super.createDefaultNettyConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration()).addConnectorConfiguration(primaryConnector.getName(), primaryConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(createBasicClusterConfig(backupConnector.getName(), primaryConnector.getName()));
+
+      backupServer = createTestableServer(backupConfig);
+
+      primaryConfig = super.createDefaultNettyConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration()).addClusterConfiguration(createBasicClusterConfig(primaryConnector.getName())).addConnectorConfiguration(primaryConnector.getName(), primaryConnector);
+
+      primaryServer = createTestableServer(primaryConfig);
+   }
+
+   @Override
    protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
       return getNettyAcceptorTransportConfig(live);
    }
@@ -68,7 +88,8 @@ public class AmqpFailoverEndpointDiscoveryTest extends FailoverTestBase {
       return getNettyConnectorTransportConfig(live);
    }
 
-   @Test(timeout = 120000)
+   @TestTemplate
+   @Timeout(120)
    public void testFailoverListWithAMQP() throws Exception {
       JmsConnectionFactory factory = getJmsConnectionFactory();
       try (Connection connection = factory.createConnection()) {
@@ -76,16 +97,16 @@ public class AmqpFailoverEndpointDiscoveryTest extends FailoverTestBase {
          javax.jms.Queue queue = session.createQueue(ADDRESS.toString());
          MessageProducer producer = session.createProducer(queue);
          producer.send(session.createTextMessage("hello before failover"));
-         liveServer.crash(true, true);
+         primaryServer.crash(true, true);
          producer.send(session.createTextMessage("hello after failover"));
          MessageConsumer consumer = session.createConsumer(queue);
          connection.start();
          TextMessage receive = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(receive);
-         Assert.assertEquals("hello before failover", receive.getText());
+         assertNotNull(receive);
+         assertEquals("hello before failover", receive.getText());
          receive = (TextMessage) consumer.receive(5000);
-         Assert.assertEquals("hello after failover", receive.getText());
-         Assert.assertNotNull(receive);
+         assertEquals("hello after failover", receive.getText());
+         assertNotNull(receive);
       }
    }
 

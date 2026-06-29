@@ -22,11 +22,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
+
 import org.apache.activemq.artemis.api.core.management.AddressControl;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddressPauseTest extends JMSTestBase {
 
@@ -44,7 +47,7 @@ public class AddressPauseTest extends JMSTestBase {
          try (Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE)) {
             Topic topic = session.createTopic("jms.topic.MyTopic");
             TopicSubscriber subscriber1 = session.createDurableSubscriber(topic, "my-subscription1");
-            AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.ADDRESS + "jms.topic.MyTopic");
+            AddressControl addressControl = server.getManagementService().getAddressControl("jms.topic.MyTopic");
             MessageProducer producer = session.createProducer(topic);
             final int numMessages = 100;
             for (int i = 0; i < numMessages; i++) {
@@ -54,12 +57,12 @@ public class AddressPauseTest extends JMSTestBase {
             session.commit();
             for (int i = 0; i < numMessages; i++) {
                TextMessage m = (TextMessage) subscriber1.receive(5000);
-               Assert.assertNotNull(m);
+               assertNotNull(m);
             }
             session.commit();
             //Pausing the subscriptions
             addressControl.pause();
-            Assert.assertTrue(addressControl.isPaused());
+            assertTrue(addressControl.isPaused());
             //subscriber2 should be paused too
             TopicSubscriber subscriber2 = session.createDurableSubscriber(topic, "my-subscription2");
             for (int i = 0; i < numMessages; i++) {
@@ -68,19 +71,19 @@ public class AddressPauseTest extends JMSTestBase {
             }
             session.commit();
             TextMessage message = (TextMessage) subscriber1.receiveNoWait();
-            Assert.assertNull(message);
+            assertNull(message);
             message = (TextMessage) subscriber2.receiveNoWait();
-            Assert.assertNull(message);
+            assertNull(message);
             //Resuming the subscriptions
             addressControl.resume();
             for (int i = 0; i < numMessages; i++) {
                TextMessage m = (TextMessage) subscriber1.receive(5000);
-               Assert.assertNotNull(m);
+               assertNotNull(m);
             }
             session.commit();
             for (int i = 0; i < numMessages; i++) {
                TextMessage m = (TextMessage) subscriber2.receive(5000);
-               Assert.assertNotNull(m);
+               assertNotNull(m);
             }
             session.commit();
          }
@@ -98,7 +101,7 @@ public class AddressPauseTest extends JMSTestBase {
          try (Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE)) {
             Topic topic = session.createTopic("jms.topic.MyTopic");
             TopicSubscriber subscriber1 = session.createDurableSubscriber(topic, "my-subscription1");
-            AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.ADDRESS + "jms.topic.MyTopic");
+            AddressControl addressControl = server.getManagementService().getAddressControl("jms.topic.MyTopic");
             MessageProducer producer = session.createProducer(topic);
             for (int i = 0; i < numMessages; i++) {
                TextMessage mess = session.createTextMessage("msg" + i);
@@ -107,7 +110,7 @@ public class AddressPauseTest extends JMSTestBase {
             session.commit();
             for (int i = 0; i < numMessages; i++) {
                TextMessage m = (TextMessage) subscriber1.receive(5000);
-               Assert.assertNotNull(m);
+               assertNotNull(m);
             }
             session.commit();
             //Pausing the subscriptions
@@ -125,9 +128,9 @@ public class AddressPauseTest extends JMSTestBase {
          try (Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE)) {
             Topic topic = session.createTopic("jms.topic.MyTopic");
             TopicSubscriber subscriber1 = session.createDurableSubscriber(topic, "my-subscription1");
-            AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.ADDRESS + "jms.topic.MyTopic");
+            AddressControl addressControl = server.getManagementService().getAddressControl("jms.topic.MyTopic");
             MessageProducer producer = session.createProducer(topic);
-            Assert.assertTrue(addressControl.isPaused());
+            assertTrue(addressControl.isPaused());
             //subscriber2 should be paused too
             TopicSubscriber subscriber2 = session.createDurableSubscriber(topic, "my-subscription2");
             for (int i = 0; i < numMessages; i++) {
@@ -136,19 +139,19 @@ public class AddressPauseTest extends JMSTestBase {
             }
             session.commit();
             TextMessage message = (TextMessage) subscriber1.receiveNoWait();
-            Assert.assertNull(message);
+            assertNull(message);
             message = (TextMessage) subscriber2.receiveNoWait();
-            Assert.assertNull(message);
+            assertNull(message);
             //Resuming the subscriptions
             addressControl.resume();
             for (int i = 0; i < numMessages; i++) {
                TextMessage m = (TextMessage) subscriber1.receive(5000);
-               Assert.assertNotNull(m);
+               assertNotNull(m);
             }
             session.commit();
             for (int i = 0; i < numMessages; i++) {
                TextMessage m = (TextMessage) subscriber2.receive(5000);
-               Assert.assertNotNull(m);
+               assertNotNull(m);
             }
             session.commit();
          }

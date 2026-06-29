@@ -21,25 +21,27 @@ import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModuleTest.AUTH_JSON;
 import static org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModuleTest.UNAUTH_JSON;
 import static org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModuleTest.USERNAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.model.JsonBody.json;
 
+import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.kubernetes.model.TokenReview;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockserver.configuration.Configuration;
 import org.mockserver.configuration.ConfigurationProperties;
 import org.mockserver.integration.ClientAndServer;
@@ -58,16 +60,22 @@ public class KubernetesClientImplTest {
    private static final String host = "localhost";
    private static String port;
 
-   private static final String BOB_REQUEST = "{\"apiVersion\": \"authentication.k8s.io/v1\"," +
-         "\"kind\": \"TokenReview\", \"spec\": {\"token\": \"bob_token\"}}";
+   @TempDir
+   static File tempDir;
 
-   private static final String KERMIT_REQUEST = "{\"apiVersion\": \"authentication.k8s.io/v1\"," +
-         "\"kind\": \"TokenReview\", \"spec\": {\"token\": \"kermit_token\"}}";
+   private static final String BOB_REQUEST = """
+         {"apiVersion": "authentication.k8s.io/v1",\
+         "kind": "TokenReview", "spec": {"token": "bob_token"}}""";
 
-   @BeforeClass
+   private static final String KERMIT_REQUEST = """
+         {"apiVersion": "authentication.k8s.io/v1",\
+         "kind": "TokenReview", "spec": {"token": "kermit_token"}}""";
+
+   @BeforeAll
    public static void startServer() {
-      ConfigurationProperties.dynamicallyCreateCertificateAuthorityCertificate(true);
-      ConfigurationProperties.directoryToSaveDynamicSSLCertificate("target/test-classes");
+      ConfigurationProperties.directoryToSaveDynamicSSLCertificate(tempDir.getAbsolutePath());
+      ConfigurationProperties.certificateAuthorityPrivateKey(KubernetesClientImplTest.class.getClassLoader().getResource("server-ca.pem").getPath());
+      ConfigurationProperties.certificateAuthorityCertificate(KubernetesClientImplTest.class.getClassLoader().getResource("server-ca-cert.pem").getPath());
       ConfigurationProperties.preventCertificateDynamicUpdate(false);
       ConfigurationProperties.proactivelyInitialiseTLS(true);
 
@@ -84,13 +92,14 @@ public class KubernetesClientImplTest {
             KubernetesClientImplTest.class.getClassLoader().getResource("client_token").getPath());
 
       URL caPath = KubernetesClientImplTest.class.getClassLoader()
-         .getResource("CertificateAuthorityCertificate.pem");
+         .getResource("client-and-server-ca-certs.pem");
+
       assertNotNull(caPath);
       logger.info("Setting KUBERNETES_CA_PATH {}", caPath.getPath());
       System.setProperty("KUBERNETES_CA_PATH", caPath.getPath());
    }
 
-   @AfterClass
+   @AfterAll
    public static void stopServer() {
       System.clearProperty("KUBERNETES_SERVICE_HOST");
       System.clearProperty("KUBERNETES_SERVICE_PORT");
@@ -99,8 +108,9 @@ public class KubernetesClientImplTest {
       mockServer.stop();
    }
 
-   @Before
+   @BeforeEach
    public void reset() {
+      KubernetesClientImpl.clearHttpClient();
       mockServer.reset();
    }
 
@@ -166,12 +176,12 @@ public class KubernetesClientImplTest {
          if (System.getProperty(envKv.getKey()) == null) {
 
             KubernetesClientImpl clientImpl = new KubernetesClientImpl();
-            assertEquals(envKv.getValue(), clientImpl.getParam(envKv.getKey(), null));
+            assertEquals(envKv.getValue(), KubernetesClientImpl.getParam(envKv.getKey(), null));
 
             final String valFromProp = "bla";
             try {
                System.setProperty(envKv.getKey(), valFromProp);
-               assertEquals(valFromProp, clientImpl.getParam(envKv.getKey(), null));
+               assertEquals(valFromProp, KubernetesClientImpl.getParam(envKv.getKey(), null));
             } finally {
                System.clearProperty(envKv.getKey());
             }
@@ -180,7 +190,7 @@ public class KubernetesClientImplTest {
             String candidate = valFromProp;
             for (int i = 0; i < 10; i++) {
                if (System.getenv(candidate) == null && System.getProperty(candidate) == null) {
-                  assertEquals(candidate, clientImpl.getParam(candidate, candidate));
+                  assertEquals(candidate, KubernetesClientImpl.getParam(candidate, candidate));
                   break;
                }
                candidate += i;
@@ -192,4 +202,10 @@ public class KubernetesClientImplTest {
       }
    }
 
+   @Test
+   public void testSingeltonHttpClient() throws Exception {
+      KubernetesClientImpl clientImplFirst = new KubernetesClientImpl();
+      KubernetesClientImpl clientImplSecond = new KubernetesClientImpl();
+      assertEquals(clientImplFirst.getHttpClient(), clientImplSecond.getHttpClient());
+   }
 }

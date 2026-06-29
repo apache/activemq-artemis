@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,16 +46,16 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
 
-   @Parameterized.Parameters(name = "isNetty={0}")
+   @Parameters(name = "isNetty={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -68,7 +72,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
       return netty;
    }
 
-   @Test
+   @TestTemplate
    public void testStartStop() throws Exception {
       Map<String, Object> server0Params = new HashMap<>();
       ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
@@ -97,7 +101,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
          final String groupAddress = getUDPDiscoveryAddress();
          final int port = getUDPDiscoveryPort();
 
-         ArrayList<String> list = new ArrayList<>();
+         List<String> list = new ArrayList<>();
          list.add(server1tc.getName());
 
          UDPBroadcastEndpointFactory endpoint = new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(port);
@@ -112,7 +116,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
 
          final String bridgeName = "bridge1";
 
-         ArrayList<String> staticConnectors = new ArrayList<>();
+         List<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
          BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName(bridgeName).setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttempts(0).setReconnectAttemptsOnSameNode(0).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors);
 
@@ -120,12 +124,12 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-         QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+         QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
          List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-         QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+         QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
          List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -142,7 +146,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
 
          ClientSession session1 = sf1.createSession(false, true, true);
 
-         ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+         ClientProducer producer0 = session0.createProducer(SimpleString.of(testAddress));
 
          ClientConsumer consumer1 = session1.createConsumer(queueName1);
 
@@ -150,7 +154,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
 
          final int numMessages = 10;
 
-         final SimpleString propKey = new SimpleString("testkey");
+         final SimpleString propKey = SimpleString.of("testkey");
 
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = session0.createMessage(false);
@@ -163,14 +167,14 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = consumer1.receive(BridgeWithDiscoveryGroupStartTest.TIMEOUT);
 
-            Assert.assertNotNull(message);
+            assertNotNull(message);
 
-            Assert.assertEquals(i, message.getObjectProperty(propKey));
+            assertEquals(i, message.getObjectProperty(propKey));
 
             message.acknowledge();
          }
 
-         Assert.assertNull(consumer1.receiveImmediate());
+         assertNull(consumer1.receiveImmediate());
 
          Bridge bridge = server0.getClusterManager().getBridges().get(bridgeName);
 
@@ -185,21 +189,21 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
             producer0.send(message);
          }
 
-         Assert.assertNull(consumer1.receiveImmediate());
+         assertNull(consumer1.receiveImmediate());
 
          bridge.start();
 
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = consumer1.receive(BridgeWithDiscoveryGroupStartTest.TIMEOUT);
 
-            Assert.assertNotNull(message);
+            assertNotNull(message);
 
-            Assert.assertEquals(i, message.getObjectProperty(propKey));
+            assertEquals(i, message.getObjectProperty(propKey));
 
             message.acknowledge();
          }
 
-         Assert.assertNull(consumer1.receiveImmediate());
+         assertNull(consumer1.receiveImmediate());
 
          session0.close();
 
@@ -219,9 +223,6 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
 
    }
 
-   /**
-    * @return
-    */
    private String getConnector() {
       if (isNetty()) {
          return NettyConnectorFactory.class.getName();

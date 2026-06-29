@@ -25,8 +25,6 @@ import org.apache.activemq.util.ServiceListener;
 
 /**
  * A TCP based implementation of {@link TransportServer}
- *
- * @author David Martin Clavo david(dot)martin(dot)clavo(at)gmail.com (logging improvement modifications)
  */
 
 public class TcpFaultyTransportServer extends TcpTransportServer implements ServiceListener {
@@ -37,9 +35,6 @@ public class TcpFaultyTransportServer extends TcpTransportServer implements Serv
       super(transportFactory, location, serverSocketFactory);
    }
 
-   /**
-    * @return pretty print of this
-    */
    @Override
    public String toString() {
       return "" + getBindLocation();

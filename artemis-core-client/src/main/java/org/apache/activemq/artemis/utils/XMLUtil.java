@@ -24,7 +24,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URL;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +31,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -75,12 +75,12 @@ public final class XMLUtil {
 
    public static String readerToString(final Reader r) throws Exception {
       // Read into string
-      StringBuilder buff = new StringBuilder();
+      StringBuilder builder = new StringBuilder();
       int c;
       while ((c = r.read()) != -1) {
-         buff.append((char) c);
+         builder.append((char) c);
       }
-      return buff.toString();
+      return builder.toString();
    }
 
    public static Element readerToElement(final Reader r) throws Exception {
@@ -106,7 +106,7 @@ public final class XMLUtil {
          return "";
       }
 
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       sb.append('<').append(name);
 
       NamedNodeMap attrs = n.getAttributes();
@@ -148,12 +148,11 @@ public final class XMLUtil {
    }
 
    /**
-    * Note: if the content is another element or set of elements, it returns a string representation
-    * of the hierarchy.
+    * Note: if the content is another element or set of elements, it returns a string representation of the hierarchy.
     */
    public static String getTextContent(final Node n) {
       if (n.hasChildNodes()) {
-         StringBuffer sb = new StringBuffer();
+         StringBuilder sb = new StringBuilder();
          NodeList nl = n.getChildNodes();
          for (int i = 0; i < nl.getLength(); i++) {
             sb.append(XMLUtil.elementToString(nl.item(i)));
@@ -163,7 +162,7 @@ public final class XMLUtil {
          }
 
          String s = sb.toString();
-         if (s.length() != 0) {
+         if (!s.isEmpty()) {
             return s;
          }
       }
@@ -395,12 +394,7 @@ public final class XMLUtil {
    }
 
    public static URL findResource(final String resourceName) {
-      return AccessController.doPrivileged(new PrivilegedAction<URL>() {
-         @Override
-         public URL run() {
-            return ClassloadingUtil.findResource(resourceName);
-         }
-      });
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<URL>) () -> ClassloadingUtil.findResource(resourceName));
    }
 
 }

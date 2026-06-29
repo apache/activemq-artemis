@@ -16,42 +16,37 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
-import java.util.Arrays;
+import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Objects;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
+import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.qpid.proton.amqp.Symbol;
-import org.apache.qpid.proton.amqp.messaging.Modified;
-import org.apache.qpid.proton.amqp.messaging.Outcome;
-import org.apache.qpid.proton.amqp.messaging.Rejected;
-import org.apache.qpid.proton.amqp.messaging.Source;
+import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
+import org.apache.qpid.proton.amqp.messaging.Target;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
-import org.apache.qpid.proton.amqp.transport.AmqpError;
-import org.apache.qpid.proton.amqp.transport.DeliveryState;
-import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * This is the equivalent for the ServerProducer
@@ -64,40 +59,43 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
    protected SimpleString lastAddress;
    protected AddressFullMessagePolicy lastAddressPolicy;
    protected boolean addressAlreadyClashed = false;
-
-
-   protected final Runnable spiFlow = this::sessionSPIFlow;
-
-   private RoutingType defRoutingType;
+   protected RoutingType explicitRoutingType;
+   protected RoutingType implicitRoutingType;
 
    public ProtonServerReceiverContext(AMQPSessionCallback sessionSPI,
                                       AMQPConnectionContext connection,
                                       AMQPSessionContext protonSession,
                                       Receiver receiver) {
       super(sessionSPI, connection, protonSession, receiver);
-
    }
 
    @Override
    public void initialize() throws Exception {
-      super.initialize();
+      initialized = true;
+
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
 
       // Match the settlement mode of the remote instead of relying on the default of MIXED.
       receiver.setSenderSettleMode(receiver.getRemoteSenderSettleMode());
 
-      // We don't currently support SECOND so enforce that the answer is anlways FIRST
+      // We don't currently support SECOND so enforce that the answer is always FIRST
       receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
 
       if (target != null) {
          if (target.getDynamic()) {
             // if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
             // will be deleted on closing of the session
-            address = SimpleString.toSimpleString(sessionSPI.tempQueueName());
-            defRoutingType = getRoutingType(target.getCapabilities(), address);
+            address = SimpleString.of(sessionSPI.tempQueueName());
+
+            explicitRoutingType = getExplicitRoutingType(target.getCapabilities(), address);
+            implicitRoutingType = getImplicitRoutingType(address);
 
             try {
-               sessionSPI.createTemporaryQueue(address, defRoutingType);
+               if (getPreferredRoutingType() == RoutingType.ANYCAST) {
+                  sessionSPI.createTemporaryQueue(address, RoutingType.ANYCAST);
+               } else {
+                  sessionSPI.createTemporaryAddress(address);
+               }
             } catch (ActiveMQAMQPSecurityException e) {
                throw e;
             } catch (ActiveMQSecurityException e) {
@@ -112,13 +110,17 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
             // matched on receive of the message.
             String targetAddress = target.getAddress();
             if (targetAddress != null && !targetAddress.isEmpty()) {
-               address = SimpleString.toSimpleString(targetAddress);
+               address = SimpleString.of(targetAddress);
             }
 
             if (address != null) {
-               defRoutingType = getRoutingType(target.getCapabilities(), address);
+               explicitRoutingType = getExplicitRoutingType(target.getCapabilities(), address);
+               implicitRoutingType = getImplicitRoutingType(address);
+
+               final RoutingType selectedRoutingType = explicitRoutingType != null ? explicitRoutingType : implicitRoutingType;
+
                try {
-                  if (!sessionSPI.checkAddressAndAutocreateIfPossible(address, defRoutingType)) {
+                  if (!sessionSPI.checkAddressAndAutocreateIfPossible(address, selectedRoutingType)) {
                      throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist(address.toString());
                   }
                } catch (ActiveMQAMQPNotFoundException e) {
@@ -128,90 +130,135 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
                   throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
                }
 
+               final SimpleString addressPart = CompositeAddress.extractAddressName(address);
+               final SimpleString queuePart = CompositeAddress.isFullyQualified(address) ?
+                  CompositeAddress.extractQueueName(address) : null;
+
                try {
-                  sessionSPI.check(address, CheckType.SEND, connection.getSecurityAuth());
+                  sessionSPI.check(addressPart, queuePart, CheckType.SEND, connection.getSecurityAuth());
                } catch (ActiveMQSecurityException e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingProducer(e.getMessage());
                }
+            } else {
+               explicitRoutingType = getExplicitRoutingType(target.getCapabilities(), null);
             }
          }
 
-         Symbol[] remoteDesiredCapabilities = receiver.getRemoteDesiredCapabilities();
+         final Symbol[] remoteDesiredCapabilities = receiver.getRemoteDesiredCapabilities();
+
          if (remoteDesiredCapabilities != null) {
-            List<Symbol> list = Arrays.asList(remoteDesiredCapabilities);
-            if (list.contains(AmqpSupport.DELAYED_DELIVERY)) {
-               receiver.setOfferedCapabilities(new Symbol[]{AmqpSupport.DELAYED_DELIVERY});
+            final List<Symbol> offeredCapabilities = new ArrayList<>();
+
+            final Symbol[] desiredCapabilities = remoteDesiredCapabilities;
+            for (Symbol desired : desiredCapabilities) {
+               if (AmqpSupport.DELAYED_DELIVERY.equals(desired)) {
+                  offeredCapabilities.add(AmqpSupport.DELAYED_DELIVERY);
+               } else if (AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.equals(desired)) {
+                  offeredCapabilities.add(AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT);
+                  enableCoreTunneling();
+               }
+            }
+
+            if (!offeredCapabilities.isEmpty()) {
+               receiver.setOfferedCapabilities(offeredCapabilities.toArray(new Symbol[0]));
             }
          }
       }
-      flow();
-   }
 
-   public RoutingType getDefRoutingType() {
-      return defRoutingType;
-   }
-
-   public RoutingType getRoutingType(Receiver receiver, SimpleString address) {
-      org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
-      return target != null ? getRoutingType(target.getCapabilities(), address) : getRoutingType((Symbol[]) null, address);
-   }
-
-   private RoutingType getRoutingType(Symbol[] symbols, SimpleString address) {
-      RoutingType explicitRoutingType = getExplicitRoutingType(symbols);
-      if (explicitRoutingType != null) {
-         return explicitRoutingType;
-      } else {
-         final AddressInfo addressInfo = sessionSPI.getAddress(address);
-         /*
-          * If we're dealing with an *existing* address that has just one routing-type simply use that.
-          * This allows "bare" AMQP clients (which have no built-in routing semantics) to send messages
-          * wherever they want in this case because the routing ambiguity is eliminated.
-          */
-         if (addressInfo != null && addressInfo.getRoutingTypes().size() == 1) {
-            return addressInfo.getRoutingType();
-         } else {
-            return getDefaultRoutingType(address);
-         }
-      }
-   }
-
-   private RoutingType getDefaultRoutingType(SimpleString address) {
-      RoutingType defaultRoutingType = sessionSPI.getDefaultRoutingType(address);
-      return defaultRoutingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : defaultRoutingType;
-   }
-
-   private RoutingType getExplicitRoutingType(Symbol[] symbols) {
-      if (symbols != null) {
-         for (Symbol symbol : symbols) {
-            if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
-               return RoutingType.MULTICAST;
-            } else if (AmqpSupport.TEMP_QUEUE_CAPABILITY.equals(symbol) || AmqpSupport.QUEUE_CAPABILITY.equals(symbol)) {
-               return RoutingType.ANYCAST;
-            }
-         }
-      }
-      return null;
+      topUpCreditIfNeeded();
    }
 
    @Override
-   protected void actualDelivery(AMQPMessage message, Delivery delivery, Receiver receiver, Transaction tx) {
+   protected SimpleString getAddressInUse() {
+      return address != null ? address : lastAddress;
+   }
+
+   /**
+    * {@return true if the context is an anonymous relay (no target address)}
+    */
+   public final boolean isAnonymousRelay() {
+      return address == null;
+   }
+
+   /**
+    * Return the explicit routing type if one was provided and if not then return the
+    * implicit routing type as a fallback.
+    *
+    * @return the highest priority routing type this receiver selected.
+    */
+   public RoutingType getPreferredRoutingType() {
+      return explicitRoutingType != null ? explicitRoutingType : implicitRoutingType;
+   }
+
+   /**
+    * Returns the routing type the client defined for this receiver using capabilities set
+    * in the link {@link Target} or an address prefix.
+    *
+    * @return the explicit routing type defined in the link target capabilities or via address prefix.
+    */
+   public RoutingType getExplicitRoutingType() {
+      return explicitRoutingType;
+   }
+
+   /**
+    * Returns the routing type of the actual link target (address or queue) if one could
+    * be determined based on broker defined defaults.
+    *
+    * @return the implicit routing type based on the target address.
+    */
+   public RoutingType getImplicitRoutingType() {
+      return implicitRoutingType;
+   }
+
+   @Override
+   protected void actualDelivery(Message message, Delivery delivery, DeliveryAnnotations deliveryAnnotations, Receiver receiver, Transaction tx) {
       try {
-         if (sessionSPI != null) {
-            // message could be null on unit tests (Mocking from ProtonServerReceiverContextTest).
-            if (address == null && message != null) {
-               validateAddressOnAnonymousLink(message);
-            }
-            sessionSPI.serverSend(this, tx, receiver, delivery, address, routingContext, message);
+         if (sessionSPI == null) {
+            return;
          }
+
+         if (isAnonymousRelay()) {
+            validateAddressOnAnonymousLink(message);
+         }
+
+         sessionSPI.serverSend(this, tx, receiver, delivery, address, deduceRoutingType(message), routingContext, message);
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
-
          deliveryFailed(delivery, receiver, e);
-
       }
    }
 
-   private void validateAddressOnAnonymousLink(AMQPMessage message) throws Exception {
+   protected RoutingType deduceRoutingType(Message message) {
+      RoutingType routingType = getExplicitRoutingType();
+
+      if (routingType == null) {
+         if (isAnonymousRelay()) {
+            final SimpleString address = message.getAddressSimpleString();
+
+            routingType = message.getRoutingType();
+
+            if (routingType == null && address != null) {
+               routingType = sessionSPI.getRoutingTypeFromPrefix(address, getImplicitRoutingType(address));
+            }
+         } else {
+            final Object msgRoutingType = message.getAnnotation(SimpleString.of(AMQPMessageSupport.ROUTING_TYPE.toString()));
+
+            // This can lead to message being dropped on a link that matches an address whose
+            // routing type is MULTICAST but the messages get sent with the ANYCAST routing type
+            // or vice versa but we supported this sort of thing and changing if results in changes
+            // in behavior from past releases.
+            if (msgRoutingType != null) {
+               routingType = RoutingType.getTypeOrDefault(((Number) msgRoutingType).byteValue(), getImplicitRoutingType());
+            } else {
+               routingType = getImplicitRoutingType();
+            }
+         }
+      }
+
+      return routingType;
+   }
+
+   private void validateAddressOnAnonymousLink(Message message) throws Exception {
       SimpleString newAddress = message.getAddressSimpleString();
       if (newAddress != null && !newAddress.equals(lastAddress)) {
          AddressFullMessagePolicy currentPolicy = sessionSPI.getProtocolManager().getServer().getPagingManager().getPageStore(newAddress).getAddressFullMessagePolicy();
@@ -223,64 +270,9 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
 
             logger.debug("AddressFullPolicy clash between {}/{} and {}/{}", lastAddress, lastAddressPolicy, newAddress, lastAddressPolicy);
          }
-         this.lastAddress = message.getAddressSimpleString();
-         this.lastAddressPolicy = currentPolicy;
+         lastAddress = message.getAddressSimpleString();
+         lastAddressPolicy = currentPolicy;
       }
-   }
-
-   public void deliveryFailed(Delivery delivery, Receiver receiver, Exception e) {
-      connection.runNow(() -> {
-         DeliveryState deliveryState = determineDeliveryState(((Source) receiver.getSource()),
-                                                              useModified,
-                                                              e);
-         delivery.disposition(deliveryState);
-         settle(delivery);
-         connection.flush();
-      });
-   }
-
-   private DeliveryState determineDeliveryState(final Source source, final boolean useModified, final Exception e) {
-      Outcome defaultOutcome = getEffectiveDefaultOutcome(source);
-
-      if (isAddressFull(e) && useModified &&
-          (outcomeSupported(source, Modified.DESCRIPTOR_SYMBOL) || defaultOutcome instanceof Modified)) {
-         Modified modified = new Modified();
-         modified.setDeliveryFailed(true);
-         return modified;
-      } else {
-         if (outcomeSupported(source, Rejected.DESCRIPTOR_SYMBOL) || defaultOutcome instanceof Rejected) {
-            return createRejected(e);
-         } else if (source.getDefaultOutcome() instanceof DeliveryState) {
-            return ((DeliveryState) source.getDefaultOutcome());
-         } else {
-            // The AMQP specification requires that Accepted is returned for this case. However there exist
-            // implementations that set neither outcomes/default-outcome but use/expect for full range of outcomes.
-            // To maintain compatibility with these implementations, we maintain previous behaviour.
-            return createRejected(e);
-         }
-      }
-   }
-
-   private boolean isAddressFull(final Exception e) {
-      return e instanceof ActiveMQException && ActiveMQExceptionType.ADDRESS_FULL.equals(((ActiveMQException) e).getType());
-   }
-
-   private Rejected createRejected(final Exception e) {
-      ErrorCondition condition = new ErrorCondition();
-
-      // Set condition
-      if (e instanceof ActiveMQSecurityException) {
-         condition.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
-      } else if (isAddressFull(e)) {
-         condition.setCondition(AmqpError.RESOURCE_LIMIT_EXCEEDED);
-      } else {
-         condition.setCondition(Symbol.valueOf("failed"));
-      }
-      condition.setDescription(e.getMessage());
-
-      Rejected rejected = new Rejected();
-      rejected.setError(condition);
-      return rejected;
    }
 
    @Override
@@ -290,52 +282,47 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
       if (target != null && target.getDynamic() && (target.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || target.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
          try {
-            sessionSPI.removeTemporaryQueue(SimpleString.toSimpleString(target.getAddress()));
+            sessionSPI.removeTemporaryQueue(SimpleString.of(target.getAddress()));
          } catch (Exception e) {
-            //ignore on close, its temp anyway and will be removed later
+            // Ignored as the temporary resource will be auto removed later.
+         }
+         try {
+            sessionSPI.removeTemporaryAddress(SimpleString.of(target.getAddress()));
+         } catch (Exception e) {
+            // Ignored as the temporary resource will be auto removed later.
          }
       }
    }
 
-   @Override
-   public void flow() {
-      // this will mark flow control to happen once after the event loop
-      connection.afterFlush(spiFlow);
-   }
-
-   protected void sessionSPIFlow() {
-      connection.requireInHandler();
-      // Use the SessionSPI to allocate producer credits, or default, always allocate credit.
-      if (sessionSPI != null) {
-         sessionSPI.flow(address != null ? address : lastAddress, creditRunnable);
+   protected final RoutingType getImplicitRoutingType(SimpleString address) {
+      final AddressInfo addressInfo = sessionSPI.getAddress(address);
+      /*
+       * If we're dealing with an *existing* address that has just one routing-type simply use that.
+       * This allows "bare" AMQP clients (which have no built-in routing semantics) to send messages
+       * wherever they want in this case because the routing ambiguity is eliminated.
+       */
+      if (addressInfo != null) {
+         if (addressInfo.getRoutingTypes().size() == 1) {
+            return addressInfo.getRoutingType();
+         } else {
+            return null; // We don't assume which type the client wanted, we just route it.
+         }
       } else {
-         creditRunnable.run();
+         return Objects.requireNonNullElse(sessionSPI.getDefaultRoutingType(address), ActiveMQDefaultConfiguration.getDefaultRoutingType());
       }
    }
 
-   public void drain(int credits) {
-      connection.runNow(() -> {
-         receiver.drain(credits);
-         connection.flush();
-      });
-   }
-
-   public int drained() {
-      return receiver.drained();
-   }
-
-   public boolean isDraining() {
-      return receiver.draining();
-   }
-
-   private boolean outcomeSupported(final Source source, final Symbol outcome) {
-      if (source != null && source.getOutcomes() != null) {
-         return Arrays.asList(( source).getOutcomes()).contains(outcome);
+   protected final RoutingType getExplicitRoutingType(Symbol[] symbols, SimpleString address) {
+      if (symbols != null) {
+         for (Symbol symbol : symbols) {
+            if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
+               return RoutingType.MULTICAST;
+            } else if (AmqpSupport.TEMP_QUEUE_CAPABILITY.equals(symbol) || AmqpSupport.QUEUE_CAPABILITY.equals(symbol)) {
+               return RoutingType.ANYCAST;
+            }
+         }
       }
-      return false;
-   }
 
-   private Outcome getEffectiveDefaultOutcome(final Source source) {
-      return (source.getOutcomes() == null || source.getOutcomes().length == 0) ? source.getDefaultOutcome() : null;
+      return address != null ? sessionSPI.getRoutingTypeFromPrefix(address, null) : null;
    }
 }

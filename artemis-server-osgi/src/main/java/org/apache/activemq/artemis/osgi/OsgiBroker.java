@@ -57,6 +57,7 @@ public class OsgiBroker {
    private String name;
    private String configurationUrl;
    private String rolePrincipalClass;
+   private String userPrincipalClass;
    private Map<String, ActiveMQComponent> components;
    private Map<String, ServiceRegistration<?>> registrations;
    private ServiceTracker tracker;
@@ -69,10 +70,15 @@ public class OsgiBroker {
       configurationUrl = getMandatory(properties, "config");
       name = getMandatory(properties, "name");
       rolePrincipalClass = (String) properties.get("rolePrincipalClass");
+      userPrincipalClass = (String) properties.get("userPrincipalClass");
+
       String domain = getMandatory(properties, "domain");
       ActiveMQJAASSecurityManager security = new ActiveMQJAASSecurityManager(domain);
       if (rolePrincipalClass != null) {
          security.setRolePrincipalClass(rolePrincipalClass);
+      }
+      if (userPrincipalClass != null) {
+         security.setUserPrincipalClass(userPrincipalClass);
       }
       String brokerInstance = null;
 
@@ -115,7 +121,7 @@ public class OsgiBroker {
          String filter = "(&(objectClass=javax.sql.DataSource)(osgi.jndi.service.name=" + dataSourceName + "))";
          DataSourceTracker trackerCust =
                   new DataSourceTracker(name, context, DatabaseStorageConfiguration.class.cast(storeConfiguration),
-                                        (ServerTrackerCallBack) callback);
+                                        callback);
          dataSourceTracker = new ServiceTracker(context, context.createFilter(filter), trackerCust);
          dataSourceTracker.open();
       }
@@ -134,7 +140,7 @@ public class OsgiBroker {
    }
 
    private String[] getRequiredProtocols(Set<TransportConfiguration> acceptors) {
-      ArrayList<String> protocols = new ArrayList<>();
+      List<String> protocols = new ArrayList<>();
       for (TransportConfiguration acceptor : acceptors) {
          Object protocolsFromAcceptor = acceptor.getParams().get(TransportConstants.PROTOCOLS_PROP_NAME);
          if (protocolsFromAcceptor != null) {
@@ -166,8 +172,8 @@ public class OsgiBroker {
     * simple at the mo as e only have core and jms but will need impproving if
     * we get more.
     */
-   public ArrayList<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
-      ArrayList<ActiveMQComponent> activeMQComponents = new ArrayList<>();
+   public List<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
+      List<ActiveMQComponent> activeMQComponents = new ArrayList<>();
       ActiveMQComponent jmsComponent = components.get("jms");
       if (jmsComponent != null) {
          activeMQComponents.add(jmsComponent);

@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.leak;
 
+import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
+import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.basicMemoryAsserts;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -43,24 +51,18 @@ import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 import org.apache.qpid.proton.engine.impl.DeliveryImpl;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
-import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.basicMemoryAsserts;
-
-public class ConnectionLeakTest extends ActiveMQTestBase {
+public class ConnectionLeakTest extends AbstractLeakTest {
 
    private ConnectionFactory createConnectionFactory(String protocol) {
       if (protocol.equals("AMQP")) {
@@ -74,12 +76,12 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
-   @BeforeClass
+   @BeforeAll
    public static void beforeClass() throws Exception {
-      Assume.assumeTrue(CheckLeak.isLoaded());
+      assumeTrue(CheckLeak.isLoaded());
    }
 
-   @After
+   @AfterEach
    public void validateServer() throws Exception {
       CheckLeak checkLeak = new CheckLeak();
 
@@ -98,7 +100,7 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       server = createServer(true, createDefaultConfig(1, true));
       server.getConfiguration().setJournalPoolFiles(4).setJournalMinFiles(2);
@@ -128,6 +130,17 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
       int MESSAGES = 20;
       basicMemoryAsserts();
 
+      // The separate method here exists to ensure basicMemoryAsserts runs correctly.
+      // Since I'm evaluating RemotingConnectionImpl the connectionFactory inside the method may still
+      // hold a reference that would only be released at the end of the method,
+      // because of that I need to make these calls on a separate method.
+      // I tried not needing this by creating a context but that was not enough to release the references.
+      doManyConsumers(protocol, REPEATS, MESSAGES, checkLeak);
+
+      basicMemoryAsserts();
+   }
+
+   private void doManyConsumers(String protocol, int REPEATS, int MESSAGES, CheckLeak checkLeak) throws Exception {
       ConnectionFactory cf = createConnectionFactory(protocol);
 
       try (Connection producerConnection = cf.createConnection(); Connection consumerConnection = cf.createConnection()) {
@@ -159,12 +172,12 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
                   for (int msg = 0; msg < MESSAGES; msg++) {
 
                      TextMessage m = (TextMessage) sourceConsumer.receive(5000);
-                     Assert.assertNotNull(m);
-                     Assert.assertEquals("hello " + msg, m.getText());
-                     Assert.assertEquals(msg, m.getIntProperty("i"));
+                     assertNotNull(m);
+                     assertEquals("hello " + msg, m.getText());
+                     assertEquals(msg, m.getIntProperty("i"));
                      targetProducer.send(m);
                   }
-                  Assert.assertNull(sourceConsumer.receiveNoWait());
+                  assertNull(sourceConsumer.receiveNoWait());
                   consumerSession.commit();
 
                   Wait.assertTrue(() -> validateClosedConsumers(checkLeak));
@@ -175,7 +188,6 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
 
       assertMemory(new CheckLeak(), 0, ServerConsumerImpl.class.getName());
 
-
       // this is just to drain the messages
       try (Connection targetConnection = cf.createConnection(); Connection consumerConnection = cf.createConnection()) {
          Session targetSession = targetConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -183,10 +195,10 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
          targetConnection.start();
 
          for (int msgI = 0; msgI < REPEATS * MESSAGES; msgI++) {
-            Assert.assertNotNull(consumer.receive(5000));
+            assertNotNull(consumer.receive(5000));
          }
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          assertMemory(new CheckLeak(), 0, DeliveryImpl.class.getName());
          Wait.assertTrue(() -> validateClosedConsumers(checkLeak));
          consumer = null;
@@ -201,13 +213,11 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
       assertMemory(checkLeak, 0, MessageReferenceImpl.class.getName());
       assertMemory(checkLeak, 0, AMQPStandardMessage.class.getName());
 
-      if (cf instanceof ActiveMQConnectionFactory) {
-         ((ActiveMQConnectionFactory)cf).close();
+      if (cf instanceof ActiveMQConnectionFactory factory) {
+         factory.close();
       }
 
-      basicMemoryAsserts();
    }
-
 
    @Test
    public void testCancelledDeliveries() throws Exception {
@@ -228,7 +238,7 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
       ExecutorService executorService = Executors.newFixedThreadPool(CONSUMERS + 1); // there's always one producer
       runAfter(executorService::shutdownNow);
 
-      Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST));
+      Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory cf = createConnectionFactory(protocol);
 
@@ -272,7 +282,6 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
                });
 
                for (int cons = 0; cons < CONSUMERS; cons++) {
-                  final Connection connectionToUse = connectionConsumers[cons];
                   final Session consumerSession = sessionConsumer[cons];
                   executorService.execute(() -> {
                      try {
@@ -297,8 +306,8 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
                   });
                }
 
-               Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
-               Assert.assertEquals(0, errors.get());
+               assertTrue(done.await(10, TimeUnit.SECONDS));
+               assertEquals(0, errors.get());
                Wait.assertEquals(0, serverQueue::getMessageCount);
                assertMemory(checkLeak, 0, 5, 1, AMQPStandardMessage.class.getName());
                assertMemory(checkLeak, 0, 5, 1, DeliveryImpl.class.getName());
@@ -334,7 +343,7 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
 
       String queueName = getName();
 
-      Queue queue = server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory cf = createConnectionFactory(protocol);
       for (int i = 0; i < 10; i++) {

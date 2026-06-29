@@ -17,25 +17,22 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <parent>
+      <groupId>org.apache.artemis</groupId>
       <artifactId>artemis-pom</artifactId>
-      <groupId>org.apache.activemq</groupId>
-      <version>2.31.0-SNAPSHOT</version>
+      <version>2.56.0-SNAPSHOT</version>
+      <relativePath>../artemis-pom/pom.xml</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
    <artifactId>artemis-protocols</artifactId>
    <packaging>pom</packaging>
-   <name>ActiveMQ Artemis Protocols</name>
-
-
-   <properties>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
-   </properties>
+   <name>Apache Artemis Protocols</name>
 
    <modules>
       <module>artemis-amqp-protocol</module>
       <module>artemis-stomp-protocol</module>
       <module>artemis-openwire-protocol</module>
+      <module>artemis-jakarta-openwire-protocol</module>
       <module>artemis-hornetq-protocol</module>
       <module>artemis-hqclient-protocol</module>
       <module>artemis-mqtt-protocol</module>
@@ -48,6 +45,11 @@
             <artifactId>maven-bundle-plugin</artifactId>
             <extensions>true</extensions>
             <configuration>
+               <archive>
+                  <manifest>
+                     <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                  </manifest>
+               </archive>
                <instructions>
                   <Implementation-Version>${project.version}</Implementation-Version>
                </instructions>

@@ -21,9 +21,9 @@ import javax.jms.Message;
 import javax.jms.StreamMessage;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * A test that sends/receives stream messages to the JMS provider and verifies their integrity.
@@ -32,14 +32,14 @@ public class StreamMessageTest extends MessageTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       message = session.createStreamMessage();
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       message = null;
       super.tearDown();
@@ -89,7 +89,7 @@ public class StreamMessageTest extends MessageTestBase {
 
       sm.reset();
 
-      ProxyAssertSupport.assertEquals(true, sm.readBoolean());
+      ProxyAssertSupport.assertTrue(sm.readBoolean());
       ProxyAssertSupport.assertEquals((byte) 3, sm.readByte());
       byte[] bytes = new byte[3];
       sm.readBytes(bytes);
@@ -98,8 +98,8 @@ public class StreamMessageTest extends MessageTestBase {
       ProxyAssertSupport.assertEquals((byte) 6, bytes[2]);
       ProxyAssertSupport.assertEquals(-1, sm.readBytes(bytes));
       ProxyAssertSupport.assertEquals((char) 7, sm.readChar());
-      ProxyAssertSupport.assertEquals(Double.valueOf(8.0), Double.valueOf(sm.readDouble()));
-      ProxyAssertSupport.assertEquals(Float.valueOf(9.0f), Float.valueOf(sm.readFloat()));
+      ProxyAssertSupport.assertEquals(8.0, sm.readDouble());
+      ProxyAssertSupport.assertEquals(9.0f, sm.readFloat());
       ProxyAssertSupport.assertEquals(10, sm.readInt());
       ProxyAssertSupport.assertEquals(11L, sm.readLong());
       ProxyAssertSupport.assertEquals("this is an object", sm.readObject());

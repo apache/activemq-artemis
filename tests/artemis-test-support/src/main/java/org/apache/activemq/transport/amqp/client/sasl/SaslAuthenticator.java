@@ -58,12 +58,9 @@ public class SaslAuthenticator {
    }
 
    /**
-    * Process the SASL authentication cycle until such time as an outcome is determine. This
-    * method must be called by the managing entity until the return value is true indicating a
-    * successful authentication or a JMSSecurityException is thrown indicating that the
-    * handshake failed.
-    *
-    * @throws SecurityException
+    * Process the SASL authentication cycle until such time as an outcome is determine. This method must be called by
+    * the managing entity until the return value is true indicating a successful authentication or a
+    * JMSSecurityException is thrown indicating that the handshake failed.
     */
    public boolean authenticate() throws SecurityException {
       switch (sasl.getState()) {

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.tests.selector;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -32,27 +36,20 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class SelectorTest extends ActiveMQServerTestCase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
-    * Test case for http://jira.jboss.org/jira/browse/JBMESSAGING-105
-    * <br>
-    * Two Messages are sent to a queue. There is one receiver on the queue. The receiver only
-    * receives one of the messages due to a message selector only matching one of them. The receiver
-    * is then closed. A new receiver is now attached to the queue. Redelivery of the remaining
-    * message is now attempted. The message should be redelivered.
+    * Two Messages are sent to a queue. There is one receiver on the queue. The receiver only receives one of the
+    * messages due to a message selector only matching one of them. The receiver is then closed. A new receiver is now
+    * attached to the queue. Redelivery of the remaining message is now attempted. The message should be redelivered.
     */
    @Test
    public void testSelectiveClosingConsumer() throws Exception {
@@ -192,7 +189,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
             ProxyAssertSupport.assertNotNull(m);
 
-            Assert.assertEquals(j, m.getIntProperty("wibble"));
+            assertEquals(j, m.getIntProperty("wibble"));
 
             ProxyAssertSupport.assertEquals("john", m.getStringProperty("beatle"));
 
@@ -212,7 +209,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
             ProxyAssertSupport.assertNotNull(m);
 
-            Assert.assertEquals(j, m.getIntProperty("wibble"));
+            assertEquals(j, m.getIntProperty("wibble"));
 
             ProxyAssertSupport.assertEquals("kermit the frog", m.getStringProperty("beatle"));
          }
@@ -223,8 +220,6 @@ public class SelectorTest extends ActiveMQServerTestCase {
       }
 
    }
-
-   // http://jira.jboss.org/jira/browse/JBMESSAGING-775
 
    @Test
    public void testManyQueueWithExpired() throws Exception {
@@ -525,41 +520,35 @@ public class SelectorTest extends ActiveMQServerTestCase {
          final CountDownLatch latch = new CountDownLatch(1);
          final CountDownLatch latch2 = new CountDownLatch(1);
 
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  while (true) {
-                     Message m = c.receive(1000);
-                     if (m != null) {
-                        received.add(m);
-                     } else {
-                        latch.countDown();
-                        return;
-                     }
+         new Thread(() -> {
+            try {
+               while (true) {
+                  Message m = c.receive(1000);
+                  if (m != null) {
+                     received.add(m);
+                  } else {
+                     latch.countDown();
+                     return;
                   }
-               } catch (Exception e) {
-                  logger.error("receive failed", e);
                }
+            } catch (Exception e) {
+               logger.error("receive failed", e);
             }
          }, "consumer thread 1").start();
 
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  while (true) {
-                     Message m = c2.receive(1000);
-                     if (m != null) {
-                        received2.add(m);
-                     } else {
-                        latch2.countDown();
-                        return;
-                     }
+         new Thread(() -> {
+            try {
+               while (true) {
+                  Message m = c2.receive(1000);
+                  if (m != null) {
+                     received2.add(m);
+                  } else {
+                     latch2.countDown();
+                     return;
                   }
-               } catch (Exception e) {
-                  logger.error("receive failed", e);
                }
+            } catch (Exception e) {
+               logger.error("receive failed", e);
             }
          }, "consumer thread 2").start();
 
@@ -660,7 +649,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(rec);
 
-         Assert.assertEquals("msg2", rec.getText());
+         assertEquals("msg2", rec.getText());
 
          assertNull(cons.receiveNoWait());
 
@@ -699,7 +688,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(rec);
 
-         Assert.assertEquals("msg2", rec.getText());
+         assertEquals("msg2", rec.getText());
 
          assertNull(cons.receiveNoWait());
 
@@ -740,7 +729,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(rec);
 
-         Assert.assertEquals("msg2", rec.getText());
+         assertEquals("msg2", rec.getText());
 
          assertNull(cons.receiveNoWait());
 
@@ -784,7 +773,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(rec);
 
-         Assert.assertEquals("msg2", rec.getText());
+         assertEquals("msg2", rec.getText());
 
          assertNull(cons.receiveNoWait());
 
@@ -825,7 +814,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(rec);
 
-         Assert.assertEquals("msg2", rec.getText());
+         assertEquals("msg2", rec.getText());
 
          assertNull(cons.receiveNoWait());
 
@@ -866,7 +855,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(rec);
 
-         Assert.assertEquals("msg2", rec.getText());
+         assertEquals("msg2", rec.getText());
 
          assertNull(cons.receiveNoWait());
 
@@ -877,11 +866,9 @@ public class SelectorTest extends ActiveMQServerTestCase {
       }
    }
 
-   // Test case proposed by a customer on this user forum:
-   // http://community.jboss.org/thread/153426?tstart=0
    // This test needs to be moved away
    @Test
-   @Ignore
+   @Disabled
    public void testMultipleConsumers() throws Exception {
       Connection conn = null;
 
@@ -902,7 +889,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
          MessageProducer msgProducer = session.createProducer(queue1);
 
          TextMessage tm;
-         /* Publish messages */
+         // Publish messages
          tm = session.createTextMessage();
          tm.setText("1");
          tm.setStringProperty("PROP1", "VALUE1");
@@ -919,7 +906,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
          tm.setText("3");
          tm.setStringProperty("PROP2", "VALUE2");
          msgProducer.send(tm);
-         logger.debug("Sent message with id [{}]",  tm.getJMSMessageID());
+         logger.debug("Sent message with id [{}]", tm.getJMSMessageID());
 
          tm = session.createTextMessage();
          tm.setText("4");
@@ -948,8 +935,8 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNotNull(tm);
 
-         Assert.assertEquals("3", tm.getText());
-         Assert.assertEquals("VALUE2", tm.getStringProperty("PROP2"));
+         assertEquals("3", tm.getText());
+         assertEquals("VALUE2", tm.getStringProperty("PROP2"));
 
          tm.acknowledge();
 
@@ -965,25 +952,25 @@ public class SelectorTest extends ActiveMQServerTestCase {
          msgConsumer = session.createConsumer(queue1);
 
          tm = (TextMessage) msgConsumer.receive(5000);
-         Assert.assertEquals("1", tm.getText());
-         Assert.assertEquals("VALUE1", tm.getStringProperty("PROP1"));
+         assertEquals("1", tm.getText());
+         assertEquals("VALUE1", tm.getStringProperty("PROP1"));
 
          tm = (TextMessage) msgConsumer.receive(5000);
-         Assert.assertEquals("2", tm.getText());
-         Assert.assertEquals("VALUE1", tm.getStringProperty("PROP1"));
+         assertEquals("2", tm.getText());
+         assertEquals("VALUE1", tm.getStringProperty("PROP1"));
 
          tm = (TextMessage) msgConsumer.receive(5000);
-         Assert.assertEquals("4", tm.getText());
-         Assert.assertEquals("VALUE2", tm.getStringProperty("PROP2"));
+         assertEquals("4", tm.getText());
+         assertEquals("VALUE2", tm.getStringProperty("PROP2"));
 
          tm = (TextMessage) msgConsumer.receive(5000);
-         Assert.assertEquals("5", tm.getText());
-         Assert.assertEquals("VALUE1", tm.getStringProperty("PROP1"));
+         assertEquals("5", tm.getText());
+         assertEquals("VALUE1", tm.getStringProperty("PROP1"));
 
          tm = (TextMessage) msgConsumer.receive(5000);
-         Assert.assertEquals("6", tm.getText());
-         Assert.assertEquals("VALUE1", tm.getStringProperty("PROP1"));
-         Assert.assertEquals("VALUE2", tm.getStringProperty("PROP2"));
+         assertEquals("6", tm.getText());
+         assertEquals("VALUE1", tm.getStringProperty("PROP1"));
+         assertEquals("VALUE2", tm.getStringProperty("PROP2"));
 
          tm.acknowledge();
 

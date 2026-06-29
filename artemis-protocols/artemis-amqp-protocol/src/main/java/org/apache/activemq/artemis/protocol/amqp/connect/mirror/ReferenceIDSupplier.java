@@ -27,8 +27,9 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirro
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_ID_EXTRA_PROPERTY;
 
 /**
- * Since Artemis 2.30.0 this is supplying a new NodeStore per queue.
- * It is also parsing MessageReference and Message for the proper ID for the messages.
+ * Since Artemis 2.30.0 this is supplying a new NodeStore per queue. It is also parsing MessageReference and Message for
+ * the proper ID for the messages.
+ *
  * @since 2.30.0
  */
 public class ReferenceIDSupplier implements NodeStoreFactory<MessageReference> {
@@ -42,7 +43,9 @@ public class ReferenceIDSupplier implements NodeStoreFactory<MessageReference> {
       this.serverID = server.getNodeID().toString();
    }
 
-   /** This will return the NodeStore that will be used by the Queue. */
+   /**
+    * This will return the NodeStore that will be used by the Queue.
+    */
    @Override
    public NodeStore<MessageReference> newNodeStore() {
       return new ReferenceNodeStore(this);
@@ -70,15 +73,15 @@ public class ReferenceIDSupplier implements NodeStoreFactory<MessageReference> {
 
    public long getID(MessageReference element) {
       Message message = element.getMessage();
-      Long id = getID(message);
-      if (id == null) {
-         return element.getMessageID();
-      } else {
-         return id;
-      }
+      return getID(message);
    }
 
-   private Long getID(Message message) {
-      return (Long)message.getBrokerProperty(INTERNAL_ID_EXTRA_PROPERTY);
+   public Long getID(Message message) {
+      Long messageID = (Long)message.getBrokerProperty(INTERNAL_ID_EXTRA_PROPERTY);
+      if (messageID == null) {
+         return message.getMessageID();
+      } else {
+         return messageID;
+      }
    }
 }

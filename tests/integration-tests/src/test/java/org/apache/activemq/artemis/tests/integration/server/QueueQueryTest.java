@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.JMSContext;
 import java.util.UUID;
 
@@ -30,15 +35,15 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class QueueQueryTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false);
@@ -46,16 +51,42 @@ public class QueueQueryTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testQueueQueryDefaultsOnStaticQueue() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      server.createQueue(new QueueConfiguration(queueName).setAddress(addressName));
+   public void testQueueQueryOnManagement() throws Exception {
+      SimpleString addressName = server.getConfiguration().getManagementAddress();
+      SimpleString queueName = server.getConfiguration().getManagementAddress();
       QueueQueryResult queueQueryResult = server.queueQuery(queueName);
       assertTrue(queueQueryResult.isExists());
       assertEquals(RoutingType.MULTICAST, queueQueryResult.getRoutingType());
       assertEquals(queueName, queueQueryResult.getName());
       assertTrue(queueQueryResult.isAutoCreateQueues());
-      assertEquals(null, queueQueryResult.getFilterString());
+      assertNull(queueQueryResult.getFilterString());
+      assertFalse(queueQueryResult.isAutoCreated());
+      assertEquals(addressName, queueQueryResult.getAddress());
+      assertEquals(-1, queueQueryResult.getMessageCount());
+      assertEquals(-1, queueQueryResult.getConsumerCount());
+      assertEquals(ActiveMQDefaultConfiguration.DEFAULT_MAX_QUEUE_CONSUMERS, queueQueryResult.getMaxConsumers());
+      assertEquals(ActiveMQDefaultConfiguration.DEFAULT_CONSUMERS_BEFORE_DISPATCH, queueQueryResult.getConsumersBeforeDispatch().intValue());
+      assertEquals(ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, queueQueryResult.getDefaultConsumerWindowSize().intValue());
+      assertEquals(ActiveMQDefaultConfiguration.DEFAULT_DELAY_BEFORE_DISPATCH, queueQueryResult.getDelayBeforeDispatch().longValue());
+      assertNull(queueQueryResult.getLastValueKey());
+      assertTrue(queueQueryResult.isDurable());
+      assertFalse(queueQueryResult.isPurgeOnNoConsumers());
+      assertFalse(queueQueryResult.isTemporary());
+      assertFalse(queueQueryResult.isExclusive());
+      assertFalse(queueQueryResult.isNonDestructive());
+   }
+
+   @Test
+   public void testQueueQueryDefaultsOnStaticQueue() throws Exception {
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
+      server.createQueue(QueueConfiguration.of(queueName).setAddress(addressName));
+      QueueQueryResult queueQueryResult = server.queueQuery(queueName);
+      assertTrue(queueQueryResult.isExists());
+      assertEquals(RoutingType.MULTICAST, queueQueryResult.getRoutingType());
+      assertEquals(queueName, queueQueryResult.getName());
+      assertTrue(queueQueryResult.isAutoCreateQueues());
+      assertNull(queueQueryResult.getFilterString());
       assertFalse(queueQueryResult.isAutoCreated());
       assertEquals(addressName, queueQueryResult.getAddress());
       assertEquals(0, queueQueryResult.getMessageCount());
@@ -64,7 +95,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
       assertEquals(ActiveMQDefaultConfiguration.DEFAULT_CONSUMERS_BEFORE_DISPATCH, queueQueryResult.getConsumersBeforeDispatch().intValue());
       assertEquals(ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, queueQueryResult.getDefaultConsumerWindowSize().intValue());
       assertEquals(ActiveMQDefaultConfiguration.DEFAULT_DELAY_BEFORE_DISPATCH, queueQueryResult.getDelayBeforeDispatch().longValue());
-      assertEquals(null, queueQueryResult.getLastValueKey());
+      assertNull(queueQueryResult.getLastValueKey());
       assertTrue(queueQueryResult.isDurable());
       assertFalse(queueQueryResult.isPurgeOnNoConsumers());
       assertFalse(queueQueryResult.isTemporary());
@@ -74,13 +105,13 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryOnStaticQueueWithFQQN() throws Exception {
-//      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-//      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString addressName = SimpleString.toSimpleString("myAddress");
-      SimpleString queueName = SimpleString.toSimpleString("myQueue");
+//      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+//      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.of("myAddress");
+      SimpleString queueName = SimpleString.of("myQueue");
       SimpleString fqqn = addressName.concat("::").concat(queueName);
 //      server.createQueue(fqqn, RoutingType.MULTICAST, fqqn, null, true, false);
-      server.createQueue(new QueueConfiguration(fqqn));
+      server.createQueue(QueueConfiguration.of(fqqn));
       QueueQueryResult queueQueryResult = server.queueQuery(fqqn);
       assertEquals(queueName, queueQueryResult.getName());
       assertEquals(addressName, queueQueryResult.getAddress());
@@ -91,10 +122,10 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryNonDefaultsOnStaticQueue() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString filter = SimpleString.toSimpleString("x = 'y'");
-      SimpleString lastValueKey = SimpleString.toSimpleString("myLastValueKey");
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString filter = SimpleString.of("x = 'y'");
+      SimpleString lastValueKey = SimpleString.of("myLastValueKey");
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings()
          .setAutoCreateAddresses(true)
          .setDefaultMaxConsumers(1)
@@ -106,7 +137,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
          .setDefaultLastValueKey(lastValueKey)
          .setDefaultExclusiveQueue(true)
          .setDefaultNonDestructive(true));
-      server.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString(filter).setDurable(false).setTemporary(true));
+      server.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString(filter).setDurable(false).setTemporary(true));
       QueueQueryResult queueQueryResult = server.queueQuery(queueName);
       assertTrue(queueQueryResult.isExists());
       assertEquals(RoutingType.ANYCAST, queueQueryResult.getRoutingType());
@@ -132,14 +163,14 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryDefaultsOnAutoCreatedQueue() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       server.getAddressSettingsRepository().addMatch(queueName.toString(), new AddressSettings());
       JMSContext c = new ActiveMQConnectionFactory("vm://0").createContext();
       c.createProducer().send(c.createQueue(queueName.toString()), c.createMessage());
       Wait.assertEquals(1, server.locateQueue(queueName)::getMessageCount);
       QueueQueryResult queueQueryResult = server.queueQuery(queueName);
       assertTrue(queueQueryResult.isAutoCreateQueues());
-      assertEquals(null, queueQueryResult.getFilterString());
+      assertNull(queueQueryResult.getFilterString());
       assertTrue(queueQueryResult.isAutoCreated());
       assertEquals(queueName, queueQueryResult.getAddress());
       assertEquals(1, queueQueryResult.getMessageCount());
@@ -148,7 +179,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
       assertEquals(ActiveMQDefaultConfiguration.DEFAULT_CONSUMERS_BEFORE_DISPATCH, queueQueryResult.getConsumersBeforeDispatch().intValue());
       assertEquals(ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, queueQueryResult.getDefaultConsumerWindowSize().intValue());
       assertEquals(ActiveMQDefaultConfiguration.DEFAULT_DELAY_BEFORE_DISPATCH, queueQueryResult.getDelayBeforeDispatch().longValue());
-      assertEquals(null, queueQueryResult.getLastValueKey());
+      assertNull(queueQueryResult.getLastValueKey());
       assertTrue(queueQueryResult.isDurable());
       assertFalse(queueQueryResult.isPurgeOnNoConsumers());
       assertFalse(queueQueryResult.isTemporary());
@@ -158,8 +189,8 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryOnAutoCreatedQueueWithFQQN() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       SimpleString fqqn = addressName.concat("::").concat(queueName);
       try (JMSContext c = new ActiveMQConnectionFactory("vm://0").createContext()) {
          c.createProducer().send(c.createQueue(fqqn.toString()), c.createMessage());
@@ -179,8 +210,8 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryNonDefaultsOnAutoCreatedQueue() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString lastValueKey = SimpleString.toSimpleString("myLastValueKey");
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString lastValueKey = SimpleString.of("myLastValueKey");
       server.getAddressSettingsRepository().addMatch(queueName.toString(), new AddressSettings()
          .setAutoCreateAddresses(true)
          .setAutoCreateQueues(true)
@@ -220,7 +251,7 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryNonExistentQueue() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       QueueQueryResult queueQueryResult = server.queueQuery(queueName);
       assertFalse(queueQueryResult.isExists());
       assertEquals(queueName, queueQueryResult.getName());
@@ -228,8 +259,8 @@ public class QueueQueryTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryNonExistentQueueWithFQQN() throws Exception {
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
       SimpleString fqqn = addressName.concat("::").concat(queueName);
       QueueQueryResult queueQueryResult = server.queueQuery(fqqn);
       assertFalse(queueQueryResult.isExists());

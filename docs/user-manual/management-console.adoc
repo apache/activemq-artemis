@@ -1,99 +1,51 @@
 = Management Console
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
-Apache ActiveMQ Artemis ships by default with a management console.
-It is powered by http://hawt.io[Hawt.io].
-
-Its purpose is to expose the xref:management.adoc#management[Management API] via a user friendly web ui.
-
-== Login
-
-To access the management console use a browser and go to the URL link:[http://localhost:8161/console].
-
-A login screen will be presented, if your broker is secure, you will need to use a user with admin role, if it is unsecure simply enter any user/password.
-
-image::images/console-login.png[ActiveMQ Artemis Console Login]
+{project-name-full} ships by default with a management console powered by http://hawt.io[Hawt.io].
 
 == Security
 
-That Jolokia JMX-HTTP bridge is secured via a policy file in the broker configuration directory: 'etc/jolokia-access.xml'.
-The contents of that file should be modified as described in the https://jolokia.org/reference/html/security.html[Jolokia Security Guide].
-By default the console is locked down to 'localhost', pay particular attention to the 'CORS' restrictions when exposing the console web endpoint over the network.
+The management console communicates with the broker via HTTP(S).
+The broker uses the https://jolokia.org/[Jolokia JMX-HTTP bridge] to convert the contents of these HTTP requests into a JMX operations and then returns the results.
 
-== Console
+Security for Jolokia is configured via `etc/jolokia-access.xml`.
+You can read more about the contents of this file in the https://jolokia.org/reference/html/manual/security.html[Jolokia Security Guide].
+By default the console is locked down to `localhost`.
+Pay particular attention to the `<cors>` restrictions when exposing the console web endpoint over the network.
 
-Once logged in you should be presented with a screen similar to.
+[NOTE]
+====
+Any request with an `Origin` header using the HTTPS scheme which is ultimately received by Jolokia via HTTP is discarded by default since it is deemed insecure.
+If you use a TLS proxy that transforms secure requests to insecure requests (e.g. in a Kubernetes environment) then consider changing the proxy to preserve HTTPS and switching the embedded web server to HTTPS.
+If that isn’t feasible then you can accept the risk by specifying following element
 
-image::images/console-artemis-plugin.png[ActiveMQ Artemis Console Artemis Plugin]
+[,xml]
+----
+<cors>
+    ...
+    <ignore-scheme/>
+    ...
+</cors>
+----
+====
 
-=== Navigation Menu
+Problems with Jolokia security are often observed as the ability to login to the console, but the console is blank.
 
-On the top right is small menu area you will see some icons.
+=== Logging In
 
-* `question mark`
-This will open a menu with the following items
-* `Help` This will navigate to the console user guide
-* `About` this will load an about screen, here you will be able to see and validate versions
-* `person`
-will provide a drop down menu with
-* `Preferences` this will open the preferences page
-* `Log out` self descriptive.
+To access the management console, use a browser and go to the URL link:[http://localhost:8161/console].
 
-=== Navigation Tabs
+A login screen will be presented.
+If your broker is secured, you will need to use a user with admin role.
+If it is unsecured, enter any user/password.
 
-Running below the Navigation Menu you will see several default feature tabs.
+image::images/console-login.png[Apache Artemis Console Login]
 
-* `Artemis` This is the core tab for Apache ActiveMQ Artemis specific functionality.
-The rest of this document will focus on this.
-* `Dashboard` Here you can create and save graphs and tables of metrics available via JMX, a default jvm health dashboard is provided.
-* `JMX` This exposes the raw Jolokia JMX so you can browse/access all the JMX endpoints exposed by the JVM.
-* `Threads` This allows you to monitor the thread usage and their state.
+Once logged in check out the https://artemis.apache.org/components/artemis-console/documentation/version/${artemis-console-version}[Artemis Console documentation] for details on how to use the console.
 
-In previous versions there was a "Connect" tab which could be used to connect to a remote broker from the same console.
-This was disabled by default for security purposes, but it can be enabled again by removing `-Dhawtio.disableProxy=true` from `artemis.profile` (or `artemis.profile.cmd` on Windows).
-
-You can install further hawtio plugins if you wish to have further functionality.
-
-== Artemis Tab
-
-Click `Artemis` in the left navigation bar to see the Artemis specific plugin.
-(The Artemis tab won't appear if there is no broker in this JVM).
-The Artemis plugin works very much the same as the JMX plugin however with a focus on interacting with an Artemis broker.
-
-=== Tree View
-
-The tree view on the left-hand side shows the top level JMX tree of each broker instance running in the JVM.
-Expanding the tree will show the various MBeans registered by Artemis that you can inspect via the *Attributes* tab.
-
-==== Acceptors
-
-This expands to show and expose details of the current configured acceptors.
-
-==== Addresses
-
-This expands to show the current configured available `addresses`.
-
-Under the address you can expand to find the `queues` for the address exposing attributes
-
-=== Key Operations
-
-==== Creating a new Address
-
-To create a new address simply click on the broker or the address folder in the jmx tree and click on the create tab.
-
-Once you have created an address you should be able to *Send* to it by clicking on it in the jmx tree and clicking on the send tab.
-
-==== Creating a new Queue
-
-To create a new queue click on the address you want to bind the queue to and click on the create tab.
-
-Once you have created a queue you should be able to *Send* a message to it or *Browse* it or view the  *Attributes* or *Charts*.
-Simply click on the queue in th ejmx tree and click on the appropriate tab.
-
-You can also see a graphical view of all brokers, addresses, queues and their consumers using the *Diagram* tab.
-
-=== Status Logging
+== Status Logging
 
 When the broker starts it will detect the presence of the web console and log status information, e.g.:
 

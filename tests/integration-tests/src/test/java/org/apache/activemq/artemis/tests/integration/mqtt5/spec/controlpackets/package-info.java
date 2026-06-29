@@ -18,6 +18,5 @@
  * This package contains all the tests for the MQTT 5 "control packets" defined at:
  *
  *   https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901032
- *
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.plugin;
 
-
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ADD_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ADD_BINDING;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CLOSE_CONSUMER;
@@ -47,6 +46,8 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_SEND;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_ACKED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_EXPIRED;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -67,37 +68,43 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.stomp.StompTestBase;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionV12;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ParameterizedTestExtension.class)
 public class StompPluginTest extends StompTestBase {
 
    public static final String CLIENT_ID = "myclientid";
 
    private StompClientConnectionV12 conn;
 
-   @Parameterized.Parameters(name = "{0}")
+   @Parameters(name = "{0}")
    public static Collection<Object[]> data() {
       return Arrays.asList(new Object[][]{{"ws+v12.stomp"}, {"tcp+v12.stomp"}});
    }
 
+   public StompPluginTest(String scheme) {
+      super(scheme);
+   }
+
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       conn = (StompClientConnectionV12)StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       try {
          boolean connected = conn != null && conn.isConnected();
@@ -142,7 +149,7 @@ public class StompPluginTest extends StompTestBase {
       return server;
    }
 
-   @Test
+   @TestTemplate
    public void testSendAndReceive() throws Exception {
 
       URI uri = new URI(scheme + "://localhost:61613");
@@ -154,7 +161,7 @@ public class StompPluginTest extends StompTestBase {
       ClientStompFrame frame = newConn.receiveFrame();
 
       System.out.println("received " + frame);
-      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
       verifier.validatePluginMethodsAtLeast(1, MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
                                             AFTER_DELIVER);
@@ -173,7 +180,7 @@ public class StompPluginTest extends StompTestBase {
                                             AFTER_DELIVER, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS, BEFORE_ADD_BINDING, AFTER_ADD_BINDING);
    }
 
-   @Test
+   @TestTemplate
    public void testStompAutoCreateAddress() throws Exception {
 
       URI uri = new URI(scheme + "://localhost:61613");
@@ -191,7 +198,7 @@ public class StompPluginTest extends StompTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testConnect() throws Exception {
 
       URI uri = new URI(scheme + "://localhost:61613");

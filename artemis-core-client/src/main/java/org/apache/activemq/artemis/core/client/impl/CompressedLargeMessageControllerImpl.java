@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.utils.UTF8Util;
 
 final class CompressedLargeMessageControllerImpl implements LargeMessageController {
 
-   private static final String OPERATION_NOT_SUPPORTED = "Operation not supported";
+   private static final String OPERATION_NOT_SUPPORTED = "Operation not supported over compressed large messages";
 
    private final LargeMessageController bufferDelegate;
 
@@ -43,12 +43,19 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       this.bufferDelegate = bufferDelegate;
    }
 
-   /**
-    *
-    */
    @Override
    public void discardUnusedPackets() {
       bufferDelegate.discardUnusedPackets();
+   }
+
+   @Override
+   public boolean isOriginallyRegular() {
+      return bufferDelegate.isOriginallyRegular();
+   }
+
+   @Override
+   public void setOriginallyRegular(boolean regular) {
+      bufferDelegate.setOriginallyRegular(regular);
    }
 
    /**
@@ -114,10 +121,6 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       return dataInput;
    }
 
-   private void positioningNotSupported() {
-      throw new IllegalStateException("Position not supported over compressed large messages");
-   }
-
    @Override
    public byte readByte() {
       try {
@@ -129,41 +132,37 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
 
    @Override
    public byte getByte(final int index) {
-      positioningNotSupported();
-      return 0;
+      throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
    }
 
    @Override
    public void getBytes(final int index, final ActiveMQBuffer dst, final int dstIndex, final int length) {
-      positioningNotSupported();
+      throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
    }
 
    @Override
    public void getBytes(final int index, final byte[] dst, final int dstIndex, final int length) {
-      positioningNotSupported();
+      throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
    }
 
    @Override
    public void getBytes(final int index, final ByteBuffer dst) {
-      positioningNotSupported();
+      throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
    }
 
    @Override
    public int getInt(final int index) {
-      positioningNotSupported();
-      return 0;
+      throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
    }
 
    @Override
    public long getLong(final int index) {
-      positioningNotSupported();
-      return 0;
+      throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
    }
 
    @Override
    public short getShort(final int index) {
-      positioningNotSupported();
-      return 0;
+      throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
    }
 
    @Override
@@ -239,7 +238,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
 
    @Override
    public void setIndex(final int readerIndex, final int writerIndex) {
-      positioningNotSupported();
+      throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
    }
 
    @Override
@@ -631,7 +630,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       int len = readInt();
       byte[] data = new byte[len];
       readBytes(data);
-      return new SimpleString(data);
+      return SimpleString.of(data);
    }
 
    @Override

@@ -76,7 +76,9 @@ public class ReferenceCounterUtil implements ReferenceCounter, AutoCloseable {
       return value;
    }
 
-   /** it will set the value all the way to 0, and execute the task meant for when the value was 0. */
+   /**
+    * it will set the value all the way to 0, and execute the task meant for when the value was 0.
+    */
    public void exhaust() {
       execute();
       useUpdater.set(this, 0);

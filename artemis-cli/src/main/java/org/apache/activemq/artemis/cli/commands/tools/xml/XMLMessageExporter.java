@@ -31,7 +31,9 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
 
 
-/** This is an Utility class that will import the outputs in XML format. */
+/**
+ * This is an Utility class that will import the outputs in XML format.
+ */
 public class XMLMessageExporter {
 
    private static final int LARGE_MESSAGE_CHUNK_SIZE = 1000;
@@ -84,10 +86,10 @@ public class XMLMessageExporter {
       LargeBodyReader encoder = null;
 
       try {
-         if (message instanceof LargeServerMessage) {
-            encoder = ((LargeServerMessage)message).toMessage().toCore().getLargeBodyReader();
-         } else if (message instanceof ClientLargeMessageImpl) {
-            encoder = ((ClientLargeMessageImpl)message).getLargeBodyReader();
+         if (message instanceof LargeServerMessage largeServerMessage) {
+            encoder = largeServerMessage.toMessage().toCore().getLargeBodyReader();
+         } else if (message instanceof ClientLargeMessageImpl clientLargeMessage) {
+            encoder = clientLargeMessage.getLargeBodyReader();
          } else {
             throw new RuntimeException("Unrecognized message implementation: " + message.getClass().getName());
          }

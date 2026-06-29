@@ -50,7 +50,7 @@ public class ForeignBytesMessageTest extends ForeignMessageTest {
 
       BytesMessage byteMsg = (BytesMessage) m;
 
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       byte[] buffer = new byte[1024];
       int n = byteMsg.readBytes(buffer);
       while (n != -1) {

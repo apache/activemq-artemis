@@ -76,13 +76,7 @@ public class OnePrefetchAsyncConsumerTest extends EmbeddedBrokerTestSupport {
 
       session.commit();
 
-      assertTrue("test completed on time", Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisified() throws Exception {
-            return completed.get();
-         }
-      }));
+      assertTrue("test completed on time", Wait.waitFor(() -> completed.get()));
 
       assertTrue("Attempted to retrieve more than one ServerSession at a time", success.get());
    }
@@ -175,26 +169,23 @@ public class OnePrefetchAsyncConsumerTest extends EmbeddedBrokerTestSupport {
       @Override
       public void start() throws JMSException {
          // use a separate thread to process the message asynchronously
-         new Thread() {
-            @Override
-            public void run() {
-               // let the session deliver the message
-               session.run();
+         new Thread(() -> {
+            // let the session deliver the message
+            session.run();
 
-               // commit the tx and return ServerSession to pool
-               LOG.debug("Waiting on pool");
-               synchronized (pool) {
-                  try {
-                     LOG.debug("About to call session.commit");
-                     session.commit();
-                     LOG.debug("Commit completed");
-                  } catch (JMSException e) {
-                     LOG.error("In start", e);
-                  }
-                  pool.serverSessionInUse = false;
+            // commit the tx and return ServerSession to pool
+            LOG.debug("Waiting on pool");
+            synchronized (pool) {
+               try {
+                  LOG.debug("About to call session.commit");
+                  session.commit();
+                  LOG.debug("Commit completed");
+               } catch (JMSException e) {
+                  LOG.error("In start", e);
                }
+               pool.serverSessionInUse = false;
             }
-         }.start();
+         }).start();
       }
    }
 

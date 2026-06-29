@@ -1,8 +1,7 @@
 = History
 
-The Apache ActiveMQ Artemis project was started in October 2014.
-The Artemis code base was seeded with a code donation granted by Red Hat, of the HornetQ project.
-The code donation process consisted of taking a snapshot of the latest HornetQ code base and contributing this snapshot as an https://issues.apache.org/jira/browse/ARTEMIS-1[initial git commit] into the Artemis git repository.
+In October 2014 the {project-name-full} code-base was seeded with a donation of the HornetQ project from Red Hat.
+The code donation process consisted of taking a snapshot of the latest HornetQ code base and contributing it as the https://issues.apache.org/jira/browse/ARTEMIS-1[initial commit] into the corresponding Git repository.
 
 The HornetQ commit history is preserved and can be accessed here: https://github.com/hornetq/hornetq/tree/apache-donation
 

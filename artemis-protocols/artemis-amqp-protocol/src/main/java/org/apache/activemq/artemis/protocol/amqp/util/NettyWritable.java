@@ -25,8 +25,8 @@ import org.apache.qpid.proton.codec.WritableBuffer;
 import io.netty.buffer.ByteBuf;
 
 /**
- * {@link WritableBuffer} implementation that wraps a Netty {@link ByteBuf} to
- * allow use of Netty buffers to be used when encoding AMQP messages.
+ * {@link WritableBuffer} implementation that wraps a Netty {@link ByteBuf} to allow use of Netty buffers to be used
+ * when encoding AMQP messages.
  */
 public class NettyWritable implements WritableBuffer {
 

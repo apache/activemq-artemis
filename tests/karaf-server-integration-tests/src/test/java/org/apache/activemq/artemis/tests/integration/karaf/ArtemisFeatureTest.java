@@ -32,10 +32,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.StringReader;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,6 +43,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.utils.JsonLoader;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.shell.api.console.Session;
@@ -73,6 +74,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfi
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
+
 // uncomment this to be able to debug it
 // import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.debugConfiguration;
 
@@ -110,7 +112,7 @@ public class ArtemisFeatureTest extends Assert {
 
    public static Option[] configure(String... features) {
 
-      ArrayList<String> f = new ArrayList<>();
+      List<String> f = new ArrayList<>();
       f.addAll(Arrays.asList(features));
 
       Option[] options = new Option[]{karafDistributionConfiguration().frameworkUrl(maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz").versionAsInProject()).unpackDirectory(new File("target/paxexam/unpack/")),
@@ -131,7 +133,7 @@ public class ArtemisFeatureTest extends Assert {
 
    public static UrlReference getArtemisMQKarafFeatureUrl() {
       String type = "xml/features";
-      UrlReference urlReference = mavenBundle().groupId("org.apache.activemq").
+      UrlReference urlReference = mavenBundle().groupId("org.apache.artemis").
          artifactId("artemis-features").versionAsInProject().type(type);
       log.debug("FeatureURL: {}", urlReference.getURL());
       return urlReference;
@@ -141,12 +143,9 @@ public class ArtemisFeatureTest extends Assert {
    public void test() throws Throwable {
       executeCommand("bundle:list");
 
-      withinReason(new Callable<Boolean>() {
-         @Override
-         public Boolean call() throws Exception {
-            assertTrue("artemis bundle installed", verifyBundleInstalled("artemis-server-osgi"));
-            return true;
-         }
+      withinReason(() -> {
+         assertTrue("artemis bundle installed", verifyBundleInstalled("artemis-server-osgi"));
+         return true;
       });
 
       Object service = waitForService("(objectClass=org.apache.activemq.artemis.core.server.ActiveMQServer)", 30000);
@@ -168,7 +167,7 @@ public class ArtemisFeatureTest extends Assert {
 
          // Test browsing
          try (QueueBrowser browser = sess.createBrowser(queue)) {
-            Enumeration messages = browser.getEnumeration();
+            Enumeration<?> messages = browser.getEnumeration();
             while (messages.hasMoreElements()) {
                messages.nextElement();
             }
@@ -205,32 +204,26 @@ public class ArtemisFeatureTest extends Assert {
       final PrintStream printStream = new PrintStream(byteArrayOutputStream);
       final Session commandSession = sessionFactory.create(System.in, printStream, printStream);
       commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
-      FutureTask<String> commandFuture = new FutureTask<>(new Callable<String>() {
-         @Override
-         public String call() {
+      FutureTask<String> commandFuture = new FutureTask<>(() -> {
 
-            Subject subject = new Subject();
-            subject.getPrincipals().add(new UserPrincipal("admin"));
-            subject.getPrincipals().add(new RolePrincipal("admin"));
-            subject.getPrincipals().add(new RolePrincipal("manager"));
-            subject.getPrincipals().add(new RolePrincipal("viewer"));
-            return Subject.doAs(subject, new PrivilegedAction<String>() {
-               @Override
-               public String run() {
-                  try {
-                     if (!silent) {
-                        System.out.println(command);
-                        System.out.flush();
-                     }
-                     commandSession.execute(command);
-                  } catch (Exception e) {
-                     e.printStackTrace(System.err);
-                  }
-                  printStream.flush();
-                  return byteArrayOutputStream.toString();
+         Subject subject = new Subject();
+         subject.getPrincipals().add(new UserPrincipal("admin"));
+         subject.getPrincipals().add(new RolePrincipal("admin"));
+         subject.getPrincipals().add(new RolePrincipal("manager"));
+         subject.getPrincipals().add(new RolePrincipal("viewer"));
+         return SecurityManagerShim.callAs(subject, (Callable<String>) () -> {
+            try {
+               if (!silent) {
+                  System.out.println(command);
+                  System.out.flush();
                }
-            });
-         }
+               commandSession.execute(command);
+            } catch (Exception e) {
+               e.printStackTrace(System.err);
+            }
+            printStream.flush();
+            return byteArrayOutputStream.toString();
+         });
       });
 
       try {

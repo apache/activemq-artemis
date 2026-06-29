@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -95,9 +97,6 @@ public class NodeAnnounceMessage extends PacketImpl {
       return scaleDownGroupName;
    }
 
-   /**
-    * @return the currentEventID
-    */
    public long getCurrentEventID() {
       return currentEventID;
    }
@@ -153,15 +152,8 @@ public class NodeAnnounceMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (backup ? 1231 : 1237);
-      result = prime * result + ((backupConnector == null) ? 0 : backupConnector.hashCode());
-      result = prime * result + ((connector == null) ? 0 : connector.hashCode());
-      result = prime * result + (int) (currentEventID ^ (currentEventID >>> 32));
-      result = prime * result + ((nodeID == null) ? 0 : nodeID.hashCode());
-      result = prime * result + ((scaleDownGroupName == null) ? 0 : scaleDownGroupName.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), backup, backupConnector, connector, currentEventID, nodeID,
+                          scaleDownGroupName);
    }
 
    @Override
@@ -172,39 +164,15 @@ public class NodeAnnounceMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof NodeAnnounceMessage)) {
+      if (!(obj instanceof NodeAnnounceMessage other)) {
          return false;
       }
-      NodeAnnounceMessage other = (NodeAnnounceMessage) obj;
-      if (backup != other.backup) {
-         return false;
-      }
-      if (backupConnector == null) {
-         if (other.backupConnector != null) {
-            return false;
-         }
-      } else if (!backupConnector.equals(other.backupConnector)) {
-         return false;
-      }
-      if (connector == null) {
-         if (other.connector != null) {
-            return false;
-         }
-      } else if (!connector.equals(other.connector)) {
-         return false;
-      }
-      if (currentEventID != other.currentEventID) {
-         return false;
-      }
-      if (nodeID == null) {
-         if (other.nodeID != null) {
-            return false;
-         }
-      } else if (!nodeID.equals(other.nodeID)) {
-         return false;
-      } else if (!scaleDownGroupName.equals(other.scaleDownGroupName)) {
-         return false;
-      }
-      return true;
+
+      return backup == other.backup &&
+             Objects.equals(backupConnector, other.backupConnector) &&
+             Objects.equals(connector, other.connector) &&
+             currentEventID == other.currentEventID &&
+             Objects.equals(nodeID, other.nodeID) &&
+             Objects.equals(scaleDownGroupName, other.scaleDownGroupName);
    }
 }

@@ -87,8 +87,8 @@ public class PersistedDestination implements EncodingSupport {
    @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeByte(type.getType());
-      buffer.writeSimpleString(SimpleString.toSimpleString(name));
-      buffer.writeNullableSimpleString(SimpleString.toSimpleString(selector));
+      buffer.writeSimpleString(SimpleString.of(name));
+      buffer.writeNullableSimpleString(SimpleString.of(selector));
       buffer.writeBoolean(durable);
    }
 

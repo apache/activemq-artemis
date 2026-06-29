@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.utils.AutomaticLatch;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AutomaticLatchTest {
 
@@ -30,11 +32,11 @@ public class AutomaticLatchTest {
       AtomicInteger value = new AtomicInteger(0);
       AutomaticLatch latch = new AutomaticLatch(1);
       latch.afterCompletion(() -> value.incrementAndGet());
-      Assert.assertEquals(0, value.get());
+      assertEquals(0, value.get());
 
       latch.countDown();
 
-      Assert.assertEquals(1, value.get());
+      assertEquals(1, value.get());
    }
 
    @Test
@@ -42,25 +44,25 @@ public class AutomaticLatchTest {
       AtomicInteger value = new AtomicInteger(0);
       AutomaticLatch latch = new AutomaticLatch(0);
       latch.afterCompletion(() -> value.incrementAndGet());
-      Assert.assertEquals(1, value.get());
+      assertEquals(1, value.get());
       latch.countUp();
       latch.countDown();
 
       // the previous latch completion should been cleared by now
-      Assert.assertEquals(1, value.get());
+      assertEquals(1, value.get());
 
       latch.afterCompletion(() -> value.addAndGet(10));
-      Assert.assertEquals(11, value.get());
+      assertEquals(11, value.get());
 
       latch.countUp();
       latch.countDown();
 
-      Assert.assertEquals(11, value.get());
+      assertEquals(11, value.get());
    }
 
    @Test
    public void testMultipleCallsOrder() {
-      ArrayList<Integer> outcome = new ArrayList<>();
+      List<Integer> outcome = new ArrayList<>();
       AutomaticLatch latch = new AutomaticLatch(1);
       latch.afterCompletion(() -> outcome.add(0));
       latch.afterCompletion(() -> outcome.add(1));
@@ -68,11 +70,11 @@ public class AutomaticLatchTest {
 
       latch.countDown();
 
-      Assert.assertEquals((Integer)0, outcome.get(0));
-      Assert.assertEquals((Integer)1, outcome.get(1));
-      Assert.assertEquals((Integer)2, outcome.get(2));
+      assertEquals((Integer)0, outcome.get(0));
+      assertEquals((Integer)1, outcome.get(1));
+      assertEquals((Integer)2, outcome.get(2));
 
-      Assert.assertEquals(3, outcome.size());
+      assertEquals(3, outcome.size());
    }
 
 

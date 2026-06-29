@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.transport.amqp.client;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.qpid.proton.engine.Connection;
@@ -25,8 +26,8 @@ import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
 
 /**
- * Abstract base for a validation hook that is used in tests to check
- * the state of a remote resource after a variety of lifecycle events.
+ * Abstract base for a validation hook that is used in tests to check the state of a remote resource after a variety of
+ * lifecycle events.
  */
 public class AmqpValidator {
 
@@ -97,9 +98,7 @@ public class AmqpValidator {
    }
 
    protected final boolean markAsInvalid(String message) {
-      if (message == null) {
-         throw new NullPointerException("Provided error message cannot be null!");
-      }
+      Objects.requireNonNull(message, "Provided error message cannot be null!");
 
       return errorMessage.compareAndSet(null, message);
    }

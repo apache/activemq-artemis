@@ -23,8 +23,8 @@ import javax.jms.MessageConsumer;
 import javax.jms.Session;
 
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * adapted from: JmsTopicSendReceiveWithTwoConnectionsTest
@@ -36,7 +36,7 @@ public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTes
    protected Session receiveSession;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -84,7 +84,7 @@ public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTes
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       session.close();
       receiveSession.close();

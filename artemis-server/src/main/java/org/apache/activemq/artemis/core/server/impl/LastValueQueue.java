@@ -18,12 +18,12 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -43,45 +43,21 @@ import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
 /**
  * A queue that will discard messages if a newer message with the same
- * {@link org.apache.activemq.artemis.core.message.impl.CoreMessage#HDR_LAST_VALUE_NAME} property value. In other words it only retains the last
- * value
+ * {@link org.apache.activemq.artemis.core.message.impl.CoreMessage#HDR_LAST_VALUE_NAME} property value. In other words
+ * it only retains the last value
  * <p>
- * This is useful for example, for stock prices, where you're only interested in the latest value
- * for a particular stock
+ * This is useful for example, for stock prices, where you're only interested in the latest value for a particular
+ * stock
  */
 @SuppressWarnings("ALL")
 public class LastValueQueue extends QueueImpl {
 
    private final Map<SimpleString, MessageReference> map = new ConcurrentHashMap<>();
-   private final SimpleString lastValueKey;
 
-
-   @Deprecated
-   public LastValueQueue(final long persistenceID,
-                         final SimpleString address,
-                         final SimpleString name,
+   public LastValueQueue(final QueueConfiguration queueConfiguration,
                          final Filter filter,
                          final PagingStore pagingStore,
                          final PageSubscription pageSubscription,
-                         final SimpleString user,
-                         final boolean durable,
-                         final boolean temporary,
-                         final boolean autoCreated,
-                         final RoutingType routingType,
-                         final Integer maxConsumers,
-                         final Boolean exclusive,
-                         final Boolean groupRebalance,
-                         final Integer groupBuckets,
-                         final SimpleString groupFirstKey,
-                         final Integer consumersBeforeDispatch,
-                         final Long delayBeforeDispatch,
-                         final Boolean purgeOnNoConsumers,
-                         final SimpleString lastValueKey,
-                         final Boolean nonDestructive,
-                         final Boolean autoDelete,
-                         final Long autoDeleteDelay,
-                         final Long autoDeleteMessageCount,
-                         final boolean configurationManaged,
                          final ScheduledExecutorService scheduledExecutor,
                          final PostOffice postOffice,
                          final StorageManager storageManager,
@@ -89,52 +65,7 @@ public class LastValueQueue extends QueueImpl {
                          final ArtemisExecutor executor,
                          final ActiveMQServer server,
                          final QueueFactory factory) {
-      this(new QueueConfiguration(name)
-              .setId(persistenceID)
-              .setAddress(address)
-              .setFilterString(filter.getFilterString())
-              .setUser(user)
-              .setDurable(durable)
-              .setTemporary(temporary)
-              .setAutoCreated(autoCreated)
-              .setRoutingType(routingType)
-              .setMaxConsumers(maxConsumers)
-              .setExclusive(exclusive)
-              .setGroupRebalance(groupRebalance)
-              .setGroupBuckets(groupBuckets)
-              .setGroupFirstKey(groupFirstKey)
-              .setNonDestructive(nonDestructive)
-              .setConsumersBeforeDispatch(consumersBeforeDispatch)
-              .setDelayBeforeDispatch(delayBeforeDispatch)
-              .setPurgeOnNoConsumers(purgeOnNoConsumers)
-              .setAutoDelete(autoDelete)
-              .setAutoDeleteDelay(autoDeleteDelay)
-              .setAutoDeleteMessageCount(autoDeleteMessageCount)
-              .setConfigurationManaged(configurationManaged)
-              .setLastValueKey(lastValueKey),
-           pagingStore,
-           pageSubscription,
-           scheduledExecutor,
-           postOffice,
-           storageManager,
-           addressSettingsRepository,
-           executor,
-           server,
-           factory);
-   }
-
-   public LastValueQueue(final QueueConfiguration queueConfiguration,
-                         final PagingStore pagingStore,
-                         final PageSubscription pageSubscription,
-                         final ScheduledExecutorService scheduledExecutor,
-                         final PostOffice postOffice,
-                         final StorageManager storageManager,
-                         final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                         final ArtemisExecutor executor,
-                         final ActiveMQServer server,
-                         final QueueFactory factory) {
-      super(queueConfiguration, pagingStore, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
-      this.lastValueKey = queueConfiguration.getLastValueKey();
+      super(queueConfiguration, filter, pagingStore, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
    }
 
    @Override
@@ -187,11 +118,6 @@ public class LastValueQueue extends QueueImpl {
    @Override
    public boolean allowsReferenceCallback() {
       return false;
-   }
-
-   @Override
-   public QueueConfiguration getQueueConfiguration() {
-      return super.getQueueConfiguration().setLastValue(true).setLastValueKey(lastValueKey);
    }
 
    @Override
@@ -282,26 +208,13 @@ public class LastValueQueue extends QueueImpl {
       };
    }
 
-   @Override
-   public boolean isLastValue() {
-      return true;
-   }
-
-   @Override
-   public SimpleString getLastValueKey() {
-      return lastValueKey;
-   }
-
    public synchronized Set<SimpleString> getLastValueKeys() {
       return Collections.unmodifiableSet(map.keySet());
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((map == null) ? 0 : map.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(map);
    }
 
    @Override
@@ -312,17 +225,10 @@ public class LastValueQueue extends QueueImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof LastValueQueue)) {
+      if (!(obj instanceof LastValueQueue other)) {
          return false;
       }
-      LastValueQueue other = (LastValueQueue) obj;
-      if (map == null) {
-         if (other.map != null) {
-            return false;
-         }
-      } else if (!map.equals(other.map)) {
-         return false;
-      }
-      return true;
+
+      return Objects.equals(map, other.map);
    }
 }

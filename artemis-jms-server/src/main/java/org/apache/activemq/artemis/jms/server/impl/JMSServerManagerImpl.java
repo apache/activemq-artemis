@@ -37,11 +37,9 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
@@ -86,21 +84,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * A Deployer used to create and add to Bindings queues, topics and connection
- * factories. Typically this would only be used in an app server env.
+ * A Deployer used to create and add to Bindings queues, topics and connection factories. Typically this would only be
+ * used in an app server env.
  * <p>
- * JMS Connection Factories and Destinations can be configured either
- * using configuration files or using a JMSConfiguration object.
+ * JMS Connection Factories and Destinations can be configured either using configuration files or using a
+ * JMSConfiguration object.
  * <p>
- * If configuration files are used, JMS resources are redeployed if the
- * files content is changed.
- * If a JMSConfiguration object is used, the JMS resources can not be
- * redeployed.
+ * If configuration files are used, JMS resources are redeployed if the files content is changed. If a JMSConfiguration
+ * object is used, the JMS resources can not be redeployed.
  */
 @Deprecated
 public class JMSServerManagerImpl extends CleaningActivateCallback implements JMSServerManager {
-
-   private static final String REJECT_FILTER = Filter.GENERIC_IGNORED_FILTER;
 
    private BindingRegistry registry;
 
@@ -143,10 +137,6 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
    /**
     * This constructor is used by the Application Server's integration
-    *
-    * @param server
-    * @param registry
-    * @throws Exception
     */
    public JMSServerManagerImpl(final ActiveMQServer server, final BindingRegistry registry) throws Exception {
       this.server = server;
@@ -185,8 +175,6 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
             ActiveMQJMSServerLogger.LOGGER.serverRunningCachedCommand(run);
             run.run();
          }
-
-         // do not clear the cachedCommands - HORNETQ-1047
 
          recoverBindings();
 
@@ -246,25 +234,22 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
    public void recoverregistryBindings(String name, PersistedType type) throws NamingException {
       List<String> bindings = unRecoveredBindings.get(name);
-      if ((bindings != null) && (bindings.size() > 0)) {
+      if (bindings != null && !bindings.isEmpty()) {
          Map<String, List<String>> mapBindings;
-         Map<String, ?> objects;
-
-         switch (type) {
-            case Queue:
+         Map<String, ?> objects = switch (type) {
+            case Queue -> {
                mapBindings = queueBindings;
-               objects = queues;
-               break;
-            case Topic:
+               yield queues;
+            }
+            case Topic -> {
                mapBindings = topicBindings;
-               objects = topics;
-               break;
-            default:
-            case ConnectionFactory:
+               yield topics;
+            }
+            default -> {
                mapBindings = connectionFactoryBindings;
-               objects = connectionFactories;
-               break;
-         }
+               yield connectionFactories;
+            }
+         };
 
          Object objectToBind = objects.get(name);
 
@@ -294,23 +279,20 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
       for (PersistedBindings record : bindingsSpace) {
          Map<String, List<String>> mapBindings;
-         Map<String, ?> objects;
-
-         switch (record.getType()) {
-            case Queue:
+         Map<String, ?> objects = switch (record.getType()) {
+            case Queue -> {
                mapBindings = queueBindings;
-               objects = queues;
-               break;
-            case Topic:
+               yield queues;
+            }
+            case Topic -> {
                mapBindings = topicBindings;
-               objects = topics;
-               break;
-            default:
-            case ConnectionFactory:
+               yield topics;
+            }
+            default -> {
                mapBindings = connectionFactoryBindings;
-               objects = connectionFactories;
-               break;
-         }
+               yield connectionFactories;
+            }
+         };
 
          Object objectToBind = objects.get(record.getName());
          List<String> bindingsList = mapBindings.get(record.getName());
@@ -336,9 +318,8 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
    // ActiveMQComponent implementation -----------------------------------
 
    /**
-    * Notice that this component has a {@link #startCalled} boolean to control its internal
-    * life-cycle, but its {@link #isStarted()} returns the value of {@code server.isStarted()} and
-    * not the value of {@link #startCalled}.
+    * Notice that this component has a {@link #startCalled} boolean to control its internal life-cycle, but its
+    * {@link #isStarted()} returns the value of {@code server.isStarted()} and not the value of {@link #startCalled}.
     * <p>
     * This method and {@code server.start()} are interdependent in the following way:
     * <ol>
@@ -363,12 +344,10 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 //      server.registerPostQueueCreationCallback(new JMSPostQueueCreationCallback());
 //
 //      server.registerPostQueueDeletionCallback(new JMSPostQueueDeletionCallback());
-      /**
+      /*
        * See this method's javadoc.
-       * <p>
-       * start_called MUST be set to true BEFORE calling server.start().
-       * <p>
-       * start_called is NOT used at {@link JMSServerManager#isStarted()}
+       * startCalled MUST be set to true BEFORE calling server.start().
+       * startCalled is NOT used at isStarted().
        */
       startCalled = true;
       server.start();
@@ -490,7 +469,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
                String[] usedBindings = null;
 
                if (bindings != null) {
-                  ArrayList<String> bindingsToAdd = new ArrayList<>();
+                  List<String> bindingsToAdd = new ArrayList<>();
 
                   for (String bindingsItem : bindings) {
                      if (bindToBindings(bindingsItem, destination)) {
@@ -564,7 +543,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
                   throw new IllegalArgumentException("Queue does not exist");
                }
 
-               ArrayList<String> bindingsToAdd = new ArrayList<>();
+               List<String> bindingsToAdd = new ArrayList<>();
 
                if (bindings != null) {
                   for (String bindingsItem : bindings) {
@@ -687,7 +666,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
    public boolean removeQueueFromBindingRegistry(final String name) throws Exception {
       final AtomicBoolean valueReturn = new AtomicBoolean(false);
 
-      // HORNETQ-911 - make this runAfterActive to prevent WARN messages on shutdown/undeployment when the backup was never activated
+      // make this runAfterActive to prevent WARN messages on shutdown/undeployment when the backup was never activated
       runAfterActive(new WrappedRunnable() {
          @Override
          public String toString() {
@@ -720,14 +699,11 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       }
    }
 
-   /* (non-Javadoc)
-   * @see org.apache.activemq.artemis.jms.server.JMSServerManager#removeTopicFromBindings(java.lang.String, java.lang.String)
-   */
    @Override
    public boolean removeTopicFromBindingRegistry(final String name) throws Exception {
       final AtomicBoolean valueReturn = new AtomicBoolean(false);
 
-      // HORNETQ-911 - make this runAfterActive to prevent WARN messages on shutdown/undeployment when the backup was never activated
+      // make this runAfterActive to prevent WARN messages on shutdown/undeployment when the backup was never activated
       runAfterActive(new WrappedRunnable() {
          @Override
          public String toString() {
@@ -779,11 +755,11 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
    public synchronized boolean destroyQueue(final String name, final boolean removeConsumers) throws Exception {
       checkInitialised();
 
-      server.destroyQueue(SimpleString.toSimpleString(name), null, !removeConsumers, removeConsumers);
+      server.destroyQueue(SimpleString.of(name), null, !removeConsumers, removeConsumers);
 
       // if the queue has consumers and 'removeConsumers' is false then the queue won't actually be removed
       // therefore only remove the queue from Bindings, etc. if the queue is actually removed
-      if (this.server.getPostOffice().getBinding(SimpleString.toSimpleString(name)) == null) {
+      if (this.server.getPostOffice().getBinding(SimpleString.of(name)) == null) {
          removeFromBindings(queues, queueBindings, name);
 
          queues.remove(name);
@@ -806,10 +782,10 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
    @Override
    public synchronized boolean destroyTopic(final String name, final boolean removeConsumers) throws Exception {
       checkInitialised();
-      AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.ADDRESS + name);
+      AddressControl addressControl = server.getManagementService().getAddressControl(name);
       if (addressControl != null) {
          for (String queueName : addressControl.getAllQueueNames()) {
-            Binding binding = server.getPostOffice().getBinding(new SimpleString(queueName));
+            Binding binding = server.getPostOffice().getBinding(SimpleString.of(queueName));
             if (binding == null) {
                ActiveMQJMSServerLogger.LOGGER.noQueueOnTopic(queueName, name);
                continue;
@@ -817,13 +793,13 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
             // We can't remove the remote binding. As this would be the bridge associated with the topic on this case
             if (binding.getType() != BindingType.REMOTE_QUEUE) {
-               server.destroyQueue(SimpleString.toSimpleString(queueName), null, !removeConsumers, removeConsumers, false);
+               server.destroyQueue(SimpleString.of(queueName), null, !removeConsumers, removeConsumers, false);
             }
          }
 
          if (addressControl.getAllQueueNames().length == 0) {
             try {
-               server.removeAddressInfo(SimpleString.toSimpleString(name), null);
+               server.removeAddressInfo(SimpleString.of(name), null);
             } catch (ActiveMQAddressDoesNotExistException e) {
                // ignore
             }
@@ -1006,7 +982,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
             ActiveMQConnectionFactory cf = internalCreateCF(cfConfig);
 
-            ArrayList<String> bindingsToAdd = new ArrayList<>();
+            List<String> bindingsToAdd = new ArrayList<>();
 
             for (String bindingsItem : bindings) {
                if (bindToBindings(bindingsItem, cf)) {
@@ -1030,7 +1006,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
    private void sendNotification(JMSNotificationType type, String message) {
       TypedProperties prop = new TypedProperties();
-      prop.putSimpleStringProperty(JMSNotificationType.MESSAGE, SimpleString.toSimpleString(message));
+      prop.putSimpleStringProperty(JMSNotificationType.MESSAGE, SimpleString.of(message));
       Notification notif = new Notification(null, type, prop);
       try {
          server.getManagementService().sendNotification(notif);
@@ -1080,9 +1056,9 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
             coreFilterString = SelectorTranslator.convertToActiveMQFilterString(selectorString);
          }
 
-         server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queueName)).addRoutingType(RoutingType.ANYCAST));
+         server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.of(queueName)).addRoutingType(RoutingType.ANYCAST));
 
-         server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setFilterString(coreFilterString).setDurable(durable), true);
+         server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setFilterString(coreFilterString).setDurable(durable), true);
 
          // create the JMS queue with the logical name jmsQueueName and keeps queueName for its *core* queue name
          queues.put(queueName, ActiveMQDestination.createQueue(queueName, jmsQueueName));
@@ -1094,12 +1070,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
    }
 
    /**
-    * Performs the internal creation without activating any storage.
-    * The storage load will call this method
-    *
-    * @param address
-    * @return
-    * @throws Exception
+    * Performs the internal creation without activating any storage. The storage load will call this method
     */
    private synchronized boolean internalCreateTopic(final String address) throws Exception {
       return internalCreateTopic(address, address, false);
@@ -1114,7 +1085,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       } else {
          // Create the JMS topic with topicName as the logical name of the topic *and* address as its address
          ActiveMQTopic activeMQTopic = ActiveMQDestination.createTopic(address, topicName);
-         server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(activeMQTopic.getAddress()), RoutingType.MULTICAST));
+         server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.of(activeMQTopic.getAddress()), RoutingType.MULTICAST));
 
          topics.put(address, activeMQTopic);
 
@@ -1124,10 +1095,6 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       }
    }
 
-   /**
-    * @param cfConfig
-    * @throws Exception
-    */
    private ActiveMQConnectionFactory internalCreateCF(final ConnectionFactoryConfiguration cfConfig) throws Exception {
       checkInitialised();
 
@@ -1142,11 +1109,6 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       return cf;
    }
 
-   /**
-    * @param cfConfig
-    * @return
-    * @throws ActiveMQException
-    */
    protected ActiveMQConnectionFactory internalCreateCFPOJO(final ConnectionFactoryConfiguration cfConfig) throws ActiveMQException {
       ActiveMQConnectionFactory cf;
       if (cfConfig.getDiscoveryGroupName() != null) {
@@ -1162,7 +1124,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
             cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfig, cfConfig.getFactoryType());
          }
       } else {
-         if (cfConfig.getConnectorNames() == null || cfConfig.getConnectorNames().size() == 0) {
+         if (cfConfig.getConnectorNames() == null || cfConfig.getConnectorNames().isEmpty()) {
             throw ActiveMQJMSServerBundle.BUNDLE.noConnectorNameOnCF();
          }
 
@@ -1217,8 +1179,8 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       cf.setCompressionLevel(cfConfig.getCompressionLevel());
       cf.setGroupID(cfConfig.getGroupID());
       cf.setProtocolManagerFactoryStr(cfConfig.getProtocolManagerFactoryStr());
-      cf.setDeserializationBlackList(cfConfig.getDeserializationBlackList());
-      cf.setDeserializationWhiteList(cfConfig.getDeserializationWhiteList());
+      cf.setDeserializationDenyList(cfConfig.getDeserializationDenyList());
+      cf.setDeserializationAllowList(cfConfig.getDeserializationAllowList());
       cf.setInitialMessagePacketSize(cfConfig.getInitialMessagePacketSize());
       cf.setEnable1xPrefixes(cfConfig.isEnable1xPrefixes());
       cf.setEnableSharedClientID(cfConfig.isEnableSharedClientID());
@@ -1231,7 +1193,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
    public synchronized boolean destroyConnectionFactory(final String name) throws Exception {
       final AtomicBoolean valueReturn = new AtomicBoolean(false);
 
-      // HORNETQ-911 - make this runAfterActive to prevent WARN messages on shutdown/undeployment when the backup was never activated
+      // make this runAfterActive to prevent WARN messages on shutdown/undeployment when the backup was never activated
       runAfterActive(new WrappedRunnable() {
 
          @Override
@@ -1255,10 +1217,6 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       return valueReturn.get();
    }
 
-   /**
-    * @param name
-    * @throws Exception
-    */
    protected boolean shutdownConnectionFactory(final String name) throws Exception {
       checkInitialised();
       List<String> registryBindings = connectionFactoryBindings.get(name);
@@ -1391,9 +1349,6 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       }
    }
 
-   /**
-    * @param param
-    */
    private void unbindBindings(Map<String, List<String>> param) {
       if (registry != null) {
          for (List<String> elementList : param.values()) {
@@ -1408,9 +1363,6 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       }
    }
 
-   /**
-    * @throws Exception
-    */
    private void initJournal() throws Exception {
       this.coreConfig = server.getConfiguration();
 
@@ -1435,9 +1387,6 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       }
    }
 
-   /**
-    * @throws Exception
-    */
    private void createJournal() throws Exception {
       if (storage != null) {
          storage.stop();
@@ -1456,7 +1405,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
                                                    final String name) throws Exception {
       checkInitialised();
       List<String> registryBindings = bindingsMap.remove(name);
-      if (registryBindings == null || registryBindings.size() == 0) {
+      if (registryBindings == null || registryBindings.isEmpty()) {
          return false;
       } else {
          keys.remove(name);
@@ -1477,7 +1426,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
                                                    final String bindings) throws Exception {
       checkInitialised();
       List<String> registryBindings = bindingsMap.get(name);
-      if (registryBindings == null || registryBindings.size() == 0) {
+      if (registryBindings == null || registryBindings.isEmpty()) {
          return false;
       }
 
@@ -1495,8 +1444,9 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
          return true;
       } else {
          ActiveMQJMSServerLogger.LOGGER.serverCachingCommand(runnable);
-         if (!cachedCommands.contains(runnable))
+         if (!cachedCommands.contains(runnable)) {
             cachedCommands.add(runnable);
+         }
          return false;
       }
    }
@@ -1531,100 +1481,6 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       }
    }
 
-   /**
-    * This class is responsible for auto-creating the JMS (and underlying core) resources when a client sends a message
-    * to a non-existent JMS queue or topic
-    */
-//   class JMSDestinationCreator implements QueueCreator {
-//
-//      @Override
-//      public boolean create(SimpleString address) throws Exception {
-//         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
-//         if (address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && settings.isAutoCreateQueues()) {
-//            return internalCreateJMSQueue(false, address.toString().substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length()), null, true, true);
-//         } else if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoCreateAddresses()) {
-//            return createTopic(false, address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()), true);
-//         } else {
-//            return false;
-//         }
-//      }
-//   }
-
-//   class JMSQueueDeleter implements QueueDeleter {
-//
-//      @Override
-//      public boolean delete(SimpleString queueName) throws Exception {
-//         Queue queue = server.locateQueue(queueName);
-//         SimpleString address = queue.getAddress();
-//         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
-//         long consumerCount = queue.getConsumerCount();
-//         long messageCount = queue.getMessageCount();
-//
-//         if (address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && settings.isAutoDeleteJmsQueues() && queue.getMessageCount() == 0) {
-//            if (ActiveMQJMSServerLogger.LOGGER.isDebugEnabled()) {
-//               ActiveMQJMSServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + settings.isAutoDeleteJmsQueues());
-//            }
-//
-//            return destroyQueue(queueName.toString().substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length()), false);
-//         } else {
-//            return false;
-//         }
-//      }
-//   }
-
-   /**
-    * When a core queue is created with a jms.topic prefix this class will create the associated JMS resources
-    * retroactively.  This would happen if, for example, a client created a subscription a non-existent JMS topic and
-    * autoCreateJmsTopics = true.
-    */
-//   class JMSPostQueueCreationCallback implements PostQueueCreationCallback {
-//
-//      @Override
-//      public void callback(SimpleString queueName) throws Exception {
-//         Queue queue = server.locateQueue(queueName);
-//         String address = queue.getAddress().toString();
-//
-//         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
-//         /* When a topic is created a dummy subscription is created which never receives any messages; when the queue
-//          * for that dummy subscription is created we don't want to call createTopic again. Therefore we make sure the
-//          * queue name doesn't start with the topic prefix.
-//          */
-//         if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoCreateAddresses() && !queueName.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX)) {
-//            createTopic(false, address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()), true);
-//         }
-//      }
-//   }
-
-   /**
-    * When a core queue representing a JMS topic subscription is deleted this class will check to see if that was the
-    * last subscription on the topic and if so and autoDeleteJmsTopics = true then it will delete the JMS resources
-    * for that topic.
-    */
-//   class JMSPostQueueDeletionCallback implements PostQueueDeletionCallback {
-//
-//      @Override
-//      public void callback(SimpleString address, SimpleString queueName) throws Exception {
-//         Queue queue = server.locateQueue(address);
-//         Collection<Binding> bindings = server.getPostOffice().getBindingsForAddress(address).getBindings();
-//
-//         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
-//
-//         if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoDeleteJmsTopics() && bindings.size() == 1 && queue != null && queue.isAutoCreated()) {
-//            try {
-//               destroyTopic(address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()));
-//            } catch (IllegalStateException e) {
-//               /*
-//                * During shutdown the callback can be invoked after the JMSServerManager is already shut down so we just
-//                * ignore the exception in that case
-//                */
-//               if (ActiveMQJMSServerLogger.LOGGER.isDebugEnabled()) {
-//                  ActiveMQJMSServerLogger.LOGGER.debug("Failed to destroy topic", e);
-//               }
-//            }
-//         }
-//      }
-//   }
-
    private final class JMSReloader implements ReloadCallback {
 
       @Override
@@ -1633,11 +1489,11 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
          Element e = XMLUtil.urlToElement(url);
 
-         if (config instanceof FileJMSConfiguration) {
+         if (config instanceof FileJMSConfiguration fileJMSConfiguration) {
             NodeList children = e.getElementsByTagName("jms");
             //if the "jms" element exists then parse it
             if (children.getLength() > 0) {
-               ((FileJMSConfiguration) config).parse((Element) children.item(0), url);
+               fileJMSConfiguration.parse((Element) children.item(0), url);
                JMSServerManagerImpl.this.deploy();
             }
          }

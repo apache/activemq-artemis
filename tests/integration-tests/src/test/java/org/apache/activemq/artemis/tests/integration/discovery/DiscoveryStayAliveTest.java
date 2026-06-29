@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.discovery;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.InetAddress;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -30,8 +33,9 @@ import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
 import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This is to make sure discovery works fine even when garbled data is sent
@@ -41,13 +45,14 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
    ScheduledExecutorService scheduledExecutorService;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       scheduledExecutorService = new ScheduledThreadPoolExecutor(1, new ActiveMQThreadFactory("ActiveMQ-scheduled-threads", false, Thread.currentThread().getContextClassLoader()));
 
    }
 
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       scheduledExecutorService.shutdown();
@@ -60,28 +65,25 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      final DiscoveryGroup dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), InetAddress.getByName("localhost"), groupAddress, groupPort, timeout);
+      final DiscoveryGroup dg = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), InetAddress.getByName("localhost"), groupAddress, groupPort, timeout);
 
       final AtomicInteger errors = new AtomicInteger(0);
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               dg.internalRunning();
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
-            }
-
+      Thread t = new Thread(() -> {
+         try {
+            dg.internalRunning();
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+
+      });
       t.start();
 
       BroadcastGroupImpl bg = null;
 
       try {
 
-         bg = new BroadcastGroupImpl(new FakeNodeManager("test-nodeID"), RandomUtil.randomString(), 1, scheduledExecutorService, new UDPBroadcastEndpointFactory().setGroupAddress(address1).
+         bg = new BroadcastGroupImpl(new FakeNodeManager("test-nodeID"), RandomUtil.randomUUIDString(), 1, scheduledExecutorService, new UDPBroadcastEndpointFactory().setGroupAddress(address1).
             setGroupPort(groupPort));
 
          bg.start();

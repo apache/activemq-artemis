@@ -18,11 +18,13 @@ package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.Topic;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
- * ActiveMQ Artemis implementation of a JMS Topic.
- * <br>
+ * Apache Artemis implementation of a JMS Topic.
+ * <p>
  * This class can be instantiated directly.
  */
 public class ActiveMQTopic extends ActiveMQDestination implements Topic {
@@ -51,11 +53,6 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
       this(address, temporary, null);
    }
 
-   /**
-    * @param address
-    * @param temporary
-    * @param session
-    */
    protected ActiveMQTopic(String address, boolean temporary, ActiveMQSession session) {
       super(address, temporary ? TYPE.TEMP_TOPIC : TYPE.TOPIC, session);
    }
@@ -74,18 +71,15 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (!(o instanceof ActiveMQTopic)) {
+      if (!(obj instanceof ActiveMQTopic other)) {
          return false;
       }
 
-      ActiveMQTopic that = (ActiveMQTopic) o;
-
-      return super.getAddress().equals(that.getAddress());
+      return Objects.equals(super.getAddress(), other.getAddress());
    }
 
    @Override

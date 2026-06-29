@@ -24,8 +24,7 @@ public abstract class StringEscapeUtils {
    /**
     * Adapted from commons lang StringEscapeUtils, escapes a string
     *
-    * @param str
-    * @return an escaped version of the input string.
+    * @return an escaped version of the input string
     */
    public static String escapeString(String str) {
       if (str == null) {
@@ -92,11 +91,11 @@ public abstract class StringEscapeUtils {
    }
 
    /**
-    * <p>Returns an upper case hexadecimal <code>String</code> for the given
+    * <p>Returns an upper case hexadecimal {@code String} for the given
     * character.</p>
     *
     * @param ch The character to convert.
-    * @return An upper case hexadecimal <code>String</code>
+    * @return An upper case hexadecimal {@code String}
     */
    private static String hex(char ch) {
       return Integer.toHexString(ch).toUpperCase();

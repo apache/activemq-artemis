@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -30,7 +34,7 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.state.ConnectionState;
 import org.apache.activemq.state.SessionState;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SessionHandlingOpenWireTest extends BasicOpenWireTest {
 
@@ -40,7 +44,7 @@ public class SessionHandlingOpenWireTest extends BasicOpenWireTest {
          AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          conn.start();
          try (Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
-            Destination dest = createDestination(session,ActiveMQDestination.QUEUE_TYPE);
+            Destination dest = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
             sendMessages(session, dest, 1);
             MessageConsumer consumer = session.createConsumer(dest);
             Message m = consumer.receive(2000);
@@ -58,7 +62,7 @@ public class SessionHandlingOpenWireTest extends BasicOpenWireTest {
          conn.start();
          for (int i = 0; i < 100; i++) {
             Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination dest = createDestination(session,ActiveMQDestination.QUEUE_TYPE);
+            Destination dest = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
             sendMessages(session, dest, 1);
             MessageConsumer consumer = session.createConsumer(dest);
             Message m = consumer.receive(2000);
@@ -92,12 +96,11 @@ public class SessionHandlingOpenWireTest extends BasicOpenWireTest {
 
          // verify no trace of producer on the broker
          for (RemotingConnection remotingConnection : server.getRemotingService().getConnections()) {
-            if (remotingConnection instanceof OpenWireConnection) {
-               OpenWireConnection openWireConnection = (OpenWireConnection) remotingConnection;
+            if (remotingConnection instanceof OpenWireConnection openWireConnection) {
                ConnectionState connectionState = openWireConnection.getState();
                if (connectionState != null) {
                   for (SessionState sessionState : connectionState.getSessionStates()) {
-                     assertTrue("no producer states leaked", Wait.waitFor(() -> sessionState.getProducerIds().isEmpty()));
+                     assertTrue(Wait.waitFor(() -> sessionState.getProducerIds().isEmpty()), "no producer states leaked");
                   }
                }
             }

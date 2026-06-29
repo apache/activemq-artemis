@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
+import java.util.Objects;
 
 /**
- * This holds the relationship a record has with other files in regard to reference counting.
- * Note: This class used to be called PosFiles
- *
+ * This holds the relationship a record has with other files in regard to reference counting. Note: This class used to
+ * be called PosFiles
+ * <p>
  * Used on the ref-count for reclaiming
  */
 public class JournalRecord {
@@ -37,9 +37,7 @@ public class JournalRecord {
    private ObjIntIntArrayList<JournalFile> fileUpdates;
 
    public JournalRecord(final JournalFile addFile, final int size) {
-      checkNotNull(addFile);
-
-      this.addFile = addFile;
+      this.addFile = Objects.requireNonNull(addFile);
 
       this.size = size;
 

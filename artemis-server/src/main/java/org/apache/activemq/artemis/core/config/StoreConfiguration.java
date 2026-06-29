@@ -26,4 +26,8 @@ public interface StoreConfiguration extends Serializable {
    }
 
    StoreType getStoreType();
+
+   default int getAllowedPageSize(int pageSize) {
+      return pageSize;
+   }
 }

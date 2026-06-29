@@ -41,6 +41,10 @@ public interface RoutingContext {
 
    MirrorOption getMirrorOption();
 
+   boolean isDivertDisabled();
+
+   void disableDivert();
+
    void forEachDurable(Consumer<Queue> consumer);
 
    RoutingContext setMirrorOption(MirrorOption option);
@@ -49,8 +53,10 @@ public interface RoutingContext {
 
    boolean isMirrorIndividualRoute();
 
-   /** return true if every queue routed is internal */
-   boolean isInternal();
+   /**
+    * return true if every queue routed is internal or temporary
+    */
+   boolean isMirrorIgnore();
 
    MirrorController getMirrorSource();
 

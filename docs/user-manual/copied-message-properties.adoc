@@ -1,6 +1,7 @@
 = Properties for Copied Messages
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 There are several operations within the broker that result in copying a message.
 These include:

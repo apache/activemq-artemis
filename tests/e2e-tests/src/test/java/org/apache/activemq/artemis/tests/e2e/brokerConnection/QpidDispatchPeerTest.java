@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.e2e.brokerConnection;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -27,18 +29,17 @@ import javax.jms.Session;
 
 import org.apache.activemq.artemis.tests.e2e.common.E2ETestBase;
 import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * You need to build the Artemis Centos image before this test is executed.
- * Follow the instructions under artemis-docker and build the Docker-centos image.
+ * You need to build the Artemis Docker image with 'mvn install -De2e-tests.skipImageBuild=false' before this test is
+ * executed.
  */
 public class QpidDispatchPeerTest extends E2ETestBase {
 
@@ -50,18 +51,18 @@ public class QpidDispatchPeerTest extends E2ETestBase {
 
    static ContainerService service = ContainerService.getService();
 
-   @Before
+   @BeforeEach
    public void disableThreadcheck() {
       disableCheckThread();
    }
 
    private static final String QDR_HOME = basedir + "/target/brokerConnect/qdr";
 
-   @BeforeClass
+   @BeforeAll
    public static void startServers() throws Exception {
       ValidateContainer.assumeArtemisContainer();
 
-      Assert.assertNotNull(basedir);
+      assertNotNull(basedir);
 
       network = service.newNetwork();
 
@@ -87,7 +88,7 @@ public class QpidDispatchPeerTest extends E2ETestBase {
 
    }
 
-   @AfterClass
+   @AfterAll
    public static void stopServer() {
       service.stop(artemisServer);
       service.stop(qpidServer);
@@ -127,7 +128,7 @@ public class QpidDispatchPeerTest extends E2ETestBase {
 
             for (int i = 0; i < numberOfMessages; i++) {
                Message message = consumer.receive(5000);
-               Assert.assertNotNull(message);
+               assertNotNull(message);
             }
 
             connectionConsumer.close();
@@ -170,7 +171,7 @@ public class QpidDispatchPeerTest extends E2ETestBase {
 
          for (int i = 0; i < numberOfMessages; i++) {
             Message message = consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
          }
 
          connectionConsumer.close();

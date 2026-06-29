@@ -50,11 +50,11 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
    private final long remoteQueueID;
 
-   private final Filter queueFilter;
-
    private final Set<Filter> filters = new HashSet<>();
 
    private final Map<SimpleString, Integer> filterCounts = new HashMap<>();
+
+   private Filter queueFilter;
 
    private int consumerCount;
 
@@ -156,7 +156,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
    @Override
    public synchronized boolean isHighAcceptPriority(final Message message) {
-      if (consumerCount == 0 || messageLoadBalancingType.equals(MessageLoadBalancingType.OFF)) {
+      if (consumerCount <= 0 || messageLoadBalancingType.equals(MessageLoadBalancingType.OFF)) {
          return false;
       }
 
@@ -242,7 +242,10 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
          }
       }
 
-      consumerCount--;
+      if (--consumerCount < 0) {
+         consumerCount = 0;
+      }
+
    }
 
    @Override
@@ -317,10 +320,8 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
    }
 
    /**
-    * This will add routing information to the message.
-    * This will be later processed during the delivery between the nodes. Because of that this has to be persisted as a property on the message.
-    *
-    * @param message
+    * This will add routing information to the message. This will be later processed during the delivery between the
+    * nodes. Because of that this has to be persisted as a property on the message.
     */
    private void addRouteContextToMessage(final Message message) {
       byte[] ids = message.getExtraBytesProperty(idsHeaderName);
@@ -349,6 +350,11 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
    @Override
    public long getRemoteQueueID() {
       return remoteQueueID;
+   }
+
+   @Override
+   public void setFilter(Filter filter) {
+      this.queueFilter = filter;
    }
 
    @Override

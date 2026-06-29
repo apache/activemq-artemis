@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.core.security;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import static org.apache.activemq.artemis.core.security.CheckType.BROWSE;
 import static org.apache.activemq.artemis.core.security.CheckType.CONSUME;
 import static org.apache.activemq.artemis.core.security.CheckType.CREATE_ADDRESS;
@@ -28,94 +25,109 @@ import static org.apache.activemq.artemis.core.security.CheckType.DELETE_DURABLE
 import static org.apache.activemq.artemis.core.security.CheckType.DELETE_NON_DURABLE_QUEUE;
 import static org.apache.activemq.artemis.core.security.CheckType.MANAGE;
 import static org.apache.activemq.artemis.core.security.CheckType.SEND;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RoleTest extends Assert {
+import org.junit.jupiter.api.Test;
+
+public class RoleTest {
 
 
 
    @Test
    public void testWriteRole() throws Exception {
-      Role role = new Role("testWriteRole", true, false, false, false, false, false, false, false, false, false);
-      Assert.assertTrue(SEND.hasRole(role));
-      Assert.assertFalse(CONSUME.hasRole(role));
-      Assert.assertFalse(CREATE_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(CREATE_NON_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(DELETE_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(DELETE_NON_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(MANAGE.hasRole(role));
-      Assert.assertFalse(BROWSE.hasRole(role));
-      Assert.assertFalse(CREATE_ADDRESS.hasRole(role));
+      Role role = new Role("testWriteRole", true, false, false, false, false, false, false, false, false, false, false, false);
+      assertTrue(SEND.hasRole(role));
+      assertFalse(CONSUME.hasRole(role));
+      assertFalse(CREATE_DURABLE_QUEUE.hasRole(role));
+      assertFalse(CREATE_NON_DURABLE_QUEUE.hasRole(role));
+      assertFalse(DELETE_DURABLE_QUEUE.hasRole(role));
+      assertFalse(DELETE_NON_DURABLE_QUEUE.hasRole(role));
+      assertFalse(MANAGE.hasRole(role));
+      assertFalse(BROWSE.hasRole(role));
+      assertFalse(CREATE_ADDRESS.hasRole(role));
    }
 
    @Test
    public void testReadRole() throws Exception {
-      Role role = new Role("testReadRole", false, true, false, false, false, false, false, true, false, false);
-      Assert.assertFalse(SEND.hasRole(role));
-      Assert.assertTrue(CONSUME.hasRole(role));
-      Assert.assertFalse(CREATE_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(CREATE_NON_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(DELETE_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(DELETE_NON_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(MANAGE.hasRole(role));
-      Assert.assertTrue(BROWSE.hasRole(role));
-      Assert.assertFalse(CREATE_ADDRESS.hasRole(role));
+      Role role = new Role("testReadRole", false, true, false, false, false, false, false, true, false, false, false, false);
+      assertFalse(SEND.hasRole(role));
+      assertTrue(CONSUME.hasRole(role));
+      assertFalse(CREATE_DURABLE_QUEUE.hasRole(role));
+      assertFalse(CREATE_NON_DURABLE_QUEUE.hasRole(role));
+      assertFalse(DELETE_DURABLE_QUEUE.hasRole(role));
+      assertFalse(DELETE_NON_DURABLE_QUEUE.hasRole(role));
+      assertFalse(MANAGE.hasRole(role));
+      assertTrue(BROWSE.hasRole(role));
+      assertFalse(CREATE_ADDRESS.hasRole(role));
    }
 
    @Test
    public void testCreateRole() throws Exception {
-      Role role = new Role("testCreateRole", false, false, true, false, false, false, false, false, false, false);
-      Assert.assertFalse(SEND.hasRole(role));
-      Assert.assertFalse(CONSUME.hasRole(role));
-      Assert.assertTrue(CREATE_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(CREATE_NON_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(DELETE_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(DELETE_NON_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(MANAGE.hasRole(role));
-      Assert.assertFalse(BROWSE.hasRole(role));
-      Assert.assertFalse(CREATE_ADDRESS.hasRole(role));
+      Role role = new Role("testCreateRole", false, false, true, false, false, false, false, false, false, false, false, false);
+      assertFalse(SEND.hasRole(role));
+      assertFalse(CONSUME.hasRole(role));
+      assertTrue(CREATE_DURABLE_QUEUE.hasRole(role));
+      assertFalse(CREATE_NON_DURABLE_QUEUE.hasRole(role));
+      assertFalse(DELETE_DURABLE_QUEUE.hasRole(role));
+      assertFalse(DELETE_NON_DURABLE_QUEUE.hasRole(role));
+      assertFalse(MANAGE.hasRole(role));
+      assertFalse(BROWSE.hasRole(role));
+      assertFalse(CREATE_ADDRESS.hasRole(role));
    }
 
    @Test
    public void testManageRole() throws Exception {
-      Role role = new Role("testManageRole", false, false, false, false, false, false, true, false, false, false);
-      Assert.assertFalse(SEND.hasRole(role));
-      Assert.assertFalse(CONSUME.hasRole(role));
-      Assert.assertFalse(CREATE_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(CREATE_NON_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(DELETE_DURABLE_QUEUE.hasRole(role));
-      Assert.assertFalse(DELETE_NON_DURABLE_QUEUE.hasRole(role));
-      Assert.assertTrue(MANAGE.hasRole(role));
-      Assert.assertFalse(BROWSE.hasRole(role));
-      Assert.assertFalse(CREATE_ADDRESS.hasRole(role));
+      Role role = new Role("testManageRole", false, false, false, false, false, false, true, false, false, false, false, false);
+      assertFalse(SEND.hasRole(role));
+      assertFalse(CONSUME.hasRole(role));
+      assertFalse(CREATE_DURABLE_QUEUE.hasRole(role));
+      assertFalse(CREATE_NON_DURABLE_QUEUE.hasRole(role));
+      assertFalse(DELETE_DURABLE_QUEUE.hasRole(role));
+      assertFalse(DELETE_NON_DURABLE_QUEUE.hasRole(role));
+      assertTrue(MANAGE.hasRole(role));
+      assertFalse(BROWSE.hasRole(role));
+      assertFalse(CREATE_ADDRESS.hasRole(role));
    }
 
    @Test
    public void testEqualsAndHashcode() throws Exception {
-      Role role = new Role("testEquals", true, true, true, false, false, false, false, false, false, false);
-      Role sameRole = new Role("testEquals", true, true, true, false, false, false, false, false, false, false);
-      Role roleWithDifferentName = new Role("notEquals", true, true, true, false, false, false, false, false, false, false);
-      Role roleWithDifferentRead = new Role("testEquals", false, true, true, false, false, false, false, false, false, false);
-      Role roleWithDifferentWrite = new Role("testEquals", true, false, true, false, false, false, false, false, false, false);
-      Role roleWithDifferentCreate = new Role("testEquals", true, true, false, false, false, false, false, false, false, false);
+      Role role = new Role("testEquals", true, true, true, false, false, false, false, false, false, false, false, false);
+      Role sameRole = new Role("testEquals", true, true, true, false, false, false, false, false, false, false, false, false);
+      Role roleWithDifferentName = new Role("notEquals", true, true, true, false, false, false, false, false, false, false, false, false);
+      Role roleWithDifferentRead = new Role("testEquals", false, true, true, false, false, false, false, false, false, false, false, false);
+      Role roleWithDifferentWrite = new Role("testEquals", true, false, true, false, false, false, false, false, false, false, false, false);
+      Role roleWithDifferentCreate = new Role("testEquals", true, true, false, false, false, false, false, false, false, false, false, false);
 
-      Assert.assertTrue(role.equals(role));
+      Role roleWithDifferentView = new Role("testEquals", true, true, true, false, false, false, false, false, false, false, true, false);
+      Role roleWithDifferentUpdate = new Role("testEquals", true, true, true, false, false, false, false, false, false, false, false, true);
 
-      Assert.assertTrue(role.equals(sameRole));
-      Assert.assertTrue(role.hashCode() == sameRole.hashCode());
+      assertTrue(role.equals(role));
 
-      Assert.assertFalse(role.equals(roleWithDifferentName));
-      Assert.assertFalse(role.hashCode() == roleWithDifferentName.hashCode());
+      assertTrue(role.equals(sameRole));
+      assertEquals(role.hashCode(), sameRole.hashCode());
 
-      Assert.assertFalse(role.equals(roleWithDifferentRead));
-      Assert.assertFalse(role.hashCode() == roleWithDifferentRead.hashCode());
+      assertFalse(role.equals(roleWithDifferentName));
+      assertNotEquals(role.hashCode(), roleWithDifferentName.hashCode());
 
-      Assert.assertFalse(role.equals(roleWithDifferentWrite));
-      Assert.assertFalse(role.hashCode() == roleWithDifferentWrite.hashCode());
+      assertFalse(role.equals(roleWithDifferentRead));
+      assertNotEquals(role.hashCode(), roleWithDifferentRead.hashCode());
 
-      Assert.assertFalse(role.equals(roleWithDifferentCreate));
-      Assert.assertFalse(role.hashCode() == roleWithDifferentCreate.hashCode());
+      assertFalse(role.equals(roleWithDifferentWrite));
+      assertNotEquals(role.hashCode(), roleWithDifferentWrite.hashCode());
 
-      Assert.assertFalse(role.equals(null));
+      assertFalse(role.equals(roleWithDifferentCreate));
+      assertNotEquals(role.hashCode(), roleWithDifferentCreate.hashCode());
+
+      assertFalse(role.equals(roleWithDifferentView));
+      assertNotEquals(role.hashCode(), roleWithDifferentView.hashCode());
+
+      assertFalse(role.equals(roleWithDifferentUpdate));
+      assertNotEquals(role.hashCode(), roleWithDifferentUpdate.hashCode());
+
+      assertFalse(role.equals(null));
    }
 
 

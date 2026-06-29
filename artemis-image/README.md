@@ -19,7 +19,7 @@ An _empty_, _open_, _default_ broker with an acceptor on port 61616
 First build an OCI image tar file from this artemis project using mvn. 
 The image wraps a plain java application based on a jre image. You should note the default `fromImage` property in the pom.xml and potentially override using `-DfromImage=<image url>` with your choice, as it may be out of date.
 
-To build the image, use:
+To build the image, from this directory, use:
 
  `$> mvn compile jib:buildTar@now`
 

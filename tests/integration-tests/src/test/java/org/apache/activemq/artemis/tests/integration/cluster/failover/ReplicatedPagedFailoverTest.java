@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -28,31 +29,27 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.utils.RetryMethod;
-import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
 
-   @Rule
-   public RetryRule retryRule = new RetryRule(0);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,
                                                      final Configuration configuration,
                                                      final NodeManager nodeManager,
                                                      int id) {
-      return createInVMFailoverServer(realFiles, configuration, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>(), nodeManager, id);
-   }
-
-   @Override
-   @Test
-   public void testFailWithBrowser() throws Exception {
-      internalBrowser(0);
+      return createInVMFailoverServer(realFiles, configuration, PAGE_SIZE, PAGE_MAX, new HashMap<>(), nodeManager, id);
    }
 
    @Test
@@ -66,91 +63,118 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
    }
 
    @Override
-   @RetryMethod(retries = 2)
-   @Test(timeout = 120000)
+   @Test
+   @Timeout(120)
    public void testReplicatedFailback() throws Exception {
       super.testReplicatedFailback();
-   }
-
-   @Override
-   @RetryMethod(retries = 2)
-   @Test(timeout = 120000)
-   public void testFailoverOnInitialConnection() throws Exception {
-      super.testFailoverOnInitialConnection();
    }
 
    //
    // 0 - no tamper
    // 1 - close files
    // 2 - remove files
-   private void internalBrowser(int temperMode) throws Exception {
+   private void internalBrowser(int tamperMode) throws Exception {
       int numMessages = 50;
       int messagesPerPage = 10;
-      int iterations = 10;
       createSessionFactory();
       ClientSession session = createSession(sf, true, true);
 
-      session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS).setDurable(true));
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
 
-      Queue queue = liveServer.getServer().locateQueue(FailoverTest.ADDRESS);
+      Queue queue = primaryServer.getServer().locateQueue(FailoverTest.ADDRESS);
 
-      for (int j = 0; j < iterations; j++) {
-         System.err.println("#iteration " + j);
-         queue.getPageSubscription().getPagingStore().startPaging();
-         Assert.assertNotNull(queue);
+      queue.getPageSubscription().getPagingStore().startPaging();
+      assertNotNull(queue);
+
+      for (int i = 0; i < numMessages; i++) {
+         // some are durable, some are not!
+         producer.send(createMessage(session, i, i % 2 == 0));
+         if (i > 0 && i % messagesPerPage == 0) {
+            queue.getPageSubscription().getPagingStore().forceAnotherPage(true);
+         }
+      }
+
+      try (ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS, true)) {
+         session.start();
 
          for (int i = 0; i < numMessages; i++) {
-            // some are durable, some are not!
-            producer.send(createMessage(session, i, i % 2 == 0));
-            if (i > 0 && i % messagesPerPage == 0) {
-               queue.getPageSubscription().getPagingStore().forceAnotherPage();
-            }
+            ClientMessage msg = consumer.receive(500);
+            Assertions.assertNotNull(msg);
          }
+      }
 
-         ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS, true);
+      PagingStore store = queue.getPageSubscription().getPagingStore();
 
+      // tampering with the system's file
+      if (tamperMode == 1) {
+         for (long pageID = store.getFirstPage(); pageID <= store.getCurrentPage().getPageId() + 10; pageID++) {
+            primaryServer.getServer().getStorageManager().pageClosed(store.getStoreName(), (int) pageID);
+         }
+      } else if (tamperMode == 2) {
+         for (long pageID = store.getFirstPage(); pageID <= store.getCurrentPage().getPageId() + 10; pageID++) {
+            primaryServer.getServer().getStorageManager().pageDeleted(store.getStoreName(), (int) pageID);
+         }
+      }
+
+      try (ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS, false)) {
          session.start();
 
-         while (true) {
+         for (int i = 0; i < numMessages; i++) {
             ClientMessage msg = consumer.receive(500);
-            if (msg == null) {
-               break;
-            }
-         }
-         consumer.close();
-
-         PagingStore store = queue.getPageSubscription().getPagingStore();
-
-         if (temperMode == 1) {
-            // this is tampering with the system causing an artifical issue. The system should still heal itself.
-            for (long pageID = store.getFirstPage(); pageID <= store.getCurrentPage().getPageId() + 10; pageID++) {
-               liveServer.getServer().getStorageManager().pageClosed(store.getStoreName(), (int) pageID);
-            }
-         }  else if (temperMode == 2) {
-            // this is tampering with the system causing an artifical issue. The system should still heal itself.
-            for (long pageID = store.getFirstPage(); pageID <= store.getCurrentPage().getPageId() + 10; pageID++) {
-               liveServer.getServer().getStorageManager().pageDeleted(store.getStoreName(), (int) pageID);
-            }
-         }
-         store.getFirstPage();
-         store.getCurrentPage().getPageId();
-
-         consumer = session.createConsumer(FailoverTestBase.ADDRESS, false);
-         session.start();
-
-         while (true) {
-            ClientMessage msg = consumer.receive(500);
-            if (msg == null) {
+            if (msg == null) { // the system was tampered, we will receive fewer messages than expected
                break;
             }
             msg.acknowledge();
          }
-         consumer.close();
-
-         Wait.assertFalse(queue.getPageSubscription().getPagingStore()::isPaging);
       }
 
+      Wait.assertFalse(queue.getPageSubscription().getPagingStore()::isPaging);
    }
+
+   @Test
+   public void testMultipleCleanup() throws Exception {
+      int numMessages = 50;
+      int repeats = 3;
+      createSessionFactory();
+      try (ClientSession session = createSession(sf, false, false)) {
+
+         session.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS).setDurable(true));
+
+         ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
+
+         Queue queue = primaryServer.getServer().locateQueue(FailoverTest.ADDRESS);
+
+         for (int runNumber = 0; runNumber < repeats; runNumber++) {
+
+            logger.info("Repeat #{}", runNumber);
+
+            assertTrue(queue.getPageSubscription().getPagingStore().startPaging());
+            assertNotNull(queue);
+
+            for (int i = 0; i < numMessages; i++) {
+               logger.debug("Send {}", i);
+               producer.send(createMessage(session, i, true));
+            }
+            session.commit();
+
+            try (ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS, false)) {
+               session.start();
+
+               for (int i = 0; i < numMessages; i++) {
+                  ClientMessage msg = consumer.receive(500);
+                  Assertions.assertNotNull(msg);
+                  msg.acknowledge();
+                  logger.debug("consumed {}", i);
+               }
+               assertNull(consumer.receiveImmediate());
+            }
+            session.commit();
+
+            Wait.assertFalse(queue.getPageSubscription().getPagingStore()::isPaging, 5000, 100);
+         }
+      }
+   }
+
 }

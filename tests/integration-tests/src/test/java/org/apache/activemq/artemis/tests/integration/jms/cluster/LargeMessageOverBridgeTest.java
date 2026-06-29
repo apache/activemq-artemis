@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.MapMessage;
@@ -34,12 +38,13 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    // TODO: find a solution to this
@@ -53,7 +58,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
       return persistent;
    }
 
-   @Parameterized.Parameters(name = "persistent={0}")
+   @Parameters(name = "persistent={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -71,10 +76,8 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    /**
     * This was causing a text message to ber eventually converted into large message when sent over the bridge
-    *
-    * @throws Exception
     */
-   @Test
+   @TestTemplate
    public void testSendHalfLargeTextMessage() throws Exception {
       createQueue(QUEUE);
 
@@ -88,21 +91,17 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
       MessageConsumer cons2 = session2.createConsumer(queue);
       conn2.start();
 
-      StringBuffer buffer = new StringBuffer();
-
-      for (int i = 0; i < 51180; i++) {
-         buffer.append('a');
-      }
+      final String text = "a".repeat(51180);
 
       for (int i = 0; i < 10; i++) {
-         TextMessage msg = session1.createTextMessage(buffer.toString());
+         TextMessage msg = session1.createTextMessage(text);
          prod1.send(msg);
       }
 
       TextMessage msg2 = (TextMessage) cons2.receive(5000);
       assertNotNull(msg2);
 
-      assertEquals(buffer.toString(), msg2.getText());
+      assertEquals(text, msg2.getText());
 
       conn1.close();
       conn2.close();
@@ -111,10 +110,8 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    /**
     * This was causing a text message to ber eventually converted into large message when sent over the bridge
-    *
-    * @throws Exception
     */
-   @Test
+   @TestTemplate
    public void testSendMapMessageOverCluster() throws Exception {
       createQueue("jms." + QUEUE);
 
@@ -128,24 +125,20 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
       MessageConsumer cons2 = session2.createConsumer(queue);
       conn2.start();
 
-      StringBuffer buffer = new StringBuffer();
-
-      for (int i = 0; i < 3810002; i++) {
-         buffer.append('a');
-      }
+      final String body = "a".repeat(3810002);
 
       final int NUMBER_OF_MESSAGES = 1;
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          MapMessage msg = session1.createMapMessage();
-         msg.setString("str", buffer.toString());
+         msg.setString("str", body);
          msg.setIntProperty("i", i);
          prod1.send(msg);
       }
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          MapMessage msg = (MapMessage) cons2.receive(5000);
-         assertEquals(buffer.toString(), msg.getString("str"));
+         assertEquals(body, msg.getString("str"));
       }
 
       assertNull(cons2.receiveNoWait());
@@ -157,8 +150,6 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    /**
     * the hack to create the failing condition in certain tests
-    *
-    * @param config
     */
    private void installHack(Configuration config) {
       if (this.getName().equals("testSendBytesAsLargeOnBridgeOnly")) {
@@ -179,10 +170,8 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    /**
     * This was causing a text message to ber eventually converted into large message when sent over the bridge
-    *
-    * @throws Exception
     */
-   @Test
+   @TestTemplate
    public void testSendBytesAsLargeOnBridgeOnly() throws Exception {
       createQueue(QUEUE);
 
@@ -216,7 +205,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
          msg2.acknowledge();
 
          for (int j = 0; j < bytes.length; j++) {
-            assertEquals("Position " + i, msg2.readByte(), bytes[j]);
+            assertEquals(msg2.readByte(), bytes[j], "Position " + i);
          }
       }
 
@@ -226,10 +215,8 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    /**
     * The message won't be large to the client while it will be considered large through the bridge
-    *
-    * @throws Exception
     */
-   @Test
+   @TestTemplate
    public void testSendLargeForBridge() throws Exception {
       createQueue(QUEUE);
 
@@ -267,7 +254,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
          msg2.acknowledge();
 
          for (int j = 0; j < bytes.length; j++) {
-            assertEquals("Position " + i, msg2.readByte(), bytes[j]);
+            assertEquals(msg2.readByte(), bytes[j], "Position " + i);
          }
       }
 

@@ -26,18 +26,12 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * ActiveMQQueueSender.
+ * A wrapper for a {@link TopicPublisher}.
  */
 public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implements TopicPublisher {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Create a new wrapper
-    *
-    * @param producer the producer
-    * @param session  the session
-    */
    public ActiveMQRATopicPublisher(final TopicPublisher producer, final ActiveMQRASession session) {
       super(producer, session);
 
@@ -45,10 +39,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
    }
 
    /**
-    * Get the topic
-    *
-    * @return The topic
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Topic getTopic() throws JMSException {
@@ -58,13 +49,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
    }
 
    /**
-    * Publish message
-    *
-    * @param message      The message
-    * @param deliveryMode The delivery mode
-    * @param priority     The priority
-    * @param timeToLive   The time to live
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void publish(final Message message,
@@ -89,10 +74,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
    }
 
    /**
-    * Publish message
-    *
-    * @param message The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void publish(final Message message) throws JMSException {
@@ -111,14 +93,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
    }
 
    /**
-    * Publish message
-    *
-    * @param destination  The destination
-    * @param message      The message
-    * @param deliveryMode The delivery mode
-    * @param priority     The priority
-    * @param timeToLive   The time to live
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void publish(final Topic destination,
@@ -144,11 +119,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
    }
 
    /**
-    * Publish message
-    *
-    * @param destination The destination
-    * @param message     The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void publish(final Topic destination, final Message message) throws JMSException {

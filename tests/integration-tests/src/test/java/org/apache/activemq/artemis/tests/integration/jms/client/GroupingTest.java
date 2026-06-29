@@ -16,6 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSConsumer;
@@ -41,19 +50,15 @@ import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/**
- * GroupingTest
- */
 public class GroupingTest extends JMSTestBase {
 
    private Queue queue;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -61,7 +66,7 @@ public class GroupingTest extends JMSTestBase {
    }
 
    protected void setProperty(Message message) {
-      ((ActiveMQMessage) message).getCoreMessage().putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, new SimpleString("foo"));
+      ((ActiveMQMessage) message).getCoreMessage().putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, SimpleString.of("foo"));
    }
 
    protected ConnectionFactory getCF() throws Exception {
@@ -123,8 +128,8 @@ public class GroupingTest extends JMSTestBase {
    @Test
    public void testGroupingWithJMS2Producer() throws Exception {
       ConnectionFactory fact = getCF();
-      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
-      Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
+      assumeFalse(((ActiveMQConnectionFactory) fact).isAutoGroup(), "only makes sense withOUT auto-group");
+      assumeTrue(((ActiveMQConnectionFactory) fact).getGroupID() == null, "only makes sense withOUT explicit group-id");
       final String groupID = UUID.randomUUID().toString();
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -175,7 +180,7 @@ public class GroupingTest extends JMSTestBase {
    @Test
    public void testManyGroups() throws Exception {
       ConnectionFactory fact = getCF();
-      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
+      assumeFalse(((ActiveMQConnectionFactory) fact).isAutoGroup(), "only makes sense withOUT auto-group");
 
       Connection connection = fact.createConnection();
 
@@ -309,12 +314,12 @@ public class GroupingTest extends JMSTestBase {
    @Test
    public void testGroupBuckets() throws Exception {
       ConnectionFactory fact = getCF();
-      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
-      Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
+      assumeFalse(((ActiveMQConnectionFactory) fact).isAutoGroup(), "only makes sense withOUT auto-group");
+      assumeTrue(((ActiveMQConnectionFactory) fact).getGroupID() == null, "only makes sense withOUT explicit group-id");
 
       String testQueueName = getName() + "_bucket_group";
 
-      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupBuckets(2));
+      server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupBuckets(2));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -358,13 +363,13 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+         assertEquals(groupID1, tm.getStringProperty("JMSXGroupID"));
 
          tm = (TextMessage) consumer2.receive(10000);
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + (j + 10), tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+         assertEquals(groupID2, tm.getStringProperty("JMSXGroupID"));
 
          assertNull(consumer3.receiveNoWait());
       }
@@ -375,7 +380,7 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+         assertEquals(groupID3, tm.getStringProperty("JMSXGroupID"));
 
          assertNull(consumer2.receiveNoWait());
          assertNull(consumer3.receiveNoWait());
@@ -391,11 +396,11 @@ public class GroupingTest extends JMSTestBase {
    @Test
    public void testGroupRebalance() throws Exception {
       ConnectionFactory fact = getCF();
-      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
-      Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
+      assumeFalse(((ActiveMQConnectionFactory) fact).isAutoGroup(), "only makes sense withOUT auto-group");
+      assumeTrue(((ActiveMQConnectionFactory) fact).getGroupID() == null, "only makes sense withOUT explicit group-id");
       String testQueueName = getName() + "_group_rebalance";
 
-      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true));
+      server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -434,7 +439,7 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+         assertEquals(groupID1, tm.getStringProperty("JMSXGroupID"));
       }
 
       //Second set of msgs should go to the second consumers only
@@ -447,7 +452,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+         assertEquals(groupID2, tm.getStringProperty("JMSXGroupID"));
       }
 
       //Third set of msgs should go to the first consumer only
@@ -460,7 +465,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+         assertEquals(groupID3, tm.getStringProperty("JMSXGroupID"));
       }
       ctx.commit();
 
@@ -484,7 +489,7 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+         assertEquals(groupID1, tm.getStringProperty("JMSXGroupID"));
       }
 
       //Second set of msgs should go to the second consumers only
@@ -497,7 +502,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+         assertEquals(groupID2, tm.getStringProperty("JMSXGroupID"));
       }
 
       //Third set of msgs should now go to the third consumer now
@@ -510,7 +515,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+         assertEquals(groupID3, tm.getStringProperty("JMSXGroupID"));
       }
 
       ctx.commit();
@@ -519,20 +524,20 @@ public class GroupingTest extends JMSTestBase {
    }
 
    /**
-    * This tests ensures that when we have group rebalance and pause dispatch,
-    * the broker pauses dispatch of new messages to consumers whilst rebalance and awaits existing inflight messages to be handled before restarting dispatch with new reblanced group allocations,
-    * this allows us to provide a guarantee of message ordering even with rebalance, at the expense that during rebalance dispatch will pause till all consumers with inflight messages are handled.
-    *
-    * @throws Exception
+    * This tests ensures that when we have group rebalance and pause dispatch, the broker pauses dispatch of new
+    * messages to consumers whilst rebalance and awaits existing inflight messages to be handled before restarting
+    * dispatch with new reblanced group allocations, this allows us to provide a guarantee of message ordering even with
+    * rebalance, at the expense that during rebalance dispatch will pause till all consumers with inflight messages are
+    * handled.
     */
    @Test
    public void testGroupRebalancePauseDispatch() throws Exception {
       ConnectionFactory fact = getCF();
-      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
-      Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
+      assumeFalse(((ActiveMQConnectionFactory) fact).isAutoGroup(), "only makes sense withOUT auto-group");
+      assumeTrue(((ActiveMQConnectionFactory) fact).getGroupID() == null, "only makes sense withOUT explicit group-id");
       String testQueueName = getName() + "_group_rebalance";
 
-      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true).setGroupRebalancePauseDispatch(true));
+      server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true).setGroupRebalancePauseDispatch(true));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -571,7 +576,7 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+         assertEquals(groupID1, tm.getStringProperty("JMSXGroupID"));
       }
       ctx.commit();
 
@@ -586,7 +591,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+         assertEquals(groupID2, tm.getStringProperty("JMSXGroupID"));
       }
       ctx.commit();
 
@@ -620,7 +625,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+         assertEquals(groupID3, tm.getStringProperty("JMSXGroupID"));
       }
       ctx.commit();
 
@@ -632,7 +637,7 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+         assertEquals(groupID1, tm.getStringProperty("JMSXGroupID"));
       }
 
       //Second set of msgs should go to the second consumers only
@@ -645,7 +650,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+         assertEquals(groupID2, tm.getStringProperty("JMSXGroupID"));
       }
 
       //Third set of msgs should now go to the third consumer now
@@ -658,7 +663,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+         assertEquals(groupID3, tm.getStringProperty("JMSXGroupID"));
       }
 
       ctx.commit();
@@ -672,11 +677,11 @@ public class GroupingTest extends JMSTestBase {
    public void testGroupFirstKey() throws Exception {
       String customFirstGroupKey = "my-custom-key";
       ConnectionFactory fact = getCF();
-      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
-      Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
+      assumeFalse(((ActiveMQConnectionFactory) fact).isAutoGroup(), "only makes sense withOUT auto-group");
+      assumeTrue(((ActiveMQConnectionFactory) fact).getGroupID() == null, "only makes sense withOUT explicit group-id");
       String testQueueName = getName() + "_group_first_key";
 
-      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true).setGroupFirstKey(customFirstGroupKey));
+      server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupRebalance(true).setGroupFirstKey(customFirstGroupKey));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -715,7 +720,7 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+         assertEquals(groupID1, tm.getStringProperty("JMSXGroupID"));
          if (j == 0) {
             assertTrue(tm.getBooleanProperty(customFirstGroupKey));
          } else {
@@ -733,7 +738,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+         assertEquals(groupID2, tm.getStringProperty("JMSXGroupID"));
 
          if (j == 10) {
             assertTrue(tm.getBooleanProperty(customFirstGroupKey));
@@ -752,7 +757,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+         assertEquals(groupID3, tm.getStringProperty("JMSXGroupID"));
 
          if (j == 20) {
             assertTrue(tm.getBooleanProperty(customFirstGroupKey));
@@ -768,11 +773,11 @@ public class GroupingTest extends JMSTestBase {
    @Test
    public void testGroupDisable() throws Exception {
       ConnectionFactory fact = getCF();
-      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
-      Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
+      assumeFalse(((ActiveMQConnectionFactory) fact).isAutoGroup(), "only makes sense withOUT auto-group");
+      assumeTrue(((ActiveMQConnectionFactory) fact).getGroupID() == null, "only makes sense withOUT explicit group-id");
       String testQueueName = getName() + "_group_disable";
 
-      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupBuckets(0));
+      server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST).setGroupBuckets(0));
 
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
@@ -867,7 +872,7 @@ public class GroupingTest extends JMSTestBase {
          MessageProducer producer = session.createProducer(queue);
 
 
-         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(testQueueName));
+         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(testQueueName));
          assertEquals(4, queueBinding.getQueue().getGroupBuckets());
       } finally {
          connection.close();
@@ -896,7 +901,7 @@ public class GroupingTest extends JMSTestBase {
          MessageProducer producer = session.createProducer(queue);
 
 
-         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(testQueueName));
+         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(testQueueName));
          assertTrue(queueBinding.getQueue().isGroupRebalance());
       } finally {
          connection.close();
@@ -925,7 +930,7 @@ public class GroupingTest extends JMSTestBase {
          MessageProducer producer = session.createProducer(queue);
 
 
-         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(testQueueName));
+         QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(testQueueName));
          assertEquals("my-custom-key", queueBinding.getQueue().getGroupFirstKey().toString());
       } finally {
          connection.close();

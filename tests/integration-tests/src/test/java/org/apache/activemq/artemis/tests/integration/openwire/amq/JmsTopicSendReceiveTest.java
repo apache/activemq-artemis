@@ -22,7 +22,7 @@ import javax.jms.Session;
 import javax.jms.Topic;
 
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * adapted from: JmsTopicSendReceiveTest
@@ -30,7 +30,7 @@ import org.junit.Before;
 public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

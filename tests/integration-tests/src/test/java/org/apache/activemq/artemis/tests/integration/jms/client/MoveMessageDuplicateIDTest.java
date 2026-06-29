@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -31,22 +34,22 @@ import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class MoveMessageDuplicateIDTest extends JMSTestBase {
-
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public String protocol = "AMQP";
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameters(name = "protocol={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][]{{"AMQP"}, {"CORE"}, {"OPENWIRE"}});
    }
@@ -56,15 +59,14 @@ public class MoveMessageDuplicateIDTest extends JMSTestBase {
       return super.createDefaultConfig(netty).setMessageExpiryScanPeriod(50);
    }
 
-   @Test
+   @TestTemplate
    public void testTwoQueuesSingleDLQ() throws Exception {
-
       server.getAddressSettingsRepository().clear();
-      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("JUNKYARD")).setExpiryAddress(SimpleString.toSimpleString("JUNKYARD")).setMaxDeliveryAttempts(1));
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("JUNKYARD")).setExpiryAddress(SimpleString.of("JUNKYARD")).setMaxDeliveryAttempts(1));
 
       createQueue("JUNKYARD");
       Queue junkQueue = server.locateQueue("JUNKYARD");
-      Assert.assertNotNull(junkQueue);
+      assertNotNull(junkQueue);
       javax.jms.Queue queue1 = createQueue("q1");
       javax.jms.Queue queue2 = createQueue("q2");
 
@@ -87,11 +89,11 @@ public class MoveMessageDuplicateIDTest extends JMSTestBase {
       MessageConsumer consumer = sess.createConsumer(queue1);
       for (int i = 0; i < 100; i++) {
          TextMessage textMessage = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(textMessage);
+         assertNotNull(textMessage);
       }
       sess.rollback();
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
       consumer.close();
 
       Wait.assertEquals(100L, junkQueue::getMessageCount, 2000, 10);
@@ -99,11 +101,11 @@ public class MoveMessageDuplicateIDTest extends JMSTestBase {
       consumer = sess.createConsumer(queue2);
       for (int i = 0; i < 100; i++) {
          TextMessage textMessage = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(textMessage);
+         assertNotNull(textMessage);
       }
       sess.rollback();
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
 
       consumer.close();
       conn.close();
@@ -111,16 +113,16 @@ public class MoveMessageDuplicateIDTest extends JMSTestBase {
       Wait.assertEquals(200L, junkQueue::getMessageCount, 2000, 10);
    }
 
-   @Test
+   @TestTemplate
    public void testMultiplSubscriptionSingleExpire() throws Exception {
       server.getAddressSettingsRepository().clear();
-      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLQ")).setExpiryAddress(SimpleString.toSimpleString("DLQ")));
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("DLQ")).setExpiryAddress(SimpleString.of("DLQ")));
 
       createQueue("DLQ");
       Queue dlqServerQueue = server.locateQueue("DLQ");
-      Assert.assertNotNull(dlqServerQueue);
+      assertNotNull(dlqServerQueue);
       Topic topic = createTopic("test-topic");
-      AddressControl control = ManagementControlHelper.createAddressControl(new SimpleString(topic.getTopicName()), mbeanServer);
+      AddressControl control = ManagementControlHelper.createAddressControl(SimpleString.of(topic.getTopicName()), mbeanServer);
 
       ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
 
@@ -155,14 +157,14 @@ public class MoveMessageDuplicateIDTest extends JMSTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testTwoQueuesSingleExpire() throws Exception {
       server.getAddressSettingsRepository().clear();
-      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("JUNKYARD")).setExpiryAddress(SimpleString.toSimpleString("JUNKYARD")));
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("JUNKYARD")).setExpiryAddress(SimpleString.of("JUNKYARD")));
 
       createQueue("JUNKYARD");
       Queue junkQueue = server.locateQueue("JUNKYARD");
-      Assert.assertNotNull(junkQueue);
+      assertNotNull(junkQueue);
       javax.jms.Queue queue1 = createQueue("q1");
       javax.jms.Queue queue2 = createQueue("q2");
 

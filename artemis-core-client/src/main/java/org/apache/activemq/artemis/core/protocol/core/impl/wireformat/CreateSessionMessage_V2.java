@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 public class CreateSessionMessage_V2 extends CreateSessionMessage {
@@ -65,17 +67,14 @@ public class CreateSessionMessage_V2 extends CreateSessionMessage {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", metadata=" + clientID);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", metadata=" + clientID);
+      return sb.toString();
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((clientID == null) ? 0 : clientID.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(clientID);
    }
 
    @Override
@@ -86,15 +85,10 @@ public class CreateSessionMessage_V2 extends CreateSessionMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof CreateSessionMessage_V2)) {
+      if (!(obj instanceof CreateSessionMessage_V2 other)) {
          return false;
       }
-      CreateSessionMessage_V2 other = (CreateSessionMessage_V2) obj;
-      if (clientID == null) {
-         if (other.clientID != null)
-            return false;
-      } else if (!clientID.equals(other.clientID))
-         return false;
-      return true;
+
+      return Objects.equals(clientID, other.clientID);
    }
 }

@@ -16,29 +16,29 @@
  */
 package org.apache.activemq.artemis.service.extensions;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQXARecoveryLogger;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ServiceExtensionLogBundlesTest {
 
-   private static final String EXTENSIONS_LOGGER =  ActiveMQServiceExtensionLogger.class.getPackage().getName();
-   private static final String RECOVERY_LOGGER =  ActiveMQXARecoveryLogger.class.getPackage().getName();
+   private static final String EXTENSIONS_LOGGER = ActiveMQServiceExtensionLogger.class.getPackage().getName();
+   private static final String RECOVERY_LOGGER = ActiveMQXARecoveryLogger.class.getPackage().getName();
    private static LogLevel origExtensionsLoggerLevel;
    private static LogLevel origRecoveryLoggerLevel;
 
-   @BeforeClass
+   @BeforeAll
    public static void setLogLevel() {
       origExtensionsLoggerLevel = AssertionLoggerHandler.setLevel(EXTENSIONS_LOGGER, LogLevel.INFO);
       origRecoveryLoggerLevel = AssertionLoggerHandler.setLevel(RECOVERY_LOGGER, LogLevel.INFO);
    }
 
-   @AfterClass
+   @AfterAll
    public static void restoreLogLevel() throws Exception {
       AssertionLoggerHandler.setLevel(EXTENSIONS_LOGGER, origExtensionsLoggerLevel);
       AssertionLoggerHandler.setLevel(RECOVERY_LOGGER, origRecoveryLoggerLevel);

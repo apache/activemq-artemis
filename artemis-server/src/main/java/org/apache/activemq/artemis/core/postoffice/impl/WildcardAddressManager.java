@@ -22,8 +22,11 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 
 /**
  * extends the simple manager to allow wildcard addresses to be used.
@@ -39,17 +42,13 @@ public class WildcardAddressManager extends SimpleAddressManager {
       super(bindingsFactory, wildcardConfiguration, storageManager, metricsManager);
    }
 
-   public WildcardAddressManager(final BindingsFactory bindingsFactory,
-                                 final StorageManager storageManager,
-                                 final MetricsManager metricsManager) {
-      super(bindingsFactory, storageManager, metricsManager);
-   }
-
    // publish, may be a new address that needs wildcard bindings added
    // won't contain a wildcard because we don't ever route to a wildcards at this time
    @Override
    public Bindings getBindingsForRoutingAddress(final SimpleString address) throws Exception {
-      assert !isAWildcardAddress(address);
+      if (wildcardConfiguration.isWild(address)) {
+         throw ActiveMQMessageBundle.BUNDLE.wildcardOnProducerNotSupported(String.valueOf(address));
+      }
 
       Bindings bindings = super.getBindingsForRoutingAddress(address);
 
@@ -57,7 +56,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
 
          final Bindings[] lazyCreateResult = new Bindings[1];
 
-         addressMap.visitMatchingWildcards(address, new AddressMapVisitor<Bindings>() {
+         addressMap.visitMatchingWildcards(address, new AddressMapVisitor<>() {
 
             Bindings newBindings = null;
             @Override
@@ -83,9 +82,9 @@ public class WildcardAddressManager extends SimpleAddressManager {
    }
 
    /**
-    * If the address to add the binding to contains a wildcard then a copy of the binding (with the same underlying queue)
-    * will be added to matching addresses. If the address is non wildcard, then we need to add any existing matching wildcard
-    * bindings to this address the first time we see it.
+    * If the address to add the binding to contains a wildcard then a copy of the binding (with the same underlying
+    * queue) will be added to matching addresses. If the address is non wildcard, then we need to add any existing
+    * matching wildcard bindings to this address the first time we see it.
     *
     * @param binding the binding to add
     * @return true if the address was a new mapping
@@ -96,7 +95,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
       final SimpleString address = binding.getAddress();
       final Bindings bindingsForRoutingAddress = mappings.get(binding.getAddress());
 
-      if (isAWildcardAddress(address)) {
+      if (wildcardConfiguration.isWild(address)) {
 
          addressMap.visitMatching(address, bindings -> {
             // this wildcard binding needs to be added to matching addresses
@@ -124,17 +123,13 @@ public class WildcardAddressManager extends SimpleAddressManager {
       Binding binding = super.removeBinding(uniqueName, tx);
       if (binding != null) {
          SimpleString address = binding.getAddress();
-         if (isAWildcardAddress(address)) {
+         if (wildcardConfiguration.isWild(address)) {
 
             addressMap.visitMatching(address, bindings -> removeBindingInternal(bindings.getName(), uniqueName));
 
          }
       }
       return binding;
-   }
-
-   private boolean isAWildcardAddress(SimpleString address) {
-      return address.containsEitherOf(wildcardConfiguration.getAnyWords(), wildcardConfiguration.getSingleWord());
    }
 
    @Override
@@ -150,5 +145,12 @@ public class WildcardAddressManager extends SimpleAddressManager {
 
    public AddressMap<Bindings> getAddressMap() {
       return addressMap;
+   }
+
+   @Override
+   public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
+      addressMap.remove(realAddress, super.getBindingsForRoutingAddress(realAddress));
+      return super.removeAddressInfo(address);
    }
 }

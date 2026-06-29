@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -33,16 +35,17 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ExtremeCancelsTest extends JMSClientTestSupport {
 
-   private SimpleString anycastAddress = new SimpleString("theQueue");
+   private SimpleString anycastAddress = SimpleString.of("theQueue");
 
 
    @Override
@@ -57,7 +60,7 @@ public class ExtremeCancelsTest extends JMSClientTestSupport {
    }
 
 
-   @Parameterized.Parameters(name = "{index}: isAMQP={0}")
+   @Parameters(name = "{index}: isAMQP={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
          {true}, {false}
@@ -65,40 +68,36 @@ public class ExtremeCancelsTest extends JMSClientTestSupport {
    }
 
 
-   @Test(timeout = 120000)
+   @TestTemplate
+   @Timeout(120)
    public void testLotsOfCloseOpenConsumer() throws Exception {
 
-      server.createQueue(new QueueConfiguration(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastAddress).setRoutingType(RoutingType.ANYCAST));
 
       AtomicInteger errors = new AtomicInteger(0);
       AtomicBoolean runnning = new AtomicBoolean(true);
-      Runnable runnable = new Runnable() {
-         @Override
-         public void run() {
+      Runnable runnable = () -> {
+         try {
+            ConnectionFactory factory = createCF();
 
-            try {
-               ConnectionFactory factory = createCF();
+            Connection connection = factory.createConnection();
+            Session session = connection.createSession();
+            connection.start();
+            Queue queue = session.createQueue(anycastAddress.toString());
 
-               Connection connection = factory.createConnection();
-               Session session = connection.createSession();
-               connection.start();
-               Queue queue = session.createQueue(anycastAddress.toString());
-
-               while (runnning.get()) {
-                  MessageConsumer consumer = session.createConsumer(queue);
-                  TextMessage message = (TextMessage)consumer.receive(100);
-                  if (message != null) {
-                     consumer.close();
-                  }
+            while (runnning.get()) {
+               MessageConsumer consumer = session.createConsumer(queue);
+               TextMessage message = (TextMessage)consumer.receive(100);
+               if (message != null) {
+                  consumer.close();
                }
-
-
-               connection.close();
-
-            } catch (Exception e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
             }
+
+            connection.close();
+
+         } catch (Exception e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
       };
 
@@ -131,7 +130,7 @@ public class ExtremeCancelsTest extends JMSClientTestSupport {
          c.join();
       }
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
    private ConnectionFactory createCF() {

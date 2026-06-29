@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.io.File;
@@ -42,16 +46,15 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
 
 
-   final SimpleString ADDRESS = new SimpleString("SomeAddress");
+   final SimpleString ADDRESS = SimpleString.of("SomeAddress");
 
-   final SimpleString QUEUE = new SimpleString("SomeQueue");
+   final SimpleString QUEUE = SimpleString.of("SomeQueue");
 
    private ActiveMQServer server;
 
@@ -64,7 +67,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -90,8 +93,8 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
          journal.start();
          journal.load(committedRecords, preparedTransactions, null);
 
-         Assert.assertEquals(0, committedRecords.size());
-         Assert.assertEquals(0, preparedTransactions.size());
+         assertEquals(0, committedRecords.size());
+         assertEquals(0, preparedTransactions.size());
 
          System.out.println("DataFiles = " + journal.getDataFilesCount());
 
@@ -105,7 +108,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
             if (journal.getDataFilesCount() != 0) {
                System.out.println("DebugJournal:" + journal.debug());
             }
-            Assert.assertEquals(0, journal.getDataFilesCount());
+            assertEquals(0, journal.getDataFilesCount());
          }
 
          journal.stop();
@@ -116,17 +119,10 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       }
    }
 
-   /**
-    * @return
-    */
    protected JournalType getJournalType() {
       return JournalType.NIO;
    }
 
-   /**
-    * @param xid
-    * @throws ActiveMQException
-    */
    private void addEmptyTransaction(final Xid xid) throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(true, false, false);
@@ -142,8 +138,8 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(true, false, false);
 
       Xid[] xids = session.recover(XAResource.TMSTARTRSCAN);
-      Assert.assertEquals(1, xids.length);
-      Assert.assertEquals(xid, xids[0]);
+      assertEquals(1, xids.length);
+      assertEquals(xid, xids[0]);
 
       session.rollback(xid);
 
@@ -179,7 +175,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
 
       CountDownLatch latchStart = new CountDownLatch(1);
 
-      ArrayList<BaseThread> threads = new ArrayList<>();
+      List<BaseThread> threads = new ArrayList<>();
 
       ProducerThread[] prod = new ProducerThread[numberOfProducers];
       for (int i = 0; i < numberOfProducers; i++) {
@@ -211,23 +207,18 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       setupServer(getJournalType());
 
       drainQueue(numberOfMessagesExpected, QUEUE);
-      drainQueue(100, new SimpleString("LAZY-QUEUE"));
+      drainQueue(100, SimpleString.of("LAZY-QUEUE"));
 
       server.stop();
 
       setupServer(getJournalType());
       drainQueue(0, QUEUE);
-      drainQueue(0, new SimpleString("LAZY-QUEUE"));
+      drainQueue(0, SimpleString.of("LAZY-QUEUE"));
 
       checkEmptyXID(xid);
 
    }
 
-   /**
-    * @param numberOfMessagesExpected
-    * @param queue
-    * @throws ActiveMQException
-    */
    private void drainQueue(final int numberOfMessagesExpected, final SimpleString queue) throws ActiveMQException {
       ClientSession sess = sf.createSession(true, true);
 
@@ -237,7 +228,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numberOfMessagesExpected; i++) {
          ClientMessage msg = consumer.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
 
          if (i % 100 == 0) {
             // System.out.println("Received #" + i + "  on thread after start");
@@ -245,18 +236,15 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
          msg.acknowledge();
       }
 
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
 
       sess.close();
    }
 
-   /**
-    * @throws ActiveMQException
-    */
    private void addBogusData(final int nmessages, final String queue) throws ActiveMQException {
       ClientSession session = sf.createSession(false, false);
       try {
-         session.createQueue(new QueueConfiguration(queue));
+         session.createQueue(QueueConfiguration.of(queue));
       } catch (Exception ignored) {
       }
 
@@ -271,7 +259,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       session.start();
 
       ClientConsumer cons = session.createConsumer(queue);
-      Assert.assertNotNull(cons.receive(1000));
+      assertNotNull(cons.receive(1000));
       session.rollback();
       session.close();
    }
@@ -312,7 +300,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       ClientSession sess = sf.createSession();
 
       try {
-         sess.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS));
+         sess.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS));
       } catch (Exception ignored) {
       }
 

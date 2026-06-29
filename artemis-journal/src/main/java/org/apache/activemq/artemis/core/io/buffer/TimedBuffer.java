@@ -208,8 +208,6 @@ public final class TimedBuffer extends CriticalComponentImpl {
 
    /**
     * Verify if the size fits the buffer
-    *
-    * @param sizeChecked
     */
    public boolean checkSize(final int sizeChecked) {
       try (ArtemisCloseable measure = measureCritical(CRITICAL_PATH_CHECK_SIZE)) {
@@ -312,6 +310,9 @@ public final class TimedBuffer extends CriticalComponentImpl {
     * @return {@code true} when are flushed any bytes, {@code false} otherwise
     */
    public boolean flushBatch() {
+      List<IOCallback> syncCallbackList = null;
+      boolean localUseSync = false;
+      TimedBufferObserver syncBufferObserver = null;
       try (ArtemisCloseable measure = measureCritical(CRITICAL_PATH_FLUSH)) {
          synchronized (this) {
             if (!started) {
@@ -325,7 +326,16 @@ public final class TimedBuffer extends CriticalComponentImpl {
                   bytesFlushed.addAndGet(pos);
                }
 
-               bufferObserver.flushBuffer(buffer.byteBuf(), pendingSync, callbacks);
+               if (bufferObserver.supportSync()) {
+                  // performing the sync away from the lock
+                  // so other writes can be performed while that flush is happening
+                  syncCallbackList = callbacks;
+                  localUseSync = pendingSync;
+                  syncBufferObserver = bufferObserver;
+                  bufferObserver.flushBuffer(buffer.byteBuf(), false, null);
+               } else {
+                  bufferObserver.flushBuffer(buffer.byteBuf(), pendingSync, callbacks);
+               }
 
                stopSpin();
 
@@ -345,13 +355,15 @@ public final class TimedBuffer extends CriticalComponentImpl {
                return false;
             }
          }
+      } finally {
+         if (syncBufferObserver != null) {
+            syncBufferObserver.checkSync(localUseSync, syncCallbackList);
+         }
       }
    }
 
    /**
     * Sub classes (tests basically) can use this to override how the sleep is being done
-    *
-    * @param sleepNanos
     */
    protected void sleep(long sleepNanos) {
       LockSupport.parkNanos(sleepNanos);
@@ -480,9 +492,9 @@ public final class TimedBuffer extends CriticalComponentImpl {
       }
 
       /**
-       * We will attempt to use sleep only if the system supports nano-sleep.
-       * we will on that case verify up to MAX_CHECKS if nano sleep is behaving well.
-       * if more than 50% of the checks have failed we will cancel the sleep and just use regular spin
+       * We will attempt to use sleep only if the system supports nano-sleep. we will on that case verify up to
+       * MAX_CHECKS if nano sleep is behaving well. if more than 50% of the checks have failed we will cancel the sleep
+       * and just use regular spin
        */
       private boolean sleepIfPossible(long nanosToSleep) {
          boolean useSleep = true;

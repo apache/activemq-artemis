@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +37,7 @@ import org.apache.activemq.artemis.core.server.transformer.RegisteredTransformer
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 public class ServiceRegistryImpl implements ServiceRegistry {
 
@@ -49,7 +49,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
    private ScheduledExecutorService scheduledExecutorService;
 
-   /* We are using a List rather than HashMap here as ActiveMQ Artemis allows multiple instances of the same class to be added
+   /*
+    * We are using a List rather than HashMap here as Apache Artemis allows multiple instances of the same class to be added
    * to the interceptor list
    */
    private List<BaseInterceptor> incomingInterceptors;
@@ -67,8 +68,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    private Map<String, Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> connectorServices;
 
    public ServiceRegistryImpl() {
-      this.incomingInterceptors = Collections.synchronizedList(new ArrayList<BaseInterceptor>());
-      this.outgoingInterceptors = Collections.synchronizedList(new ArrayList<BaseInterceptor>());
+      this.incomingInterceptors = Collections.synchronizedList(new ArrayList<>());
+      this.outgoingInterceptors = Collections.synchronizedList(new ArrayList<>());
       this.connectorServices = new ConcurrentHashMap<>();
       this.divertTransformers = new ConcurrentHashMap<>();
       this.bridgeTransformers = new ConcurrentHashMap<>();
@@ -122,7 +123,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       if (configs != null) {
          for (final ConnectorServiceConfiguration config : configs) {
             if (connectorServices.get(config.getConnectorName()) == null) {
-               ConnectorServiceFactory factory = loadClass(config.getFactoryClassName());
+               ConnectorServiceFactory factory = loadClass(config.getFactoryClassName(), ConnectorServiceFactory.class);
                addConnectorService(factory, config);
             }
          }
@@ -133,7 +134,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
    @Override
    public ConnectorServiceFactory getConnectorService(ConnectorServiceConfiguration configuration) {
-      return loadClass(configuration.getFactoryClassName());
+      return loadClass(configuration.getFactoryClassName(), ConnectorServiceFactory.class);
    }
 
    @Override
@@ -235,7 +236,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       AcceptorFactory factory = acceptorFactories.get(name);
 
       if (factory == null && className != null) {
-         factory = loadClass(className);
+         factory = loadClass(className, AcceptorFactory.class);
          addAcceptorFactory(name, factory);
       }
 
@@ -248,13 +249,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    }
 
    @SuppressWarnings("TypeParameterUnusedInFormals")
-   public <T> T loadClass(final String className) {
-      return AccessController.doPrivileged(new PrivilegedAction<T>() {
-         @Override
-         public T run() {
-            return (T) ClassloadingUtil.newInstanceFromClassLoader(className);
-         }
-      });
+   public <T> T loadClass(final String className, Class expectedType) {
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<T>) () -> (T) ClassloadingUtil.newInstanceFromClassLoader(className, expectedType));
    }
 
    private Transformer instantiateTransformer(final TransformerConfiguration transformerConfiguration) {
@@ -262,7 +258,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
       if (transformerConfiguration != null && transformerConfiguration.getClassName() != null) {
          try {
-            transformer = new RegisteredTransformer(loadClass(transformerConfiguration.getClassName()));
+            transformer = new RegisteredTransformer(loadClass(transformerConfiguration.getClassName(), Transformer.class));
             transformer.init(Collections.unmodifiableMap(transformerConfiguration.getProperties()));
          } catch (Exception e) {
             throw ActiveMQMessageBundle.BUNDLE.errorCreatingTransformerClass(transformerConfiguration.getClassName(), e);
@@ -274,7 +270,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    private void instantiateInterceptors(List<String> classNames, List<BaseInterceptor> interceptors) {
       if (classNames != null) {
          for (final String className : classNames) {
-            BaseInterceptor interceptor = loadClass(className);
+            BaseInterceptor interceptor = loadClass(className, BaseInterceptor.class);
             interceptors.add(interceptor);
          }
       }

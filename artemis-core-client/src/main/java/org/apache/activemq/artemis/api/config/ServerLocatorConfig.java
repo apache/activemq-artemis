@@ -39,6 +39,7 @@ public class ServerLocatorConfig {
    public boolean useGlobalPools = ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS;
    public int threadPoolMaxSize = ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE;
    public int scheduledThreadPoolMaxSize = ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE;
+   public int flowControlThreadPoolMaxSize = ActiveMQClient.DEFAULT_FLOW_CONTROL_THREAD_POOL_MAX_SIZE;
    public long retryInterval = ActiveMQClient.DEFAULT_RETRY_INTERVAL;
    public double retryIntervalMultiplier = ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER;
    public long maxRetryInterval = ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL;
@@ -46,6 +47,7 @@ public class ServerLocatorConfig {
    public int initialConnectAttempts = ActiveMQClient.INITIAL_CONNECT_ATTEMPTS;
    public int failoverAttempts = ActiveMQClient.DEFAULT_FAILOVER_ATTEMPTS;
    public int initialMessagePacketSize = ActiveMQClient.DEFAULT_INITIAL_MESSAGE_PACKET_SIZE;
+   public int onMessageCloseTimeout = ActiveMQClient.DEFAULT_ONMESSAGE_CLOSE_TIMEOUT;
    public boolean cacheLargeMessagesClient = ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT;
    public int compressionLevel = ActiveMQClient.DEFAULT_COMPRESSION_LEVEL;
    public boolean compressLargeMessage = ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES;
@@ -76,6 +78,7 @@ public class ServerLocatorConfig {
       ackBatchSize = locator.ackBatchSize;
       useGlobalPools = locator.useGlobalPools;
       scheduledThreadPoolMaxSize = locator.scheduledThreadPoolMaxSize;
+      flowControlThreadPoolMaxSize = locator.flowControlThreadPoolMaxSize;
       threadPoolMaxSize = locator.threadPoolMaxSize;
       retryInterval = locator.retryInterval;
       retryIntervalMultiplier = locator.retryIntervalMultiplier;

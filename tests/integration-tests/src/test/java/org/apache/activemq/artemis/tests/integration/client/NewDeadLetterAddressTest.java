@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -28,9 +31,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * A NewDeadLetterAddressTest
@@ -44,24 +46,24 @@ public class NewDeadLetterAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testSendToDLAWhenNoRoute() throws Exception {
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString address = new SimpleString("empty_address");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString address = SimpleString.of("empty_address");
       AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(dla).setSendToDLAOnNoRoute(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
-      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
+      SimpleString dlq = SimpleString.of("DLQ1");
+      clientSession.createQueue(QueueConfiguration.of(dlq).setAddress(dla).setDurable(false));
       ClientProducer producer = clientSession.createProducer(address);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(dlq);
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));

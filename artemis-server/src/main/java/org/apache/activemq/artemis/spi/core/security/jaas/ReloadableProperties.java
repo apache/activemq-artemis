@@ -72,12 +72,15 @@ public class ReloadableProperties {
             // want to checksum in read order
             @Override
             public synchronized Object put(Object key, Object value) {
-               String sKey = key instanceof String ? (String)key : null;
-               String sValue = value instanceof String ? (String)value : null;
+               String sKey = key instanceof String s ? s : null;
+               String sValue = value instanceof String s ? s : null;
                if (sKey != null && sValue != null) {
                   adler32.update(sKey.getBytes(StandardCharsets.UTF_8));
                   adler32.update('=');
                   adler32.update(sValue.getBytes(StandardCharsets.UTF_8));
+                  if (!looksLikeRegexp(sValue)) {
+                     value = normaliseStringValue(sValue);
+                  }
                }
                return super.put(key, value);
             }
@@ -103,11 +106,15 @@ public class ReloadableProperties {
       return this;
    }
 
+   protected String normaliseStringValue(String key) {
+      return key;
+   }
+
    private void updateStatus() {
-      HashMap<String, String> statusAttributes = new HashMap<>();
-      statusAttributes.put("Alder32", String.valueOf(checksum));
+      Map<String, String> statusAttributes = new HashMap<>();
+      statusAttributes.put("Adler32", String.valueOf(checksum));
       statusAttributes.put("reloadTime", String.valueOf(reloadTime));
-      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + key.file.getName(),  statusAttributes);
+      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + key.file.getName(), statusAttributes);
    }
 
    public synchronized Map<String, String> invertedPropertiesMap() {
@@ -178,7 +185,7 @@ public class ReloadableProperties {
    }
 
    private boolean hasModificationAfter(long reloadTime) {
-      /**
+      /*
        * A bug in JDK 8/9 (i.e. https://bugs.openjdk.java.net/browse/JDK-8177809) causes java.io.File.lastModified() to
        * lose resolution past 1 second. Because of this, the value returned by java.io.File.lastModified() can appear to
        * be smaller than it actually is which can cause the broker to miss reloading the properties if the modification

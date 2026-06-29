@@ -35,12 +35,15 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PagingReceiveTest extends ActiveMQTestBase {
 
-   private static final SimpleString ADDRESS = new SimpleString("catalog-service.price.change.bm");
+   private static final SimpleString ADDRESS = SimpleString.of("catalog-service.price.change.bm");
 
    private ActiveMQServer server;
 
@@ -55,7 +58,7 @@ public class PagingReceiveTest extends ActiveMQTestBase {
    @Test
    public void testReceive() throws Exception {
       ClientMessage message = receiveMessage();
-      assertNotNull("Message not found.", message);
+      assertNotNull(message, "Message not found.");
    }
 
    @Test
@@ -101,17 +104,17 @@ public class PagingReceiveTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = internalCreateServer();
 
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      Queue queue = server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      Queue queue = server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
       queue.getPageSubscription().getPagingStore().startPaging();
 
       for (int i = 0; i < 10; i++) {
-         queue.getPageSubscription().getPagingStore().forceAnotherPage();
+         queue.getPageSubscription().getPagingStore().forceAnotherPage(true);
       }
 
       locator.setBlockOnNonDurableSend(false).setBlockOnAcknowledge(false);

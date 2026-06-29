@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +30,8 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -39,12 +45,12 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * This test will simulate a situation where the Topics used to have an extra queue on startup.
- * The server was then written to perform a cleanup, and that cleanup should always work.
- * This test will create the dirty situation where the test should recover from
+ * This test will simulate a situation where the Topics used to have an extra queue on startup. The server was then
+ * written to perform a cleanup, and that cleanup should always work. This test will create the dirty situation where
+ * the test should recover from
  */
 public class TopicCleanupTest extends JMSTestBase {
 
@@ -82,12 +88,7 @@ public class TopicCleanupTest extends JMSTestBase {
          for (int i = 0; i < 100; i++) {
             long txid = storage.generateID();
 
-            final Queue queue = new QueueImpl(storage.generateID(), SimpleString.toSimpleString("topic"),
-                                              SimpleString.toSimpleString("topic"),
-                                              FilterImpl.createFilter(Filter.GENERIC_IGNORED_FILTER), null,
-                                              true, false, false, server.getScheduledPool(), server.getPostOffice(),
-                                              storage, server.getAddressSettingsRepository(),
-                                              server.getExecutorFactory().getExecutor(), server, null);
+            final Queue queue = new QueueImpl(QueueConfiguration.of("topic").setRoutingType(RoutingType.MULTICAST).setId(storage.generateID()), FilterImpl.createFilter(Filter.GENERIC_IGNORED_FILTER), null, null, server.getScheduledPool(), server.getPostOffice(), storage, server.getAddressSettingsRepository(), server.getExecutorFactory().getExecutor(), server, null);
 
             LocalQueueBinding binding = new LocalQueueBinding(queue.getAddress(), queue, server.getNodeID());
 
@@ -135,7 +136,7 @@ public class TopicCleanupTest extends JMSTestBase {
          conn.close();
 
          boolean foundStrayRoutingBinding = false;
-         Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(topic.getAddress()));
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.of(topic.getAddress()));
          Map<SimpleString, List<Binding>> routingNames = ((BindingsImpl) bindings).getRoutingNameBindingMap();
          for (SimpleString key : routingNames.keySet()) {
             if (!key.toString().equals(topic.getAddress())) {

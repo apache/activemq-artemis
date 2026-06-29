@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -83,23 +85,20 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((scaleDownGroupName == null) ? 0 : scaleDownGroupName.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(scaleDownGroupName);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", exit=" + exit);
-      buff.append(", last=" + last);
-      buff.append(", nodeID=" + nodeID);
-      buff.append(", pair=" + pair);
-      buff.append(", backupGroupName=" + backupGroupName);
-      buff.append(", uniqueEventID=" + uniqueEventID);
-      buff.append(", scaleDownGroupName=" + scaleDownGroupName);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", exit=" + exit);
+      sb.append(", last=" + last);
+      sb.append(", nodeID=" + nodeID);
+      sb.append(", pair=" + pair);
+      sb.append(", backupGroupName=" + backupGroupName);
+      sb.append(", uniqueEventID=" + uniqueEventID);
+      sb.append(", scaleDownGroupName=" + scaleDownGroupName);
+      return sb.toString();
    }
 
    @Override
@@ -110,17 +109,10 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ClusterTopologyChangeMessage_V3)) {
+      if (!(obj instanceof ClusterTopologyChangeMessage_V3 other)) {
          return false;
       }
-      ClusterTopologyChangeMessage_V3 other = (ClusterTopologyChangeMessage_V3) obj;
-      if (scaleDownGroupName == null) {
-         if (other.scaleDownGroupName != null) {
-            return false;
-         }
-      } else if (!scaleDownGroupName.equals(other.scaleDownGroupName)) {
-         return false;
-      }
-      return true;
+
+      return Objects.equals(scaleDownGroupName, other.scaleDownGroupName);
    }
 }

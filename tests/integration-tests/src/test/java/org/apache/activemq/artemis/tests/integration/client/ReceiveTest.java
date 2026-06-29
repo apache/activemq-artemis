@@ -20,23 +20,24 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ReceiveTest extends ActiveMQTestBase {
 
@@ -53,14 +54,14 @@ public class ReceiveTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
-      addressA = RandomUtil.randomSimpleString();
-      queueA = RandomUtil.randomSimpleString();
-      addressB = RandomUtil.randomSimpleString();
-      queueB = RandomUtil.randomSimpleString();
+      addressA = RandomUtil.randomUUIDSimpleString();
+      queueA = RandomUtil.randomUUIDSimpleString();
+      addressB = RandomUtil.randomUUIDSimpleString();
+      queueB = RandomUtil.randomUUIDSimpleString();
 
       locator = createInVMNonHALocator();
       server = createServer(false);
@@ -73,11 +74,11 @@ public class ReceiveTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientConsumer cc = session.createConsumer(queueA);
       session.start();
       cp.send(sendSession.createMessage(false));
-      Assert.assertNotNull(cc.receive());
+      assertNotNull(cc.receive());
       session.close();
       sendSession.close();
    }
@@ -87,12 +88,12 @@ public class ReceiveTest extends ActiveMQTestBase {
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientConsumer cc = session.createConsumer(queueA);
       session.start();
       long time = System.currentTimeMillis();
       cc.receive(1000);
-      Assert.assertTrue(System.currentTimeMillis() - time >= 1000);
+      assertTrue(System.currentTimeMillis() - time >= 1000);
       session.close();
    }
 
@@ -101,17 +102,17 @@ public class ReceiveTest extends ActiveMQTestBase {
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientConsumer cc = session.createConsumer(queueA);
       session.start();
       session.close();
       try {
          cc.receive();
-         Assert.fail("should throw exception");
+         fail("should throw exception");
       } catch (ActiveMQObjectClosedException oce) {
          //ok
       } catch (ActiveMQException e) {
-         Assert.fail("Invalid Exception type:" + e.getType());
+         fail("Invalid Exception type:" + e.getType());
       }
       session.close();
    }
@@ -121,21 +122,18 @@ public class ReceiveTest extends ActiveMQTestBase {
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientConsumer cc = session.createConsumer(queueA);
       session.start();
-      cc.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(final ClientMessage message) {
-         }
+      cc.setMessageHandler(message -> {
       });
       try {
          cc.receive();
-         Assert.fail("should throw exception");
+         fail("should throw exception");
       } catch (ActiveMQIllegalStateException ise) {
          //ok
       } catch (ActiveMQException e) {
-         Assert.fail("Invalid Exception type:" + e.getType());
+         fail("Invalid Exception type:" + e.getType());
       }
       session.close();
    }
@@ -148,7 +146,7 @@ public class ReceiveTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       ClientConsumer cc = session.createConsumer(queueA);
       ClientConsumer cc2 = session.createConsumer(queueA);
       session.start();
@@ -161,10 +159,10 @@ public class ReceiveTest extends ActiveMQTestBase {
 
       Wait.waitFor(() -> queue.getMessageCount() == 3, 500, 100);
 
-      Assert.assertNotNull(cc2.receiveImmediate());
-      Assert.assertNotNull(cc.receiveImmediate());
+      assertNotNull(cc2.receiveImmediate());
+      assertNotNull(cc.receiveImmediate());
       if (cc.receiveImmediate() == null) {
-         Assert.assertNotNull(cc2.receiveImmediate());
+         assertNotNull(cc2.receiveImmediate());
       }
       session.close();
       sendSession.close();
@@ -178,8 +176,8 @@ public class ReceiveTest extends ActiveMQTestBase {
       ClientProducer cp2 = sendSession.createProducer(addressB);
 
       ClientSession session = cf.createSession(false, true, false);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
-      session.createQueue(new QueueConfiguration(queueB).setAddress(addressB).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueB).setAddress(addressB).setDurable(false));
 
       ClientConsumer cc1 = session.createConsumer(queueA);
       ClientConsumer cc2 = session.createConsumer(queueB);
@@ -187,8 +185,8 @@ public class ReceiveTest extends ActiveMQTestBase {
 
       cp1.send(sendSession.createMessage(false));
       cp2.send(sendSession.createMessage(false));
-      Assert.assertNotNull(cc1.receive().acknowledge());
-      Assert.assertNotNull(cc2.receive().acknowledge());
+      assertNotNull(cc1.receive().acknowledge());
+      assertNotNull(cc2.receive().acknowledge());
       session.commit();
 
       final Queue queue1 = server.locateQueue(queueA);

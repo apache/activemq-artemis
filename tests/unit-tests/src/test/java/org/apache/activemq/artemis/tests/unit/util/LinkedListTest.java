@@ -22,7 +22,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -36,11 +38,17 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.NodeStore;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class LinkedListTest extends ActiveMQTestBase {
 
@@ -50,7 +58,7 @@ public class LinkedListTest extends ActiveMQTestBase {
    private LinkedListImpl<Integer> list;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       list = new LinkedListImpl<>(integerComparator) {
@@ -62,43 +70,40 @@ public class LinkedListTest extends ActiveMQTestBase {
       };
    }
 
-   Comparator<Integer> integerComparator = new Comparator<Integer>() {
-      @Override
-      public int compare(Integer o1, Integer o2) {
-         logger.trace("Compare {} and {}", o1, o2);
-         if (o1.intValue() == o2.intValue()) {
-            logger.trace("Return 0");
-            return 0;
-         }
-         if (o2.intValue() > o1.intValue()) {
-            logger.trace("o2 is greater than, returning 1");
-            return 1;
-         } else {
-            logger.trace("o2 is lower than, returning -1");
-            return -1;
-         }
+   Comparator<Integer> integerComparator = (o1, o2) -> {
+      logger.trace("Compare {} and {}", o1, o2);
+      if (o1.intValue() == o2.intValue()) {
+         logger.trace("Return 0");
+         return 0;
+      }
+      if (o2.intValue() > o1.intValue()) {
+         logger.trace("o2 is greater than, returning 1");
+         return 1;
+      } else {
+         logger.trace("o2 is lower than, returning -1");
+         return -1;
       }
    };
 
    @Test
    public void addSorted() {
-      Assert.assertEquals(0, scans); // sanity check
+      assertEquals(0, scans); // sanity check
 
       list.addSorted(1);
       list.addSorted(3);
       list.addSorted(2);
       list.addSorted(0);
 
-      Assert.assertEquals(0, scans); // all adds were somewhat ordered, it shouldn't be doing any scans
+      assertEquals(0, scans); // all adds were somewhat ordered, it shouldn't be doing any scans
 
       validateOrder(null);
-      Assert.assertEquals(4, list.size());
+      assertEquals(4, list.size());
 
    }
 
    @Test
    public void addSortedCachedLast() {
-      Assert.assertEquals(0, scans); // just a sanity check
+      assertEquals(0, scans); // just a sanity check
       list.addSorted(5);
       list.addSorted(1);
       list.addSorted(3);
@@ -109,10 +114,10 @@ public class LinkedListTest extends ActiveMQTestBase {
       list.addSorted(19);
       list.addSorted(7);
       list.addSorted(8);
-      Assert.assertEquals(0, scans); // no full scans should be done
-      Assert.assertEquals(1, (int)list.poll());
+      assertEquals(0, scans); // no full scans should be done
+      assertEquals(1, (int)list.poll());
       list.addSorted(9);
-      Assert.assertEquals(1, scans); // remove (poll) should clear the last added cache, a scan will be needed
+      assertEquals(1, scans); // remove (poll) should clear the last added cache, a scan will be needed
 
       printDebug();
       validateOrder(null);
@@ -121,25 +126,25 @@ public class LinkedListTest extends ActiveMQTestBase {
    @Test
    public void scanDirectionalTest() {
       list.addSorted(9);
-      Assert.assertEquals(1, list.size());
+      assertEquals(1, list.size());
       list.addSorted(5);
-      Assert.assertEquals(2, list.size());
+      assertEquals(2, list.size());
       list.addSorted(6);
-      Assert.assertEquals(3, list.size());
+      assertEquals(3, list.size());
       list.addSorted(2);
-      Assert.assertEquals(4, list.size());
+      assertEquals(4, list.size());
       list.addSorted(7);
-      Assert.assertEquals(5, list.size());
+      assertEquals(5, list.size());
       list.addSorted(4);
-      Assert.assertEquals(6, list.size());
+      assertEquals(6, list.size());
       list.addSorted(8);
-      Assert.assertEquals(7, list.size());
+      assertEquals(7, list.size());
       list.addSorted(1);
-      Assert.assertEquals(8, list.size());
+      assertEquals(8, list.size());
       list.addSorted(10);
-      Assert.assertEquals(9, list.size());
+      assertEquals(9, list.size());
       list.addSorted(3);
-      Assert.assertEquals(10, list.size());
+      assertEquals(10, list.size());
       printDebug();
       validateOrder(null);
    }
@@ -156,11 +161,67 @@ public class LinkedListTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testDuplicateSorted() {
+      list.addSorted(1);
+      list.addSorted(2);
+      list.addSorted(1);
+
+      try (LinkedListIterator<Integer> listIterator = list.iterator()) {
+         assertEquals(1, listIterator.next().intValue());
+         assertEquals(1, listIterator.next().intValue());
+         assertEquals(2, listIterator.next().intValue());
+      }
+
+      list.clear();
+
+      list.addSorted(10);
+      list.addSorted(2);
+      list.addSorted(1);
+      list.addSorted(2);
+
+      try (LinkedListIterator<Integer> listIterator = list.iterator()) {
+         assertEquals(1, listIterator.next().intValue());
+         assertEquals(2, listIterator.next().intValue());
+         assertEquals(2, listIterator.next().intValue());
+         assertEquals(10, listIterator.next().intValue());
+      }
+
+   }
+
+   @Test
+   public void testDuplicateScan() {
+      list.addSorted(0);
+      list.addSorted(1);
+      list.addSorted(2);
+      list.addSorted(3);
+
+      try (LinkedListIterator<Integer> listIterator = list.iterator()) {
+         assertEquals(0, listIterator.next().intValue());
+         assertEquals(1, listIterator.next().intValue());
+         assertEquals(2, listIterator.next().intValue());
+         assertEquals(3, listIterator.next().intValue());
+         // removing an element to clear the lastAdded element from the List
+         assertEquals(3, listIterator.removeLastElement().intValue());
+      }
+
+      scans = 0;
+      list.addSorted(1);
+      assertEquals(1, scans, "The test expects a scan to be made");
+
+      try (LinkedListIterator<Integer> listIterator = list.iterator()) {
+         assertEquals(0, listIterator.next().intValue());
+         assertEquals(1, listIterator.next().intValue());
+         assertEquals(1, listIterator.next().intValue());
+         assertEquals(2, listIterator.next().intValue());
+      }
+   }
+
+   @Test
    public void randomSorted() {
 
       int elements = 10_000;
 
-      HashSet<Integer> values = new HashSet<>();
+      Set<Integer> values = new HashSet<>();
       for (int i = 0; i < elements; i++) {
          for (;;) { // a retry loop, if a random give me the same value twice, I would retry
             int value = RandomUtil.randomInt();
@@ -175,23 +236,23 @@ public class LinkedListTest extends ActiveMQTestBase {
          }
       }
 
-      Assert.assertEquals(values.size(), list.size());
+      assertEquals(values.size(), list.size());
 
       validateOrder(values);
 
-      Assert.assertEquals(0, values.size());
+      assertEquals(0, values.size());
 
    }
 
-   private void validateOrder(HashSet<Integer> values) {
+   private void validateOrder(Set<Integer> values) {
       Integer previous = null;
       LinkedListIterator<Integer> integerIterator = list.iterator();
       while (integerIterator.hasNext()) {
          Integer value = integerIterator.next();
          logger.debug("Reading {}", value);
          if (previous != null) {
-            Assert.assertTrue(value + " should be > " + previous, integerComparator.compare(previous, value) > 0);
-            Assert.assertTrue(value + " should be > " + previous, value.intValue() > previous.intValue());
+            assertTrue(integerComparator.compare(previous, value) > 0, value + " should be > " + previous);
+            assertTrue(value.intValue() > previous.intValue(), value + " should be > " + previous);
          }
 
          if (values != null) {
@@ -225,7 +286,7 @@ public class LinkedListTest extends ActiveMQTestBase {
       // this is for serverID = null;
       LongObjectHashMap<LinkedListImpl.Node<ObservableNode>> nodeLongObjectHashMap = new LongObjectHashMap<>();
 
-      HashMap<Object, LongObjectHashMap<LinkedListImpl.Node<ObservableNode>>> mapList = new HashMap<>();
+      Map<Object, LongObjectHashMap<LinkedListImpl.Node<ObservableNode>>> mapList = new HashMap<>();
 
       @Override
       public void storeNode(ObservableNode element, LinkedListImpl.Node<ObservableNode> node) {
@@ -298,19 +359,19 @@ public class LinkedListTest extends ActiveMQTestBase {
             for (int add = 0; add < 1000; add++) {
                final ObservableNode o = new ObservableNode(null, add);
                objs.addTail(o);
-               assertNotNull("prev", o.publicPrev());
-               assertNull("next", o.publicNext());
+               assertNotNull(o.publicPrev(), "prev");
+               assertNull(o.publicNext(), "next");
             }
 
             for (int remove = 0; remove < 1000; remove++) {
                final ObservableNode next = iter.next();
                assertNotNull(next);
-               assertNotNull("prev", next.publicPrev());
+               assertNotNull(next.publicPrev(), "prev");
                //it's ok to check this, because we've *at least* 100 elements left!
-               assertNotNull("next", next.publicNext());
+               assertNotNull(next.publicNext(), "next");
                iter.remove();
-               assertNull("prev", next.publicPrev());
-               assertNull("next", next.publicNext());
+               assertNull(next.publicPrev(), "prev");
+               assertNull(next.publicNext(), "next");
             }
             assertEquals(100, objs.size());
          }
@@ -319,8 +380,8 @@ public class LinkedListTest extends ActiveMQTestBase {
             final ObservableNode next = iter.next();
             assertNotNull(next);
             iter.remove();
-            assertNull("prev", next.publicPrev());
-            assertNull("next", next.publicNext());
+            assertNull(next.publicPrev(), "prev");
+            assertNull(next.publicNext(), "next");
          }
       }
       assertEquals(0, objs.size());
@@ -358,30 +419,30 @@ public class LinkedListTest extends ActiveMQTestBase {
             objs.addTail(o);
          }
 
-         Assert.assertEquals(1000, objs.size());
+         assertEquals(1000, objs.size());
 
          if (deferSupplier) {
-            Assert.assertEquals(0, nodeStore.size());
+            assertEquals(0, nodeStore.size());
             objs.setNodeStore(nodeStore);
          } else {
             // clear the ID supplier
             objs.clearID();
             // and redo it
-            Assert.assertEquals(0, nodeStore.size());
+            assertEquals(0, nodeStore.size());
             nodeStore = new ListNodeStore();
             objs.setNodeStore(nodeStore);
-            Assert.assertEquals(1000, objs.size());
+            assertEquals(1000, objs.size());
          }
 
-         Assert.assertEquals(1000, nodeStore.size());
+         assertEquals(1000, nodeStore.size());
 
-         /** remove all even items */
+         // remove all even items
          for (int i = 1; i <= 1000; i += 2) {
             objs.removeWithID(serverID, i);
          }
 
-         Assert.assertEquals(500, objs.size());
-         Assert.assertEquals(500, nodeStore.size());
+         assertEquals(500, objs.size());
+         assertEquals(500, nodeStore.size());
 
          Iterator<ObservableNode> iterator = objs.iterator();
 
@@ -389,17 +450,17 @@ public class LinkedListTest extends ActiveMQTestBase {
             int i = 2;
             while (iterator.hasNext()) {
                ObservableNode value = iterator.next();
-               Assert.assertEquals(i, value.id);
+               assertEquals(i, value.id);
                i += 2;
             }
          }
 
          for (int i = 2; i <= 1000; i += 2) {
-            Assert.assertNotNull(objs.removeWithID(serverID, i));
+            assertNotNull(objs.removeWithID(serverID, i));
          }
 
-         Assert.assertEquals(0, nodeStore.size());
-         Assert.assertEquals(0, objs.size());
+         assertEquals(0, nodeStore.size());
+         assertEquals(0, objs.size());
 
       }
    }
@@ -414,12 +475,12 @@ public class LinkedListTest extends ActiveMQTestBase {
          LinkedListImpl<ObservableNode> objs = new LinkedListImpl<>();
          ListNodeStore nodeStore = new ListNodeStore();
          objs.setNodeStore(nodeStore);
-         final String serverID = RandomUtil.randomString();
+         final String serverID = RandomUtil.randomUUIDString();
 
          for (int i = 0; i < elements; i++) {
             objs.addHead(new ObservableNode(serverID, i));
          }
-         Assert.assertEquals(elements, objs.size());
+         assertEquals(elements, objs.size());
 
          CyclicBarrier barrier = new CyclicBarrier(2);
 
@@ -471,11 +532,11 @@ public class LinkedListTest extends ActiveMQTestBase {
             }
          });
 
-         Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+         assertTrue(latch.await(10, TimeUnit.SECONDS));
 
-         Assert.assertEquals(0, objs.size());
+         assertEquals(0, objs.size());
 
-         Assert.assertEquals(0, errors.get());
+         assertEquals(0, errors.get());
       } finally {
          executor.shutdownNow();
       }
@@ -498,12 +559,12 @@ public class LinkedListTest extends ActiveMQTestBase {
          int removed = 0;
          for (countLoop = 0; countLoop <= 1000; countLoop++) {
             final ObservableNode obj = iter.next();
-            Assert.assertNotNull(obj);
+            assertNotNull(obj);
             if (countLoop == 500 || countLoop == 1000) {
-               assertNotNull("prev", obj.publicPrev());
+               assertNotNull(obj.publicPrev(), "prev");
                iter.remove();
-               assertNull("prev", obj.publicPrev());
-               assertNull("next", obj.publicNext());
+               assertNull(obj.publicPrev(), "prev");
+               assertNull(obj.publicNext(), "next");
                removed++;
             }
          }
@@ -518,7 +579,7 @@ public class LinkedListTest extends ActiveMQTestBase {
             assertNotNull(obj);
             countLoop++;
          }
-         Assert.assertEquals(expectedSize, countLoop);
+         assertEquals(expectedSize, countLoop);
       }
       // it's needed to add this line here because IBM JDK calls finalize on all objects in list
       // before previous assert is called and fails the test, this will prevent it
@@ -764,9 +825,6 @@ public class LinkedListTest extends ActiveMQTestBase {
       assertNoSuchElementIsThrown(iter);
    }
 
-   /**
-    * @param iter
-    */
    private void assertNoSuchElementIsThrown(LinkedListIterator<Integer> iter) {
       try {
          iter.next();
@@ -1533,7 +1591,7 @@ public class LinkedListTest extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < 100; i++) {
-         Assert.assertEquals(i, list.get(i).intValue());
+         assertEquals(i, list.get(i).intValue());
       }
 
       boolean expectedException = false;
@@ -1544,7 +1602,7 @@ public class LinkedListTest extends ActiveMQTestBase {
          expectedException = true;
       }
 
-      Assert.assertTrue(expectedException);
+      assertTrue(expectedException);
    }
 
    @Test

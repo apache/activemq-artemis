@@ -16,14 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.TransactionRolledBackException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.TransactionContext;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.transaction.Synchronization;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.TransactionContextTest
@@ -32,7 +35,7 @@ public class TransactionContextTest extends BasicOpenWireTest {
 
    TransactionContext underTest;
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
       connection.start();
       underTest = new TransactionContext(connection);
@@ -88,10 +91,10 @@ public class TransactionContextTest extends BasicOpenWireTest {
       } catch (TransactionRolledBackException expected) {
       }
 
-      assertEquals("beforeEnd A called once", 1, beforeEndCountA.get());
-      assertEquals("beforeEnd B called once", 1, beforeEndCountA.get());
-      assertEquals("rollbackCount B 0", 1, rollbackCountB.get());
-      assertEquals("rollbackCount A B", rollbackCountA.get(), rollbackCountB.get());
+      assertEquals(1, beforeEndCountA.get(), "beforeEnd A called once");
+      assertEquals(1, beforeEndCountA.get(), "beforeEnd B called once");
+      assertEquals(1, rollbackCountB.get(), "rollbackCount B 0");
+      assertEquals(rollbackCountA.get(), rollbackCountB.get(), "rollbackCount A B");
    }
 
    @Test
@@ -119,16 +122,16 @@ public class TransactionContextTest extends BasicOpenWireTest {
       underTest.addSynchronization(sync);
       underTest.rollback();
 
-      assertEquals("beforeEnd", 1, beforeEndCountA.get());
-      assertEquals("rollback", 1, rollbackCountA.get());
+      assertEquals(1, beforeEndCountA.get(), "beforeEnd");
+      assertEquals(1, rollbackCountA.get(), "rollback");
 
       // do it again
       underTest.begin();
       underTest.addSynchronization(sync);
       underTest.rollback();
 
-      assertEquals("beforeEnd", 2, beforeEndCountA.get());
-      assertEquals("rollback", 2, rollbackCountA.get());
+      assertEquals(2, beforeEndCountA.get(), "beforeEnd");
+      assertEquals(2, rollbackCountA.get(), "rollback");
    }
 
 }

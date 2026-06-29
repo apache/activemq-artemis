@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -44,9 +46,6 @@ import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 public class PageCursorProviderImpl implements PageCursorProvider {
 
@@ -61,22 +60,13 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    // We can't call cleanup before counters were rebuilt
    // as they will determine if a subscription is empty or not
-   protected volatile boolean countersRebuilt = true;
+   protected volatile boolean rebuildDone = true;
 
    protected final PagingStore pagingStore;
 
    protected final StorageManager storageManager;
 
    private final ConcurrentLongHashMap<PageSubscription> activeCursors = new ConcurrentLongHashMap<>();
-
-   private static final long PAGE_READ_TIMEOUT_NS = TimeUnit.SECONDS.toNanos(30);
-
-   //Any concurrent read page request will wait in a loop the original Page::read to complete while
-   //printing at intervals a warn message
-   private static final long CONCURRENT_PAGE_READ_TIMEOUT_NS = TimeUnit.SECONDS.toNanos(10);
-
-   //storageManager.beforePageRead will be attempted in a loop, printing at intervals a warn message
-   private static final long PAGE_READ_PERMISSION_TIMEOUT_NS = TimeUnit.SECONDS.toNanos(10);
 
    public PageCursorProviderImpl(final PagingStore pagingStore,
                                  final StorageManager storageManager) {
@@ -87,22 +77,19 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    @Override
    public synchronized PageSubscription createSubscription(long cursorID, Filter filter, boolean persistent) {
       if (logger.isTraceEnabled()) {
-         logger.trace("{} creating subscription {} {} with filter {}", this.pagingStore.getAddress(), cursorID, filter);
+         logger.trace("{} creating subscription {} {} with filter {}", this, this.pagingStore.getAddress(), cursorID, filter);
       }
 
       if (activeCursors.containsKey(cursorID)) {
          throw new IllegalStateException("Cursor " + cursorID + " had already been created");
       }
 
-
       PageSubscriptionCounter subscriptionCounter = createPageCounter(cursorID, persistent);
       PageSubscription activeCursor = new PageSubscriptionImpl(this, pagingStore, storageManager, filter, cursorID, persistent, subscriptionCounter);
-
 
       activeCursors.put(cursorID, activeCursor);
       return activeCursor;
    }
-
 
    private PageSubscriptionCounter createPageCounter(long cursorID, boolean persistent) {
       return new PageSubscriptionCounterImpl(storageManager, cursorID);
@@ -132,9 +119,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
 
       if (!cursorList.isEmpty()) {
-         // https://issues.jboss.org/browse/JBPAPP-10338 if you ack out of order,
-         // the min page could be beyond the first page.
-         // we have to reload any previously acked message
+         // If you ack out of order, the min page could be beyond the first page. We have to reload any previously acked
+         // message
          long cursorsMinPage = checkMinPage(cursorList);
 
          // checkMinPage will return MaxValue if there aren't any pages or any cursors
@@ -194,19 +180,16 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
       scheduledCleanup.incrementAndGet();
 
-      pagingStore.execute(new Runnable() {
-         @Override
-         public void run() {
-            storageManager.setContext(storageManager.newSingleThreadContext());
-            try {
-               if (cleanupEnabled) {
-                  cleanup();
-               }
-            } finally {
-               storageManager.clearContext();
-               scheduledCleanup.decrementAndGet();
-               future.set(true);
+      pagingStore.execute(() -> {
+         storageManager.setContext(storageManager.newSingleThreadContext());
+         try {
+            if (cleanupEnabled) {
+               cleanup();
             }
+         } finally {
+            storageManager.clearContext();
+            scheduledCleanup.decrementAndGet();
+            future.set(true);
          }
       });
 
@@ -214,14 +197,14 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    /**
-    * Delete everything associated with any queue on this address.
-    * This is to be called when the address is about to be released from paging.
-    * Hence the PagingStore will be holding a write lock, meaning no messages are going to be paged at this time.
-    * So, we shouldn't lock anything after this method, to avoid dead locks between the writeLock and any synchronization with the CursorProvider.
+    * Delete everything associated with any queue on this address. This is to be called when the address is about to be
+    * released from paging. Hence the PagingStore will be holding a write lock, meaning no messages are going to be
+    * paged at this time. So, we shouldn't lock anything after this method, to avoid dead locks between the writeLock
+    * and any synchronization with the CursorProvider.
     */
    @Override
    public void onPageModeCleared() {
-      ArrayList<PageSubscription> subscriptions = cloneSubscriptions();
+      List<PageSubscription> subscriptions = cloneSubscriptions();
 
       Transaction tx = new TransactionImpl(storageManager);
       for (PageSubscription sub : subscriptions) {
@@ -250,7 +233,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       scheduleCleanup();
    }
 
-   private long getNumberOfMessagesOnSubscriptions() {
+   protected long getNumberOfMessagesOnSubscriptions() {
       AtomicLong largerCounter = new AtomicLong();
       activeCursors.forEach((id, sub) -> {
          long value = sub.getCounter().getValue();
@@ -262,18 +245,19 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       return largerCounter.get();
    }
 
-   void checkClearPageLimit() {
+   @Override
+   public void checkClearPageLimit() {
       pagingStore.checkPageLimit(getNumberOfMessagesOnSubscriptions());
    }
 
    protected void cleanup() {
 
-      if (!countersRebuilt) {
+      if (!rebuildDone) {
          logger.debug("Counters were not rebuilt yet, cleanup has to be ignored on address {}", pagingStore != null ? pagingStore.getAddress() : "NULL");
          return;
       }
 
-      ArrayList<Page> depagedPages = new ArrayList<>();
+      List<Page> depagedPages = new ArrayList<>();
       LongHashSet depagedPagesSet = new LongHashSet();
 
       // This read lock is required
@@ -285,68 +269,65 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       // I tried to simplify the locks but each PageStore has its own lock, so this was the best option
       // I found in order to fix https://issues.apache.org/jira/browse/ARTEMIS-3054
       try (ArtemisCloseable readLock = storageManager.closeableReadLock()) {
-
          while (true) {
-            if (pagingStore.lock(100)) {
+            if (pagingStore.writeLock(1_000)) {
                break;
             }
-            if (!pagingStore.isStarted())
+            if (!pagingStore.isStarted()) {
                return;
+            }
          }
 
          logger.trace(">>>> Cleanup {}", this.pagingStore.getAddress());
 
-         synchronized (this) {
-            try {
-               if (!pagingStore.isStarted()) {
-                  logger.trace("Paging store is not started");
-                  return;
-               }
-
-               if (!pagingStore.isPaging()) {
-                  logger.trace("Paging Store was not paging, so no reason to retry the cleanup");
-                  return;
-               }
-
-               ArrayList<PageSubscription> cursorList = cloneSubscriptions();
-
-               long minPage = checkMinPage(cursorList);
-               final long firstPage = pagingStore.getFirstPage();
-               deliverIfNecessary(cursorList, minPage);
-
-               if (logger.isTraceEnabled()) {
-                  logger.trace("firstPage={}, minPage={}, currentWritingPage={}", firstPage, minPage, pagingStore.getCurrentWritingPage());
-               }
-
-               // First we cleanup regular streaming, at the beginning of set of files
-               cleanupRegularStream(depagedPages, depagedPagesSet, cursorList, minPage, firstPage);
-
-               // Then we do some check on eventual pages that can be already removed but they are away from the streaming
-               cleanupMiddleStream(depagedPages, depagedPagesSet, cursorList, minPage, firstPage);
-
-               if (pagingStore.isPageFull()) {
-                  checkClearPageLimit();
-               }
-
-               assert pagingStore.getNumberOfPages() >= 0;
-
-               if (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && (pagingStore.getCurrentPage() == null || pagingStore.getCurrentPage().getNumberOfMessages() == 0)) {
-                  logger.trace("StopPaging being called on {}", pagingStore);
-                  pagingStore.stopPaging();
-               } else {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace("Couldn't cleanup page on address {} as numberOfPages == {}  and currentPage.numberOfMessages = {}",
-                        pagingStore.getAddress(), pagingStore.getNumberOfPages(), pagingStore.getCurrentPage().getNumberOfMessages());
-                  }
-               }
-            } catch (Throwable ex) {
-               ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(pagingStore.getAddress(), ex);
-               logger.warn(ex.getMessage(), ex);
+         try {
+            if (!pagingStore.isStarted()) {
+               logger.trace("Paging store is not started");
                return;
-            } finally {
-               logger.trace("<<<< Cleanup end on {}", pagingStore.getAddress());
-               pagingStore.unlock();
             }
+
+            if (!pagingStore.isStorePaging()) {
+               logger.trace("Paging Store was not paging, so no reason to retry the cleanup");
+               return;
+            }
+
+            List<PageSubscription> cursorList = cloneSubscriptions();
+
+            long minPage = checkMinPage(cursorList);
+            final long firstPage = pagingStore.getFirstPage();
+            deliverIfNecessary(cursorList, minPage);
+
+            if (logger.isTraceEnabled()) {
+               logger.trace("firstPage={}, minPage={}, currentWritingPage={}", firstPage, minPage, pagingStore.getCurrentWritingPage());
+            }
+
+            // First we cleanup regular streaming, at the beginning of set of files
+            cleanupRegularStream(depagedPages, depagedPagesSet, cursorList, minPage, firstPage);
+
+            // Then we do some check on eventual pages that can be already removed but they are away from the streaming
+            cleanupMiddleStream(depagedPages, depagedPagesSet, cursorList, minPage, firstPage);
+
+            if (pagingStore.isPageFull()) {
+               checkClearPageLimit();
+            }
+
+            assert pagingStore.getNumberOfPages() >= 0;
+
+            if (!pagingStore.hasPendingIO() && (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && (pagingStore.getCurrentPage() == null || pagingStore.getCurrentPage().getNumberOfMessages() == 0))) {
+               logger.trace("StopPaging being called on {}, pending={}", pagingStore, pagingStore.hasPendingIO());
+               pagingStore.stopPaging();
+            } else {
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Couldn't cleanup page on address {} as numberOfPages == {}  and currentPage.numberOfMessages = {}", pagingStore.getAddress(), pagingStore.getNumberOfPages(), pagingStore.getCurrentPage().getNumberOfMessages());
+               }
+            }
+         } catch (Throwable ex) {
+            ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(pagingStore.getAddress(), ex);
+            logger.warn(ex.getMessage(), ex);
+            return;
+         } finally {
+            logger.trace("<<<< Cleanup end on {}", pagingStore.getAddress());
+            pagingStore.writeUnlock();
          }
       }
       finishCleanup(depagedPages);
@@ -354,19 +335,12 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    /**
-    * This cleanup process will calculate the min page for every cursor
-    * and then we remove the pages based on that.
-    * if we knew ahead all the queues belonging to every page we could remove this process.
-    * @param depagedPages
-    * @param depagedPagesSet
-    * @param cursorList
-    * @param minPage
-    * @param firstPage
-    * @throws Exception
+    * This cleanup process will calculate the min page for every cursor and then we remove the pages based on that. if
+    * we knew ahead all the queues belonging to every page we could remove this process.
     */
-   private void cleanupRegularStream(ArrayList<Page> depagedPages,
+   protected void cleanupRegularStream(List<Page> depagedPages,
                           LongHashSet depagedPagesSet,
-                          ArrayList<PageSubscription> cursorList,
+                          List<PageSubscription> cursorList,
                           long minPage,
                           long firstPage) throws Exception {
       // if the current page is being written...
@@ -399,15 +373,17 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
    }
 
-   /** The regular depaging will take care of removing messages in a regular streaming.
-    *
-    * if we had a list of all the cursors that belong to each page, this cleanup would be enough on every situation (with some adjustment to currentPages)
-    * So, this routing is to optimize removing pages when all the acks are made on every cursor.
-    * We still need regular depaging on a streamed manner as it will check the min page for all the existent cursors.
-    * */
-   private void cleanupMiddleStream(ArrayList<Page> depagedPages,
+   /**
+    * The regular depaging will take care of removing messages in a regular streaming.
+    * <p>
+    * if we had a list of all the cursors that belong to each page, this cleanup would be enough on every situation
+    * (with some adjustment to currentPages) So, this routing is to optimize removing pages when all the acks are made
+    * on every cursor. We still need regular depaging on a streamed manner as it will check the min page for all the
+    * existent cursors.
+    */
+   private void cleanupMiddleStream(List<Page> depagedPages,
                           LongHashSet depagedPagesSet,
-                          ArrayList<PageSubscription> cursorList,
+                          List<PageSubscription> cursorList,
                           long minPage,
                           long firstPage) {
 
@@ -455,7 +431,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    // Protected as a way to inject testing
-   protected void cleanupComplete(ArrayList<PageSubscription> cursorList) throws Exception {
+   protected void cleanupComplete(List<PageSubscription> cursorList) throws Exception {
       logger.debug("Address {} is leaving page mode as all messages are consumed and acknowledged from the page store", pagingStore.getAddress());
 
       pagingStore.forceAnotherPage();
@@ -464,11 +440,13 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
       storeBookmark(cursorList, currentPage);
 
-      pagingStore.stopPaging();
+      if (!pagingStore.hasPendingIO()) {
+         pagingStore.stopPaging();
+      }
    }
 
    // Protected as a way to inject testing
-   protected void finishCleanup(ArrayList<Page> depagedPages) {
+   protected void finishCleanup(List<Page> depagedPages) {
       logger.trace("this({}) finishing cleanup on {}", this, depagedPages);
       try {
          for (Page depagedPage : depagedPages) {
@@ -488,12 +466,11 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          }
       } catch (Exception ex) {
          ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(pagingStore.getAddress(), ex);
-         return;
       }
 
    }
 
-   private boolean checkPageCompletion(ArrayList<PageSubscription> cursorList, long minPage) throws Exception {
+   private boolean checkPageCompletion(List<PageSubscription> cursorList, long minPage) throws Exception {
 
       logger.trace("checkPageCompletion({})", minPage);
 
@@ -521,11 +498,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       return complete;
    }
 
-   /**
-    * @return
-    */
-   private synchronized ArrayList<PageSubscription> cloneSubscriptions() {
-      ArrayList<PageSubscription> cursorList = new ArrayList<>(activeCursors.values());
+   private synchronized List<PageSubscription> cloneSubscriptions() {
+      List<PageSubscription> cursorList = new ArrayList<>(activeCursors.values());
       return cursorList;
    }
 
@@ -536,12 +510,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
    }
 
-   /**
-    * @param cursorList
-    * @param currentPage
-    * @throws Exception
-    */
-   protected void storeBookmark(ArrayList<PageSubscription> cursorList, Page currentPage) throws Exception {
+   protected void storeBookmark(List<PageSubscription> cursorList, Page currentPage) throws Exception {
       try {
          // First step: Move every cursor to the next bookmarked page (that was just created)
          for (PageSubscription cursor : cursorList) {
@@ -596,10 +565,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       for (PageSubscription cursor : cursorList) {
          long firstPage = cursor.getFirstPage();
          if (firstPage == minPage) {
-            /**
-             * if first page is current writing page and it's not complete, or
-             * first page is before the current writing page, we need to trigger
-             * deliverAsync to delete messages in the pages.
+            /*
+             * if first page is current writing page and it's not complete, or first page is before the current writing
+             * page, we need to trigger deliverAsync to delete messages in the pages.
              */
             if (cursor.getQueue().getMessageCount() == 0 && (!currentWriting || !cursor.isComplete(firstPage))) {
                cursor.getQueue().deliverAsync();
@@ -611,11 +579,16 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    @Override
    public void counterRebuildStarted() {
-      this.countersRebuilt = false;
+      this.rebuildDone = false;
    }
 
    @Override
    public void counterRebuildDone() {
-      this.countersRebuilt = true;
+      this.rebuildDone = true;
+   }
+
+   @Override
+   public boolean isRebuildDone() {
+      return this.rebuildDone;
    }
 }

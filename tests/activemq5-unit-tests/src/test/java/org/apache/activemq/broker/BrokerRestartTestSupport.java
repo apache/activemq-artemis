@@ -36,10 +36,6 @@ public class BrokerRestartTestSupport extends BrokerTestSupport {
       return broker;
    }
 
-   /**
-    * @return
-    * @throws Exception
-    */
    protected BrokerService createRestartedBroker() throws Exception {
       BrokerService broker = new BrokerService();
       configureBroker(broker);
@@ -51,11 +47,8 @@ public class BrokerRestartTestSupport extends BrokerTestSupport {
    }
 
    /**
-    * Simulates a broker restart. The memory based persistence adapter is
-    * reused so that it does not "loose" it's "persistent" messages.
-    *
-    * @throws IOException
-    * @throws URISyntaxException
+    * Simulates a broker restart. The memory based persistence adapter is reused so that it does not "loose" it's
+    * "persistent" messages.
     */
    protected void restartBroker() throws Exception {
       broker.stop();

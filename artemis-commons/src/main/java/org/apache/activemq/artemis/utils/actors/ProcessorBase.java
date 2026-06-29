@@ -33,13 +33,14 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    public static final int STATE_NOT_RUNNING = 0;
    public static final int STATE_RUNNING = 1;
    public static final int STATE_FORCED_SHUTDOWN = 2;
+   public static final int STATE_PAUSED = 3;
 
    protected final Queue<T> tasks = new ConcurrentLinkedQueue<>();
 
    private final Executor delegate;
    /**
-    * Using a method reference instead of an inner classes allows the caller to reduce the pointer chasing
-    * when accessing ProcessorBase.this fields/methods.
+    * Using a method reference instead of an inner classes allows the caller to reduce the pointer chasing when
+    * accessing ProcessorBase.this fields/methods.
     */
    private final Runnable task = this::executePendingTasks;
 
@@ -47,9 +48,9 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    @SuppressWarnings("unused")
    private volatile int state = STATE_NOT_RUNNING;
    // Request of forced shutdown
-   private volatile boolean requestedForcedShutdown = false;
+   private volatile boolean pausedProcessing = false;
    // Request of educated shutdown:
-   private volatile boolean requestedShutdown = false;
+   protected volatile boolean requestedShutdown = false;
    // Request to yield to another thread
    private volatile boolean yielded = false;
 
@@ -63,8 +64,8 @@ public abstract class ProcessorBase<T> extends HandlerBase {
             try {
                T task;
                //while the queue is not empty we process in order:
-               //if requestedForcedShutdown==true than no new tasks will be drained from the tasks q.
-               while (!yielded && !requestedForcedShutdown && (task = tasks.poll()) != null) {
+               //if pausedProcessing==true than no new tasks will be drained from the tasks q.
+               while (!yielded && !pausedProcessing && (task = tasks.poll()) != null) {
                   doTask(task);
                }
             } finally {
@@ -82,10 +83,22 @@ public abstract class ProcessorBase<T> extends HandlerBase {
          //but poll() has returned null, so a submitting thread will believe that it does not need re-execute.
          //this check fixes the issue
       }
-      while (!tasks.isEmpty() && !requestedShutdown && !yielded);
+      while (!tasks.isEmpty() && !requestedShutdown && !yielded && !pausedProcessing);
 
       if (yielded) {
          yielded = false;
+         delegate.execute(task);
+      }
+   }
+
+   public void pauseProcessing() {
+      pausedProcessing = true;
+      stateUpdater.set(this, STATE_PAUSED);
+   }
+
+   public void resumeProcessing() {
+      pausedProcessing = false;
+      if (stateUpdater.compareAndSet(this, STATE_PAUSED, STATE_NOT_RUNNING)) {
          delegate.execute(task);
       }
    }
@@ -95,6 +108,12 @@ public abstract class ProcessorBase<T> extends HandlerBase {
     */
    public void shutdown() {
       shutdown(30, TimeUnit.SECONDS);
+   }
+
+   public void flush() {
+      if (!inHandler()) {
+         flush(30, TimeUnit.SECONDS);
+      }
    }
 
    public void shutdown(long timeout, TimeUnit unit) {
@@ -110,10 +129,12 @@ public abstract class ProcessorBase<T> extends HandlerBase {
       this.yielded = true;
    }
 
-   /** It will shutdown the executor however it will not wait for finishing tasks*/
+   /**
+    * It will shutdown the executor however it will not wait for finishing tasks
+    */
    public int shutdownNow(Consumer<? super T> onPendingItem, int timeout, TimeUnit unit) {
       //alert anyone that has been requested (at least) an immediate shutdown
-      requestedForcedShutdown = true;
+      pausedProcessing = true;
       requestedShutdown = true;
       yielded = false;
 
@@ -146,10 +167,9 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    }
 
    /**
-    * WARNING: This will only flush when all the activity is suspended.
-    * don't expect success on this call if another thread keeps feeding the queue
-    * this is only valid on situations where you are not feeding the queue,
-    * like in shutdown and failover situations.
+    * WARNING: This will only flush when all the activity is suspended. don't expect success on this call if another
+    * thread keeps feeding the queue this is only valid on situations where you are not feeding the queue, like in
+    * shutdown and failover situations.
     */
    public final boolean flush(long timeout, TimeUnit unit) {
       if (this.state == STATE_NOT_RUNNING) {
@@ -189,9 +209,9 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    }
 
    /**
-    * This has to be called on the assumption that state!=STATE_RUNNING.
-    * It is packed separately from {@link #task(Object)} just for performance reasons: it
-    * handles the uncommon execution cases for bursty scenarios i.e. the slowest execution path.
+    * This has to be called on the assumption that state!=STATE_RUNNING. It is packed separately from
+    * {@link #task(Object)} just for performance reasons: it handles the uncommon execution cases for bursty scenarios
+    * i.e. the slowest execution path.
     */
    private void onAddedTaskIfNotRunning(int state) {
       if (state == STATE_NOT_RUNNING) {
@@ -207,10 +227,10 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    }
 
    /**
-    * Returns the remaining items to be processed.
-    * <p>
-    * This method is safe to be called by different threads and its accuracy is subject to concurrent modifications.<br>
-    * It is meant to be used only for test purposes, because of its {@code O(n)} cost.
+    * This method is safe to be called by different threads and its accuracy is subject to concurrent modifications. It
+    * is meant to be used only for test purposes, because of its {@code O(n)} cost.
+    *
+    * @return the remaining items to be processed
     */
    public final int remaining() {
       return tasks.size();

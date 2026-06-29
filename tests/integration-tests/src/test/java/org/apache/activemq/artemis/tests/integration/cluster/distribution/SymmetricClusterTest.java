@@ -16,21 +16,41 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
+import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.Connector;
+import org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * A SymmetricClusterTest
- *
+ * <p>
  * Most of the cases are covered in OneWayTwoNodeClusterTest - we don't duplicate them all here
  */
 public class SymmetricClusterTest extends ClusterTestBase {
@@ -38,7 +58,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -250,7 +270,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
       }
 
       for (int i = 0; i < 5; i++) {
-         servers[i].addAddressInfo(new AddressInfo(SimpleString.toSimpleString("queues.testaddress"), RoutingType.MULTICAST));
+         servers[i].addAddressInfo(new AddressInfo(SimpleString.of("queues.testaddress"), RoutingType.MULTICAST));
          createQueue(i, "queues.testaddress", "queue0", null, false);
       }
 
@@ -1389,12 +1409,39 @@ public class SymmetricClusterTest extends ClusterTestBase {
       verifyReceiveRoundRobinInSomeOrder(10, 1, 2, 3, 4);
    }
 
-   public void _testStartStopServers() throws Exception {
-      doTestStartStopServers(1, 3000);
+   @Test
+   public void testStartStopServers() throws Exception {
+      doTestStartStopServers(false);
    }
 
-   public void doTestStartStopServers(long pauseBeforeServerRestarts, long pauseAfterServerRestarts) throws Exception {
+   @Test
+   public void testStartStopServersWithPartition() throws Exception {
+      doTestStartStopServers(true);
+   }
+
+   protected void validateTopologySize(int expectedSize, int... serverParameters) throws Exception {
+      for (int s : serverParameters) {
+         logger.debug("Checking topology size on node {}, expecting it to be {}", s, expectedSize);
+
+         assertNotNull(servers[s], "Server[" + s + "] is null");
+
+         for (ClusterConnection c : servers[s].getClusterManager().getClusterConnections()) {
+            Wait.assertEquals(expectedSize, () -> c.getTopology().getMembers().size(), 5000, Wait.SLEEP_MILLIS, () -> {
+               Collection<TopologyMemberImpl> members = c.getTopology().getMembers();
+               return "SRV[" + s + "]/CC[" + c.getName() + "] has " + members.size() + "/" + expectedSize + " members:\n" +
+                   String.join("\n", members.stream().map(topologyMember -> topologyMember.toString()).collect(Collectors.toList()));
+            });
+         }
+      }
+   }
+
+   public void doTestStartStopServers(boolean withPartition) throws Exception {
       setupCluster();
+
+      if (withPartition) {
+         setupProxy();
+         enablePartition();
+      }
 
       startServers();
 
@@ -1403,6 +1450,23 @@ public class SymmetricClusterTest extends ClusterTestBase {
       setupSessionFactory(2, isNetty());
       setupSessionFactory(3, isNetty());
       setupSessionFactory(4, isNetty());
+
+      if (withPartition) {
+         validateTopologySize(3, 0, 1, 2);
+         validateTopologySize(2, 3, 4);
+
+         disablePartition();
+      }
+
+      validateTopologySize(5, 0, 1, 2, 3, 4);
+
+      if (withPartition) {
+         for (int node = 0; node < 5; node++) {
+            final int serverNode = node;
+            Wait.assertTrue(() -> !((ClusterConnectionImpl)getServer(serverNode).getClusterManager().
+                getClusterConnection("cluster" + serverNode)).getTopologyScanner().isRunning());
+         }
+      }
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(1, "queues.testaddress", "queue1", null, false);
@@ -1515,14 +1579,16 @@ public class SymmetricClusterTest extends ClusterTestBase {
 
       stopServers(0, 3);
 
-      Thread.sleep(pauseBeforeServerRestarts);
+      validateTopologySize(3, 1, 2, 4);
 
       startServers(3, 0);
 
-      Thread.sleep(pauseAfterServerRestarts);
+      validateTopologySize(5, 0, 1, 2, 3, 4);
 
       setupSessionFactory(0, isNetty());
       setupSessionFactory(3, isNetty());
+
+      validateTopologySize(5, 0, 1, 2, 3, 4);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(3, "queues.testaddress", "queue3", null, false);
@@ -1765,12 +1831,13 @@ public class SymmetricClusterTest extends ClusterTestBase {
       waitForBindings(4, "queues.testaddress", 0, 0, false);
    }
 
-   @Test
    /**
     * This test verifies that addresses matching a simple string filter such as 'jms' result in bindings being created
     * on appropriate nodes in the cluster.  It also verifies that addresses not matching the simple string filter do not
     * result in bindings being created.
-    */ public void testClusterAddressCreatesBindingsForSimpleStringAddressFilters() throws Exception {
+    */
+   @Test
+   public void testClusterAddressCreatesBindingsForSimpleStringAddressFilters() throws Exception {
       setupCluster("test", "test", "test", "test", "test");
       startServers();
 
@@ -1805,11 +1872,12 @@ public class SymmetricClusterTest extends ClusterTestBase {
       waitForBindings(4, "foo.queues.test.1", 0, 0, false);
    }
 
-   @Test
    /**
     * This test verifies that a string exclude filter '!jms.eu.uk' results in bindings not being created for this
     * address for nodes in a cluster.  But ensures that other addresses are matched and bindings created.
-    */ public void testClusterAddressDoesNotCreatesBindingsForStringExcludesAddressFilters() throws Exception {
+    */
+   @Test
+   public void testClusterAddressDoesNotCreatesBindingsForStringExcludesAddressFilters() throws Exception {
       setupCluster("jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk");
       startServers();
 
@@ -1847,8 +1915,6 @@ public class SymmetricClusterTest extends ClusterTestBase {
    /**
     * This test verifies that remote bindings are only created for queues that match jms.eu or jms.us excluding
     * jms.eu.uk and jms.us.bos.  Represented by the address filter 'jms.eu,!jms.eu.uk,jms.us,!jms.us.bos'
-    *
-    * @throws Exception
     */
    @Test
    public void testClusterAddressFiltersExcludesAndIncludesAddressesInList() throws Exception {
@@ -1987,5 +2053,142 @@ public class SymmetricClusterTest extends ClusterTestBase {
    @Override
    protected boolean isFileStorage() {
       return false;
+   }
+
+   protected void setupProxy() {
+      setupProxy(0);
+      setupProxy(1);
+      setupProxy(2);
+      setupProxy(3);
+      setupProxy(4);
+   }
+
+   protected void setupProxy(final int nodeId) {
+      getServer(nodeId).getConfiguration().getConnectorConfigurations().forEach((s, transportConfiguration) -> {
+         transportConfiguration.getExtraParams().put("proxyNodeId", nodeId);
+         if (isNetty()) {
+            transportConfiguration.setFactoryClassName(NettyProxyConnectorFactory.class.getName());
+         } else {
+            transportConfiguration.setFactoryClassName(InVMProxyConnectorFactory.class.getName());
+         }
+      });
+   }
+
+   protected void enablePartition() {
+      ProxyConnectorFactory.interceptor = (nodeId, configuration) -> {
+         int partitionId = (nodeId % 5) / 3;
+         int targetPartitionId;
+
+         if (isNetty()) {
+            int targetPort = (int)configuration.get(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME);
+            targetPartitionId = ((targetPort - org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT) % 5) / 3;
+         } else {
+            int targetServerId = (int)configuration.get(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME);
+            targetPartitionId = (targetServerId % 5) / 3;
+         }
+
+         return partitionId == targetPartitionId;
+      };
+   }
+
+   protected void disablePartition() {
+      ProxyConnectorFactory.interceptor = null;
+   }
+
+   public interface ProxyConnectorInterceptor {
+      boolean allowConnection(int nodeId, Map<String, Object> configuration);
+   }
+
+   public static class InVMProxyConnectorFactory extends ProxyConnectorFactory {
+      public InVMProxyConnectorFactory() {
+         super(new InVMConnectorFactory());
+      }
+   }
+
+   public static class NettyProxyConnectorFactory extends ProxyConnectorFactory {
+      public NettyProxyConnectorFactory() {
+         super(new NettyConnectorFactory());
+      }
+   }
+
+   public abstract static class ProxyConnectorFactory implements ConnectorFactory {
+      public static volatile ProxyConnectorInterceptor interceptor;
+
+      private ConnectorFactory rawConnectorFactory;
+
+      public ProxyConnectorFactory(ConnectorFactory rawConnectorFactory) {
+         this.rawConnectorFactory = rawConnectorFactory;
+      }
+
+      @Override
+      public Map<String, Object> getDefaults() {
+         return rawConnectorFactory.getDefaults();
+      }
+
+      @Override
+      public Connector createConnector(Map<String, Object> configuration,
+          BufferHandler handler,
+          ClientConnectionLifeCycleListener listener,
+          Executor closeExecutor,
+          Executor threadPool,
+          ScheduledExecutorService scheduledThreadPool,
+          ClientProtocolManager protocolManager) {
+
+         return new ProxyConnector(rawConnectorFactory.createConnector(
+             configuration,
+             handler,
+             listener,
+             closeExecutor,
+             threadPool,
+             scheduledThreadPool,
+             protocolManager), configuration);
+      }
+
+      @Override
+      public boolean isReliable() {
+         return rawConnectorFactory.isReliable();
+      }
+
+      private class ProxyConnector implements Connector {
+         private Connector rawConnector;
+
+         private Map<String, Object> configuration;
+
+         ProxyConnector(Connector rawConnector, Map<String, Object> configuration) {
+            this.rawConnector = rawConnector;
+            this.configuration = configuration;
+         }
+
+         @Override
+         public void start() {
+            rawConnector.start();
+         }
+
+         @Override
+         public void close() {
+            rawConnector.close();
+         }
+
+         @Override
+         public boolean isStarted() {
+            return rawConnector.isStarted();
+         }
+
+         @Override
+         public Connection createConnection() {
+
+            ProxyConnectorInterceptor interceptor = ProxyConnectorFactory.interceptor;
+            if (interceptor == null || interceptor.allowConnection((int)configuration.get("proxyNodeId"), configuration)) {
+               return rawConnector.createConnection();
+            }
+
+            return null;
+         }
+
+         @Override
+         public boolean isEquivalent(Map<String, Object> configuration) {
+            return rawConnector.isEquivalent(configuration);
+         }
+      }
    }
 }

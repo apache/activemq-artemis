@@ -97,9 +97,7 @@ public class BrokerTest extends BrokerTestSupport {
       assertNoMessagesLeft(connection2);
    }
 
-   /*
-    * change the order of the above test
-    */
+   // change the order of the above test
    public void testQueueBrowserWith2ConsumersBrowseFirst() throws Exception {
 
       ActiveMQDestination destination = new ActiveMQQueue("TEST");

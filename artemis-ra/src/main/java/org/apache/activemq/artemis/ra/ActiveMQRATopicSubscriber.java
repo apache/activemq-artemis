@@ -25,18 +25,12 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * A wrapper for a topic subscriber
+ * A wrapper for a {@link TopicSubscriber}.
  */
 public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer implements TopicSubscriber {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Create a new wrapper
-    *
-    * @param consumer the topic subscriber
-    * @param session  the session
-    */
    public ActiveMQRATopicSubscriber(final TopicSubscriber consumer, final ActiveMQRASession session) {
       super(consumer, session);
 
@@ -44,10 +38,7 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
    }
 
    /**
-    * Get the no local value
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public boolean getNoLocal() throws JMSException {
@@ -58,10 +49,7 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
    }
 
    /**
-    * Get the topic
-    *
-    * @return The topic
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Topic getTopic() throws JMSException {

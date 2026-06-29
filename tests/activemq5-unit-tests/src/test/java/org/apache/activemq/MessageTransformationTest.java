@@ -34,8 +34,6 @@ public class MessageTransformationTest extends TestCase {
 
    /**
     * Sets up the resources of the unit test.
-    *
-    * @throws Exception
     */
    @Override
    protected void setUp() throws Exception {
@@ -49,8 +47,7 @@ public class MessageTransformationTest extends TestCase {
    }
 
    /**
-    * Tests transforming destinations into ActiveMQ's destination
-    * implementation.
+    * Tests transforming destinations into ActiveMQ's destination implementation.
     */
    public void testTransformDestination() throws Exception {
       assertTrue("Transforming a TempQueue destination to an ActiveMQTempQueue", ActiveMQMessageTransformation.transformDestination(new ActiveMQTempQueue()) instanceof ActiveMQTempQueue);

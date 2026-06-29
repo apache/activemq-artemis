@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -69,34 +70,29 @@ public class SessionXAGetInDoubtXidsResponseMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", xids=" + xids);
-      buff.append("]");
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", xids=" + xids);
+      sb.append("]");
+      return sb.toString();
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((xids == null) ? 0 : xids.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(xids);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionXAGetInDoubtXidsResponseMessage))
+      }
+      if (!(obj instanceof SessionXAGetInDoubtXidsResponseMessage other)) {
          return false;
-      SessionXAGetInDoubtXidsResponseMessage other = (SessionXAGetInDoubtXidsResponseMessage) obj;
-      if (xids == null) {
-         if (other.xids != null)
-            return false;
-      } else if (!xids.equals(other.xids))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(xids, other.xids);
    }
 }

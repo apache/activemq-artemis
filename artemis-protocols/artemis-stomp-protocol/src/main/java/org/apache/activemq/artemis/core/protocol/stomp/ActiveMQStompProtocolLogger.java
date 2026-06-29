@@ -22,9 +22,9 @@ import org.apache.activemq.artemis.logs.annotation.LogMessage;
 import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
- * Logger Code 33
+ * Logger Codes 330000 - 338999
  */
-@LogBundle(projectCode = "AMQ", regexID = "33[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "33[0-8][0-9]{3}")
 public interface ActiveMQStompProtocolLogger {
 
    ActiveMQStompProtocolLogger LOGGER = BundleFactory.newBundle(ActiveMQStompProtocolLogger.class, ActiveMQStompProtocolLogger.class.getPackage().getName());

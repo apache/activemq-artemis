@@ -20,8 +20,7 @@ import javax.jms.Connection;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
-
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,16 +31,17 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FailoverDuplicateIDUsageTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
 
-   @Before
+   @BeforeEach
    public void setupServer() throws Exception {
       server = createServer(true, true);
    }
@@ -62,7 +62,7 @@ public class FailoverDuplicateIDUsageTest extends ActiveMQTestBase {
          for (int i = 0; i < 100; i++) {
             producer.send(session.createTextMessage("hello"));
          }
-         Assert.assertEquals(0, countDuplicateDetection(server.getConfiguration()));
+         assertEquals(0, countDuplicateDetection(server.getConfiguration()));
       }
 
 
@@ -84,7 +84,7 @@ public class FailoverDuplicateIDUsageTest extends ActiveMQTestBase {
       server.getConfiguration().clearAcceptorConfigurations().addAcceptorConfiguration("openwire", "tcp://localhost:61616?openwireUseDuplicateDetectionOnFailover=" + useDuplicate);
       server.start();
       server.waitForActivation(10, TimeUnit.SECONDS);
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("failover:tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {
@@ -97,12 +97,12 @@ public class FailoverDuplicateIDUsageTest extends ActiveMQTestBase {
       }
       server.stop();
 
-      Assert.assertEquals(useDuplicate ? 100 : 0, countDuplicateDetection(server.getConfiguration()));
+      assertEquals(useDuplicate ? 100 : 0, countDuplicateDetection(server.getConfiguration()));
 
    }
 
    private int countDuplicateDetection(Configuration configuration) throws Exception {
-      HashMap<Integer, AtomicInteger> maps = countJournal(configuration);
+      Map<Integer, AtomicInteger> maps = countJournal(configuration);
       AtomicInteger value = maps.get((int)JournalRecordIds.DUPLICATE_ID);
       return value == null ? 0 : value.get();
    }

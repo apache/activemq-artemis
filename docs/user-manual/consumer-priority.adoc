@@ -1,6 +1,7 @@
 = Consumer Priority
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Consumer priorities allow you to ensure that high priority consumers receive messages while they are active.
 

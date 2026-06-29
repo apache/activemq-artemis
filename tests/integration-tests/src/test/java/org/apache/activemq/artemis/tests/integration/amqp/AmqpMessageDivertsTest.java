@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,45 +31,39 @@ import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Transformer {
 
    static final AtomicInteger divertCount = new AtomicInteger(0);
 
-   String largeString = createLargeString();
-
-   protected String createLargeString() {
-      StringBuffer bufferLarge = new StringBuffer();
-      for (int i = 0; i < 500 * 1024; i++) {
-         bufferLarge.append((char) ('a' + (i % 20)));
-      }
-      String largeString = bufferLarge.toString();
-      return largeString;
-   }
+   static final String largeString = RandomUtil.randomAlphaNumericString(500 * 1024);
 
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testQueueReceiverReadMessageWithDivert() throws Exception {
       runQueueReceiverReadMessageWithDivert(ComponentConfigurationRoutingType.ANYCAST.toString());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testQueueReceiverReadMessageWithDivertDefaultRouting() throws Exception {
       runQueueReceiverReadMessageWithDivert(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
    }
 
    public void runQueueReceiverReadMessageWithDivert(String routingType) throws Exception {
       final String forwardingAddress = getQueueName() + "Divert";
-      final SimpleString simpleForwardingAddress = SimpleString.toSimpleString(forwardingAddress);
-      server.createQueue(new QueueConfiguration(simpleForwardingAddress).setRoutingType(RoutingType.ANYCAST));
+      final SimpleString simpleForwardingAddress = SimpleString.of(forwardingAddress);
+      server.createQueue(QueueConfiguration.of(simpleForwardingAddress).setRoutingType(RoutingType.ANYCAST));
       server.getActiveMQServerControl().createDivert("name", "routingName", getQueueName(), forwardingAddress, true, null, null, routingType);
 
       sendMessages(getQueueName(), 1);
@@ -102,8 +99,8 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Tra
    public void testDivertTransformerWithProperties(boolean rebootServer) throws Exception {
       divertCount.set(0);
       final String forwardingAddress = getQueueName() + "Divert";
-      final SimpleString simpleForwardingAddress = SimpleString.toSimpleString(forwardingAddress);
-      server.createQueue(new QueueConfiguration(simpleForwardingAddress).setRoutingType(RoutingType.ANYCAST));
+      final SimpleString simpleForwardingAddress = SimpleString.of(forwardingAddress);
+      server.createQueue(QueueConfiguration.of(simpleForwardingAddress).setRoutingType(RoutingType.ANYCAST));
       server.getActiveMQServerControl().createDivert("name", "routingName", getQueueName(),
                                                      forwardingAddress, true, null, AmqpMessageDivertsTest.class.getName(),
                                                      ComponentConfigurationRoutingType.ANYCAST.toString());
@@ -159,9 +156,9 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Tra
       receiver.flow(2);
       for (int i = 0; i < 2; i++) {
          AmqpMessage receivedMessage = receiver.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(receivedMessage);
-         Assert.assertEquals("here", receivedMessage.getApplicationProperty("always"));
-         Assert.assertEquals("mundo", receivedMessage.getApplicationProperty("oi"));
+         assertNotNull(receivedMessage);
+         assertEquals("here", receivedMessage.getApplicationProperty("always"));
+         assertEquals("mundo", receivedMessage.getApplicationProperty("oi"));
          receivedMessage.accept();
       }
 
@@ -170,8 +167,8 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Tra
          receiver.flow(1);
          AmqpMessage receivedMessage = receiver.receive(5, TimeUnit.SECONDS);
          receivedMessage.accept();
-         Assert.assertEquals("mundo", receivedMessage.getApplicationProperty("oi"));
-         Assert.assertEquals(largeString, receivedMessage.getApplicationProperty("largeString"));
+         assertEquals("mundo", receivedMessage.getApplicationProperty("oi"));
+         assertEquals(largeString, receivedMessage.getApplicationProperty("largeString"));
 
       }
 

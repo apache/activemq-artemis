@@ -16,15 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SynchronousCloseTest extends ActiveMQTestBase {
 
@@ -35,7 +36,7 @@ public class SynchronousCloseTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -65,7 +66,7 @@ public class SynchronousCloseTest extends ActiveMQTestBase {
     */
    @Test
    public void testSynchronousClose() throws Exception {
-      Assert.assertEquals(0, server.getActiveMQServerControl().listRemoteAddresses().length);
+      assertEquals(0, server.getActiveMQServerControl().listRemoteAddresses().length);
 
       ClientSessionFactory sf = createSessionFactory();
 

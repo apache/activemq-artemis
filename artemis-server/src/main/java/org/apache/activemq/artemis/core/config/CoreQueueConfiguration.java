@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -133,7 +134,7 @@ public class CoreQueueConfiguration implements Serializable {
    }
 
    public QueueConfiguration toQueueConfiguration() {
-      return new QueueConfiguration(this.getName())
+      return QueueConfiguration.of(this.getName())
          .setAddress(this.getAddress())
          .setDurable(this.isDurable())
          .setRoutingType(this.getRoutingType())
@@ -156,110 +157,77 @@ public class CoreQueueConfiguration implements Serializable {
 
    public static CoreQueueConfiguration fromQueueConfiguration(QueueConfiguration queueConfiguration) {
       return new CoreQueueConfiguration()
-         .setAddress(queueConfiguration.getAddress() != null ? queueConfiguration.getAddress().toString() : null)
-         .setName(queueConfiguration.getName() != null ? queueConfiguration.getName().toString() : null)
-         .setFilterString(queueConfiguration.getFilterString() != null ? queueConfiguration.getFilterString().toString() : null)
-         .setDurable(queueConfiguration.isDurable() != null ? queueConfiguration.isDurable() : true)
-         .setUser(queueConfiguration.getUser() != null ? queueConfiguration.getUser().toString() : null)
+         .setAddress(Objects.toString(queueConfiguration.getAddress(), null))
+         .setName(Objects.toString(queueConfiguration.getName(), null))
+         .setFilterString(Objects.toString(queueConfiguration.getFilterString(), null))
+         .setDurable(Objects.requireNonNullElse(queueConfiguration.isDurable(), true))
+         .setUser(Objects.toString(queueConfiguration.getUser(), null))
          .setExclusive(queueConfiguration.isExclusive())
          .setGroupRebalance(queueConfiguration.isGroupRebalance())
          .setGroupBuckets(queueConfiguration.getGroupBuckets())
-         .setGroupFirstKey(queueConfiguration.getGroupFirstKey() != null ? queueConfiguration.getGroupFirstKey().toString() : null)
+         .setGroupFirstKey(Objects.toString(queueConfiguration.getGroupFirstKey(), null))
          .setLastValue(queueConfiguration.isLastValue())
-         .setLastValueKey(queueConfiguration.getLastValueKey() != null ? queueConfiguration.getLastValueKey().toString() : null)
+         .setLastValueKey(Objects.toString(queueConfiguration.getLastValueKey(), null))
          .setNonDestructive(queueConfiguration.isNonDestructive())
          .setMaxConsumers(queueConfiguration.getMaxConsumers())
          .setConsumersBeforeDispatch(queueConfiguration.getConsumersBeforeDispatch())
          .setDelayBeforeDispatch(queueConfiguration.getDelayBeforeDispatch())
-         .setRingSize(queueConfiguration.getRingSize() != null ? queueConfiguration.getRingSize() : ActiveMQDefaultConfiguration.getDefaultRingSize())
-         .setEnabled(queueConfiguration.isEnabled() != null ? queueConfiguration.isEnabled() : ActiveMQDefaultConfiguration.getDefaultEnabled())
-         .setPurgeOnNoConsumers(queueConfiguration.isPurgeOnNoConsumers() != null ? queueConfiguration.isPurgeOnNoConsumers() : ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers())
-         .setRoutingType(queueConfiguration.getRoutingType() != null ? queueConfiguration.getRoutingType() : ActiveMQDefaultConfiguration.getDefaultRoutingType());
+         .setRingSize(Objects.requireNonNullElse(queueConfiguration.getRingSize(), ActiveMQDefaultConfiguration.getDefaultRingSize()))
+         .setEnabled(Objects.requireNonNullElse(queueConfiguration.isEnabled(), ActiveMQDefaultConfiguration.getDefaultEnabled()))
+         .setPurgeOnNoConsumers(Objects.requireNonNullElse(queueConfiguration.isPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers()))
+         .setRoutingType(Objects.requireNonNullElse(queueConfiguration.getRoutingType(), ActiveMQDefaultConfiguration.getDefaultRoutingType()));
    }
 
-   /**
-    * @param address the address to set
-    */
    public CoreQueueConfiguration setAddress(final String address) {
       this.address = address;
       return this;
    }
 
-   /**
-    * @param name the name to set
-    */
    public CoreQueueConfiguration setName(final String name) {
       this.name = name;
       return this;
    }
 
-   /**
-    * @param filterString the filterString to set
-    */
    public CoreQueueConfiguration setFilterString(final String filterString) {
       this.filterString = filterString;
       return this;
    }
 
-   /**
-    * @param durable the durable to set; default value is true
-    */
    public CoreQueueConfiguration setDurable(final boolean durable) {
       this.durable = durable;
       return this;
    }
 
-   /**
-    * @param maxConsumers for this queue, default is -1 (unlimited)
-    */
    public CoreQueueConfiguration setMaxConsumers(Integer maxConsumers) {
       this.maxConsumers = maxConsumers;
       return this;
    }
 
-   /**
-    * @param consumersBeforeDispatch for this queue, default is 0 (dispatch as soon as 1 consumer)
-    */
    public CoreQueueConfiguration setConsumersBeforeDispatch(Integer consumersBeforeDispatch) {
       this.consumersBeforeDispatch = consumersBeforeDispatch;
       return this;
    }
 
-   /**
-    * @param delayBeforeDispatch for this queue, default is 0 (start dispatch with no delay)
-    */
    public CoreQueueConfiguration setDelayBeforeDispatch(Long delayBeforeDispatch) {
       this.delayBeforeDispatch = delayBeforeDispatch;
       return this;
    }
 
-   /**
-    * @param ringSize for this queue, default is -1
-    */
    public CoreQueueConfiguration setRingSize(Long ringSize) {
       this.ringSize = ringSize;
       return this;
    }
 
-   /**
-    * @param enabled for this queue, default is true
-    */
    public CoreQueueConfiguration setEnabled(Boolean enabled) {
       this.enabled = enabled;
       return this;
    }
 
-   /**
-    * @param purgeOnNoConsumers delete this queue when consumer count reaches 0, default is false
-    */
    public CoreQueueConfiguration setPurgeOnNoConsumers(Boolean purgeOnNoConsumers) {
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       return this;
    }
 
-   /**
-    * @param user the use you want to associate with creating the queue
-    */
    public CoreQueueConfiguration setUser(String user) {
       this.user = user;
       return this;
@@ -319,143 +287,38 @@ public class CoreQueueConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + (durable ? 1231 : 1237);
-      result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + ((maxConsumers == null) ? 0 : maxConsumers.hashCode());
-      result = prime * result + ((purgeOnNoConsumers == null) ? 0 : purgeOnNoConsumers.hashCode());
-      result = prime * result + ((exclusive == null) ? 0 : exclusive.hashCode());
-      result = prime * result + ((groupRebalance == null) ? 0 : groupRebalance.hashCode());
-      result = prime * result + ((groupBuckets == null) ? 0 : groupBuckets.hashCode());
-      result = prime * result + ((groupFirstKey == null) ? 0 : groupFirstKey.hashCode());
-      result = prime * result + ((lastValue == null) ? 0 : lastValue.hashCode());
-      result = prime * result + ((lastValueKey == null) ? 0 : lastValueKey.hashCode());
-      result = prime * result + ((nonDestructive == null) ? 0 : nonDestructive.hashCode());
-      result = prime * result + ((consumersBeforeDispatch == null) ? 0 : consumersBeforeDispatch.hashCode());
-      result = prime * result + ((delayBeforeDispatch == null) ? 0 : delayBeforeDispatch.hashCode());
-      result = prime * result + ((routingType == null) ? 0 : routingType.hashCode());
-      result = prime * result + ((ringSize == null) ? 0 : ringSize.hashCode());
-      result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
-      return result;
+      return Objects.hash(address, durable, filterString, name, maxConsumers, purgeOnNoConsumers, exclusive,
+                          groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive,
+                          consumersBeforeDispatch, delayBeforeDispatch, routingType, ringSize, enabled);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
-         return false;
-      if (getClass() != obj.getClass())
-         return false;
-      CoreQueueConfiguration other = (CoreQueueConfiguration) obj;
-      if (address == null) {
-         if (other.address != null)
-            return false;
-      } else if (!address.equals(other.address))
-         return false;
-      if (durable != other.durable)
-         return false;
-      if (filterString == null) {
-         if (other.filterString != null)
-            return false;
-      } else if (!filterString.equals(other.filterString))
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      if (maxConsumers == null) {
-         if (other.maxConsumers != null)
-            return false;
-      } else if (!maxConsumers.equals(other.maxConsumers))
-         return false;
-      if (purgeOnNoConsumers == null) {
-         if (other.purgeOnNoConsumers != null)
-            return false;
-      } else if (!purgeOnNoConsumers.equals(other.purgeOnNoConsumers)) {
-         return false;
       }
-      if (ringSize == null) {
-         if (other.ringSize != null)
-            return false;
-      } else if (!ringSize.equals(other.ringSize)) {
-         return false;
-      }
-      if (enabled == null) {
-         if (other.enabled != null)
-            return false;
-      } else if (!enabled.equals(other.enabled)) {
-         return false;
-      }
-      if (exclusive == null) {
-         if (other.exclusive != null)
-            return false;
-      } else if (!exclusive.equals(other.exclusive)) {
+      if (!(obj instanceof CoreQueueConfiguration other)) {
          return false;
       }
 
-      if (groupRebalance == null) {
-         if (other.groupRebalance != null)
-            return false;
-      } else if (!groupRebalance.equals(other.groupRebalance)) {
-         return false;
-      }
-
-      if (groupBuckets == null) {
-         if (other.groupBuckets != null)
-            return false;
-      } else if (!groupBuckets.equals(other.groupBuckets)) {
-         return false;
-      }
-
-      if (groupFirstKey == null) {
-         if (other.groupFirstKey != null)
-            return false;
-      } else if (!groupFirstKey.equals(other.groupFirstKey)) {
-         return false;
-      }
-
-      if (lastValue == null) {
-         if (other.lastValue != null)
-            return false;
-      } else if (!lastValue.equals(other.lastValue)) {
-         return false;
-      }
-      if (lastValueKey == null) {
-         if (other.lastValueKey != null)
-            return false;
-      } else if (!lastValueKey.equals(other.lastValueKey)) {
-         return false;
-      }
-      if (nonDestructive == null) {
-         if (other.nonDestructive != null)
-            return false;
-      } else if (!nonDestructive.equals(other.nonDestructive)) {
-         return false;
-      }
-      if (consumersBeforeDispatch == null) {
-         if (other.consumersBeforeDispatch != null)
-            return false;
-      } else if (!consumersBeforeDispatch.equals(other.consumersBeforeDispatch)) {
-         return false;
-      }
-      if (delayBeforeDispatch == null) {
-         if (other.delayBeforeDispatch != null)
-            return false;
-      } else if (!delayBeforeDispatch.equals(other.delayBeforeDispatch)) {
-         return false;
-      }
-      if (routingType == null) {
-         if (other.routingType != null)
-            return false;
-      } else if (!routingType.equals(other.routingType)) {
-         return false;
-      }
-      return true;
+      return Objects.equals(address, other.address) &&
+             durable == other.durable &&
+             Objects.equals(filterString, other.filterString) &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(maxConsumers, other.maxConsumers) &&
+             Objects.equals(purgeOnNoConsumers, other.purgeOnNoConsumers) &&
+             Objects.equals(ringSize, other.ringSize) &&
+             Objects.equals(enabled, other.enabled) &&
+             Objects.equals(exclusive, other.exclusive) &&
+             Objects.equals(groupRebalance, other.groupRebalance) &&
+             Objects.equals(groupBuckets, other.groupBuckets) &&
+             Objects.equals(groupFirstKey, other.groupFirstKey) &&
+             Objects.equals(lastValue, other.lastValue) &&
+             Objects.equals(lastValueKey, other.lastValueKey) &&
+             Objects.equals(nonDestructive, other.nonDestructive) &&
+             Objects.equals(consumersBeforeDispatch, other.consumersBeforeDispatch) &&
+             Objects.equals(delayBeforeDispatch, other.delayBeforeDispatch) &&
+             Objects.equals(routingType, other.routingType);
    }
 
    @Override

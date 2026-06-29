@@ -18,17 +18,17 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq</groupId>
+      <groupId>org.apache.artemis</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>2.31.0-SNAPSHOT</version>
+      <version>2.56.0-SNAPSHOT</version>
+      <relativePath>../artemis-pom/pom.xml</relativePath>
    </parent>
 
    <artifactId>artemis-website</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis Website</name>
+   <name>Apache Artemis Website</name>
 
    <properties>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
       <!-- we need a "scratch" directory because we dynamically generate a few docs -->
       <scratch-dir-user-manual>${project.build.directory}/scratch/user-manual</scratch-dir-user-manual>
       <skipWebsiteDocGeneration>false</skipWebsiteDocGeneration>
@@ -41,24 +41,20 @@
          <id>release</id>
          <dependencies>
             <dependency>
-               <groupId>org.apache.activemq</groupId>
+               <groupId>org.apache.artemis</groupId>
                <artifactId>artemis-core-client</artifactId>
-               <version>${project.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.activemq</groupId>
+               <groupId>org.apache.artemis</groupId>
                <artifactId>artemis-jms-client</artifactId>
-               <version>${project.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.activemq</groupId>
+               <groupId>org.apache.artemis</groupId>
                <artifactId>artemis-server</artifactId>
-               <version>${project.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.activemq</groupId>
+               <groupId>org.apache.artemis</groupId>
                <artifactId>artemis-commons</artifactId>
-               <version>${project.version}</version>
             </dependency>
             <dependency>
                <groupId>jakarta.json</groupId>
@@ -75,7 +71,7 @@
               <scope>provided</scope>
             </dependency>
             <dependency>
-               <groupId>org.apache.activemq</groupId>
+               <groupId>org.apache.artemis</groupId>
                <artifactId>artemis-log-annotation-processor</artifactId>
                <version>${project.version}</version>
                <scope>provided</scope>
@@ -94,8 +90,8 @@
                            <goal>jar</goal>
                         </goals>
                         <configuration>
-                           <doctitle>ActiveMQ Artemis ${project.version} API</doctitle>
-                           <source>11</source>
+                           <windowtitle>Apache Artemis ${project.version} API</windowtitle>
+                           <doctitle>Apache Artemis ${project.version} API</doctitle>
                            <minmemory>128m</minmemory>
                            <maxmemory>512m</maxmemory>
                            <noindex>true</noindex>
@@ -104,10 +100,10 @@
                            <includeDependencySources>true</includeDependencySources>
                            <dependencySourceIncludes>
                               <!-- include ONLY dependencies I control -->
-                              <dependencySourceInclude>org.apache.activemq:artemis-core-client</dependencySourceInclude>
-                              <dependencySourceInclude>org.apache.activemq:artemis-jms-client</dependencySourceInclude>
-                              <dependencySourceInclude>org.apache.activemq:artemis-server</dependencySourceInclude>
-                              <dependencySourceInclude>org.apache.activemq:artemis-commons</dependencySourceInclude>
+                              <dependencySourceInclude>org.apache.artemis:artemis-core-client</dependencySourceInclude>
+                              <dependencySourceInclude>org.apache.artemis:artemis-jms-client</dependencySourceInclude>
+                              <dependencySourceInclude>org.apache.artemis:artemis-server</dependencySourceInclude>
+                              <dependencySourceInclude>org.apache.artemis:artemis-commons</dependencySourceInclude>
                            </dependencySourceIncludes>
                            <sourceFileIncludes>
                               <sourceFileInclude>**/org/apache/activemq/artemis/api/**/*.java</sourceFileInclude>
@@ -124,7 +120,7 @@
                   </executions>
                </plugin>
                <plugin>
-                  <groupId>org.apache.activemq</groupId>
+                  <groupId>org.apache.artemis</groupId>
                   <artifactId>artemis-maven-plugin</artifactId>
                   <version>${project.version}</version>
                   <executions>
@@ -137,7 +133,7 @@
                         <configuration>
                            <file>${scratch-dir-user-manual}/client-classpath-jms.adoc</file>
                            <groupOrder>
-                              <arg>org.apache.activemq</arg>
+                              <arg>org.apache.artemis</arg>
                               <arg>jakarta.jms</arg>
                               <arg>org.jgroups</arg>
                               <arg>io.netty</arg>
@@ -165,7 +161,7 @@
                               <arg>only if you want kqueue on MacOS</arg>
                               <arg>only if you want JGroups discovery from the clients</arg>
                            </detailValue>
-                           <lib>org.apache.activemq:artemis-jms-client:${project.version}</lib>
+                           <lib>org.apache.artemis:artemis-jms-client:${project.version}</lib>
                         </configuration>
                      </execution>
                      <execution>
@@ -177,7 +173,7 @@
                         <configuration>
                            <file>${scratch-dir-user-manual}/client-classpath-jakarta.adoc</file>
                            <groupOrder>
-                              <arg>org.apache.activemq</arg>
+                              <arg>org.apache.artemis</arg>
                               <arg>jakarta.jms</arg>
                               <arg>org.jgroups</arg>
                               <arg>io.netty</arg>
@@ -205,7 +201,7 @@
                               <arg>only if you want kqueue on MacOS</arg>
                               <arg>only if you want JGroups discovery from the clients</arg>
                            </detailValue>
-                           <lib>org.apache.activemq:artemis-jakarta-client:${project.version}</lib>
+                           <lib>org.apache.artemis:artemis-jakarta-client:${project.version}</lib>
                         </configuration>
                      </execution>
                   </executions>
@@ -301,7 +297,7 @@
                            <outputDirectory>${project.build.outputDirectory}/user-manual</outputDirectory>
                            <backend>html5</backend>
                            <attributes>
-                              <toc-title>&lt;a href="index.html">User Manual for ${project.version}&lt;/a></toc-title>
+                              <toc-title>&lt;a href="index.html"&gt;User Manual for ${project.version}&lt;/a&gt;</toc-title>
                               <favicon>images/favicon.png</favicon>
                            </attributes>
                         </configuration>
@@ -368,19 +364,37 @@
                         <toc>left</toc>
                         <icons>font</icons>
                         <toclevels>2</toclevels>
-                        <sectlinks/>
-                        <sectanchors/>
+                        <sectlinks />
+                        <sectanchors />
                         <sectnumlevels>3</sectnumlevels>
-                        <sectnums/>
-                        <idprefix/>
+                        <sectnums />
+                        <idprefix />
                         <idseparator>-</idseparator>
-                        <project-version>${project.version}</project-version>
                         <nofooter>true</nofooter>
                         <linkcss>true</linkcss>
                         <iconfont-remote>false</iconfont-remote>
                         <stylesdir>css</stylesdir>
                         <webfonts>false</webfonts>
+                        <prewrap>false</prewrap>
+                        <reproducible />
+                        <!-- enable "experimental" for keyboard macros - https://docs.asciidoctor.org/asciidoc/latest/macros/keyboard-macro/ -->
+                        <experimental>true</experimental>
+
+                        <!-- Version substitution attributes -->
+                        <project-version>${project.version}</project-version>
+                        <project-name-full>Apache Artemis</project-name-full>
+                        <project-name-full-url>apache-artemis</project-name-full-url>
+                        <project-name-short>Artemis</project-name-short>
+                        <log4j-version>${log4j.version}</log4j-version>
+                        <artemis-console-version>${artemis-console-version}</artemis-console-version>
                      </attributes>
+                     <logHandler>
+                        <outputToConsole>false</outputToConsole>
+                        <failIf>
+                           <!-- https://docs.asciidoctor.org/asciidoctor/latest/errors-and-warnings/#info -->
+                           <containsText>possible invalid reference</containsText>
+                        </failIf>
+                     </logHandler>
                   </configuration>
                </plugin>
             </plugins>

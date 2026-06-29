@@ -26,9 +26,6 @@ import org.apache.activemq.EmbeddedBrokerTestSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class TransportUriTest extends EmbeddedBrokerTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(TransportUriTest.class);

@@ -16,13 +16,16 @@
  */
 package org.apache.activemq.artemis.core.server.federation;
 
+import javax.security.auth.Subject;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
+import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 
 public class FederationManager implements ActiveMQComponent {
 
@@ -30,16 +33,17 @@ public class FederationManager implements ActiveMQComponent {
 
    private Map<String, Federation> federations = new HashMap<>();
    private State state;
+   private List<String> downstreamAuthorization;
 
    enum State {
       STOPPED,
       STOPPING,
       /**
-       * Deployed means {@link FederationManager#deploy()} was called but
-       * {@link FederationManager#start()} was not called.
+       * Deployed means {@link FederationManager#deploy()} was called but {@link FederationManager#start()} was not
+       * called.
        * <p>
-       * We need the distinction if {@link FederationManager#stop()} is called before 'start'. As
-       * otherwise we would leak locators.
+       * We need the distinction if {@link FederationManager#stop()} is called before 'start'. As otherwise we would
+       * leak locators.
        */
       DEPLOYED, STARTED,
    }
@@ -47,11 +51,14 @@ public class FederationManager implements ActiveMQComponent {
 
    public FederationManager(final ActiveMQServer server) {
       this.server = server;
+      this.downstreamAuthorization = server.getConfiguration().getFederationDownstreamAuthorization();
    }
 
    @Override
    public synchronized void start() throws ActiveMQException {
-      if (state == State.STARTED) return;
+      if (state == State.STARTED) {
+         return;
+      }
       deploy();
       for (Federation federation : federations.values()) {
          federation.start();
@@ -61,7 +68,9 @@ public class FederationManager implements ActiveMQComponent {
 
    @Override
    public synchronized void stop() {
-      if (state == State.STOPPED) return;
+      if (state == State.STOPPED) {
+         return;
+      }
       state = State.STOPPING;
 
 
@@ -90,8 +99,9 @@ public class FederationManager implements ActiveMQComponent {
       Federation federation = federations.remove(name);
       if (federation != null) {
          federation.stop();
+         return true;
       }
-      return true;
+      return false;
    }
 
 
@@ -127,6 +137,18 @@ public class FederationManager implements ActiveMQComponent {
 
    public void unregister(FederatedAbstract federatedAbstract) {
       server.unRegisterBrokerPlugin(federatedAbstract);
+   }
+
+   public boolean authorizeDownstreamDeployment(Subject subject) {
+      if (!server.getSecurityStore().isSecurityEnabled()) {
+         return true;
+      }
+      for (RolePrincipal role : subject.getPrincipals(RolePrincipal.class)) {
+         if (downstreamAuthorization.contains(role.getName())) {
+            return true;
+         }
+      }
+      return false;
    }
 
 }

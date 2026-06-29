@@ -23,6 +23,7 @@ import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.Session;
+import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
@@ -40,7 +41,7 @@ public class Consumer extends DestAbstract {
    @Option(names = "--break-on-null", description = "Stop consuming when a null message is received.")
    boolean breakOnNull = false;
 
-   @Option(names = "--receive-timeout", description = "Timeout for receiving messages (in milliseconds).")
+   @Option(names = "--receive-timeout", description = "Timeout for receiving messages (in milliseconds). Specify -1 to wait forever.")
    int receiveTimeout = 3000;
 
    @Option(names = "--filter", description = "The message filter.")
@@ -49,31 +50,44 @@ public class Consumer extends DestAbstract {
    @Option(names = "--data", description = "Serialize the messages to the specified file as they are consumed.")
    String file;
 
+   @Option(names = "--subscriptionName", description = "The subscription name to use for a durable consumer.")
+   String subscriptionName;
+
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
       context.out.println("Consumer:: filter = " + filter);
 
+      OutputStream outputStream = null;
+
       SerialiserMessageListener listener = null;
       MessageSerializer serializer = null;
       if (file != null) {
          serializer = getMessageSerializer();
          if (serializer == null) {
-            System.err.println("Error. Unable to instantiate serializer class: " + this.serializer);
+            context.err.println("Error. Unable to instantiate serializer class: " + this.serializer);
             return null;
          }
 
-         OutputStream out;
          try {
-            out = new FileOutputStream(file);
+            outputStream = new BufferedOutputStream(new FileOutputStream(file));
          } catch (Exception e) {
-            System.err.println("Error: Unable to open file for writing\n" + e.getMessage());
+            context.err.println("Error: Unable to open file for writing\n" + e.getMessage());
             return null;
          }
 
-         listener = new SerialiserMessageListener(serializer, out);
+         listener = new SerialiserMessageListener(serializer, outputStream);
          serializer.start();
+      }
+
+      if (subscriptionName != null) {
+         if (threads != 1) {
+            context.err.println("Error: Cannot assign a subscription name when multiple threads are also configured.");
+            return null;
+         } else {
+            context.out.println("Consumer:: subscription name = " + subscriptionName);
+         }
       }
 
       ConnectionFactory factory = createConnectionFactory();
@@ -90,7 +104,11 @@ public class Consumer extends DestAbstract {
             }
 
             Destination dest = getDestination(session);
-            threadsArray[i] = new ConsumerThread(session, dest, i);
+            if (subscriptionName == null) {
+               threadsArray[i] = new ConsumerThread(session, dest, i, context);
+            } else {
+               threadsArray[i] = new ConsumerThread(session, dest, subscriptionName, context);
+            }
 
             threadsArray[i]
                .setVerbose(verbose)
@@ -113,16 +131,31 @@ public class Consumer extends DestAbstract {
 
          long received = 0;
 
-         for (ConsumerThread thread : threadsArray) {
-            thread.join();
-            received += thread.getReceived();
-         }
-
-         if (serializer != null) {
-            serializer.stop();
+         try {
+            for (ConsumerThread thread : threadsArray) {
+               thread.join();
+               received += thread.getReceived();
+            }
+         } catch (InterruptedException e) {
+            // Interrupt any sub threads if an interrupt is captured
+            for (Thread t : threadsArray) {
+               t.interrupt();
+            }
+            throw e;
          }
 
          return received;
+      } finally {
+         try {
+            if (serializer != null) {
+               serializer.stop();
+            }
+
+            if (outputStream != null) {
+               outputStream.close();
+            }
+         } catch (Throwable ignored) {
+         }
       }
    }
 
@@ -183,6 +216,15 @@ public class Consumer extends DestAbstract {
 
    public Consumer setFile(String file) {
       this.file = file;
+      return this;
+   }
+
+   public String getSubscriptionName() {
+      return subscriptionName;
+   }
+
+   public Consumer setSubscriptionName(String subscriptionName) {
+      this.subscriptionName = subscriptionName;
       return this;
    }
 }

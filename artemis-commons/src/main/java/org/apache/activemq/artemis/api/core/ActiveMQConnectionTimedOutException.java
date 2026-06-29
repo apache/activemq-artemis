@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- * A client timed out will connecting to ActiveMQ Artemis server.
+ * A client timed out will connecting to Apache Artemis server.
  */
 public final class ActiveMQConnectionTimedOutException extends ActiveMQException {
 

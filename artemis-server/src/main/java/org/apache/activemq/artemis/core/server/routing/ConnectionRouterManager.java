@@ -46,18 +46,21 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class ConnectionRouterManager implements ActiveMQComponent {
+
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String CACHE_ID_PREFIX = "$.BC.";
-
-
-   private final Configuration config;
 
    private final ActiveMQServer server;
 
@@ -65,32 +68,84 @@ public final class ConnectionRouterManager implements ActiveMQComponent {
 
    private volatile boolean started = false;
 
-   private Map<String, ConnectionRouter> connectionRouters = new HashMap<>();
+   private final ReentrantReadWriteLock stateLock = new ReentrantReadWriteLock();
 
+   private Map<String, ConnectionRouterConfiguration> configurations = new HashMap<>();
+   private Map<String, ConnectionRouter> connectionRouters = new HashMap<>();
 
    @Override
    public boolean isStarted() {
       return started;
    }
 
-
-   public ConnectionRouterManager(final Configuration config, final ActiveMQServer server, ScheduledExecutorService scheduledExecutor) {
-      this.config = config;
+   public ConnectionRouterManager(final ActiveMQServer server, ScheduledExecutorService scheduledExecutor) {
       this.server = server;
       this.scheduledExecutor = scheduledExecutor;
    }
 
-   public void deploy() throws Exception {
-      for (ConnectionRouterConfiguration connectionRouterConfig : config.getConnectionRouters()) {
-         deployConnectionRouter(connectionRouterConfig);
+   public void deploy(Configuration config) throws Exception {
+      stateLock.writeLock().lock();
+      try {
+         for (ConnectionRouterConfiguration connectionRouterConfig : config.getConnectionRouters()) {
+            deployConnectionRouter(connectionRouterConfig);
+         }
+      } finally {
+         stateLock.writeLock().unlock();
       }
    }
 
-   public void deployConnectionRouter(ConnectionRouterConfiguration config) throws Exception {
+   public void update(Configuration config) throws Exception {
+      stateLock.writeLock().lock();
+      try {
+         final List<ConnectionRouterConfiguration> activeConfiguration = Objects.requireNonNullElse(config.getConnectionRouters(), Collections.emptyList());
+
+         for (ConnectionRouterConfiguration configuration : activeConfiguration) {
+            final ConnectionRouterConfiguration previous = configurations.get(configuration.getName());
+
+            if (previous == null || !configuration.equals(previous)) {
+               // If this was an update and the connection router is active meaning the manager is
+               // started then we need to stop the old one if it exists before attempting to deploy
+               // a new version with the updated configuration.
+               final ConnectionRouter router = connectionRouters.remove(configuration.getName());
+
+               if (router != null) {
+                  router.stop();
+                  server.getManagementService().unregisterConnectionRouter(router.getName());
+               }
+
+               deployConnectionRouter(configuration);
+            }
+         }
+
+         // Find any removed configurations and remove them from the current set and stop the associated
+         // router if one is present.
+
+         final Map<String, ConnectionRouterConfiguration> activeConfigurationsMap =
+            activeConfiguration.stream()
+                               .collect(Collectors.toMap(c -> c.getName(), Function.identity()));
+
+         final List<ConnectionRouterConfiguration> removedConfigurations =
+            configurations.values().stream().filter(c -> !activeConfigurationsMap.containsKey(c.getName())).toList();
+
+         for (ConnectionRouterConfiguration removedConfiguration : removedConfigurations) {
+            configurations.remove(removedConfiguration.getName());
+
+            final ConnectionRouter router = connectionRouters.remove(removedConfiguration.getName());
+
+            if (router != null) {
+               router.stop();
+               server.getManagementService().unregisterConnectionRouter(router.getName());
+            }
+         }
+      } finally {
+         stateLock.writeLock().unlock();
+      }
+   }
+
+   ConnectionRouter deployConnectionRouter(ConnectionRouterConfiguration config) throws Exception {
       logger.debug("Deploying ConnectionRouter {}", config.getName());
 
       Target localTarget = new LocalTarget(null, server);
-
 
       Cache cache = null;
       CacheConfiguration cacheConfiguration = config.getCacheConfiguration();
@@ -113,9 +168,16 @@ public final class ConnectionRouterManager implements ActiveMQComponent {
       ConnectionRouter connectionRouter = new ConnectionRouter(config.getName(), config.getKeyType(),
          config.getKeyFilter(), localTarget, config.getLocalTargetFilter(), cache, pool, policy);
 
+      configurations.put(connectionRouter.getName(), config);
       connectionRouters.put(connectionRouter.getName(), connectionRouter);
 
       server.getManagementService().registerConnectionRouter(connectionRouter);
+
+      if (isStarted()) {
+         connectionRouter.start();
+      }
+
+      return connectionRouter;
    }
 
    private Cache deployCache(CacheConfiguration configuration, String name) throws ClassNotFoundException {
@@ -191,25 +253,40 @@ public final class ConnectionRouterManager implements ActiveMQComponent {
    }
 
    public ConnectionRouter getRouter(String name) {
-      return connectionRouters.get(name);
+      stateLock.readLock().lock();
+      try {
+         return connectionRouters.get(name);
+      } finally {
+         stateLock.readLock().unlock();
+      }
    }
 
    @Override
    public void start() throws Exception {
-      for (ConnectionRouter connectionRouter : connectionRouters.values()) {
-         connectionRouter.start();
-      }
+      stateLock.writeLock().lock();
+      try {
+         started = true;
 
-      started = true;
+         for (ConnectionRouter connectionRouter : connectionRouters.values()) {
+            connectionRouter.start();
+         }
+      } finally {
+         stateLock.writeLock().unlock();
+      }
    }
 
    @Override
    public void stop() throws Exception {
-      started = false;
+      stateLock.writeLock().lock();
+      try {
+         started = false;
 
-      for (ConnectionRouter connectionRouter : connectionRouters.values()) {
-         connectionRouter.stop();
-         server.getManagementService().unregisterConnectionRouter(connectionRouter.getName());
+         for (ConnectionRouter connectionRouter : connectionRouters.values()) {
+            connectionRouter.stop();
+            server.getManagementService().unregisterConnectionRouter(connectionRouter.getName());
+         }
+      } finally {
+         stateLock.writeLock().unlock();
       }
    }
 }

@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
@@ -23,7 +28,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -32,19 +39,19 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class PahoMQTTTest extends MQTTTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameters(name = "protocol={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][] {{"tcp"}, {"ws"}});
    }
@@ -55,7 +62,8 @@ public class PahoMQTTTest extends MQTTTestSupport {
       this.protocol = protocol;
    }
 
-   @Test(timeout = 300000)
+   @TestTemplate
+   @Timeout(60)
    public void testLotsOfClients() throws Exception {
 
       final int CLIENTS = Integer.getInteger("PahoMQTTTest.CLIENTS", 100);
@@ -112,26 +120,22 @@ public class PahoMQTTTest extends MQTTTestSupport {
       }
 
       connectedDoneLatch.await();
-      assertNull("Async error: " + asyncError.get(), asyncError.get());
+      assertNull(asyncError.get(), "Async error: " + asyncError.get());
       sendBarrier.countDown();
 
       logger.debug("All clients connected... waiting to receive sent messages...");
 
       // We should eventually get all the messages.
-      within(30, TimeUnit.SECONDS, new Task() {
-         @Override
-         public void run() throws Exception {
-            assertTrue(receiveCounter.get() == CLIENTS * 10);
-         }
-      });
+      within(30, TimeUnit.SECONDS, () -> assertEquals(receiveCounter.get(), CLIENTS * 10));
 
       logger.debug("All messages received.");
 
       disconnectDoneLatch.await();
-      assertNull("Async error: " + asyncError.get(), asyncError.get());
+      assertNull(asyncError.get(), "Async error: " + asyncError.get());
    }
 
-   @Test(timeout = 300000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendAndReceiveMQTT() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -165,9 +169,10 @@ public class PahoMQTTTest extends MQTTTestSupport {
       producer.close();
    }
 
-   @Test(timeout = 300000)
+   @TestTemplate
+   @Timeout(60)
    public void testSessionPresentWithCleanSession() throws Exception {
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectOptions options = new MqttConnectOptions();
       options.setCleanSession(true);
       IMqttToken result = client.connectWithResult(options);
@@ -175,9 +180,10 @@ public class PahoMQTTTest extends MQTTTestSupport {
       client.disconnect();
    }
 
-   @Test(timeout = 300000)
+   @TestTemplate
+   @Timeout(60)
    public void testSessionPresent() throws Exception {
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectOptions options = new MqttConnectOptions();
       options.setCleanSession(false);
       IMqttToken result = client.connectWithResult(options);
@@ -191,10 +197,9 @@ public class PahoMQTTTest extends MQTTTestSupport {
       return new MqttClient(protocol + "://localhost:" + getPort(), clientId, new MemoryPersistence());
    }
 
-   /*
-    * This test was adapted from a test from Eclipse Kapua submitted by a community member.
-    */
-   @Test(timeout = 300000)
+   // This test was adapted from a test from Eclipse Kapua submitted by a community member.
+   @TestTemplate
+   @Timeout(60)
    public void testDollarAndHashSubscriptions() throws Exception {
       final String CLIENT_ID_ADMIN = "test-client-admin";
       final String CLIENT_ID_1 = "test-client-1";

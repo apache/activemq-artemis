@@ -16,35 +16,36 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BackupManagerInheritedConfigTest extends FailoverTestBase {
 
    @Override
    protected void createConfigs() throws Exception {
       nodeManager = createNodeManager();
-      TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector)
-         .addClusterConfiguration(createBasicClusterConfig(backupConnector.getName(), liveConnector.getName())
+      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration()).addConnectorConfiguration(primaryConnector.getName(), primaryConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector)
+                          .addClusterConfiguration(createBasicClusterConfig(backupConnector.getName(), primaryConnector.getName())
                                      .setRetryInterval(333)
                                      .setClientFailureCheckPeriod(1000)
                                      .setConnectionTTL(5000));
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addClusterConfiguration(createBasicClusterConfig(liveConnector.getName()).setRetryInterval(333)).addConnectorConfiguration(liveConnector.getName(), liveConnector);
+      primaryConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration()).addClusterConfiguration(createBasicClusterConfig(primaryConnector.getName()).setRetryInterval(333)).addConnectorConfiguration(primaryConnector.getName(), primaryConnector);
 
-      liveServer = createTestableServer(liveConfig);
+      primaryServer = createTestableServer(primaryConfig);
    }
 
    @Test
@@ -53,10 +54,10 @@ public class BackupManagerInheritedConfigTest extends FailoverTestBase {
       for (BackupManager.BackupConnector backupConnector : server.getBackupManager().getBackupConnectors()) {
 
          Wait.assertTrue(() -> backupConnector.getBackupServerLocator() != null);
-         Assert.assertEquals(333, backupConnector.getBackupServerLocator().getRetryInterval());
-         Assert.assertEquals(-1, backupConnector.getBackupServerLocator().getReconnectAttempts());
-         Assert.assertEquals(1000, backupConnector.getBackupServerLocator().getClientFailureCheckPeriod());
-         Assert.assertEquals(5000, backupConnector.getBackupServerLocator().getConnectionTTL());
+         assertEquals(333, backupConnector.getBackupServerLocator().getRetryInterval());
+         assertEquals(-1, backupConnector.getBackupServerLocator().getReconnectAttempts());
+         assertEquals(1000, backupConnector.getBackupServerLocator().getClientFailureCheckPeriod());
+         assertEquals(5000, backupConnector.getBackupServerLocator().getConnectionTTL());
       }
    }
 

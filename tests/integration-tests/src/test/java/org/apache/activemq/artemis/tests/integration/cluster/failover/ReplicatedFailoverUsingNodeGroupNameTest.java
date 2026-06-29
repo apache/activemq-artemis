@@ -24,14 +24,14 @@ public class ReplicatedFailoverUsingNodeGroupNameTest extends ReplicatedFailover
    @Override
    protected void createReplicatedConfigs() throws Exception {
       super.createReplicatedConfigs();
-      ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
-      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
+      ((ReplicatedPolicyConfiguration) primaryConfig.getHAPolicyConfiguration()).setGroupName("primaryNodeGroup1");
+      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setGroupName("primaryNodeGroup1");
    }
 
    @Override
    protected void setupHAPolicyConfiguration() {
       super.setupHAPolicyConfiguration();
-      ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
-      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
+      ((ReplicatedPolicyConfiguration) primaryConfig.getHAPolicyConfiguration()).setGroupName("primaryNodeGroup1");
+      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setGroupName("primaryNodeGroup1");
    }
 }

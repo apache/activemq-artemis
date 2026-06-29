@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SparseArrayLinkedListTest {
 
@@ -33,35 +35,41 @@ public class SparseArrayLinkedListTest {
       list = new SparseArrayLinkedList<>(SPARSE_ARRAY_CAPACITY);
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void shouldFailToCreateZeroArrayCapacityCollection() {
-      new SparseArrayLinkedList<>(0);
+      assertThrows(IllegalArgumentException.class, () -> {
+         new SparseArrayLinkedList<>(0);
+      });
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void shouldFailToCreateNegativeArrayCapacityCollection() {
-      new SparseArrayLinkedList<>(-1);
+      assertThrows(IllegalArgumentException.class, () -> {
+         new SparseArrayLinkedList<>(-1);
+      });
    }
 
-   @Test(expected = NullPointerException.class)
+   @Test
    public void shouldFailToAddNull() {
-      list.add(null);
+      assertThrows(NullPointerException.class, () -> {
+         list.add(null);
+      });
    }
 
    @Test
    public void shouldNumberOfElementsBeTheSameOfTheAddedElements() {
       final int elements = ELEMENTS;
       for (int i = 0; i < elements; i++) {
-         Assert.assertEquals(i, list.size());
+         assertEquals(i, list.size());
          list.add(i);
       }
-      Assert.assertEquals(elements, list.size());
+      assertEquals(elements, list.size());
    }
 
    @Test
    public void shouldClearConsumeElementsInOrder() {
       final int elements = ELEMENTS;
-      Assert.assertEquals(0, list.clear(null));
+      assertEquals(0, list.clear(null));
       final ArrayList<Integer> expected = new ArrayList<>(elements);
       for (int i = 0; i < elements; i++) {
          final Integer added = i;
@@ -69,10 +77,10 @@ public class SparseArrayLinkedListTest {
          expected.add(added);
       }
       final List<Integer> removed = new ArrayList<>(elements);
-      Assert.assertEquals(elements, list.clear(removed::add));
-      Assert.assertEquals(1, list.sparseArraysCount());
-      Assert.assertEquals(0, list.size());
-      Assert.assertEquals(expected, removed);
+      assertEquals(elements, list.clear(removed::add));
+      assertEquals(1, list.sparseArraysCount());
+      assertEquals(0, list.size());
+      assertEquals(expected, removed);
    }
 
    @Test
@@ -81,15 +89,15 @@ public class SparseArrayLinkedListTest {
       for (int i = 0; i < elements; i++) {
          list.add(i);
       }
-      Assert.assertEquals(1, list.remove(e -> e.intValue() == 0));
-      Assert.assertEquals(elements - 1, list.size());
-      Assert.assertEquals(0, list.remove(e -> e.intValue() == 0));
-      Assert.assertEquals(elements - 1, list.size());
-      Assert.assertEquals(elements - 1, list.remove(e -> true));
-      Assert.assertEquals(0, list.size());
-      Assert.assertEquals(1, list.sparseArraysCount());
-      Assert.assertEquals(0, list.remove(e -> true));
-      Assert.assertEquals(1, list.sparseArraysCount());
+      assertEquals(1, list.remove(e -> e.intValue() == 0));
+      assertEquals(elements - 1, list.size());
+      assertEquals(0, list.remove(e -> e.intValue() == 0));
+      assertEquals(elements - 1, list.size());
+      assertEquals(elements - 1, list.remove(e -> true));
+      assertEquals(0, list.size());
+      assertEquals(1, list.sparseArraysCount());
+      assertEquals(0, list.remove(e -> true));
+      assertEquals(1, list.sparseArraysCount());
    }
 
    @Test
@@ -101,21 +109,21 @@ public class SparseArrayLinkedListTest {
       // remove elements in the middle
       final int startInclusiveMiddle = list.sparseArrayCapacity();
       final int endNotInclusiveMiddle = startInclusiveMiddle + list.sparseArrayCapacity();
-      Assert.assertEquals(list.sparseArrayCapacity(),
+      assertEquals(list.sparseArrayCapacity(),
                           list.remove(e -> e.intValue() >= startInclusiveMiddle && e.intValue() < endNotInclusiveMiddle));
-      Assert.assertEquals(2, list.sparseArraysCount());
+      assertEquals(2, list.sparseArraysCount());
       // remove elements at the beginning
       final int startInclusiveFirst = 0;
       final int endNotInclusiveFirst = startInclusiveMiddle;
-      Assert.assertEquals(list.sparseArrayCapacity(),
+      assertEquals(list.sparseArrayCapacity(),
                           list.remove(e -> e.intValue() >= startInclusiveFirst && e.intValue() < endNotInclusiveFirst));
-      Assert.assertEquals(1, list.sparseArraysCount());
+      assertEquals(1, list.sparseArraysCount());
       // remove all elements at the end
       final int startInclusiveLast = endNotInclusiveMiddle;
       final int endNotInclusiveLast = elements;
-      Assert.assertEquals(list.sparseArrayCapacity(),
+      assertEquals(list.sparseArrayCapacity(),
                           list.remove(e -> e.intValue() >= startInclusiveLast && e.intValue() < endNotInclusiveLast));
-      Assert.assertEquals(1, list.sparseArraysCount());
+      assertEquals(1, list.sparseArraysCount());
    }
 
    @Test
@@ -124,14 +132,14 @@ public class SparseArrayLinkedListTest {
       for (int i = 0; i < elements; i++) {
          list.add(i);
       }
-      Assert.assertEquals(1, list.sparseArraysCount());
+      assertEquals(1, list.sparseArraysCount());
       // removing last element
-      Assert.assertEquals(1, list.remove(e -> e.intValue() == elements - 1));
+      assertEquals(1, list.remove(e -> e.intValue() == elements - 1));
       list.add(elements - 1);
-      Assert.assertEquals(1, list.sparseArraysCount());
-      Assert.assertEquals(1, list.remove(e -> e.intValue() == 0));
+      assertEquals(1, list.sparseArraysCount());
+      assertEquals(1, list.remove(e -> e.intValue() == 0));
       list.add(elements);
-      Assert.assertEquals(2, list.sparseArraysCount());
+      assertEquals(2, list.sparseArraysCount());
    }
 
    @Test
@@ -140,14 +148,14 @@ public class SparseArrayLinkedListTest {
       for (int i = 0; i < elements; i++) {
          list.add(i);
       }
-      Assert.assertEquals(1, list.sparseArraysCount());
+      assertEquals(1, list.sparseArraysCount());
       // removing all elements
-      Assert.assertEquals(elements, list.remove(e -> true));
-      Assert.assertEquals(1, list.sparseArraysCount());
+      assertEquals(elements, list.remove(e -> true));
+      assertEquals(1, list.sparseArraysCount());
       for (int i = 0; i < elements; i++) {
          list.add(i);
       }
-      Assert.assertEquals(1, list.sparseArraysCount());
+      assertEquals(1, list.sparseArraysCount());
    }
 
    @Test
@@ -158,12 +166,12 @@ public class SparseArrayLinkedListTest {
       for (int i = 1; i < elements; i++) {
          list.add(i);
       }
-      Assert.assertEquals(elements - 1, list.remove(e -> !zero.equals(e)));
+      assertEquals(elements - 1, list.remove(e -> !zero.equals(e)));
       final ArrayList<Integer> remaining = new ArrayList<>();
-      Assert.assertEquals(1, list.clear(remaining::add));
-      Assert.assertEquals(0, list.size());
-      Assert.assertEquals(1, remaining.size());
-      Assert.assertEquals(zero, remaining.get(0));
+      assertEquals(1, list.clear(remaining::add));
+      assertEquals(0, list.size());
+      assertEquals(1, remaining.size());
+      assertEquals(zero, remaining.get(0));
    }
 
 }

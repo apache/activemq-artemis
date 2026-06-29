@@ -16,11 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -36,16 +42,17 @@ import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,11 +72,6 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       // because stale UDP messages can mess up tests once nodes start going down
       private final List<String> seenUp = new ArrayList<>();
 
-      /**
-       * @param upLatch
-       * @param nodes
-       * @param downLatch
-       */
       private LatchListener(CountDownLatch upLatch, List<String> nodes, CountDownLatch downLatch) {
          this.upLatch = upLatch;
          this.nodes = nodes;
@@ -105,7 +107,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
    protected abstract boolean isNetty() throws Exception;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -118,9 +120,9 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
     * Check that the actual list of received nodeIDs correspond to the expected order of nodes
     */
    protected void checkOrder(int[] expected, String[] nodeIDs, List<String> actual) {
-      Assert.assertEquals(expected.length, actual.size());
+      assertEquals(expected.length, actual.size());
       for (int i = 0; i < expected.length; i++) {
-         Assert.assertEquals("did not receive expected nodeID at " + i, nodeIDs[expected[i]], actual.get(i));
+         assertEquals(nodeIDs[expected[i]], actual.get(i), "did not receive expected nodeID at " + i);
       }
    }
 
@@ -139,7 +141,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
          }
       }
       while (System.currentTimeMillis() - start < 5000);
-      Assert.fail("did not contain all expected node ID: " + actual);
+      fail("did not contain all expected node ID: " + actual);
    }
 
    protected String[] getNodeIDs(int... nodes) {
@@ -152,8 +154,8 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
 
    protected ClientSession checkSessionOrReconnect(ClientSession session, ServerLocator locator) throws Exception {
       try {
-         String rand = RandomUtil.randomString();
-         session.createQueue(new QueueConfiguration(rand));
+         String rand = RandomUtil.randomUUIDString();
+         session.createQueue(QueueConfiguration.of(rand));
          session.deleteQueue(rand);
          return session;
       } catch (ActiveMQObjectClosedException oce) {
@@ -198,7 +200,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
 
       logger.error(clusterDescription(servers[node]));
-      Assert.assertEquals("Timed out waiting for cluster connections for server " + node, expected, nodesCount);
+      assertEquals(expected, nodesCount, "Timed out waiting for cluster connections for server " + node);
    }
 
    @Test
@@ -209,7 +211,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
 
       locator.getTopology().setOwner("testReceive");
 
-      final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
+      final List<String> nodes = Collections.synchronizedList(new ArrayList<>());
       final CountDownLatch upLatch = new CountDownLatch(5);
       final CountDownLatch downLatch = new CountDownLatch(4);
 
@@ -220,7 +222,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       startServers(1, 4, 3, 2);
       String[] nodeIDs = getNodeIDs(0, 1, 2, 3, 4);
 
-      Assert.assertTrue("Was not notified that all servers are UP", upLatch.await(10, SECONDS));
+      assertTrue(upLatch.await(10, SECONDS), "Was not notified that all servers are UP");
       checkContains(new int[]{0, 1, 4, 3, 2}, nodeIDs, nodes);
 
       waitForClusterConnections(0, 4);
@@ -231,7 +233,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
 
       stopServers(2, 3, 1, 4);
 
-      Assert.assertTrue("Was not notified that all servers are DOWN", downLatch.await(10, SECONDS));
+      assertTrue(downLatch.await(10, SECONDS), "Was not notified that all servers are DOWN");
       checkContains(new int[]{0}, nodeIDs, nodes);
 
       sf.close();
@@ -255,7 +257,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       waitForClusterConnections(3, 4);
       waitForClusterConnections(4, 4);
 
-      final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
+      final List<String> nodes = Collections.synchronizedList(new ArrayList<>());
       final CountDownLatch upLatch = new CountDownLatch(5);
       final CountDownLatch downLatch = new CountDownLatch(4);
 
@@ -263,7 +265,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      Assert.assertTrue("Was not notified that all servers are UP", upLatch.await(10, SECONDS));
+      assertTrue(upLatch.await(10, SECONDS), "Was not notified that all servers are UP");
       checkContains(new int[]{0, 1, 2, 3, 4}, nodeIDs, nodes);
 
       ClientSession session = sf.createSession();
@@ -286,7 +288,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
 
       stopServers(1);
 
-      Assert.assertTrue("Was not notified that all servers are DOWN", downLatch.await(10, SECONDS));
+      assertTrue(downLatch.await(10, SECONDS), "Was not notified that all servers are DOWN");
       checkContains(new int[]{}, nodeIDs, nodes);
 
       sf.close();
@@ -305,71 +307,77 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       waitForClusterConnections(3, 4);
       waitForClusterConnections(4, 4);
 
-      final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
+      final List<String> nodes = Collections.synchronizedList(new ArrayList<>());
       final CountDownLatch upLatch = new CountDownLatch(5);
 
       locator.addClusterTopologyListener(new LatchListener(upLatch, nodes, new CountDownLatch(0)));
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      Assert.assertTrue("Was not notified that all servers are UP", upLatch.await(10, SECONDS));
+      assertTrue(upLatch.await(10, SECONDS), "Was not notified that all servers are UP");
       checkContains(new int[]{0, 1, 2, 3, 4}, nodeIDs, nodes);
 
       ClientSession session = sf.createSession();
 
       stopServers(0);
-      Assert.assertFalse(servers[0].isStarted());
+      assertFalse(servers[0].isStarted());
       session = checkSessionOrReconnect(session, locator);
       checkContains(new int[]{1, 2, 3, 4}, nodeIDs, nodes);
 
       stopServers(2);
-      Assert.assertFalse(servers[2].isStarted());
+      assertFalse(servers[2].isStarted());
       session = checkSessionOrReconnect(session, locator);
       checkContains(new int[]{1, 3, 4}, nodeIDs, nodes);
 
       stopServers(4);
-      Assert.assertFalse(servers[4].isStarted());
+      assertFalse(servers[4].isStarted());
       session = checkSessionOrReconnect(session, locator);
       checkContains(new int[]{1, 3}, nodeIDs, nodes);
 
       stopServers(3);
-      Assert.assertFalse(servers[3].isStarted());
+      assertFalse(servers[3].isStarted());
 
       session = checkSessionOrReconnect(session, locator);
       checkContains(new int[]{1}, nodeIDs, nodes);
 
       stopServers(1);
-      Assert.assertFalse(servers[1].isStarted());
+      assertFalse(servers[1].isStarted());
       try {
          session = checkSessionOrReconnect(session, locator);
-         Assert.fail();
+         fail();
       } catch (ActiveMQException expected) {
-         Assert.assertEquals(ActiveMQExceptionType.NOT_CONNECTED, expected.getType());
+         assertEquals(ActiveMQExceptionType.NOT_CONNECTED, expected.getType());
       }
    }
 
    @Test
    public void testWrongPasswordTriggersClusterConnectionStop() throws Exception {
-      Configuration config = servers[4].getConfiguration();
+      final String user = "myUser";
+      final String password = "myPassword";
+      final String role = "myRole";
+
       for (ActiveMQServer s : servers) {
          if (s != null) {
             s.getConfiguration().setSecurityEnabled(true);
          }
       }
-      Assert.assertEquals(ActiveMQTestBase.CLUSTER_PASSWORD, config.getClusterPassword());
+      Configuration config = servers[4].getConfiguration();
+      assertEquals(ActiveMQTestBase.CLUSTER_PASSWORD, config.getClusterPassword());
       config.setClusterPassword(config.getClusterPassword() + "-1-2-3-");
-      startServers(0, 4);
-      Assert.assertTrue("one or the other cluster managers should stop", Wait.waitFor(() -> !servers[4].getClusterManager().isStarted() || !servers[0].getClusterManager().isStarted(), 5000));
       final String address = "foo1235";
+      ((ActiveMQJAASSecurityManager)servers[0].getSecurityManager()).getConfiguration().addUser(user, password);
+      ((ActiveMQJAASSecurityManager)servers[0].getSecurityManager()).getConfiguration().addRole(user, role);
+      servers[0].getSecurityRepository().addMatch(address, Set.of(new Role(role, true, true, true, false, false, false, false, false, true, false, false, false)));
+      startServers(0, 4);
+      assertTrue(Wait.waitFor(() -> !servers[4].getClusterManager().isStarted() || !servers[0].getClusterManager().isStarted(), 5000), "one or the other cluster managers should stop");
       ServerLocator locator = createNonHALocator(isNetty());
       ClientSessionFactory sf = createSessionFactory(locator);
-      ClientSession session = sf.createSession(config.getClusterUser(), ActiveMQTestBase.CLUSTER_PASSWORD, false, true, true, false, 1);
-      session.createQueue(new QueueConfiguration(address));
+      ClientSession session = sf.createSession(user, password, false, true, true, false, 1);
+      session.createQueue(QueueConfiguration.of(address));
       ClientProducer producer = session.createProducer(address);
       sendMessages(session, producer, 100);
       ClientConsumer consumer = session.createConsumer(address);
       session.start();
       receiveMessages(consumer, 0, 100, true);
-
    }
 
    @Test
@@ -385,14 +393,14 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       waitForClusterConnections(3, 4);
       waitForClusterConnections(4, 4);
 
-      final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
+      final List<String> nodes = Collections.synchronizedList(new ArrayList<>());
       final CountDownLatch upLatch = new CountDownLatch(5);
       final CountDownLatch downLatch = new CountDownLatch(4);
 
       locator.addClusterTopologyListener(new LatchListener(upLatch, nodes, downLatch));
 
       ClientSessionFactory[] sfs = new ClientSessionFactory[]{locator.createSessionFactory(), locator.createSessionFactory(), locator.createSessionFactory(), locator.createSessionFactory(), locator.createSessionFactory()};
-      Assert.assertTrue("Was not notified that all servers are UP", upLatch.await(10, SECONDS));
+      assertTrue(upLatch.await(10, SECONDS), "Was not notified that all servers are UP");
       checkContains(new int[]{0, 1, 2, 3, 4}, nodeIDs, nodes);
 
       // we can't close all of the servers, we need to leave one up to notify us
@@ -402,7 +410,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       if (!ok) {
          logger.warn("TopologyClusterTestBase.testMultipleClientSessionFactories will fail");
       }
-      Assert.assertTrue("Was not notified that all servers are Down", ok);
+      assertTrue(ok, "Was not notified that all servers are Down");
       checkContains(new int[]{0}, nodeIDs, nodes);
 
       for (ClientSessionFactory sf : sfs) {

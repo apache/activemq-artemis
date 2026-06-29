@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jdbc.store.journal;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -32,19 +34,18 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ShutdownServerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
    private ServerLocator locator;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -61,7 +62,7 @@ public class ShutdownServerTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true, false);
 
-      session.createQueue(new QueueConfiguration(QUEUE));
+      session.createQueue(QueueConfiguration.of(QUEUE));
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
 
@@ -78,7 +79,7 @@ public class ShutdownServerTest extends ActiveMQTestBase {
 
       Wait.waitFor(() -> !server.isStarted());
 
-      Assert.assertFalse(server.isStarted());
+      assertFalse(server.isStarted());
 
    }
 

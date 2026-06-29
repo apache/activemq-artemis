@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.io.File;
 import java.util.Set;
 import java.util.TreeSet;
@@ -33,8 +37,8 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.Test;
 
 public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
 
@@ -65,7 +69,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
       // 200 will increase the odds of a failure
       setNumberOfMessages(200);
       File dir = new File(backupServer.getServer().getConfiguration().getLargeMessagesDirectory());
-      assertEquals("Should not have any large messages... previous test failed to clean up?", 0, getAllMessageFileIds(dir).size());
+      assertEquals(0, getAllMessageFileIds(dir).size(), "Should not have any large messages... previous test failed to clean up?");
       createProducerSendSomeMessages();
       startBackupFinishSyncing();
       receiveMsgsInRange(0, getNumberOfMessages() / 2);
@@ -75,18 +79,15 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
       while (getAllMessageFileIds(dir).size() != target && System.currentTimeMillis() < timeout) {
          Thread.sleep(50);
       }
-      assertEquals("we really ought to delete these after delivery", target, getAllMessageFileIds(dir).size());
+      assertEquals(target, getAllMessageFileIds(dir).size(), "we really ought to delete these after delivery");
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testDeleteLargeMessagesDuringSync() throws Exception {
       setNumberOfMessages(200);
       File backupLMdir = new File(backupServer.getServer().getConfiguration().getLargeMessagesDirectory());
-      File liveLMDir = new File(liveServer.getServer().getConfiguration().getLargeMessagesDirectory());
-      assertEquals("Should not have any large messages... previous test failed to clean up?", 0, getAllMessageFileIds(backupLMdir).size());
+      File primaryLMDir = new File(primaryServer.getServer().getConfiguration().getLargeMessagesDirectory());
+      assertEquals(0, getAllMessageFileIds(backupLMdir).size(), "Should not have any large messages... previous test failed to clean up?");
       createProducerSendSomeMessages();
 
       backupServer.start();
@@ -95,51 +96,56 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
 
       startBackupFinishSyncing();
       Thread.sleep(500);
-      liveServer.getServer().stop();
+      primaryServer.getServer().stop();
       backupServer.getServer().waitForActivation(10, TimeUnit.SECONDS);
       backupServer.stop();
 
       Set<Long> backupLM = getAllMessageFileIds(backupLMdir);
-      Set<Long> liveLM = getAllMessageFileIds(liveLMDir);
-      assertEquals("live and backup should have the same files ", liveLM, backupLM);
-      assertEquals("we really ought to delete these after delivery: " + backupLM, getNumberOfMessages() / 2, backupLM.size());
-      assertEquals("we really ought to delete these after delivery", getNumberOfMessages() / 2, getAllMessageFileIds(backupLMdir).size());
+      Set<Long> primaryLM = getAllMessageFileIds(primaryLMDir);
+      assertEquals(primaryLM, backupLM, "primary and backup should have the same files ");
+      assertEquals(getNumberOfMessages() / 2, backupLM.size(), "we really ought to delete these after delivery: " + backupLM);
+      assertEquals(getNumberOfMessages() / 2, getAllMessageFileIds(backupLMdir).size(), "we really ought to delete these after delivery");
    }
 
    /**
-    * LargeMessages are passed from the client to the server in chunks. Here we test the backup
-    * starting the data synchronization with the live in the middle of a multiple chunks large
-    * message upload from the client to the live server.
-    *
-    * @throws Exception
+    * LargeMessages are passed from the client to the server in chunks. Here we test the backup starting the data
+    * synchronization with the primary in the middle of a multiple chunks large message upload from the client to the
+    * primary server.
     */
    @Test
-   public void testBackupStartsWhenLiveIsReceivingLargeMessage() throws Exception {
+   public void testBackupStartsWhenPrimaryIsReceivingLargeMessage() throws Exception {
       final ClientSession session = addClientSession(sessionFactory.createSession(true, true));
-      session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
+      session.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS));
       final ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
       final ClientMessage message = session.createMessage(true);
-      final int largeMessageSize = 1000 * MIN_LARGE_MESSAGE;
-      message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(largeMessageSize));
+
+      String largeBody;
+      {
+         String randomString = "large >>> " + RandomUtil.randomUUIDString() + " <<< ";
+         StringBuilder builder = new StringBuilder(randomString.length() * 1000);
+         for (int i = 0; i < 1000; i++) {
+            builder.append(randomString);
+         }
+         largeBody = builder.toString();
+      }
+      message.getBodyBuffer().writeString(largeBody);
+
 
       final AtomicBoolean caughtException = new AtomicBoolean(false);
       final CountDownLatch latch = new CountDownLatch(1);
       final CountDownLatch latch2 = new CountDownLatch(1);
 
-      Runnable r = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               latch.countDown();
-               producer.send(message);
-               sendMessages(session, producer, 20);
-               session.commit();
-            } catch (ActiveMQException e) {
-               e.printStackTrace();
-               caughtException.set(true);
-            } finally {
-               latch2.countDown();
-            }
+      Runnable r = () -> {
+         try {
+            latch.countDown();
+            producer.send(message);
+            sendMessages(session, producer, 20);
+            session.commit();
+         } catch (ActiveMQException e) {
+            e.printStackTrace();
+            caughtException.set(true);
+         } finally {
+            latch2.countDown();
          }
       };
       Executors.defaultThreadFactory().newThread(r).start();
@@ -147,19 +153,18 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
       startBackupFinishSyncing();
       ActiveMQTestBase.waitForLatch(latch2);
       crash(session);
-      assertFalse("no exceptions while sending message", caughtException.get());
+      assertFalse(caughtException.get(), "no exceptions while sending message");
 
       session.start();
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
-      ClientMessage msg = consumer.receive(2000);
-      ActiveMQBuffer buffer = msg.getBodyBuffer();
+      ClientMessage largeMessageReceived = consumer.receive(2000);
 
-      for (int j = 0; j < largeMessageSize; j++) {
-         Assert.assertTrue("large msg , expecting " + largeMessageSize + " bytes, got " + j, buffer.readable());
-         Assert.assertEquals("equal at " + j, ActiveMQTestBase.getSamplebyte(j), buffer.readByte());
-      }
+      ActiveMQBuffer readBuffer = largeMessageReceived.getBodyBuffer();
+      String readString = readBuffer.readString();
+      assertEquals(largeBody, readString);
+
       receiveMessages(consumer, 0, 20, true);
-      assertNull("there should be no more messages!", consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate(), "there should be no more messages!");
       consumer.close();
       session.commit();
    }

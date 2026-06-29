@@ -65,9 +65,8 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    private final ConcurrentLongHashMap<JournalTransaction> newTransactions = new ConcurrentLongHashMap<>();
 
    /**
-    * Commands that happened during compacting
-    * We can't process any counts during compacting, as we won't know in what files the records are taking place, so
-    * we cache those updates. As soon as we are done we take the right account.
+    * Commands that happened during compacting. We can't process any counts during compacting, as we won't know in what
+    * files the records are taking place, so we cache those updates. As soon as we are done we take the right account.
     */
    private final LinkedList<CompactCommand> pendingCommands = new LinkedList<>();
 
@@ -117,8 +116,10 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          ids2 = oldTransaction.pendingIDs;
       }
 
-      /** If a delete comes for these records, while the compactor still working, we need to be able to take them into account for later deletes
-       *  instead of throwing exceptions about non existent records */
+      /*
+       * If a delete comes for these records, while the compactor still working, we need to be able to take them into
+       * account for later deletes instead of throwing exceptions about non existent records.
+       */
       if (ids != null) {
          for (long id : ids) {
             addToRecordsSnaptshot(id);
@@ -137,10 +138,6 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       pendingCommands.add(new RollbackCompactCommand(liveTransaction, currentFile));
    }
 
-   /**
-    * @param id
-    * @param usedFile
-    */
    public void addCommandDelete(final long id, final JournalFile usedFile) {
       if (logger.isTraceEnabled()) {
          logger.trace("addCommandDelete id {} usedFile {}", id, usedFile);
@@ -148,10 +145,6 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       pendingCommands.add(new DeleteCompactCommand(id, usedFile));
    }
 
-   /**
-    * @param id
-    * @param usedFile
-    */
    public void addCommandUpdate(final long id, final JournalFile usedFile, final int size, final boolean replaceableUpdate) {
       if (logger.isTraceEnabled()) {
          logger.trace("addCommandUpdate id {} usedFile {} size {}", id, usedFile, size);
@@ -475,10 +468,6 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       newTransaction.addPositive(currentFile, info.id, updateRecordTX.getEncodeSize(), info.replaceableUpdate);
    }
 
-   /**
-    * @param transactionID
-    * @return
-    */
    private JournalTransaction getNewJournalTransaction(final long transactionID) {
       JournalTransaction newTransaction = newTransactions.get(transactionID);
       if (newTransaction == null) {

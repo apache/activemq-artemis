@@ -69,6 +69,8 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    private long jdbcAllowedTimeDiff = ActiveMQDefaultConfiguration.getDefaultJdbcAllowedTimeDiffMillis();
 
+   private int maxPageSizeBytes = ActiveMQDefaultConfiguration.getDefaultJdbcMaxPageSizeBytes();
+
    @Override
    public StoreType getStoreType() {
       return StoreType.DATABASE;
@@ -150,10 +152,20 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
       return jdbcAllowedTimeDiff;
    }
 
+   public int getMaxPageSizeBytes() {
+      return maxPageSizeBytes;
+   }
+
+   public DatabaseStorageConfiguration setMaxPageSizeBytes(int maxPageSizeBytes) {
+      this.maxPageSizeBytes = maxPageSizeBytes;
+      return this;
+   }
+
    /**
-    * The DataSource to use to store Artemis data in the data store (can be {@code null} if {@code jdbcConnectionUrl} and {@code jdbcDriverClassName} are used instead).
+    * The DataSource to use to store Artemis data in the data store (can be {@code null} if {@code jdbcConnectionUrl}
+    * and {@code jdbcDriverClassName} are used instead).
     *
-    * @return the DataSource used to store Artemis data in the JDBC data store.
+    * @return the DataSource used to store Artemis data in the JDBC data store
     */
    private DataSource getDataSource() {
       if (dataSource == null) {
@@ -192,8 +204,6 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    /**
     * Configure the DataSource to use to store Artemis data in the data store.
-    *
-    * @param dataSource
     */
    public void setDataSource(DataSource dataSource) {
       this.dataSource = dataSource;
@@ -236,6 +246,10 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
       }
    }
 
+   public Map<String, Object> getDataSourceProperties() {
+      return dataSourceProperties;
+   }
+
    public String getDataSourceProperty(String key) {
       return (String)dataSourceProperties.get(key);
    }
@@ -249,11 +263,12 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
    }
 
    /**
-    * The {@link SQLProvider.Factory} used to communicate with the JDBC data store.
-    * It can be {@code null}. If the value is {@code null} and {@code dataSource} is set, the {@code {@link org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider.Factory}} will be used,
-    * else the type of the factory will be determined based on the {@code jdbcDriverClassName}.
+    * The {@link SQLProvider.Factory} used to communicate with the JDBC data store. It can be {@code null}. If the value
+    * is {@code null} and {@code dataSource} is set, the
+    * {@code {@link org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider.Factory}} will be used, else the type
+    * of the factory will be determined based on the {@code jdbcDriverClassName}.
     *
-    * @return the factory used to communicate with the JDBC data store.
+    * @return the factory used to communicate with the JDBC data store
     */
    public SQLProvider.Factory getSqlProviderFactory() {
       return sqlProviderFactory;
@@ -306,4 +321,10 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
    public void setJdbcAllowedTimeDiff(long jdbcAllowedTimeDiff) {
       this.jdbcAllowedTimeDiff = jdbcAllowedTimeDiff;
    }
+
+   @Override
+   public int getAllowedPageSize(int pageSize) {
+      return Math.min(pageSize, maxPageSizeBytes);
+   }
+
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -30,31 +32,28 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AutogroupIdTest extends ActiveMQTestBase {
 
 
-   public final SimpleString addressA = new SimpleString("addressA");
+   public final SimpleString addressA = SimpleString.of("addressA");
 
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString queueA = SimpleString.of("queueA");
 
-   public final SimpleString queueB = new SimpleString("queueB");
+   public final SimpleString queueB = SimpleString.of("queueB");
 
-   public final SimpleString queueC = new SimpleString("queueC");
+   public final SimpleString queueC = SimpleString.of("queueC");
 
-   private final SimpleString groupTestQ = new SimpleString("testGroupQueue");
+   private final SimpleString groupTestQ = SimpleString.of("testGroupQueue");
 
    private ActiveMQServer server;
 
    private ServerLocator locator;
 
-   /* auto group id tests*/
-
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -67,17 +66,16 @@ public class AutogroupIdTest extends ActiveMQTestBase {
       locator = createInVMNonHALocator();
    }
 
-   /*
-   * tests when the autogroupid is set only 1 consumer (out of 2) gets all the messages from a single producer
-   * */
-
+   /**
+    * Tests when the autogroupid is set only 1 consumer (out of 2) gets all the messages from a single producer.
+    */
    @Test
    public void testGroupIdAutomaticallySet() throws Exception {
       locator.setAutoGroup(true);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(groupTestQ).setDurable(false));
+      session.createQueue(QueueConfiguration.of(groupTestQ).setDurable(false));
 
       ClientProducer producer = session.createProducer(groupTestQ);
 
@@ -102,21 +100,21 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
       session.close();
 
-      Assert.assertEquals(100, myMessageHandler.messagesReceived);
-      Assert.assertEquals(0, myMessageHandler2.messagesReceived);
+      assertEquals(100, myMessageHandler.messagesReceived);
+      assertEquals(0, myMessageHandler2.messagesReceived);
 
    }
 
-   /*
-   * tests when the autogroupid is set only 2 consumers (out of 3) gets all the messages from 2 producers
-   * */
+   /**
+    * Tests when the autogroupid is set only 2 consumers (out of 3) gets all the messages from 2 producers.
+    */
    @Test
    public void testGroupIdAutomaticallySetMultipleProducers() throws Exception {
       locator.setAutoGroup(true);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(groupTestQ).setDurable(false));
+      session.createQueue(QueueConfiguration.of(groupTestQ).setDurable(false));
 
       ClientProducer producer = session.createProducer(groupTestQ);
       ClientProducer producer2 = session.createProducer(groupTestQ);
@@ -148,21 +146,21 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
       session.close();
 
-      Assert.assertEquals(myMessageHandler.messagesReceived, 100);
-      Assert.assertEquals(myMessageHandler2.messagesReceived, 100);
-      Assert.assertEquals(myMessageHandler3.messagesReceived, 0);
+      assertEquals(100, myMessageHandler.messagesReceived);
+      assertEquals(100, myMessageHandler2.messagesReceived);
+      assertEquals(0, myMessageHandler3.messagesReceived);
    }
 
-   /*
-   * tests that even though we have a grouping round robin distributor we don't pin the consumer as autogroup is false
-   * */
+   /**
+    * Tests that even though we have a grouping round robin distributor we don't pin the consumer as autogroup is false.
+    */
    @Test
    public void testGroupIdAutomaticallyNotSet() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(groupTestQ).setDurable(false));
+      session.createQueue(QueueConfiguration.of(groupTestQ).setDurable(false));
 
       ClientProducer producer = session.createProducer(groupTestQ);
 
@@ -187,8 +185,8 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
       session.close();
 
-      Assert.assertEquals(50, myMessageHandler.messagesReceived);
-      Assert.assertEquals(50, myMessageHandler2.messagesReceived);
+      assertEquals(50, myMessageHandler.messagesReceived);
+      assertEquals(50, myMessageHandler2.messagesReceived);
 
    }
 

@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -38,13 +40,16 @@ import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AMQPPersisterTest {
 
    protected Message createMessage(SimpleString address, int msgId, byte[] content) {
-      final MessageImpl protonMessage = createProtonMessage(address.toString(), content);
+      return createMessage(address, (byte) AMQPMessage.MAX_MESSAGE_PRIORITY, msgId, content);
+   }
+
+   protected Message createMessage(SimpleString address, byte priority, int msgId, byte[] content) {
+      final MessageImpl protonMessage = createProtonMessage(address.toString(), priority, content);
       final AMQPStandardMessage msg = encodeAndDecodeMessage(protonMessage, content.length);
       msg.setAddress(address);
       msg.setMessageID(msgId);
@@ -61,12 +66,12 @@ public class AMQPPersisterTest {
       return new AMQPStandardMessage(0, bytes, null);
    }
 
-   private MessageImpl createProtonMessage(String address, byte[] content) {
+   private MessageImpl createProtonMessage(String address, byte priority, byte[] content) {
       MessageImpl message = (MessageImpl) Proton.message();
 
       Header header = new Header();
       header.setDurable(true);
-      header.setPriority(UnsignedByte.valueOf((byte) 9));
+      header.setPriority(UnsignedByte.valueOf(priority));
 
       Properties properties = new Properties();
       properties.setCreationTime(new Date(System.currentTimeMillis()));
@@ -87,19 +92,46 @@ public class AMQPPersisterTest {
       return message;
    }
 
-
    @Test
    public void testEncodeSize() throws Exception {
-
-      Message message = createMessage(SimpleString.toSimpleString("Test"), 1, new byte[10]);
+      Message message = createMessage(SimpleString.of("Test"), 1, new byte[10]);
 
       MessagePersister persister = AMQPMessagePersisterV3.getInstance();
 
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(1024);
       persister.encode(buffer, message);
 
-      Assert.assertEquals(persister.getEncodeSize(message), buffer.writerIndex());
+      assertEquals(persister.getEncodeSize(message), buffer.writerIndex());
+   }
 
+   @Test
+   public void testV1PersisterRecoversPriority() {
+      doTestPersisterRecoversPriority(AMQPMessagePersister.getInstance());
+   }
 
+   @Test
+   public void testV2PersisterRecoversPriority() {
+      doTestPersisterRecoversPriority(AMQPMessagePersisterV2.getInstance());
+   }
+
+   @Test
+   public void testV3PersisterRecoversPriority() {
+      doTestPersisterRecoversPriority(AMQPMessagePersisterV3.getInstance());
+   }
+
+   private void doTestPersisterRecoversPriority(MessagePersister persister) {
+      for (byte priority = 0; priority <= AMQPMessage.MAX_MESSAGE_PRIORITY; ++priority) {
+         final Message message = createMessage(SimpleString.of("Test"), priority, 1, new byte[10]);
+
+         final ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(1024);
+
+         persister.encode(buffer, message);
+
+         assertEquals(persister.getID(), buffer.readByte());
+
+         final Message decoded = persister.decode(buffer, message, null);
+
+         assertEquals(priority, decoded.getPriority());
+      }
    }
 }

@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.embedded;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EmbeddedTest {
 

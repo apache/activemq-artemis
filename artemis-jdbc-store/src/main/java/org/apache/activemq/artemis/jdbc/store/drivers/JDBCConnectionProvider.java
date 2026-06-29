@@ -117,6 +117,10 @@ public class JDBCConnectionProvider {
       }
    }
 
+   public int getNetworkTimeoutMillis() {
+      return networkTimeoutMillis;
+   }
+
    public void setNetworkTimeout(Executor executor, int milliseconds) {
       this.networkTimeoutExecutor = executor;
       this.networkTimeoutMillis = milliseconds;

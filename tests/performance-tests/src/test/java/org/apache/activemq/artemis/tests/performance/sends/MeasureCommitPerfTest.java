@@ -20,13 +20,15 @@ import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
+import org.junit.jupiter.api.Test;
+
 public class MeasureCommitPerfTest extends AbstractSendReceivePerfTest {
 
    @Override
    protected void consumeMessages(Connection c, String qName) throws Exception {
    }
 
-   /* This will by default send non persistent messages */
+   // This will by default send non persistent messages
    @Override
    protected void sendMessages(Connection c, String qName) throws JMSException {
       Session s = c.createSession(true, Session.SESSION_TRANSACTED);
@@ -46,8 +48,9 @@ public class MeasureCommitPerfTest extends AbstractSendReceivePerfTest {
 
          s.commit();
          commits++;
-         if (start > 0 && commits % 1000 == 0)
+         if (start > 0 && commits % 1000 == 0) {
             printCommitsSecond(start, commits);
+         }
       }
       printCommitsSecond(start, commits);
 
@@ -65,4 +68,8 @@ public class MeasureCommitPerfTest extends AbstractSendReceivePerfTest {
 
    }
 
+   @Test
+   public void testSendReceive() throws Exception {
+      super.doSendReceiveTestImpl();
+   }
 }

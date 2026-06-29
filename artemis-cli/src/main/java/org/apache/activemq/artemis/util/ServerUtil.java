@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -40,18 +41,20 @@ public class ServerUtil {
    }
 
    /**
-    * @param artemisInstance
-    * @param serverName      it will be used on logs
-    * @param id              it will be used to add on the port
-    * @param timeout
-    * @return
-    * @throws Exception
+    * Start the server.
+    *
+    * @param serverName it will be used on logs
+    * @param id         it will be used to add on the port
     */
    public static Process startServer(String artemisInstance, String serverName, int id, int timeout) throws Exception {
-      final Process process = internalStartServer(artemisInstance, serverName);
+      return startServer(artemisInstance, serverName, id, timeout, null);
+   }
+
+   public static Process startServer(String artemisInstance, String serverName, int id, int timeout, File brokerProperties) throws Exception {
+      final Process process = internalStartServer(artemisInstance, serverName, brokerProperties);
 
       // wait for start
-      if (timeout != 0) {
+      if (timeout > 0) {
          waitForServerToStart(id, timeout);
       }
 
@@ -59,7 +62,11 @@ public class ServerUtil {
    }
 
    public static Process startServer(String artemisInstance, String serverName, String uri, int timeout) throws Exception {
-      final Process process = internalStartServer(artemisInstance, serverName);
+      return startServer(artemisInstance, serverName, uri, timeout, null);
+   }
+
+   public static Process startServer(String artemisInstance, String serverName, String uri, int timeout, File propertiesFile) throws Exception {
+      final Process process = internalStartServer(artemisInstance, serverName, propertiesFile);
 
       // wait for start
       if (timeout != 0) {
@@ -71,15 +78,24 @@ public class ServerUtil {
 
    private static Process internalStartServer(String artemisInstance,
                                               String serverName) throws IOException, ClassNotFoundException {
+      return internalStartServer(artemisInstance, serverName, null);
+   }
+   private static Process internalStartServer(String artemisInstance,
+                                              String serverName,
+                                              File propertiesFile) throws IOException, ClassNotFoundException {
 
-      return execute(artemisInstance, serverName, "run");
+      if (propertiesFile != null) {
+         return execute(artemisInstance, serverName, "run", "--properties", propertiesFile.getAbsolutePath());
+      } else {
+         return execute(artemisInstance, serverName, "run");
+      }
    }
 
    public static Process execute(String artemisInstance, String jobName, String...args) throws IOException, ClassNotFoundException {
       try {
          boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
 
-         ArrayList<String> command = new ArrayList<>();
+         List<String> command = new ArrayList<>();
 
          ProcessBuilder builder = null;
          if (IS_WINDOWS) {
@@ -99,18 +115,12 @@ public class ServerUtil {
          builder.directory(new File(artemisInstance + "/bin"));
 
          final Process process = builder.start();
-         Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-               process.destroy();
-            }
-         });
+         Runtime.getRuntime().addShutdownHook(new Thread(() -> process.destroy()));
 
          ProcessLogger outputLogger = new ProcessLogger(true, process.getInputStream(), jobName, false);
          outputLogger.start();
 
-         // Adding a reader to System.err, so the VM won't hang on a System.err.println as identified on this forum thread:
-         // http://www.jboss.org/index.html?module=bb&op=viewtopic&t=151815
+         // Adding a reader to System.err, so the VM won't hang on a System.err.println
          ProcessLogger errorLogger = new ProcessLogger(true, process.getErrorStream(), jobName, true);
          errorLogger.start();
          return process;
@@ -138,8 +148,8 @@ public class ServerUtil {
    public static boolean waitForServerToStart(String uri, String username, String password, long timeout) throws InterruptedException {
       long realTimeout = System.currentTimeMillis() + timeout;
       while (System.currentTimeMillis() < realTimeout) {
-         try (ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null);
-              Connection c = cf.createConnection(username, password)) {
+         try (ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null)) {
+            cf.createConnection(username, password).close();
             System.out.println("server " + uri + " started");
          } catch (Exception e) {
             System.out.println("awaiting server " + uri + " start at ");
@@ -177,7 +187,7 @@ public class ServerUtil {
       ClientSession session = ((ActiveMQConnection) connection).getInitialSession();
       TransportConfiguration transportConfiguration = session.getSessionFactory().getConnectorConfiguration();
       String port = (String) transportConfiguration.getParams().get("port");
-      return Integer.valueOf(port) - 61616;
+      return Integer.parseInt(port) - 61616;
    }
 
    public static Connection getServerConnection(int server, Connection... connections) {
@@ -185,7 +195,7 @@ public class ServerUtil {
          ClientSession session = ((ActiveMQConnection) connection).getInitialSession();
          TransportConfiguration transportConfiguration = session.getSessionFactory().getConnectorConfiguration();
          String port = (String) transportConfiguration.getParams().get("port");
-         if (Integer.valueOf(port) == server + 61616) {
+         if (Integer.parseInt(port) == server + 61616) {
             return connection;
          }
       }

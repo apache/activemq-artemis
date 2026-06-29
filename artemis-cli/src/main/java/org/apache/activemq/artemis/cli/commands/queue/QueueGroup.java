@@ -21,7 +21,7 @@ import org.apache.activemq.artemis.cli.commands.HelpAction;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-@Command(name = "queue", description = "use 'help check' for sub commands list", subcommands = {CreateQueue.class, DeleteQueue.class, UpdateQueue.class, StatQueue.class, PurgeQueue.class})
+@Command(name = "queue", description = "use 'help queue' for sub commands list", subcommands = {CreateQueue.class, DeleteQueue.class, UpdateQueue.class, StatQueue.class, PurgeQueue.class})
 public class QueueGroup implements Runnable {
 
    CommandLine commandLine;

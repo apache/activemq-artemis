@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.util;
 
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -40,11 +41,12 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 /**
  * An interceptor to keep a replicated backup server from reaching "up-to-date" status.
  * <p>
- * There are 3 test scenarios for 'adding data to a remote backup':<br/>
- * 1. sync data that already existed <br/>
- * 2. adding `new` Journal updates (that arrived after the backup appeared) WHILE sync'ing happens<br/>
- * 3. adding `new` Journal updates AFTER sync'ing is done<br/>
- * <p>
+ * There are 3 test scenarios for 'adding data to a remote backup':
+ * <ol>
+ * <li>sync data that already existed
+ * <li>adding `new` Journal updates (that arrived after the backup appeared) WHILE sync'ing happens
+ * <li>adding `new` Journal updates AFTER sync'ing is done
+ * </ol>
  * These 'withDelay' tests were created to test/verify data transfers of type 2. because there is so
  * little data, if we don't delay the sync message, we cannot be sure we are testing scenario .2.
  * because the sync will be done too fast.
@@ -68,13 +70,12 @@ public class BackupSyncDelay implements Interceptor {
 
    public void deliverUpToDateMsg() {
       live.getRemotingService().removeIncomingInterceptor(this);
-      if (backup.isStarted())
+      if (backup.isStarted()) {
          handler.deliver();
+      }
    }
 
    /**
-    * @param backup
-    * @param live
     * @param packetCode which packet is going to be intercepted.
     */
    public BackupSyncDelay(ActiveMQServer backup, ActiveMQServer live, byte packetCode) {
@@ -84,10 +85,6 @@ public class BackupSyncDelay implements Interceptor {
       handler = new ReplicationChannelHandler(packetCode);
    }
 
-   /**
-    * @param backupServer
-    * @param liveServer
-    */
    public BackupSyncDelay(TestableServer backupServer, TestableServer liveServer) {
       this(backupServer.getServer(), liveServer.getServer(), PacketImpl.REPLICATION_START_FINISH_SYNC);
    }
@@ -98,16 +95,12 @@ public class BackupSyncDelay implements Interceptor {
          try {
             Activation backupActivation = backup.getActivation();
             ReplicationEndpoint repEnd = null;
-            if (backupActivation instanceof SharedNothingBackupActivation) {
-               SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backupActivation;
+            if (backupActivation instanceof SharedNothingBackupActivation activation) {
                repEnd = activation.getReplicationEndpoint();
-            } else if (backupActivation instanceof ReplicationBackupActivation) {
-               ReplicationBackupActivation activation = (ReplicationBackupActivation) backupActivation;
+            } else if (backupActivation instanceof ReplicationBackupActivation activation) {
                repEnd = activation.getReplicationEndpoint();
             }
-            if (repEnd == null) {
-               throw new NullPointerException("replication endpoint isn't supposed to be null");
-            }
+            Objects.requireNonNull(repEnd, "replication endpoint isn't supposed to be null");
             handler.addSubHandler(repEnd);
             Channel repChannel = repEnd.getChannel();
             repChannel.setHandler(handler);
@@ -141,14 +134,14 @@ public class BackupSyncDelay implements Interceptor {
 
       public synchronized void deliver() {
          deliver = true;
-         if (!receivedUpToDate)
+         if (!receivedUpToDate) {
             return;
-         if (delivered)
-            return;
-
-         if (onHold == null) {
-            throw new NullPointerException("Don't have the 'sync is done' packet to deliver");
          }
+         if (delivered) {
+            return;
+         }
+
+         Objects.requireNonNull(onHold, "Don't have the 'sync is done' packet to deliver");
          // Use wrapper to avoid sending a response
          ChannelWrapper wrapper = new ChannelWrapper(channel);
          handler.setChannel(wrapper);
@@ -250,6 +243,15 @@ public class BackupSyncDelay implements Interceptor {
       }
 
       @Override
+      public Packet sendBlocking(Packet packet,
+                                 int reconnectID,
+                                 byte expectedPacket,
+                                 long timeout,
+                                 boolean failOnTimeout) throws ActiveMQException {
+         throw new UnsupportedOperationException();
+      }
+
+      @Override
       public void setHandler(ChannelHandler handler) {
          throw new UnsupportedOperationException();
       }
@@ -272,7 +274,6 @@ public class BackupSyncDelay implements Interceptor {
       @Override
       public void transferConnection(CoreRemotingConnection newConnection) {
          throw new UnsupportedOperationException();
-
       }
 
       @Override

@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -33,22 +39,16 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(1);
 
    public static final String WORD_START = "&*STARTED&*";
 
@@ -59,29 +59,26 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
 
    private AssertionLoggerHandler loggerHandler;
 
-   @Before
-   public void checkLoggerStart() throws Exception {
-      loggerHandler = new AssertionLoggerHandler();
-   }
-
-   @After
-   public void checkLoggerEnd() throws Exception {
-      try {
-         // These are the message errors for the negative size address size
-         Assert.assertFalse(loggerHandler.findText("222214"));
-         Assert.assertFalse(loggerHandler.findText("222215"));
-      } finally {
-         loggerHandler.close();
-      }
-   }
-
-
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
       timeToRun = 5000L + RandomUtil.randomPositiveInt() % 1000;
+      loggerHandler = new AssertionLoggerHandler();
+   }
+
+   @AfterEach
+   public void checkLoggerEnd() throws Exception {
+      if (loggerHandler != null) {
+         try {
+            // These are the message errors for the negative size address size
+            assertFalse(loggerHandler.findText("AMQ222214"));
+            assertFalse(loggerHandler.findText("AMQ222215"));
+         } finally {
+            loggerHandler.close();
+         }
+      }
    }
 
    @Test
@@ -89,15 +86,10 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
       String QUEUE_NAME = "myQueue";
 
       final CountDownLatch latch = new CountDownLatch(1);
-      Runnable runnable = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
+      Runnable runnable = latch::countDown;
 
       process = PageCountSyncServer.spawnVMWithLogMacher(WORD_START, runnable, getTestDir(), timeToRun);
-      assertTrue("Server didn't start in 30 seconds", latch.await(30, TimeUnit.SECONDS));
+      assertTrue(latch.await(30, TimeUnit.SECONDS), "Server didn't start in 30 seconds");
 
       ServerLocator locator = createNettyNonHALocator();
 
@@ -106,7 +98,7 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
 
          ClientSessionFactory factory = locator.createSessionFactory();
          ClientSession session = factory.createSession(true, true);
-         session.createQueue(new QueueConfiguration(QUEUE_NAME));
+         session.createQueue(QueueConfiguration.of(QUEUE_NAME));
          ClientProducer producer = session.createProducer(QUEUE_NAME);
          ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
          session.start();
@@ -164,7 +156,7 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
       } finally {
          locator.close();
       }
-      assertEquals("Process didn't end as expected", 1, process.waitFor());
+      assertEquals(1, process.waitFor(), "Process didn't end as expected");
 
       ActiveMQServer server = SpawnedServerSupport.createServer(getTestDir());
 
@@ -176,7 +168,7 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
          locator = createNettyNonHALocator();
 
          try {
-            Queue queue = server.locateQueue(new SimpleString(QUEUE_NAME));
+            Queue queue = server.locateQueue(SimpleString.of(QUEUE_NAME));
 
             assertNotNull(queue);
 

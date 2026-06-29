@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.ra.inflow;
 
 import java.lang.reflect.Method;
-import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,50 +63,27 @@ import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConf
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/**
- * The activation.
- */
 public class ActiveMQActivation {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The onMessage method
-    */
    public static final Method ONMESSAGE;
 
-   /**
-    * The resource adapter
-    */
    private final ActiveMQResourceAdapter ra;
 
-   /**
-    * The activation spec
-    */
    private final ActiveMQActivationSpec spec;
 
-   /**
-    * The message endpoint factory
-    */
    private final MessageEndpointFactory endpointFactory;
 
-   /**
-    * Whether delivery is active
-    */
    private final AtomicBoolean deliveryActive = new AtomicBoolean(false);
 
-   /**
-    * The destination type
-    */
    private boolean isTopic = false;
 
-   /**
-    * Is the delivery transacted
-    */
    private boolean isDeliveryTransacted;
 
    private ActiveMQDestination destination;
@@ -121,7 +97,7 @@ public class ActiveMQActivation {
 
    private ActiveMQConnectionFactory factory;
 
-   private final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
+   private final List<String> nodes = Collections.synchronizedList(new ArrayList<>());
 
    private final Map<String, Long> removedNodes = new ConcurrentHashMap<>();
 
@@ -135,7 +111,7 @@ public class ActiveMQActivation {
 
    static {
       try {
-         ONMESSAGE = MessageListener.class.getMethod("onMessage", new Class[]{Message.class});
+         ONMESSAGE = MessageListener.class.getMethod("onMessage", Message.class);
       } catch (Exception e) {
          throw new RuntimeException(e);
       }
@@ -177,55 +153,30 @@ public class ActiveMQActivation {
       }
    }
 
-   /**
-    * Get the activation spec
-    *
-    * @return The value
-    */
    public ActiveMQActivationSpec getActivationSpec() {
       logger.trace("getActivationSpec()");
 
       return spec;
    }
 
-   /**
-    * Get the message endpoint factory
-    *
-    * @return The value
-    */
    public MessageEndpointFactory getMessageEndpointFactory() {
       logger.trace("getMessageEndpointFactory()");
 
       return endpointFactory;
    }
 
-   /**
-    * Get whether delivery is transacted
-    *
-    * @return The value
-    */
    public boolean isDeliveryTransacted() {
       logger.trace("isDeliveryTransacted()");
 
       return isDeliveryTransacted;
    }
 
-   /**
-    * Get the work manager
-    *
-    * @return The value
-    */
    public WorkManager getWorkManager() {
       logger.trace("getWorkManager()");
 
       return ra.getWorkManager();
    }
 
-   /**
-    * Is the destination a topic
-    *
-    * @return The value
-    */
    public boolean isTopic() {
       logger.trace("isTopic()");
 
@@ -244,22 +195,16 @@ public class ActiveMQActivation {
       scheduleWork(new SetupActivation());
    }
 
-   /**
-    * @return the topicTemporaryQueue
-    */
    public SimpleString getTopicTemporaryQueue() {
       return topicTemporaryQueue;
    }
 
-   /**
-    * @param topicTemporaryQueue the topicTemporaryQueue to set
-    */
    public void setTopicTemporaryQueue(SimpleString topicTemporaryQueue) {
       this.topicTemporaryQueue = topicTemporaryQueue;
    }
 
    /**
-    * @return the list of XAResources for this activation endpoint
+    * {@return the list of XAResources for this activation endpoint}
     */
    public List<XAResource> getXAResources() {
       List<XAResource> xaresources = new ArrayList<>();
@@ -299,7 +244,7 @@ public class ActiveMQActivation {
       ClientSessionFactory cf = null;
 
       for (int i = 0; i < spec.getMaxSession(); i++) {
-         //if we are sharing the ceonnection only create 1
+         //if we are sharing the connection only create 1
          if (!spec.isSingleConnection()) {
             cf = null;
          }
@@ -314,16 +259,21 @@ public class ActiveMQActivation {
             handler.setup();
             handlers.add(handler);
          } catch (Exception e) {
+            logger.trace("Failed to setup session {} for activation {}", i, spec, e);
             if (cf != null) {
-               if (!spec.isSingleConnection()) {
-                  cf.close();
-               }
+               cf.close();
             }
             if (session != null) {
                session.close();
             }
             if (firstException == null) {
                firstException = e;
+            }
+            if (spec.isSingleConnection()) {
+               // The shared ClientSessionFactory is in a broken state; stop the loop
+               // all remaining sessions would fail with "ClientSession closed while
+               // creating session", masking the real error.
+               break;
             }
          }
       }
@@ -351,9 +301,6 @@ public class ActiveMQActivation {
       logger.debug("Setup complete {}", this);
    }
 
-   /**
-    * Teardown the activation
-    */
    protected void teardown(boolean useInterrupt) {
 
       synchronized (teardownLock) {
@@ -403,16 +350,13 @@ public class ActiveMQActivation {
             }
          }
 
-         Runnable runTearDown = new Runnable() {
-            @Override
-            public void run() {
-               for (ActiveMQMessageHandler handler : handlersCopy) {
-                  handler.teardown();
-               }
+         Runnable runTearDown = () -> {
+            for (ActiveMQMessageHandler handler : handlersCopy) {
+               handler.teardown();
             }
          };
 
-         Thread threadTearDown = startThread("TearDown/HornetQActivation", runTearDown);
+         Thread threadTearDown = startThread("resource-adapter-activation-teardown", runTearDown);
 
          try {
             threadTearDown.join(timeout);
@@ -461,12 +405,12 @@ public class ActiveMQActivation {
             ctx = new InitialContext(spec.getParsedJndiParams());
          }
          Object fac = ctx.lookup(spec.getConnectionFactoryLookup());
-         if (fac instanceof ActiveMQConnectionFactory) {
+         if (fac instanceof ActiveMQConnectionFactory connectionFactory) {
             // This will clone the connection factory
             // to make sure we won't close anyone's connection factory when we stop the MDB
-            factory = ActiveMQJMSClient.createConnectionFactory(((ActiveMQConnectionFactory) fac).toURI().toString(), "internalConnection");
+            factory = ActiveMQJMSClient.createConnectionFactory(connectionFactory.toURI().toString(), "internalConnection");
             factory.setEnableSharedClientID(true);
-            factory.setEnable1xPrefixes(((ActiveMQConnectionFactory) fac).isEnable1xPrefixes());
+            factory.setEnable1xPrefixes(connectionFactory.isEnable1xPrefixes());
          } else {
             factory = ra.newConnectionFactory(spec);
          }
@@ -478,7 +422,6 @@ public class ActiveMQActivation {
    /**
     * Setup a session
     *
-    * @param cf
     * @return The connection
     * @throws Exception Thrown if an error occurs
     */
@@ -506,8 +449,8 @@ public class ActiveMQActivation {
          } catch (Exception e) {
             logger.trace("Ignored error closing connection", e);
          }
-         if (t instanceof Exception) {
-            throw (Exception) t;
+         if (t instanceof Exception exception) {
+            throw exception;
          }
          throw new RuntimeException("Error configuring connection", t);
       }
@@ -532,7 +475,7 @@ public class ActiveMQActivation {
          logger.trace("setupDestination({})", ctx);
 
          String destinationTypeString = spec.getDestinationType();
-         if (destinationTypeString != null && !destinationTypeString.trim().equals("")) {
+         if (destinationTypeString != null && !destinationTypeString.trim().isEmpty()) {
             logger.debug("Destination type defined as {}", destinationTypeString);
 
             Class<?> destinationType;
@@ -552,21 +495,17 @@ public class ActiveMQActivation {
                   throw ActiveMQRABundle.BUNDLE.noDestinationName();
                }
 
+               // If there is no binding on naming, we will just create a new instance
                String calculatedDestinationName = destinationName.substring(destinationName.lastIndexOf('/') + 1);
                if (isTopic) {
                   calculatedDestinationName = getTopicWithPrefix(calculatedDestinationName);
-               } else if (!isTopic) {
+                  destination = ActiveMQDestination.createTopic(calculatedDestinationName);
+               } else {
                   calculatedDestinationName = getQueueWithPrefix(calculatedDestinationName);
+                  destination = ActiveMQDestination.createQueue(calculatedDestinationName);
                }
 
                ActiveMQRALogger.LOGGER.unableToRetrieveDestinationName(destinationName, destinationType.getName(), calculatedDestinationName);
-
-               // If there is no binding on naming, we will just create a new instance
-               if (isTopic) {
-                  destination = ActiveMQDestination.createTopic(calculatedDestinationName);
-               } else {
-                  destination = ActiveMQDestination.createQueue(calculatedDestinationName);
-               }
             }
          } else {
             logger.debug("Destination type not defined in MDB activation configuration.");
@@ -621,11 +560,6 @@ public class ActiveMQActivation {
       return spec.getQueuePrefix() + queue;
    }
 
-   /**
-    * Get a string representation
-    *
-    * @return The value
-    */
    @Override
    public String toString() {
       StringBuilder buffer = new StringBuilder();
@@ -656,12 +590,7 @@ public class ActiveMQActivation {
       ClassLoader tccl;
 
       try {
-         tccl = AccessController.doPrivileged(new PrivilegedExceptionAction<ClassLoader>() {
-            @Override
-            public ClassLoader run() {
-               return ActiveMQActivation.class.getClassLoader();
-            }
-         });
+         tccl = SecurityManagerShim.doPrivileged((PrivilegedExceptionAction<ClassLoader>) ActiveMQActivation.class::getClassLoader);
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
          tccl = null;
@@ -686,9 +615,9 @@ public class ActiveMQActivation {
       logger.trace("reconnecting activation {}", this);
 
       if (failure != null) {
-         if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
+         if (failure instanceof ActiveMQException exception && exception.getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
             ActiveMQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
-         } else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
+         } else if (failure instanceof ActiveMQException exception && exception.getType() == ActiveMQExceptionType.NOT_CONNECTED) {
             ActiveMQRALogger.LOGGER.awaitingJMSServerCreation();
          } else {
             ActiveMQRALogger.LOGGER.failureInActivation(spec, failure);
@@ -699,8 +628,9 @@ public class ActiveMQActivation {
       long setupInterval = spec.getSetupInterval();
 
       // Only enter the reconnect loop once
-      if (inReconnect.getAndSet(true))
+      if (inReconnect.getAndSet(true)) {
          return;
+      }
       try {
          Throwable lastException = failure;
          while (deliveryActive.get() && (setupAttempts == -1 || reconnectCount < setupAttempts)) {
@@ -721,12 +651,12 @@ public class ActiveMQActivation {
                ActiveMQRALogger.LOGGER.reconnected();
                break;
             } catch (Throwable t) {
-               if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
+               if (failure instanceof ActiveMQException exception && exception.getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
                   if (lastException == null || !(t instanceof ActiveMQNonExistentQueueException)) {
                      lastException = t;
                      ActiveMQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
                   }
-               } else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
+               } else if (failure instanceof ActiveMQException exception && exception.getType() == ActiveMQExceptionType.NOT_CONNECTED) {
                   if (lastException == null || !(t instanceof ActiveMQNotConnectedException)) {
                      lastException = t;
                      ActiveMQRALogger.LOGGER.awaitingJMSServerCreation();

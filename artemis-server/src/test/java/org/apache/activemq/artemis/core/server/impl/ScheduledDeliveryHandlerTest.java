@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -60,13 +66,11 @@ import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.NodeStoreFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import org.junit.Assert;
-import org.junit.Test;
 
-public class ScheduledDeliveryHandlerTest extends Assert {
+public class ScheduledDeliveryHandlerTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -79,8 +83,9 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       for (int i = 0; i < NUMBER_OF_SEQUENCES; i++) {
          int numberOfMessages = RandomUtil.randomInt() % 10;
-         if (numberOfMessages == 0)
+         if (numberOfMessages == 0) {
             numberOfMessages = 1;
+         }
 
          long nextScheduledTime = RandomUtil.randomPositiveLong();
 
@@ -273,7 +278,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
                           long numberOfExpectedMessages) throws Exception {
       List<MessageReference> refs = handler.getScheduledReferences();
 
-      HashSet<Long> messages = new HashSet<>();
+      Set<Long> messages = new HashSet<>();
 
       long lastTime = -1;
 
@@ -292,7 +297,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       for (long i = 0; i < numberOfExpectedMessages; i++) {
-         assertTrue(messages.contains(Long.valueOf(i)));
+         assertTrue(messages.contains(i));
       }
    }
 
@@ -306,6 +311,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public void setUserContext(Object key, Object value) {
 
+      }
+
+      @Override
+      public void setPaged() {
+
+      }
+
+      @Override
+      public boolean isPaged() {
+         return false;
       }
 
       @Override
@@ -838,6 +853,10 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void reloadSequence(MessageReference ref) {
+      }
+
+      @Override
       public boolean isEnabled() {
          return false;
       }
@@ -1019,7 +1038,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       @Override
       public Long getID() {
-         return Long.valueOf(0L);
+         return 0L;
       }
 
       @Override
@@ -1370,11 +1389,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public MessageReference getReference(long id) {
-         return null;
-      }
-
-      @Override
       public int deleteAllReferences() throws Exception {
          return 0;
       }
@@ -1471,6 +1485,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public int moveReferences(int flushLimit, Filter filter, SimpleString toAddress, boolean rejectDuplicates, int messageCount, Binding binding) throws Exception {
          return 0;
+      }
+
+      @Override
+      public boolean copyReference(long messageID, SimpleString address, Binding binding) throws Exception {
+         return false;
       }
 
       @Override
@@ -1698,6 +1717,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public void setExclusive(boolean exclusive) {
 
+      }
+
+      @Override
+      public int getInitialQueueBufferSize() {
+         return 0;
       }
    }
 }

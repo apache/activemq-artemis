@@ -20,17 +20,15 @@ import java.util.function.Consumer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
- * This MessageReference should only be created the first time a group is assigned to a consumer,
- * it allows us to make a copy of the message to add the property safely as a delivery semantic,
- * without affecting the underlying message.
- *
+ * This MessageReference should only be created the first time a group is assigned to a consumer, it allows us to make a
+ * copy of the message to add the property safely as a delivery semantic, without affecting the underlying message.
+ * <p>
  * The overhead is low, as noted above only should be created on first message in a group to a consumer.
  */
 public class GroupFirstMessageReference implements MessageReference {
@@ -38,7 +36,6 @@ public class GroupFirstMessageReference implements MessageReference {
    private final MessageReference messageReference;
    private final SimpleString key;
    private volatile Message message;
-   private volatile PagingStore owner;
 
    public GroupFirstMessageReference(SimpleString key, MessageReference messageReference) {
       this.messageReference = messageReference;
@@ -169,6 +166,11 @@ public class GroupFirstMessageReference implements MessageReference {
    }
 
    @Override
+   public void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer, boolean delivering) throws Exception {
+      messageReference.acknowledge(tx, reason, consumer, delivering);
+   }
+
+   @Override
    public void emptyConsumerID() {
       messageReference.emptyConsumerID();
    }
@@ -216,6 +218,16 @@ public class GroupFirstMessageReference implements MessageReference {
    @Override
    public long getPersistentSize() throws ActiveMQException {
       return messageReference.getPersistentSize();
+   }
+
+   @Override
+   public long getSequence() {
+      return messageReference.getSequence();
+   }
+
+   @Override
+   public void setSequence(long nextSequence) {
+      messageReference.setSequence(nextSequence);
    }
 
 }

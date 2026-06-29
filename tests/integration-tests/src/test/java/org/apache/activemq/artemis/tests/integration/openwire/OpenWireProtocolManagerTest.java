@@ -24,10 +24,14 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.selector.impl.LRUCache;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OpenWireProtocolManagerTest extends ActiveMQTestBase {
 
@@ -83,12 +87,7 @@ public class OpenWireProtocolManagerTest extends ActiveMQTestBase {
 
       @Override
       public ExecutorFactory getExecutorFactory() {
-         return new ExecutorFactory() {
-            @Override
-            public ArtemisExecutor getExecutor() {
-               return null;
-            }
-         };
+         return () -> null;
       }
 
       @Override

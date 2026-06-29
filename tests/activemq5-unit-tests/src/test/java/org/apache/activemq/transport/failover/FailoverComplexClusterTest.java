@@ -42,11 +42,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Complex cluster test that will exercise the dynamic failover capabilities of
- * a network of brokers. Using a networking of 3 brokers where the 3rd broker is
- * removed and then added back in it is expected in each test that the number of
- * connections on the client should start with 3, then have two after the 3rd
- * broker is removed and then show 3 after the 3rd broker is reintroduced.
+ * Complex cluster test that will exercise the dynamic failover capabilities of a network of brokers. Using a networking
+ * of 3 brokers where the 3rd broker is removed and then added back in it is expected in each test that the number of
+ * connections on the client should start with 3, then have two after the 3rd broker is removed and then show 3 after
+ * the 3rd broker is reintroduced.
  */
 @Ignore
 public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
@@ -105,8 +104,6 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
 
    /**
     * Basic dynamic failover 3 broker test
-    *
-    * @throws Exception
     */
    @Test
    public void testThreeBrokerClusterSingleConnectorBasic() throws Exception {
@@ -119,12 +116,9 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
    }
 
    /**
-    * Tests a 3 broker configuration to ensure that the backup is random and
-    * supported in a cluster. useExponentialBackOff is set to false and
-    * maxReconnectAttempts is set to 1 to move through the list quickly for
+    * Tests a 3 broker configuration to ensure that the backup is random and supported in a cluster.
+    * useExponentialBackOff is set to false and maxReconnectAttempts is set to 1 to move through the list quickly for
     * this test.
-    *
-    * @throws Exception
     */
    @Test
    public void testThreeBrokerClusterSingleConnectorBackupFailoverConfig() throws Exception {
@@ -139,12 +133,9 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
    }
 
    /**
-    * Tests a 3 broker cluster that passes in connection params on the
-    * transport connector. Prior versions of AMQ passed the TC connection
-    * params to the client and this should not happen. The chosen param is not
-    * compatible with the client and will throw an error if used.
-    *
-    * @throws Exception
+    * Tests a 3 broker cluster that passes in connection params on the transport connector. Prior versions of AMQ passed
+    * the TC connection params to the client and this should not happen. The chosen param is not compatible with the
+    * client and will throw an error if used.
     */
    @Test
    public void testThreeBrokerClusterSingleConnectorWithParams() throws Exception {
@@ -159,8 +150,6 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
 
    /**
     * Tests a 3 broker cluster using a cluster filter of *
-    *
-    * @throws Exception
     */
    @Test
    public void testThreeBrokerClusterWithClusterFilter() throws Exception {
@@ -173,10 +162,8 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
    }
 
    /**
-    * Test to verify that a broker with multiple transport connections only the
-    * one marked to update clients is propagate
-    *
-    * @throws Exception
+    * Test to verify that a broker with multiple transport connections only the one marked to update clients is
+    * propagate
     */
    @Test
    public void testThreeBrokerClusterMultipleConnectorBasic() throws Exception {
@@ -192,8 +179,6 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
 
    /**
     * Test to verify the reintroduction of the A Broker
-    *
-    * @throws Exception
     */
    @Test
    public void testOriginalBrokerRestart() throws Exception {
@@ -221,8 +206,6 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
    /**
     * Test to ensure clients are evenly to all available brokers in the
     * network.
-    *
-    * @throws Exception
     */
    @Test
    public void testThreeBrokerClusterClientDistributions() throws Exception {
@@ -236,10 +219,7 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
    }
 
    /**
-    * Test to verify that clients are distributed with no less than 20% of the
-    * clients on any one broker.
-    *
-    * @throws Exception
+    * Test to verify that clients are distributed with no less than 20% of the clients on any one broker.
     */
    @Test
    public void testThreeBrokerClusterDestinationFilter() throws Exception {
@@ -288,20 +268,12 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
    }
 
    /**
-    * Runs a 3 Broker dynamic failover test: <br/>
+    * Runs a 3 Broker dynamic failover test:
     * <ul>
     * <li>asserts clients are distributed across all 3 brokers</li>
     * <li>asserts clients are distributed across 2 brokers after removing the 3rd</li>
-    * <li>asserts clients are distributed across all 3 brokers after
-    * reintroducing the 3rd broker</li>
+    * <li>asserts clients are distributed across all 3 brokers after reintroducing the 3rd broker</li>
     * </ul>
-    *
-    * @param multi
-    * @param tcParams
-    * @param clusterFilter
-    * @param destinationFilter
-    * @throws Exception
-    * @throws InterruptedException
     */
    private void runTests(boolean multi,
                          String tcParams,

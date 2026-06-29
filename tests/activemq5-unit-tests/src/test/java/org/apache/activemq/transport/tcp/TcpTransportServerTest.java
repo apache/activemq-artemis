@@ -28,14 +28,11 @@ import org.apache.activemq.transport.TransportFactory;
 import org.apache.activemq.transport.TransportFilter;
 import org.apache.activemq.transport.TransportLogger;
 
-/**
- * @author <a href="http://www.christianposta.com/blog">Christian Posta</a>
- */
 public class TcpTransportServerTest extends TestCase {
 
    public void testDefaultPropertiesSetOnTransport() throws Exception {
       TcpTransportServer server = (TcpTransportServer) TransportFactory.bind(new URI("tcp://localhost:61616?trace=true"));
-      server.setTransportOption(new HashMap<String, Object>());
+      server.setTransportOption(new HashMap<>());
 
       try {
          server.setAcceptListener(new TransportAcceptListener() {

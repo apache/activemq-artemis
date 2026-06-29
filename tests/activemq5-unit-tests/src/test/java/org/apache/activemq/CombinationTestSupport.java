@@ -43,31 +43,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Poor mans way of getting JUnit to run a test case through a few different
- * combinations of options. Usage: If you have a test case called testFoo what
- * you want to run through a few combinations, of of values for the attributes
- * age and color, you would something like: <code>
+ * Poor mans way of getting JUnit to run a test case through a few different combinations of options. Usage: If you have
+ * a test case called testFoo what you want to run through a few combinations, of of values for the attributes age and
+ * color, you would something like:
+ * <pre>{@code
  * public void initCombosForTestFoo() {
- * addCombinationValues( "age", new Object[]{ new Integer(21), new Integer(30) } );
- * addCombinationValues( "color", new Object[]{"blue", "green"} );
+ *    addCombinationValues( "age", new Object[]{ new Integer(21), new Integer(30) } );
+ *    addCombinationValues( "color", new Object[]{"blue", "green"} );
  * }
- * </code>
- * The testFoo test case would be run for each possible combination of age and
- * color that you setup in the initCombosForTestFoo method. Before each
- * combination is run, the age and color fields of the test class are set to one
- * of the values defined. This is done before the normal setUp method is called.
- * If you want the test combinations to show up as separate test runs in the
- * JUnit reports, add a suite method to your test case similar to: <code>
+ * }</pre>
+ * The testFoo test case would be run for each possible combination of age and color that you setup in the
+ * initCombosForTestFoo method. Before each combination is run, the age and color fields of the test class are set to
+ * one of the values defined. This is done before the normal setUp method is called. If you want the test combinations
+ * to show up as separate test runs in the JUnit reports, add a suite method to your test case similar to:
+ * <pre>{@code
  * public static Test suite() {
- * return suite(FooTest.class);
+ *    return suite(FooTest.class);
  * }
- * </code>
+ * }</pre>
  */
 public abstract class CombinationTestSupport extends AutoFailTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(CombinationTestSupport.class);
 
-   private final HashMap<String, ComboOption> comboOptions = new HashMap<>();
+   private final Map<String, ComboOption> comboOptions = new HashMap<>();
    private boolean combosEvaluated;
    private Map<String, Object> options;
    protected File basedir;
@@ -196,7 +195,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
       }
 
       try {
-         ArrayList<HashMap<String, Object>> expandedOptions = new ArrayList<>();
+         List<Map<String, Object>> expandedOptions = new ArrayList<>();
          expandCombinations(new ArrayList<>(comboOptions.values()), expandedOptions);
 
          if (expandedOptions.isEmpty()) {
@@ -204,9 +203,9 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
             return new CombinationTestSupport[]{this};
          } else {
 
-            ArrayList<CombinationTestSupport> result = new ArrayList<>();
+            List<CombinationTestSupport> result = new ArrayList<>();
             // Run the test case for each possible combination
-            for (Iterator<HashMap<String, Object>> iter = expandedOptions.iterator(); iter.hasNext(); ) {
+            for (Iterator<Map<String, Object>> iter = expandedOptions.iterator(); iter.hasNext(); ) {
                CombinationTestSupport combo = (CombinationTestSupport) TestSuite.createTest(getClass(), name);
                combo.combosEvaluated = true;
                combo.setOptions(iter.next());
@@ -224,9 +223,9 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
 
    }
 
-   private void expandCombinations(List<ComboOption> optionsLeft, List<HashMap<String, Object>> expandedCombos) {
+   private void expandCombinations(List<ComboOption> optionsLeft, List<Map<String, Object>> expandedCombos) {
       if (!optionsLeft.isEmpty()) {
-         HashMap<String, Object> map;
+         Map<String, Object> map;
          if (comboOptions.size() == optionsLeft.size()) {
             map = new HashMap<>();
             expandedCombos.add(map);
@@ -257,7 +256,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
    public static Test suite(Class<? extends CombinationTestSupport> clazz) {
       TestSuite suite = new TestSuite();
 
-      ArrayList<String> names = new ArrayList<>();
+      List<String> names = new ArrayList<>();
       Method[] methods = clazz.getMethods();
       for (int i = 0; i < methods.length; i++) {
          String name = methods[i].getName();

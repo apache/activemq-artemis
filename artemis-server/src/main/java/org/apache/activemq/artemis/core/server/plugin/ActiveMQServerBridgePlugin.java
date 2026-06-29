@@ -22,16 +22,12 @@ import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 
-/**
- *
- */
 public interface ActiveMQServerBridgePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a bridge is deployed
     *
     * @param config The bridge configuration
-    * @throws ActiveMQException
     */
    default void beforeDeployBridge(BridgeConfiguration config) throws ActiveMQException {
 
@@ -41,7 +37,6 @@ public interface ActiveMQServerBridgePlugin extends ActiveMQServerBasePlugin {
     * After a bridge has been deployed
     *
     * @param bridge The newly deployed bridge
-    * @throws ActiveMQException
     */
    default void afterDeployBridge(Bridge bridge) throws ActiveMQException {
 
@@ -49,23 +44,13 @@ public interface ActiveMQServerBridgePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Called immediately before a bridge delivers a message
-    *
-    * @param bridge
-    * @param ref
-    * @throws ActiveMQException
     */
    default void beforeDeliverBridge(Bridge bridge, MessageReference ref) throws ActiveMQException {
 
    }
 
    /**
-    * Called immediately after a bridge delivers a message but before the message
-    * is acknowledged
-    *
-    * @param bridge
-    * @param ref
-    * @param status
-    * @throws ActiveMQException
+    * Called immediately after a bridge delivers a message but before the message is acknowledged
     */
    default void afterDeliverBridge(Bridge bridge, MessageReference ref, HandleStatus status) throws ActiveMQException {
 
@@ -73,10 +58,6 @@ public interface ActiveMQServerBridgePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Called after delivered message over this bridge has been acknowledged by the remote broker
-    *
-    * @param bridge
-    * @param ref
-    * @throws ActiveMQException
     */
    default void afterAcknowledgeBridge(Bridge bridge, MessageReference ref) throws ActiveMQException {
 

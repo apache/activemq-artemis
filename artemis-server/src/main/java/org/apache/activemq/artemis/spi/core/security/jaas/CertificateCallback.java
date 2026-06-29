@@ -21,27 +21,17 @@ import java.security.cert.X509Certificate;
 
 /**
  * A Callback for SSL certificates.
- *
+ * <p>
  * Will return a certificate chain to its client.
  */
 public class CertificateCallback implements Callback {
 
    X509Certificate[] certificates;
 
-   /**
-    * Setter for certificate chain.
-    *
-    * @param certs The certificates to be returned.
-    */
    public void setCertificates(X509Certificate[] certs) {
       certificates = certs;
    }
 
-   /**
-    * Getter for certificate chain.
-    *
-    * @return The certificates being carried.
-    */
    public X509Certificate[] getCertificates() {
       return certificates;
    }

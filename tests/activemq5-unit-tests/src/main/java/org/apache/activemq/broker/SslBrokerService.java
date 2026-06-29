@@ -26,13 +26,9 @@ import java.security.SecureRandom;
 import org.apache.activemq.transport.TransportServer;
 
 /**
- * A BrokerService that allows access to the key and trust managers used by SSL
- * connections. There is no reason to use this class unless SSL is being used
- * AND the key and trust managers need to be specified from within code. In
- * fact, if the URI passed to this class does not have an "ssl" scheme, this
- * class will pass all work on to its superclass.
- *
- * @author sepandm@gmail.com (Sepand)
+ * A BrokerService that allows access to the key and trust managers used by SSL connections. There is no reason to use
+ * this class unless SSL is being used AND the key and trust managers need to be specified from within code. In fact, if
+ * the URI passed to this class does not have an "ssl" scheme, this class will pass all work on to its superclass.
  */
 public class SslBrokerService extends BrokerService {
 

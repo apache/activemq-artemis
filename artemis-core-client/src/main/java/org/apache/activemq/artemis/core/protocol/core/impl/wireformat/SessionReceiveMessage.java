@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -78,36 +80,31 @@ public class SessionReceiveMessage extends MessagePacket {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
-      result = prime * result + deliveryCount;
-      return result;
+      return Objects.hash(super.hashCode(), consumerID, deliveryCount);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", consumerID=" + consumerID);
-      buff.append(", deliveryCount=" + deliveryCount);
-      buff.append("]");
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", consumerID=" + consumerID);
+      sb.append(", deliveryCount=" + deliveryCount);
+      sb.append("]");
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionReceiveMessage))
+      }
+      if (!(obj instanceof SessionReceiveMessage other)) {
          return false;
-      SessionReceiveMessage other = (SessionReceiveMessage) obj;
-      if (consumerID != other.consumerID)
-         return false;
-      if (deliveryCount != other.deliveryCount)
-         return false;
-      return true;
-   }
+      }
 
+      return consumerID == other.consumerID &&
+             deliveryCount == other.deliveryCount;
+   }
 }

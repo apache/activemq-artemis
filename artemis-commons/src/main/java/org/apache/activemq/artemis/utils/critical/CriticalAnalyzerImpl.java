@@ -16,16 +16,16 @@
  */
 package org.apache.activemq.artemis.utils.critical;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ConcurrentModificationException;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -41,12 +41,11 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
 
    private final ActiveMQScheduledComponent scheduledComponent;
 
-   private final AtomicBoolean running = new AtomicBoolean(false);
-
    public CriticalAnalyzerImpl() {
       // this will make the scheduled component to start its own pool
 
-      /* Important: The scheduled component should have its own thread pool...
+      /*
+       * Important: The scheduled component should have its own thread pool...
        *  otherwise in case of a deadlock, or a starvation of the server the analyzer won't pick up any
        *  issues and won't be able to shutdown the server or halt the VM
        */
@@ -60,16 +59,11 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
 
          @Override
          protected ActiveMQThreadFactory getThreadFactory() {
-            return new ActiveMQThreadFactory("CriticalAnalyzer", "Critical-Analyzer-", true, getThisClassLoader());
+            return new ActiveMQThreadFactory("critical-analyzer", true, getThisClassLoader());
          }
 
          private ClassLoader getThisClassLoader() {
-            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-               @Override
-               public ClassLoader run() {
-                  return CriticalAnalyzerImpl.this.getClass().getClassLoader();
-               }
-            });
+            return SecurityManagerShim.doPrivileged((PrivilegedAction<ClassLoader>) () -> CriticalAnalyzerImpl.this.getClass().getClassLoader());
 
          }
 
@@ -83,7 +77,7 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
       components.clear();
    }
 
-   private CopyOnWriteArrayList<CriticalAction> actions = new CopyOnWriteArrayList<>();
+   private List<CriticalAction> actions = new CopyOnWriteArrayList<>();
 
    private final ConcurrentHashSet<CriticalComponent> components = new ConcurrentHashSet<>();
 

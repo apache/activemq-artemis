@@ -39,15 +39,20 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionCounterImpl;
 import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
+import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSettingJSON;
 import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
+import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
+import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedUser;
 import org.apache.activemq.artemis.core.persistence.impl.journal.BatchingIDGenerator.IDCounterEncoding;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.AckRetry;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.CursorAckRecordEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.DeliveryCountUpdateEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.DuplicateIDEncoding;
@@ -70,6 +75,8 @@ import org.apache.activemq.artemis.utils.XidCodecSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -78,6 +85,7 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_REF;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADDRESS_BINDING_RECORD;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADDRESS_SETTING_RECORD;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADDRESS_SETTING_RECORD_JSON;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADDRESS_STATUS_RECORD;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
@@ -88,6 +96,7 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.HEURISTIC_COMPLETION;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ID_COUNTER_RECORD;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ACK_RETRY;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COMPLETE;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_INC;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE;
@@ -203,11 +212,6 @@ public final class DescribeJournal {
       }
    });
 
-   /**
-    * @param fileFactory
-    * @param journal
-    * @throws Exception
-    */
    private static DescribeJournal describeJournal(SequentialFileFactory fileFactory,
                                                   JournalImpl journal,
                                                   final File path,
@@ -351,7 +355,7 @@ public final class DescribeJournal {
 
       journal.start();
 
-      final StringBuffer bufferFailingTransactions = new StringBuffer();
+      final StringBuilder bufferFailingTransactions = new StringBuilder();
 
       final class Count {
 
@@ -367,13 +371,15 @@ public final class DescribeJournal {
          }
 
          @Override
-         public boolean equals(Object o) {
-            if (this == o)
+         public boolean equals(Object obj) {
+            if (this == obj) {
                return true;
-            if (o == null || getClass() != o.getClass())
+            }
+            if (!(obj instanceof Count other)) {
                return false;
-            Count count = (Count) o;
-            return value == count.value;
+            }
+
+            return value == other.value;
          }
 
          @Override
@@ -387,22 +393,16 @@ public final class DescribeJournal {
       long preparedMessageCount = 0;
       long preparedLargeMessageCount = 0;
       Map<Long, Count> preparedMessageRefCount = new HashMap<>();
-      journal.load(records, preparedTransactions, new TransactionFailureCallback() {
-
-         @Override
-         public void failedTransaction(long transactionID,
-                                       List<RecordInfo> records1,
-                                       List<RecordInfo> recordsToDelete) {
-            bufferFailingTransactions.append("Transaction " + transactionID + " failed with these records:\n");
-            for (RecordInfo info : records1) {
-               bufferFailingTransactions.append("- " + describeRecord(info, safe) + "\n");
-            }
-
-            for (RecordInfo info : recordsToDelete) {
-               bufferFailingTransactions.append("- " + describeRecord(info, safe) + " <marked to delete>\n");
-            }
-
+      journal.load(records, preparedTransactions, (transactionID, records1, recordsToDelete) -> {
+         bufferFailingTransactions.append("Transaction " + transactionID + " failed with these records:\n");
+         for (RecordInfo info : records1) {
+            bufferFailingTransactions.append("- " + describeRecord(info, safe) + "\n");
          }
+
+         for (RecordInfo info : recordsToDelete) {
+            bufferFailingTransactions.append("- " + describeRecord(info, safe) + " <marked to delete>\n");
+         }
+
       }, false);
 
       for (RecordInfo info : records) {
@@ -464,7 +464,7 @@ public final class DescribeJournal {
          }
       }
 
-      if (counters.size() > 0) {
+      if (!counters.isEmpty()) {
          out.println("### Page Counters");
          printCounters(out, counters);
       }
@@ -500,7 +500,7 @@ public final class DescribeJournal {
 
       String missingTX = bufferFailingTransactions.toString();
 
-      if (missingTX.length() > 0) {
+      if (!missingTX.isEmpty()) {
          out.println();
          out.println("### Failed Transactions (Missing commit/prepare/rollback record) ###");
       }
@@ -555,13 +555,12 @@ public final class DescribeJournal {
          return "** null **";
       }
       if (safe && !isSafe(obj)) {
-         if (obj instanceof MessageDescribe) {
-            MessageDescribe describe = (MessageDescribe)obj;
+         if (obj instanceof MessageDescribe messageDescribe) {
             try {
-               return describe.getMsg().getClass().getSimpleName() + "(safe data, size=" + describe.getMsg().getPersistentSize() + ")";
+               return messageDescribe.getMsg().getClass().getSimpleName() + "(safe data, size=" + messageDescribe.getMsg().getPersistentSize() + ")";
             } catch (Throwable e) {
                e.printStackTrace();
-               return describe.getMsg().getClass().getSimpleName() + "(safe data)";
+               return messageDescribe.getMsg().getClass().getSimpleName() + "(safe data)";
             }
          } else {
             return obj.getClass().getSimpleName() + "(safe data)";
@@ -580,7 +579,7 @@ public final class DescribeJournal {
    }
 
    private static String encode(final byte[] data) {
-      return Base64.encodeBytes(data, 0, data.length, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
+      return Base64.encodeBytes(data, true);
    }
 
    private static Xid toXid(final byte[] data) {
@@ -602,15 +601,10 @@ public final class DescribeJournal {
 
       switch (rec) {
          case DIVERT_RECORD:
-            PersistedDivertConfiguration persistedDivertConfiguration = new PersistedDivertConfiguration();
-            persistedDivertConfiguration.decode(buffer);
-            return persistedDivertConfiguration;
+            return AbstractJournalStorageManager.newPersistedConfigurationEncoding(PersistedDivertConfiguration.class, id, buffer);
 
-         case BRIDGE_RECORD: {
-            PersistedBridgeConfiguration persistedBridgeConfiguration = new PersistedBridgeConfiguration();
-            persistedBridgeConfiguration.decode(buffer);
-            return persistedBridgeConfiguration;
-         }
+         case BRIDGE_RECORD:
+            return AbstractJournalStorageManager.newPersistedConfigurationEncoding(PersistedBridgeConfiguration.class, id, buffer);
 
          case ADD_LARGE_MESSAGE_PENDING: {
             PendingLargeMessageEncoding lmEncoding = new PendingLargeMessageEncoding();
@@ -744,10 +738,13 @@ public final class DescribeJournal {
             return AbstractJournalStorageManager.newGroupEncoding(id, buffer);
 
          case ADDRESS_SETTING_RECORD:
-            return AbstractJournalStorageManager.newAddressEncoding(id, buffer);
+            return AbstractJournalStorageManager.newPersistedConfigurationEncoding(PersistedAddressSetting.class, id, buffer);
+
+         case ADDRESS_SETTING_RECORD_JSON:
+            return AbstractJournalStorageManager.newPersistedConfigurationEncoding(PersistedAddressSettingJSON.class, id, buffer);
 
          case SECURITY_SETTING_RECORD:
-            return AbstractJournalStorageManager.newSecurityRecord(id, buffer);
+            return AbstractJournalStorageManager.newPersistedConfigurationEncoding(PersistedSecuritySetting.class, id, buffer);
 
          case ADDRESS_BINDING_RECORD:
             return AbstractJournalStorageManager.newAddressBindingEncoding(id, buffer);
@@ -756,10 +753,13 @@ public final class DescribeJournal {
             return AbstractJournalStorageManager.newAddressStatusEncoding(id, buffer);
 
          case USER_RECORD:
-            return AbstractJournalStorageManager.newUserEncoding(id, buffer);
+            return AbstractJournalStorageManager.newPersistedConfigurationEncoding(PersistedUser.class, id, buffer);
 
          case ROLE_RECORD:
-            return AbstractJournalStorageManager.newRoleEncoding(id, buffer);
+            return AbstractJournalStorageManager.newPersistedConfigurationEncoding(PersistedRole.class, id, buffer);
+
+         case ACK_RETRY:
+            return AckRetry.getPersister().decode(buffer, null, null);
 
          default:
             return null;
@@ -784,16 +784,16 @@ public final class DescribeJournal {
 
       @Override
       public String toString() {
-         StringBuffer buffer = new StringBuffer();
-         buffer.append(msg.isLargeMessage() ? "LargeMessage(" : "Message(");
-         buffer.append("messageID=" + msg.getMessageID());
+         StringBuilder sb = new StringBuilder();
+         sb.append(msg.isLargeMessage() ? "LargeMessage(" : "Message(");
+         sb.append("messageID=" + msg.getMessageID());
          if (msg.getUserID() != null) {
-            buffer.append(";userMessageID=" + msg.getUserID().toString());
+            sb.append(";userMessageID=" + msg.getUserID().toString());
          }
 
-         buffer.append(";msg=" + msg.toString());
+         sb.append(";msg=" + msg.toString());
 
-         return buffer.toString();
+         return sb.toString();
       }
 
       public Message getMsg() {
@@ -817,27 +817,22 @@ public final class DescribeJournal {
 
       @Override
       public int hashCode() {
-         final int prime = 31;
-         int result = 1;
-         result = prime * result + ((refEncoding == null) ? 0 : refEncoding.hashCode());
-         return result;
+         return Objects.hashCode(refEncoding);
       }
 
       @Override
       public boolean equals(Object obj) {
-         if (this == obj)
+         if (this == obj) {
             return true;
-         if (obj == null)
+         }
+         if (obj == null) {
             return false;
-         if (!(obj instanceof ReferenceDescribe))
+         }
+         if (!(obj instanceof ReferenceDescribe other)) {
             return false;
-         ReferenceDescribe other = (ReferenceDescribe) obj;
-         if (refEncoding == null) {
-            if (other.refEncoding != null)
-               return false;
-         } else if (!refEncoding.equals(other.refEncoding))
-            return false;
-         return true;
+         }
+
+         return Objects.equals(refEncoding, other.refEncoding);
       }
    }
 

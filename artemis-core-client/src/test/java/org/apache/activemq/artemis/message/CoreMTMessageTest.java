@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.message;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,13 +34,12 @@ import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CoreMTMessageTest {
 
-   public static final SimpleString ADDRESS = new SimpleString("this.local.address");
-   public static final SimpleString ADDRESS2 = new SimpleString("some.other.address");
+   public static final SimpleString ADDRESS = SimpleString.of("this.local.address");
+   public static final SimpleString ADDRESS2 = SimpleString.of("some.other.address");
    public static final byte MESSAGE_TYPE = Message.TEXT_TYPE;
    public static final boolean DURABLE = true;
    public static final long EXPIRATION = 123L;
@@ -59,11 +62,11 @@ public class CoreMTMessageTest {
       UUID userID = UUIDGenerator.getInstance().generateUUID();
       String body = UUIDGenerator.getInstance().generateStringUUID();
       ClientMessageImpl message = new ClientMessageImpl(MESSAGE_TYPE, DURABLE, EXPIRATION, TIMESTAMP, PRIORITY, 10 * 1024, objectPools);
-      TextMessageUtil.writeBodyText(message.getBodyBuffer(), SimpleString.toSimpleString(body));
+      TextMessageUtil.writeBodyText(message.getBodyBuffer(), SimpleString.of(body));
 
       message.setAddress(ADDRESS);
       message.setUserID(userID);
-      message.getProperties().putSimpleStringProperty(SimpleString.toSimpleString("str-prop"), propValue);
+      message.getProperties().putSimpleStringProperty(SimpleString.of("str-prop"), propValue);
 
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(10 * 1024);
       message.sendBuffer(buffer.byteBuf(), 0);
@@ -80,24 +83,21 @@ public class CoreMTMessageTest {
       final CountDownLatch startFlag = new CountDownLatch(1);
       final AtomicInteger errors = new AtomicInteger(0);
 
-      Runnable runnable = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(10 * 1024);
-               aligned.countDown();
-               Assert.assertTrue(startFlag.await(5, TimeUnit.SECONDS));
-               coreMessage.messageChanged();
-               coreMessage.sendBuffer(buffer.byteBuf(), 0);
-               CoreMessage recMessage = new CoreMessage();
-               recMessage.receiveBuffer(buffer.byteBuf());
-               Assert.assertEquals(ADDRESS2, recMessage.getAddressSimpleString());
-               Assert.assertEquals(33, recMessage.getMessageID());
-               Assert.assertEquals(propValue, recMessage.getSimpleStringProperty(SimpleString.toSimpleString("str-prop")));
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
-            }
+      Runnable runnable = () -> {
+         try {
+            ActiveMQBuffer buffer1 = ActiveMQBuffers.dynamicBuffer(10 * 1024);
+            aligned.countDown();
+            assertTrue(startFlag.await(5, TimeUnit.SECONDS));
+            coreMessage.messageChanged();
+            coreMessage.sendBuffer(buffer1.byteBuf(), 0);
+            CoreMessage recMessage = new CoreMessage();
+            recMessage.receiveBuffer(buffer1.byteBuf());
+            assertEquals(ADDRESS2, recMessage.getAddressSimpleString());
+            assertEquals(33, recMessage.getMessageID());
+            assertEquals(propValue, recMessage.getSimpleStringProperty(SimpleString.of("str-prop")));
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
       };
 
@@ -113,10 +113,10 @@ public class CoreMTMessageTest {
 
       for (Thread t : threads) {
          t.join(10000);
-         Assert.assertFalse(t.isAlive());
+         assertFalse(t.isAlive());
       }
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
    }
 

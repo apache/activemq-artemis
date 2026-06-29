@@ -49,7 +49,7 @@ public class HQPropertiesConversionInterceptor implements Interceptor {
 
       // there's no need to copy client messages, only the server ones are problematic
       if (!(copy instanceof ClientMessageInternal)) {
-         if (copy instanceof CoreMessage && ((CoreMessage)copy).getBuffer() != null) {
+         if (copy instanceof CoreMessage message && message.getBuffer() != null) {
             copy = copy.copy();
          }
          messagePacket.replaceMessage(copy);

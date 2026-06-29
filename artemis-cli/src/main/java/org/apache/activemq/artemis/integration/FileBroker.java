@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.integration;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
@@ -59,7 +60,7 @@ public class FileBroker implements Broker {
          createComponents();
       }
 
-      ArrayList<ActiveMQComponent> componentsByStartOrder = getComponentsByStartOrder(components);
+      List<ActiveMQComponent> componentsByStartOrder = getComponentsByStartOrder(components);
       String fullVersion = VersionLoader.getVersion().getFullVersion();
       ActiveMQBootstrapLogger.LOGGER.serverStarting(fullVersion);
       for (ActiveMQComponent component : componentsByStartOrder) {
@@ -71,10 +72,12 @@ public class FileBroker implements Broker {
 
 
    private void createDirectories(FileConfiguration fileConfiguration) {
-      fileConfiguration.getPagingLocation().mkdirs();
-      fileConfiguration.getJournalLocation().mkdirs();
-      fileConfiguration.getBindingsLocation().mkdirs();
-      fileConfiguration.getLargeMessagesLocation().mkdirs();
+      if (!fileConfiguration.isUsingDatabasePersistence()) {
+         fileConfiguration.getPagingLocation().mkdirs();
+         fileConfiguration.getJournalLocation().mkdirs();
+         fileConfiguration.getBindingsLocation().mkdirs();
+         fileConfiguration.getLargeMessagesLocation().mkdirs();
+      }
    }
 
    @Override
@@ -90,8 +93,8 @@ public class FileBroker implements Broker {
       ActiveMQComponent[] mqComponents = new ActiveMQComponent[components.size()];
       components.values().toArray(mqComponents);
       for (int i = mqComponents.length - 1; i >= 0; i--) {
-         if (mqComponents[i] instanceof ServiceComponent) {
-            ((ServiceComponent) mqComponents[i]).stop(isShutdown);
+         if (mqComponents[i] instanceof ServiceComponent serviceComponent) {
+            serviceComponent.stop(isShutdown);
          } else {
             mqComponents[i].stop();
          }
@@ -124,12 +127,12 @@ public class FileBroker implements Broker {
       components = fileDeploymentManager.buildService(securityManager, ManagementFactory.getPlatformMBeanServer(), activateCallback);
    }
 
-   /*
-   * this makes sure the components are started in the correct order. Its simple at the mo as e only have core and jms but
-   * will need impproving if we get more.
-   * */
-   private ArrayList<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
-      ArrayList<ActiveMQComponent> activeMQComponents = new ArrayList<>();
+   /**
+    * This makes sure the components are started in the correct order. Its simple at the mo as e only have core and jms
+    * but will need impproving if we get more.
+    */
+   private List<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
+      List<ActiveMQComponent> activeMQComponents = new ArrayList<>();
       ActiveMQComponent jmsComponent = components.get("jms");
       if (jmsComponent != null) {
          activeMQComponents.add(jmsComponent);

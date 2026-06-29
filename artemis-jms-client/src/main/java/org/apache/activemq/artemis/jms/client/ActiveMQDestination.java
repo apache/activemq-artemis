@@ -20,6 +20,7 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -34,7 +35,7 @@ import org.apache.activemq.artemis.jndi.JNDIStorable;
 import org.apache.activemq.artemis.utils.DestinationUtil;
 
 /**
- * ActiveMQ Artemis implementation of a JMS Destination.
+ * Apache Artemis implementation of a JMS Destination.
  */
 public class ActiveMQDestination extends JNDIStorable implements Destination, Serializable {
 
@@ -46,8 +47,9 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    public static final String TEMP_QUEUE_QUALIFED_PREFIX = DestinationUtil.TEMP_QUEUE_QUALIFED_PREFIX;
    public static final String TEMP_TOPIC_QUALIFED_PREFIX = DestinationUtil.TEMP_TOPIC_QUALIFED_PREFIX;
 
-   /** createQueue and createTopic from {@link ActiveMQSession} may change the name
-    *  in case Prefix usage */
+   /**
+    * {@code createQueue} and {@code createTopic} from {@link ActiveMQSession} may change the name in case Prefix usage
+    */
    void setName(String name) {
       this.name = name;
    }
@@ -78,20 +80,14 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
          return new ActiveMQTopic(name.substring(TEMP_TOPIC_QUALIFED_PREFIX.length()), true);
       }
 
-      switch (defaultType) {
-         case QUEUE:
-            return new ActiveMQQueue(name);
-         case TOPIC:
-            return new ActiveMQTopic(name);
-         case TEMP_QUEUE:
-            return new ActiveMQQueue(name, true);
-         case TEMP_TOPIC:
-            return new ActiveMQTopic(name, true);
-         case DESTINATION:
-            return new ActiveMQDestination(name, TYPE.DESTINATION, null);
-         default:
-            throw new IllegalArgumentException("Invalid default destination type: " + defaultType);
-      }
+      return switch (defaultType) {
+         case QUEUE -> new ActiveMQQueue(name);
+         case TOPIC -> new ActiveMQTopic(name);
+         case TEMP_QUEUE -> new ActiveMQQueue(name, true);
+         case TEMP_TOPIC -> new ActiveMQTopic(name, true);
+         case DESTINATION -> new ActiveMQDestination(name, TYPE.DESTINATION, null);
+         default -> throw new IllegalArgumentException("Invalid default destination type: " + defaultType);
+      };
    }
 
    public static ActiveMQDestination fromPrefixedName(final String name) {
@@ -167,11 +163,11 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    public static Pair<String, String> decomposeQueueNameForDurableSubscription(final String queueName) {
-      StringBuffer[] parts = new StringBuffer[2];
+      StringBuilder[] parts = new StringBuilder[2];
       int currentPart = 0;
 
-      parts[0] = new StringBuffer();
-      parts[1] = new StringBuffer();
+      parts[0] = new StringBuilder();
+      parts[1] = new StringBuilder();
 
       int pos = 0;
       while (pos < queueName.length()) {
@@ -199,12 +195,13 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       }
 
       if (currentPart != 1) {
-         /* JMS 2.0 introduced the ability to create "shared" subscriptions which do not require a clientID.
+         /*
+          * JMS 2.0 introduced the ability to create "shared" subscriptions which do not require a clientID.
           * In this case the subscription name will be the same as the queue name, but the above algorithm will put that
           * in the wrong position in the array so we need to move it.
           */
          parts[1] = parts[0];
-         parts[0] = new StringBuffer();
+         parts[0] = new StringBuilder();
       }
 
       Pair<String, String> pair = new Pair<>(parts[0].toString(), parts[1].toString());
@@ -213,11 +210,11 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    public static SimpleString createQueueAddressFromName(final String name) {
-      return new SimpleString(QUEUE_QUALIFIED_PREFIX + name);
+      return SimpleString.of(QUEUE_QUALIFIED_PREFIX + name);
    }
 
    public static SimpleString createTopicAddressFromName(final String name) {
-      return new SimpleString(TOPIC_QUALIFIED_PREFIX + name);
+      return SimpleString.of(TOPIC_QUALIFIED_PREFIX + name);
    }
 
    public static ActiveMQQueue createQueue(final String address) {
@@ -277,7 +274,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       String name = UUID.randomUUID().toString();
       String address = prefix + name;
 
-      ActiveMQTemporaryTopic topic  = createTemporaryTopic(address, session);
+      ActiveMQTemporaryTopic topic = createTemporaryTopic(address, session);
       topic.setName(name);
       return topic;
    }
@@ -320,7 +317,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    protected ActiveMQDestination(final String address,
                                  final TYPE type,
                                  final ActiveMQSession session) {
-      this(SimpleString.toSimpleString(address), type, session);
+      this(SimpleString.of(address), type, session);
    }
 
    protected ActiveMQDestination(final SimpleString address,
@@ -344,7 +341,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
                                  final String name,
                                  final TYPE type,
                                  final ActiveMQSession session) {
-      this(SimpleString.toSimpleString(address), name, type, session);
+      this(SimpleString.of(address), name, type, session);
    }
 
    @Deprecated
@@ -356,11 +353,11 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
 
       this.name = name;
 
-      this.address = simpleAddress != null ? simpleAddress.toString() : null;
+      this.address = Objects.toString(simpleAddress, null);
    }
 
    public void setAddress(String address) {
-      setSimpleAddress(SimpleString.toSimpleString(address));
+      setSimpleAddress(SimpleString.of(address));
    }
 
    @Override
@@ -390,7 +387,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    public void setSimpleAddress(String address) {
-      setSimpleAddress(new SimpleString(address));
+      setSimpleAddress(SimpleString.of(address));
    }
 
    public void delete() throws JMSException {
@@ -404,7 +401,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
          }
 
          try {
-            /**
+            /*
              * The status of the session used to create the temporary destination is uncertain, but the JMS spec states
              * that the lifetime of the temporary destination is tied to the connection so even if the originating
              * session is closed the temporary destination should still be deleted. Therefore, just create a new one
@@ -431,7 +428,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
 
 
    public String getAddress() {
-      return simpleAddress != null ? simpleAddress.toString() : null;
+      return Objects.toString(simpleAddress, null);
    }
 
    public SimpleString getSimpleAddress() {
@@ -491,18 +488,15 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (!(o instanceof ActiveMQDestination)) {
+      if (!(obj instanceof ActiveMQDestination other)) {
          return false;
       }
 
-      ActiveMQDestination that = (ActiveMQDestination) o;
-
-      return simpleAddress.equals(that.simpleAddress);
+      return Objects.equals(simpleAddress, other.simpleAddress);
    }
 
    @Override
@@ -528,37 +522,25 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       DESTINATION; // unknown
 
       public byte getType() {
-         switch (this) {
-            case QUEUE:
-               return 0;
-            case TOPIC:
-               return 1;
-            case TEMP_QUEUE:
-               return 2;
-            case TEMP_TOPIC:
-               return 3;
-            case DESTINATION:
-               return 4;
-            default:
-               return -1;
-         }
+         return switch (this) {
+            case QUEUE -> 0;
+            case TOPIC -> 1;
+            case TEMP_QUEUE -> 2;
+            case TEMP_TOPIC -> 3;
+            case DESTINATION -> 4;
+            default -> -1;
+         };
       }
 
       public static TYPE getType(byte type) {
-         switch (type) {
-            case 0:
-               return QUEUE;
-            case 1:
-               return TOPIC;
-            case 2:
-               return TEMP_QUEUE;
-            case 3:
-               return TEMP_TOPIC;
-            case 4:
-               return DESTINATION;
-            default:
-               return null;
-         }
+         return switch (type) {
+            case 0 -> QUEUE;
+            case 1 -> TOPIC;
+            case 2 -> TEMP_QUEUE;
+            case 3 -> TEMP_TOPIC;
+            case 4 -> DESTINATION;
+            default -> null;
+         };
       }
 
       public static boolean isQueue(TYPE type) {

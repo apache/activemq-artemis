@@ -18,7 +18,9 @@ package org.apache.activemq.artemis.utils;
 
 public interface ArtemisCloseable extends AutoCloseable {
 
-   /** The main purpose of this interface is to hide the exception since it is not needed. */
+   /**
+    * The main purpose of this interface is to hide the exception since it is not needed.
+    */
    @Override
    void close();
 }

@@ -18,13 +18,11 @@ package org.apache.activemq.artemis.selector.filter;
 
 /**
  * Represents an expression
- *
- * @version $Revision: 1.2 $
  */
 public interface Expression {
 
    /**
-    * @return the value of this expression
+    * {@return the value of this expression}
     */
    Object evaluate(Filterable message) throws FilterException;
 

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.core.transaction.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.transaction.xa.Xid;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -29,10 +33,14 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -42,9 +50,11 @@ import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.AbstractPersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSettingJSON;
 import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
@@ -66,21 +76,22 @@ import org.apache.activemq.artemis.core.server.impl.JournalLoader;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-import org.junit.Assert;
-import org.junit.Test;
+import java.util.function.Consumer;
 
-public class TransactionImplTest extends ActiveMQTestBase {
+public class TransactionImplTest extends ServerTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testTimeoutAndThenCommitWithARollback() throws Exception {
       TransactionImpl tx = new TransactionImpl(newXID(), new FakeSM(), 10);
-      Assert.assertTrue(tx.hasTimedOut(System.currentTimeMillis() + 60000, 10));
+      assertTrue(tx.hasTimedOut(System.currentTimeMillis() + 60000, 10));
 
       final AtomicInteger commit = new AtomicInteger(0);
       final AtomicInteger rollback = new AtomicInteger(0);
@@ -132,7 +143,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
       for (int i = 0; i < 2; i++) {
          try {
             tx.commit();
-            Assert.fail("Exception expected!");
+            fail("Exception expected!");
          } catch (ActiveMQException expected) {
          }
       }
@@ -140,15 +151,15 @@ public class TransactionImplTest extends ActiveMQTestBase {
       // it should just be ignored!
       tx.rollback();
 
-      Assert.assertEquals(0, commit.get());
-      Assert.assertEquals(1, rollback.get());
+      assertEquals(0, commit.get());
+      assertEquals(1, rollback.get());
 
    }
 
    @Test
    public void testTimeoutThenRollbackWithRollback() throws Exception {
       TransactionImpl tx = new TransactionImpl(newXID(), new FakeSM(), 10);
-      Assert.assertTrue(tx.hasTimedOut(System.currentTimeMillis() + 60000, 10));
+      assertTrue(tx.hasTimedOut(System.currentTimeMillis() + 60000, 10));
 
       final AtomicInteger commit = new AtomicInteger(0);
       final AtomicInteger rollback = new AtomicInteger(0);
@@ -203,8 +214,8 @@ public class TransactionImplTest extends ActiveMQTestBase {
       tx.markAsRollbackOnly(new ActiveMQException("rollback only again"));
       tx.rollback();
 
-      Assert.assertEquals(0, commit.get());
-      Assert.assertEquals(1, rollback.get());
+      assertEquals(0, commit.get());
+      assertEquals(1, rollback.get());
 
    }
 
@@ -258,8 +269,8 @@ public class TransactionImplTest extends ActiveMQTestBase {
             return null;
          }
       });
-      Assert.assertEquals(1, commit.get());
-      Assert.assertEquals(0, rollback.get());
+      assertEquals(1, commit.get());
+      assertEquals(0, rollback.get());
    }
 
    @Test
@@ -311,8 +322,8 @@ public class TransactionImplTest extends ActiveMQTestBase {
             return null;
          }
       });
-      Assert.assertEquals(0, commit.get());
-      Assert.assertEquals(1, rollback.get());
+      assertEquals(0, commit.get());
+      assertEquals(1, rollback.get());
    }
 
    class FakeSM implements StorageManager {
@@ -323,12 +334,17 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void lineUpContext() {
+      public AbstractPersistedAddressSetting recoverAddressSettings(SimpleString address) {
+         return null;
+      }
+
+      @Override
+      public void asyncCommit(long txID) throws Exception {
 
       }
 
       @Override
-      public ArtemisCloseable closeableReadLock() {
+      public ArtemisCloseable closeableReadLock(boolean tryLock) {
          return () -> { };
       }
 
@@ -354,6 +370,11 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
       @Override
       public void updateQueueBinding(long tx, Binding binding) throws Exception {
+
+      }
+
+      @Override
+      public void storeAddressSetting(PersistedAddressSettingJSON addressSetting) throws Exception {
 
       }
 
@@ -398,12 +419,17 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void pageWrite(PagedMessage message, long pageNumber) {
+      public void pageWrite(SimpleString address, PagedMessage message, long pageNumber, boolean lineup, boolean originallyReplicated) {
 
       }
 
       @Override
       public void afterCompleteOperations(IOCallback run) {
+         run.done();
+      }
+
+      @Override
+      public void afterCompleteOperations(IOCallback run, OperationConsistencyLevel consistencyLevel) {
          run.done();
       }
 
@@ -438,19 +464,12 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void confirmPendingLargeMessageTX(Transaction transaction,
-                                               long messageID,
-                                               long recordID) throws Exception {
-
-      }
-
-      @Override
       public void injectMonitor(FileStoreMonitor monitor) throws Exception {
 
       }
 
       @Override
-      public void confirmPendingLargeMessage(long recordID) throws Exception {
+      public void deletePendingLargeMessage(long recordID) throws Exception {
 
       }
 
@@ -563,17 +582,17 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public LargeServerMessage createLargeMessage() {
+      public LargeServerMessage createCoreLargeMessage() {
          return null;
       }
 
       @Override
-      public LargeServerMessage createLargeMessage(long id, Message message) throws Exception {
+      public LargeServerMessage createCoreLargeMessage(long id, Message message) throws Exception {
          return null;
       }
 
       @Override
-      public LargeServerMessage largeMessageCreated(long id, LargeServerMessage largeMessage) throws Exception {
+      public LargeServerMessage onLargeMessageCreate(long id, LargeServerMessage largeMessage) throws Exception {
          return null;
       }
 
@@ -636,7 +655,8 @@ public class TransactionImplTest extends ActiveMQTestBase {
                                                        Set<Pair<Long, Long>> pendingLargeMessages,
                                                        Set<Long> largeMessagesInFolder,
                                                        List<PageCountPending> pendingNonTXPageCounter,
-                                                       JournalLoader journalLoader) throws Exception {
+                                                       JournalLoader journalLoader,
+                                                       List<Consumer<RecordInfo>> extraLoaders) throws Exception {
          return null;
       }
 
@@ -688,17 +708,12 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void storeAddressSetting(PersistedAddressSetting addressSetting) throws Exception {
-
-      }
-
-      @Override
       public void deleteAddressSetting(SimpleString addressMatch) throws Exception {
 
       }
 
       @Override
-      public List<PersistedAddressSetting> recoverAddressSettings() throws Exception {
+      public List<AbstractPersistedAddressSetting> recoverAddressSettings() throws Exception {
          return null;
       }
 
@@ -729,6 +744,11 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
       @Override
       public List<PersistedDivertConfiguration> recoverDivertConfigurations() {
+         return null;
+      }
+
+      @Override
+      public DivertConfiguration getDivertConfiguration(String name) {
          return null;
       }
 
@@ -922,7 +942,35 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
       @Override
       public void deleteAddressStatus(long recordID) throws Exception {
-
       }
+
+      @Override
+      public void storeMapRecord(long id,
+                                 byte recordType,
+                                 Persister persister,
+                                 Object record,
+                                 boolean sync,
+                                 IOCompletion completionCallback) throws Exception {
+      }
+
+      @Override
+      public void storeMapRecord(long id,
+                                 byte recordType,
+                                 Persister persister,
+                                 Object record,
+                                 boolean sync) throws Exception {
+      }
+
+      @Override
+      public void deleteMapRecord(long id, boolean sync) throws Exception {
+      }
+
+      @Override
+      public void deleteMapRecordTx(long txid, long id) throws Exception {
+      }
+   }
+
+   protected XidImpl newXID() {
+      return new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
    }
 }

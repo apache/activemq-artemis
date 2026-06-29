@@ -17,14 +17,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
-      <groupId>org.apache.activemq.tests</groupId>
+      <groupId>org.apache.artemis.tests</groupId>
       <artifactId>artemis-tests-pom</artifactId>
-      <version>2.31.0-SNAPSHOT</version>
+      <version>2.56.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>unit-tests</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis Unit Tests</name>
+   <name>Apache Artemis Unit Tests</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
@@ -32,45 +32,38 @@
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-amqp-protocol</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-jms-client</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-ra</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-cli</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-journal</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -80,15 +73,13 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-selector</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-service-extensions</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -107,8 +98,13 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-api</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -144,31 +140,28 @@
       </dependency>
       <dependency>
          <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-slf4j-impl</artifactId>
+         <artifactId>log4j-slf4j2-impl</artifactId>
          <scope>test</scope>
       </dependency>
-
-      <!-- this is for the log assertion -->
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-junit</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq.tests</groupId>
+         <groupId>org.apache.artemis.tests</groupId>
          <artifactId>artemis-test-support</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
@@ -176,13 +169,12 @@
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-tcnative-boringssl-static</artifactId>
-         <version>${netty-tcnative-version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <scope>test</scope>
+         <groupId>org.mockito</groupId>
+         <artifactId>mockito-core</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>com.google.guava</groupId>
@@ -225,18 +217,6 @@
                         </resource>
                      </resources>
                   </configuration>
-               </execution>
-            </executions>
-         </plugin>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-               <execution>
-                  <phase>test</phase>
-                  <goals>
-                     <goal>test-jar</goal>
-                  </goals>
                </execution>
             </executions>
          </plugin>

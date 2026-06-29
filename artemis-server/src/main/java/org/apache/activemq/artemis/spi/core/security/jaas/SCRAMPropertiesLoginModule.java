@@ -44,15 +44,12 @@ import org.apache.activemq.artemis.spi.core.security.scram.UserData;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 
 /**
- * Login modules that uses properties files similar to the {@link PropertiesLoginModule}. It can
- * either store the username-password in plain text or in an encrypted/hashed form. the
- * {@link #main(String[])} method provides a way to prepare unencrypted data to be encrypted/hashed.
+ * Login modules that uses properties files similar to the {@link PropertiesLoginModule}. It can either store the
+ * username-password in plain text or in an encrypted/hashed form. the {@link #main(String[])} method provides a way to
+ * prepare unencrypted data to be encrypted/hashed.
  */
 public class SCRAMPropertiesLoginModule extends PropertiesLoader implements AuditLoginModule {
 
-   /**
-    *
-    */
    private static final String SEPARATOR_MECHANISM = "|";
    private static final String SEPARATOR_PARAMETER = ":";
    private static final int MIN_ITERATIONS = 4096;
@@ -179,11 +176,12 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
 
    /**
     * Main method that could be used to encrypt given credentials for use in properties files
+    *
     * @param args username password type [iterations]
     * @throws GeneralSecurityException if any security mechanism is not available on this JVM
-    * @throws ScramException if invalid data is supplied
-    * @throws StringPrepError if username can't be encoded according to SASL StringPrep
-    * @throws IOException if writing as properties failed
+    * @throws ScramException           if invalid data is supplied
+    * @throws StringPrepError          if username can't be encoded according to SASL StringPrep
+    * @throws IOException              if writing as properties failed
     */
    public static void main(String[] args) throws GeneralSecurityException, ScramException, StringPrepError,
                                           IOException {

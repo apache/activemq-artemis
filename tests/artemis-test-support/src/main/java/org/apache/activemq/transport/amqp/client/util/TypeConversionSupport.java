@@ -18,6 +18,8 @@ package org.apache.activemq.transport.amqp.client.util;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public final class TypeConversionSupport {
 
@@ -34,17 +36,16 @@ public final class TypeConversionSupport {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) {
+      public boolean equals(Object obj) {
+         if (this == obj) {
             return true;
          }
-
-         if (o == null || o.getClass() != this.getClass()) {
+         if (!(obj instanceof ConversionKey other)) {
             return false;
          }
 
-         ConversionKey x = (ConversionKey) o;
-         return x.from == from && x.to == to;
+         return Objects.equals(from, other.from) &&
+                Objects.equals(to, other.to);
       }
 
       @Override
@@ -58,15 +59,10 @@ public final class TypeConversionSupport {
       Object convert(Object value);
    }
 
-   private static final HashMap<ConversionKey, Converter> CONVERSION_MAP = new HashMap<>();
+   private static final Map<ConversionKey, Converter> CONVERSION_MAP = new HashMap<>();
 
    static {
-      Converter toStringConverter = new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return value.toString();
-         }
-      };
+      Converter toStringConverter = value -> value.toString();
       CONVERSION_MAP.put(new ConversionKey(Boolean.class, String.class), toStringConverter);
       CONVERSION_MAP.put(new ConversionKey(Byte.class, String.class), toStringConverter);
       CONVERSION_MAP.put(new ConversionKey(Short.class, String.class), toStringConverter);
@@ -75,87 +71,27 @@ public final class TypeConversionSupport {
       CONVERSION_MAP.put(new ConversionKey(Float.class, String.class), toStringConverter);
       CONVERSION_MAP.put(new ConversionKey(Double.class, String.class), toStringConverter);
 
-      CONVERSION_MAP.put(new ConversionKey(String.class, Boolean.class), new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return Boolean.valueOf((String) value);
-         }
-      });
-      CONVERSION_MAP.put(new ConversionKey(String.class, Byte.class), new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return Byte.valueOf((String) value);
-         }
-      });
-      CONVERSION_MAP.put(new ConversionKey(String.class, Short.class), new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return Short.valueOf((String) value);
-         }
-      });
-      CONVERSION_MAP.put(new ConversionKey(String.class, Integer.class), new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return Integer.valueOf((String) value);
-         }
-      });
-      CONVERSION_MAP.put(new ConversionKey(String.class, Long.class), new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return Long.valueOf((String) value);
-         }
-      });
-      CONVERSION_MAP.put(new ConversionKey(String.class, Float.class), new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return Float.valueOf((String) value);
-         }
-      });
-      CONVERSION_MAP.put(new ConversionKey(String.class, Double.class), new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return Double.valueOf((String) value);
-         }
-      });
+      CONVERSION_MAP.put(new ConversionKey(String.class, Boolean.class), value -> Boolean.valueOf((String) value));
+      CONVERSION_MAP.put(new ConversionKey(String.class, Byte.class), value -> Byte.valueOf((String) value));
+      CONVERSION_MAP.put(new ConversionKey(String.class, Short.class), value -> Short.valueOf((String) value));
+      CONVERSION_MAP.put(new ConversionKey(String.class, Integer.class), value -> Integer.valueOf((String) value));
+      CONVERSION_MAP.put(new ConversionKey(String.class, Long.class), value -> Long.valueOf((String) value));
+      CONVERSION_MAP.put(new ConversionKey(String.class, Float.class), value -> Float.valueOf((String) value));
+      CONVERSION_MAP.put(new ConversionKey(String.class, Double.class), value -> Double.valueOf((String) value));
 
-      Converter longConverter = new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return Long.valueOf(((Number) value).longValue());
-         }
-      };
+      Converter longConverter = value -> ((Number) value).longValue();
       CONVERSION_MAP.put(new ConversionKey(Byte.class, Long.class), longConverter);
       CONVERSION_MAP.put(new ConversionKey(Short.class, Long.class), longConverter);
       CONVERSION_MAP.put(new ConversionKey(Integer.class, Long.class), longConverter);
-      CONVERSION_MAP.put(new ConversionKey(Date.class, Long.class), new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return Long.valueOf(((Date) value).getTime());
-         }
-      });
+      CONVERSION_MAP.put(new ConversionKey(Date.class, Long.class), value -> ((Date) value).getTime());
 
-      Converter intConverter = new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return Integer.valueOf(((Number) value).intValue());
-         }
-      };
+      Converter intConverter = value -> ((Number) value).intValue();
       CONVERSION_MAP.put(new ConversionKey(Byte.class, Integer.class), intConverter);
       CONVERSION_MAP.put(new ConversionKey(Short.class, Integer.class), intConverter);
 
-      CONVERSION_MAP.put(new ConversionKey(Byte.class, Short.class), new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return Short.valueOf(((Number) value).shortValue());
-         }
-      });
+      CONVERSION_MAP.put(new ConversionKey(Byte.class, Short.class), value -> ((Number) value).shortValue());
 
-      CONVERSION_MAP.put(new ConversionKey(Float.class, Double.class), new Converter() {
-         @Override
-         public Object convert(Object value) {
-            return Double.valueOf(((Number) value).doubleValue());
-         }
-      });
+      CONVERSION_MAP.put(new ConversionKey(Float.class, Double.class), value -> ((Number) value).doubleValue());
    }
 
    public static Object convert(Object value, Class<?> toClass) {

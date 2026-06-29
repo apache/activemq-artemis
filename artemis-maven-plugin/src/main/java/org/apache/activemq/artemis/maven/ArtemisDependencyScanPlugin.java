@@ -22,39 +22,27 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.aether.repository.RemoteRepository;
 
-@Mojo(name = "dependency-scan", defaultPhase = LifecyclePhase.VERIFY)
+@Mojo(name = "dependency-scan", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
 
    @Parameter
    String name;
-
-   /**
-    * The plugin descriptor
-    */
-   private PluginDescriptor descriptor;
 
    @Parameter
    private String[] libListWithDeps;
 
    @Parameter
    private String[] libList;
-
-   @Parameter
-   private String[] extraRepositories;
 
    @Parameter
    private String variableName;
@@ -65,7 +53,9 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
    @Parameter
    private String pathSeparator = File.pathSeparator;
 
-   /** Where to copy the exploded dependencies. */
+   /**
+    * Where to copy the exploded dependencies.
+    */
    @Parameter
    private File targetFolder;
 
@@ -82,15 +72,8 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
    @Override
    protected void doExecute() throws MojoExecutionException, MojoFailureException {
 
-      int repositories = 0;
-      List<RemoteRepository> listRepo = new ArrayList<>();
-      if (extraRepositories != null) {
-         for (String  strRepo: extraRepositories) {
-            RemoteRepository repo = new RemoteRepository.Builder("repo" + (repositories++), "default", strRepo).build();
-            listRepo.add(repo);
-            remoteRepos.add(repo);
-         }
-      }
+      super.doExecute();
+
       getLog().debug("Local " + localRepository);
       project = (MavenProject) getPluginContext().get("project");
 
@@ -104,18 +87,18 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
       }
 
       try {
-         StringBuffer buffer = new StringBuffer();
+         StringBuilder sb = new StringBuilder();
          Set<File> filesSet = resolveDependencies(libListWithDeps, libList);
 
          if (variableName != null || file != null) {
             String separatorUsed = "";
             for (File f : filesSet) {
-               buffer.append(separatorUsed);
-               buffer.append(f.getAbsolutePath());
+               sb.append(separatorUsed);
+               sb.append(f.getAbsolutePath());
                separatorUsed = pathSeparator;
             }
 
-            String classPathGenerated = buffer.toString();
+            String classPathGenerated = sb.toString();
             setVariable(classPathGenerated);
 
             if (file != null) {
@@ -160,9 +143,7 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
             throw new MojoFailureException(e.getMessage());
          }
       } finally {
-         for (RemoteRepository repository : listRepo) {
-            remoteRepos.remove(repository);
-         }
+         done();
       }
 
 

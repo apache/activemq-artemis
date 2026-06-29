@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -28,14 +32,13 @@ import javax.jms.TopicSubscriber;
 
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NoLocalSubscriberTest extends JMSTestBase {
 
-
    /**
-    * Test that a message created from the same connection than a nolocal consumer
-    * can be sent by *another* connection and will be received by the nolocal consumer
+    * Test that a message created from the same connection than a nolocal consumer can be sent by *another* connection
+    * and will be received by the nolocal consumer
     */
    @Test
    public void testNoLocal() throws Exception {
@@ -53,7 +56,7 @@ public class NoLocalSubscriberTest extends JMSTestBase {
 
          defaultConn.start();
 
-         String text = RandomUtil.randomString();
+         String text = RandomUtil.randomUUIDString();
          // message is created only once from the same connection than the noLocalConsumer
          TextMessage messageSent = defaultSess.createTextMessage(text);
          for (int i = 0; i < 10; i++) {
@@ -74,7 +77,7 @@ public class NoLocalSubscriberTest extends JMSTestBase {
 
          newConn.start();
 
-         text = RandomUtil.randomString();
+         text = RandomUtil.randomUUIDString();
          messageSent.setText(text);
          defaultProd.send(messageSent);
 
@@ -82,14 +85,14 @@ public class NoLocalSubscriberTest extends JMSTestBase {
          assertNotNull(received);
          assertEquals(text, ((TextMessage) received).getText());
 
-         text = RandomUtil.randomString();
+         text = RandomUtil.randomUUIDString();
          messageSent.setText(text);
          // we send the message created at the start of the test but on the *newConn* this time
          newProd.send(messageSent);
          newConn.close();
 
          received = noLocalConsumer.receive(5000);
-         assertNotNull("nolocal consumer did not get message", received);
+         assertNotNull(received, "nolocal consumer did not get message");
          assertEquals(text, ((TextMessage) received).getText());
       } finally {
          if (defaultConn != null) {

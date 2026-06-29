@@ -54,9 +54,9 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.Wait;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ACKNOWLEDGE_BRIDGE;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ADD_ADDRESS;
@@ -97,6 +97,11 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_UPDATE_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_ACKED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_EXPIRED;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_MOVED;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CorePluginTest extends JMSTestBase {
 
@@ -120,7 +125,7 @@ public class CorePluginTest extends JMSTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       queue = createQueue("queue1");
@@ -171,11 +176,11 @@ public class CorePluginTest extends JMSTestBase {
       verifier.validatePluginMethodsAtLeast(1, BEFORE_MESSAGE_ROUTE,
             AFTER_MESSAGE_ROUTE);
 
-      assertEquals("configurationVerifier is invoked", 1, configurationVerifier.afterSendCounter.get());
-      assertEquals("configurationVerifier is invoked", 1, configurationVerifier.successRoutedCounter.get());
-      assertEquals("configurationVerifier config set", "val_1", configurationVerifier.value1);
+      assertEquals(1, configurationVerifier.afterSendCounter.get(), "configurationVerifier is invoked");
+      assertEquals(1, configurationVerifier.successRoutedCounter.get(), "configurationVerifier is invoked");
+      assertEquals("val_1", configurationVerifier.value1, "configurationVerifier config set");
 
-      assertFalse(ackVerifier.getErrorMsg(), ackVerifier.hasError());
+      assertFalse(ackVerifier.hasError(), ackVerifier.getErrorMsg());
    }
 
    @Test
@@ -186,7 +191,7 @@ public class CorePluginTest extends JMSTestBase {
       sess.createProducer(queue);
       conn.close();
 
-      server.destroyQueue(new SimpleString(queue.getQueueName()));
+      server.destroyQueue(SimpleString.of(queue.getQueueName()));
 
       verifier.validatePluginMethodsEquals(2, BEFORE_ADD_ADDRESS, AFTER_ADD_ADDRESS);
       verifier.validatePluginMethodsEquals(1, BEFORE_CREATE_QUEUE, AFTER_CREATE_QUEUE, BEFORE_DESTROY_QUEUE,
@@ -202,7 +207,7 @@ public class CorePluginTest extends JMSTestBase {
       sess.createConsumer(autoCreatedQueue);
       conn.close();
 
-      verifier.validatePluginMethodsEquals(1,  BEFORE_DESTROY_QUEUE,
+      verifier.validatePluginMethodsEquals(1, BEFORE_DESTROY_QUEUE,
             AFTER_DESTROY_QUEUE, BEFORE_REMOVE_ADDRESS, AFTER_REMOVE_ADDRESS);
 
       verifier.validatePluginMethodsEquals(3, BEFORE_ADD_ADDRESS,
@@ -222,7 +227,7 @@ public class CorePluginTest extends JMSTestBase {
       conn.close();
 
       //before/add address called just once to remove autocreated destination
-      verifier.validatePluginMethodsEquals(1,  BEFORE_DESTROY_QUEUE,
+      verifier.validatePluginMethodsEquals(1, BEFORE_DESTROY_QUEUE,
             AFTER_DESTROY_QUEUE, BEFORE_REMOVE_ADDRESS, AFTER_REMOVE_ADDRESS, BEFORE_REMOVE_BINDING, AFTER_REMOVE_BINDING);
 
       //Before/Add address are called twice because of the autocreated destination and the
@@ -265,7 +270,7 @@ public class CorePluginTest extends JMSTestBase {
       verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_SESSION, AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION,
             AFTER_CLOSE_SESSION);
 
-      assertFalse(expiredVerifier.getErrorMsg(), expiredVerifier.hasError());
+      assertFalse(expiredVerifier.hasError(), expiredVerifier.getErrorMsg());
    }
 
    @Test
@@ -300,7 +305,7 @@ public class CorePluginTest extends JMSTestBase {
       verifier.validatePluginMethodsEquals(2, BEFORE_CREATE_SESSION, AFTER_CREATE_SESSION, BEFORE_CLOSE_SESSION,
             AFTER_CLOSE_SESSION);
 
-      assertFalse(expiredVerifier.getErrorMsg(), expiredVerifier.hasError());
+      assertFalse(expiredVerifier.hasError(), expiredVerifier.getErrorMsg());
    }
 
    @Test
@@ -325,14 +330,14 @@ public class CorePluginTest extends JMSTestBase {
       TransportConfiguration server0tc = new TransportConfiguration(INVM_CONNECTOR_FACTORY, server0Params);
       TransportConfiguration server1tc = new TransportConfiguration(INVM_CONNECTOR_FACTORY, server1Params);
 
-      HashMap<String, TransportConfiguration> connectors = new HashMap<>();
+      Map<String, TransportConfiguration> connectors = new HashMap<>();
       connectors.put(server1tc.getName(), server1tc);
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
       final int messageSize = 1024;
       final int numMessages = 10;
 
-      ArrayList<String> connectorConfig = new ArrayList<>();
+      List<String> connectorConfig = new ArrayList<>();
       connectorConfig.add(server1tc.getName());
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(numMessages * messageSize / 2).setStaticConnectors(connectorConfig);
 
@@ -340,12 +345,12 @@ public class CorePluginTest extends JMSTestBase {
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      QueueConfiguration queueConfig0 = new QueueConfiguration(queueName0).setAddress(testAddress);
+      QueueConfiguration queueConfig0 = QueueConfiguration.of(queueName0).setAddress(testAddress);
       List<QueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigs(queueConfigs0);
 
-      QueueConfiguration queueConfig1 = new QueueConfiguration(queueName1).setAddress(forwardAddress);
+      QueueConfiguration queueConfig1 = QueueConfiguration.of(queueName1).setAddress(forwardAddress);
       List<QueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigs(queueConfigs1);
@@ -359,12 +364,12 @@ public class CorePluginTest extends JMSTestBase {
 
       ClientSession session0 = sf0.createSession(false, true, true);
       ClientSession session1 = sf1.createSession(false, true, true);
-      ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+      ClientProducer producer0 = session0.createProducer(SimpleString.of(testAddress));
       ClientConsumer consumer1 = session1.createConsumer(queueName1);
       session1.start();
 
       final byte[] bytes = new byte[messageSize];
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.of("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session0.createMessage(true);
@@ -375,12 +380,12 @@ public class CorePluginTest extends JMSTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
       session0.close();
       session1.close();
 
@@ -403,10 +408,39 @@ public class CorePluginTest extends JMSTestBase {
 
    @Test
    public void testUpdateAddress() throws Exception {
-      server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.ANYCAST));
-      server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString("test"), RoutingType.MULTICAST));
+      server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.ANYCAST));
+      server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
       verifier.validatePluginMethodsEquals(1, BEFORE_UPDATE_ADDRESS, AFTER_UPDATE_ADDRESS);
+   }
+
+   @Test
+   public void testMessageMoved() throws Exception {
+      final String queue1Name = "queue1";
+      final String queue2Name = "queue2";
+      createQueue(queue2Name);
+      org.apache.activemq.artemis.core.server.Queue artemisQueue = server.locateQueue(queue1Name);
+      org.apache.activemq.artemis.core.server.Queue artemisQueue2 = server.locateQueue(queue2Name);
+
+      conn = cf.createConnection();
+      conn.start();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      MessageProducer prod = sess.createProducer(queue);
+
+      byte[] msgs = new byte[1024];
+      for (int i = 0; i < msgs.length; i++) {
+         msgs[i] = RandomUtil.randomByte();
+      }
+
+      TextMessage msg1 = sess.createTextMessage(new String(msgs));
+      prod.send(msg1);
+      conn.close();
+
+      artemisQueue.moveReferences(null, artemisQueue2.getAddress(), null);
+      Wait.assertEquals(1L, artemisQueue2::getMessageCount, 2000, 100);
+
+      verifier.validatePluginMethodsEquals(1, MESSAGE_MOVED);
    }
 
    private class AckPluginVerifier implements ActiveMQServerPlugin {

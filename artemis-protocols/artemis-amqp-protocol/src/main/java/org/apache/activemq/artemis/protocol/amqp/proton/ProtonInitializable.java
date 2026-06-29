@@ -16,17 +16,15 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
-public class ProtonInitializable {
+// TODO: This API is barely used and seems more trouble than its worth, consider removing
+public abstract class ProtonInitializable {
 
-   private boolean initialized = false;
+   protected boolean initialized = false;
 
    public boolean isInitialized() {
       return initialized;
    }
 
-   public void initialize() throws Exception {
-      if (!initialized) {
-         initialized = true;
-      }
-   }
+   public abstract void initialize() throws Exception;
+
 }

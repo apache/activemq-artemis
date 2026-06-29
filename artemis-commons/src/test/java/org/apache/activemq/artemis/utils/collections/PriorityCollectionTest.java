@@ -16,8 +16,12 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.core.PriorityAware;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,10 +32,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class PriorityCollectionTest {
 
@@ -46,21 +46,21 @@ public class PriorityCollectionTest {
       assertTrue(set.add(new TestPriorityAware(2)));
       assertTrue(set.add(new TestPriorityAware(3)));
 
-      assertEquals(set.size(), 3);
+      assertEquals(3, set.size());
 
       assertTrue(set.contains(new TestPriorityAware(1)));
-      assertEquals(set.size(), 3);
+      assertEquals(3, set.size());
 
       assertTrue(set.remove(new TestPriorityAware(1)));
-      assertEquals(set.size(), 2);
+      assertEquals(2, set.size());
       assertFalse(set.contains(new TestPriorityAware(1)));
       assertFalse(set.contains(new TestPriorityAware(5)));
-      assertEquals(set.size(), 2);
+      assertEquals(2, set.size());
 
       assertTrue(set.add(new TestPriorityAware(1)));
-      assertEquals(set.size(), 3);
+      assertEquals(3, set.size());
       assertFalse(set.add(new TestPriorityAware(1)));
-      assertEquals(set.size(), 3);
+      assertEquals(3, set.size());
    }
 
    @Test
@@ -106,7 +106,7 @@ public class PriorityCollectionTest {
          future.get();
       }
 
-      assertEquals(set.size(), N * nThreads);
+      assertEquals(N * nThreads, set.size());
 
       executor.shutdown();
    }
@@ -147,7 +147,7 @@ public class PriorityCollectionTest {
          future.get();
       }
 
-      assertEquals(set.size(), N * nThreads);
+      assertEquals(N * nThreads, set.size());
 
       executor.shutdown();
    }
@@ -242,16 +242,20 @@ public class PriorityCollectionTest {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) return true;
-         if (o == null || getClass() != o.getClass()) return false;
-         TestPriorityAware that = (TestPriorityAware) o;
-         return value == that.value;
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (!(obj instanceof TestPriorityAware other)) {
+            return false;
+         }
+
+         return value == other.value;
       }
 
       @Override
       public int hashCode() {
-         return Objects.hash(value);
+         return Objects.hashCode(value);
       }
    }
 
@@ -275,12 +279,16 @@ public class PriorityCollectionTest {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) return true;
-         if (o == null || getClass() != o.getClass()) return false;
-         TestPriority that = (TestPriority) o;
-         return priority == that.priority &&
-                 Objects.equals(name, that.name);
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (!(obj instanceof TestPriority other)) {
+            return false;
+         }
+
+         return priority == other.priority &&
+                Objects.equals(name, other.name);
       }
 
       @Override

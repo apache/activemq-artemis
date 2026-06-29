@@ -55,11 +55,7 @@ public class LegacyJMSConfiguration implements Deployable {
 
    private static final String TOPIC_NODE_NAME = "topic";
 
-   private static final String JMX_DOMAIN_NAME = "jmx-domain";
-
    private static final boolean DEFAULT_QUEUE_DURABILITY = true;
-
-   private URL configurationUrl;
 
    final Configuration configuration;
 
@@ -140,9 +136,6 @@ public class LegacyJMSConfiguration implements Deployable {
 
    /**
     * Parse the topic node as a TopicConfiguration object
-    *
-    * @param node
-    * @throws Exception
     */
    public void parseTopicConfiguration(final Node node) throws Exception {
       String topicName = node.getAttributes().getNamedItem(NAME_ATTR).getNodeValue();
@@ -153,9 +146,6 @@ public class LegacyJMSConfiguration implements Deployable {
 
    /**
     * Parse the Queue Configuration node as a QueueConfiguration object
-    *
-    * @param node
-    * @throws Exception
     */
    public void parseQueueConfiguration(final Node node) throws Exception {
       Element e = (Element) node;
@@ -177,7 +167,7 @@ public class LegacyJMSConfiguration implements Deployable {
       configuration.addAddressConfiguration(new CoreAddressConfiguration()
                                                .setName(queueName)
                                                .addRoutingType(RoutingType.ANYCAST)
-                                               .addQueueConfiguration(new QueueConfiguration(queueName)
+                                               .addQueueConfiguration(QueueConfiguration.of(queueName)
                                                                          .setFilterString(selectorString)
                                                                          .setDurable(durable)
                                                                          .setRoutingType(RoutingType.ANYCAST)));

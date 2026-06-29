@@ -78,7 +78,7 @@ public class TwoBrokerFailoverClusterTest extends OpenwireArtemisBaseTest {
 
    @Before
    public void setUp() throws Exception {
-      HashMap<String, String> map = new HashMap<>();
+      Map<String, String> map = new HashMap<>();
       map.put("rebalanceClusterClients", "true");
       map.put("updateClusterClients", "true");
       map.put("updateClusterClientsOnRemove", "true");

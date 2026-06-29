@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -36,7 +42,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,25 +51,25 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
 
    protected abstract boolean isNetty();
 
-   protected int waitForNewLive(long seconds,
-                                boolean waitForNewBackup,
-                                Map<Integer, TestableServer> servers,
-                                int... nodes) {
+   protected int waitForNewPrimary(long seconds,
+                                   boolean waitForNewBackup,
+                                   Map<Integer, TestableServer> servers,
+                                   int... nodes) {
       long time = System.currentTimeMillis();
       long toWait = seconds * 1000;
-      int newLive = -1;
+      int newPrimary = -1;
       while (true) {
          for (int node : nodes) {
             TestableServer backupServer = servers.get(node);
-            if (newLive == -1 && backupServer.isActive()) {
-               newLive = node;
-            } else if (newLive != -1) {
+            if (newPrimary == -1 && backupServer.isActive()) {
+               newPrimary = node;
+            } else if (newPrimary != -1) {
                if (waitForNewBackup) {
-                  if (node != newLive && servers.get(node).isStarted()) {
-                     return newLive;
+                  if (node != newPrimary && servers.get(node).isStarted()) {
+                     return newPrimary;
                   }
                } else {
-                  return newLive;
+                  return newPrimary;
                }
             }
          }
@@ -75,7 +80,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
             // ignore
          }
          if (System.currentTimeMillis() > (time + toWait)) {
-            Assert.fail("backup server never started");
+            fail("backup server never started");
          }
       }
    }
@@ -84,7 +89,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, true, true);
 
       if (createQueue) {
-         session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS).setDurable(false));
+         session.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS).setDurable(false));
       }
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
@@ -93,7 +98,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
+         message.putIntProperty(SimpleString.of("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }
@@ -105,18 +110,18 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(10000);
 
-         Assert.assertNotNull(message2);
+         assertNotNull(message2);
 
-         Assert.assertEquals("aardvarks", message2.getBodyBuffer().readString());
+         assertEquals("aardvarks", message2.getBodyBuffer().readString());
 
-         Assert.assertEquals(i, message2.getObjectProperty(new SimpleString("count")));
+         assertEquals(i, message2.getObjectProperty(SimpleString.of("count")));
 
          message2.acknowledge();
       }
 
       ClientMessage message3 = consumer.receiveImmediate();
 
-      Assert.assertNull(message3);
+      assertNull(message3);
 
       return session;
    }
@@ -145,7 +150,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
             logger.warn("failed topology, Topology on server = {}", server.getClusterManager().describe());
          }
       }
-      Assert.assertTrue("expected " + topologyMembers + " members", ok);
+      assertTrue(ok, "expected " + topologyMembers + " members");
       return sf;
    }
 

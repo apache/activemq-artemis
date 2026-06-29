@@ -16,10 +16,14 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.impl.PagedMessageImpl;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 
@@ -29,28 +33,35 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
 
    protected PagedMessage pagedMessage;
 
+   protected SimpleString address;
+
    final boolean useLong;
 
-   public ReplicationPageWriteMessage(final boolean useLong) {
+   final CoreMessageObjectPools coreMessageObjectPools;
+
+   public ReplicationPageWriteMessage(final boolean useLong, CoreMessageObjectPools coreMessageObjectPools) {
       super(PacketImpl.REPLICATION_PAGE_WRITE);
       this.useLong = useLong;
+      this.coreMessageObjectPools = coreMessageObjectPools;
    }
 
-   public ReplicationPageWriteMessage(final PagedMessage pagedMessage, final long pageNumber, final boolean useLong) {
-      this(useLong);
+   public ReplicationPageWriteMessage(final PagedMessage pagedMessage, final long pageNumber, final boolean useLong, final SimpleString address) {
+      this(useLong, null);
       this.pageNumber = pageNumber;
       this.pagedMessage = pagedMessage;
+      this.address = address;
    }
 
 
    @Override
    public int expectedEncodeSize() {
       if (useLong) {
-         return PACKET_HEADERS_SIZE + DataConstants.SIZE_LONG + // buffer.writeLong(pageNumber);
-            pagedMessage.getEncodeSize(); //  pagedMessage.encode(buffer);
+         return PACKET_HEADERS_SIZE + DataConstants.SIZE_LONG + // buffer.writeLong(pageNumber)
+            pagedMessage.getEncodeSize() + //  pagedMessage.encode(buffer)
+            SimpleString.sizeofString(address);  // SizeUtil.writeNullableString(address)
       } else {
-         return PACKET_HEADERS_SIZE + DataConstants.SIZE_INT + // buffer.writeInt(pageNumber);
-            pagedMessage.getEncodeSize(); //  pagedMessage.encode(buffer);
+         return PACKET_HEADERS_SIZE + DataConstants.SIZE_INT + // buffer.writeInt(pageNumber)
+            pagedMessage.getEncodeSize(); //  pagedMessage.encode(buffer)
       }
    }
 
@@ -65,6 +76,9 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
          buffer.writeInt((int) pageNumber);
       }
       pagedMessage.encode(buffer);
+      if (useLong) {
+         buffer.writeNullableSimpleString(address);
+      }
    }
 
    @Override
@@ -76,29 +90,30 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
       }
       pagedMessage = new PagedMessageImpl(0, null);
       pagedMessage.decode(buffer);
+      if (buffer.readableBytes() > 0) {
+         address = SimpleString.readNullableSimpleString(buffer.byteBuf(), coreMessageObjectPools.getAddressDecoderPool());
+      }
    }
 
-   /**
-    * @return the pageNumber
-    */
+   public SimpleString getAddress() {
+      if (address != null) {
+         return address;
+      } else {
+         return pagedMessage.getMessage().getAddressSimpleString();
+      }
+   }
+
    public long getPageNumber() {
       return pageNumber;
    }
 
-   /**
-    * @return the pagedMessage
-    */
    public PagedMessage getPagedMessage() {
       return pagedMessage;
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int)pageNumber;
-      result = prime * result + ((pagedMessage == null) ? 0 : pagedMessage.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), pageNumber, pagedMessage);
    }
 
    @Override
@@ -114,21 +129,18 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (getClass() != obj.getClass())
+      }
+      if (!(obj instanceof ReplicationPageWriteMessage other)) {
          return false;
-      ReplicationPageWriteMessage other = (ReplicationPageWriteMessage) obj;
-      if (pageNumber != other.pageNumber)
-         return false;
-      if (pagedMessage == null) {
-         if (other.pagedMessage != null)
-            return false;
-      } else if (!pagedMessage.equals(other.pagedMessage))
-         return false;
-      return true;
+      }
+
+      return pageNumber == other.pageNumber &&
+             Objects.equals(pagedMessage, other.pagedMessage);
    }
 
 }

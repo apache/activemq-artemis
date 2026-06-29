@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
@@ -30,10 +33,9 @@ import javax.jms.Session;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Testing of message property conversion. See {@link javax.jms.Message} for details
@@ -53,7 +55,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -70,7 +72,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       producerConnection.close();
       consumerConnection.close();
@@ -146,7 +148,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          //pass
       }
       try {
-         producer.setProperty(null, new SimpleString("foo"));
+         producer.setProperty(null, SimpleString.of("foo"));
          ProxyAssertSupport.fail("expected IllegalArgumentException");
       } catch (IllegalArgumentException e) {
          //pass
@@ -241,7 +243,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
       String myByte = producer.getStringProperty("abyte");
 
-      if (Byte.valueOf(myByte).byteValue() != bValue) {
+      if (Byte.parseByte(myByte) != bValue) {
          ProxyAssertSupport.fail("conversion from byte to string failed");
       }
 
@@ -289,7 +291,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
       String myshort = producer.getStringProperty("ashort");
 
-      if (Short.valueOf(myshort).shortValue() != nShort) {
+      if (Short.parseShort(myshort) != nShort) {
          ProxyAssertSupport.fail("conversion from short to string failed");
       }
 
@@ -344,7 +346,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
       }
 
-      if (Integer.valueOf(producer.getStringProperty("anint")).intValue() != nInt) {
+      if (Integer.parseInt(producer.getStringProperty("anint")) != nInt) {
          ProxyAssertSupport.fail("conversion from int to string failed");
       }
 
@@ -400,7 +402,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      if (Long.valueOf(producer.getStringProperty("along")).longValue() != nLong) {
+      if (Long.parseLong(producer.getStringProperty("along")) != nLong) {
          ProxyAssertSupport.fail("conversion from long to string failed");
       }
 
@@ -458,7 +460,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      if (Float.valueOf(producer.getStringProperty("afloat")).floatValue() != nFloat) {
+      if (Float.parseFloat(producer.getStringProperty("afloat")) != nFloat) {
          ProxyAssertSupport.fail("conversion from float to string failed");
       }
 
@@ -512,7 +514,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      if (Double.valueOf(producer.getStringProperty("adouble")).doubleValue() != nDouble) {
+      if (Double.parseDouble(producer.getStringProperty("adouble")) != nDouble) {
          ProxyAssertSupport.fail("conversion from double to string failed");
       }
 
@@ -615,9 +617,9 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
       queueProducer.send(m1);
       Message m2 = queueConsumer.receive(1000);
-      Assert.assertEquals("key should be true", m2.getObjectProperty("key"), Boolean.TRUE);
-      Assert.assertEquals("key2 should be null", null, m2.getObjectProperty("key2"));
-      Assert.assertEquals("key3 should be null", null, m2.getObjectProperty("key3"));
+      assertEquals(Boolean.TRUE, m2.getObjectProperty("key"), "key should be true");
+      assertNull(m2.getObjectProperty("key2"), "key2 should be null");
+      assertNull(m2.getObjectProperty("key3"), "key3 should be null");
    }
 
    @Test
@@ -1000,7 +1002,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       ProxyAssertSupport.assertEquals(myFloat, m4.getFloatProperty("myFloat"), 0);
       ProxyAssertSupport.assertEquals(myDouble, m4.getDoubleProperty("myDouble"), 0);
 
-      ProxyAssertSupport.assertEquals(false, m4.getBooleanProperty("myIllegal"));
+      ProxyAssertSupport.assertFalse(m4.getBooleanProperty("myIllegal"));
 
       try {
          m4.getByteProperty("myIllegal");

@@ -21,7 +21,7 @@ import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 
 public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
 
-   private boolean checkForLiveServer = ActiveMQDefaultConfiguration.isDefaultCheckForLiveServer();
+   private boolean checkForPrimaryServer = ActiveMQDefaultConfiguration.isDefaultCheckForActiveServer();
 
    private String groupName = null;
 
@@ -39,7 +39,7 @@ public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
 
    private long voteRetryWait = ActiveMQDefaultConfiguration.getDefaultVoteRetryWait();
 
-   private  int quorumVoteWait = ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait();
+   private int quorumVoteWait = ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait();
 
    private Long retryReplicationWait = ActiveMQDefaultConfiguration.getDefaultRetryReplicationWait();
 
@@ -49,15 +49,15 @@ public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
 
    @Override
    public TYPE getType() {
-      return TYPE.REPLICATED;
+      return TYPE.REPLICATION_PRIMARY_QUORUM_VOTING;
    }
 
-   public boolean isCheckForLiveServer() {
-      return checkForLiveServer;
+   public boolean isCheckForActiveServer() {
+      return checkForPrimaryServer;
    }
 
-   public ReplicatedPolicyConfiguration setCheckForLiveServer(boolean checkForLiveServer) {
-      this.checkForLiveServer = checkForLiveServer;
+   public ReplicatedPolicyConfiguration setCheckForActiveServer(boolean checkForPrimaryServer) {
+      this.checkForPrimaryServer = checkForPrimaryServer;
       return this;
    }
 

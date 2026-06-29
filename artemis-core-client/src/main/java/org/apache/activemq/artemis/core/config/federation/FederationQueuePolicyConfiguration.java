@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.utils.Preconditions;
 
 public class FederationQueuePolicyConfiguration implements FederationPolicy<FederationQueuePolicyConfiguration>, Serializable {
 
@@ -91,7 +90,7 @@ public class FederationQueuePolicyConfiguration implements FederationPolicy<Fede
 
    @Override
    public void encode(ActiveMQBuffer buffer) {
-      Preconditions.checkArgument(name != null, "name can not be null");
+      Objects.requireNonNull(name, "name can not be null");
       buffer.writeString(name);
       buffer.writeBoolean(includeFederated);
       buffer.writeNullableInt(priorityAdjustment);
@@ -139,6 +138,9 @@ public class FederationQueuePolicyConfiguration implements FederationPolicy<Fede
       private String name;
 
       public String getName() {
+         if (name == null) {
+            return addressMatch + queueMatch;
+         }
          return name;
       }
 
@@ -165,12 +167,16 @@ public class FederationQueuePolicyConfiguration implements FederationPolicy<Fede
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) return true;
-         if (!(o instanceof Matcher)) return false;
-         Matcher matcher = (Matcher) o;
-         return Objects.equals(queueMatch, matcher.queueMatch) &&
-               Objects.equals(addressMatch, matcher.addressMatch);
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (!(obj instanceof Matcher other)) {
+            return false;
+         }
+
+         return Objects.equals(queueMatch, other.queueMatch) &&
+                Objects.equals(addressMatch, other.addressMatch);
       }
 
       @Override
@@ -190,16 +196,20 @@ public class FederationQueuePolicyConfiguration implements FederationPolicy<Fede
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof FederationQueuePolicyConfiguration)) return false;
-      FederationQueuePolicyConfiguration that = (FederationQueuePolicyConfiguration) o;
-      return includeFederated == that.includeFederated &&
-            Objects.equals(name, that.name) &&
-            Objects.equals(includes, that.includes) &&
-            Objects.equals(excludes, that.excludes) &&
-            Objects.equals(priorityAdjustment, that.priorityAdjustment) &&
-            Objects.equals(transformerRef, that.transformerRef);
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof FederationQueuePolicyConfiguration other)) {
+         return false;
+      }
+
+      return includeFederated == other.includeFederated &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(includes, other.includes) &&
+             Objects.equals(excludes, other.excludes) &&
+             Objects.equals(priorityAdjustment, other.priorityAdjustment) &&
+             Objects.equals(transformerRef, other.transformerRef);
    }
 
    @Override

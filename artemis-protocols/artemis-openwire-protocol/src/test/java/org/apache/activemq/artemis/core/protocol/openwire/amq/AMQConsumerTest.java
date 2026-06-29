@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -43,14 +45,13 @@ import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.ConsumerInfo;
 import org.apache.activemq.openwire.OpenWireFormatFactory;
 import org.apache.activemq.wireformat.WireFormat;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 public class AMQConsumerTest {
    final OpenWireFormatFactory formatFactory = new OpenWireFormatFactory();
-   final WireFormat openWireFormat =  formatFactory.createWireFormat();
+   final WireFormat openWireFormat = formatFactory.createWireFormat();
 
    @Test
    public void testClientId() throws Exception {
@@ -110,18 +111,18 @@ public class AMQConsumerTest {
       return consumer;
    }
 
-   private void testCredits(AMQConsumer consumer) throws  Exception {
+   private void testCredits(AMQConsumer consumer) throws Exception {
       ICoreMessage message = new CoreMessage(1, 0);
       MessageReference reference = Mockito.mock(MessageReference.class);
 
-      Assert.assertTrue(consumer.hasCredits());
+      assertTrue(consumer.hasCredits());
 
       consumer.handleDeliver(reference, message);
 
-      Assert.assertFalse(consumer.hasCredits());
+      assertFalse(consumer.hasCredits());
 
-      consumer.acquireCredit(1, true);
+      consumer.replenishCredit(1, true);
 
-      Assert.assertTrue(consumer.hasCredits());
+      assertTrue(consumer.hasCredits());
    }
 }

@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.core.paging.cursor.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -32,13 +35,12 @@ import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class ConcurrentAckTest extends ActiveMQTestBase {
+public class ConcurrentAckTest extends ServerTestBase {
 
    @Test
    public void testConcurrentAddAckPaging() throws Throwable {
@@ -57,7 +59,7 @@ public class ConcurrentAckTest extends ActiveMQTestBase {
 
    private void testConcurrentAddAckPaging(ScheduledExecutorService scheduledExecutorService, ExecutorService service) throws Throwable {
       AtomicInteger errors = new AtomicInteger(0);
-      PagingStoreImpl store = new PagingStoreImpl(SimpleString.toSimpleString("TEST"), scheduledExecutorService, 100L, Mockito.mock(PagingManager.class), new NullStorageManager(), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), SimpleString.toSimpleString("TEST"), new AddressSettings(), ArtemisExecutor.delegate(service), ArtemisExecutor.delegate(service), false);
+      PagingStoreImpl store = new PagingStoreImpl(SimpleString.of("TEST"), scheduledExecutorService, 100L, Mockito.mock(PagingManager.class), new NullStorageManager(), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), SimpleString.of("TEST"), new AddressSettings(), ArtemisExecutor.delegate(service), false);
 
       PageCursorProviderImpl pageCursorProvider = new PageCursorProviderImpl(store, new NullStorageManager());
       PageSubscriptionImpl subscription = (PageSubscriptionImpl) pageCursorProvider.createSubscription(1, null, true);
@@ -102,9 +104,9 @@ public class ConcurrentAckTest extends ActiveMQTestBase {
          done.countDown();
       });
 
-      Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
+      assertTrue(done.await(10, TimeUnit.SECONDS));
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
 }

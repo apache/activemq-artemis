@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -25,6 +25,7 @@ import java.util.ServiceLoader;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 public final class PasswordMaskingUtil {
 
@@ -37,11 +38,11 @@ public final class PasswordMaskingUtil {
 
    /**
     * This method deals with password masking and returns the password in its plain text form.
-    * @param password : the original value of password string; interpreted as masked if wrapped in ENC()
-    *                 or as plain text otherwise.
-    * @param codecClass : the codec used to decode the password. Only when the password is interpreted
-    *              as masked will this codec be used. Ignored otherwise.
-    * @return
+    *
+    * @param password   : the original value of password string; interpreted as masked if wrapped in ENC() or as plain
+    *                   text otherwise.
+    * @param codecClass : the codec used to decode the password. Only when the password is interpreted as masked will
+    *                   this codec be used. Ignored otherwise.
     */
    public static String resolveMask(String password, String codecClass) throws Exception {
       return resolveMask(null, password, codecClass);
@@ -49,14 +50,13 @@ public final class PasswordMaskingUtil {
 
    /**
     * This method deals with password masking and returns the password in its plain text form.
-    * @param maskPassword : explicit mask flag. If it's true, the password is interpreted as
-    *                     masked. If it is false, the password is interpreted as plain text.
-    *                     if it is null, the password will be interpreted as masked if the
-    *                     password is wrapped in ENC(), or as plain text otherwise.
-    * @param password : the original value of password string
-    * @param codecClass : the codec used to decode the password. Only when the password is interpreted
-    *              as masked will this codec be used. Ignored otherwise.
-    * @return
+    *
+    * @param maskPassword : explicit mask flag. If it's true, the password is interpreted as masked. If it is false, the
+    *                     password is interpreted as plain text. if it is null, the password will be interpreted as
+    *                     masked if the password is wrapped in ENC(), or as plain text otherwise.
+    * @param password     : the original value of password string
+    * @param codecClass   : the codec used to decode the password. Only when the password is interpreted as masked will
+    *                     this codec be used. Ignored otherwise.
     */
    public static String resolveMask(Boolean maskPassword, String password, String codecClass) throws Exception {
       String plainText = password;
@@ -154,14 +154,12 @@ public final class PasswordMaskingUtil {
       return processor;
    }
 
-   /*
+   /**
     * Loading the codec class.
     *
     * @param codecDesc This parameter must have the following format:
-    *
-    * <full qualified class name>;key=value;key1=value1;...
-    *
-    * Where only <full qualified class name> is required. key/value pairs are optional
+    *                  {@code <full qualified class name>;key=value;key1=value1;...} where only
+    *                  {@code <full qualified class name>} is required. key/value pairs are optional
     */
    public static SensitiveDataCodec<String> getCodec(String codecDesc) throws ActiveMQException {
       SensitiveDataCodec<String> codecInstance;
@@ -172,19 +170,20 @@ public final class PasswordMaskingUtil {
 
       // semi colons
       String[] parts = codecDesc.split(";");
-      if (parts.length < 1)
+      if (parts.length < 1) {
          throw new ActiveMQException(ActiveMQExceptionType.ILLEGAL_STATE, "Invalid PasswordCodec value: " + codecDesc);
+      }
 
       final String codecClassName = parts[0];
 
       // load class
-      codecInstance = AccessController.doPrivileged((PrivilegedAction<SensitiveDataCodec<String>>) () -> {
+      codecInstance = SecurityManagerShim.doPrivileged((PrivilegedAction<SensitiveDataCodec<String>>) () -> {
          ServiceLoader<SensitiveDataCodec> serviceLoader = ServiceLoader.load(SensitiveDataCodec.class, PasswordMaskingUtil.class.getClassLoader());
          try {
             // Service load the codec, if a service is available
             for (SensitiveDataCodec<String> codec : serviceLoader) {
                if (codec.getClass().getCanonicalName().equals(codecClassName)) {
-                  return codec.getClass().newInstance();
+                  return codec.getClass().getDeclaredConstructor().newInstance();
                }
             }
          } catch (Exception e) {
@@ -192,38 +191,48 @@ public final class PasswordMaskingUtil {
          }
          try {
             // If a service is not available, load the codec class using this class's class loader
-            return (SensitiveDataCodec<String>) PasswordMaskingUtil.class.getClassLoader().loadClass(codecClassName).newInstance();
+            return (SensitiveDataCodec<String>) PasswordMaskingUtil.class.getClassLoader().loadClass(codecClassName).getDeclaredConstructor().newInstance();
          } catch (Exception e) {
             try {
                // As a last resort, load the codec class using the current thread's context class loader
-               return (SensitiveDataCodec<String>) Thread.currentThread().getContextClassLoader().loadClass(codecClassName).newInstance();
+               return (SensitiveDataCodec<String>) Thread.currentThread().getContextClassLoader().loadClass(codecClassName).getDeclaredConstructor().newInstance();
             } catch (Exception e2) {
                throw ActiveMQUtilBundle.BUNDLE.errorCreatingCodec(codecClassName, e2);
             }
          }
       });
 
+      Map<String, String> props = new HashMap<>();
       if (parts.length > 1) {
-         Map<String, String> props = new HashMap<>();
-
          for (int i = 1; i < parts.length; i++) {
             String[] keyVal = parts[i].split("=");
-            if (keyVal.length != 2)
+            if (keyVal.length != 2) {
                throw ActiveMQUtilBundle.BUNDLE.invalidProperty(parts[i]);
+            }
             props.put(keyVal[0], keyVal[1]);
          }
-         try {
-            codecInstance.init(props);
-         } catch (Exception e) {
-            throw new ActiveMQException("Fail to init codec", e, ActiveMQExceptionType.SECURITY_EXCEPTION);
-         }
+      }
+      try {
+         codecInstance.init(props);
+      } catch (Exception e) {
+         throw new ActiveMQException("Fail to init codec", e, ActiveMQExceptionType.SECURITY_EXCEPTION);
       }
 
       return codecInstance;
    }
 
    public static DefaultSensitiveStringCodec getDefaultCodec() {
-      return new DefaultSensitiveStringCodec();
+      return getDefaultCodec(Collections.emptyMap());
+   }
+
+   public static DefaultSensitiveStringCodec getDefaultCodec(Map<String, String> params) {
+      DefaultSensitiveStringCodec defaultCodec = new DefaultSensitiveStringCodec();
+      try {
+         defaultCodec.init(params);
+      } catch (Exception e) {
+         throw ActiveMQUtilBundle.BUNDLE.errorCreatingCodec(DefaultSensitiveStringCodec.class.getName(), e);
+      }
+      return defaultCodec;
    }
 
 }

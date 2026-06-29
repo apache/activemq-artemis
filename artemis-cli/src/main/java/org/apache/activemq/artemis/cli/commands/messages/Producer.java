@@ -18,7 +18,6 @@
 package org.apache.activemq.artemis.cli.commands.messages;
 
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -28,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.factory.ConnectionFactoryClosable;
 import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -61,6 +61,9 @@ public class Producer extends DestAbstract {
    @Option(names = "--data", description = "Messages will be read from the specified file. Other message options will be ignored.")
    String file = null;
 
+   @Option(names = "--properties", description = "The properties to set on the message in JSON, e.g.: [{\"type\":\"string\",\"key\":\"myKey1\",\"value\":\"myValue1\"},{\"type\":\"string\",\"key\":\"myKey2\",\"value\":\"myValue2\"}]. Valid types are boolean, byte, short, int, long, float, double, and string.")
+   String properties = null;
+
    public boolean isNonpersistent() {
       return nonpersistent;
    }
@@ -85,6 +88,15 @@ public class Producer extends DestAbstract {
 
    public Producer setMessage(String message) {
       this.message = message;
+      return this;
+   }
+
+   public String getProperties() {
+      return properties;
+   }
+
+   public Producer setProperties(String properties) {
+      this.properties = properties;
       return this;
    }
 
@@ -137,9 +149,8 @@ public class Producer extends DestAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      ConnectionFactory factory = createConnectionFactory();
-
-      try (Connection connection = factory.createConnection()) {
+      try (ConnectionFactoryClosable factory = createConnectionFactory();
+           Connection connection = factory.createConnection()) {
 
          // If we are reading from file, we process messages sequentially to guarantee ordering.  i.e. no thread creation.
          if (file != null) {
@@ -153,7 +164,7 @@ public class Producer extends DestAbstract {
             try {
                MessageSerializer serializer = getMessageSerializer();
                if (serializer == null) {
-                  System.err.println("Error. Unable to instantiate serializer class: " + serializer);
+                  context.err.println("Error. Unable to instantiate serializer class: " + serializer);
                   return null;
                }
 
@@ -161,7 +172,7 @@ public class Producer extends DestAbstract {
                try {
                   in = new FileInputStream(file);
                } catch (Exception e) {
-                  System.err.println("Error: Unable to open file for reading\n" + e.getMessage());
+                  context.err.println("Error: Unable to open file for reading\n" + e.getMessage());
                   return null;
                }
 
@@ -179,12 +190,12 @@ public class Producer extends DestAbstract {
                session.commit();
                serializer.stop();
             } catch (Exception e) {
-               System.err.println("Error occurred during import.  Rolling back.");
+               context.err.println("Error occurred during import.  Rolling back.");
                session.rollback();
                e.printStackTrace();
                return 0;
             }
-            System.out.println("Sent " + messageCount + " Messages.");
+            context.out.println("Sent " + messageCount + " Messages.");
             return messageCount;
          } else {
             ProducerThread[] threadsArray = new ProducerThread[threads];
@@ -196,7 +207,7 @@ public class Producer extends DestAbstract {
                   session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                }
                Destination dest = getDestination(session);
-               threadsArray[i] = new ProducerThread(session, dest, i);
+               threadsArray[i] = new ProducerThread(session, dest, i, context);
 
                threadsArray[i]
                   .setVerbose(verbose)
@@ -205,6 +216,7 @@ public class Producer extends DestAbstract {
                   .setMessageSize(messageSize)
                   .setTextMessageSize(textMessageSize)
                   .setMessage(message)
+                  .setProperties(properties)
                   .setObjectSize(objectSize)
                   .setMsgTTL(msgTTL)
                   .setMsgGroupID(msgGroupID)
@@ -217,11 +229,19 @@ public class Producer extends DestAbstract {
             }
 
             long messagesProduced = 0;
-            for (ProducerThread thread : threadsArray) {
-               thread.join();
-               messagesProduced += thread.getSentCount();
+            try {
+               for (ProducerThread thread : threadsArray) {
+                  thread.join();
+                  messagesProduced += thread.getSentCount();
+               }
+               return messagesProduced;
+            } catch (InterruptedException e) {
+               // Interrupt any sub threads if an interrupt is captured
+               for (Thread t : threadsArray) {
+                  t.interrupt();
+               }
+               throw e;
             }
-            return messagesProduced;
          }
       }
    }

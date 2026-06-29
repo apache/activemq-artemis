@@ -46,8 +46,10 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -59,6 +61,22 @@ public class M_and_M_FactoryTest extends SoakTestBase {
    public static final String SERVER_NAME_0 = "mmfactory";
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT = 11099;
+
+   @BeforeAll
+   public static void createServers() throws Exception {
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_0);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
+         cliCreateServer.setConfiguration("./src/main/resources/servers/mmfactory");
+         cliCreateServer.setArgs("--java-options", "-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.port=11099 -Dcom.sun.management.jmxremote.rmi.port=11098 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false");
+
+         cliCreateServer.createServer();
+      }
+   }
+
 
    String theprotocol;
    int BATCH_SIZE;
@@ -97,7 +115,7 @@ public class M_and_M_FactoryTest extends SoakTestBase {
 
    Process serverProcess;
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       disableCheckThread();
@@ -106,13 +124,8 @@ public class M_and_M_FactoryTest extends SoakTestBase {
 
 
    @Test
-   public void testM_and_M_AMQP() throws Exception {
-      test_M_and_M_Sorting( "AMQP", 2000, 2, 2, 500);
-   }
-
-   @Test
-   public void testM_and_M_CORE() throws Exception {
-      test_M_and_M_Sorting( "CORE", 2000, 2, 2, 500);
+   public void testM_and_M_RandomProtocol() throws Exception {
+      test_M_and_M_Sorting(randomProtocol("AMQP", "CORE"), 2000, 2, 2, 500);
    }
 
    public void test_M_and_M_Sorting(String protocol, int batchSize, int restarts, int clientRuns, int killClientEveryX) throws Exception {
@@ -145,9 +158,8 @@ public class M_and_M_FactoryTest extends SoakTestBase {
       MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
       String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
       ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
-      //ActiveMQServerControl activeMQServerControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
 
-      ObjectName queueObjectName = objectNameBuilder.getQueueObjectName(SimpleString.toSimpleString("MMFactory"), SimpleString.toSimpleString("MMConsumer"), RoutingType.MULTICAST);
+      ObjectName queueObjectName = objectNameBuilder.getQueueObjectName(SimpleString.of("MMFactory"), SimpleString.of("MMConsumer"), RoutingType.MULTICAST);
       QueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, queueObjectName, QueueControl.class, false);
 
       final int NUMBER_OF_CONSUMERS = 6;
@@ -176,7 +188,6 @@ public class M_and_M_FactoryTest extends SoakTestBase {
       Process dlqProcess = startConsumerProcess(theprotocol, 0, "DLQ", 100, 1000);
 
       AtomicInteger retryNumber = new AtomicInteger(0);
-      int expectedTotalSize = 0;
 
       ConnectionFactory factory = CFUtil.createConnectionFactory(theprotocol, "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {
@@ -187,15 +198,7 @@ public class M_and_M_FactoryTest extends SoakTestBase {
          Topic controlTopic = session.createTopic("MMControl");
 
 
-         String largeString;
-         {
-            StringBuffer largeStringBuffer = new StringBuffer();
-
-            while (largeStringBuffer.length() < 10) {
-               largeStringBuffer.append(RandomUtil.randomString());
-            }
-            largeString = largeStringBuffer.toString();
-         }
+         String largeString = RandomUtil.randomAlphaNumericString(10);
 
          try {
             for (int run = countStart; run <= countEnd; run++) {
@@ -247,8 +250,6 @@ public class M_and_M_FactoryTest extends SoakTestBase {
                      return false;
                   }
                }, 45_000, 1_000);
-
-               expectedTotalSize += BATCH_SIZE * 2;
 
                retryNumber.incrementAndGet();
 

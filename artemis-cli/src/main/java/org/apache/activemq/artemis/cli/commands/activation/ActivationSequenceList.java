@@ -24,14 +24,14 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
-import org.apache.activemq.artemis.quorum.DistributedLock;
-import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
-import org.apache.activemq.artemis.quorum.MutableLong;
+import org.apache.activemq.artemis.lockmanager.DistributedLock;
+import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
+import org.apache.activemq.artemis.lockmanager.MutableLong;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -84,13 +84,11 @@ public class ActivationSequenceList extends LockAbstract {
          throw new IllegalArgumentException("--node-id must be used just with --remote");
       }
       final HAPolicyConfiguration policyConfig = config.getHAPolicyConfiguration();
-      final DistributedPrimitiveManagerConfiguration managerConfiguration;
+      final DistributedLockManagerConfiguration managerConfiguration;
       String coordinationId = null;
-      if (policyConfig instanceof ReplicationBackupPolicyConfiguration) {
-         ReplicationBackupPolicyConfiguration backupPolicyConfig = (ReplicationBackupPolicyConfiguration) policyConfig;
+      if (policyConfig instanceof ReplicationBackupPolicyConfiguration backupPolicyConfig) {
          managerConfiguration = backupPolicyConfig.getDistributedManagerConfiguration();
-      } else if (policyConfig instanceof ReplicationPrimaryPolicyConfiguration) {
-         ReplicationPrimaryPolicyConfiguration primaryPolicyConfig = (ReplicationPrimaryPolicyConfiguration) policyConfig;
+      } else if (policyConfig instanceof ReplicationPrimaryPolicyConfiguration primaryPolicyConfig) {
          managerConfiguration = primaryPolicyConfig.getDistributedManagerConfiguration();
          if (primaryPolicyConfig.getCoordinationId() != null) {
             coordinationId = primaryPolicyConfig.getCoordinationId();
@@ -135,16 +133,16 @@ public class ActivationSequenceList extends LockAbstract {
          }
          Long coordinatedSequence = null;
          if (!local) {
-            try (DistributedPrimitiveManager manager = DistributedPrimitiveManager.newInstanceOf(
+            try (DistributedLockManager manager = DistributedLockManager.newInstanceOf(
                managerConfiguration.getClassName(), managerConfiguration.getProperties())) {
                if (!manager.start(MANAGER_START_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                   throw new IllegalStateException("distributed manager isn't started in " + MANAGER_START_TIMEOUT_SECONDS + " seconds");
 
                }
                try (MutableLong coordinatedActivationSequence = manager.getMutableLong(nodeId);
-                    DistributedLock liveLock = manager.getDistributedLock(nodeId)) {
-                  if (!liveLock.tryLock()) {
-                     throw new IllegalStateException("Cannot safely get the coordinated activation sequence for NodeID=" + nodeId + ": maybe the live lock is still held.");
+                    DistributedLock primaryLock = manager.getDistributedLock(nodeId)) {
+                  if (!primaryLock.tryLock()) {
+                     throw new IllegalStateException("Cannot safely get the coordinated activation sequence for NodeID=" + nodeId + ": maybe the primary lock is still held.");
                   }
                   coordinatedSequence = coordinatedActivationSequence.get();
                   if (out != null) {

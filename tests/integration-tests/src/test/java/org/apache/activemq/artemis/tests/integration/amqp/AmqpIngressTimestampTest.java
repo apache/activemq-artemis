@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,27 +33,30 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AmqpIngressTimestampTest extends AmqpClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public int amqpMinLargeMessageSize = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
 
-   @Parameterized.Parameters(name = "restart={0}, large={1}")
+   @Parameters(name = "restart={0}, large={1}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
          {true, true},
@@ -58,30 +66,33 @@ public class AmqpIngressTimestampTest extends AmqpClientTestSupport {
       });
    }
 
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public boolean restart;
 
-   @Parameterized.Parameter(1)
+   @Parameter(index = 1)
    public boolean large;
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testIngressTimestampSendCore() throws Exception {
       internalTestIngressTimestamp(Protocol.CORE);
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testIngressTimestampSendAMQP() throws Exception {
       internalTestIngressTimestamp(Protocol.AMQP);
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testIngressTimestampSendOpenWire() throws Exception {
       internalTestIngressTimestamp(Protocol.OPENWIRE);
    }
 
    private void internalTestIngressTimestamp(Protocol protocol) throws Exception {
-      final String QUEUE_NAME = RandomUtil.randomString();
-      server.createQueue(new QueueConfiguration(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      final String QUEUE_NAME = RandomUtil.randomUUIDString();
+      server.createQueue(QueueConfiguration.of(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
       server.getAddressSettingsRepository().addMatch(QUEUE_NAME, new AddressSettings().setEnableIngressTimestamp(true));
       long beforeSend = System.currentTimeMillis();
       if (protocol == Protocol.CORE) {
@@ -114,9 +125,9 @@ public class AmqpIngressTimestampTest extends AmqpClientTestSupport {
       logger.info("{}", receive);
       Object ingressTimestampHeader = receive.getMessageAnnotation(AMQPMessageSupport.X_OPT_INGRESS_TIME);
       assertNotNull(ingressTimestampHeader);
-      assertTrue(ingressTimestampHeader instanceof Long);
+      assertInstanceOf(Long.class, ingressTimestampHeader);
       long ingressTimestamp = (Long) ingressTimestampHeader;
-      assertTrue("Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend,ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend);
+      assertTrue(ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend, "Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend);
       receiver.close();
 
       assertEquals(1, queueView.getMessageCount());
@@ -144,15 +155,6 @@ public class AmqpIngressTimestampTest extends AmqpClientTestSupport {
    }
 
    private byte[] getMessagePayload() {
-      StringBuilder result = new StringBuilder();
-      if (large) {
-         for (int i = 0; i < ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 20; i++) {
-            result.append("AB");
-         }
-      } else {
-         result.append("AB");
-      }
-
-      return result.toString().getBytes();
+      return large ? "AB".repeat(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 20).getBytes() : "AB".getBytes();
    }
 }

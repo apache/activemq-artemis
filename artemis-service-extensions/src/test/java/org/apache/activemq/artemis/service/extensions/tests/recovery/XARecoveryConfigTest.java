@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.service.extensions.tests.recovery;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class XARecoveryConfigTest {
 
@@ -34,11 +36,11 @@ public class XARecoveryConfigTest {
       XARecoveryConfig config2 = new XARecoveryConfig(false, new TransportConfiguration[]{transportConfig2}, null, null, null);
 
       // They are using Different names
-      Assert.assertNotEquals(transportConfig, transportConfig2);
-      Assert.assertEquals(transportConfig.newTransportConfig(""), transportConfig2.newTransportConfig(""));
+      assertNotEquals(transportConfig, transportConfig2);
+      assertEquals(transportConfig.newTransportConfig(""), transportConfig2.newTransportConfig(""));
 
       // The equals here shouldn't take the name into consideration
-      Assert.assertEquals(config, config2);
+      assertEquals(config, config2);
    }
 
    @Test
@@ -52,10 +54,10 @@ public class XARecoveryConfigTest {
       XARecoveryConfig config2 = new XARecoveryConfig(false, new TransportConfiguration[]{transportConfig2}, null, null, null);
 
       // They are using Different names
-      Assert.assertNotEquals(transportConfig, transportConfig2);
-      Assert.assertNotEquals(transportConfig.newTransportConfig(""), transportConfig2.newTransportConfig(""));
+      assertNotEquals(transportConfig, transportConfig2);
+      assertNotEquals(transportConfig.newTransportConfig(""), transportConfig2.newTransportConfig(""));
 
       // The equals here shouldn't take the name into consideration
-      Assert.assertNotEquals(config, config2);
+      assertNotEquals(config, config2);
    }
 }

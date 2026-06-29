@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -39,8 +42,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AMQPBridgeTest extends AmqpClientTestSupport {
 
@@ -87,8 +89,8 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
    public void internalTransferPush(String queueName, boolean deferCreation, boolean restartBC) throws Exception {
       server.setIdentity("targetServer");
       server.start();
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(queueName), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
 
       server_2 = createServer(AMQP_PORT_2, false);
 
@@ -97,7 +99,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
       if (!deferCreation) {
          server_2.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(queueName).addRoutingType(RoutingType.ANYCAST));
-         server_2.getConfiguration().addQueueConfiguration(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         server_2.getConfiguration().addQueueConfiguration(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       server_2.setIdentity("serverWithBridge");
 
@@ -106,7 +108,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
 
       if (deferCreation) {
          server_2.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));
-         server_2.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         server_2.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
 
       if (restartBC) {
@@ -123,12 +125,8 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       String largeMessageBody = null;
       for (int i = 0; i < 30; i++) {
          if (i == 0) {
-            StringBuffer buffer = new StringBuffer();
-            for (int s = 0; s < 10024; s++) {
-               buffer.append("*******************************************************************************************************************************");
-            }
-            largeMessageBody = buffer.toString();
-            TextMessage message = session.createTextMessage(buffer.toString());
+            largeMessageBody = "*******************************************************************************************************************************".repeat(10024);
+            TextMessage message = session.createTextMessage(largeMessageBody);
             producer.send(message);
          } else {
             producer.send(session.createMessage());
@@ -136,7 +134,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       }
 
       Queue testQueueOnServer2 = server_2.locateQueue(queueName);
-      Assert.assertNotNull(testQueueOnServer2);
+      assertNotNull(testQueueOnServer2);
       Wait.assertEquals(0, testQueueOnServer2::getMessageCount);
 
       ConnectionFactory factory2 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
@@ -148,14 +146,14 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       for (int i = 0; i < 30; i++) {
          Message message = consumer.receive(5000);
          if (message instanceof TextMessage) {
-            if (message instanceof TextMessage) {
-               Assert.assertEquals(largeMessageBody, ((TextMessage)message).getText());
+            if (message instanceof TextMessage textMessage) {
+               assertEquals(largeMessageBody, textMessage.getText());
             } else {
                System.out.println("i = " + i);
             }
          }
       }
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
    }
 
    @Test
@@ -177,8 +175,8 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
 
       server.start();
 
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("TEST"), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration("TEST").setRoutingType(RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of("TEST"), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of("TEST").setRoutingType(RoutingType.ANYCAST));
 
       server_2 = createServer(AMQP_PORT_2, false);
 
@@ -192,7 +190,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       amqpConnection.addElement(new AMQPBrokerConnectionElement().setMatchAddress("TEST").setType(AMQPBrokerConnectionAddressType.RECEIVER));
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
       server_2.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("TEST").addRoutingType(RoutingType.ANYCAST));
-      server_2.getConfiguration().addQueueConfiguration(new QueueConfiguration("TEST").setRoutingType(RoutingType.ANYCAST));
+      server_2.getConfiguration().addQueueConfiguration(QueueConfiguration.of("TEST").setRoutingType(RoutingType.ANYCAST));
       server_2.setIdentity("serverWithBridge");
 
       server_2.start();
@@ -206,12 +204,8 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       String largeMessageBody = null;
       for (int i = 0; i < 30; i++) {
          if (i == 0) {
-            StringBuffer buffer = new StringBuffer();
-            for (int s = 0; s < 10024; s++) {
-               buffer.append("*******************************************************************************************************************************");
-            }
-            largeMessageBody = buffer.toString();
-            TextMessage message = session.createTextMessage(buffer.toString());
+            largeMessageBody = "*******************************************************************************************************************************".repeat(10024);
+            TextMessage message = session.createTextMessage(largeMessageBody);
             producer.send(message);
          } else {
             producer.send(session.createMessage());
@@ -228,7 +222,7 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       if (security) {
          Thread.sleep(500); // on this case we need to wait some time to make sure retries are kicking in.
          // since the password is wrong, this should return null.
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          // we are fixing the password, hoping the connection will fix itself.
          amqpConnection.setUser(fullUser).setPassword(fullPass);
       }
@@ -236,14 +230,14 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       for (int i = 0; i < 30; i++) {
          Message message = consumer.receive(5000);
          if (message instanceof TextMessage) {
-            if (message instanceof TextMessage) {
-               Assert.assertEquals(largeMessageBody, ((TextMessage)message).getText());
+            if (message instanceof TextMessage textMessage) {
+               assertEquals(largeMessageBody, textMessage.getText());
             } else {
                System.out.println("i = " + i);
             }
          }
       }
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
    }
 
 }

@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.e2e.brokerConnection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,10 +30,9 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
 import org.apache.activemq.artemis.tests.e2e.common.E2ETestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -55,12 +58,12 @@ public class DualMirrorFailoverWithContainerTest extends E2ETestBase {
    private final String SERVER_MAIN_B_LOCATION = basedir + "/target/brokerConnect/replicaMainServerB";
    private final String SERVER_BACKUP_B_LOCATION = basedir + "/target/brokerConnect/replicaBackupServerB";
 
-   @Before
+   @BeforeEach
    public void beforeStart() throws Exception {
       disableCheckThread();
       ValidateContainer.assumeArtemisContainer();
 
-      Assert.assertNotNull(basedir);
+      assertNotNull(basedir);
       recreateBrokerDirectory(SERVER_MAIN_A_LOCATION);
       recreateBrokerDirectory(SERVER_BACKUP_A_LOCATION);
       recreateBrokerDirectory(SERVER_MAIN_B_LOCATION);
@@ -102,7 +105,7 @@ public class DualMirrorFailoverWithContainerTest extends E2ETestBase {
    }
 
 
-   @After
+   @AfterEach
    public void afterStop() {
       service.stop(serverBackupA);
       service.stop(serverBackupB);
@@ -167,10 +170,10 @@ public class DualMirrorFailoverWithContainerTest extends E2ETestBase {
          MessageConsumer consumer = session.createConsumer(queue);
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage)consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("message " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("message " + i, message.getText());
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
 
          // trying the way back
          MessageProducer producer = session.createProducer(queue);
@@ -193,8 +196,8 @@ public class DualMirrorFailoverWithContainerTest extends E2ETestBase {
          MessageConsumer consumer = session.createConsumer(queue);
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage)consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("next-message " + i, message.getText());
+            assertNotNull(message);
+            assertEquals("next-message " + i, message.getText());
          }
          session.commit();
          connection.close();

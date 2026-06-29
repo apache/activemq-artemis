@@ -104,23 +104,19 @@ public interface ClientSessionInternal extends ClientSession {
    void markRollbackOnly();
 
    /**
-    * This is used internally to control and educate the user
-    * about using the thread boundaries properly.
-    * if more than one thread is using the session simultaneously
-    * this will generate a big warning on the docs.
-    * There are a limited number of places where we can call this such as acks and sends. otherwise we
-    * could get false warns
+    * This is used internally to control and educate the user about using the thread boundaries properly. if more than
+    * one thread is using the session simultaneously this will generate a big warning on the docs. There are a limited
+    * number of places where we can call this such as acks and sends. otherwise we could get false warns
     */
    void startCall();
 
    /**
+    * Opposite of {@link #startCall()}
+    *
     * @see #startCall()
     */
    void endCall();
 
-   /**
-    * Sets a stop signal to true. This will cancel
-    */
    void setStopSignal();
 
    boolean isConfirmationWindowEnabled();

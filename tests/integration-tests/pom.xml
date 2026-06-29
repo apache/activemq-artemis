@@ -18,14 +18,14 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq.tests</groupId>
+      <groupId>org.apache.artemis.tests</groupId>
       <artifactId>artemis-tests-pom</artifactId>
-      <version>2.31.0-SNAPSHOT</version>
+      <version>2.56.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>integration-tests</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis Integration Tests</name>
+   <name>Apache Artemis Integration Tests</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
@@ -34,82 +34,63 @@
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-quorum-api</artifactId>
-         <version>${project.version}</version>
+         <groupId>org.apache.artemis</groupId>
+         <artifactId>artemis-lockmanager-api</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-quorum-ri</artifactId>
-         <version>${project.version}</version>
+         <groupId>org.apache.artemis</groupId>
+         <artifactId>artemis-lockmanager-ri</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq.tests</groupId>
-         <artifactId>unit-tests</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-         <type>test-jar</type>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-jms-client</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-jms-server</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-ra</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-cli</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-journal</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-jdbc-store</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-amqp-protocol</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-stomp-protocol</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-openwire-protocol</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
          <exclusions>
             <exclusion>
@@ -119,21 +100,18 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-hqclient-protocol</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -143,33 +121,30 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-service-extensions</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq.tests</groupId>
+         <groupId>org.apache.artemis.tests</groupId>
          <artifactId>artemis-test-support</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-selector</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-dto</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -201,9 +176,8 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-mqtt-protocol</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -288,8 +262,13 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-api</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -302,6 +281,11 @@
          <artifactId>proton-j</artifactId>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>org.apache.qpid</groupId>
+         <artifactId>protonj2-test-driver</artifactId>
+         <scope>test</scope>
+      </dependency>
       <!-- logging -->
       <dependency>
          <groupId>org.slf4j</groupId>
@@ -310,13 +294,12 @@
       </dependency>
       <dependency>
          <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-slf4j-impl</artifactId>
+         <artifactId>log4j-slf4j2-impl</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-web</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
 
@@ -324,6 +307,11 @@
       <dependency>
          <groupId>org.apache.derby</groupId>
          <artifactId>derby</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.derby</groupId>
+         <artifactId>derbytools</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -346,6 +334,12 @@
          <groupId>org.apache.hadoop</groupId>
          <artifactId>hadoop-minikdc</artifactId>
          <scope>test</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>junit</groupId>
+               <artifactId>junit</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.springframework</groupId>
@@ -372,34 +366,7 @@
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-tcnative-boringssl-static</artifactId>
-         <version>${netty-tcnative-version}</version>
-      </dependency>
-
-      <dependency>
-         <groupId>io.vertx</groupId>
-         <artifactId>vertx-proton</artifactId>
-         <version>${vertx.version}</version>
          <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>io.vertx</groupId>
-         <artifactId>vertx-core</artifactId>
-         <version>${vertx.version}</version>
-         <scope>test</scope>
-      </dependency>
-
-      <!-- need this for org.apache.activemq.filter.JAXPXPathEvaluator for Xpath selectors with OpenWire JMS clients-->
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-broker</artifactId>
-         <version>${activemq5-version}</version>
-         <scope>test</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>com.fasterxml.jackson.core</groupId>
-               <artifactId>jackson-databind</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
 
       <dependency>
@@ -435,7 +402,11 @@
          <artifactId>mockito-core</artifactId>
          <scope>test</scope>
       </dependency>
-
+      <dependency>
+         <groupId>org.mock-server</groupId>
+         <artifactId>mockserver-core</artifactId>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <build>
@@ -468,18 +439,6 @@
                         </resource>
                      </resources>
                   </configuration>
-               </execution>
-            </executions>
-         </plugin>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-               <execution>
-                  <phase>test</phase>
-                  <goals>
-                     <goal>test-jar</goal>
-                  </goals>
                </execution>
             </executions>
          </plugin>
@@ -518,8 +477,8 @@
       </profile>
       <profile>
          <id>jdk16on</id>
-            <activation>
-         <jdk>[16,)</jdk>
+         <activation>
+            <jdk>[16,)</jdk>
          </activation>
          <properties>
             <its-surefire-extra-args>--add-exports java.security.jgss/sun.security.krb5=ALL-UNNAMED</its-surefire-extra-args>

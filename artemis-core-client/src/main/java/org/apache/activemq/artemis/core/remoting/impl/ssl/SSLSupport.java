@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.remoting.impl.ssl;
 import javax.net.ssl.CertPathTrustManagerParameters;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.ManagerFactoryParameters;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -28,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.AccessController;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -38,14 +38,21 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CRL;
+import java.security.cert.CertPathBuilder;
+import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.PKIXBuilderParameters;
+import java.security.cert.PKIXCertPathChecker;
+import java.security.cert.PKIXRevocationChecker;
 import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -58,12 +65,13 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 /**
- * Please note, this class supports PKCS#11 keystores, but there are no specific tests in the ActiveMQ Artemis test-suite to
- * validate/verify this works because this requires a functioning PKCS#11 provider which is not available by default
- * (see java.security.Security#getProviders()).  The main thing to keep in mind is that PKCS#11 keystores will either use
- * null, and empty string, or NONE for their keystore path.
+ * Please note, this class supports PKCS#11 keystores, but there are no specific tests in the Apache Artemis
+ * test-suite to validate/verify this works because this requires a functioning PKCS#11 provider which is not available
+ * by default (see java.security.Security#getProviders()).  The main thing to keep in mind is that PKCS#11 keystores
+ * will either use null, and empty string, or NONE for their keystore path.
  */
 public class SSLSupport {
 
@@ -72,6 +80,7 @@ public class SSLSupport {
    private String keystoreType = TransportConstants.DEFAULT_KEYSTORE_TYPE;
    private String keystorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
    private String keystorePassword = TransportConstants.DEFAULT_KEYSTORE_PASSWORD;
+   private String keyPassword = TransportConstants.DEFAULT_KEY_PASSWORD;
    private String truststoreProvider = TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER;
    private String truststoreType = TransportConstants.DEFAULT_TRUSTSTORE_TYPE;
    private String truststorePath = TransportConstants.DEFAULT_TRUSTSTORE_PATH;
@@ -81,6 +90,8 @@ public class SSLSupport {
    private boolean trustAll = TransportConstants.DEFAULT_TRUST_ALL;
    private String trustManagerFactoryPlugin = TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN;
    private String keystoreAlias = TransportConstants.DEFAULT_KEYSTORE_ALIAS;
+   private String crcOptions = TransportConstants.DEFAULT_CRC_OPTIONS;
+   private String ocspResponderURL = TransportConstants.DEFAULT_OCSP_RESPONDER_URL;
 
    public SSLSupport() {
    }
@@ -90,6 +101,7 @@ public class SSLSupport {
       keystorePath = config.getKeystorePath();
       keystoreType = config.getKeystoreType();
       keystorePassword = config.getKeystorePassword();
+      keyPassword = config.getKeyPassword();
       truststoreProvider = config.getTruststoreProvider();
       truststorePath = config.getTruststorePath();
       truststoreType = config.getTruststoreType();
@@ -98,6 +110,8 @@ public class SSLSupport {
       trustAll = config.isTrustAll();
       trustManagerFactoryPlugin = config.getTrustManagerFactoryPlugin();
       keystoreAlias = config.getKeystoreAlias();
+      crcOptions = config.getCrcOptions();
+      ocspResponderURL = config.getOcspResponderURL();
    }
 
    public String getKeystoreProvider() {
@@ -133,6 +147,15 @@ public class SSLSupport {
 
    public SSLSupport setKeystorePassword(String keystorePassword) {
       this.keystorePassword = keystorePassword;
+      return this;
+   }
+
+   public String getKeyPassword() {
+      return keyPassword;
+   }
+
+   public SSLSupport setKeyPassword(String keyPassword) {
+      this.keyPassword = keyPassword;
       return this;
    }
 
@@ -217,6 +240,24 @@ public class SSLSupport {
       return this;
    }
 
+   public String getCrcOptions() {
+      return crcOptions;
+   }
+
+   public SSLSupport setCrcOptions(String crcOptions) {
+      this.crcOptions = crcOptions;
+      return this;
+   }
+
+   public String getOcspResponderURL() {
+      return ocspResponderURL;
+   }
+
+   public SSLSupport setOcspResponderURL(String ocspResponderURL) {
+      this.ocspResponderURL = ocspResponderURL;
+      return this;
+   }
+
    public SSLContext createContext() throws Exception {
       SSLContext context = SSLContext.getInstance("TLS");
       KeyManager[] keyManagers = loadKeyManagers();
@@ -232,7 +273,7 @@ public class SSLSupport {
          Pair<PrivateKey, X509Certificate[]> privateKeyAndCertChain = getPrivateKeyAndCertChain(keyStore);
          sslContextBuilder = SslContextBuilder.forServer(privateKeyAndCertChain.getA(), privateKeyAndCertChain.getB());
       } else {
-         sslContextBuilder = SslContextBuilder.forServer(getKeyManagerFactory(keyStore, keystorePassword == null ? null : keystorePassword.toCharArray()));
+         sslContextBuilder = SslContextBuilder.forServer(getKeyManagerFactory(keyStore, getKeyPasswordOrDefault()));
       }
       return sslContextBuilder
          .sslProvider(SslProvider.valueOf(sslProvider))
@@ -250,7 +291,7 @@ public class SSLSupport {
          Pair<PrivateKey, X509Certificate[]> privateKeyAndCertChain = getPrivateKeyAndCertChain(keyStore);
          sslContextBuilder.keyManager(privateKeyAndCertChain.getA(), privateKeyAndCertChain.getB());
       } else {
-         sslContextBuilder.keyManager(getKeyManagerFactory(keyStore, keystorePassword == null ? null : keystorePassword.toCharArray()));
+         sslContextBuilder.keyManager(getKeyManagerFactory(keyStore, getKeyPasswordOrDefault()));
       }
 
       return sslContextBuilder.build();
@@ -278,7 +319,7 @@ public class SSLSupport {
 
    private TrustManagerFactory loadTrustManagerFactory() throws Exception {
       if (trustManagerFactoryPlugin != null) {
-         return AccessController.doPrivileged((PrivilegedAction<TrustManagerFactory>) () -> ((TrustManagerFactoryPlugin) ClassloadingUtil.newInstanceFromClassLoader(SSLSupport.class, trustManagerFactoryPlugin)).getTrustManagerFactory());
+         return SecurityManagerShim.doPrivileged((PrivilegedAction<TrustManagerFactory>) () -> ((TrustManagerFactoryPlugin) ClassloadingUtil.newInstanceFromClassLoader(SSLSupport.class, trustManagerFactoryPlugin, TrustManagerFactoryPlugin.class)).getTrustManagerFactory());
       } else if (trustAll) {
          //This is useful for testing but not should be used outside of that purpose
          return InsecureTrustManagerFactory.INSTANCE;
@@ -287,11 +328,12 @@ public class SSLSupport {
       } else {
          TrustManagerFactory trustMgrFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
          KeyStore trustStore = SSLSupport.loadKeystore(truststoreProvider, truststoreType, truststorePath, truststorePassword);
-         boolean ocsp = Boolean.valueOf(Security.getProperty("ocsp.enable"));
 
-         boolean initialized = false;
-         if ((ocsp || crlPath != null) && TrustManagerFactory.getDefaultAlgorithm().equalsIgnoreCase("PKIX")) {
+         ManagerFactoryParameters managerFactoryParameters = null;
+         boolean ocsp = Boolean.parseBoolean(Security.getProperty("ocsp.enable"));
+         if ((ocsp || crlPath != null || crcOptions != null || ocspResponderURL != null) && checkPKIXTrustManagerFactory(trustMgrFactory)) {
             PKIXBuilderParameters pkixParams = new PKIXBuilderParameters(trustStore, new X509CertSelector());
+
             if (crlPath != null) {
                pkixParams.setRevocationEnabled(true);
                Collection<? extends CRL> crlList = loadCRL();
@@ -299,15 +341,107 @@ public class SSLSupport {
                   pkixParams.addCertStore(CertStore.getInstance("Collection", new CollectionCertStoreParameters(crlList)));
                }
             }
-            trustMgrFactory.init(new CertPathTrustManagerParameters(pkixParams));
-            initialized = true;
+
+            if (crcOptions != null || ocspResponderURL != null) {
+               addCertPathCheckers(pkixParams);
+            }
+
+            managerFactoryParameters = new CertPathTrustManagerParameters(pkixParams);
          }
 
-         if (!initialized) {
+         if (managerFactoryParameters != null) {
+            trustMgrFactory.init(managerFactoryParameters);
+         } else {
             trustMgrFactory.init(trustStore);
          }
+
          return trustMgrFactory;
       }
+   }
+
+   private boolean checkPKIXTrustManagerFactory(TrustManagerFactory trustMgrFactory) {
+      if (trustMgrFactory.getAlgorithm().equalsIgnoreCase("PKIX")) {
+         return true;
+      }
+
+      if (crlPath != null) {
+         throw new IllegalStateException("The crlPath parameter is not supported with the algorithm "
+            + trustMgrFactory.getAlgorithm());
+      }
+
+      if (crcOptions != null) {
+         throw new IllegalStateException("The crcOptions parameter is not supported with the algorithm "
+            + trustMgrFactory.getAlgorithm());
+      }
+
+      if (ocspResponderURL != null) {
+         throw new IllegalStateException("The ocspResponderURL parameter is not supported with the algorithm "
+            + trustMgrFactory.getAlgorithm());
+      }
+
+      return false;
+   }
+
+   protected void addCertPathCheckers(PKIXBuilderParameters pkixParams) throws Exception {
+      CertPathBuilder certPathBuilder = CertPathBuilder.getInstance("PKIX");
+      PKIXRevocationChecker revocationChecker = (PKIXRevocationChecker) certPathBuilder.getRevocationChecker();
+      if (crcOptions != null) {
+         revocationChecker.setOptions(loadRevocationOptions());
+      }
+      if (ocspResponderURL != null) {
+         revocationChecker.setOcspResponder(new java.net.URI(ocspResponderURL));
+      }
+      pkixParams.addCertPathChecker(revocationChecker);
+
+
+      // Add a certPathChecker to log soft fail exceptions caught by the revocation checker.
+      pkixParams.addCertPathChecker(new PKIXCertPathChecker() {
+         @Override
+         public void init(boolean forward) throws CertPathValidatorException {
+         }
+
+         @Override
+         public boolean isForwardCheckingSupported() {
+            return revocationChecker.isForwardCheckingSupported();
+         }
+
+         @Override
+         public Set<String> getSupportedExtensions() {
+            return revocationChecker.getSupportedExtensions();
+         }
+
+         @Override
+         public void check(Certificate cert, Collection<String> unresolvedCritExts) throws CertPathValidatorException {
+            List<CertPathValidatorException> softFailExceptions = revocationChecker.getSoftFailExceptions();
+
+            if (softFailExceptions != null) {
+               for (CertPathValidatorException e : softFailExceptions) {
+                  // Filter soft failure exceptions related to cert.
+                  // The check method may be invoked for all certificates in the path and the list of
+                  // the soft failure exceptions is cleared only before the first certificate in the path.
+                  if (e.getIndex() >= 0 && e.getCertPath().getCertificates().get(e.getIndex()).equals(cert)) {
+                     String certSubject = null;
+                     if (cert instanceof X509Certificate) {
+                        certSubject = ((X509Certificate) cert).getSubjectX500Principal().getName();
+                     }
+
+                     ActiveMQClientLogger.LOGGER.softFailException(certSubject, e);
+                  }
+               }
+            }
+         }
+      });
+   }
+
+   protected Set<PKIXRevocationChecker.Option> loadRevocationOptions() {
+      String[] revocationOptionNames = crcOptions.split(",");
+
+      Set<PKIXRevocationChecker.Option> revocationOptions = new HashSet<>();
+      for (String revocationOptionName : revocationOptionNames) {
+         revocationOptions.add(PKIXRevocationChecker.Option.valueOf(revocationOptionName));
+      }
+
+      return revocationOptions;
    }
 
    private TrustManager[] loadTrustManagers() throws Exception {
@@ -328,10 +462,11 @@ public class SSLSupport {
       }
    }
 
-   private static KeyStore loadKeystore(final String keystoreProvider,
-                                        final String keystoreType,
-                                        final String keystorePath,
-                                        final String keystorePassword) throws Exception {
+   public static KeyStore loadKeystore(final String keystoreProvider,
+                                       final String keystoreType,
+                                       final String keystorePath,
+                                       final String keystorePassword) throws Exception {
+      checkPemProviderLoaded(keystoreType);
       KeyStore ks = keystoreProvider == null ? KeyStore.getInstance(keystoreType) : KeyStore.getInstance(keystoreType, keystoreProvider);
       InputStream in = null;
       try {
@@ -351,6 +486,18 @@ public class SSLSupport {
       return ks;
    }
 
+   /**
+    * This method calls out to a separate class in order to avoid a hard dependency on the provider's implementation.
+    * This allows folks who don't use PEM to avoid using the corresponding dependency.
+    */
+   public static void checkPemProviderLoaded(String keystoreType) {
+      if (keystoreType != null && keystoreType.startsWith("PEM")) {
+         if (Security.getProvider("PEM") == null) {
+            PemSupport.loadProvider();
+         }
+      }
+   }
+
    private KeyManager[] loadKeyManagers() throws Exception {
       KeyManagerFactory factory = loadKeyManagerFactory();
       if (factory == null) {
@@ -359,8 +506,8 @@ public class SSLSupport {
       KeyManager[] keyManagers = factory.getKeyManagers();
       if (keystoreAlias != null) {
          for (int i = 0; i < keyManagers.length; i++) {
-            if (keyManagers[i] instanceof X509KeyManager) {
-               keyManagers[i] = new AliasedKeyManager((X509KeyManager) keyManagers[i], keystoreAlias);
+            if (keyManagers[i] instanceof X509KeyManager x509KeyManager) {
+               keyManagers[i] = new AliasedKeyManager(x509KeyManager, keystoreAlias);
             }
          }
       }
@@ -373,7 +520,7 @@ public class SSLSupport {
       } else {
          KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
          KeyStore ks = SSLSupport.loadKeystore(keystoreProvider, keystoreType, keystorePath, keystorePassword);
-         kmf.init(ks, keystorePassword == null ? null : keystorePassword.toCharArray());
+         kmf.init(ks, getKeyPasswordOrDefault());
          return kmf;
       }
    }
@@ -400,21 +547,16 @@ public class SSLSupport {
    }
 
    /**
-    * This seems duplicate code all over the place, but for security reasons we can't let something like this to be open in a
-    * utility class, as it would be a door to load anything you like in a safe VM.
-    * For that reason any class trying to do a privileged block should do with the AccessController directly.
+    * This seems duplicate code all over the place, but for security reasons we can't let something like this to be open
+    * in a utility class, as it would be a door to load anything you like in a safe VM. For that reason any class trying
+    * to do a privileged block should do with the AccessController directly.
     */
    private static URL findResource(final String resourceName) {
-      return AccessController.doPrivileged(new PrivilegedAction<URL>() {
-         @Override
-         public URL run() {
-            return ClassloadingUtil.findResource(resourceName);
-         }
-      });
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<URL>) () -> ClassloadingUtil.findResource(resourceName));
    }
 
    private Pair<PrivateKey, X509Certificate[]> getPrivateKeyAndCertChain(KeyStore keyStore) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
-      PrivateKey key = (PrivateKey) keyStore.getKey(keystoreAlias, keystorePassword.toCharArray());
+      PrivateKey key = (PrivateKey) keyStore.getKey(keystoreAlias, getKeyPasswordOrDefault());
       if (key == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.keystoreAliasNotFound(keystoreAlias, keystorePath);
       }
@@ -431,15 +573,20 @@ public class SSLSupport {
       return keyManagerFactory;
    }
 
+   private char[] getKeyPasswordOrDefault() {
+      if (keyPassword != null) {
+         return keyPassword.toCharArray();
+      }
+      return keystorePassword != null ? keystorePassword.toCharArray() : null;
+   }
+
    /**
     * The changes ARTEMIS-3155 introduced an incompatibility with old clients using the keyStoreProvider and
-    * trustStoreProvider URL properties. These old clients use these properties to set the *type* of store
-    * (e.g. PKCS12, PKCS11, JKS, JCEKS, etc.), but new clients use these to set the *provider* (as the name
-    * implies). This method checks to see if the provider property matches what is expected from old clients
-    * and if so returns they proper provider and type properties to use with the new client implementation.
+    * trustStoreProvider URL properties. These old clients use these properties to set the *type* of store (e.g. PKCS12,
+    * PKCS11, JKS, JCEKS, etc.), but new clients use these to set the *provider* (as the name implies). This method
+    * checks to see if the provider property matches what is expected from old clients and if so returns they proper
+    * provider and type properties to use with the new client implementation.
     *
-    * @param storeProvider
-    * @param storeType
     * @return a {@code Pair<String, String>} representing the provider and type to use (in that order)
     */
    public static Pair<String, String> getValidProviderAndType(String storeProvider, String storeType) {

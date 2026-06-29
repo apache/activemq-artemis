@@ -18,53 +18,35 @@
 package org.apache.activemq.artemis.tests.compatibility.base;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.apache.activemq.artemis.tests.extensions.LogTestNameExtension;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
-
+@ExtendWith(LogTestNameExtension.class)
 public class ClasspathBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Rule
-   public TestRule watcher = new TestWatcher() {
-
-      @Override
-      protected void starting(Description description) {
-         logger.info("**** start #test {}::{}() ***", ClasspathBase.this.getClass().getName(), description.getMethodName());
-      }
-
-      @Override
-      protected void finished(Description description) {
-         logger.info("**** end #test {}::{}() ***", ClasspathBase.this.getClass().getName(), description.getMethodName());
-      }
-   };
-
-   @AfterClass
-   public static void cleanup() {
-      loaderMap.values().forEach((cl -> clearClassLoader(cl)));
+   @AfterAll
+   public static void cleanup() throws Exception {
+      loaderMap.values().forEach((ClasspathBase::clearClassLoader));
       clearClassLoader(VersionedBase.class.getClassLoader());
+      loaderMap.clear();
    }
 
    public static void clearClassLoader(ClassLoader loader) {
@@ -83,20 +65,14 @@ public class ClasspathBase {
       clearGroovy(loader);
    }
 
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public static File serverFolder;
 
-   @ClassRule
-   public static TemporaryFolder serverFolder;
    private static int javaVersion;
 
    public static final int getJavaVersion() {
       return javaVersion;
-   }
-
-   // definining server folder
-   static {
-      File parent = new File("./target/tmp");
-      parent.mkdirs();
-      serverFolder = new TemporaryFolder(parent);
    }
 
    // defining java version
@@ -119,8 +95,6 @@ public class ClasspathBase {
    }
 
    protected static Map<String, ClassLoader> loaderMap = new HashMap<>();
-
-   private static HashSet<String> printed = new HashSet<>();
 
    protected ClassLoader defineClassLoader(String classPath) throws Exception {
       String[] classPathArray = classPath.split(File.pathSeparator);
@@ -156,10 +130,6 @@ public class ClasspathBase {
 
    protected ClassLoader getClasspath(String name, boolean forceNew) throws Exception {
 
-      if (name.equals(GroovyRun.ONE_FIVE) || name.equals(GroovyRun.TWO_ZERO)) {
-         Assume.assumeTrue("This version of artemis cannot be ran against JDK16+", getJavaVersion() < 16);
-      }
-
       if (!forceNew) {
          if (name.equals(SNAPSHOT)) {
             GroovyRun.clear();
@@ -176,12 +146,12 @@ public class ClasspathBase {
       String classPathValue = null;
       File file = new File("./target/" + name + ".cp");
       if (file.exists()) {
-         StringBuffer buffer = new StringBuffer();
-         Files.lines(file.toPath()).forEach((str) -> buffer.append(str));
-         classPathValue = buffer.toString();
+         StringBuilder sb = new StringBuilder();
+         Files.lines(file.toPath()).forEach((str) -> sb.append(str));
+         classPathValue = sb.toString();
       }
 
-      Assert.assertTrue("Cannot run compatibility tests, no classpath found on ./target/" + name + ".cp", classPathValue != null && !classPathValue.trim().equals(""));
+      assertTrue(classPathValue != null && !classPathValue.trim().isEmpty(), "Cannot run compatibility tests, no classpath found on ./target/" + name + ".cp");
 
       ClassLoader loader = defineClassLoader(classPathValue);
       if (!forceNew) {

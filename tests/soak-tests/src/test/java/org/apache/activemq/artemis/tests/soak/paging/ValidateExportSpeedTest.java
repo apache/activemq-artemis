@@ -33,33 +33,54 @@ import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataImporter;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ValidateExportSpeedTest extends SoakTestBase {
 
    public static final String SERVER_NAME_0 = "paging-export";
+
+   @BeforeAll
+   public static void createServers() throws Exception {
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_0);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
+         cliCreateServer.setArgs("--global-max-messages", "10000", "--java-options", "-ea", "--queues", "TEST");
+         cliCreateServer.createServer();
+      }
+   }
+
    public static final String TARGET_EXPORTER_DMP = "./target/exporter.dmp";
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    Process serverProcess;
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
 
       serverProcess = startServer(SERVER_NAME_0, 0, 10_000);
    }
 
-   @After
+   @AfterEach
    public void cleanup() throws Exception {
       File dmp = new File(TARGET_EXPORTER_DMP);
       if (dmp.exists()) {
@@ -111,60 +132,56 @@ public class ValidateExportSpeedTest extends SoakTestBase {
 
    private void receive(MessageConsumer consumer, int i) throws Exception {
       Message message = consumer.receive(10_000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       switch (i % 5) {
          case 0: {
-            Assert.assertTrue(message instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, message);
             TextMessage textMessage = (TextMessage) message;
-            Assert.assertEquals("hello" + i, textMessage.getText());
+            assertEquals("hello" + i, textMessage.getText());
             break;
          }
          case 1: {
-            Assert.assertTrue(message instanceof MapMessage);
+            assertInstanceOf(MapMessage.class, message);
             MapMessage mapMessage = (MapMessage) message;
-            Assert.assertEquals("hello" + i, mapMessage.getString("hello"));
+            assertEquals("hello" + i, mapMessage.getString("hello"));
             break;
          }
          case 2: {
-            Assert.assertTrue(message instanceof StreamMessage);
+            assertInstanceOf(StreamMessage.class, message);
             StreamMessage streamMessage = (StreamMessage) message;
-            Assert.assertEquals("string" + i, streamMessage.readString());
-            Assert.assertEquals((long) i, streamMessage.readLong());
-            Assert.assertEquals(i, streamMessage.readInt());
+            assertEquals("string" + i, streamMessage.readString());
+            assertEquals((long) i, streamMessage.readLong());
+            assertEquals(i, streamMessage.readInt());
             break;
          }
          case 3: {
-            Assert.assertTrue(message instanceof BytesMessage);
+            assertInstanceOf(BytesMessage.class, message);
             BytesMessage bytesMessage = (BytesMessage) message;
             int length = (int) bytesMessage.getBodyLength();
             byte[] bytes = new byte[length];
             bytesMessage.readBytes(bytes);
             String str = new String(bytes, StandardCharsets.UTF_8);
-            Assert.assertEquals("hello " + i, str);
+            assertEquals("hello " + i, str);
             break;
          }
          case 4: {
-            Assert.assertTrue(message instanceof ObjectMessage);
+            assertInstanceOf(ObjectMessage.class, message);
             ObjectMessage objectMessage = (ObjectMessage) message;
             String result = (String)objectMessage.getObject();
-            Assert.assertEquals("hello " + i, result);
+            assertEquals("hello " + i, result);
             break;
          }
       }
 
-      Assert.assertEquals(i, message.getIntProperty("i"));
-      Assert.assertEquals("string" + i, message.getStringProperty("stri"));
+      assertEquals(i, message.getIntProperty("i"));
+      assertEquals("string" + i, message.getStringProperty("stri"));
    }
 
    String largeString;
 
    private void sendLargeMessages(Session session, MessageProducer producer, int numberOfMessages) throws Exception {
 
-      StringBuilder builder = new StringBuilder();
-      while (builder.length() < 200 * 1024) {
-         builder.append("Every breath you take!!! I will be watching ya!!! Ever and ever!!!");
-      }
-      largeString = builder.toString();
+      largeString = RandomUtil.randomAlphaNumericString(200 * 1024);
 
       for (int i = 0; i < numberOfMessages; i++) {
          logger.info("Sending {} large message", i);
@@ -181,22 +198,24 @@ public class ValidateExportSpeedTest extends SoakTestBase {
       for (int i = 0; i < numberOfMessages; i++) {
          logger.info("Receiving {} large message", i);
          Message message = consumer.receive(5000);
-         Assert.assertTrue(message instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, message);
          TextMessage textMessage = (TextMessage) message;
-         Assert.assertEquals(largeString + " Hello " + i, textMessage.getText());
+         assertEquals(largeString + " Hello " + i, textMessage.getText());
       }
 
       session.commit();
 
    }
 
-   @Test(timeout = 120_000)
+   @Test
+   @Timeout(120)
    public void testExportAMQP() throws Exception {
       testExport("AMQP", false, 100, 1); // small sample of data to validate the test itself
       testExport("AMQP", true, 50_000, 100);
    }
 
-   @Test(timeout = 120_000)
+   @Test
+   @Timeout(120)
    public void testExportCORE() throws Exception {
       testExport("CORE", false, 100, 1); // small sample of data to validate the test itself
       testExport("CORE", true, 50_000, 100);

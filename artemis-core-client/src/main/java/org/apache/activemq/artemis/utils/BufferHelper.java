@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidBufferException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -45,21 +47,17 @@ public class BufferHelper {
    }
 
    public static void writeAsNullableSimpleString(ActiveMQBuffer buffer, String str) {
-      buffer.writeNullableSimpleString(SimpleString.toSimpleString(str));
+      buffer.writeNullableSimpleString(SimpleString.of(str));
    }
 
    public static String readNullableSimpleStringAsString(ActiveMQBuffer buffer) {
-      SimpleString str = buffer.readNullableSimpleString();
-      return str != null ? str.toString() : null;
+      return Objects.toString(buffer.readNullableSimpleString(), null);
    }
 
    public static void writeAsSimpleString(ActiveMQBuffer buffer, String str) {
-      buffer.writeSimpleString(new SimpleString(str));
+      buffer.writeSimpleString(SimpleString.of(str));
    }
 
-   /**
-    * @param buffer
-    */
    public static void writeNullableBoolean(ActiveMQBuffer buffer, Boolean value) {
       buffer.writeBoolean(value != null);
 
@@ -82,9 +80,6 @@ public class BufferHelper {
       }
    }
 
-   /**
-    * @param buffer
-    */
    public static void writeNullableLong(ActiveMQBuffer buffer, Long value) {
       buffer.writeBoolean(value != null);
 
@@ -93,9 +88,6 @@ public class BufferHelper {
       }
    }
 
-   /**
-    * @param buffer
-    */
    public static void writeNullableDouble(ActiveMQBuffer buffer, Double value) {
       buffer.writeBoolean(value != null);
 
@@ -122,9 +114,6 @@ public class BufferHelper {
       }
    }
 
-   /**
-    * @param buffer
-    */
    public static void writeNullableInteger(ActiveMQBuffer buffer, Integer value) {
       buffer.writeBoolean(value != null);
 

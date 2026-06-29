@@ -54,7 +54,7 @@ import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteShor
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteUTF;
 
 /**
- * ActiveMQ Artemis implementation of a JMS {@link BytesMessage}.
+ * Apache Artemis implementation of a JMS {@link BytesMessage}.
  */
 public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessage {
 
@@ -365,8 +365,9 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
 
    @Override
    protected <T> T getBodyInternal(Class<T> c) {
-      if (bodyLength == 0)
+      if (bodyLength == 0) {
          return null;
+      }
       byte[] dst = new byte[bodyLength];
       message.getBodyBuffer().getBytes(CoreMessage.BODY_OFFSET, dst);
       return (T) dst;

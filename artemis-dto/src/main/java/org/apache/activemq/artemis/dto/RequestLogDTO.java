@@ -111,8 +111,65 @@ public class RequestLogDTO {
    public Boolean preferProxiedForAddress;
 
    /**
-    * the format to use for logging; see https://www.eclipse.org/jetty/javadoc/jetty-9/org/eclipse/jetty/server/CustomRequestLog.html
+    * the format to use for logging; see
+    * https://www.eclipse.org/jetty/javadoc/jetty-9/org/eclipse/jetty/server/CustomRequestLog.html
     */
    @XmlAttribute
    public String format;
+
+   public String getFilename() {
+      return filename;
+   }
+
+   public void setFilename(String filename) {
+      this.filename = filename;
+   }
+
+   public Boolean getAppend() {
+      return append;
+   }
+
+   public void setAppend(Boolean append) {
+      this.append = append;
+   }
+
+   public Boolean getExtended() {
+      return extended;
+   }
+
+   public void setExtended(Boolean extended) {
+      this.extended = extended;
+   }
+
+   public String getFilenameDateFormat() {
+      return filenameDateFormat;
+   }
+
+   public void setFilenameDateFormat(String filenameDateFormat) {
+      this.filenameDateFormat = filenameDateFormat;
+   }
+
+   public Integer getRetainDays() {
+      return retainDays;
+   }
+
+   public void setRetainDays(Integer retainDays) {
+      this.retainDays = retainDays;
+   }
+
+   public String getIgnorePaths() {
+      return ignorePaths;
+   }
+
+   public void setIgnorePaths(String ignorePaths) {
+      this.ignorePaths = ignorePaths;
+   }
+
+   public String getFormat() {
+      return format;
+   }
+
+   public void setFormat(String format) {
+      this.format = format;
+   }
 }

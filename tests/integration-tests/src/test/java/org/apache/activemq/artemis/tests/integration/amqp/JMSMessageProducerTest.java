@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import java.util.Random;
-import java.util.UUID;
-
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -29,14 +26,22 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.util.UUID;
 
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class JMSMessageProducerTest extends JMSClientTestSupport {
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testAnonymousProducerWithQueueAutoCreation() throws Exception {
       Connection connection = createConnection();
 
@@ -56,7 +61,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
             p.send(queue, message);
             Message msg = consumer.receive(2000);
             assertNotNull(msg);
-            assertTrue(msg instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, msg);
             assertEquals(getTestName(), ((TextMessage)msg).getText());
             consumer.close();
          }
@@ -65,7 +70,8 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testAnonymousProducer() throws Exception {
       Connection connection = createConnection();
 
@@ -84,14 +90,14 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
             MessageConsumer consumer = session.createConsumer(queue1);
             Message msg = consumer.receive(2000);
             assertNotNull(msg);
-            assertTrue(msg instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, msg);
             consumer.close();
          }
          {
             MessageConsumer consumer = session.createConsumer(queue2);
             Message msg = consumer.receive(2000);
             assertNotNull(msg);
-            assertTrue(msg instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, msg);
             consumer.close();
          }
       } finally {
@@ -99,7 +105,8 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testAnonymousProducerWithTopicAutoCreation() throws Exception {
       Connection connection = createConnection();
 
@@ -124,7 +131,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
 
             Message msg = consumer.receive(2000);
             assertNotNull(msg);
-            assertTrue(msg instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, msg);
             assertEquals(getTestName(), ((TextMessage)msg).getText());
             consumer.close();
          }
@@ -133,7 +140,8 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testDuplicateDetection() throws Exception {
       final int MSG_COUNT = 10;
       Connection connection = createConnection();
@@ -156,7 +164,8 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testAnonymousProducerAcrossManyDestinations() throws Exception {
       Connection connection = createConnection();
 
@@ -174,7 +183,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
 
          MessageConsumer messageConsumer = session.createConsumer(session.createQueue(getQueueName()));
          Message m = messageConsumer.receive(200);
-         Assert.assertNull(m);
+         assertNull(m);
 
          for (int i = 0; i < getPrecreatedQueueSize(); i++) {
             javax.jms.Queue target = session.createQueue(getQueueName(i));
@@ -189,7 +198,8 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendingBigMessage() throws Exception {
       Connection connection = createConnection();
 
@@ -198,7 +208,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
          Queue queue = session.createQueue(getQueueName());
          MessageProducer sender = session.createProducer(queue);
 
-         String body = createMessage(10240);
+         String body = RandomUtil.randomAlphaNumericString(10240);
          sender.send(session.createTextMessage(body));
          connection.start();
 
@@ -213,7 +223,8 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendWithTimeToLiveExpiresToDLQ() throws Exception {
       Connection connection = createConnection();
 
@@ -244,7 +255,8 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testReplyToUsingQueue() throws Throwable {
       Connection connection = createConnection();
 
@@ -271,7 +283,8 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testReplyToUsingTempQueue() throws Throwable {
       Connection connection = createConnection();
 
@@ -295,16 +308,5 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
       } finally {
          connection.close();
       }
-   }
-
-   private static String createMessage(int messageSize) {
-      final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      Random rnd = new Random();
-      StringBuilder sb = new StringBuilder(messageSize);
-      for (int j = 0; j < messageSize; j++) {
-         sb.append(AB.charAt(rnd.nextInt(AB.length())));
-      }
-      String body = sb.toString();
-      return body;
    }
 }

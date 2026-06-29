@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -26,6 +24,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -38,15 +37,20 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Test that the broker can pass through an AMQP message with a described type in the message
- * body regardless of transformer in use.
+ * Test that the broker can pass through an AMQP message with a described type in the message body regardless of
+ * transformer in use.
  */
 public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageWithDescribedTypeInBody() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -71,7 +75,8 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageWithDescribedTypeInBodyReceiveOverOpenWire() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -98,13 +103,14 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
 
          Message received = jmsConsumer.receive(5000);
          assertNotNull(received);
-         assertTrue(received instanceof BytesMessage);
+         assertInstanceOf(BytesMessage.class, received);
       } finally {
          jmsConnection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDescribedTypeMessageRoundTrips() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -132,7 +138,7 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
 
          Message received = jmsConsumer.receive(5000);
          assertNotNull(received);
-         assertTrue(received instanceof ObjectMessage);
+         assertInstanceOf(ObjectMessage.class, received);
 
          MessageProducer jmsProducer = jmsSession.createProducer(destination);
          jmsProducer.send(received);

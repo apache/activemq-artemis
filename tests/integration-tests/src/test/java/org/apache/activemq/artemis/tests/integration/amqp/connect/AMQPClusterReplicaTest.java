@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
@@ -143,7 +143,7 @@ public class AMQPClusterReplicaTest extends AmqpClientTestSupport {
       ClusterConnectionConfiguration clusterConfiguration = new ClusterConnectionConfiguration().setName("cluster").setConnectorName("node1").setMessageLoadBalancingType(loadBalancingType).setStaticConnectors(Collections.singletonList("node2"));
 
       node_1.setIdentity("node_1");
-      node_1.getConfiguration().setName("node_1").setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration()).addConnectorConfiguration("node1", "tcp://localhost:" + NODE_1_PORT).addConnectorConfiguration("node2", "tcp://localhost:" + NODE_2_PORT).addClusterConfiguration(clusterConfiguration);
+      node_1.getConfiguration().setName("node_1").setHAPolicyConfiguration(new PrimaryOnlyPolicyConfiguration()).addConnectorConfiguration("node1", "tcp://localhost:" + NODE_1_PORT).addConnectorConfiguration("node2", "tcp://localhost:" + NODE_2_PORT).addClusterConfiguration(clusterConfiguration);
 
       return node_1;
    }
@@ -154,7 +154,7 @@ public class AMQPClusterReplicaTest extends AmqpClientTestSupport {
       ClusterConnectionConfiguration clusterConfiguration = new ClusterConnectionConfiguration().setName("cluster").setConnectorName("node2").setMessageLoadBalancingType(loadBalancingType).setStaticConnectors(Collections.singletonList("node1"));
 
       node_2.setIdentity("node_2");
-      node_2.getConfiguration().setName("node_2").setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration()).addConnectorConfiguration("node1", "tcp://localhost:" + NODE_1_PORT).addConnectorConfiguration("node2", "tcp://localhost:" + NODE_2_PORT).addClusterConfiguration(clusterConfiguration);
+      node_2.getConfiguration().setName("node_2").setHAPolicyConfiguration(new PrimaryOnlyPolicyConfiguration()).addConnectorConfiguration("node1", "tcp://localhost:" + NODE_1_PORT).addConnectorConfiguration("node2", "tcp://localhost:" + NODE_2_PORT).addClusterConfiguration(clusterConfiguration);
 
       return node_2;
    }
@@ -162,7 +162,7 @@ public class AMQPClusterReplicaTest extends AmqpClientTestSupport {
    private void configureAddressAndQueue(ActiveMQServer node) throws Exception {
       node.addAddressInfo(new AddressInfo("test").setAutoCreated(false));
       node.getAddressSettingsRepository().addMatch("test", new AddressSettings().setRedistributionDelay(0));
-      node.createQueue(new QueueConfiguration("test").setAddress("test").setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      node.createQueue(QueueConfiguration.of("test").setAddress("test").setRoutingType(RoutingType.ANYCAST).setDurable(true));
    }
 
    @Override

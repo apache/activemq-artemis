@@ -16,19 +16,22 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
+import org.junit.jupiter.api.Test;
 
 /**
- * Test the {@link BroadcastGroupImpl}.<br>
+ * Test the {@link BroadcastGroupImpl}.
  */
-public class BroadcastGroupImplTest extends ActiveMQTestBase {
+public class BroadcastGroupImplTest extends ServerTestBase {
 
    static class BroadcastEndpointFactoryImpl implements BroadcastEndpointFactory {
 
@@ -64,12 +67,15 @@ public class BroadcastGroupImplTest extends ActiveMQTestBase {
 
       @Override
       public void broadcast(byte[] data) throws Exception {
-         if (data == null)
+         if (data == null) {
             fail("Attempted to send datagram with null content");
-         if (data.length == 0)
+         }
+         if (data.length == 0) {
             fail("Attempted to send datagram with blank content");
-         if (data.length > 1500) // Common MTU size, not specification!
+         }
+         if (data.length > 1500) { // Common MTU size, not specification!
             fail("Attempted to send a datagram with " + data.length + " bytes");
+         }
          factory.sent++;
       }
 
@@ -85,14 +91,14 @@ public class BroadcastGroupImplTest extends ActiveMQTestBase {
    }
 
    /**
-    * Test the broadcasted packages length.<br>
-    * Broadcast and MultiCast techniques are commonly limited in size by
-    * underlying hardware. Broadcast and MultiCast protocols are typically not
-    * guaranteed (UDP) and as such large packages may be silently discarded by
-    * underlying hardware.<br>
-    * This test validates that Artemis Server does not broadcast packages above
-    * a size of 1500 bytes. The limit is not derived from any normative
-    * documents, but is rather derived from common MTU for network equipment.
+    * Test the broadcasted packages length.
+    * <p>
+    * Broadcast and MultiCast techniques are commonly limited in size by underlying hardware. Broadcast and MultiCast
+    * protocols are typically not guaranteed (UDP) and as such large packages may be silently discarded by underlying
+    * hardware.
+    * <p>
+    * This test validates that Artemis Server does not broadcast packages above a size of 1500 bytes. The limit is not
+    * derived from any normative documents, but is rather derived from common MTU for network equipment.
     */
    @Test
    public void testBroadcastDatagramLength() throws Throwable {
@@ -110,6 +116,6 @@ public class BroadcastGroupImplTest extends ActiveMQTestBase {
       // Broadcast
       test.broadcastConnectors();
       // Make sure we sent one package
-      assertEquals("Incorrect number of sent datagrams", 1, befi.sent);
+      assertEquals(1, befi.sent, "Incorrect number of sent datagrams");
    }
 }

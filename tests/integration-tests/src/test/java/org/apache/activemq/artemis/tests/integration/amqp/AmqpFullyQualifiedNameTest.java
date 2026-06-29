@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 
@@ -41,8 +46,9 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,17 +56,17 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private SimpleString anycastAddress = new SimpleString("address.anycast");
-   private SimpleString multicastAddress = new SimpleString("address.multicast");
+   private SimpleString anycastAddress = SimpleString.of("address.anycast");
+   private SimpleString multicastAddress = SimpleString.of("address.multicast");
 
-   private SimpleString anycastQ1 = new SimpleString("q1");
-   private SimpleString anycastQ2 = new SimpleString("q2");
-   private SimpleString anycastQ3 = new SimpleString("q3");
+   private SimpleString anycastQ1 = SimpleString.of("q1");
+   private SimpleString anycastQ2 = SimpleString.of("q2");
+   private SimpleString anycastQ3 = SimpleString.of("q3");
 
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -69,7 +75,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
    @Override
    protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
-      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<String, Object>(), "netty", new HashMap<String, Object>()));
+      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<>(), "netty", new HashMap<>()));
    }
 
    @Test
@@ -108,7 +114,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       if (autocreate) {
          server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(true).setAutoCreateQueues(true));
       } else {
-         server.createQueue(new QueueConfiguration(anycastQ1).setAddress(multicastAddress).setDurable(false));
+         server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(multicastAddress).setDurable(false));
       }
 
       try (Connection connection = createConnection(false)) {
@@ -144,13 +150,13 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       String queue1 = "q1";
       String queue2 = "q2";
 
-      server.createQueue(new QueueConfiguration(queue1).setAddress(address1).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queue2).setAddress(address2).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queue1).setAddress(address1).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queue2).setAddress(address2).setRoutingType(RoutingType.ANYCAST));
 
       Exception e = null;
 
       // Wrong FQQN.  Attempt to subscribe to a queue belonging to a different address than given in the FQQN.
-      String wrongFQQN = address1 + "::"  + queue2;
+      String wrongFQQN = address1 + "::" + queue2;
       Connection connection = createConnection(false);
       try {
          connection.setClientID("FQQNconn");
@@ -176,13 +182,13 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       String queue1 = "q1";
       String queue2 = "q2";
 
-      server.createQueue(new QueueConfiguration(queue1).setAddress(address1));
-      server.createQueue(new QueueConfiguration(queue2).setAddress(address2));
+      server.createQueue(QueueConfiguration.of(queue1).setAddress(address1));
+      server.createQueue(QueueConfiguration.of(queue2).setAddress(address2));
 
       Exception e = null;
 
       // Wrong FQQN.  Attempt to subscribe to a queue belonging to a different address than given in the FQQN.
-      String wrongFQQN = address1 + "::"  + queue2;
+      String wrongFQQN = address1 + "::" + queue2;
       Connection connection = createConnection(false);
       try {
          connection.setClientID("FQQNconn");
@@ -199,13 +205,14 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       assertTrue(e.getMessage().contains("Queue: '" + queue2 + "' does not exist for address '" + address1 + "'"));
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    //there isn't much use of FQQN for topics
    //however we can test query functionality
    public void testTopic() throws Exception {
 
-      SimpleString queueName = new SimpleString("someAddress");
-      server.createQueue(new QueueConfiguration(queueName).setAddress(multicastAddress).setDurable(false));
+      SimpleString queueName = SimpleString.of("someAddress");
+      server.createQueue(QueueConfiguration.of(queueName).setAddress(multicastAddress).setDurable(false));
       Connection connection = createConnection(false);
 
       try {
@@ -251,10 +258,10 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
    @Test
    public void testQueueConsumerReceiveTopicUsingFQQN() throws Exception {
 
-      SimpleString queueName1 = new SimpleString("sub.queue1");
-      SimpleString queueName2 = new SimpleString("sub.queue2");
-      server.createQueue(new QueueConfiguration(queueName1).setAddress(multicastAddress).setDurable(false));
-      server.createQueue(new QueueConfiguration(queueName2).setAddress(multicastAddress).setDurable(false));
+      SimpleString queueName1 = SimpleString.of("sub.queue1");
+      SimpleString queueName2 = SimpleString.of("sub.queue2");
+      server.createQueue(QueueConfiguration.of(queueName1).setAddress(multicastAddress).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queueName2).setAddress(multicastAddress).setDurable(false));
       Connection connection = createConnection(false);
 
       try {
@@ -287,9 +294,9 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false));
 
       server.addAddressInfo(new AddressInfo(anycastAddress).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
-      server.createQueue(new QueueConfiguration(anycastQ2).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
-      server.createQueue(new QueueConfiguration(anycastQ3).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(anycastQ2).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      server.createQueue(QueueConfiguration.of(anycastQ3).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
       Connection connection = createConnection();
       try {
@@ -348,7 +355,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
             assertTrue(query.isExists() || query.isAutoCreateQueues());
             assertEquals(anycastAddress, query.getAddress());
             assertEquals(q, query.getName());
-            assertEquals("Message not consumed", 0, query.getMessageCount());
+            assertEquals(0, query.getMessageCount(), "Message not consumed");
             //try query again using qName
             query = server.queueQuery(q);
             assertEquals(q, query.getName());
@@ -363,11 +370,10 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
    /**
     * Broker should return exception if no address is passed in FQQN.
-    * @throws Exception
     */
    @Test
    public void testQueueSpecial() throws Exception {
-      server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST));
 
       Connection connection = createConnection();
       Exception expectedException = null;
@@ -376,7 +382,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          //::queue ok!
-         String specialName = CompositeAddress.toFullyQualified(new SimpleString(""), anycastQ1).toString();
+         String specialName = CompositeAddress.toFullyQualified(SimpleString.of(""), anycastQ1).toString();
          javax.jms.Queue q1 = session.createQueue(specialName);
          session.createConsumer(q1);
       } catch (InvalidDestinationException e) {

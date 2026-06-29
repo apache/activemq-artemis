@@ -77,7 +77,7 @@ public class JmsMultipleClientsTestSupport {
 
    protected BrokerService broker;
    protected Destination destination;
-   protected List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
+   protected List<Connection> connections = Collections.synchronizedList(new ArrayList<>());
    protected MessageIdList allMessagesList = new MessageIdList();
 
    protected void startProducers(Destination dest, int msgCount) throws Exception {
@@ -92,19 +92,16 @@ public class JmsMultipleClientsTestSupport {
          final AtomicInteger producerLock = new AtomicInteger(producerCount);
 
          for (int i = 0; i < producerCount; i++) {
-            Thread t = new Thread(new Runnable() {
-               @Override
-               public void run() {
-                  try {
-                     sendMessages(factory.createConnection(), dest, msgCount);
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
+            Thread t = new Thread(() -> {
+               try {
+                  sendMessages(factory.createConnection(), dest, msgCount);
+               } catch (Exception e) {
+                  e.printStackTrace();
+               }
 
-                  synchronized (producerLock) {
-                     producerLock.decrementAndGet();
-                     producerLock.notifyAll();
-                  }
+               synchronized (producerLock) {
+                  producerLock.decrementAndGet();
+                  producerLock.notifyAll();
                }
             });
 
@@ -250,9 +247,7 @@ public class JmsMultipleClientsTestSupport {
       }
    }
 
-   /*
-    * Some helpful assertions for multiple consumers.
-    */
+   // Some helpful assertions for multiple consumers.
    protected void assertConsumerReceivedAtLeastXMessages(MessageConsumer consumer, int msgCount) {
       MessageIdList messageIdList = consumers.get(consumer);
       messageIdList.assertAtLeastMessagesReceived(msgCount);

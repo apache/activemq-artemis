@@ -94,9 +94,6 @@ public class Receiver extends ClientAbstract {
       }
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.jms.example.ClientAbstract#connectClients()
-    */
    @Override
    protected void connectClients() throws Exception {
 
@@ -105,9 +102,6 @@ public class Receiver extends ClientAbstract {
       session.start();
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.jms.example.ClientAbstract#onCommit()
-    */
    @Override
    protected void onCommit() {
       msgs += pendingMsgs;
@@ -116,9 +110,6 @@ public class Receiver extends ClientAbstract {
       pendingMsgs = 0;
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.jms.example.ClientAbstract#onRollback()
-    */
    @Override
    protected void onRollback() {
       minConsume.release(pendingMsgs);
@@ -130,9 +121,6 @@ public class Receiver extends ClientAbstract {
       return "Receiver::" + this.queue + ", msgs=" + msgs + ", pending=" + pendingMsgs;
    }
 
-   /**
-    * @param pendingMsgs2
-    */
    public void messageProduced(int producedMessages) {
       minConsume.release(producedMessages);
       currentDiff.addAndGet(producedMessages);

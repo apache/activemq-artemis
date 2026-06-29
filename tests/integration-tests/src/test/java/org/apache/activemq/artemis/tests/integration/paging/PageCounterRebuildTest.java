@@ -45,13 +45,16 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PageCounterRebuildTest extends ActiveMQTestBase {
 
@@ -93,10 +96,10 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
          });
       }
 
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
 
-      Assert.assertEquals(ADD_VALUE * THREADS * REPEAT, nonPersistentPagingCounter.getValue());
-      Assert.assertEquals(SIZE_VALUE * THREADS * REPEAT, nonPersistentPagingCounter.getPersistentSize());
+      assertEquals(ADD_VALUE * THREADS * REPEAT, nonPersistentPagingCounter.getValue());
+      assertEquals(SIZE_VALUE * THREADS * REPEAT, nonPersistentPagingCounter.getPersistentSize());
 
 
       latch.setCount(THREADS);
@@ -117,11 +120,11 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
          });
       }
 
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
 
-      Assert.assertEquals(0L, nonPersistentPagingCounter.getValue());
-      Assert.assertEquals(0L, nonPersistentPagingCounter.getPersistentSize());
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0L, nonPersistentPagingCounter.getValue());
+      assertEquals(0L, nonPersistentPagingCounter.getPersistentSize());
+      assertEquals(0, errors.get());
    }
 
    @Test
@@ -134,25 +137,17 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
 
       AtomicLong generate = new AtomicLong(1);
 
-      Mockito.doAnswer(new Answer<Long>() {
-         @Override
-         public Long answer(InvocationOnMock invocationOnMock) throws Throwable {
-            return generate.incrementAndGet();
-         }
-      }).when(mockStorage).generateID();
+      Mockito.doAnswer((Answer<Long>) invocationOnMock -> generate.incrementAndGet()).when(mockStorage).generateID();
 
-      Mockito.doAnswer(new Answer<Void>() {
-         @Override
-         public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-            called.incrementAndGet();
+      Mockito.doAnswer((Answer<Void>) invocationOnMock -> {
+         called.incrementAndGet();
 
-            return null;
-         }
+         return null;
       }).when(mockStorage).commit(Mockito.anyLong());
 
       PageSubscriptionCounterImplAccessor.reset(nonPersistentPagingCounter);
 
-      Assert.assertEquals(1, called.get());
+      assertEquals(1, called.get());
    }
 
    @Test
@@ -165,14 +160,14 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
       String queueName = getName();
       String nonConsumedQueueName = getName() + "_nonConsumed";
       server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(nonConsumedQueueName).setAddress(queueName).setRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of(nonConsumedQueueName).setAddress(queueName).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.MULTICAST));
 
       Queue serverQueue = server.locateQueue(queueName);
       Queue serverNonConsumedQueue = server.locateQueue(nonConsumedQueueName);
 
-      Assert.assertNotNull(serverQueue);
-      Assert.assertNotNull(serverNonConsumedQueue);
+      assertNotNull(serverQueue);
+      assertNotNull(serverNonConsumedQueue);
 
       serverQueue.getPagingStore().startPaging();
 
@@ -225,7 +220,7 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
       }
 
       // this should be fast on the CIs, but if you use a slow disk, it might take a few extra seconds.
-      Assert.assertTrue(latch.await(1, TimeUnit.MINUTES));
+      assertTrue(latch.await(1, TimeUnit.MINUTES));
 
       final int numberOfMessages = TX_SEND * THREADS + NON_TXT_SEND * THREADS;
       Wait.assertEquals(numberOfMessages, serverQueue::getMessageCount);
@@ -237,7 +232,7 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
          connection.start();
          for (int i = 0; i < CONSUME_MESSAGES; i++) {
             Message message = consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
          }
       }
 
@@ -257,15 +252,15 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
       serverNonConsumedQueue.getPageSubscription().getCounter().markRebuilding();
 
       // if though we are rebuilding, we are still returning based on the last recorded value until processing is finished
-      Assert.assertEquals(8600, serverQueue.getMessageCount());
-      Assert.assertEquals(8800, serverNonConsumedQueue.getMessageCount());
+      assertEquals(8600, serverQueue.getMessageCount());
+      assertEquals(8800, serverNonConsumedQueue.getMessageCount());
 
       serverQueue.getPageSubscription().getCounter().finishRebuild();
 
       serverNonConsumedQueue.getPageSubscription().getCounter().finishRebuild();
 
-      Assert.assertEquals(0, serverQueue.getMessageCount()); // we artificially made it 0 by faking a rebuild
-      Assert.assertEquals(0, serverNonConsumedQueue.getMessageCount()); // we artificially made it 0 by faking a rebuild
+      assertEquals(0, serverQueue.getMessageCount()); // we artificially made it 0 by faking a rebuild
+      assertEquals(0, serverNonConsumedQueue.getMessageCount()); // we artificially made it 0 by faking a rebuild
 
       server.stop();
       server.start();
@@ -283,8 +278,8 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
       serverQueue = server.locateQueue(queueName);
       serverNonConsumedQueue = server.locateQueue(nonConsumedQueueName);
 
-      Assert.assertNotNull(serverQueue);
-      Assert.assertNotNull(serverNonConsumedQueue);
+      assertNotNull(serverQueue);
+      assertNotNull(serverNonConsumedQueue);
 
       Wait.assertEquals(numberOfMessages - CONSUME_MESSAGES, serverQueue::getMessageCount);
       Wait.assertEquals(numberOfMessages, serverNonConsumedQueue::getMessageCount);
@@ -301,21 +296,21 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
          connection.start();
          for (int i = 0; i < numberOfMessages - CONSUME_MESSAGES; i++) {
             Message message = consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             if (i % 100 == 0) {
                logger.info("Received {} messages", i);
             }
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          consumer.close();
 
          consumer = session.createConsumer(session.createQueue(queueName + "::" + nonConsumedQueueName));
          connection.start();
          for (int i = 0; i < numberOfMessages; i++) {
             Message message = consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          consumer.close();
       }
 

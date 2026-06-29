@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -29,7 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TransientQueueTest extends SingleServerTestBase {
 
@@ -42,10 +47,10 @@ public class TransientQueueTest extends SingleServerTestBase {
 
    @Test
    public void testSimpleTransientQueue() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
-      session.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createSharedQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       assertEquals(1, server.getConnectionCount());
 
       // we create a second session. the temp queue must be present
@@ -63,22 +68,22 @@ public class TransientQueueTest extends SingleServerTestBase {
 
    @Test
    public void testMultipleConsumers() throws Exception {
-      SimpleString queue = SimpleString.toSimpleString("queue");
-      SimpleString address = SimpleString.toSimpleString("address");
+      SimpleString queue = SimpleString.of("queue");
+      SimpleString address = SimpleString.of("address");
 
-      session.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createSharedQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       assertEquals(1, server.getConnectionCount());
 
       assertNotNull(server.locateQueue(queue));
 
       ServerLocator locator2 = createLocator();
       ClientSessionFactory sf2 = locator2.createSessionFactory();
-      ClientSession session2 = sf2.createSession(false, false);
+      ClientSession session2 = sf2.createSession(true, true);
 
       // At this point this has no effect, other than making sure the queue exists...
       // the JMS implementation will certainly create the queue again when dealing with
       // non durable shared subscriptions
-      session2.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session2.createSharedQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientConsumer consumer1 = session.createConsumer(queue);
       ClientConsumer consumer2 = session2.createConsumer(queue);
@@ -127,7 +132,7 @@ public class TransientQueueTest extends SingleServerTestBase {
       // validate if the queue was deleted after the consumer was closed
       Wait.assertTrue(() -> server.locateQueue(queue) == null && server.getAddressInfo(address) == null, 2000, 100);
 
-      session.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createSharedQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       Wait.assertTrue(() -> server.locateQueue(queue) != null && server.getAddressInfo(address) != null, 2000, 100);
 
@@ -145,13 +150,13 @@ public class TransientQueueTest extends SingleServerTestBase {
 
    @Test
    public void testQueueDifferentConfigs() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       server.locateQueue(queue);
-      SimpleString address2 = RandomUtil.randomSimpleString();
+      SimpleString address2 = RandomUtil.randomUUIDSimpleString();
 
-      session.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createSharedQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       assertEquals(1, server.getConnectionCount());
 
       ServerLocator locator2 = createLocator();
@@ -163,7 +168,7 @@ public class TransientQueueTest extends SingleServerTestBase {
 
       try {
          // There's already a queue with that name, we are supposed to throw an exception
-         session2.createSharedQueue(new QueueConfiguration(queue).setAddress(address2).setDurable(false));
+         session2.createSharedQueue(QueueConfiguration.of(queue).setAddress(address2).setDurable(false));
       } catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }
@@ -174,7 +179,7 @@ public class TransientQueueTest extends SingleServerTestBase {
 
       try {
          // There's already a queue with that name, we are supposed to throw an exception
-         session2.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setFilterString(SimpleString.toSimpleString("a=1")).setDurable(false));
+         session2.createSharedQueue(QueueConfiguration.of(queue).setAddress(address).setFilterString("a=1").setDurable(false));
       } catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }
@@ -187,13 +192,13 @@ public class TransientQueueTest extends SingleServerTestBase {
       Wait.assertTrue(() -> server.locateQueue(queue) == null, 2000, 100);
       Wait.assertTrue(() -> server.getAddressInfo(queue) == null, 2000, 100);
 
-      session.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setFilterString(SimpleString.toSimpleString("q=1")).setDurable(false));
+      session.createSharedQueue(QueueConfiguration.of(queue).setAddress(address).setFilterString("q=1").setDurable(false));
 
       exHappened = false;
 
       try {
          // There's already a queue with that name, we are supposed to throw an exception
-         session2.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setFilterString(SimpleString.toSimpleString("q=2")).setDurable(false));
+         session2.createSharedQueue(QueueConfiguration.of(queue).setAddress(address).setFilterString("q=2").setDurable(false));
       } catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }
@@ -203,7 +208,7 @@ public class TransientQueueTest extends SingleServerTestBase {
       exHappened = false;
       try {
          // There's already a queue with that name, we are supposed to throw an exception
-         session2.createSharedQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+         session2.createSharedQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       } catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }

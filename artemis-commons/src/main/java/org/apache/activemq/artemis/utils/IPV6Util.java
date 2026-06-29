@@ -26,7 +26,8 @@ public class IPV6Util {
       if (host != null && host.contains(":")) {
          String hostToCheck = host;
 
-         /* strip off zone index since com.google.common.net.InetAddresses.isInetAddress() doesn't support it
+         /*
+          * strip off zone index since com.google.common.net.InetAddresses.isInetAddress() doesn't support it
           * see https://en.wikipedia.org/wiki/IPv6_address#Link-local_addresses_and_zone_indices for more info
           */
          if (host.contains("%")) {

@@ -16,8 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.apache.activemq.artemis.utils.RandomUtil.randomUUIDString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -43,15 +51,11 @@ import org.apache.activemq.artemis.core.version.impl.VersionImpl;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.VersionLoader;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-
-import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
 public class IncompatibleVersionTest extends SpawnedTestBase {
 
@@ -68,7 +72,7 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, false);
@@ -82,7 +86,7 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       connection.destroy();
 
@@ -139,7 +143,7 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
       if (!compatible) {
          version = -1;
       }
-      Packet request = new CreateSessionMessage(randomString(), sessionChannelID, version, null, null, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, false, true, true, false, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, null);
+      Packet request = new CreateSessionMessage(randomUUIDString(), sessionChannelID, version, null, null, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, false, true, true, false, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, null);
 
       if (compatible) {
          CreateSessionResponseMessage packet = (CreateSessionResponseMessage) channel1.sendBlocking(request, PacketImpl.CREATESESSION_RESP);
@@ -182,15 +186,9 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
       boolean result = false;
       try {
          final CountDownLatch latch = new CountDownLatch(1);
-         Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-               latch.countDown();
-            }
-         };
 
-         serverProcess = SpawnedVMSupport.spawnVMWithLogMacher(WORD_START, runnable, "org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, true, "server", serverStartedString);
-         Assert.assertTrue(latch.await(30, TimeUnit.SECONDS));
+         serverProcess = SpawnedVMSupport.spawnVMWithLogMacher(WORD_START, latch::countDown, "org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, true, "server", serverStartedString);
+         assertTrue(latch.await(30, TimeUnit.SECONDS));
          client = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, "client");
 
          if (client.waitFor() == 0) {
@@ -201,14 +199,14 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
             try {
                serverProcess.destroy();
             } catch (Throwable t) {
-               /* ignore */
+               // ignore
             }
          }
          if (client != null) {
             try {
                client.destroy();
             } catch (Throwable t) {
-               /* ignore */
+               // ignore
             }
          }
       }

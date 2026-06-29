@@ -22,18 +22,10 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
-/**
- *
- */
 public interface ActiveMQServerResourcePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a transaction is put
-    *
-    * @param xid
-    * @param tx
-    * @param remotingConnection
-    * @throws ActiveMQException
     */
    default void beforePutTransaction(Xid xid, Transaction tx, RemotingConnection remotingConnection) throws ActiveMQException {
 
@@ -41,11 +33,6 @@ public interface ActiveMQServerResourcePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * After a transaction is put
-    *
-    * @param xid
-    * @param tx
-    * @param remotingConnection
-    * @throws ActiveMQException
     */
    default void afterPutTransaction(Xid xid, Transaction tx, RemotingConnection remotingConnection) throws ActiveMQException {
 
@@ -53,10 +40,6 @@ public interface ActiveMQServerResourcePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a transaction is removed
-    *
-    * @param xid
-    * @param remotingConnection
-    * @throws ActiveMQException
     */
    default void beforeRemoveTransaction(Xid xid, RemotingConnection remotingConnection) throws ActiveMQException {
 
@@ -64,10 +47,6 @@ public interface ActiveMQServerResourcePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * After a transaction is removed
-    *
-    * @param xid
-    * @param remotingConnection
-    * @throws ActiveMQException
     */
    default void afterRemoveTransaction(Xid xid, RemotingConnection remotingConnection) throws ActiveMQException {
 

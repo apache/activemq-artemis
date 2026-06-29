@@ -31,20 +31,16 @@ public enum AckReason {
    }
 
    public static AckReason fromValue(byte value) {
-      switch (value) {
-         case 0:
-            return NORMAL;
-         case 1:
-            return KILLED;
-         case 2:
-            return EXPIRED;
-         case 3:
-            return REPLACED;
-         default:
+      return switch (value) {
+         case 0 -> NORMAL;
+         case 1 -> KILLED;
+         case 2 -> EXPIRED;
+         case 3 -> REPLACED;
+         default ->
             // in case a newer version connects with a not known type
             // this will just play safe and use the NORMAL ack mode
-            return NORMAL;
-      }
+            NORMAL;
+      };
    }
 
 }

@@ -112,12 +112,6 @@ public class ClientProducerCreditsImpl extends AbstractProducerCreditsImpl {
       semaphore.release(credits);
    }
 
-
-   @Override
-   public synchronized void releaseOutstanding() {
-      semaphore.drainPermits();
-   }
-
    @Override
    public int getBalance() {
       return semaphore.availablePermits();

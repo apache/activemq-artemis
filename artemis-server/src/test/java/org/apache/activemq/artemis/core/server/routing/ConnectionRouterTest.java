@@ -16,39 +16,67 @@
  */
 package org.apache.activemq.artemis.core.server.routing;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
+import java.util.UUID;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.routing.policies.AbstractPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.Policy;
 import org.apache.activemq.artemis.core.server.routing.targets.LocalTarget;
 import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.apache.activemq.artemis.core.server.routing.targets.TargetResult;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ConnectionRouterTest {
 
    Target localTarget;
    ConnectionRouter underTest;
 
-   @Before
+   @BeforeEach
    public void setUp() {
       ActiveMQServer mockServer = mock(ActiveMQServer.class);
+
+      Mockito.when(mockServer.getNodeID()).thenReturn(SimpleString.of(UUID.randomUUID().toString()));
+
       localTarget = new LocalTarget(null, mockServer);
    }
 
    @Test
-   public void getTarget() {
+   public void getTarget() throws Exception {
       Policy policy = null;
-      underTest  = new ConnectionRouter("test", KeyType.CLIENT_ID, "^.{3}",
-                                      localTarget, "^FOO.*", null, null, policy);
-      assertEquals( localTarget, underTest.getTarget("FOO_EE").getTarget());
+      underTest = new ConnectionRouter("test", KeyType.CLIENT_ID, "^.{3}",
+                                        localTarget, "^FOO.*", null, null, policy);
+
+      underTest.start();
+
+      assertEquals(localTarget, underTest.getTarget("FOO_EE").getTarget());
       assertEquals(TargetResult.REFUSED_USE_ANOTHER_RESULT, underTest.getTarget("BAR_EE"));
+   }
+
+   @Test
+   public void getTargetWhenNotStarted() throws Exception {
+      Policy policy = null;
+      underTest = new ConnectionRouter("test", KeyType.CLIENT_ID, "^.{3}",
+                                        localTarget, "^FOO.*", null, null, policy);
+
+      assertEquals(TargetResult.REFUSED_UNAVAILABLE_RESULT, underTest.getTarget("BAR_EE"));
+
+      underTest.start();
+
+      assertEquals(localTarget, underTest.getTarget("FOO_EE").getTarget());
+      assertEquals(TargetResult.REFUSED_USE_ANOTHER_RESULT, underTest.getTarget("BAR_EE"));
+
+      underTest.stop();
+
+      assertEquals(TargetResult.REFUSED_UNAVAILABLE_RESULT, underTest.getTarget("BAR_EE"));
    }
 
    @Test
@@ -60,9 +88,10 @@ public class ConnectionRouterTest {
          }
       };
 
-      underTest  = new ConnectionRouter("test", KeyType.CLIENT_ID, "^.{3}",
-                                      localTarget, "^FOO.*", null, null, policy);
-      assertEquals( localTarget, underTest.getTarget("TRANSFORM_TO_FOO_EE").getTarget());
-   }
+      underTest = new ConnectionRouter("test", KeyType.CLIENT_ID, "^.{3}",
+                                        localTarget, "^FOO.*", null, null, policy);
+      underTest.start();
 
+      assertEquals(localTarget, underTest.getTarget("TRANSFORM_TO_FOO_EE").getTarget());
+   }
 }

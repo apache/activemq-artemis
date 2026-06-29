@@ -18,25 +18,33 @@ package org.apache.activemq.artemis.jdbc.store.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
+import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
+import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.jctools.queues.MpscUnboundedArrayQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class JDBCSequentialFile implements SequentialFile {
 
@@ -50,7 +58,12 @@ public class JDBCSequentialFile implements SequentialFile {
 
    private AtomicBoolean isLoaded = new AtomicBoolean(false);
 
+   private volatile boolean deleted = false;
+
    private long id = -1;
+
+   // used in postgres
+   private long oid = -1;
 
    private long readPosition = 0;
 
@@ -60,24 +73,35 @@ public class JDBCSequentialFile implements SequentialFile {
 
    private final JDBCSequentialFileFactory fileFactory;
 
-   private final Object writeLock;
-
    private final JDBCSequentialFileFactoryDriver dbDriver;
+
+   MpscUnboundedArrayQueue<ScheduledWrite> writeQueue = new MpscUnboundedArrayQueue<>(8192);
 
    // Allows DB Drivers to cache meta data.
    private final Map<Object, Object> metaData = new ConcurrentHashMap<>();
 
+   final JDBCPageWriteScheduler pageWriteScheduler;
+
+   final ScheduledExecutorService scheduledExecutorService;
+
+   private final ReusableLatch pendingWrites = new ReusableLatch();
+
+   final long syncDelay;
+
    JDBCSequentialFile(final JDBCSequentialFileFactory fileFactory,
                       final String filename,
                       final Executor executor,
-                      final JDBCSequentialFileFactoryDriver driver,
-                      final Object writeLock) throws SQLException {
+                      final ScheduledExecutorService scheduledExecutorService,
+                      final long syncDelay,
+                      final JDBCSequentialFileFactoryDriver driver) throws SQLException {
       this.fileFactory = fileFactory;
       this.filename = filename;
       this.extension = filename.contains(".") ? filename.substring(filename.lastIndexOf(".") + 1, filename.length()) : "";
       this.executor = executor;
-      this.writeLock = writeLock;
       this.dbDriver = driver;
+      this.scheduledExecutorService = scheduledExecutorService;
+      this.syncDelay = syncDelay;
+      this.pageWriteScheduler = new JDBCPageWriteScheduler(scheduledExecutorService, executor, syncDelay);
    }
 
    void setWritePosition(long writePosition) {
@@ -91,14 +115,10 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public boolean exists() {
-      if (isLoaded.get()) return true;
       try {
-         return fileFactory.listFiles(extension).contains(filename);
-      } catch (Exception e) {
-         logger.debug(e.getMessage(), e);
-         // this shouldn't throw a critical IO Error
-         // as if the destination does not exists (ot table store removed), the table will not exist and
-         // we may get a SQL Exception
+         return dbDriver.getFileID(this) >= 0;
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
          return false;
       }
    }
@@ -156,10 +176,14 @@ public class JDBCSequentialFile implements SequentialFile {
    @Override
    public void delete() throws IOException, InterruptedException, ActiveMQException {
       try {
-         synchronized (writeLock) {
+         synchronized (this) {
+            if (deleted) {
+               return;
+            }
             if (load()) {
                dbDriver.deleteFile(this);
             }
+            deleted = true;
          }
       } catch (SQLException e) {
          // file is already gone from a drop somewhere
@@ -168,73 +192,128 @@ public class JDBCSequentialFile implements SequentialFile {
       }
    }
 
-   private synchronized int internalWrite(byte[] data, IOCallback callback, boolean append) {
+   private synchronized int jdbcWrite(byte[] data, IOCallback callback, boolean append) {
       try {
-         open();
-         synchronized (writeLock) {
+         logger.debug("Writing {} bytes into {}", data.length, filename);
+         synchronized (this) {
             int noBytes = dbDriver.writeToFile(this, data, append);
             seek(append ? writePosition + noBytes : noBytes);
             if (logger.isTraceEnabled()) {
                logger.trace("Write: ID: {} FileName: {}{}", getId(), getFileName(), size());
             }
-            if (callback != null)
+            if (callback != null) {
                callback.done();
+            }
             return noBytes;
          }
       } catch (Exception e) {
-         if (callback != null)
-            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+         if (callback != null) {
+            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during JDBC write:" + e.getMessage());
+         }
          fileFactory.onIOError(e, "Error writing to JDBC file.", this);
       }
       return 0;
    }
 
-   public synchronized int internalWrite(ActiveMQBuffer buffer, IOCallback callback) {
-      return internalWrite(buffer, callback, true);
+   public synchronized int jdbcWrite(ActiveMQBuffer buffer, IOCallback callback) {
+      return jdbcWrite(buffer, callback, true);
    }
 
-   public synchronized int internalWrite(ActiveMQBuffer buffer, IOCallback callback, boolean append) {
+   public synchronized int jdbcWrite(ActiveMQBuffer buffer, IOCallback callback, boolean append) {
       byte[] data = new byte[buffer.readableBytes()];
       buffer.readBytes(data);
-      return internalWrite(data, callback, append);
+      return jdbcWrite(data, callback, append);
    }
 
-   private synchronized int internalWrite(ByteBuffer buffer, IOCallback callback) {
-      final byte[] data;
-      if (buffer.hasArray() && buffer.arrayOffset() == 0 && buffer.position() == 0 && buffer.limit() == buffer.array().length) {
-         data = buffer.array();
-      } else {
-         byte[] copy = new byte[buffer.remaining()];
-         buffer.get(copy);
-         data = copy;
+
+
+   private void pollWrites() {
+      if (writeQueue.isEmpty()) {
+         return;
       }
-      return internalWrite(data, callback, true);
+
+      logger.debug("polling {} elements on {}", writeQueue.size(), this.filename);
+
+      List<ScheduledWrite> writeList = new ArrayList<>(writeQueue.size()); // the size here is just an estimate
+
+      byte[] bytes = extractBytes(writeList);
+
+      jdbcWrite(bytes, null, true);
+      writeList.forEach(this::doCallback);
+   }
+
+   /*
+    * Even though I would love to have a reusable byte[] for the following buffer PreparedStatement.setData takes a
+    * byte[] without any sizing on the interface. Blob interface would support setBytes with an offset and size, but
+    * some of the databases we are using (DB2 specifically) is not allowing us to use Blob (at least during our dev
+    * time). For that reason I'm using this byte[] with the very specific size that needs to be written
+    *
+    * Also Notice that our PagingManager will make sure that this size wouldn't go beyond our page-size limit which we
+    * also limit at the JDBC storage, which should be 100K.
+    */
+   private byte[] extractBytes(List<ScheduledWrite> writeList) {
+      int totalSize = 0;
+      ScheduledWrite write;
+      while ((write = writeQueue.poll()) != null) {
+         writeList.add(write);
+         totalSize += write.readable();
+      }
+      byte[] bytes = new byte[totalSize];
+
+      int writePosition = 0;
+
+      for (ScheduledWrite el : writeList) {
+         writePosition += el.readAt(bytes, writePosition);
+         el.releaseBuffer();
+      }
+
+      return bytes;
+   }
+
+   private void doCallback(ScheduledWrite write) {
+      if (write != null && write.callback != null) {
+         write.callback.done();
+      }
+      pendingWrites.countDown();
    }
 
    private void scheduleWrite(final ActiveMQBuffer bytes, final IOCallback callback, boolean append) {
-      executor.execute(() -> {
-         internalWrite(bytes, callback, append);
-      });
+      scheduleWrite(new ScheduledWrite(bytes, callback, append));
+   }
+
+   private void scheduleWrite(ScheduledWrite scheduledWrite) {
+      logger.debug("offering {} bytes into {}", scheduledWrite.readable(), filename);
+      pendingWrites.countUp();
+      writeQueue.offer(scheduledWrite);
+      this.pageWriteScheduler.delay();
    }
 
    private void scheduleWrite(final ByteBuffer bytes, final IOCallback callback) {
-      executor.execute(() -> {
-         internalWrite(bytes, callback);
-      });
+      scheduleWrite(new ScheduledWrite(bytes, callback, true));
    }
 
    synchronized void seek(long noBytes) {
       writePosition = noBytes;
    }
 
-   public void write(ActiveMQBuffer bytes, boolean sync, IOCallback callback, boolean append) throws Exception {
-      // We ignore sync since we schedule writes straight away.
+   public void sendToDB(ActiveMQBuffer bytes, IOCallback callback, boolean append) throws Exception {
+      SimpleWaitIOCallback waitIOCallback = null;
+
+      if (callback == null) {
+         waitIOCallback = new SimpleWaitIOCallback();
+         callback = waitIOCallback;
+      }
+
       scheduleWrite(bytes, callback, append);
+
+      if (callback != null) {
+         waitIOCallback.waitCompletion();
+      }
    }
 
    @Override
    public void write(ActiveMQBuffer bytes, boolean sync, IOCallback callback) throws Exception {
-      write(bytes, sync, callback, true);
+      sendToDB(bytes, callback, true);
    }
 
    @Override
@@ -246,7 +325,7 @@ public class JDBCSequentialFile implements SequentialFile {
    public void write(EncodingSupport bytes, boolean sync, IOCallback callback) throws Exception {
       ActiveMQBuffer data = ActiveMQBuffers.fixedBuffer(bytes.getEncodeSize());
       bytes.encode(data);
-      write(data, sync, callback, true);
+      sendToDB(data, callback, true);
    }
 
    @Override
@@ -257,12 +336,14 @@ public class JDBCSequentialFile implements SequentialFile {
    @Override
    public void writeDirect(ByteBuffer bytes, boolean sync, IOCallback callback) {
       if (callback == null) {
-         SimpleWaitIOCallback waitIOCallback = new SimpleWaitIOCallback();
+         final SimpleWaitIOCallback waitIOCallback = sync ? new SimpleWaitIOCallback() : null;
          try {
             scheduleWrite(bytes, waitIOCallback);
-            waitIOCallback.waitCompletion();
+            if (waitIOCallback != null) {
+               waitIOCallback.waitCompletion();
+            }
          } catch (Exception e) {
-            waitIOCallback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "Error writing to JDBC file.");
+            waitIOCallback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during JDBC write direct:" + e.getMessage());
             fileFactory.onIOError(e, "Failed to write to file.", this);
          }
       } else {
@@ -284,16 +365,18 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public synchronized int read(ByteBuffer bytes, final IOCallback callback) throws SQLException {
-      synchronized (writeLock) {
+      synchronized (this) {
          try {
             int read = dbDriver.readFromFile(this, bytes);
             readPosition += read;
-            if (callback != null)
+            if (callback != null) {
                callback.done();
+            }
             return read;
          } catch (SQLException e) {
-            if (callback != null)
-               callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+            if (callback != null) {
+               callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during JDBC read:" + e.getMessage());
+            }
             fileFactory.onIOError(e, "Error reading from JDBC file.", this);
          }
          return 0;
@@ -330,15 +413,27 @@ public class JDBCSequentialFile implements SequentialFile {
       fileFactory.sequentialFileClosed(this);
    }
 
+   public int getNetworkTimeoutMillis() {
+      return dbDriver.getJdbcConnectionProvider().getNetworkTimeoutMillis();
+   }
+
    @Override
    public void sync() throws IOException {
-      final SimpleWaitIOCallback callback = new SimpleWaitIOCallback();
-      executor.execute(callback::done);
-
       try {
-         callback.waitCompletion();
+         int syncTimeout = getNetworkTimeoutMillis();
+
+         if (syncTimeout >= 0) {
+            if (!pendingWrites.await(syncTimeout, TimeUnit.MILLISECONDS)) {
+               fileFactory.onIOError(new ActiveMQIOErrorException("Database not responding to syncs before timeout"), "Error during JDBC file sync.", this);
+            }
+         } else {
+            // waiting forever however logger.debug while doing so
+            while (!pendingWrites.await(1, TimeUnit.SECONDS)) {
+               logger.debug("Awaiting syncs from database for page file {}", this.filename);
+            }
+         }
+
       } catch (Exception e) {
-         callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "Error during JDBC file sync.");
          fileFactory.onIOError(e, "Error during JDBC file sync.", this);
       }
    }
@@ -351,7 +446,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public void renameTo(String newFileName) throws Exception {
-      synchronized (writeLock) {
+      synchronized (this) {
          try {
             dbDriver.renameFile(this, newFileName);
          } catch (SQLException e) {
@@ -363,7 +458,7 @@ public class JDBCSequentialFile implements SequentialFile {
    @Override
    public SequentialFile cloneFile() {
       try {
-         JDBCSequentialFile clone = new JDBCSequentialFile(fileFactory, filename, executor, dbDriver, writeLock);
+         JDBCSequentialFile clone = new JDBCSequentialFile(fileFactory, filename, executor, scheduledExecutorService, syncDelay, dbDriver);
          clone.setWritePosition(this.writePosition);
          return clone;
       } catch (Exception e) {
@@ -376,7 +471,7 @@ public class JDBCSequentialFile implements SequentialFile {
    public void copyTo(SequentialFile cloneFile) throws Exception {
       JDBCSequentialFile clone = (JDBCSequentialFile) cloneFile;
       try {
-         synchronized (writeLock) {
+         synchronized (this) {
             logger.trace("JDBC Copying File.  From: {} To: {}", this, cloneFile);
             clone.open();
             dbDriver.copyFileData(this, clone);
@@ -389,6 +484,14 @@ public class JDBCSequentialFile implements SequentialFile {
 
    public long getId() {
       return id;
+   }
+
+   public long getOid() {
+      return oid;
+   }
+
+   public void setOid(long oid) {
+      this.oid = oid;
    }
 
    public void setId(long id) {
@@ -420,5 +523,21 @@ public class JDBCSequentialFile implements SequentialFile {
 
    public Object getMetaData(Object key) {
       return metaData.get(key);
+   }
+
+
+
+   private class JDBCPageWriteScheduler extends ActiveMQScheduledComponent {
+
+      JDBCPageWriteScheduler(ScheduledExecutorService scheduledExecutorService,
+                   Executor executor,
+                   long checkPeriod) {
+         super(scheduledExecutorService, executor, checkPeriod, TimeUnit.MILLISECONDS, true);
+      }
+
+      @Override
+      public void run() {
+         pollWrites();
+      }
    }
 }

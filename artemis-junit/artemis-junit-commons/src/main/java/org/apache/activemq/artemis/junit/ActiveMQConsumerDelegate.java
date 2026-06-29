@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.RoutingType;
 
 /**
- * Base class to embed an ActiveMQ Artemis ClientConsumer into a test.
+ * Base class to embed an Apache Artemis ClientConsumer into a test.
  */
 public class ActiveMQConsumerDelegate extends AbstractActiveMQClientDelegate implements ActiveMQConsumerOperations {
 
@@ -35,11 +35,11 @@ public class ActiveMQConsumerDelegate extends AbstractActiveMQClientDelegate imp
    ClientConsumer consumer;
 
    public ActiveMQConsumerDelegate(String url, String queueName) {
-      this(url, SimpleString.toSimpleString(queueName), null, null);
+      this(url, SimpleString.of(queueName), null, null);
    }
 
    public ActiveMQConsumerDelegate(String url, String queueName, String username, String password) {
-      this(url, SimpleString.toSimpleString(queueName), username, password);
+      this(url, SimpleString.of(queueName), username, password);
    }
 
    public ActiveMQConsumerDelegate(String url, SimpleString queueName, String username, String password) {
@@ -52,11 +52,11 @@ public class ActiveMQConsumerDelegate extends AbstractActiveMQClientDelegate imp
    }
 
    public ActiveMQConsumerDelegate(ServerLocator serverLocator, String queueName, String username, String password) {
-      this(serverLocator, SimpleString.toSimpleString(queueName), username, password);
+      this(serverLocator, SimpleString.of(queueName), username, password);
    }
 
    public ActiveMQConsumerDelegate(ServerLocator serverLocator, String queueName) {
-      this(serverLocator, SimpleString.toSimpleString(queueName), null, null);
+      this(serverLocator, SimpleString.of(queueName), null, null);
    }
 
    public ActiveMQConsumerDelegate(ServerLocator serverLocator, SimpleString queueName, String username,
@@ -87,7 +87,7 @@ public class ActiveMQConsumerDelegate extends AbstractActiveMQClientDelegate imp
             log.warn("{}: queue does not exist - creating queue: address = {}, name = {}",
                      this.getClass().getSimpleName(), queueName.toString(), queueName.toString());
             session.createAddress(queueName, RoutingType.MULTICAST, true);
-            session.createQueue(new QueueConfiguration(queueName));
+            session.createQueue(QueueConfiguration.of(queueName));
          }
          consumer = session.createConsumer(queueName, browseOnly);
       } catch (ActiveMQException amqEx) {

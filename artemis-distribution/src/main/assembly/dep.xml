@@ -28,7 +28,7 @@
         <unpack>false</unpack>
         <useTransitiveDependencies>false</useTransitiveDependencies>
         <includes>
-           <include>org.apache.activemq:artemis-boot</include>
+           <include>org.apache.artemis:artemis-boot</include>
         </includes>
         <useProjectArtifact>false</useProjectArtifact>
       </dependencySet>
@@ -38,12 +38,10 @@
          <fileMode>0644</fileMode>
          <excludes>
             <!-- Handled above -->
-            <exclude>org.apache.activemq:artemis-boot</exclude>
+            <exclude>org.apache.artemis:artemis-boot</exclude>
 
             <!-- Handled later in web subdir for console bits -->
-            <exclude>org.apache.activemq:artemis-console:war</exclude>
-            <exclude>org.apache.activemq:activemq-branding:war</exclude>
-            <exclude>org.apache.activemq:artemis-plugin:war</exclude>
+            <exclude>org.apache.artemis:artemis-console:war</exclude>
          </excludes>
          <outputDirectory>lib</outputDirectory>
          <unpack>false</unpack>
@@ -70,33 +68,21 @@
       <!-- Management Console Dependencies -->
       <dependencySet>
          <includes>
-            <include>org.apache.activemq:artemis-console:war</include>
+            <include>org.apache.artemis:artemis-console:war</include>
          </includes>
-         <outputDirectory>web</outputDirectory>
-         <unpack>false</unpack>
-         <outputFileNameMapping>console.war</outputFileNameMapping>
-         <useProjectArtifact>false</useProjectArtifact>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
-      </dependencySet>
-      <dependencySet>
-         <includes>
-            <include>org.apache.activemq:activemq-branding:war</include>
-         </includes>
-         <outputDirectory>web</outputDirectory>
-         <unpack>false</unpack>
-         <outputFileNameMapping>activemq-branding.war</outputFileNameMapping>
-         <useProjectArtifact>false</useProjectArtifact>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
-      </dependencySet>
-      <dependencySet>
-         <includes>
-            <include>org.apache.activemq:artemis-plugin:war</include>
-         </includes>
-         <outputDirectory>web</outputDirectory>
-         <unpack>false</unpack>
-         <outputFileNameMapping>artemis-plugin.war</outputFileNameMapping>
+         <outputDirectory>web/console.war</outputDirectory>
+         <unpack>true</unpack>
+         <!-- Exclude these jar files from console since they are already provided in the broker distribution.
+              If any of these jars is dropped from the broker distribution they should be added back to the console. -->
+         <unpackOptions>
+            <excludes>
+               <exclude>**/caffeine*.jar</exclude>
+               <exclude>**/guava*.jar</exclude>
+               <exclude>**/commons-io*.jar</exclude>
+               <exclude>**/commons-logging*.jar</exclude>
+               <exclude>**/failureaccess*.jar</exclude>
+            </excludes>
+         </unpackOptions>
          <useProjectArtifact>false</useProjectArtifact>
          <directoryMode>0755</directoryMode>
          <fileMode>0644</fileMode>
@@ -104,6 +90,16 @@
 
    </dependencySets>
    <fileSets>
+      <!-- Console Licenses -->
+      <fileSet>
+         <directory>target/console/apache-artemis-console-${artemis-console-version}/licenses</directory>
+         <outputDirectory>licenses</outputDirectory>
+         <includes>
+            <include>NPMLicenses.txt</include>
+         </includes>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
+      </fileSet>
       <!-- schema -->
       <fileSet>
          <directory>${activemq.basedir}/artemis-server/src/main/resources/schema/</directory>
@@ -133,6 +129,7 @@
          <lineEnding>keep</lineEnding>
          <excludes>
             <exclude>bin/artemis</exclude>
+            <exclude>bin/artemis.cmd</exclude>
             <exclude>**/target/**</exclude>
             <exclude>**/**/*.iml</exclude>
             <exclude>**/**/*.dat</exclude>
@@ -144,47 +141,22 @@
       <fileSet>
          <directory>src/main/resources</directory>
          <outputDirectory>${file.separator}</outputDirectory>
-         <lineEnding>keep</lineEnding>
+         <lineEnding>dos</lineEnding>
+         <includes>
+            <include>bin/artemis.cmd</include>
+         </includes>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
+      </fileSet>
+      <fileSet>
+         <directory>src/main/resources</directory>
+         <outputDirectory>${file.separator}</outputDirectory>
+         <lineEnding>unix</lineEnding>
          <includes>
             <include>bin/artemis</include>
          </includes>
          <directoryMode>0755</directoryMode>
          <fileMode>0755</fileMode>
-      </fileSet>
-      <!-- examples -->
-      <fileSet>
-         <directory>${activemq.basedir}/examples</directory>
-         <outputDirectory>examples</outputDirectory>
-         <lineEnding>keep</lineEnding>
-         <excludes>
-            <exclude>**/target/**</exclude>
-            <exclude>**/**/*.iml</exclude>
-            <exclude>**/**/*.dat</exclude>
-            <exclude>**/**/*.md</exclude>
-            <exclude>**/**/*.sh</exclude>
-         </excludes>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
-      </fileSet>
-      <fileSet>
-         <directory>${activemq.basedir}/examples</directory>
-         <outputDirectory>examples</outputDirectory>
-         <lineEnding>keep</lineEnding>
-         <includes>
-            <include>**/**/*.sh</include>
-         </includes>
-         <excludes>
-            <exclude>**/target/**</exclude>
-         </excludes>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0755</fileMode>
-      </fileSet>
-      <fileSet>
-         <directory>${project.build.directory}/markdown-pages/examples</directory>
-         <outputDirectory>examples</outputDirectory>
-         <lineEnding>keep</lineEnding>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
       </fileSet>
       <!-- Include license and notice files -->
       <fileSet>

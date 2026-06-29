@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.HashMap;
@@ -42,10 +48,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DeadLetterAddressTest extends ActiveMQTestBase {
 
@@ -56,33 +60,33 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicSend() throws Exception {
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString adName = new SimpleString("ad1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString adName = SimpleString.of("ad1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(adName.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
-      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(adName).setDurable(false));
+      SimpleString dlq = SimpleString.of("DLQ1");
+      clientSession.createQueue(QueueConfiguration.of(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(adName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(adName);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       // force a cancel
       clientSession.rollback();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
       clientConsumer = clientSession.createConsumer(dlq);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       assertEquals("q1", m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
       assertEquals("ad1", m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -90,19 +94,19 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
 
       // only run this on *nix systems which will have the com.sun.management.UnixOperatingSystemMXBean (needed to check open file count)
-      Assume.assumeTrue(os instanceof UnixOperatingSystemMXBean);
+      assumeTrue(os instanceof UnixOperatingSystemMXBean);
 
       long fdBaseline = ((UnixOperatingSystemMXBean) os).getOpenFileDescriptorCount();
       final int SIZE = 2 * 1024;
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
-      SimpleString adName = new SimpleString("ad1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
+      SimpleString adName = SimpleString.of("ad1");
 
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(adName.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
-      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setAddress(adName).setDurable(false));
+      SimpleString dlq = SimpleString.of("DLQ1");
+      clientSession.createQueue(QueueConfiguration.of(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setAddress(adName).setDurable(false));
       for (int i = 0; i < 10; i++) {
          ClientProducer producer = clientSession.createProducer(adName);
          ClientMessage clientFile = clientSession.createMessage(true);
@@ -112,12 +116,12 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
          ClientConsumer clientConsumer = clientSession.createConsumer(qName);
          ClientMessage m = clientConsumer.receive(500);
          m.acknowledge();
-         Assert.assertNotNull(m);
+         assertNotNull(m);
 
          // force a cancel
          clientSession.rollback();
          m = clientConsumer.receiveImmediate();
-         Assert.assertNull(m);
+         assertNull(m);
          clientConsumer.close();
       }
       Wait.assertTrue("File descriptors are leaking", () -> ((UnixOperatingSystemMXBean) os).getOpenFileDescriptorCount() - fdBaseline <= 0);
@@ -126,74 +130,74 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
    // HORNETQ- 1084
    @Test
    public void testBasicSendWithDLAButNoBinding() throws Exception {
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      //SimpleString dlq = new SimpleString("DLQ1");
-      //clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      //SimpleString dlq = SimpleString.of("DLQ1");
+      //clientSession.createQueue(QueueConfiguration.of(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       // force a cancel
       clientSession.rollback();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
       Queue q = (Queue) server.getPostOffice().getBinding(qName).getBindable();
-      Assert.assertEquals(0, q.getDeliveringCount());
+      assertEquals(0, q.getDeliveringCount());
    }
 
    @Test
    public void testBasicSend2times() throws Exception {
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(2).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
-      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      SimpleString dlq = SimpleString.of("DLQ1");
+      clientSession.createQueue(QueueConfiguration.of(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receive(5000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       // force a cancel
       clientSession.rollback();
       clientSession.start();
       m = clientConsumer.receive(5000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       // force a cancel
       clientSession.rollback();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
       clientConsumer = clientSession.createConsumer(dlq);
       m = clientConsumer.receive(5000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
    }
 
    @Test
    public void testReceiveWithListeners() throws Exception {
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(2).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
-      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      SimpleString dlq = SimpleString.of("DLQ1");
+      clientSession.createQueue(QueueConfiguration.of(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       producer.send(createTextMessage(clientSession, "heyho!"));
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
@@ -202,11 +206,11 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       clientConsumer.setMessageHandler(handler);
       clientSession.start();
       assertTrue(latch.await(5, TimeUnit.SECONDS));
-      assertEquals(handler.count, 2);
+      assertEquals(2, handler.count);
       clientConsumer = clientSession.createConsumer(dlq);
       Message m = clientConsumer.receive(5000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
    }
 
    class TestHandler implements MessageHandler {
@@ -236,60 +240,60 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicSendToMultipleQueues() throws Exception {
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
-      SimpleString dlq2 = new SimpleString("DLQ2");
-      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(dlq2).setAddress(dla).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      SimpleString dlq = SimpleString.of("DLQ1");
+      SimpleString dlq2 = SimpleString.of("DLQ2");
+      clientSession.createQueue(QueueConfiguration.of(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(dlq2).setAddress(dla).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       // force a cancel
       clientSession.rollback();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
       clientConsumer = clientSession.createConsumer(dlq);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       clientConsumer.close();
       clientConsumer = clientSession.createConsumer(dlq2);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       clientConsumer.close();
    }
 
    @Test
    public void testBasicSendToNoQueue() throws Exception {
-      SimpleString qName = new SimpleString("q1");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       ClientProducer producer = clientSession.createProducer(qName);
       producer.send(createTextMessage(clientSession, "heyho!"));
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       // force a cancel
       clientSession.rollback();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
    }
 
@@ -297,13 +301,13 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
    public void testHeadersSet() throws Exception {
       final int MAX_DELIVERIES = 16;
       final int NUM_MESSAGES = 5;
-      SimpleString dla = new SimpleString("DLA");
-      SimpleString qName = new SimpleString("q1");
+      SimpleString dla = SimpleString.of("DLA");
+      SimpleString qName = SimpleString.of("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(MAX_DELIVERIES).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
-      SimpleString dlq = new SimpleString("DLQ1");
-      clientSession.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(qName).setDurable(false));
+      SimpleString dlq = SimpleString.of("DLQ1");
+      clientSession.createQueue(QueueConfiguration.of(dlq).setAddress(dla).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(qName).setDurable(false));
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession sendSession = sessionFactory.createSession(false, true, true);
@@ -322,12 +326,12 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
          for (int j = 0; j < NUM_MESSAGES; j++) {
             ClientMessage tm = clientConsumer.receive(1000);
 
-            Assert.assertNotNull(tm);
+            assertNotNull(tm);
             tm.acknowledge();
             if (i == 0) {
                origIds.put("Message:" + j, tm.getMessageID());
             }
-            Assert.assertEquals("Message:" + j, tm.getBodyBuffer().readString());
+            assertEquals("Message:" + j, tm.getBodyBuffer().readString());
          }
          clientSession.rollback();
       }
@@ -339,9 +343,9 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
          Thread.sleep(1);
       }
 
-      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(qName).getBindable())));
+      assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(qName).getBindable())));
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       // All the messages should now be in the DLQ
 
       ClientConsumer cc3 = clientSession.createConsumer(dlq);
@@ -349,21 +353,21 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = cc3.receive(1000);
 
-         Assert.assertNotNull(tm);
+         assertNotNull(tm);
 
          String text = tm.getBodyBuffer().readString();
-         Assert.assertEquals("Message:" + i, text);
+         assertEquals("Message:" + i, text);
 
          // Check the headers
          SimpleString origDest = (SimpleString) tm.getObjectProperty(Message.HDR_ORIGINAL_ADDRESS);
 
          Long origMessageId = (Long) tm.getObjectProperty(Message.HDR_ORIG_MESSAGE_ID);
 
-         Assert.assertEquals(qName, origDest);
+         assertEquals(qName, origDest);
 
          Long origId = origIds.get(text);
 
-         Assert.assertEquals(origId, origMessageId);
+         assertEquals(origId, origMessageId);
       }
 
       sendSession.close();
@@ -374,15 +378,15 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
    public void testDeadlLetterAddressWithDefaultAddressSettings() throws Exception {
       int deliveryAttempt = 3;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString deadLetterAddress = RandomUtil.randomSimpleString();
-      SimpleString deadLetterQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString deadLetterAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString deadLetterQueue = RandomUtil.randomUUIDSimpleString();
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(deliveryAttempt).setDeadLetterAddress(deadLetterAddress);
       server.getAddressSettingsRepository().setDefault(addressSettings);
 
-      clientSession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(deadLetterQueue).setAddress(deadLetterAddress).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(deadLetterQueue).setAddress(deadLetterAddress).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
@@ -392,34 +396,34 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       ClientConsumer clientConsumer = clientSession.createConsumer(queue);
       for (int i = 0; i < deliveryAttempt; i++) {
          ClientMessage m = clientConsumer.receive(500);
-         Assert.assertNotNull(m);
-         Assert.assertEquals(i + 1, m.getDeliveryCount());
+         assertNotNull(m);
+         assertEquals(i + 1, m.getDeliveryCount());
          m.acknowledge();
          clientSession.rollback();
       }
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNull("not expecting a message", m);
+      assertNull(m, "not expecting a message");
       clientConsumer.close();
 
       clientConsumer = clientSession.createConsumer(deadLetterQueue);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
    }
 
    @Test
    public void testDeadlLetterAddressWithWildcardAddressSettings() throws Exception {
       int deliveryAttempt = 3;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString deadLetterAddress = RandomUtil.randomSimpleString();
-      SimpleString deadLetterQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString deadLetterAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString deadLetterQueue = RandomUtil.randomUUIDSimpleString();
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(deliveryAttempt).setDeadLetterAddress(deadLetterAddress);
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
 
-      clientSession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(deadLetterQueue).setAddress(deadLetterAddress).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(deadLetterQueue).setAddress(deadLetterAddress).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
@@ -429,19 +433,19 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       ClientConsumer clientConsumer = clientSession.createConsumer(queue);
       for (int i = 0; i < deliveryAttempt; i++) {
          ClientMessage m = clientConsumer.receive(500);
-         Assert.assertNotNull(m);
-         Assert.assertEquals(i + 1, m.getDeliveryCount());
+         assertNotNull(m);
+         assertEquals(i + 1, m.getDeliveryCount());
          m.acknowledge();
          clientSession.rollback();
       }
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
       clientConsumer.close();
 
       clientConsumer = clientSession.createConsumer(deadLetterQueue);
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertNotNull(m);
+      assertEquals("heyho!", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -449,21 +453,21 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       int defaultDeliveryAttempt = 3;
       int specificeDeliveryAttempt = defaultDeliveryAttempt + 1;
 
-      SimpleString address = new SimpleString("prefix.address");
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString defaultDeadLetterAddress = RandomUtil.randomSimpleString();
-      SimpleString defaultDeadLetterQueue = RandomUtil.randomSimpleString();
-      SimpleString specificDeadLetterAddress = RandomUtil.randomSimpleString();
-      SimpleString specificDeadLetterQueue = RandomUtil.randomSimpleString();
+      SimpleString address = SimpleString.of("prefix.address");
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString defaultDeadLetterAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString defaultDeadLetterQueue = RandomUtil.randomUUIDSimpleString();
+      SimpleString specificDeadLetterAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString specificDeadLetterQueue = RandomUtil.randomUUIDSimpleString();
 
       AddressSettings defaultAddressSettings = new AddressSettings().setMaxDeliveryAttempts(defaultDeliveryAttempt).setDeadLetterAddress(defaultDeadLetterAddress);
       server.getAddressSettingsRepository().addMatch("*", defaultAddressSettings);
       AddressSettings specificAddressSettings = new AddressSettings().setMaxDeliveryAttempts(specificeDeliveryAttempt).setDeadLetterAddress(specificDeadLetterAddress);
       server.getAddressSettingsRepository().addMatch(address.toString(), specificAddressSettings);
 
-      clientSession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(defaultDeadLetterQueue).setAddress(defaultDeadLetterAddress).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(specificDeadLetterQueue).setAddress(specificDeadLetterAddress).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(defaultDeadLetterQueue).setAddress(defaultDeadLetterAddress).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(specificDeadLetterQueue).setAddress(specificDeadLetterAddress).setDurable(false));
 
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
@@ -476,28 +480,28 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
 
       for (int i = 0; i < defaultDeliveryAttempt; i++) {
          ClientMessage m = clientConsumer.receive(500);
-         Assert.assertNotNull(m);
-         Assert.assertEquals(i + 1, m.getDeliveryCount());
+         assertNotNull(m);
+         assertEquals(i + 1, m.getDeliveryCount());
          m.acknowledge();
          clientSession.rollback();
       }
 
-      Assert.assertNull(defaultDeadLetterConsumer.receiveImmediate());
-      Assert.assertNull(specificDeadLetterConsumer.receiveImmediate());
+      assertNull(defaultDeadLetterConsumer.receiveImmediate());
+      assertNull(specificDeadLetterConsumer.receiveImmediate());
 
       // one more redelivery attempt:
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(specificeDeliveryAttempt, m.getDeliveryCount());
+      assertNotNull(m);
+      assertEquals(specificeDeliveryAttempt, m.getDeliveryCount());
       m.acknowledge();
       clientSession.rollback();
 
-      Assert.assertNull(defaultDeadLetterConsumer.receiveImmediate());
-      Assert.assertNotNull(specificDeadLetterConsumer.receive(500));
+      assertNull(defaultDeadLetterConsumer.receiveImmediate());
+      assertNotNull(specificDeadLetterConsumer.receive(500));
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), true));

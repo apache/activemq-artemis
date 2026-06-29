@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -29,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
@@ -43,21 +38,24 @@ import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.CoreTextM
 import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Data;
+import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import io.netty.buffer.Unpooled;
-import org.apache.qpid.proton.amqp.Symbol;
-import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class JMSMappingInboundTransformerTest {
 
-   @Before
+   @BeforeEach
    public void setUp() {
    }
 
@@ -67,8 +65,7 @@ public class JMSMappingInboundTransformerTest {
     * Test that a message with no body section, but with the content type set to
     * {@value AMQPMessageSupport#OCTET_STREAM_CONTENT_TYPE} results in a BytesMessage
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateBytesMessageFromNoBodySectionAndContentType() throws Exception {
@@ -81,16 +78,15 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(coreMessage);
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
-    * Test that a message with no body section, and no content-type results in a BytesMessage
-    * when not otherwise annotated to indicate the type of JMS message it is.
+    * Test that a message with no body section, and no content-type results in a BytesMessage when not otherwise
+    * annotated to indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateBytesMessageFromNoBodySectionAndNoContentType() throws Exception {
@@ -98,8 +94,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    @Test
@@ -109,19 +105,18 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreTextMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreTextMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    // ----- Data Body Section ------------------------------------------------//
 
    /**
     * Test that a data body containing nothing, but with the content type set to
-    * {@value AMQPMessageSupport#OCTET_STREAM_CONTENT_TYPE} results in a BytesMessage when not
-    * otherwise annotated to indicate the type of JMS message it is.
+    * {@value AMQPMessageSupport#OCTET_STREAM_CONTENT_TYPE} results in a BytesMessage when not otherwise annotated to
+    * indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateBytesMessageFromDataWithEmptyBinaryAndContentType() throws Exception {
@@ -133,17 +128,15 @@ public class JMSMappingInboundTransformerTest {
       AMQPStandardMessage amqp = encodeAndCreateAMQPMessage(message);
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(amqp.toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
-    * Test that a message with an empty data body section, and with the content type set to an
-    * unknown value results in a BytesMessage when not otherwise annotated to indicate the type
-    * of JMS message it is.
+    * Test that a message with an empty data body section, and with the content type set to an unknown value results in
+    * a BytesMessage when not otherwise annotated to indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateBytesMessageFromDataWithUnknownContentType() throws Exception {
@@ -154,16 +147,15 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
-    * Test that a receiving a data body containing nothing and no content type being set results
-    * in a BytesMessage when not otherwise annotated to indicate the type of JMS message it is.
+    * Test that a receiving a data body containing nothing and no content type being set results in a BytesMessage when
+    * not otherwise annotated to indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateBytesMessageFromDataWithEmptyBinaryAndNoContentType() throws Exception {
@@ -175,8 +167,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    @Test
@@ -188,8 +180,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreObjectMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreObjectMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    @Test
@@ -288,22 +280,21 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
+      assertNotNull(jmsMessage, "Message should not be null");
       if (StandardCharsets.UTF_8.equals(expectedCharset)) {
-         assertEquals("Unexpected message class type", CoreTextMessageWrapper.class, jmsMessage.getClass());
+         assertEquals(CoreTextMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
       } else {
-         assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+         assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
       }
    }
 
    // ----- AmqpValue transformations ----------------------------------------//
 
    /**
-    * Test that an amqp-value body containing a string results in a TextMessage when not
-    * otherwise annotated to indicate the type of JMS message it is.
+    * Test that an amqp-value body containing a string results in a TextMessage when not otherwise annotated to indicate
+    * the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateTextMessageFromAmqpValueWithString() throws Exception {
@@ -312,16 +303,15 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreTextMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreTextMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
-    * Test that an amqp-value body containing a null results in an TextMessage when not
-    * otherwise annotated to indicate the type of JMS message it is.
+    * Test that an amqp-value body containing a null results in an TextMessage when not otherwise annotated to indicate
+    * the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateTextMessageFromAmqpValueWithNull() throws Exception {
@@ -330,17 +320,16 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreTextMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreTextMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
-    * Test that a message with an AmqpValue section containing a Binary, but with the content
-    * type set to {@value AMQPMessageSupport#SERIALIZED_JAVA_OBJECT_CONTENT_TYPE} results in an
-    * ObjectMessage when not otherwise annotated to indicate the type of JMS message it is.
+    * Test that a message with an AmqpValue section containing a Binary, but with the content type set to
+    * {@value AMQPMessageSupport#SERIALIZED_JAVA_OBJECT_CONTENT_TYPE} results in an ObjectMessage when not otherwise
+    * annotated to indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateObjectMessageFromAmqpValueWithBinaryAndContentType() throws Exception {
@@ -350,16 +339,15 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreObjectMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreObjectMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
-    * Test that an amqp-value body containing a map results in an MapMessage when not otherwise
-    * annotated to indicate the type of JMS message it is.
+    * Test that an amqp-value body containing a map results in an MapMessage when not otherwise annotated to indicate
+    * the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateAmqpMapMessageFromAmqpValueWithMap() throws Exception {
@@ -369,16 +357,15 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreMapMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreMapMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
-    * Test that an amqp-value body containing a list results in an StreamMessage when not
-    * otherwise annotated to indicate the type of JMS message it is.
+    * Test that an amqp-value body containing a list results in an StreamMessage when not otherwise annotated to
+    * indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateAmqpStreamMessageFromAmqpValueWithList() throws Exception {
@@ -388,16 +375,15 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreStreamMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreStreamMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
-    * Test that an amqp-sequence body containing a list results in an StreamMessage when not
-    * otherwise annotated to indicate the type of JMS message it is.
+    * Test that an amqp-sequence body containing a list results in an StreamMessage when not otherwise annotated to
+    * indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateAmqpStreamMessageFromAmqpSequence() throws Exception {
@@ -407,16 +393,15 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreStreamMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreStreamMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
-    * Test that an amqp-value body containing a binary value results in BytesMessage when not
-    * otherwise annotated to indicate the type of JMS message it is.
+    * Test that an amqp-value body containing a binary value results in BytesMessage when not otherwise annotated to
+    * indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateAmqpBytesMessageFromAmqpValueWithBinary() throws Exception {
@@ -426,17 +411,15 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    /**
-    * Test that an amqp-value body containing a value which can't be categorized results in an
-    * exception from the transformer and then try the transformer's own fallback transformer to
-    * result in an BytesMessage.
+    * Test that an amqp-value body containing a value which can't be categorized results in an exception from the
+    * transformer and then try the transformer's own fallback transformer to result in an BytesMessage.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateBytesMessageFromAmqpValueWithUncategorisedContent() throws Exception {
@@ -445,8 +428,8 @@ public class JMSMappingInboundTransformerTest {
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
 
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", CoreBytesMessageWrapper.class, jmsMessage.getClass());
+      assertNotNull(jmsMessage, "Message should not be null");
+      assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
    }
 
    @Test
@@ -458,8 +441,8 @@ public class JMSMappingInboundTransformerTest {
       CoreTextMessageWrapper jmsMessage = (CoreTextMessageWrapper) CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
       jmsMessage.decode();
 
-      assertTrue("Expected TextMessage", jmsMessage instanceof CoreTextMessageWrapper);
-      assertEquals("Unexpected message class type", CoreTextMessageWrapper.class, jmsMessage.getClass());
+      assertInstanceOf(CoreTextMessageWrapper.class, jmsMessage, "Expected TextMessage");
+      assertEquals(CoreTextMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
 
       CoreTextMessageWrapper textMessage = jmsMessage;
 
@@ -509,7 +492,7 @@ public class JMSMappingInboundTransformerTest {
       }
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
-      assertTrue("Expected ServerJMSTextMessage", jmsMessage instanceof CoreTextMessageWrapper);
+      assertInstanceOf(CoreTextMessageWrapper.class, jmsMessage, "Expected ServerJMSTextMessage");
    }
 
    // ----- ReplyTo Conversions ----------------------------------------------//
@@ -555,7 +538,7 @@ public class JMSMappingInboundTransformerTest {
       }
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
-      assertTrue("Expected TextMessage", jmsMessage instanceof CoreTextMessageWrapper);
+      assertInstanceOf(CoreTextMessageWrapper.class, jmsMessage, "Expected TextMessage");
    }
 
    private AMQPStandardMessage encodeAndCreateAMQPMessage(MessageImpl message) {

@@ -16,15 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.common.MqttException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-4.12.0-3] The Client responds to an AUTH packet from the Server by sending a further AUTH packet. This packet MUST contain a Reason Code of 0x18 (Continue authentication).
@@ -43,22 +48,19 @@ import org.junit.Test;
 
 public class EnhancedAuthenticationTests extends MQTT5TestSupport {
 
-   public EnhancedAuthenticationTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-4.12.0-1] If the Server does not support the Authentication Method supplied by the Client, it MAY send a
     * CONNACK with a Reason Code of 0x8C (Bad authentication method) or 0x87 (Not Authorized) as described in section
     * 4.13 and MUST close the Network Connection.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testBadAuthenticationMethod() throws Exception {
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
 
       MqttClient client = createPahoClient(CLIENT_ID);
       MqttConnectionOptions options = new MqttConnectionOptions();
-      options.setAuthMethod(RandomUtil.randomString());
+      options.setAuthMethod(RandomUtil.randomUUIDString());
       try {
          client.connect(options);
          fail("should have thrown an exception when connecting");

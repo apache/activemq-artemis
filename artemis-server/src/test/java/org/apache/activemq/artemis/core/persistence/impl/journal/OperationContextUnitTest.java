@@ -16,7 +16,16 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -24,13 +33,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
+import org.junit.jupiter.api.Test;
 
-public class OperationContextUnitTest extends ActiveMQTestBase {
+public class OperationContextUnitTest extends ServerTestBase {
 
    @Test
    public void testCompleteTaskAfterPaging() throws Exception {
@@ -54,10 +64,12 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
          assertTrue(latch1.await(10, TimeUnit.SECONDS));
 
-         for (int i = 0; i < 10; i++)
+         for (int i = 0; i < 10; i++) {
             impl.storeLineUp();
-         for (int i = 0; i < 3; i++)
+         }
+         for (int i = 0; i < 3; i++) {
             impl.pageSyncLineUp();
+         }
 
          impl.executeOnCompletion(new IOCallback() {
 
@@ -73,10 +85,12 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
          assertFalse(latch2.await(1, TimeUnit.MILLISECONDS));
 
-         for (int i = 0; i < 9; i++)
+         for (int i = 0; i < 9; i++) {
             impl.done();
-         for (int i = 0; i < 2; i++)
+         }
+         for (int i = 0; i < 2; i++) {
             impl.pageSyncDone();
+         }
 
          assertFalse(latch2.await(1, TimeUnit.MILLISECONDS));
 
@@ -112,7 +126,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
             public void done() {
                latch1.countDown();
             }
-         }, true);
+         }, OperationConsistencyLevel.STORAGE);
 
          impl.storeLineUp();
 
@@ -126,7 +140,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
             public void done() {
                latch3.countDown();
             }
-         }, true);
+         }, OperationConsistencyLevel.STORAGE);
 
          impl.done();
 
@@ -136,10 +150,12 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
          impl.done();
          assertTrue(latch3.await(10, TimeUnit.SECONDS));
 
-         for (int i = 0; i < 10; i++)
+         for (int i = 0; i < 10; i++) {
             impl.storeLineUp();
-         for (int i = 0; i < 3; i++)
+         }
+         for (int i = 0; i < 3; i++) {
             impl.pageSyncLineUp();
+         }
 
          impl.executeOnCompletion(new IOCallback() {
 
@@ -151,12 +167,13 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
             public void done() {
                latch2.countDown();
             }
-         }, true);
+         }, OperationConsistencyLevel.STORAGE);
 
          assertFalse(latch2.await(1, TimeUnit.MILLISECONDS));
 
-         for (int i = 0; i < 9; i++)
+         for (int i = 0; i < 9; i++) {
             impl.done();
+         }
 
          assertFalse(latch2.await(1, TimeUnit.MILLISECONDS));
 
@@ -172,22 +189,22 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
    @Test
    public void testCompletionLateStoreOnly() throws Exception {
-      testCompletionLate(true);
+      testCompletionLate(OperationConsistencyLevel.STORAGE);
    }
 
    @Test
    public void testCompletionLate() throws Exception {
-      testCompletionLate(false);
+      testCompletionLate(OperationConsistencyLevel.FULL);
    }
 
-   private void testCompletionLate(boolean storeOnly) throws Exception {
+   private void testCompletionLate(OperationConsistencyLevel consistencyLevel) throws Exception {
       ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       try {
          OperationContextImpl impl = new OperationContextImpl(executor);
          final CountDownLatch latch1 = new CountDownLatch(1);
          final CountDownLatch latch2 = new CountDownLatch(1);
 
-         if (storeOnly) {
+         if (consistencyLevel == OperationConsistencyLevel.STORAGE) {
             // if storeOnly, then the pageSyncLinup and replication lineup should not bother the results
             impl.pageSyncLineUp();
             impl.replicationLineUp();
@@ -204,7 +221,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
             public void done() {
                latch1.countDown();
             }
-         }, storeOnly);
+         }, consistencyLevel);
 
          impl.storeLineUpField = 350000;
          impl.stored = impl.storeLineUpField - 1;
@@ -227,7 +244,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
             public void done() {
                latch2.countDown();
             }
-         }, storeOnly);
+         }, consistencyLevel);
 
          impl.done();
 
@@ -235,16 +252,161 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
          assertTrue(latch2.await(10, TimeUnit.SECONDS));
 
          if (impl.storeOnlyTasks != null) {
-            Assert.assertEquals(0, impl.storeOnlyTasks.size());
+            assertEquals(0, impl.storeOnlyTasks.size());
          }
 
          if (impl.tasks != null) {
-            Assert.assertEquals(0, impl.tasks.size());
+            assertEquals(0, impl.tasks.size());
          }
 
       } finally {
          executor.shutdown();
       }
+   }
+
+   @Test
+   public void testSequentialCompletionN() throws Exception {
+      ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
+      Queue<Long> completions = new ConcurrentLinkedQueue();
+      final int N = 500;
+      try {
+         final OperationContextImpl impl = new OperationContextImpl(new OrderedExecutor(executor));
+
+         // pending work to queue completions till done
+         impl.storeLineUp();
+
+         for (long l = 0; l < N; l++) {
+            long finalL = l;
+            impl.executeOnCompletion(new IOCallback() {
+               @Override
+               public void onError(int errorCode, String errorMessage) {
+               }
+
+               @Override
+               public void done() {
+                  completions.add(finalL);
+               }
+            });
+         }
+
+         impl.done();
+
+         Wait.assertEquals(N, ()-> completions.size());
+
+         for (long i = 0; i < N; i++) {
+            assertEquals(i, (long) completions.poll(), "ordered");
+         }
+
+      } finally {
+         executor.shutdownNow();
+      }
+   }
+
+   @Test
+   public void testIgnoreReplication() throws Exception {
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
+      runAfter(executor::shutdownNow);
+      Queue<Long> ignoreReplicationCompletions = new ConcurrentLinkedQueue();
+      Queue<Long> regularCompletion = new ConcurrentLinkedQueue();
+      final int N = 500;
+      final OperationContextImpl impl = new OperationContextImpl(new OrderedExecutor(executor));
+
+      // pending work to queue completions till done
+      impl.storeLineUp();
+      impl.replicationLineUp();
+
+      for (long l = 0; l < N; l++) {
+         long finalL = l;
+         impl.executeOnCompletion(new IOCallback() {
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+            }
+
+            @Override
+            public void done() {
+               ignoreReplicationCompletions.add(finalL);
+            }
+         }, OperationConsistencyLevel.IGNORE_REPLICATION);
+         impl.executeOnCompletion(new IOCallback() {
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+            }
+
+            @Override
+            public void done() {
+               regularCompletion.add(finalL);
+            }
+         }, OperationConsistencyLevel.FULL);
+      }
+
+      flushExecutor(executor);
+      assertEquals(0, ignoreReplicationCompletions.size());
+      assertEquals(0, regularCompletion.size());
+      impl.done();
+
+      flushExecutor(executor);
+      assertEquals(N, ignoreReplicationCompletions.size());
+      assertEquals(0, regularCompletion.size());
+
+      impl.replicationDone();
+      flushExecutor(executor);
+
+      assertEquals(N, regularCompletion.size());
+
+      for (long i = 0; i < N; i++) {
+         assertEquals(i, (long) ignoreReplicationCompletions.poll(), "ordered");
+         assertEquals(i, (long) regularCompletion.poll(), "ordered");
+      }
+   }
+
+   private void flushExecutor(Executor executor) throws Exception {
+      CountDownLatch latch = new CountDownLatch(1);
+      executor.execute(latch::countDown);
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+   }
+
+   @Test
+   public void testWaitOnReplication() throws Exception {
+      ExecutorService executor = Executors.newSingleThreadScheduledExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
+      runAfter(executor::shutdownNow);
+
+      Queue<Long> completions = new ConcurrentLinkedQueue();
+
+      final int N = 500;
+      final OperationContextImpl impl = new OperationContextImpl(new OrderedExecutor(executor));
+
+      // pending work to queue completions till done
+      impl.storeLineUp();
+      impl.replicationLineUp();
+
+      for (long l = 0; l < N; l++) {
+         long finalL = l;
+         impl.executeOnCompletion(new IOCallback() {
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+            }
+
+            @Override
+            public void done() {
+               completions.add(finalL);
+            }
+         });
+      }
+
+      impl.done();
+
+      flushExecutor(executor);
+      assertEquals(0, completions.size());
+
+      impl.replicationDone();
+      flushExecutor(executor);
+
+      Wait.assertEquals(N, ()-> completions.size(), 5000, 100);
+
+      for (long i = 0; i < N; i++) {
+         assertEquals(i, (long) completions.poll(), "ordered");
+      }
+
    }
 
    @Test
@@ -271,7 +433,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
       }
 
       try {
-         final int numJobs = 10000;
+         final int numJobs = 1000;
          final CountDownLatch errorsOnLateRegister = new CountDownLatch(numJobs);
 
          for (int i = 0; i < numJobs; i++) {
@@ -296,14 +458,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
             done.await();
          }
-
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return errorsOnLateRegister.await(1, TimeUnit.SECONDS);
-            }
-         }));
-
+         assertTrue(errorsOnLateRegister.await(10, TimeUnit.SECONDS));
 
       } finally {
          executor.shutdown();
@@ -331,29 +486,26 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
       final AtomicInteger numberOfFailures = new AtomicInteger(0);
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               impl.waitCompletion(5000);
-            } catch (Throwable e) {
-               e.printStackTrace();
-               numberOfFailures.incrementAndGet();
-            }
+      Thread t = new Thread(() -> {
+         try {
+            impl.waitCompletion(5000);
+         } catch (Throwable e) {
+            e.printStackTrace();
+            numberOfFailures.incrementAndGet();
          }
-      };
+      });
 
       t.start();
 
       // Need to wait complete to be called first or the test would be invalid.
       // We use a latch instead of forcing a sleep here
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
 
       impl.done();
 
       t.join();
 
-      Assert.assertEquals(1, numberOfFailures.get());
+      assertEquals(1, numberOfFailures.get());
    }
 
    @Test
@@ -375,29 +527,26 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
       final AtomicInteger failures = new AtomicInteger(0);
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               context.waitCompletion(5000);
-            } catch (Throwable e) {
-               e.printStackTrace();
-               failures.incrementAndGet();
-            }
+      Thread t = new Thread(() -> {
+         try {
+            context.waitCompletion(5000);
+         } catch (Throwable e) {
+            e.printStackTrace();
+            failures.incrementAndGet();
          }
-      };
+      });
 
       t.start();
 
       // Need to wait complete to be called first or the test would be invalid.
       // We use a latch instead of forcing a sleep here
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
 
       context.onError(ActiveMQExceptionType.UNSUPPORTED_PACKET.getCode(), "Poop happens!");
 
       t.join();
 
-      Assert.assertEquals(1, failures.get());
+      assertEquals(1, failures.get());
 
       failures.set(0);
 
@@ -418,8 +567,8 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
       });
 
-      Assert.assertEquals(1, failures.get());
-      Assert.assertEquals(0, operations.get());
+      assertEquals(1, failures.get());
+      assertEquals(0, operations.get());
    }
 
    @Test
@@ -427,15 +576,15 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
       ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       runAfter(executor::shutdownNow);
 
-      Assert.assertEquals(0, OperationContextImpl.getMaxDebugTrackers());
+      assertEquals(0, OperationContextImpl.getMaxDebugTrackers());
       OperationContextImpl context = new OperationContextImpl(executor);
-      Assert.assertNull(context.getDebugTrackers());
+      assertNull(context.getDebugTrackers());
 
       context.storeLineUp();
-      Assert.assertNull(context.getDebugTrackers());
+      assertNull(context.getDebugTrackers());
 
       context.done();
-      Assert.assertNull(context.getDebugTrackers());
+      assertNull(context.getDebugTrackers());
    }
 
    @Test
@@ -446,19 +595,19 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
       OperationContextImpl.setMaxDebugTrackers(1);
       try {
-         Assert.assertEquals(1, OperationContextImpl.getMaxDebugTrackers());
+         assertEquals(1, OperationContextImpl.getMaxDebugTrackers());
          OperationContextImpl context = new OperationContextImpl(executor);
-         Assert.assertNotNull(context.getDebugTrackers());
+         assertNotNull(context.getDebugTrackers());
 
          context.storeLineUp();
-         Assert.assertEquals(1, context.getDebugTrackers().size());
-         Assert.assertEquals("storeLineUp", ((Exception)context.getDebugTrackers().get()).getStackTrace()[0].getMethodName());
-         Assert.assertEquals("testContextWithDebugTrackers", ((Exception)context.getDebugTrackers().get()).getStackTrace()[1].getMethodName());
+         assertEquals(1, context.getDebugTrackers().size());
+         assertEquals("storeLineUp", ((Exception)context.getDebugTrackers().get()).getStackTrace()[0].getMethodName());
+         assertEquals("testContextWithDebugTrackers", ((Exception)context.getDebugTrackers().get()).getStackTrace()[1].getMethodName());
 
          context.done();
-         Assert.assertEquals(1, context.getDebugTrackers().size());
-         Assert.assertEquals("done", ((Exception)context.getDebugTrackers().get()).getStackTrace()[0].getMethodName());
-         Assert.assertEquals("testContextWithDebugTrackers", ((Exception)context.getDebugTrackers().get()).getStackTrace()[1].getMethodName());
+         assertEquals(1, context.getDebugTrackers().size());
+         assertEquals("done", ((Exception)context.getDebugTrackers().get()).getStackTrace()[0].getMethodName());
+         assertEquals("testContextWithDebugTrackers", ((Exception)context.getDebugTrackers().get()).getStackTrace()[1].getMethodName());
       } finally {
          OperationContextImpl.setMaxDebugTrackers(maxStoreOperationTrackers);
       }

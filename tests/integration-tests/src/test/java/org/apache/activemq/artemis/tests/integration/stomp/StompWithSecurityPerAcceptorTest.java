@@ -28,10 +28,16 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StompWithSecurityPerAcceptorTest extends StompTestBase {
+
+   public StompWithSecurityPerAcceptorTest() {
+      super("tcp+v10.stomp");
+   }
 
    static {
       String path = System.getProperty("java.security.auth.login.config");
@@ -50,7 +56,7 @@ public class StompWithSecurityPerAcceptorTest extends StompTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       uri = new URI(scheme + "://" + hostname + ":" + port);
 
@@ -75,13 +81,13 @@ public class StompWithSecurityPerAcceptorTest extends StompTestBase {
    public void testSecurityPerAcceptorPositive() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       ClientStompFrame frame = conn.connect("first", "secret");
-      assertTrue(frame.getCommand().equals(Stomp.Responses.CONNECTED));
+      assertEquals(Stomp.Responses.CONNECTED, frame.getCommand());
    }
 
    @Test
    public void testSecurityPerAcceptorNegative() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       ClientStompFrame frame = conn.connect("fail", "secret");
-      assertTrue(frame.getCommand().equals(Stomp.Responses.ERROR));
+      assertEquals(Stomp.Responses.ERROR, frame.getCommand());
    }
 }

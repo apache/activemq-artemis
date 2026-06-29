@@ -139,9 +139,6 @@ public class QueueInfo implements Serializable {
       return containsAddress;
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "QueueInfo [routingName=" + routingName +

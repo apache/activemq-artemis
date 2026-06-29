@@ -16,16 +16,17 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class VerifyUpdateFactorSystemPropertyTest {
 
    public static void main(String[] arg) {
 
       try {
-         Assert.assertEquals(33.0, JournalImpl.UPDATE_FACTOR, 0);
+         assertEquals(33.0, JournalImpl.UPDATE_FACTOR, 0);
          System.exit(0);
       } catch (Throwable e) {
          e.printStackTrace();
@@ -36,7 +37,7 @@ public class VerifyUpdateFactorSystemPropertyTest {
    @Test
    public void testValidateUpdateRecordProperty() throws Exception {
       Process process = SpawnedVMSupport.spawnVM(VerifyUpdateFactorSystemPropertyTest.class.getName(), new String[]{"-D" + JournalImpl.class.getName() + ".UPDATE_FACTOR=33.0"}, new String[]{});
-      Assert.assertEquals(0, process.waitFor());
+      assertEquals(0, process.waitFor());
    }
 
 }

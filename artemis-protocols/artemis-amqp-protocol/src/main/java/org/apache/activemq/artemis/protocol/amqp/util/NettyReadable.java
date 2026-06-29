@@ -20,26 +20,22 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
-import io.netty.buffer.ByteBuf;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
-
 /**
- * {@link ReadableBuffer} implementation that wraps a Netty {@link ByteBuf} to
- * allow use of Netty buffers to be used when decoding AMQP messages.
+ * {@link ReadableBuffer} implementation that wraps a Netty {@link ByteBuf} to allow use of Netty buffers to be used
+ * when decoding AMQP messages.
  */
 public class NettyReadable implements ReadableBuffer {
 
    private final ByteBuf buffer;
 
    public NettyReadable(ByteBuf buffer) {
-      checkNotNull(buffer);
-
-      this.buffer = buffer;
+      this.buffer = Objects.requireNonNull(buffer);
    }
 
    public ByteBuf getByteBuf() {
@@ -238,11 +234,10 @@ public class NettyReadable implements ReadableBuffer {
          return true;
       }
 
-      if (!(other instanceof ReadableBuffer)) {
+      if (!(other instanceof ReadableBuffer readable)) {
          return false;
       }
 
-      ReadableBuffer readable = (ReadableBuffer) other;
       if (this.remaining() != readable.remaining()) {
          return false;
       }

@@ -185,7 +185,7 @@ public class EncodeJournal extends LockAbstract {
    }
 
    private static String encode(final byte[] data) {
-      return Base64.encodeBytes(data, 0, data.length, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
+      return Base64.encodeBytes(data, true);
    }
 
 }

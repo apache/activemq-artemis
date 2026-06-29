@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.spi.core.protocol;
 
+import java.util.Objects;
 import java.util.ServiceLoader;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -42,14 +43,16 @@ public class MessagePersister implements Persister<Message> {
 
    private static final MessagePersister theInstance = new MessagePersister();
 
-   /** This will be used for reading messages */
+   /**
+    * This will be used for reading messages
+    */
    private static final Persister<Message>[] persisters = new Persister[MAX_PERSISTERS];
 
    static {
       CoreMessagePersister persister = CoreMessagePersister.getInstance();
       MessagePersister.registerPersister(persister);
 
-      Iterable<ProtocolManagerFactory> protocols  = ServiceLoader.load(ProtocolManagerFactory.class, MessagePersister.class.getClassLoader());
+      Iterable<ProtocolManagerFactory> protocols = ServiceLoader.load(ProtocolManagerFactory.class, MessagePersister.class.getClassLoader());
       for (ProtocolManagerFactory next : protocols) {
          registerProtocol(next);
       }
@@ -100,7 +103,9 @@ public class MessagePersister implements Persister<Message> {
    }
 
 
-   /** Sub classes must add the first short as the protocol-id */
+   /**
+    * Sub classes must add the first short as the protocol-id
+    */
    @Override
    public void encode(ActiveMQBuffer buffer, Message record) {
       buffer.writeByte(getID());
@@ -115,12 +120,10 @@ public class MessagePersister implements Persister<Message> {
    public Message decode(ActiveMQBuffer buffer, Message record, CoreMessageObjectPools pools, StorageManager storageManager) {
       byte protocol = buffer.readByte();
       Persister<Message> persister = getPersister(protocol);
-      if (persister == null) {
-         throw new NullPointerException("couldn't find factory for type=" + protocol);
-      }
+      Objects.requireNonNull(persister, "couldn't find factory for type=" + protocol);
       Message message = persister.decode(buffer, record, pools);
-      if (message instanceof LargeServerMessage) {
-         ((LargeServerMessage) message).setStorageManager(storageManager);
+      if (message instanceof LargeServerMessage largeServerMessage) {
+         largeServerMessage.setStorageManager(storageManager);
       }
       return message;
    }

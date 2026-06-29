@@ -30,28 +30,22 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * A PagingFailoverTest
- * <br>
  */
 public class PagingFailoverTest extends FailoverTestBase {
 
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
-
-   private static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+   private static final SimpleString ADDRESS = SimpleString.of("SimpleAddress");
 
    private ServerLocator locator;
 
@@ -61,7 +55,7 @@ public class PagingFailoverTest extends FailoverTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = getServerLocator();
@@ -93,7 +87,7 @@ public class PagingFailoverTest extends FailoverTestBase {
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
       session = addClientSession(sf.createSession(!transacted, !transacted, 0));
 
-      session.createQueue(new QueueConfiguration(PagingFailoverTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingFailoverTest.ADDRESS));
 
       ClientProducer prod = session.createProducer(PagingFailoverTest.ADDRESS);
 
@@ -104,7 +98,7 @@ public class PagingFailoverTest extends FailoverTestBase {
             session.commit();
          }
          ClientMessage msg = session.createMessage(true);
-         msg.putIntProperty(new SimpleString("key"), i);
+         msg.putIntProperty(SimpleString.of("key"), i);
          prod.send(msg);
       }
 
@@ -127,12 +121,12 @@ public class PagingFailoverTest extends FailoverTestBase {
 
       for (int i = 0; i < MIDDLE; i++) {
          ClientMessage msg = cons.receive(20000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.acknowledge();
          if (transacted && i % 10 == 0) {
             session.commit();
          }
-         Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
+         assertEquals(i, msg.getObjectProperty(SimpleString.of("key")));
       }
 
       session.commit();
@@ -154,11 +148,11 @@ public class PagingFailoverTest extends FailoverTestBase {
 
       for (int i = MIDDLE; i < TOTAL_MESSAGES; i++) {
          ClientMessage msg = cons.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
 
          msg.acknowledge();
-         int result = (Integer) msg.getObjectProperty(new SimpleString("key"));
-         Assert.assertEquals(i, result);
+         int result = (Integer) msg.getObjectProperty(SimpleString.of("key"));
+         assertEquals(i, result);
       }
    }
 
@@ -169,7 +163,7 @@ public class PagingFailoverTest extends FailoverTestBase {
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
       session = sf.createSession(false, false, 0);
 
-      session.createQueue(new QueueConfiguration(PagingFailoverTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(PagingFailoverTest.ADDRESS));
 
       ClientProducer prod = session.createProducer(PagingFailoverTest.ADDRESS);
 
@@ -177,7 +171,7 @@ public class PagingFailoverTest extends FailoverTestBase {
 
       for (int i = 0; i < TOTAL_MESSAGES; i++) {
          ClientMessage msg = session.createMessage(true);
-         msg.putIntProperty(new SimpleString("key"), i);
+         msg.putIntProperty(SimpleString.of("key"), i);
          msg.setExpiration(System.currentTimeMillis() + 100);
          prod.send(msg);
       }
@@ -188,9 +182,11 @@ public class PagingFailoverTest extends FailoverTestBase {
 
       session.close();
 
+      Wait.assertTrue(() -> backupServer.getServer().locateQueue(ADDRESS) != null, 15_000, 100);
+
       Queue queue = backupServer.getServer().locateQueue(ADDRESS);
 
-      Wait.assertFalse( () -> {
+      Wait.assertFalse(() -> {
          queue.expireReferences();
          return queue.getPageSubscription().isPaging();
       });
@@ -211,7 +207,7 @@ public class PagingFailoverTest extends FailoverTestBase {
 
    @Override
    protected ActiveMQServer createServer(final boolean realFiles, final Configuration configuration) {
-      return addServer(createInVMFailoverServer(true, configuration, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>(), nodeManager, 2));
+      return addServer(createInVMFailoverServer(true, configuration, PAGE_SIZE, PAGE_MAX, new HashMap<>(), nodeManager, 2));
    }
 
    @Override

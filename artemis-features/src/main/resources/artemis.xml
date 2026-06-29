@@ -144,14 +144,21 @@ under the License.
             <permission type="consume" roles="manager"/>
             <permission type="browse" roles="manager"/>
             <permission type="send" roles="manager"/>
-            <!-- we need this otherwise ./artemis data imp wouldn't work -->
+         </security-setting>
+         <security-setting match="activemq.management.#">
             <permission type="manage" roles="manager"/>
+            <permission type="createNonDurableQueue" roles="manager"/>
+            <permission type="deleteNonDurableQueue" roles="manager"/>
+            <permission type="createAddress" roles="manager"/>
+            <permission type="deleteAddress" roles="manager"/>
+            <permission type="consume" roles="manager"/>
+            <permission type="send" roles="manager"/>
          </security-setting>
       </security-settings>
 
       <address-settings>
          <!-- if you define auto-create on certain queues, management has to be auto-create -->
-         <address-setting match="activemq.management#">
+         <address-setting match="activemq.management.#">
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>

@@ -23,7 +23,7 @@ import javax.jms.XAQueueConnection;
 import javax.jms.XATopicConnection;
 
 /**
- * A joint interface for all connection types
+ * A joint interface for {@link XATopicConnection} and {@link XAQueueConnection}.
  */
 public interface ActiveMQRASessionFactory extends XATopicConnection, XAQueueConnection {
 
@@ -32,25 +32,9 @@ public interface ActiveMQRASessionFactory extends XATopicConnection, XAQueueConn
     */
    String ISE = "This method is not applicable inside the application server. See the J2EE spec, e.g. J2EE1.4 Section 6.6";
 
-   /**
-    * Add a temporary queue
-    *
-    * @param temp The temporary queue
-    */
    void addTemporaryQueue(TemporaryQueue temp);
 
-   /**
-    * Add a temporary topic
-    *
-    * @param temp The temporary topic
-    */
    void addTemporaryTopic(TemporaryTopic temp);
 
-   /**
-    * Notification that a session is closed
-    *
-    * @param session The session
-    * @throws JMSException for any error
-    */
    void closeSession(ActiveMQRASession session) throws JMSException;
 }

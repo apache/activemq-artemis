@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -41,9 +42,6 @@ public abstract class SessionContinuationMessage extends PacketImpl {
       super(type);
    }
 
-   /**
-    * @return the body
-    */
    public byte[] getBody() {
       if (size <= 0) {
          return new byte[0];
@@ -52,20 +50,15 @@ public abstract class SessionContinuationMessage extends PacketImpl {
       }
    }
 
-   /**
-    * @return the continues
-    */
    public boolean isContinues() {
       return continues;
    }
 
    /**
-    * Returns the exact expected encoded size of {@code this} packet.
-    * It will be used to allocate the proper encoding buffer in {@link #createPacket}, hence any
-    * wrong value will result in a thrown exception or a resize of the encoding
-    * buffer during the encoding process, depending to the implementation of {@link #createPacket}.
-    * Any child of {@code this} class are required to override this method if their encoded size is changed
-    * from the base class.
+    * Returns the exact expected encoded size of {@code this} packet. It will be used to allocate the proper encoding
+    * buffer in {@link #createPacket}, hence any wrong value will result in a thrown exception or a resize of the
+    * encoding buffer during the encoding process, depending to the implementation of {@link #createPacket}. Any child
+    * of {@code this} class are required to override this method if their encoded size is changed from the base class.
     *
     * @return the size in bytes of the expected encoded packet
     */
@@ -91,35 +84,30 @@ public abstract class SessionContinuationMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + Arrays.hashCode(body);
-      result = prime * result + (continues ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), Arrays.hashCode(body), continues);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", body=" + Arrays.toString(body));
-      buff.append(", continues=" + continues);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", body=" + Arrays.toString(body));
+      sb.append(", continues=" + continues);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionContinuationMessage))
+      }
+      if (!(obj instanceof SessionContinuationMessage other)) {
          return false;
-      SessionContinuationMessage other = (SessionContinuationMessage) obj;
-      if (!Arrays.equals(body, other.body))
-         return false;
-      if (continues != other.continues)
-         return false;
-      return true;
-   }
+      }
 
+      return Arrays.equals(body, other.body) &&
+             continues == other.continues;
+   }
 }

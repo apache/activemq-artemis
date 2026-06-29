@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.critical;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -30,8 +33,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.critical.CriticalCloseable;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CriticalSimpleTest extends ActiveMQTestBase {
    @Test
@@ -71,11 +73,11 @@ public class CriticalSimpleTest extends ActiveMQTestBase {
             }
          });
 
-         Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+         assertTrue(latch.await(10, TimeUnit.SECONDS));
          Wait.waitFor(() -> !server.isStarted());
 
 
-         Assert.assertFalse(server.isStarted());
+         assertFalse(server.isStarted());
 
       } finally {
          server.stop();
@@ -114,7 +116,7 @@ public class CriticalSimpleTest extends ActiveMQTestBase {
          Wait.waitFor(() -> !server.isStarted(), 500, 10);
 
 
-         Assert.assertTrue(server.isStarted());
+         assertTrue(server.isStarted());
 
       } finally {
          server.stop();

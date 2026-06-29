@@ -28,9 +28,6 @@ import org.apache.activemq.transport.tcp.TcpTransportFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSendReceiveWithTwoConnectionsTest.class);
@@ -41,8 +38,6 @@ public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTes
 
    /**
     * Sets up a test where the producer and consumer have their own connection.
-    *
-    * @see junit.framework.TestCase#setUp()
     */
    @Override
    protected void setUp() throws Exception {
@@ -95,9 +90,6 @@ public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTes
       return receiveSession.createConsumer(consumerDestination);
    }
 
-   /*
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       session.close();
@@ -108,31 +100,14 @@ public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTes
       ArtemisBrokerHelper.stopArtemisBroker();
    }
 
-   /**
-    * Creates a connection.
-    *
-    * @return Connection
-    * @throws Exception
-    */
    protected Connection createReceiveConnection() throws Exception {
       return createConnection();
    }
 
-   /**
-    * Creates a connection.
-    *
-    * @return Connection
-    * @throws Exception
-    */
    protected Connection createSendConnection() throws Exception {
       return createConnection();
    }
 
-   /**
-    * Creates an ActiveMQConnectionFactory.
-    *
-    * @see org.apache.activemq.test.TestSupport#createConnectionFactory()
-    */
    @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");

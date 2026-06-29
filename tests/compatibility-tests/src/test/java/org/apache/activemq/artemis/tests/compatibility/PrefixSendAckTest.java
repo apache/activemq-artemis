@@ -17,27 +17,28 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_2_4_7;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_1_4_0;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_2_4_0;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.tests.compatibility.base.ServerBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_247;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class PrefixSendAckTest extends ServerBase {
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
 
-      combinations.addAll(combinatory(new Object[]{SNAPSHOT}, new Object[]{ONE_FIVE, HORNETQ_247, TWO_FOUR, SNAPSHOT}, new Object[]{ONE_FIVE, HORNETQ_247, TWO_FOUR, SNAPSHOT}));
+      combinations.addAll(combinatory(SNAPSHOT, new Object[]{SNAPSHOT}, new Object[]{ARTEMIS_1_4_0, HORNETQ_2_4_7, ARTEMIS_2_4_0, SNAPSHOT}, new Object[]{ARTEMIS_1_4_0, HORNETQ_2_4_7, ARTEMIS_2_4_0, SNAPSHOT}));
       return combinations;
    }
 
@@ -45,10 +46,10 @@ public class PrefixSendAckTest extends ServerBase {
       super(server, sender, receiver);
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceive() throws Throwable {
-      evaluate(senderClassloader,  "prefixSendAckTest/sendAckMessages.groovy", server, sender, "sendAckMessages");
-      evaluate(receiverClassloader,  "prefixSendAckTest/sendAckMessages.groovy", server, receiver, "receiveMessages");
+      evaluate(senderClassloader, "prefixSendAckTest/sendAckMessages.groovy", server, sender, "sendAckMessages");
+      evaluate(receiverClassloader, "prefixSendAckTest/sendAckMessages.groovy", server, receiver, "receiveMessages");
    }
 
    @Override

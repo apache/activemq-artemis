@@ -43,8 +43,8 @@ public class HornetQClientProtocolManagerFactory implements ClientProtocolManage
    }
 
    /**
-    * Adapt the transport configuration by replacing the factoryClassName corresponding to an HornetQ's NettyConnectorFactory
-    * by the Artemis-based implementation.
+    * Adapt the transport configuration by replacing the factoryClassName corresponding to an HornetQ's
+    * NettyConnectorFactory by the Artemis-based implementation.
     */
    @Override
    public TransportConfiguration adaptTransportConfiguration(TransportConfiguration tc) {

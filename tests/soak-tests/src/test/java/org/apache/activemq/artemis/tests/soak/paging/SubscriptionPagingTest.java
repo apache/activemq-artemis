@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.soak.paging;
 
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -29,32 +34,36 @@ import javax.jms.TopicSubscriber;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.TestParameters;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-import static org.apache.activemq.artemis.tests.soak.TestParameters.intMandatoryProperty;
-import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
-
 /**
- * Refer to ./scripts/parameters.sh for suggested parameters
- * #You may choose to use zip files to save some time on producing if you want to run this test over and over when debugging
- * export TEST_FLOW_ZIP_LOCATION=a folder */
-@RunWith(Parameterized.class)
+ * Refer to ./scripts/parameters.sh for suggested parameters. You may choose to use zip files to save some time on
+ * producing if you want to run this test over and over when debugging:
+ * <pre>
+ * export TEST_FLOW_ZIP_LOCATION=a folder
+ * </pre>
+ */
+@ExtendWith(ParameterizedTestExtension.class)
 public class SubscriptionPagingTest extends SoakTestBase {
 
    private static final String TEST_NAME = "SUBSCRIPTION";
@@ -81,11 +90,27 @@ public class SubscriptionPagingTest extends SoakTestBase {
 
    public static final String SERVER_NAME_0 = "subscriptionPaging";
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @BeforeAll
+   public static void createServers() throws Exception {
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_0);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
+         // some limited memory to make it more likely to fail
+         cliCreateServer.setArgs("--java-memory", "512M");
+         cliCreateServer.setConfiguration("./src/main/resources/servers/subscriptionPaging");
+         cliCreateServer.createServer();
+      }
+   }
+
+
+   @Parameters(name = "protocol={0}")
    public static Collection<Object[]> parameters() {
       String[] protocols = PROTOCOL_LIST.split(",");
 
-      ArrayList<Object[]> parameters = new ArrayList<>();
+      List<Object[]> parameters = new ArrayList<>();
       for (String str : protocols) {
          logger.info("Adding {} to the list for the test", str);
          parameters.add(new Object[]{str});
@@ -96,12 +121,12 @@ public class SubscriptionPagingTest extends SoakTestBase {
 
    public SubscriptionPagingTest(String protocol) {
       this.protocol = protocol;
-      MESSAGES = intMandatoryProperty(TEST_NAME, protocol + "_MESSAGES");
-      COMMIT_INTERVAL = intMandatoryProperty(TEST_NAME, protocol + "_COMMIT_INTERVAL");
+      MESSAGES = TestParameters.testProperty(TEST_NAME, protocol + "_MESSAGES", 1000);
+      COMMIT_INTERVAL = TestParameters.testProperty(TEST_NAME, protocol + "_COMMIT_INTERVAL", 100);
       // if 0 will use AUTO_ACK
-      RECEIVE_COMMIT_INTERVAL = intMandatoryProperty(TEST_NAME, protocol + "_RECEIVE_COMMIT_INTERVAL");
-      MESSAGE_SIZE = intMandatoryProperty(TEST_NAME, protocol + "_MESSAGE_SIZE");
-      SLOW_SUBSCRIPTIONS = intMandatoryProperty(TEST_NAME, "SLOW_SUBSCRIPTIONS");
+      RECEIVE_COMMIT_INTERVAL = TestParameters.testProperty(TEST_NAME, protocol + "_RECEIVE_COMMIT_INTERVAL", 100);
+      MESSAGE_SIZE = TestParameters.testProperty(TEST_NAME, protocol + "_MESSAGE_SIZE", 1000);
+      SLOW_SUBSCRIPTIONS = TestParameters.testProperty(TEST_NAME, "SLOW_SUBSCRIPTIONS", 100);
       SLEEP_SLOW = testProperty(TEST_NAME, "SLEEP_SLOW", 1000);
    }
 
@@ -110,19 +135,19 @@ public class SubscriptionPagingTest extends SoakTestBase {
    boolean unzipped = false;
 
    private String getZipName() {
-      return "subscription-" + protocol +  "-" + MESSAGES + "-" + MESSAGE_SIZE + "-" + SLOW_SUBSCRIPTIONS + ".zip";
+      return "subscription-" + protocol + "-" + MESSAGES + "-" + MESSAGE_SIZE + "-" + SLOW_SUBSCRIPTIONS + ".zip";
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
-      Assume.assumeTrue(TEST_ENABLED);
+      assumeTrue(TEST_ENABLED);
       cleanupData(SERVER_NAME_0);
 
       boolean useZip = ZIP_LOCATION != null;
       String zipName = getZipName();
       File zipFile = useZip ? new File(ZIP_LOCATION + "/" + zipName) : null;
 
-      if (ZIP_LOCATION  != null && zipFile.exists()) {
+      if (ZIP_LOCATION != null && zipFile.exists()) {
          unzipped = true;
          unzip(zipFile, new File(getServerLocation(SERVER_NAME_0)));
       }
@@ -163,7 +188,7 @@ public class SubscriptionPagingTest extends SoakTestBase {
                   logger.info("Received {} on {}_{}", i, clientID, name);
                }
 
-               Assert.assertEquals(i, message.getIntProperty("m"));
+               assertEquals(i, message.getIntProperty("m"));
 
                if (txInterval > 0) {
                   commitPending++;
@@ -199,7 +224,7 @@ public class SubscriptionPagingTest extends SoakTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testSubscription() throws Exception {
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       AtomicInteger errors = new AtomicInteger(0);
@@ -217,7 +242,7 @@ public class SubscriptionPagingTest extends SoakTestBase {
       } else if (protocol.equals("OPENWIRE")) {
          factoryClient = CFUtil.createConnectionFactory("OPENWIRE", "tcp://localhost:61616");  // no flow control on openwire by default
       } else {
-         factoryClient = CFUtil.createConnectionFactory("OPENWIRE", "tcp://localhost:61616");  // no flow control on openwire by default
+         throw new IllegalStateException("protocol not defined!");
       }
 
       {
@@ -229,23 +254,15 @@ public class SubscriptionPagingTest extends SoakTestBase {
             service.execute(() -> receive(factoryClient, "slow_" + finalI, "slow_" + finalI, 0, errors, new AtomicInteger(0), 0, countDownLatch::countDown));
          }
 
-         Assert.assertTrue(countDownLatch.await(1, TimeUnit.MINUTES));
-         Assert.assertEquals(0, errors.get());
+         assertTrue(countDownLatch.await(1, TimeUnit.MINUTES));
+         assertEquals(0, errors.get());
       }
 
       if (!unzipped) {
          Connection connection = factory.createConnection();
          runAfter(connection::close);
 
-         String text;
-         {
-            StringBuffer buffer = new StringBuffer();
-            while (buffer.length() < MESSAGE_SIZE) {
-               buffer.append("a big string...");
-            }
-
-            text = buffer.toString();
-         }
+         String text = RandomUtil.randomAlphaNumericString(MESSAGE_SIZE);
 
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
          Destination destination = session.createTopic(TOPIC_NAME);
@@ -286,12 +303,12 @@ public class SubscriptionPagingTest extends SoakTestBase {
          service.execute(() -> receive(factoryClient, "slow_" + finalI, "slow_" + finalI, RECEIVE_COMMIT_INTERVAL, errors, sleepInterval, MESSAGES, countDownLatch::countDown));
       }
 
-      Assert.assertTrue(countDownLatch.await(TIMEOUT_MINUTES, TimeUnit.MINUTES));
-      Assert.assertEquals(0, errors.get());
+      assertTrue(countDownLatch.await(TIMEOUT_MINUTES, TimeUnit.MINUTES));
+      assertEquals(0, errors.get());
 
       service.shutdown();
-      Assert.assertTrue("Test Timed Out", service.awaitTermination(1, TimeUnit.MINUTES));
-      Assert.assertEquals(0, errors.get());
+      assertTrue(service.awaitTermination(1, TimeUnit.MINUTES), "Test Timed Out");
+      assertEquals(0, errors.get());
 
    }
 

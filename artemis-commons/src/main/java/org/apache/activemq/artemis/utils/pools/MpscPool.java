@@ -23,13 +23,10 @@ import java.util.function.Supplier;
 
 import io.netty.util.internal.PlatformDependent;
 
-
 /**
- * A simple encapsulation of Netty MpscQueue to provide a pool of objects.
- * Use this pool only when the borrowing of object (consume) is done on a single thread.
- * This is using a Multi Producer Single Consumer queue (MPSC).
- * If you need other uses you may create different strategies for ObjectPooling.
- * @param <T>
+ * A simple encapsulation of Netty MpscQueue to provide a pool of objects. Use this pool only when the borrowing of
+ * object (consume) is done on a single thread. This is using a Multi Producer Single Consumer queue (MPSC). If you need
+ * other uses you may create different strategies for ObjectPooling.
  */
 public class MpscPool<T> extends Pool<T> {
 

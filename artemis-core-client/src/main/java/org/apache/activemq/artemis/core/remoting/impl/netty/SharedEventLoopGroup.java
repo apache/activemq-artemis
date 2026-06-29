@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
@@ -33,6 +32,7 @@ import io.netty.util.concurrent.Promise;
 
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 public class SharedEventLoopGroup extends DelegatingEventLoopGroup {
 
@@ -61,12 +61,7 @@ public class SharedEventLoopGroup extends DelegatingEventLoopGroup {
             f.cancel(false);
          }
       } else {
-         instance = new SharedEventLoopGroup(eventLoopGroupSupplier.apply(AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-client-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
-            }
-         })));
+         instance = new SharedEventLoopGroup(eventLoopGroupSupplier.apply((ThreadFactory) SecurityManagerShim.doPrivileged((PrivilegedAction) () -> new ActiveMQThreadFactory("client-remoting", true, ClientSessionFactoryImpl.class.getClassLoader()))));
       }
       instance.channelFactoryCount.incrementAndGet();
       return instance;
@@ -86,27 +81,20 @@ public class SharedEventLoopGroup extends DelegatingEventLoopGroup {
    public Future<?> shutdownGracefully(final long l, final long l2, final TimeUnit timeUnit) {
       synchronized (SharedEventLoopGroup.class) {
          if (channelFactoryCount.decrementAndGet() == 0) {
-            shutdown.compareAndSet(null, next().scheduleAtFixedRate(new Runnable() {
-               @Override
-               public void run() {
-                  synchronized (SharedEventLoopGroup.class) {
-                     if (shutdown.get() != null) {
-                        Future<?> future = SharedEventLoopGroup.super.shutdownGracefully(l, l2, timeUnit);
-                        future.addListener(new FutureListener<Object>() {
-                           @Override
-                           public void operationComplete(Future<Object> future) throws Exception {
-                              if (future.isSuccess()) {
-                                 terminationPromise.setSuccess(null);
-                              } else {
-                                 terminationPromise.setFailure(future.cause());
-                              }
-                           }
-                        });
-                        instance = null;
-                     }
+            shutdown.compareAndSet(null, next().scheduleAtFixedRate(() -> {
+               synchronized (SharedEventLoopGroup.class) {
+                  if (shutdown.get() != null) {
+                     Future<?> future = SharedEventLoopGroup.super.shutdownGracefully(l, l2, timeUnit);
+                     future.addListener((FutureListener<Object>) future1 -> {
+                        if (future1.isSuccess()) {
+                           terminationPromise.setSuccess(null);
+                        } else {
+                           terminationPromise.setFailure(future1.cause());
+                        }
+                     });
+                     instance = null;
                   }
                }
-
             }, 10, 10, TimeUnit.SECONDS));
          }
          return terminationPromise;

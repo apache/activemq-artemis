@@ -35,7 +35,7 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory {
 
    boolean waitForTopology(long timeout, TimeUnit unit);
 
-   String getLiveNodeId();
+   String getPrimaryNodeId();
 
    // for testing
 
@@ -48,8 +48,8 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory {
    void connect(int reconnectAttempts) throws ActiveMQException;
 
    /**
-    * @deprecated This method is no longer acceptable to connect.
-    * Replaced by {@link ClientSessionFactoryInternal#connect(int)}.
+    * @deprecated This method is no longer acceptable to connect. Replaced by
+    * {@link ClientSessionFactoryInternal#connect(int)}.
     */
    @Deprecated
    void connect(int reconnectAttempts, boolean failoverOnInitialConnection) throws ActiveMQException;

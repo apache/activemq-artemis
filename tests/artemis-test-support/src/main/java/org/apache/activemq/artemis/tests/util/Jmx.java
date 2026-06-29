@@ -105,9 +105,9 @@ public class Jmx {
          final JsonObject nodePair = nodeIDs.getJsonObject(i);
          try {
             final String nodeID = nodePair.getString("nodeID");
-            final String live = nodePair.getString("live");
+            final String primary = Objects.requireNonNullElse(nodePair.getString("primary"), nodePair.getString("live"));
             final String backup = nodePair.getString("backup", null);
-            networkTopology.put(nodeID, new Pair<>(live, backup));
+            networkTopology.put(nodeID, new Pair<>(primary, backup));
          } catch (Exception e) {
             logger.warn("Error on {}", nodePair, e);
          }
@@ -117,15 +117,15 @@ public class Jmx {
 
    private static long countMembers(Map<String, Pair<String, String>> networkTopology) {
       final long count = networkTopology.values().stream()
-         .map(Pair::getA).filter(live -> live != null && !live.isEmpty())
+         .map(Pair::getA).filter(primary -> primary != null && !primary.isEmpty())
          .count();
       return count;
    }
 
    private static long countNodes(Map<String, Pair<String, String>> networkTopology) {
-      final long count =  networkTopology.values().stream()
+      final long count = networkTopology.values().stream()
          .flatMap(pair -> Stream.of(pair.getA(), pair.getB()))
-         .filter(liveOrBackup -> liveOrBackup != null && !liveOrBackup.isEmpty())
+         .filter(primaryOrBackup -> primaryOrBackup != null && !primaryOrBackup.isEmpty())
          .count();
       return count;
    }
@@ -140,7 +140,7 @@ public class Jmx {
       return networkTopology.get(nodeID).getB();
    }
 
-   public static String liveOf(String nodeID, Map<String, Pair<String, String>> networkTopology) {
+   public static String primaryOf(String nodeID, Map<String, Pair<String, String>> networkTopology) {
       return networkTopology.get(nodeID).getA();
    }
 
@@ -161,7 +161,7 @@ public class Jmx {
       return topology -> compare.test(backupOf(nodeId, topology));
    }
 
-   public static Predicate<Map<String, Pair<String, String>>> withLive(String nodeId, Predicate<String> compare) {
-      return topology -> compare.test(liveOf(nodeId, topology));
+   public static Predicate<Map<String, Pair<String, String>>> withPrimary(String nodeId, Predicate<String> compare) {
+      return topology -> compare.test(primaryOf(nodeId, topology));
    }
 }

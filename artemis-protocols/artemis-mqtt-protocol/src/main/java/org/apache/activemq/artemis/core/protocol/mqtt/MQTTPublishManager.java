@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -50,7 +52,6 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CONTENT_TYPE;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CORRELATION_DATA;
@@ -67,6 +68,7 @@ import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_PAYLO
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_RESPONSE_TOPIC_KEY;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_USER_PROPERTY_EXISTS_KEY;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_USER_PROPERTY_KEY_PREFIX_SIMPLE;
+import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.createServerMessage;
 
 /**
  * Handles MQTT Exactly Once (QoS level 2) Protocol.
@@ -75,15 +77,17 @@ public class MQTTPublishManager {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private SimpleString managementAddress;
+   private SimpleString qos2ManagementAddress;
+
+   private Queue qos2ManagementQueue;
 
    private final String senderName = UUIDGenerator.getInstance().generateUUID().toString();
 
    private boolean createProducer = true;
 
-   private ServerConsumer managementConsumer;
+   private ServerConsumer qos2ManagementConsumer;
 
-   private MQTTSession session;
+   private final MQTTSession session;
 
    private final Object lock = new Object();
 
@@ -108,42 +112,21 @@ public class MQTTPublishManager {
       if (serversession != null) {
          serversession.removeProducer(serversession.getName());
       }
-      if (managementConsumer != null) {
-         managementConsumer.removeItself();
-         managementConsumer.setStarted(false);
-         managementConsumer.close(false);
+      if (qos2ManagementConsumer != null) {
+         qos2ManagementConsumer.removeItself();
+         qos2ManagementConsumer.setStarted(false);
+         qos2ManagementConsumer.close(false);
       }
    }
 
    void clean() throws Exception {
-      SimpleString managementAddress = createManagementAddress();
-      Queue queue = session.getServer().locateQueue(managementAddress);
-      if (queue != null) {
-         queue.deleteQueue();
+      if (qos2ManagementQueue != null) {
+         qos2ManagementQueue.deleteQueue();
       }
    }
 
-   private void createManagementConsumer() throws Exception {
-      long consumerId = session.getServer().getStorageManager().generateID();
-      managementConsumer = session.getInternalServerSession().createConsumer(consumerId, managementAddress, null, false, false, -1);
-      managementConsumer.setStarted(true);
-   }
-
-   private SimpleString createManagementAddress() {
-      return new SimpleString(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + session.getState().getClientId());
-   }
-
-   private void createManagementQueue() throws Exception {
-      Queue q = session.getServer().locateQueue(managementAddress);
-      if (q == null) {
-         session.getServer().createQueue(new QueueConfiguration(managementAddress)
-                                            .setRoutingType(RoutingType.ANYCAST)
-                                            .setDurable(MQTTUtil.DURABLE_MESSAGES));
-      }
-   }
-
-   boolean isManagementConsumer(ServerConsumer consumer) {
-      return consumer == managementConsumer;
+   boolean isQos2ManagementConsumer(ServerConsumer consumer) {
+      return consumer == qos2ManagementConsumer;
    }
 
    /**
@@ -155,7 +138,7 @@ public class MQTTPublishManager {
     */
    protected void sendMessage(ICoreMessage message, ServerConsumer consumer, int deliveryCount) throws Exception {
       // This is to allow retries of PubRel.
-      if (isManagementConsumer(consumer)) {
+      if (isQos2ManagementConsumer(consumer)) {
          sendPubRelMessage(message);
       } else {
          int qos = decideQoS(message, consumer);
@@ -178,7 +161,6 @@ public class MQTTPublishManager {
     * Sends a message either on behalf of the client or on behalf of the broker (Will Messages)
     *
     * @param internal if true means on behalf of the broker (skips authorisation) and does not return ack.
-    * @throws Exception
     */
    void sendToQueue(MqttPublishMessage message, boolean internal) throws Exception {
       synchronized (lock) {
@@ -201,13 +183,13 @@ public class MQTTPublishManager {
 
                String existingTopicMapping = session.getState().getClientTopicAlias(alias);
                if (existingTopicMapping == null) {
-                  if (topic == null || topic.length() == 0) {
+                  if (topic == null || topic.isEmpty()) {
                      // using a topic alias with no matching topic in the state; potentially [MQTT-3.3.2-7]
                      throw new DisconnectException(MQTTReasonCodes.TOPIC_ALIAS_INVALID);
                   }
                   logger.debug("Adding new alias {} for topic {}", alias, topic);
                   session.getState().putClientTopicAlias(alias, topic);
-               } else if (topic != null && topic.length() > 0) {
+               } else if (topic != null && !topic.isEmpty()) {
                   logger.debug("Modifying existing alias {}. New value: {}; old value: {}", alias, topic, existingTopicMapping);
                   session.getState().putClientTopicAlias(alias, topic);
                } else {
@@ -216,18 +198,16 @@ public class MQTTPublishManager {
                }
             }
          }
-         String coreAddress = MQTTUtil.convertMqttTopicFilterToCoreAddress(topic, session.getWildcardConfiguration());
-         SimpleString address = SimpleString.toSimpleString(coreAddress, session.getCoreMessageObjectPools().getAddressStringSimpleStringPool());
+         String coreAddress = MQTTUtil.getCoreAddressFromMqttTopic(topic, session.getWildcardConfiguration());
+         SimpleString address = SimpleString.of(coreAddress, session.getCoreMessageObjectPools().getAddressStringSimpleStringPool());
          Message serverMessage = MQTTUtil.createServerMessageFromByteBuf(session, address, message);
          int qos = message.fixedHeader().qosLevel().value();
          if (qos > 0) {
             serverMessage.setDurable(MQTTUtil.DURABLE_MESSAGES);
          }
-         int messageId = message.variableHeader().packetId();
-         if (qos < 2 || !state.getPubRec().contains(messageId)) {
-            if (qos == 2 && !internal)
-               state.getPubRec().add(messageId);
-
+         int packetId = message.variableHeader().packetId();
+         boolean qos2PublishAlreadyReceived = state.getPubRec().contains(packetId);
+         if (qos < 2 || !qos2PublishAlreadyReceived) {
             Transaction tx = session.getServerSession().newTransaction();
             try {
                AddressInfo addressInfo = session.getServer().getAddressInfo(address);
@@ -239,6 +219,10 @@ public class MQTTPublishManager {
                   serverMessage.setRoutingType(addressInfo.getRoutingType());
                }
                session.getServerSession().send(tx, serverMessage, true, senderName, false);
+
+               if (qos == 2 && !internal) {
+                  state.getPubRec().add(packetId);
+               }
 
                if (message.fixedHeader().isRetain()) {
                   ByteBuf payload = message.payload();
@@ -252,7 +236,7 @@ public class MQTTPublishManager {
                   throw e;
                }
                if (session.getVersion() == MQTTVersion.MQTT_5) {
-                  sendMessageAck(internal, qos, messageId, MQTTReasonCodes.NOT_AUTHORIZED);
+                  sendMessageAck(internal, qos, packetId, MQTTReasonCodes.NOT_AUTHORIZED);
                   return;
                } else if (session.getVersion() == MQTTVersion.MQTT_3_1_1) {
                   /*
@@ -265,7 +249,7 @@ public class MQTTPublishManager {
                    * Throwing an exception here will ultimately close the connection. This is the default behavior.
                    */
                   if (closeMqttConnectionOnPublishAuthorizationFailure) {
-                     throw e;
+                     throw new DisconnectException();
                   } else {
                      logger.debug("MQTT 3.1.1 client not authorized to publish message.");
                   }
@@ -287,9 +271,11 @@ public class MQTTPublishManager {
                tx.rollback();
                throw t;
             }
+         } else if (qos2PublishAlreadyReceived) {
+            MQTTLogger.LOGGER.ignoringQoS2Publish(state.getClientId(), packetId);
          }
 
-         createMessageAck(messageId, qos, internal);
+         createMessageAck(packetId, qos, internal);
       }
    }
 
@@ -309,22 +295,12 @@ public class MQTTPublishManager {
       session.getProtocolHandler().sendPubRel(messageId);
    }
 
-   private SimpleString getManagementAddress() throws Exception {
-      if (managementAddress == null) {
-         managementAddress = createManagementAddress();
-         createManagementQueue();
-         createManagementConsumer();
-      }
-      return managementAddress;
-   }
-
    void handlePubRec(int messageId) throws Exception {
       try {
          Pair<Long, Long> ref = outboundStore.publishReceived(messageId);
          if (ref != null) {
-            Message m = MQTTUtil.createPubRelMessage(session, getManagementAddress(), messageId);
-            //send the management message via the internal server session to bypass security.
-            session.getInternalServerSession().send(m, true, senderName);
+            initQos2Resources();
+            MQTTUtil.sendMessageDirectlyToQueue(session.getServer().getStorageManager(), session.getServer().getPostOffice(), createPubRelMessage(session, messageId), qos2ManagementQueue, null);
             session.getServerSession().individualAcknowledge(ref.getB(), ref.getA());
             releaseFlowControl(ref.getB());
          } else {
@@ -335,10 +311,34 @@ public class MQTTPublishManager {
       }
    }
 
+   /*
+    * Only create these resources if we actually need them (i.e. we're sending a message to a subscriber via QoS 2)
+    */
+   private void initQos2Resources() throws Exception {
+      if (qos2ManagementAddress == null) {
+         qos2ManagementAddress = SimpleString.of(MQTTUtil.QOS2_MANAGEMENT_QUEUE_PREFIX + session.getState().getClientId());
+      }
+      if (qos2ManagementQueue == null) {
+         qos2ManagementQueue = session.getServer().createQueue(QueueConfiguration.of(qos2ManagementAddress)
+                                                                  .setRoutingType(RoutingType.ANYCAST)
+                                                                  .setDurable(MQTTUtil.DURABLE_MESSAGES),
+                                                               true);
+         qos2ManagementConsumer = session.getServerSession().createInternalConsumer(qos2ManagementAddress);
+         qos2ManagementConsumer.setStarted(true);
+      }
+   }
+
+   private Message createPubRelMessage(MQTTSession session, int messageId) {
+      MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBREL, false, MqttQoS.AT_LEAST_ONCE, false, 0);
+      MqttPublishMessage publishMessage = new MqttPublishMessage(fixedHeader, null, null);
+      Message message = createServerMessage(session, qos2ManagementAddress, publishMessage)
+         .putIntProperty(MQTTUtil.MQTT_MESSAGE_ID_KEY, messageId)
+         .putIntProperty(MQTTUtil.MQTT_MESSAGE_TYPE_KEY, MqttMessageType.PUBREL.value());
+      return message;
+   }
+
    /**
     * Once we get an acknowledgement for a QoS 1 or 2 message we allow messages to flow
-    *
-    * @param consumerId
     */
    private void releaseFlowControl(Long consumerId) {
       ServerConsumer consumer = session.getServerSession().locateConsumer(consumerId);
@@ -351,7 +351,7 @@ public class MQTTPublishManager {
       Pair<Long, Long> ref = session.getState().getOutboundStore().publishComplete(messageId);
       if (ref != null) {
          // ack the message via the internal server session to bypass security.
-         session.getInternalServerSession().individualAcknowledge(managementConsumer.getID(), ref.getA());
+         session.getServerSession().individualAcknowledge(qos2ManagementConsumer.getID(), ref.getA());
       }
    }
 
@@ -389,7 +389,7 @@ public class MQTTPublishManager {
    }
 
    private boolean publishToClient(int messageId, ICoreMessage message, int deliveryCount, int qos, long consumerId) throws Exception {
-      String address = MQTTUtil.convertCoreAddressToMqttTopicFilter(message.getAddress() == null ? "" : message.getAddress(), session.getWildcardConfiguration());
+      String topic = MQTTUtil.getMqttTopicFromCoreAddress(Objects.requireNonNullElse(message.getAddress(), ""), session.getWildcardConfiguration());
 
       ByteBuf payload;
       switch (message.getType()) {
@@ -411,33 +411,34 @@ public class MQTTPublishManager {
       boolean redelivery = qos == 0 ? false : (deliveryCount > 1);
 
       boolean isRetain = message.containsProperty(MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY);
-      MqttProperties mqttProperties = getPublishProperties(message);
+      MqttProperties mqttProperties = null;
 
       if (session.getVersion() == MQTTVersion.MQTT_5) {
+         mqttProperties = getPublishProperties(message);
          if (!isRetain && message.getBooleanProperty(MQTT_MESSAGE_RETAIN_KEY)) {
-            MqttTopicSubscription sub = session.getState().getSubscription(message.getAddress());
+            MqttTopicSubscription sub = session.getState().getSubscription(topic);
             if (sub != null && sub.option().isRetainAsPublished()) {
                isRetain = true;
             }
          }
 
          if (session.getState().getClientTopicAliasMaximum() != null) {
-            Integer alias = session.getState().getServerTopicAlias(address);
+            Integer alias = session.getState().getServerTopicAlias(topic);
             if (alias == null) {
-               alias = session.getState().addServerTopicAlias(address);
+               alias = session.getState().addServerTopicAlias(topic);
                if (alias != null) {
                   mqttProperties.add(new MqttProperties.IntegerProperty(TOPIC_ALIAS.value(), alias));
                }
             } else {
                mqttProperties.add(new MqttProperties.IntegerProperty(TOPIC_ALIAS.value(), alias));
-               address = "";
+               topic = "";
             }
          }
       }
 
-      int remainingLength = MQTTUtil.calculateRemainingLength(address, mqttProperties, payload);
+      int remainingLength = MQTTUtil.calculateRemainingLength(topic, mqttProperties, payload);
       MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.PUBLISH, redelivery, MqttQoS.valueOf(qos), isRetain, remainingLength);
-      MqttPublishVariableHeader varHeader = new MqttPublishVariableHeader(address, messageId, mqttProperties);
+      MqttPublishVariableHeader varHeader = new MqttPublishVariableHeader(topic, messageId, mqttProperties);
       MqttPublishMessage publish = new MqttPublishMessage(header, varHeader, payload);
 
       int maxSize = session.getState().getClientMaxPacketSize();
@@ -477,7 +478,7 @@ public class MQTTPublishManager {
          for (SimpleString propertyName : message.getPropertyNames()) {
             if (propertyName.startsWith(MQTT_USER_PROPERTY_KEY_PREFIX_SIMPLE)) {
                SimpleString[] split = propertyName.split('.');
-               int position = Integer.valueOf(split[4].toString());
+               int position = Integer.parseInt(split[4].toString());
                String key = propertyName.subSeq(MQTT_USER_PROPERTY_KEY_PREFIX_SIMPLE.length() + split[4].length() + 1, propertyName.length()).toString();
                orderedProperties[position] = new MqttProperties.StringPair(key, message.getStringProperty(propertyName));
             }

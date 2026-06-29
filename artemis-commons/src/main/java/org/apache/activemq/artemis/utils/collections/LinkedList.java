@@ -38,10 +38,14 @@ public interface LinkedList<E> {
 
    void clearID();
 
-   /** this makes possibl to use {@link #removeWithID(String, long)} */
+   /**
+    * this makes possibl to use {@link #removeWithID(String, long)}
+    */
    void setNodeStore(NodeStore<E> store);
 
-   /** you need to call {@link #setNodeStore(NodeStore)} before you are able to call this method. */
+   /**
+    * you need to call {@link #setNodeStore(NodeStore)} before you are able to call this method.
+    */
    E removeWithID(String listID, long id);
 
    void forEach(Consumer<E> consumer);

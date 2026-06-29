@@ -40,6 +40,7 @@
       <mask-password>true</mask-password>
       <log-delegate-factory-class-name>com.foo</log-delegate-factory-class-name>
       <jmx-management-enabled>false</jmx-management-enabled>
+      <jmx-notification-enabled>false</jmx-notification-enabled>
       <jmx-domain>gro.qtenroh</jmx-domain>
       <message-counter-enabled>true</message-counter-enabled>
       <message-counter-sample-period>123456</message-counter-sample-period>
@@ -57,17 +58,23 @@
       <populate-validated-user>true</populate-validated-user>
       <reject-empty-validated-user>false</reject-empty-validated-user>
       <mqtt-session-scan-interval>123456</mqtt-session-scan-interval>
+      <mqtt-session-state-persistence-timeout>567890</mqtt-session-state-persistence-timeout>
+      <mqtt-subscription-persistence-enabled>false</mqtt-subscription-persistence-enabled>
       <connection-ttl-check-interval>98765</connection-ttl-check-interval>
       <configuration-file-refresh-period>1234567</configuration-file-refresh-period>
       <temporary-queue-namespace>TEMP</temporary-queue-namespace>
+      <uuid-namespace>UUID</uuid-namespace>
       <global-max-size>1234567</global-max-size>
+      <global-max-size-percent-of-jvm-max-memory>30</global-max-size-percent-of-jvm-max-memory>
       <max-disk-usage>37</max-disk-usage>
+      <min-disk-free>500Mb</min-disk-free>
       <disk-scan-period>123</disk-scan-period>
       <critical-analyzer-policy>HALT</critical-analyzer-policy>
       <critical-analyzer-check-period>333</critical-analyzer-check-period>
       <critical-analyzer-timeout>777</critical-analyzer-timeout>
       <critical-analyzer>false</critical-analyzer>
       <suppress-session-notifications>false</suppress-session-notifications>
+      <literal-match-markers>()</literal-match-markers>
       <remoting-incoming-interceptors>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1</class-name>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2</class-name>
@@ -87,13 +94,13 @@
          <connector name="connector2">vm://5</connector>
       </connectors>
       <acceptors>
-         <acceptor>
+         <acceptor name="tcp">
             tcp://0.0.0.0:61616?
             tcpNoDelay=456;
             connectionTtl=44;
             connectionsAllowed=${ninetyTwoProp}
          </acceptor>
-         <acceptor>vm://0?e1=z1;e2=567;connectionsAllowed=87</acceptor>
+         <acceptor name="vm">vm://0?e1=z1;e2=567;connectionsAllowed=87</acceptor>
       </acceptors>
       <broadcast-groups>
          <broadcast-group name="bg1">
@@ -178,6 +185,15 @@
                </static-connectors>
             </pool>
          </connection-router>
+         <connection-router name="simple-router-connector2">
+            <key-type>USER_NAME</key-type>
+            <policy name="FIRST_ELEMENT"/>
+            <pool>
+               <static-connectors>
+                  <connector-ref>connector2</connector-ref>
+               </static-connectors>
+            </pool>
+         </connection-router>
          <connection-router name="consistent-hash-router">
             <key-type>SNI_HOST</key-type>
             <key-filter>^[^.]+</key-filter>
@@ -230,13 +246,13 @@
             <max-retry-interval>10002</max-retry-interval>
             <reconnect-attempts>2</reconnect-attempts>
             <failover-on-server-shutdown>false</failover-on-server-shutdown>
-            <use-duplicate-detection>true</use-duplicate-detection>
             <confirmation-window-size>1G</confirmation-window-size>
             <producer-window-size>444</producer-window-size>
             <routing-type>STRIP</routing-type>
             <static-connectors>
                <connector-ref>connector1</connector-ref>
             </static-connectors>
+            <use-duplicate-detection>true</use-duplicate-detection>
          </bridge>
          <bridge name="bridge2">
             <queue-name>queue2</queue-name>
@@ -246,14 +262,16 @@
          </bridge>
          <bridge name="bridge3">
             <queue-name>queue3</queue-name>
-            <forwarding-address>bridge-forwarding-address2</forwarding-address>
             <transformer>
                <class-name>org.foo.BridgeTransformer3</class-name>
                <property key="bridgeTransformerKey1" value="bridgeTransformerValue1"/>
                <property key="bridgeTransformerKey2" value="bridgeTransformerValue2"/>
             </transformer>
             <producer-window-size>555k</producer-window-size>
+            <pending-ack-timeout>123456</pending-ack-timeout>
             <discovery-group-ref discovery-group-name="dg1"/>
+            <forwarding-address>bridge-forwarding-address2</forwarding-address>
+            <client-id>myClientID</client-id>
          </bridge>
          <bridge name="bridge4">
             <queue-name>queue3</queue-name>
@@ -381,6 +399,9 @@
          <file-descriptors>true</file-descriptors>
          <processor>true</processor>
          <uptime>true</uptime>
+         <logging>true</logging>
+         <security-caches>true</security-caches>
+         <executor-services>true</executor-services>
          <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin">
             <property key="foo" value="x"/>
             <property key="bar" value="y"/>
@@ -390,15 +411,16 @@
 
       <ha-policy>
          <!--only one of the following-->
-         <!--on server shutdown scale down to another live server-->
-         <live-only>
+         <!--on server shutdown scale down to another primary server-->
+         <primary-only>
             <scale-down>
                <!--a grouping of servers that can be scaled down to-->
                <group-name>boo!</group-name>
                <!--either a discovery group-->
                <discovery-group-ref discovery-group-name="dg1"/>
+               <commit-interval>33</commit-interval>
             </scale-down>
-         </live-only>
+         </primary-only>
 
       </ha-policy>
       <cluster-connections>
@@ -418,26 +440,29 @@
             <max-hops>1</max-hops>
             <producer-window-size>222</producer-window-size>
             <call-failover-timeout>123</call-failover-timeout>
-            <static-connectors>
+            <static-connectors allow-direct-connections-only="true">
                <connector-ref>connector1</connector-ref>
                <connector-ref>connector2</connector-ref>
             </static-connectors>
+            <topology-scanner-attempts>-1</topology-scanner-attempts>
          </cluster-connection>
          <cluster-connection name="cluster-connection2">
+            <discovery-group-ref discovery-group-name="dg1"/>
             <address>queues2</address>
             <connector-ref>connector2</connector-ref>
             <call-timeout>456</call-timeout>
+            <call-failover-timeout>456</call-failover-timeout>
             <retry-interval>4</retry-interval>
             <use-duplicate-detection>false</use-duplicate-detection>
             <message-load-balancing>STRICT</message-load-balancing>
             <max-hops>2</max-hops>
             <producer-window-size>333</producer-window-size>
-            <call-failover-timeout>456</call-failover-timeout>
-            <discovery-group-ref discovery-group-name="dg1"/>
+            <topology-scanner-attempts>0</topology-scanner-attempts>
          </cluster-connection>
          <cluster-connection name="cluster-connection3">
             <connector-ref>connector2</connector-ref>
             <message-load-balancing>OFF_WITH_REDISTRIBUTION</message-load-balancing>
+            <client-id>myClientID</client-id>
          </cluster-connection>
       </cluster-connections>
       <broker-connections>
@@ -447,12 +472,90 @@
             <peer address-match="TEST-PEER"/>
             <receiver queue-name="TEST-WITH-QUEUE-NAME"/>
             <mirror message-acknowledgements="false" queue-creation="false" durable="false" queue-removal="false" address-filter="TEST-QUEUE,!IGNORE-QUEUE" sync="true"/>
+            <federation>
+               <local-queue-policy name="composite" priority-adjustment="1" include-federated="false">
+                  <include address-match="test" queue-match="tracking" />
+               </local-queue-policy>
+            </federation>
+            <bridge name = "test-bridge">
+               <bridge-from-queue name="bridge-queue-1" priority-adjustment="1">
+                  <include address-match="#" queue-match="tracking" />
+               </bridge-from-queue>
+            </bridge>
          </amqp-connection>
          <amqp-connection uri="tcp://test2:222" name="test2">
             <mirror durable="false"/>
          </amqp-connection>
          <amqp-connection uri="tcp://false" name="auto-start-false" auto-start="false">
             <mirror/>
+         </amqp-connection>
+         <amqp-connection uri="tcp://federation" name="federation-test" auto-start="false">
+            <federation>
+               <local-queue-policy name="lqp1" priority-adjustment="1" include-federated="false">
+                  <include address-match="test" queue-match="tracking" />
+                  <property key="amqpCredits" value="1"/>
+                  <transformer-class-name>class-another</transformer-class-name>
+               </local-queue-policy>
+                <remote-queue-policy name="rqp1" priority-adjustment="-1" include-federated="true">
+                  <include address-match="#" queue-match="tracking" />
+                  <property key="amqpCredits" value="2"/>
+                  <property key="amqpLowCredits" value="1"/>
+               </remote-queue-policy>
+               <local-address-policy name="lap1" auto-delete="false" auto-delete-delay="1" auto-delete-message-count="12" max-hops="2" enable-divert-bindings="true" allow-wildcard-groupings="true">
+                  <include address-match="orders" />
+                  <exclude address-match="all.#" />
+                  <transformer-class-name>class-name</transformer-class-name>
+               </local-address-policy>
+               <local-queue-policy name="lqp2">
+                  <include address-match="address" queue-match="theQueue" />
+                  <transformer-class-name>class-another</transformer-class-name>
+               </local-queue-policy>
+               <remote-address-policy name="rap1" auto-delete="true" auto-delete-delay="2" auto-delete-message-count="42" max-hops="1" enable-divert-bindings="false" allow-wildcard-groupings="false">
+                  <include address-match="support" />
+                  <property key="amqpCredits" value="2"/>
+                  <property key="amqpLowCredits" value="1"/>
+                  <transformer>
+                     <class-name>something</class-name>
+                     <property key="key1" value="value1"/>
+                     <property key="key2" value="value2"/>
+                  </transformer>
+               </remote-address-policy>
+               <property key="amqpCredits" value="7"/>
+               <property key="amqpLowCredits" value="1"/>
+            </federation>
+         </amqp-connection>
+         <amqp-connection uri="tcp://false" name="test-property" auto-start="false">
+            <mirror>
+              <property key="tunnel-core-messages" value="false"/>
+            </mirror>
+         </amqp-connection>
+         <amqp-connection uri="tcp://false" name="test-bridge-configuration" auto-start="false">
+            <bridge>
+               <bridge-from-queue name="bridge-from-queue" priority-adjustment="1">
+                  <property key="amqpCredits" value="2"/>
+                  <property key="amqpLowCredits" value="1"/>
+                  <transformer>
+                     <class-name>something</class-name>
+                     <property key="key1" value="value1"/>
+                     <property key="key2" value="value2"/>
+                  </transformer>
+                  <include address-match="#" queue-match="tracking" />
+               </bridge-from-queue>
+               <bridge-to-queue name="bridge-to-queue" priority-adjustment="2">
+                  <include address-match="test-queue" queue-match="tracking" />
+               </bridge-to-queue>
+               <bridge-from-address name="bridge-from-address">
+                  <transformer-class-name>class-name</transformer-class-name>
+                  <include address-match="test-address" />
+                  <exclude address-match="all.#" />
+               </bridge-from-address>
+               <bridge-to-address name="bridge-to-address" use-durable-subscriptions="true">
+                  <include address-match="test-address" />
+                  <exclude address-match="all.#" />
+               </bridge-to-address>
+               <property key="amqpCredits" value="7"/>
+               <property key="amqpLowCredits" value="1"/>
+            </bridge>
          </amqp-connection>
       </broker-connections>
       <grouping-handler name="gh1">
@@ -462,6 +565,7 @@
       <paging-directory>pagingdir</paging-directory>
       <bindings-directory>somedir</bindings-directory>
       <create-bindings-dir>false</create-bindings-dir>
+      <purge-page-folders>true</purge-page-folders>
       <page-max-concurrent-io>17</page-max-concurrent-io>
       <read-whole-page>true</read-whole-page>
       <journal-directory>somedir2</journal-directory>
@@ -492,6 +596,13 @@
       <network-check-ping-command>ping-four</network-check-ping-command>
       <network-check-ping6-command>ping-six</network-check-ping6-command>
       <page-sync-timeout>1000</page-sync-timeout>
+
+      <mirror-ack-manager-queue-attempts>111</mirror-ack-manager-queue-attempts>
+      <mirror-ack-manager-page-attempts>222</mirror-ack-manager-page-attempts>
+      <mirror-ack-manager-retry-delay>333</mirror-ack-manager-retry-delay>
+      <mirror-ack-manager-warn-unacked>true</mirror-ack-manager-warn-unacked>
+      <mirror-page-transaction>true</mirror-page-transaction>
+
       <security-settings>
          <security-setting match="a1">
             <permission type="createNonDurableQueue" roles="a1.1"/>
@@ -508,6 +619,8 @@
             <expiry-delay>1</expiry-delay>
             <min-expiry-delay>2</min-expiry-delay>
             <max-expiry-delay>3</max-expiry-delay>
+            <no-expiry>true</no-expiry>
+            <disk-full-policy>DROP</disk-full-policy>
             <redelivery-delay>1</redelivery-delay>
             <redelivery-collision-avoidance-factor>0.5</redelivery-collision-avoidance-factor>
             <max-size-bytes>817M</max-size-bytes>
@@ -573,6 +686,7 @@
             <management-browse-page-size>400</management-browse-page-size>
             <management-message-attribute-size-limit>265</management-message-attribute-size-limit>
             <id-cache-size>500</id-cache-size>
+            <initial-queue-buffer-size>128</initial-queue-buffer-size>
          </address-setting>
       </address-settings>
       <resource-limit-settings>
@@ -582,7 +696,7 @@
          </resource-limit-setting>
       </resource-limit-settings>
       <connector-services>
-         <connector-service>
+         <connector-service name="foo">
             <factory-class>org.foo</factory-class>
          </connector-service>
       </connector-services>

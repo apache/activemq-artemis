@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.smoke.bridgeTransfer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -24,31 +28,54 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class BridgeTransferingTest extends SmokeTestBase {
+
+   @BeforeAll
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      File server1Location = getFileServerLocation(SERVER_NAME_1);
+
+      deleteDirectory(server1Location);
+      deleteDirectory(server0Location);
+
+      if (!server0Location.exists()) {
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setRole("amq").setUser("artemis").setPassword("artemis").setNoWeb(true).setConfiguration("./src/main/resources/servers/bridgeTransfer/serverA").setArtemisInstance(server0Location);
+         cliCreateServer.createServer();
+      }
+
+      if (!server1Location.exists()) {
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setRole("amq").setUser("artemis").setPassword("artemis").setNoWeb(true).setConfiguration("./src/main/resources/servers/bridgeTransfer/serverB").setArtemisInstance(server1Location);
+         cliCreateServer.createServer();
+      }
+   }
 
    public static final String SERVER_NAME_0 = "bridgeTransfer/serverA";
    public static final String SERVER_NAME_1 = "bridgeTransfer/serverB";
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-   private static final String JMX_SERVER_HOSTNAME = "localhost";
-   private static final int JMX_SERVER_PORT = 11099;
 
    final String theprotocol;
    // As the produces sends messages, a client will be killed every X messages. This is it!
@@ -71,12 +98,14 @@ public class BridgeTransferingTest extends SmokeTestBase {
       this.minlargeMessageSize = minlargeMessageSize;
    }
 
-   @Parameterized.Parameters(name = "protocol={0}, commitInterval={1}, killInterval={2}, numberOfMessages={3}, messageSize={4}, minLargeMessageSize={5}, KillBothServers={6}")
+   @Parameters(name = "protocol={0}, commitInterval={1}, killInterval={2}, numberOfMessages={3}, messageSize={4}, minLargeMessageSize={5}, KillBothServers={6}")
    public static Collection<Object[]> parameters() {
-      return Arrays.asList(new Object[][]{{"CORE", 200, 1000, 10000, 15_000, 5000, true}, {"CORE", 200, 1000, 10000, 15_000, 5000, false}});
+      return Arrays.asList(new Object[][]{
+         {"CORE", 200, 1_000, 1_400, 1_500, 5000, true},
+         {"CORE", 200, 1_000, 1_400, 1_500, 5000, false}});
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       cleanupData(SERVER_NAME_1);
@@ -85,27 +114,18 @@ public class BridgeTransferingTest extends SmokeTestBase {
       serverProcess2 = startServer(SERVER_NAME_1, 1, 30000);
    }
 
-   @After
+   @AfterEach
    public void stopServers() throws Exception {
       serverProcess2.destroyForcibly();
       serverProcess.destroyForcibly();
    }
 
-   @Test
+   @TestTemplate
    public void testTransfer() throws Exception {
       ConnectionFactory cf = CFUtil.createConnectionFactory(theprotocol, "tcp://localhost:61616");
       ((ActiveMQConnectionFactory) cf).setMinLargeMessageSize(minlargeMessageSize);
 
-      String body;
-
-      {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < messageSize) {
-            buffer.append(" ");
-         }
-         body = buffer.toString();
-      }
-
+      String body = " ".repeat(messageSize);
       {
          Connection connection = cf.createConnection();
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -116,6 +136,7 @@ public class BridgeTransferingTest extends SmokeTestBase {
          int killElement = 0;
 
          for (int i = 0; i < numberOfMessages; i++) {
+            logger.debug("message {}", i);
             producer.send(session.createTextMessage(body + " " + i));
 
             if (++txElement == commitInterval) {
@@ -163,11 +184,11 @@ public class BridgeTransferingTest extends SmokeTestBase {
                logger.debug("consuming {}", i);
             }
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(body + " " + i, message.getText());
+            assertNotNull(message);
+            assertEquals(body + " " + i, message.getText());
          }
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
    }

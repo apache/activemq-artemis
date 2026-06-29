@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +32,7 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.logs.AuditLogger;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonInitializable;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
@@ -52,6 +54,7 @@ import org.apache.qpid.proton.engine.Transport;
 import org.apache.qpid.proton.engine.impl.TransportInternal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.lang.invoke.MethodHandles;
 
 public class ProtonHandler extends ProtonInitializable implements SaslListener {
@@ -95,18 +98,31 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    boolean flushInstantly = false;
 
-   /** afterFlush and afterFlushSet properties
-    *  are set by afterFlush methods.
-    *  This is to be called after the flush loop.
-    *  this is usually to be used by flow control events that
-    *  have to take place after the incoming bytes are settled.
-    *
-    *  There is only one afterFlush most of the time, and for that reason
-    *   as an optimization we will try to use a single place most of the time
-    *   however if more are needed we will use the list.
-    *  */
+   volatile boolean readable = true;
+
+   /**
+    * afterFlush and afterFlushSet properties are set by afterFlush methods. This is to be called after the flush loop.
+    * this is usually to be used by flow control events that have to take place after the incoming bytes are settled.
+    * <p>
+    * There is only one afterFlush most of the time, and for that reason as an optimization we will try to use a single
+    * place most of the time however if more are needed we will use the list.
+    */
    private Runnable afterFlush;
    protected Set<Runnable> afterFlushSet;
+
+   public boolean isReadable() {
+      return readable;
+   }
+
+   public ProtonHandler setReadable(boolean readable) {
+      this.readable = readable;
+      return this;
+   }
+
+   @Override
+   public void initialize() throws Exception {
+      initialized = true;
+   }
 
    public void afterFlush(Runnable runnable) {
       requireHandler();
@@ -188,9 +204,8 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    }
 
    /**
-    * We cannot flush until the initial handshake was finished.
-    * If this happens before the handshake, the connection response will happen without SASL
-    * and the client will respond and fail with an invalid code.
+    * We cannot flush until the initial handshake was finished. If this happens before the handshake, the connection
+    * response will happen without SASL and the client will respond and fail with an invalid code.
     */
    public void scheduledFlush() {
       if (receivedFirstPacket) {
@@ -357,13 +372,22 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    public void flush() {
       if (workerExecutor.inEventLoop()) {
-         transport.process();
-         dispatch();
+         handleFlush();
       } else {
-         runLater(() -> {
-            transport.process();
-            dispatch();
-         });
+         runLater(this::handleFlush);
+      }
+   }
+
+   private void handleFlush() {
+      try {
+         transport.process();
+      } catch (Exception ex) {
+         logger.debug("AMQP Transport threw error while processing input: {}", ex.getMessage());
+         if (transport.getCondition() == null) {
+            transport.setCondition(new ErrorCondition(AmqpError.INTERNAL_ERROR, ex.getMessage()));
+         }
+      } finally {
+         dispatch();
       }
    }
 
@@ -376,11 +400,6 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
          flush();
       });
 
-      /*try {
-         Thread.sleep(1000);
-      } catch (Exception e) {
-         e.printStackTrace();
-      } */
       // this needs to be done in two steps
       // we first flush what we have to the client
       // after flushed, we close the local connection
@@ -444,6 +463,8 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       if (clientSASLMechanism == null) {
          logger.info("Outbound connection failed - unknown mechanism, offered mechanisms: {}",
                    Arrays.asList(sasl.getRemoteMechanisms()));
+         sasl.setListener(null);
+         transport.close_head();
          dispatchAuthFailed();
       } else {
          sasl.setMechanisms(clientSASLMechanism.getName());
@@ -469,6 +490,8 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       switch (sasl.getState()) {
          case PN_SASL_FAIL:
             logger.info("Outbound connection failed, authentication failure");
+            sasl.setListener(null);
+            transport.close_head();
             dispatchAuthFailed();
             break;
          case PN_SASL_PASS:
@@ -557,24 +580,24 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
                AuditLogger.setRemoteAddress(h.getRemoteAddress());
             }
          }
-         while ((ev = collector.peek()) != null) {
+         while (isReadable() && (ev = collector.peek()) != null) {
             for (EventHandler h : handlers) {
                logger.trace("Handling {} towards {}", ev, h);
 
                try {
                   Events.dispatch(ev, h);
-               } catch (ActiveMQSecurityException e) {
+               } catch (ActiveMQAMQPSecurityException | ActiveMQSecurityException e) {
                   logger.warn(e.getMessage(), e);
                   ErrorCondition error = new ErrorCondition();
                   error.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
-                  error.setDescription(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
+                  error.setDescription(Objects.requireNonNullElse(e.getMessage(), e.getClass().getSimpleName()));
                   connection.setCondition(error);
                   connection.close();
                } catch (Exception e) {
                   logger.warn(e.getMessage(), e);
                   ErrorCondition error = new ErrorCondition();
                   error.setCondition(AmqpError.INTERNAL_ERROR);
-                  error.setDescription("Unrecoverable error: " + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+                  error.setDescription("Unrecoverable error: " + (Objects.requireNonNullElse(e.getMessage(), e.getClass().getSimpleName())));
                   connection.setCondition(error);
                   connection.close();
                }
@@ -605,17 +628,18 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       logger.warn(e.getMessage(), e);
       ErrorCondition error = new ErrorCondition();
       error.setCondition(AmqpError.INTERNAL_ERROR);
-      error.setDescription("Unrecoverable error: " + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+      error.setDescription("Unrecoverable error: " + (Objects.requireNonNullElse(e.getMessage(), e.getClass().getSimpleName())));
       connection.setCondition(error);
       connection.close();
       flush();
    }
 
-
-   public void open(String containerId, Map<Symbol, Object> connectionProperties) {
+   public void open(String containerId, Map<Symbol, Object> connectionProperties, Symbol[] offeredCapabilities, Symbol[] desiredCapabilities) {
       this.transport.open();
       this.connection.setContainer(containerId);
       this.connection.setProperties(connectionProperties);
+      this.connection.setOfferedCapabilities(offeredCapabilities);
+      this.connection.setDesiredCapabilities(desiredCapabilities);
       this.connection.open();
       flush();
    }

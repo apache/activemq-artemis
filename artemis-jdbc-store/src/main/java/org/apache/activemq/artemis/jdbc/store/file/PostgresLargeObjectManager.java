@@ -23,6 +23,7 @@ import java.sql.SQLException;
 
 import org.postgresql.PGConnection;
 import org.postgresql.largeobject.LargeObject;
+import org.postgresql.largeobject.LargeObjectManager;
 
 /**
  * Helper class for when the postresql driver is not directly availalbe.
@@ -40,8 +41,7 @@ public class PostgresLargeObjectManager {
    public static final int READ = 0x00040000;
 
    /**
-    * This mode is the default. It indicates we want read and write access to
-    * a large object
+    * This mode is the default. It indicates we want read and write access to a large object
     */
    public static final int READWRITE = READ | WRITE;
 
@@ -57,12 +57,15 @@ public class PostgresLargeObjectManager {
       }
    }
 
+   volatile Method createLOMethod;
    public final Long createLO(Connection connection) throws SQLException {
       if (shouldUseReflection) {
          Object largeObjectManager = getLargeObjectManager(connection);
          try {
-            Method method = largeObjectManager.getClass().getMethod("createLO");
-            return (Long) method.invoke(largeObjectManager);
+            if (createLOMethod == null) {
+               createLOMethod = largeObjectManager.getClass().getMethod("createLO");
+            }
+            return (Long) createLOMethod.invoke(largeObjectManager);
          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObjectManager", ex);
          }
@@ -71,12 +74,35 @@ public class PostgresLargeObjectManager {
       }
    }
 
+   volatile Method deleteLOMethod;
+   public final void deleteLO(Connection connection, long oid) throws SQLException {
+      Object largeObjectManager = getLargeObjectManager(connection);
+      if (shouldUseReflection) {
+         try {
+            if (deleteLOMethod == null) {
+               deleteLOMethod = largeObjectManager.getClass().getMethod("delete", long.class);
+            }
+            deleteLOMethod.invoke(largeObjectManager, oid);
+         } catch (Exception ex) {
+            throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObjectManager", ex);
+         }
+      } else {
+         if (largeObjectManager != null) {
+            ((LargeObjectManager) largeObjectManager).delete(oid);
+         }
+      }
+
+   }
+
+   volatile Method openMethod;
    public Object open(Connection connection, long oid, int mode) throws SQLException {
       if (shouldUseReflection) {
          Object largeObjectManager = getLargeObjectManager(connection);
          try {
-            Method method = largeObjectManager.getClass().getMethod("open", long.class, int.class);
-            return method.invoke(largeObjectManager, oid, mode);
+            if (openMethod == null) {
+               openMethod = largeObjectManager.getClass().getMethod("open", long.class, int.class);
+            }
+            return openMethod.invoke(largeObjectManager, oid, mode);
          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObjectManager", ex);
          }
@@ -85,11 +111,14 @@ public class PostgresLargeObjectManager {
       }
    }
 
+   volatile Method sizeMethod;
    public int size(Object largeObject) throws SQLException {
       if (shouldUseReflection) {
          try {
-            Method method = largeObject.getClass().getMethod("size");
-            return (int) method.invoke(largeObject);
+            if (sizeMethod == null) {
+               sizeMethod = largeObject.getClass().getMethod("size");
+            }
+            return (int) sizeMethod.invoke(largeObject);
          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObject", ex);
          }
@@ -98,11 +127,14 @@ public class PostgresLargeObjectManager {
       }
    }
 
+   volatile Method closeMethod;
    public void close(Object largeObject) throws SQLException {
       if (shouldUseReflection) {
          try {
-            Method method = largeObject.getClass().getMethod("close");
-            method.invoke(largeObject);
+            if (closeMethod == null) {
+               closeMethod = largeObject.getClass().getMethod("close");
+            }
+            closeMethod.invoke(largeObject);
          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObject", ex);
          }
@@ -111,11 +143,14 @@ public class PostgresLargeObjectManager {
       }
    }
 
+   volatile Method readMethod;
    public byte[] read(Object largeObject, int length) throws SQLException {
       if (shouldUseReflection) {
          try {
-            Method method = largeObject.getClass().getMethod("read", int.class);
-            return (byte[]) method.invoke(largeObject, length);
+            if (readMethod == null) {
+               readMethod = largeObject.getClass().getMethod("read", int.class);
+            }
+            return (byte[]) readMethod.invoke(largeObject, length);
          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObject", ex);
          }
@@ -124,11 +159,14 @@ public class PostgresLargeObjectManager {
       }
    }
 
+   volatile Method writeMethod;
    public void write(Object largeObject, byte[] data) throws SQLException {
       if (shouldUseReflection) {
          try {
-            Method method = largeObject.getClass().getMethod("write", byte[].class);
-            method.invoke(largeObject, data);
+            if (writeMethod == null) {
+               writeMethod = largeObject.getClass().getMethod("write", byte[].class);
+            }
+            writeMethod.invoke(largeObject, data);
          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObject", ex);
          }
@@ -137,11 +175,14 @@ public class PostgresLargeObjectManager {
       }
    }
 
+   volatile Method seekMethod;
    public void seek(Object largeObject, int position) throws SQLException {
       if (shouldUseReflection) {
          try {
-            Method method = largeObject.getClass().getMethod("seek", int.class);
-            method.invoke(largeObject, position);
+            if (seekMethod == null) {
+               seekMethod = largeObject.getClass().getMethod("seek", int.class);
+            }
+            seekMethod.invoke(largeObject, position);
          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObject", ex);
          }
@@ -150,11 +191,14 @@ public class PostgresLargeObjectManager {
       }
    }
 
+   volatile Method truncateMethod;
    public void truncate(Object largeObject, int position) throws SQLException {
       if (shouldUseReflection) {
          try {
-            Method method = largeObject.getClass().getMethod("truncate", int.class);
-            method.invoke(largeObject, position);
+            if (truncateMethod == null) {
+               truncateMethod = largeObject.getClass().getMethod("truncate", int.class);
+            }
+            truncateMethod.invoke(largeObject, position);
          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new SQLException("Couldn't access org.postgresql.largeobject.LargeObject", ex);
          }

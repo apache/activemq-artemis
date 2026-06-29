@@ -18,11 +18,15 @@ package org.apache.activemq.artemis.core.server.cluster.impl;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -48,12 +52,15 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyManager;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.cluster.DiscoveryEntry;
+import org.apache.activemq.artemis.core.cluster.DiscoveryListener;
+import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
@@ -78,16 +85,16 @@ import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public final class ClusterConnectionImpl implements ClusterConnection, AfterConnectInternalListener, TopologyManager {
+public final class ClusterConnectionImpl implements ClusterConnection, AfterConnectInternalListener, TopologyManager, DiscoveryListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String SN_PREFIX = "sf.";
    /**
-    * When getting member on node-up and down we have to remove the name from the transport config
-    * as the setting we build here doesn't need to consider the name, so use the same name on all
-    * the instances.
+    * When getting member on node-up and down we have to remove the name from the transport config as the setting we
+    * build here doesn't need to consider the name, so use the same name on all the instances.
     */
    private static final String TRANSPORT_CONFIG_NAME = "topology-member";
 
@@ -132,8 +139,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    private final int producerWindowSize;
 
    /**
-    * Guard for the field {@link #records}. Note that the field is {@link ConcurrentHashMap},
-    * however we need the guard to synchronize multiple step operations during topology updates.
+    * Guard for the field {@link #records}. Note that the field is {@link ConcurrentHashMap}, however we need the guard
+    * to synchronize multiple step operations during topology updates.
     */
    private final Object recordsGuard = new Object();
 
@@ -172,7 +179,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private volatile boolean stopping = false;
 
-   private LiveNotifier liveNotifier = null;
+   private PrimaryNotifier primaryNotifier = null;
 
    private final long clusterNotificationInterval;
 
@@ -182,8 +189,17 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private boolean splitBrainDetection;
 
+   private final String clientId;
 
-   /** For tests only */
+   private volatile List<DiscoveryEntry> discoveryEntries;
+
+   private final TransportConfiguration[] staticTransportConfigurations;
+
+   private final TopologyScanner topologyScanner;
+
+   /**
+    * For tests only
+    */
    public ServerLocatorInternal getServerLocator() {
       return serverLocator;
    }
@@ -219,7 +235,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final String clusterPassword,
                                 final boolean allowDirectConnectionsOnly,
                                 final long clusterNotificationInterval,
-                                final int clusterNotificationAttempts) throws Exception {
+                                final int clusterNotificationAttempts,
+                                final String clientId,
+                                final int topologyScannerAttempts) throws Exception {
       this.nodeManager = nodeManager;
 
       this.connector = connector;
@@ -302,6 +320,13 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       this.storeAndForwardPrefix = server.getInternalNamingPrefix() + SN_PREFIX;
+
+      this.clientId = clientId;
+
+      this.staticTransportConfigurations = staticTranspConfigs;
+
+      this.topologyScanner = topologyScannerAttempts == 0 ? null : new TopologyScanner(
+          scheduledExecutor, executor, topologyScannerAttempts);
    }
 
    public ClusterConnectionImpl(final ClusterManager manager,
@@ -334,7 +359,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final String clusterPassword,
                                 final boolean allowDirectConnectionsOnly,
                                 final long clusterNotificationInterval,
-                                final int clusterNotificationAttempts) throws Exception {
+                                final int clusterNotificationAttempts,
+                                final String clientId,
+                                final int topologyScannerAttempts) throws Exception {
       this.nodeManager = nodeManager;
 
       this.connector = connector;
@@ -402,6 +429,13 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       this.manager = manager;
 
       this.storeAndForwardPrefix = server.getInternalNamingPrefix() + SN_PREFIX;
+
+      this.clientId = clientId;
+
+      this.staticTransportConfigurations = null;
+
+      this.topologyScanner = topologyScannerAttempts == 0 ? null : new TopologyScanner(
+          scheduledExecutor, executor, topologyScannerAttempts);
    }
 
    @Override
@@ -438,6 +472,11 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       if (serverLocator != null) {
          serverLocator.removeClusterTopologyListener(this);
+         serverLocator.setDiscoveryListener(null);
+      }
+
+      if (topologyScanner != null) {
+         topologyScanner.stop();
       }
 
       if (logger.isDebugEnabled()) {
@@ -456,32 +495,27 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       if (managementService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), name);
+         props.putSimpleStringProperty(SimpleString.of("name"), name);
          //nodeID can be null if there's only a backup
          SimpleString nodeId = nodeManager.getNodeId();
-         Notification notification = new Notification(nodeId == null ? null : nodeId.toString(), CoreNotificationType.CLUSTER_CONNECTION_STOPPED, props);
+         Notification notification = new Notification(Objects.toString(nodeId, null), CoreNotificationType.CLUSTER_CONNECTION_STOPPED, props);
          managementService.sendNotification(notification);
       }
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            synchronized (ClusterConnectionImpl.this) {
-               closeLocator(serverLocator);
-               serverLocator = null;
-            }
-
+      executor.execute(() -> {
+         synchronized (ClusterConnectionImpl.this) {
+            closeLocator(serverLocator);
+            serverLocator = null;
          }
+
       });
 
       started = false;
    }
 
-   /**
-    * @param locator
-    */
    private void closeLocator(final ServerLocatorInternal locator) {
-      if (locator != null)
+      if (locator != null) {
          locator.close();
+      }
    }
 
    private TopologyMember getLocalMember() {
@@ -514,34 +548,30 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          logger.debug("{}::NodeAnnounced, backup={}{}{}", this, backup, nodeID, connectorPair);
       }
 
-      TransportConfiguration live = connectorPair.getA();
+      TransportConfiguration primary = connectorPair.getA();
       TransportConfiguration backupTC = connectorPair.getB();
-      TopologyMemberImpl newMember = new TopologyMemberImpl(nodeID, backupGroupName, scaleDownGroupName, live, backupTC);
+      TopologyMemberImpl newMember = new TopologyMemberImpl(nodeID, backupGroupName, scaleDownGroupName, primary, backupTC);
       newMember.setUniqueEventID(uniqueEventID);
       if (backup) {
-         topology.updateBackup(new TopologyMemberImpl(nodeID, backupGroupName, scaleDownGroupName, live, backupTC));
+         topology.updateBackup(new TopologyMemberImpl(nodeID, backupGroupName, scaleDownGroupName, primary, backupTC));
       } else {
          topology.updateMember(uniqueEventID, nodeID, newMember);
       }
    }
 
-   /** This is the implementation of TopologyManager. It is used to reject eventual updates from a split brain server.
-    *
-    * @param uniqueEventID
-    * @param nodeId
-    * @param memberInput
-    * @return
+   /**
+    * This is the implementation of TopologyManager. It is used to reject eventual updates from a split brain server.
     */
    @Override
    public boolean updateMember(long uniqueEventID, String nodeId, TopologyMemberImpl memberInput) {
       if (splitBrainDetection && nodeId.equals(nodeManager.getNodeId().toString())) {
-         if (memberInput.getLive() != null) {
-            if (!memberInput.getLive().isSameParams(connector)) {
+         if (memberInput.getPrimary() != null) {
+            if (!memberInput.getPrimary().isSameParams(connector)) {
                ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId, memberInput.toString());
                return false;
             }
          } else {
-            memberInput.setLive(connector);
+            memberInput.setPrimary(connector);
          }
       }
       return true;
@@ -549,14 +579,15 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    /**
     * From topologyManager
-    * @param uniqueEventID
-    * @param nodeId
-    * @return
     */
    @Override
-   public boolean removeMember(final long uniqueEventID, final String nodeId) {
+   public boolean removeMember(final long uniqueEventID, final String nodeId, final boolean disconnect) {
       if (nodeId.equals(nodeManager.getNodeId().toString())) {
-         ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId);
+         if (!disconnect) {
+            ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId);
+         } else {
+            ActiveMQServerLogger.LOGGER.nodeLeavingCluster(nodeId);
+         }
          return false;
       }
       return true;
@@ -579,7 +610,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          ClusterControl clusterControl = manager.getClusterController().connectToNodeInCluster(sf);
          try {
             clusterControl.authorize();
-            clusterControl.sendNodeAnnounce(localMember.getUniqueEventID(), manager.getNodeId(), manager.getBackupGroupName(), manager.getScaleDownGroupName(), false, localMember.getLive(), localMember.getBackup());
+            clusterControl.sendNodeAnnounce(localMember.getUniqueEventID(), manager.getNodeId(), manager.getBackupGroupName(), manager.getScaleDownGroupName(), false, localMember.getPrimary(), localMember.getBackup());
          } catch (ActiveMQException e) {
             ActiveMQServerLogger.LOGGER.clusterControlAuthfailure(e.getMessage());
             logger.debug(e.getMessage(), e);
@@ -594,6 +625,165 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       // false,
       // localMember.getConnector().a,
       // localMember.getConnector().b);
+
+      startTopologyScanner();
+   }
+
+   @Override
+   public void connectorsChanged(List<DiscoveryEntry> newConnectors) {
+      discoveryEntries = newConnectors;
+
+      startTopologyScanner();
+   }
+
+   private void startTopologyScanner() {
+      if (topologyScanner != null && !stopping) {
+         topologyScanner.start();
+         topologyScanner.resetCounter();
+         topologyScanner.delay();
+      }
+   }
+
+   public TopologyScanner getTopologyScanner() {
+      return topologyScanner;
+   }
+
+   public final class TopologyScanner extends ActiveMQScheduledComponent {
+
+      private final int attempts;
+
+      private final AtomicInteger counter = new AtomicInteger();
+
+      private volatile boolean running = false;
+
+      public boolean isRunning() {
+         return running;
+      }
+
+      TopologyScanner(ScheduledExecutorService scheduledExecutorService, Executor executor, int attempts) {
+         super(scheduledExecutorService, executor, retryInterval, TimeUnit.MILLISECONDS, true);
+         this.attempts = attempts;
+      }
+
+      @Override
+      public boolean delay() {
+         running = true;
+
+         return super.delay();
+      }
+
+      public void resetCounter() {
+         counter.set(0);
+      }
+
+      @Override
+      public void run() {
+         TransportConfiguration[] transportConfigurations = null;
+
+         if (staticTransportConfigurations != null) {
+            transportConfigurations = staticTransportConfigurations;
+         } else {
+            List<DiscoveryEntry> discoveredEntries = discoveryEntries;
+
+            if (discoveredEntries != null) {
+               transportConfigurations = discoveryEntries.stream()
+                   .map(discoveryEntry -> discoveryEntry.getConnector())
+                   .toArray(TransportConfiguration[]::new);
+            } else {
+               logger.debug("No discovered entries");
+            }
+         }
+
+         if (transportConfigurations != null) {
+            boolean topologyUpdated = updateTopology(transportConfigurations);
+
+            int topologyScannerCount = counter.incrementAndGet();
+
+            boolean retry = (attempts == -1 || topologyScannerCount < attempts);
+
+            if (!topologyUpdated && !stopping && retry) {
+               delay();
+            } else {
+               running = false;
+
+               if (!topologyUpdated && !stopping) {
+                  ActiveMQServerLogger.LOGGER.incompleteClusterTopology(name.toString(),
+                      topology, topology.getMembers().toString());
+               }
+            }
+         }
+      }
+
+      private boolean updateTopology(TransportConfiguration[] transportConfigurations) {
+         boolean result = true;
+
+         for (TransportConfiguration transportConfiguration : transportConfigurations) {
+            if (!topology.getMembers().stream().anyMatch(member -> compareTCs(connector, transportConfiguration) ||
+                member.getPrimary() != null && compareTCs(member.getPrimary(), transportConfiguration) ||
+                member.getBackup() != null && compareTCs(member.getBackup(), transportConfiguration))) {
+
+               try (ServerLocatorInternal targetLocator = new ServerLocatorImpl(topology, true, transportConfiguration)) {
+                  targetLocator.setReconnectAttempts(0);
+                  targetLocator.setInitialConnectAttempts(0);
+                  targetLocator.setConnectionTTL(connectionTTL);
+                  targetLocator.setCallTimeout(callTimeout);
+                  targetLocator.setNodeID(nodeManager.getNodeId().toString());
+                  targetLocator.setClusterTransportConfiguration(connector);
+                  targetLocator.setIdentity("(Cluster-topology-scanner::" + server.toString() + ")");
+
+                  try {
+                     try (ClientSessionFactoryInternal targetClientSessionFactory = targetLocator.connect()) {
+                        boolean waitForTopology = targetClientSessionFactory.waitForTopology(
+                            callTimeout, TimeUnit.MILLISECONDS);
+
+                        if (logger.isDebugEnabled()) {
+                           logger.debug("Cluster topology scanner waitForTopology from {}: {}",
+                               transportConfiguration, waitForTopology);
+                        }
+                     }
+                  } catch (ActiveMQException e) {
+                     result = false;
+
+                     if (logger.isDebugEnabled()) {
+                        logger.debug("Cluster topology scanner failed to connect to {}: {}",
+                            transportConfiguration, e);
+                     }
+                  }
+               }
+            }
+         }
+
+         return result;
+      }
+
+      protected static boolean compareTCs(TransportConfiguration config, TransportConfiguration otherConfig) {
+         if (config.getFactoryClassName().contains("Netty") && otherConfig.getFactoryClassName().contains("Netty")) {
+            return Objects.equals(config.getParams().get("port"), otherConfig.getParams().get("port")) &&
+                compareHosts((String)config.getParams().get("host"), (String)otherConfig.getParams().get("host"));
+         } else if (config.getFactoryClassName().contains("InVM") && otherConfig.getFactoryClassName().contains("InVM")) {
+            return Objects.equals(config.getParams().get("serverId"), otherConfig.getParams().get("serverId"));
+         }
+
+         return false;
+      }
+
+      private static boolean compareHosts(String host, String otherHost) {
+         if (Objects.equals(host, otherHost)) {
+            return true;
+         }
+
+         if (host != null && otherHost != null) {
+            try {
+               InetAddress hostAddr = InetAddress.getByName(host);
+               InetAddress otherHostAddr = InetAddress.getByName(otherHost);
+               return hostAddr.equals(otherHostAddr);
+            } catch (UnknownHostException e) {
+               logger.debug("Error resolving hosts: {}", e);
+            }
+         }
+
+         return false;
+      }
    }
 
    @Override
@@ -608,7 +798,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    @Override
    public String getNodeID() {
-      return nodeManager == null ? null : (nodeManager.getNodeId() == null ? null : nodeManager.getNodeId().toString());
+      return nodeManager == null ? null : (Objects.toString(nodeManager.getNodeId(), null));
    }
 
    @Override
@@ -628,6 +818,11 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    @Override
    public long getCallTimeout() {
       return callTimeout;
+   }
+
+   @Override
+   public long getProducerWindowSize() {
+      return producerWindowSize;
    }
 
    @Override
@@ -660,9 +855,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          logger.debug("Activating cluster connection nodeID={} for server={}", nodeManager.getNodeId(), server);
       }
 
-      liveNotifier = new LiveNotifier();
-      liveNotifier.updateAsLive();
-      liveNotifier.schedule();
+      primaryNotifier = new PrimaryNotifier();
+      primaryNotifier.updateAsPrimary();
+      primaryNotifier.schedule();
 
       serverLocator = clusterConnector.createServerLocator();
 
@@ -700,6 +895,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
 
          serverLocator.setAfterConnectionInternalListener(this);
+         serverLocator.setDiscoveryListener(this);
 
          serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator, server.getStorageManager()));
 
@@ -708,7 +904,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       if (managementService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("name"), name);
+         props.putSimpleStringProperty(SimpleString.of("name"), name);
          Notification notification = new Notification(nodeManager.getNodeId().toString(), CoreNotificationType.CLUSTER_CONNECTION_STARTED, props);
          logger.debug("sending notification: {}", notification);
          managementService.sendNotification(notification);
@@ -727,9 +923,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    @Override
    public void nodeDown(final long eventUID, final String nodeID) {
       /*
-      * we dont do anything when a node down is received. The bridges will take care themselves when they should disconnect
-      * and/or clear their bindings. This is to avoid closing a record when we don't want to.
-      * */
+       * we dont do anything when a node down is received. The bridges will take care themselves when they should disconnect
+       * and/or clear their bindings. This is to avoid closing a record when we don't want to.
+       */
    }
 
    @Override
@@ -751,21 +947,22 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          return;
       }
 
-      // if the node is more than 1 hop away, we do not create a bridge for direct cluster connection
-      if (allowDirectConnectionsOnly && !allowableConnections.contains(topologyMember.getLive().newTransportConfig(TRANSPORT_CONFIG_NAME))) {
-         return;
-      }
-
       // FIXME required to prevent cluster connections w/o discovery group
       // and empty static connectors to create bridges... ulgy!
       if (serverLocator == null) {
          return;
       }
+
       /*we don't create bridges to backups*/
-      if (topologyMember.getLive() == null) {
+      if (topologyMember.getPrimary() == null) {
          if (logger.isTraceEnabled()) {
             logger.trace("{} ignoring call with nodeID={}, topologyMember={}, last={}", this, nodeID, topologyMember, last);
          }
+         return;
+      }
+
+      // if the node is more than 1 hop away, we do not create a bridge for direct cluster connection
+      if (allowDirectConnectionsOnly && !allowableConnections.contains(topologyMember.getPrimary().newTransportConfig(TRANSPORT_CONFIG_NAME))) {
          return;
       }
 
@@ -791,14 +988,14 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                } else {
                   // Add binding in storage so the queue will get reloaded on startup and we can find it - it's never
                   // actually routed to at that address though
-                  queue = server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.MULTICAST).setAutoCreateAddress(true).setMaxConsumers(-1).setPurgeOnNoConsumers(false).setInternal(true));
+                  queue = server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.MULTICAST).setAutoCreateAddress(true).setMaxConsumers(-1).setPurgeOnNoConsumers(false).setInternal(true));
                }
 
                // There are a few things that will behave differently when it's an internal queue
                // such as we don't hold groupIDs inside the SnF queue
                queue.setInternalQueue(true);
 
-               createNewRecord(topologyMember.getUniqueEventID(), nodeID, topologyMember.getLive(), queueName, queue, true);
+               createNewRecord(topologyMember.getUniqueEventID(), nodeID, topologyMember.getPrimary(), queueName, queue, true);
             } else {
                if (logger.isTraceEnabled()) {
                   logger.trace("{} ignored nodeUp record for {} on nodeID={} as the record already existed", this, topologyMember, nodeID);
@@ -811,7 +1008,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    }
 
    public SimpleString getSfQueueName(String nodeID) {
-      return new SimpleString(storeAndForwardPrefix + name + "." + nodeID);
+      return SimpleString.of(storeAndForwardPrefix + name + "." + nodeID);
    }
 
    @Override
@@ -820,7 +1017,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       TopologyMemberImpl localMember = new TopologyMemberImpl(nodeID, null, null, null, connector);
 
-      topology.updateAsLive(nodeID, localMember);
+      topology.updateAsPrimary(nodeID, localMember);
    }
 
 
@@ -900,7 +1097,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       targetLocator.addIncomingInterceptor(new IncomingInterceptorLookingForExceptionMessage(manager, executorFactory.getExecutor()));
       MessageFlowRecordImpl record = new MessageFlowRecordImpl(targetLocator, eventUID, targetNodeID, connector, queueName, queue);
 
-      ClusterConnectionBridge bridge = new ClusterConnectionBridge(this, manager, targetLocator, serverLocator, initialConnectAttempts, reconnectAttempts, retryInterval, retryIntervalMultiplier, maxRetryInterval, nodeManager.getUUID(), record.getEventUID(), record.getTargetNodeID(), record.getQueueName(), record.getQueue(), executorFactory.getExecutor(), null, null, scheduledExecutor, null, useDuplicateDetection, clusterUser, clusterPassword, server, managementService.getManagementAddress(), managementService.getManagementNotificationAddress(), record, record.getConnector(), storeAndForwardPrefix, server.getStorageManager());
+      ClusterConnectionBridge bridge = new ClusterConnectionBridge(this, manager, targetLocator, serverLocator, initialConnectAttempts, reconnectAttempts, retryInterval, retryIntervalMultiplier, maxRetryInterval, nodeManager.getUUID(), record.getEventUID(), record.getTargetNodeID(), record.getQueueName(), record.getQueue(), executorFactory.getExecutor(), null, null, scheduledExecutor, null, useDuplicateDetection, clusterUser, clusterPassword, server, managementService.getManagementAddress(), managementService.getManagementNotificationAddress(), record, record.getConnector(), storeAndForwardPrefix, server.getStorageManager(), clientId);
 
       targetLocator.setIdentity("(Cluster-connection-bridge::" + bridge.toString() + "::" + this.toString() + ")");
 
@@ -914,10 +1111,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       if (start) {
          bridge.start();
-      }
-
-      if ( !ConfigurationImpl.checkoutDupCacheSize(serverLocator.getConfirmationWindowSize(),server.getConfiguration().getIDCacheSize())) {
-         ActiveMQServerLogger.LOGGER.duplicateCacheSizeWarning(server.getConfiguration().getIDCacheSize(), serverLocator.getConfirmationWindowSize());
       }
    }
 
@@ -959,9 +1152,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          this.eventUID = eventUID;
       }
 
-      /* (non-Javadoc)
-       * @see java.lang.Object#toString()
-       */
       @Override
       public String toString() {
          return "MessageFlowRecordImpl [nodeID=" + targetNodeID +
@@ -988,37 +1178,22 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          return address != null ? address.toString() : "";
       }
 
-      /**
-       * @return the eventUID
-       */
       public long getEventUID() {
          return eventUID;
       }
 
-      /**
-       * @return the nodeID
-       */
       public String getTargetNodeID() {
          return targetNodeID;
       }
 
-      /**
-       * @return the connector
-       */
       public TransportConfiguration getConnector() {
          return connector;
       }
 
-      /**
-       * @return the queueName
-       */
       public SimpleString getQueueName() {
          return queueName;
       }
 
-      /**
-       * @return the queue
-       */
       public Queue getQueue() {
          return queue;
       }
@@ -1029,9 +1204,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       /*
-      * we should only ever close a record when the node itself has gone down or in the case of scale down where we know
+      * We should only ever close a record when the node itself has gone down or in the case of scale down where we know
       * the node is being completely destroyed and in this case we will migrate to another server/Bridge.
-      * */
+      */
       @Override
       public void close() throws Exception {
          logger.trace("Stopping bridge {}", bridge);
@@ -1046,18 +1221,15 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
          bridge.stop();
 
-         bridge.getExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  if (disconnected) {
-                     targetLocator.cleanup();
-                  } else {
-                     targetLocator.close();
-                  }
-               } catch (Exception ignored) {
-                  logger.debug(ignored.getMessage(), ignored);
+         bridge.getExecutor().execute(() -> {
+            try {
+               if (disconnected) {
+                  targetLocator.cleanup();
+               } else {
+                  targetLocator.close();
                }
+            } catch (Exception ignored) {
+               logger.debug(ignored.getMessage(), ignored);
             }
          });
       }
@@ -1125,6 +1297,10 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
                break;
             }
+            case BINDING_UPDATED: {
+               doBindingUpdated(message);
+               break;
+            }
             case CONSUMER_CREATED: {
                doConsumerCreated(message);
 
@@ -1158,9 +1334,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
       }
 
-      /*
-      * Inform the grouping handler of a proposal
-      * */
+      /**
+       * Inform the grouping handler of a proposal
+       */
       private synchronized void doProposalReceived(final ClientMessage message) throws Exception {
          if (!message.containsProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID)) {
             throw new IllegalStateException("proposal type is null");
@@ -1183,9 +1359,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
       }
 
-      /*
-      * Inform the grouping handler of a proposal(groupid) being removed
-      * */
+      /**
+       * Inform the grouping handler of a proposal(groupid) being removed
+       */
       private synchronized void doUnProposalReceived(final ClientMessage message) throws Exception {
          if (!message.containsProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID)) {
             throw new IllegalStateException("proposal type is null");
@@ -1205,10 +1381,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       }
 
-      /*
-      * Inform the grouping handler of a response from a proposal
-      *
-      * */
+      /**
+       * Inform the grouping handler of a response from a proposal
+       */
       private synchronized void doProposalResponseReceived(final ClientMessage message) throws Exception {
          if (!message.containsProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID)) {
             throw new IllegalStateException("proposal type is null");
@@ -1228,10 +1403,14 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          server.getGroupingHandler().sendProposalResponse(response, hops + 1);
       }
 
-      private synchronized void clearBindings() throws Exception {
+      private synchronized void clearBindings() {
          logger.debug("{} clearing bindings", ClusterConnectionImpl.this);
          for (RemoteQueueBinding binding : new HashSet<>(bindings.values())) {
-            removeBinding(binding.getClusterName());
+            try {
+               removeBinding(binding.getClusterName());
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.clusterConnectionFailedToRemoveBindingOnClear(getName().toString(), binding.getClusterName().toString(), e.getMessage());
+            }
          }
       }
 
@@ -1257,6 +1436,22 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          reset = false;
          for (RemoteQueueBinding binding : new HashSet<>(bindings.values())) {
             disconnectBinding(binding.getClusterName());
+         }
+      }
+
+      private synchronized void doBindingUpdated(final ClientMessage message) throws Exception {
+         logger.trace("{} Update binding {}", ClusterConnectionImpl.this, message);
+         if (!message.containsProperty(ManagementHelper.HDR_CLUSTER_NAME)) {
+            throw new IllegalStateException("clusterName is null");
+         }
+
+         SimpleString clusterName = message.getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
+         SimpleString filterString = message.getSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING);
+
+         RemoteQueueBinding existingBinding = (RemoteQueueBinding) postOffice.getBinding(clusterName);
+
+         if (existingBinding != null) {
+            existingBinding.setFilter(FilterImpl.createFilter(filterString));
          }
       }
 
@@ -1575,11 +1770,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    }
 
    @Override
-   public boolean verify(String clusterUser0, String clusterPassword0) {
-      return clusterUser.equals(clusterUser0) && clusterPassword.equals(clusterPassword0);
-   }
-
-   @Override
    public void removeRecord(String targetNodeID) {
       logger.debug("Removing record for: {}", targetNodeID);
       MessageFlowRecord record = records.remove(targetNodeID);
@@ -1605,13 +1795,13 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
    }
 
-   private final class LiveNotifier implements Runnable {
+   private final class PrimaryNotifier implements Runnable {
 
       int notificationsSent = 0;
 
       @Override
       public void run() {
-         resendLive();
+         resendPrimary();
 
          schedule();
       }
@@ -1622,13 +1812,13 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
       }
 
-      public void updateAsLive() {
+      public void updateAsPrimary() {
          if (!stopping && started) {
-            topology.updateAsLive(manager.getNodeId(), new TopologyMemberImpl(manager.getNodeId(), manager.getBackupGroupName(), manager.getScaleDownGroupName(), connector, null));
+            topology.updateAsPrimary(manager.getNodeId(), new TopologyMemberImpl(manager.getNodeId(), manager.getBackupGroupName(), manager.getScaleDownGroupName(), connector, null));
          }
       }
 
-      public void resendLive() {
+      public void resendPrimary() {
          if (!stopping && started) {
             topology.resendNode(manager.getNodeId());
          }

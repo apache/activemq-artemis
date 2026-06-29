@@ -16,10 +16,14 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.Arrays;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ConcurrentAppendOnlyChunkedListTest {
 
@@ -32,24 +36,28 @@ public class ConcurrentAppendOnlyChunkedListTest {
       chunkedList = new ConcurrentAppendOnlyChunkedList<>(CHUNK_SIZE);
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void shouldFailToCreateNotPowerOf2ChunkSizeCollection() {
-      new ConcurrentAppendOnlyChunkedList<>(3);
+      assertThrows(IllegalArgumentException.class, () -> {
+         new ConcurrentAppendOnlyChunkedList<>(3);
+      });
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void shouldFailToCreateNegativeChunkSizeCollection() {
-      new ConcurrentAppendOnlyChunkedList<>(-1);
+      assertThrows(IllegalArgumentException.class, () -> {
+         new ConcurrentAppendOnlyChunkedList<>(-1);
+      });
    }
 
    @Test
    public void shouldNumberOfElementsBeTheSameOfTheAddedElements() {
       final int messages = ELEMENTS;
       for (int i = 0; i < messages; i++) {
-         Assert.assertEquals(i, chunkedList.size());
+         assertEquals(i, chunkedList.size());
          chunkedList.add(i);
       }
-      Assert.assertEquals(messages, chunkedList.size());
+      assertEquals(messages, chunkedList.size());
    }
 
    @Test
@@ -61,19 +69,19 @@ public class ConcurrentAppendOnlyChunkedListTest {
          elements[i] = element;
       }
       chunkedList.addAll(elements);
-      Assert.assertEquals(messages, chunkedList.size());
+      assertEquals(messages, chunkedList.size());
    }
 
    @Test
    public void shouldGetReturnNullIfEmpty() {
-      Assert.assertNull(chunkedList.get(0));
+      assertNull(chunkedList.get(0));
    }
 
    @Test
    public void shouldNegativeIndexedGetReturnNull() {
-      Assert.assertNull(chunkedList.get(-1));
+      assertNull(chunkedList.get(-1));
       chunkedList.add(0);
-      Assert.assertNull(chunkedList.get(-1));
+      assertNull(chunkedList.get(-1));
    }
 
    @Test
@@ -82,7 +90,7 @@ public class ConcurrentAppendOnlyChunkedListTest {
       for (int i = 0; i < messages; i++) {
          final Integer element = i;
          chunkedList.add(element);
-         Assert.assertNull(chunkedList.get(i + 1));
+         assertNull(chunkedList.get(i + 1));
       }
    }
 
@@ -99,12 +107,12 @@ public class ConcurrentAppendOnlyChunkedListTest {
       for (int i = 0; i < messages; i++) {
          cachedElements[i] = chunkedList.get(i);
       }
-      Assert.assertArrayEquals(elements, cachedElements);
+      assertArrayEquals(elements, cachedElements);
       Arrays.fill(cachedElements, null);
       for (int i = messages - 1; i >= 0; i--) {
          cachedElements[i] = chunkedList.get(i);
       }
-      Assert.assertArrayEquals(elements, cachedElements);
+      assertArrayEquals(elements, cachedElements);
    }
 
    @Test
@@ -120,7 +128,7 @@ public class ConcurrentAppendOnlyChunkedListTest {
       for (int i = 0; i < messages; i++) {
          cachedElements[i] = chunkedList.get(i);
       }
-      Assert.assertArrayEquals(elements, cachedElements);
+      assertArrayEquals(elements, cachedElements);
    }
 
    @Test
@@ -133,7 +141,7 @@ public class ConcurrentAppendOnlyChunkedListTest {
          chunkedList.add(element);
       }
       final Integer[] cachedElements = chunkedList.toArray(Integer[]::new);
-      Assert.assertArrayEquals(elements, cachedElements);
+      assertArrayEquals(elements, cachedElements);
    }
 
    @Test
@@ -147,31 +155,37 @@ public class ConcurrentAppendOnlyChunkedListTest {
       }
       final int offset = 10;
       final Integer[] cachedElements = chunkedList.toArray(size -> new Integer[offset + size], offset);
-      Assert.assertArrayEquals(elements, Arrays.copyOfRange(cachedElements, offset, cachedElements.length));
-      Assert.assertArrayEquals(new Integer[offset], Arrays.copyOfRange(cachedElements, 0, offset));
+      assertArrayEquals(elements, Arrays.copyOfRange(cachedElements, offset, cachedElements.length));
+      assertArrayEquals(new Integer[offset], Arrays.copyOfRange(cachedElements, 0, offset));
    }
 
-   @Test(expected = ArrayIndexOutOfBoundsException.class)
+   @Test
    public void shouldFailToArrayWithInsufficientArrayCapacity() {
-      final int messages = ELEMENTS;
-      final Integer[] elements = new Integer[messages];
-      for (int i = 0; i < messages; i++) {
-         final Integer element = i;
-         elements[i] = element;
-         chunkedList.add(element);
-      }
-      final int offset = 10;
-      chunkedList.toArray(size -> new Integer[offset + size - 1], offset);
+      assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
+         final int messages = ELEMENTS;
+         final Integer[] elements = new Integer[messages];
+         for (int i = 0;i < messages;i++) {
+            final Integer element = i;
+            elements[i] = element;
+            chunkedList.add(element);
+         }
+         final int offset = 10;
+         chunkedList.toArray(size -> new Integer[offset + size - 1], offset);
+      });
    }
 
-   @Test(expected = ArrayIndexOutOfBoundsException.class)
+   @Test
    public void shouldFailToArrayWithNegativeStartIndex() {
-      chunkedList.toArray(Integer[]::new, -1);
+      assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
+         chunkedList.toArray(Integer[]::new, -1);
+      });
    }
 
-   @Test(expected = NullPointerException.class)
+   @Test
    public void shouldFailToArrayWithNullArray() {
-      chunkedList.toArray(size -> null);
+      assertThrows(NullPointerException.class, () -> {
+         chunkedList.toArray(size -> null);
+      });
    }
 
    @Test
@@ -184,13 +198,13 @@ public class ConcurrentAppendOnlyChunkedListTest {
       }
       chunkedList.addAll(elements);
       final Integer[] cachedElements = chunkedList.toArray(Integer[]::new);
-      Assert.assertArrayEquals(elements, cachedElements);
+      assertArrayEquals(elements, cachedElements);
    }
 
    @Test
    public void shouldToArrayReturnEmptyArrayIfEmpty() {
       final Integer[] array = chunkedList.toArray(Integer[]::new);
-      Assert.assertArrayEquals(new Integer[0], array);
+      assertArrayEquals(new Integer[0], array);
    }
 
 }

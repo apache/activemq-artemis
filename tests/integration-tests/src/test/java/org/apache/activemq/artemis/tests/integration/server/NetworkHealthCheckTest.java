@@ -16,28 +16,30 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class NetworkHealthCheckTest extends ActiveMQTestBase {
 
    private static final String HEALTH_CHECK_LOGGER_NAME = NetworkHealthCheck.class.getName();
    private static LogLevel previousLevel;
 
-   @BeforeClass
+   @BeforeAll
    public static void prepareLogger() {
       previousLevel = AssertionLoggerHandler.setLevel(HEALTH_CHECK_LOGGER_NAME, LogLevel.DEBUG);
    }
 
-   @AfterClass
+   @AfterAll
    public static void clearLogger() {
       AssertionLoggerHandler.setLevel(HEALTH_CHECK_LOGGER_NAME, previousLevel);
    }
@@ -59,8 +61,8 @@ public class NetworkHealthCheckTest extends ActiveMQTestBase {
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          server.start();
-         Assert.assertTrue(loggerHandler.findText("executing ping:: " + String.format(customIpv4Command, checkingTimeout, checkingHost)));
-         Assert.assertFalse(loggerHandler.findText(String.format(NetworkHealthCheck.IPV4_DEFAULT_COMMAND, checkingTimeout, checkingHost)));
+         assertTrue(loggerHandler.findText("executing ping:: " + String.format(customIpv4Command, checkingTimeout, checkingHost)));
+         assertFalse(loggerHandler.findText(String.format(NetworkHealthCheck.IPV4_DEFAULT_COMMAND, checkingTimeout, checkingHost)));
       } finally {
          server.stop();
       }

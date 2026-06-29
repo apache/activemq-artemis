@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,6 +26,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -32,20 +38,19 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.engine.Connection;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
 
    private static final int OK = 0x33;
 
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public boolean useOverride;
 
-   @Parameterized.Parameters(name = "useOverride={0}")
+   @Parameters(name = "useOverride={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
          {true}, {false}
@@ -71,7 +76,8 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
    }
 
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testHeartless() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -80,7 +86,7 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectOpenedResource(Connection connection) {
-            assertEquals("idle timeout was not disabled", 0, connection.getTransport().getRemoteIdleTimeout());
+            assertEquals(0, connection.getTransport().getRemoteIdleTimeout(), "idle timeout was not disabled");
          }
       });
 
@@ -94,7 +100,8 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
    // This test is validating a scenario where the client will leave with connection reset
    // This is done by setting soLinger=0 on the socket, which will make the system to issue a connection.reset instead of sending a
    // disconnect.
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testCloseConsumerOnConnectionReset() throws Exception {
 
       AmqpClient client = createAmqpClient();
@@ -104,7 +111,7 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectOpenedResource(Connection connection) {
-            assertEquals("idle timeout was not disabled", 0, connection.getTransport().getRemoteIdleTimeout());
+            assertEquals(0, connection.getTransport().getRemoteIdleTimeout(), "idle timeout was not disabled");
          }
       });
 
@@ -118,7 +125,7 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
       // This test needs a remote process exiting without closing the socket
       // with soLinger=0 on the socket so it will issue a connection.reset
       Process p = SpawnedVMSupport.spawnVM(AmqpNoHearbeatsTest.class.getName(), getTestName(), getQueueName());
-      Assert.assertEquals(OK, p.waitFor());
+      assertEquals(OK, p.waitFor());
 
       AmqpSender sender = session.createSender(getQueueName());
 
@@ -132,7 +139,7 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
 
       for (int i = 0; i < 10; i++) {
          AmqpMessage msg = receiver.receive(1, TimeUnit.SECONDS);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.accept();
       }
    }

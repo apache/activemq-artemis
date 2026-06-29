@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.artemis.jndi;
 
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.naming.Referenceable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Properties;
-
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.Referenceable;
 
 /**
  * Facilitates objects to be stored in JNDI as properties
@@ -33,26 +32,22 @@ public abstract class JNDIStorable implements Referenceable {
    /**
     * Set the properties that will represent the instance in JNDI
     *
-    * @param props
-    *     The properties to use when building the new isntance.
+    * @param props The properties to use when building the new isntance.
     */
    protected abstract void buildFromProperties(Properties props);
 
    /**
     * Initialize the instance from properties stored in JNDI
     *
-    * @param props
-    *     The properties to use when initializing the new instance.
+    * @param props The properties to use when initializing the new instance.
     */
    protected abstract void populateProperties(Properties props);
 
    /**
     * set the properties for this instance as retrieved from JNDI
     *
-    * @param props
-    *     The properties to apply to this instance.
-    *
-    * @return a new, unmodifiable, map containing any unused properties, or empty if none were.
+    * @param props The properties to apply to this instance.
+    * @return a new, unmodifiable, map containing any unused properties, or empty if none were
     */
    synchronized void setProperties(Properties props) {
       buildFromProperties(props);
@@ -73,8 +68,7 @@ public abstract class JNDIStorable implements Referenceable {
     * Retrieve a Reference for this instance to store in JNDI
     *
     * @return the built Reference
-    * @throws NamingException
-    *       if error on building Reference
+    * @throws NamingException if error on building Reference
     */
    @Override
    public Reference getReference() throws NamingException {
@@ -84,9 +78,6 @@ public abstract class JNDIStorable implements Referenceable {
    /**
     * Method for class's implementing externalizable to delegate to if not custom implementing.
     *
-    * @param in
-    * @throws IOException
-    * @throws ClassNotFoundException
     * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
     */
    public void readObject(ObjectInput in) throws IOException, ClassNotFoundException {
@@ -99,8 +90,6 @@ public abstract class JNDIStorable implements Referenceable {
    /**
     * Method for class's implementing externalizable to delegate to if not custom implementing.
     *
-    * @param out
-    * @throws IOException
     * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
     */
    public void writeObject(ObjectOutput out) throws IOException {

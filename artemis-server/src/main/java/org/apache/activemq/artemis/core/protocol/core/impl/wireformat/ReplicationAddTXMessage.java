@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.persistence.Persister;
@@ -131,9 +132,6 @@ public class ReplicationAddTXMessage extends PacketImpl {
       return txId;
    }
 
-   /**
-    * @return the journalID
-    */
    public byte getJournalID() {
       return journalID;
    }
@@ -142,60 +140,38 @@ public class ReplicationAddTXMessage extends PacketImpl {
       return operation;
    }
 
-   /**
-    * @return the recordType
-    */
    public byte getRecordType() {
       return recordType;
    }
 
-   /**
-    * @return the recordData
-    */
    public byte[] getRecordData() {
       return recordData;
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((encodingData == null) ? 0 : encodingData.hashCode());
-      result = prime * result + (int) (id ^ (id >>> 32));
-      result = prime * result + journalID;
-      result = prime * result + ((operation == null) ? 0 : operation.hashCode());
-      result = prime * result + Arrays.hashCode(recordData);
-      result = prime * result + recordType;
-      result = prime * result + (int) (txId ^ (txId >>> 32));
-      return result;
+      return Objects.hash(super.hashCode(), encodingData, id, journalID, operation, Arrays.hashCode(recordData),
+                          recordType, txId);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReplicationAddTXMessage))
+      }
+      if (!(obj instanceof ReplicationAddTXMessage other)) {
          return false;
-      ReplicationAddTXMessage other = (ReplicationAddTXMessage) obj;
-      if (encodingData == null) {
-         if (other.encodingData != null)
-            return false;
-      } else if (!encodingData.equals(other.encodingData))
-         return false;
-      if (id != other.id)
-         return false;
-      if (journalID != other.journalID)
-         return false;
-      if (operation != other.operation)
-         return false;
-      if (!Arrays.equals(recordData, other.recordData))
-         return false;
-      if (recordType != other.recordType)
-         return false;
-      if (txId != other.txId)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(encodingData, other.encodingData) &&
+             id == other.id &&
+             journalID == other.journalID &&
+             operation == other.operation &&
+             Arrays.equals(recordData, other.recordData) &&
+             recordType == other.recordType &&
+             txId == other.txId;
    }
 }

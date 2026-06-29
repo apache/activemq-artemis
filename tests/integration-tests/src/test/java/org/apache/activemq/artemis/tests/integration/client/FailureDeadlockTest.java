@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
@@ -31,9 +33,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -49,7 +50,7 @@ public class FailureDeadlockTest extends ActiveMQTestBase {
    private ActiveMQConnectionFactory cf2;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultInVMConfig());
@@ -59,9 +60,7 @@ public class FailureDeadlockTest extends ActiveMQTestBase {
       cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
    }
 
-   // https://jira.jboss.org/jira/browse/JBMESSAGING-1702
-   // Test that two failures concurrently executing and calling the same exception listener
-   // don't deadlock
+   // Test that two failures concurrently executing and calling the same exception listener don't deadlock
    @Test
    public void testDeadlock() throws Exception {
       for (int i = 0; i < 100; i++) {
@@ -75,14 +74,11 @@ public class FailureDeadlockTest extends ActiveMQTestBase {
          Session sess2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          RemotingConnection rc2 = ((ClientSessionInternal) ((ActiveMQSession) sess2).getCoreSession()).getConnection();
 
-         ExceptionListener listener1 = new ExceptionListener() {
-            @Override
-            public void onException(final JMSException exception) {
-               try {
-                  conn2.close();
-               } catch (Exception e) {
-                  logger.error("Failed to close connection2", e);
-               }
+         ExceptionListener listener1 = exception -> {
+            try {
+               conn2.close();
+            } catch (Exception e) {
+               logger.error("Failed to close connection2", e);
             }
          };
 
@@ -137,7 +133,7 @@ public class FailureDeadlockTest extends ActiveMQTestBase {
 
          try {
             conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Assert.fail("should throw exception");
+            fail("should throw exception");
          } catch (JMSException e) {
             //pass
          }

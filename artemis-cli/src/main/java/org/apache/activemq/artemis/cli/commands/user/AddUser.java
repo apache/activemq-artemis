@@ -23,7 +23,7 @@ import picocli.CommandLine.Option;
 
 /**
  * Adding a new user, example:
- * ./artemis user add --user-command-user guest --role admin --user-command-password ***
+ * {@literal ./artemis user add --user-command-user guest --role admin --user-command-password ***}
  */
 @Command(name = "add", description = "Add a user.")
 public class AddUser extends PasswordAction {

@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.management.impl;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
-
 import java.util.Collections;
 import java.util.Map;
 
@@ -111,8 +110,8 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       clearIO();
       try {
          Transformer transformer = divert.getTransformer();
-         return transformer != null ? (transformer instanceof RegisteredTransformer ?
-            ((RegisteredTransformer)transformer).getTransformer() : transformer).getClass().getName() : null;
+         return transformer != null ? (transformer instanceof RegisteredTransformer rt ?
+            rt.getTransformer() : transformer).getClass().getName() : null;
       } finally {
          blockOnIO();
       }
@@ -134,8 +133,8 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       clearIO();
       try {
          Transformer transformer = divert.getTransformer();
-         return transformer != null && transformer instanceof RegisteredTransformer ?
-            ((RegisteredTransformer)transformer).getProperties() : Collections.emptyMap();
+         return transformer != null && transformer instanceof RegisteredTransformer rt ?
+            rt.getProperties() : Collections.emptyMap();
       } finally {
          blockOnIO();
       }

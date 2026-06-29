@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ServerLocatorConfig;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -84,7 +85,7 @@ public class XARecoveryConfig {
       this.username = username;
       this.password = password;
       this.ha = ha;
-      this.properties = properties == null ? new HashMap<>() : properties;
+      this.properties = Objects.requireNonNullElseGet(properties, () -> new HashMap<>());
       this.clientProtocolManager = clientProtocolManager;
       this.locatorConfig = locatorConfig;
    }
@@ -109,7 +110,7 @@ public class XARecoveryConfig {
       this.password = password;
       this.ha = ha;
       this.clientProtocolManager = clientProtocolManager;
-      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
+      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<>()) : Collections.unmodifiableMap(properties);
    }
 
    public XARecoveryConfig(final boolean ha,
@@ -145,7 +146,7 @@ public class XARecoveryConfig {
       this.username = username;
       this.password = password;
       this.ha = serverLocator.isHA();
-      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
+      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<>()) : Collections.unmodifiableMap(properties);
       this.clientProtocolManager = clientProtocolManager;
       this.locatorConfig = serverLocator.getLocatorConfig();
    }
@@ -204,11 +205,7 @@ public class XARecoveryConfig {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((discoveryConfiguration == null) ? 0 : discoveryConfiguration.hashCode());
-      result = prime * result + Arrays.hashCode(transportConfiguration);
-      return result;
+      return Objects.hash(discoveryConfiguration, Arrays.hashCode(transportConfiguration));
    }
 
    /*
@@ -217,26 +214,17 @@ public class XARecoveryConfig {
     */
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof XARecoveryConfig other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      XARecoveryConfig other = (XARecoveryConfig) obj;
-      if (discoveryConfiguration == null) {
-         if (other.discoveryConfiguration != null)
-            return false;
-      } else if (!discoveryConfiguration.equals(other.discoveryConfiguration))
-         return false;
-      if (!Arrays.equals(transportConfiguration, other.transportConfiguration))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(discoveryConfiguration, other.discoveryConfiguration) &&
+             Arrays.equals(transportConfiguration, other.transportConfiguration);
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       StringBuilder builder = new StringBuilder();

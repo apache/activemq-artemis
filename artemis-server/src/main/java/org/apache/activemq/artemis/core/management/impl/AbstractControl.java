@@ -21,7 +21,6 @@ import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
-import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -114,8 +113,7 @@ public abstract class AbstractControl extends StandardMBean {
                                 boolean durable,
                                 String user,
                                 String password,
-                                boolean createMessageId,
-                                Long...queueID) throws Exception {
+                                boolean createMessageId) throws Exception {
       ManagementRemotingConnection fakeConnection = new ManagementRemotingConnection();
       final String validatedUser = server.validateUser(user, password, fakeConnection, null);
       ServerSession serverSession = server.createSession("management::" + UUIDGenerator.getInstance().generateStringUUID(), user, password,
@@ -135,23 +133,13 @@ public abstract class AbstractControl extends StandardMBean {
          message.setTimestamp(System.currentTimeMillis());
          if (body != null) {
             if (type == Message.TEXT_TYPE) {
-               message.getBodyBuffer().writeNullableSimpleString(new SimpleString(body));
+               message.getBodyBuffer().writeNullableSimpleString(SimpleString.of(body));
             } else {
                message.getBodyBuffer().writeBytes(Base64.decode(body));
             }
          }
 
          message.setAddress(address);
-
-         // if a queueID is used, we set the routeToIDs property
-         // to one or many specific queues
-         if (queueID != null && queueID.length > 0) {
-            ByteBuffer buffer = ByteBuffer.allocate(8 * queueID.length);
-            for (Long q : queueID) {
-               buffer.putLong(q);
-            }
-            message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, buffer.array());
-         }
 
          if (createMessageId) {
             UUID userID = UUIDGenerator.getInstance().generateUUID();

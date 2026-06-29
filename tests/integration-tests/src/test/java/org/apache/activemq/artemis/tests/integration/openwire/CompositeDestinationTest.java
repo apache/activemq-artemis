@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.MessageProducer;
@@ -32,12 +34,12 @@ import javax.jms.TopicSubscriber;
 public class CompositeDestinationTest extends BasicOpenWireTest {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-      AddressInfo addressInfo = new AddressInfo(new SimpleString("p.IN"), RoutingType.MULTICAST);
+      AddressInfo addressInfo = new AddressInfo(SimpleString.of("p.IN"), RoutingType.MULTICAST);
       this.server.addAddressInfo(addressInfo);
-      addressInfo = new AddressInfo(new SimpleString("q.IN"), RoutingType.MULTICAST);
+      addressInfo = new AddressInfo(SimpleString.of("q.IN"), RoutingType.MULTICAST);
       this.server.addAddressInfo(addressInfo);
    }
 
@@ -67,7 +69,7 @@ public class CompositeDestinationTest extends BasicOpenWireTest {
             count++;
             msg = (TextMessage) sub1.receive(2000);
          }
-         assertEquals("Consumer should receive all messages from every topic", 2 * num, count);
+         assertEquals(2 * num, count, "Consumer should receive all messages from every topic");
       } finally {
          conn.close();
       }

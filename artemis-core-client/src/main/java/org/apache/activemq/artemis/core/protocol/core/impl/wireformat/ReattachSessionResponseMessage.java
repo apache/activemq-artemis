@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -69,34 +71,30 @@ public class ReattachSessionResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + lastConfirmedCommandID;
-      result = prime * result + (reattached ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), lastConfirmedCommandID, reattached);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", lastConfirmedCommandID=" + lastConfirmedCommandID);
-      buff.append(", reattached=" + reattached);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", lastConfirmedCommandID=" + lastConfirmedCommandID);
+      sb.append(", reattached=" + reattached);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReattachSessionResponseMessage))
+      }
+      if (!(obj instanceof ReattachSessionResponseMessage other)) {
          return false;
-      ReattachSessionResponseMessage other = (ReattachSessionResponseMessage) obj;
-      if (lastConfirmedCommandID != other.lastConfirmedCommandID)
-         return false;
-      if (reattached != other.reattached)
-         return false;
-      return true;
+      }
+
+      return lastConfirmedCommandID == other.lastConfirmedCommandID &&
+             reattached == other.reattached;
    }
 }

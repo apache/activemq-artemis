@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -59,30 +61,28 @@ public class CreateSessionResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + serverVersion;
-      return result;
+      return super.hashCode() + Objects.hashCode(serverVersion);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof CreateSessionResponseMessage))
+      }
+      if (!(obj instanceof CreateSessionResponseMessage other)) {
          return false;
-      CreateSessionResponseMessage other = (CreateSessionResponseMessage) obj;
-      if (serverVersion != other.serverVersion)
-         return false;
-      return true;
+      }
+
+      return serverVersion == other.serverVersion;
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", serverVersion=" + serverVersion);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", serverVersion=" + serverVersion);
+      return sb.toString();
    }
 }

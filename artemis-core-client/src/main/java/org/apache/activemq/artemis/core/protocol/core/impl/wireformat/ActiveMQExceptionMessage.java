@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -61,15 +63,12 @@ public class ActiveMQExceptionMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      return super.getPacketString() + ", exception= " + exception;
+      return super.getPacketString() + ", exception=" + exception;
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((exception == null) ? 0 : exception.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(exception);
    }
 
    @Override
@@ -80,17 +79,9 @@ public class ActiveMQExceptionMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ActiveMQExceptionMessage)) {
+      if (!(obj instanceof ActiveMQExceptionMessage other)) {
          return false;
       }
-      ActiveMQExceptionMessage other = (ActiveMQExceptionMessage) obj;
-      if (exception == null) {
-         if (other.exception != null) {
-            return false;
-         }
-      } else if (!exception.equals(other.exception)) {
-         return false;
-      }
-      return true;
+      return Objects.equals(exception, other.exception);
    }
 }

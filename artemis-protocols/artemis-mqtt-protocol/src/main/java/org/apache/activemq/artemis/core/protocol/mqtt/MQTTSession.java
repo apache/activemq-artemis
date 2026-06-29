@@ -27,6 +27,7 @@ import io.netty.handler.codec.mqtt.MqttQoS;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
@@ -48,8 +49,6 @@ public class MQTTSession {
 
    private ServerSessionImpl serverSession;
 
-   private ServerSessionImpl internalServerSession;
-
    private MQTTPublishManager mqttPublishManager;
 
    private MQTTConnectionManager mqttConnectionManager;
@@ -64,6 +63,8 @@ public class MQTTSession {
 
    private MQTTProtocolManager protocolManager;
 
+   private MQTTStateManager stateManager;
+
    private boolean clean;
 
    private WildcardConfiguration wildcardConfiguration;
@@ -74,20 +75,24 @@ public class MQTTSession {
 
    private boolean usingServerKeepAlive = false;
 
+   private OperationContext sessionContext;
+
    public MQTTSession(MQTTProtocolHandler protocolHandler,
                       MQTTConnection connection,
                       MQTTProtocolManager protocolManager,
-                      WildcardConfiguration wildcardConfiguration) throws Exception {
+                      WildcardConfiguration wildcardConfiguration,
+                      OperationContext sessionContext) throws Exception {
       this.protocolHandler = protocolHandler;
       this.protocolManager = protocolManager;
+      this.stateManager = protocolManager.getStateManager();
       this.wildcardConfiguration = wildcardConfiguration;
-
       this.connection = connection;
+      this.sessionContext = sessionContext;
 
       mqttConnectionManager = new MQTTConnectionManager(this);
       mqttPublishManager = new MQTTPublishManager(this, protocolManager.isCloseMqttConnectionOnPublishAuthorizationFailure());
-      sessionCallback = new MQTTSessionCallback(this, connection);
-      subscriptionManager = new MQTTSubscriptionManager(this);
+      sessionCallback = new MQTTSessionCallback(this, connection, protocolManager.getDefaultMaximumInFlightPublishMessages());
+      subscriptionManager = new MQTTSubscriptionManager(this, stateManager);
       retainMessageManager = new MQTTRetainMessageManager(this);
 
       state = MQTTSessionState.DEFAULT;
@@ -95,14 +100,21 @@ public class MQTTSession {
       logger.debug("MQTT session created: {}", id);
    }
 
-   // Called after the client has Connected.
-   synchronized void start() throws Exception {
+   /*
+    * This method is only called by MQTTConnectionManager.connect
+    * which is synchronized with MQTTConnectionManager.disconnect
+    */
+   void start() throws Exception {
       mqttPublishManager.start();
       subscriptionManager.start();
       stopped = false;
    }
 
-   synchronized void stop(boolean failure) throws Exception {
+   /*
+    * This method is only called by MQTTConnectionManager.disconnect
+    * which is synchronized with MQTTConnectionManager.connect
+    */
+   void stop(boolean failure) throws Exception {
       state.setFailed(failure);
 
       if (!stopped) {
@@ -112,19 +124,13 @@ public class MQTTSession {
 
          if (serverSession != null) {
             serverSession.stop();
-            serverSession.close(false);
+            serverSession.close(failure);
          }
 
-         if (internalServerSession != null) {
-            internalServerSession.stop();
-            internalServerSession.close(false);
-         }
-
-         if (state != null) {
-            state.setAttached(false);
-            state.setDisconnectedTime(System.currentTimeMillis());
-            state.clearTopicAliases();
-         }
+         state.setAttached(false);
+         state.setDisconnectedTime(System.currentTimeMillis());
+         state.clearTopicAliases();
+         state.getOutboundStore().resetSendQuota();
 
          if (getVersion() == MQTTVersion.MQTT_5) {
             if (state.getClientSessionExpiryInterval() == 0) {
@@ -133,17 +139,15 @@ public class MQTTSession {
                   sendWillMessage();
                }
                clean(false);
-               protocolManager.removeSessionState(connection.getClientID());
-            } else {
-               state.setDisconnectedTime(System.currentTimeMillis());
+               stateManager.removeSessionState(connection.getClientID());
             }
          } else {
             if (state.isWill() && failure) {
                sendWillMessage();
             }
-            if (isClean()) {
+            if (isClean() || state.getClientSessionExpiryInterval() == 0) {
                clean(false);
-               protocolManager.removeSessionState(connection.getClientID());
+               stateManager.removeSessionState(connection.getClientID());
             }
          }
       }
@@ -182,10 +186,6 @@ public class MQTTSession {
       return serverSession;
    }
 
-   ServerSessionImpl getInternalServerSession() {
-      return internalServerSession;
-   }
-
    ActiveMQServer getServer() {
       return protocolHandler.getServer();
    }
@@ -202,9 +202,8 @@ public class MQTTSession {
       return sessionCallback;
    }
 
-   void setServerSession(ServerSessionImpl serverSession, ServerSessionImpl internalServerSession) {
+   void setServerSession(ServerSessionImpl serverSession) {
       this.serverSession = serverSession;
-      this.internalServerSession = internalServerSession;
    }
 
    void setSessionState(MQTTSessionState state) {
@@ -226,6 +225,10 @@ public class MQTTSession {
       return protocolManager;
    }
 
+   MQTTStateManager getStateManager() {
+      return stateManager;
+   }
+
    void clean(boolean enforceSecurity) throws Exception {
       subscriptionManager.clean(enforceSecurity);
       mqttPublishManager.clean();
@@ -238,6 +241,10 @@ public class MQTTSession {
 
    public void setWildcardConfiguration(WildcardConfiguration wildcardConfiguration) {
       this.wildcardConfiguration = wildcardConfiguration;
+   }
+
+   public OperationContext getSessionContext() {
+      return sessionContext;
    }
 
    public CoreMessageObjectPools getCoreMessageObjectPools() {
@@ -290,6 +297,9 @@ public class MQTTSession {
 
    @Override
    public String toString() {
-      return "MQTTSession[coreSessionId: " + (serverSession != null ? serverSession.getName() : "null") + "]";
+      return "MQTTSession[" +
+         "coreSessionId: " + (serverSession != null ? serverSession.getName() : "null") +
+         ", clientId: " + state.getClientId() +
+         "]";
    }
 }

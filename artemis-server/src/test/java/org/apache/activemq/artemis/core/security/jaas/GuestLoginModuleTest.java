@@ -17,26 +17,24 @@
 package org.apache.activemq.artemis.core.security.jaas;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import org.junit.Assert;
-import org.junit.Test;
 
-public class GuestLoginModuleTest extends Assert {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class GuestLoginModuleTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -58,49 +56,39 @@ public class GuestLoginModuleTest extends Assert {
 
    @Test
    public void testLogin() throws LoginException {
-      LoginContext context = new LoginContext("GuestLogin", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            assertEquals("Should have no Callbacks", 0, callbacks.length);
-         }
-      });
+      LoginContext context = new LoginContext("GuestLogin", callbacks -> assertEquals(0, callbacks.length, "Should have no Callbacks"));
       context.login();
 
       Subject subject = context.getSubject();
 
-      assertEquals("Should have two principals", 2, subject.getPrincipals().size());
-      assertEquals("Should have one user principal", 1, subject.getPrincipals(UserPrincipal.class).size());
-      assertTrue("User principal is 'foo'", subject.getPrincipals(UserPrincipal.class).contains(new UserPrincipal("foo")));
+      assertEquals(2, subject.getPrincipals().size(), "Should have two principals");
+      assertEquals(1, subject.getPrincipals(UserPrincipal.class).size(), "Should have one user principal");
+      assertTrue(subject.getPrincipals(UserPrincipal.class).contains(new UserPrincipal("foo")), "User principal is 'foo'");
 
-      assertEquals("Should have one group principal", 1, subject.getPrincipals(RolePrincipal.class).size());
-      assertTrue("Role principal is 'bar'", subject.getPrincipals(RolePrincipal.class).contains(new RolePrincipal("bar")));
+      assertEquals(1, subject.getPrincipals(RolePrincipal.class).size(), "Should have one group principal");
+      assertTrue(subject.getPrincipals(RolePrincipal.class).contains(new RolePrincipal("bar")), "Role principal is 'bar'");
 
       context.logout();
 
-      assertEquals("Should have zero principals", 0, subject.getPrincipals().size());
+      assertEquals(0, subject.getPrincipals().size(), "Should have zero principals");
    }
 
    @Test
    public void testLoginWithDefaults() throws LoginException {
-      LoginContext context = new LoginContext("GuestLoginWithDefaults", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            assertEquals("Should have no Callbacks", 0, callbacks.length);
-         }
-      });
+      LoginContext context = new LoginContext("GuestLoginWithDefaults", callbacks -> assertEquals(0, callbacks.length, "Should have no Callbacks"));
       context.login();
 
       Subject subject = context.getSubject();
 
-      assertEquals("Should have two principals", 2, subject.getPrincipals().size());
-      assertEquals("Should have one user principal", 1, subject.getPrincipals(UserPrincipal.class).size());
-      assertTrue("User principal is 'guest'", subject.getPrincipals(UserPrincipal.class).contains(new UserPrincipal("guest")));
+      assertEquals(2, subject.getPrincipals().size(), "Should have two principals");
+      assertEquals(1, subject.getPrincipals(UserPrincipal.class).size(), "Should have one user principal");
+      assertTrue(subject.getPrincipals(UserPrincipal.class).contains(new UserPrincipal("guest")), "User principal is 'guest'");
 
-      assertEquals("Should have one group principal", 1, subject.getPrincipals(RolePrincipal.class).size());
-      assertTrue("Role principal is 'guests'", subject.getPrincipals(RolePrincipal.class).contains(new RolePrincipal("guests")));
+      assertEquals(1, subject.getPrincipals(RolePrincipal.class).size(), "Should have one group principal");
+      assertTrue(subject.getPrincipals(RolePrincipal.class).contains(new RolePrincipal("guests")), "Role principal is 'guests'");
 
       context.logout();
 
-      assertEquals("Should have zero principals", 0, subject.getPrincipals().size());
+      assertEquals(0, subject.getPrincipals().size(), "Should have zero principals");
    }
 }

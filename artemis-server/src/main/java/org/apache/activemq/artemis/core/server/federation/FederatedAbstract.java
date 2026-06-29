@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server.federation;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
@@ -28,9 +29,10 @@ import org.apache.activemq.artemis.core.server.federation.FederatedQueueConsumer
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 
+import static org.apache.activemq.artemis.core.config.WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION;
+
 public abstract class FederatedAbstract implements ActiveMQServerBasePlugin {
 
-   private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
    protected final Federation federation;
    protected ActiveMQServer server;
    protected FederationUpstream upstream;
@@ -42,7 +44,7 @@ public abstract class FederatedAbstract implements ActiveMQServerBasePlugin {
       this.federation = federation;
       this.server = server;
       this.upstream = upstream;
-      this.wildcardConfiguration = server.getConfiguration().getWildcardConfiguration() == null ? DEFAULT_WILDCARD_CONFIGURATION : server.getConfiguration().getWildcardConfiguration();
+      this.wildcardConfiguration = Objects.requireNonNullElse(server.getConfiguration().getWildcardConfiguration(), DEFAULT_WILDCARD_CONFIGURATION);
    }
 
    /**

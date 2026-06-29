@@ -17,19 +17,24 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -39,7 +44,7 @@ public class AMQPLargeMessageOverCoreBridgeTest extends AmqpClientTestSupport {
 
    private ActiveMQServer server2;
 
-   @Before
+   @BeforeEach
    public void setServers() throws Exception {
       server.setIdentity("server1");
       server.getConfiguration().addAcceptorConfiguration("flow", "tcp://localhost:6666" + "?protocols=CORE");
@@ -64,10 +69,10 @@ public class AMQPLargeMessageOverCoreBridgeTest extends AmqpClientTestSupport {
       for (int i = 0; i < numberOfMessages; i++) {
          AmqpMessage message = receiver.receive(10, TimeUnit.SECONDS);
          assertNotNull(message);
-         Assert.assertEquals(text, message.getText());
+         assertEquals(text, message.getText());
          message.accept();
       }
-      Assert.assertNull(receiver.receiveNoWait());
+      assertNull(receiver.receiveNoWait());
       receiver.close();
 
       connection.close();
@@ -98,12 +103,14 @@ public class AMQPLargeMessageOverCoreBridgeTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCoreBridgeDivert() throws Exception {
       internalTest(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCoreBridgeNoDivert() throws Exception {
       internalTest(false);
    }
@@ -117,25 +124,22 @@ public class AMQPLargeMessageOverCoreBridgeTest extends AmqpClientTestSupport {
       }
       server2.deployBridge(new BridgeConfiguration().setName(getTestName()).setQueueName(getQueueName(1)).setForwardingAddress(getQueueName(2)).setConfirmationWindowSize(10).setStaticConnectors(Arrays.asList("otherside")));
 
-      StringBuffer largeText = new StringBuffer();
-      while (largeText.length() < 300 * 1024) {
-         largeText.append("Some large stuff ");
-      }
+      String largeText = RandomUtil.randomAlphaNumericString(300 * 1024);
 
-      sendTextMessages(AMQP_PORT + 1, getQueueName(useDivert ? 0 : 1), largeText.toString(), 10);
+      sendTextMessages(AMQP_PORT + 1, getQueueName(useDivert ? 0 : 1), largeText, 10);
       server.stop();
       server.start();
-      receiveTextMessages(AMQP_PORT, getQueueName(2), largeText.toString(), 10);
+      receiveTextMessages(AMQP_PORT, getQueueName(2), largeText, 10);
       if (useDivert) {
          // We diverted, so messages were copied, we need to make sure we consume from the original queue
-         receiveTextMessages(AMQP_PORT + 1, getQueueName(0), largeText.toString(), 10);
+         receiveTextMessages(AMQP_PORT + 1, getQueueName(0), largeText, 10);
       } else {
          // no messages should been routed to 0
-         receiveTextMessages(AMQP_PORT + 1, getQueueName(0), largeText.toString(), 0);
+         receiveTextMessages(AMQP_PORT + 1, getQueueName(0), largeText, 0);
       }
 
       // messages should have been transferred between servers
-      receiveTextMessages(AMQP_PORT + 1, getQueueName(1), largeText.toString(), 0);
+      receiveTextMessages(AMQP_PORT + 1, getQueueName(1), largeText, 0);
 
    }
 

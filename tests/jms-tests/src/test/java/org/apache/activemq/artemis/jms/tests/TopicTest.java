@@ -29,7 +29,7 @@ import javax.jms.Topic;
 import java.io.Serializable;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TopicTest extends JMSTestCase {
 
@@ -74,9 +74,6 @@ public class TopicTest extends JMSTestCase {
       ProxyAssertSupport.assertEquals("Topic1", topic.getTopicName());
    }
 
-   /*
-   * See http://jira.jboss.com/jira/browse/JBMESSAGING-399
-   */
    @Test
    public void testRace() throws Exception {
       Connection conn = createConnection();

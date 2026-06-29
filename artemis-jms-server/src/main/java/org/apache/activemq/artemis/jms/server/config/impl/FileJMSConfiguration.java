@@ -19,10 +19,10 @@ package org.apache.activemq.artemis.jms.server.config.impl;
 import javax.management.MBeanServer;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.config.impl.Validators;
 import org.apache.activemq.artemis.core.deployers.Deployable;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -37,6 +37,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import static org.apache.activemq.artemis.core.config.impl.Validators.NO_CHECK;
 
 public class FileJMSConfiguration extends JMSConfigurationImpl implements Deployable {
 
@@ -92,8 +94,8 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
     */
    public void parseConfiguration(final Node rootnode) throws Exception {
 
-      ArrayList<JMSQueueConfiguration> queues = new ArrayList<>();
-      ArrayList<TopicConfiguration> topics = new ArrayList<>();
+      List<JMSQueueConfiguration> queues = new ArrayList<>();
+      List<TopicConfiguration> topics = new ArrayList<>();
 
       Element e = (Element) rootnode;
 
@@ -116,7 +118,7 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
          }
       }
 
-      String domain = XMLConfigurationUtil.getString(e, JMX_DOMAIN_NAME, ActiveMQDefaultConfiguration.getDefaultJmxDomain(), Validators.NO_CHECK);
+      String domain = XMLConfigurationUtil.getString(e, JMX_DOMAIN_NAME, ActiveMQDefaultConfiguration.getDefaultJmxDomain(), NO_CHECK);
 
       newConfig(queues, topics, domain);
    }
@@ -124,9 +126,7 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
    /**
     * Parse the topic node as a TopicConfiguration object
     *
-    * @param node
     * @return topic configuration
-    * @throws Exception
     */
    public static TopicConfiguration parseTopicConfiguration(final Node node) throws Exception {
       String topicName = node.getAttributes().getNamedItem(NAME_ATTR).getNodeValue();
@@ -137,9 +137,7 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
    /**
     * Parse the Queue Configuration node as a QueueConfiguration object
     *
-    * @param node
     * @return jms queue configuration
-    * @throws Exception
     */
    public static JMSQueueConfiguration parseQueueConfiguration(final Node node) throws Exception {
       Element e = (Element) node;
@@ -161,20 +159,10 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
       return newQueue(queueName, selectorString, durable);
    }
 
-   /**
-    * @param topicName
-    * @return
-    */
    protected static TopicConfiguration newTopic(final String topicName) {
       return new TopicConfigurationImpl().setName(topicName);
    }
 
-   /**
-    * @param queueName
-    * @param selectorString
-    * @param durable
-    * @return
-    */
    protected static JMSQueueConfiguration newQueue(final String queueName,
                                                    final String selectorString,
                                                    final boolean durable) {
@@ -184,13 +172,8 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
          setDurable(durable);
    }
 
-   /**
-    * @param queues
-    * @param topics
-    * @param domain
-    */
-   protected void newConfig(final ArrayList<JMSQueueConfiguration> queues,
-                            final ArrayList<TopicConfiguration> topics,
+   protected void newConfig(final List<JMSQueueConfiguration> queues,
+                            final List<TopicConfiguration> topics,
                             String domain) {
       setQueueConfigurations(queues).setTopicConfigurations(topics).setDomain(domain);
    }

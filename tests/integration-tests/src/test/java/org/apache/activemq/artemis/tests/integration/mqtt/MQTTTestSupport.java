@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSessionState;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
@@ -65,10 +66,8 @@ import org.fusesource.hawtdispatch.internal.DispatcherConfig;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Tracer;
 import org.fusesource.mqtt.codec.MQTTFrame;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -110,9 +109,6 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    protected String fullUser = "user";
    protected String fullPass = "pass";
 
-   @Rule
-   public TestName name = new TestName();
-
    public MQTTTestSupport() {
       this.protocolScheme = "mqtt";
       this.useSSL = false;
@@ -123,17 +119,12 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       return new File(new File(protectionDomain.getCodeSource().getLocation().getPath()), "../..").getCanonicalFile();
    }
 
-   @Override
-   public String getName() {
-      return name.getMethodName();
-   }
-
    public ActiveMQServer getServer() {
       return server;
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       String basedir = basedir().getPath();
@@ -150,7 +141,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       System.clearProperty("javax.net.ssl.trustStore");
       System.clearProperty("javax.net.ssl.trustStorePassword");
@@ -196,12 +187,12 @@ public class MQTTTestSupport extends ActiveMQTestBase {
 
          // Configure roles
          HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-         HashSet<Role> value = new HashSet<>();
-         value.add(new Role("nothing", false, false, false, false, false, false, false, false, false, false));
-         value.add(new Role("browser", false, false, false, false, false, false, false, true, false, false));
-         value.add(new Role("guest", false, true, false, false, false, false, false, true, false, false));
-         value.add(new Role("full", true, true, true, true, true, true, true, true, true, true));
-         securityRepository.addMatch(getQueueName(), value);
+         Set<Role> value = new HashSet<>();
+         value.add(new Role("nothing", false, false, false, false, false, false, false, false, false, false, false, false));
+         value.add(new Role("browser", false, false, false, false, false, false, false, true, false, false, false, false));
+         value.add(new Role("guest", false, true, false, false, false, false, false, true, false, false, false, false));
+         value.add(new Role("full", true, true, true, true, true, true, true, true, true, true, false, false));
+         securityRepository.addMatch(MQTTUtil.getCoreAddressFromMqttTopic(getQueueName(), server.getConfiguration().getWildcardConfiguration()), value);
 
          server.getConfiguration().setSecurityEnabled(true);
       } else {
@@ -222,8 +213,8 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    private ActiveMQServer createServerForMQTT() throws Exception {
       Configuration defaultConfig = createDefaultConfig(true).setIncomingInterceptorClassNames(singletonList(MQTTIncomingInterceptor.class.getName())).setOutgoingInterceptorClassNames(singletonList(MQTTOutoingInterceptor.class.getName()));
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString("DLA"));
-      addressSettings.setExpiryAddress(SimpleString.toSimpleString("EXPIRY"));
+      addressSettings.setDeadLetterAddress(SimpleString.of("DLA"));
+      addressSettings.setExpiryAddress(SimpleString.of("EXPIRY"));
       defaultConfig.getAddressSettings().put("#", addressSettings);
       return createServer(true, defaultConfig);
    }
@@ -260,17 +251,17 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    }
 
    protected String getQueueName() {
-      return getClass().getName() + "." + name.getMethodName();
+      return getClass().getName() + "." + name;
    }
 
    protected String getTopicName() {
-      return getClass().getName() + "." + name.getMethodName();
+      return getClass().getName() + "." + name;
    }
 
    /**
-    * Initialize an MQTTClientProvider instance.  By default this method uses the port that's
-    * assigned to be the TCP based port using the base version of addMQTTConnector.  A subclass
-    * can either change the value of port or override this method to assign the correct port.
+    * Initialize an MQTTClientProvider instance.  By default this method uses the port that's assigned to be the TCP
+    * based port using the base version of addMQTTConnector.  A subclass can either change the value of port or override
+    * this method to assign the correct port.
     *
     * @param provider the MQTTClientProvider instance to initialize.
     * @throws Exception if an error occurs during initialization.
@@ -333,11 +324,11 @@ public class MQTTTestSupport extends ActiveMQTestBase {
          } catch (Throwable e) {
             long remaining = deadline - System.currentTimeMillis();
             if (remaining <= 0) {
-               if (e instanceof RuntimeException) {
-                  throw (RuntimeException) e;
+               if (e instanceof RuntimeException runtimeException) {
+                  throw runtimeException;
                }
-               if (e instanceof Error) {
-                  throw (Error) e;
+               if (e instanceof Error error) {
+                  throw error;
                }
                throw new RuntimeException(e);
             }
@@ -384,10 +375,10 @@ public class MQTTTestSupport extends ActiveMQTestBase {
 
    public Map<String, MQTTSessionState> getSessions() {
       Acceptor acceptor = server.getRemotingService().getAcceptor("MQTT");
-      if (acceptor instanceof AbstractAcceptor) {
-         ProtocolManager protocolManager = ((AbstractAcceptor) acceptor).getProtocolMap().get("MQTT");
-         if (protocolManager instanceof MQTTProtocolManager) {
-            return ((MQTTProtocolManager) protocolManager).getSessionStates();
+      if (acceptor instanceof AbstractAcceptor abstractAcceptor) {
+         ProtocolManager protocolManager = abstractAcceptor.getProtocolMap().get("MQTT");
+         if (protocolManager instanceof MQTTProtocolManager mqttProtocolManager) {
+            return mqttProtocolManager.getStateManager().getSessionStates();
          }
 
       }

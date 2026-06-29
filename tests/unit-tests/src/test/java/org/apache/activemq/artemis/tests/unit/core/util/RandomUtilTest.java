@@ -17,8 +17,10 @@
 package org.apache.activemq.artemis.tests.unit.core.util;
 
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RandomUtilTest {
 
@@ -26,14 +28,27 @@ public class RandomUtilTest {
    @Test
    public void testInterval() {
       int i = RandomUtil.randomInterval(0, 1000);
-      Assert.assertTrue(i <= 1000);
-      Assert.assertTrue(i >= 0);
+      assertTrue(i <= 1000);
+      assertTrue(i >= 0);
 
       i = RandomUtil.randomInterval(0, 0);
-      Assert.assertEquals(0, i);
+      assertEquals(0, i);
 
       i = RandomUtil.randomInterval(10, 10);
-      Assert.assertEquals(10, i);
+      assertEquals(10, i);
 
+   }
+
+   @Test
+   public void testRandomWords() {
+      for (int i = 0; i < 1000; i++) {
+         int wordCount = RandomUtil.randomPositiveInt() % 100 + 10;
+         String[] words = RandomUtil.randomWords(wordCount);
+         assertEquals(wordCount, words.length);
+         for (String word : words) {
+            assertTrue(word.length() > 0);
+            assertTrue(word.length() <= 10);
+         }
+      }
    }
 }

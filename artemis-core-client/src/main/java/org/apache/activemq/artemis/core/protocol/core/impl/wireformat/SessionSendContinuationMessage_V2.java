@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-/**
- * A SessionSendContinuationMessage<br>
- */
 public class SessionSendContinuationMessage_V2 extends SessionSendContinuationMessage {
 
    private long correlationID;
@@ -34,11 +33,6 @@ public class SessionSendContinuationMessage_V2 extends SessionSendContinuationMe
       super();
    }
 
-   /**
-    * @param body
-    * @param continues
-    * @param requiresResponse
-    */
    public SessionSendContinuationMessage_V2(final Message message,
                                             final byte[] body,
                                             final boolean continues,
@@ -86,35 +80,33 @@ public class SessionSendContinuationMessage_V2 extends SessionSendContinuationMe
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (correlationID ^ (correlationID >>> 32));
-      return result;
+      return super.hashCode() + Objects.hashCode(correlationID);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", continues=" + continues);
-      buff.append(", message=" + message);
-      buff.append(", messageBodySize=" + messageBodySize);
-      buff.append(", requiresResponse=" + requiresResponse);
-      buff.append(", correlationID=" + correlationID);
-      buff.append("]");
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", continues=" + continues);
+      sb.append(", message=" + message);
+      sb.append(", messageBodySize=" + messageBodySize);
+      sb.append(", requiresResponse=" + requiresResponse);
+      sb.append(", correlationID=" + correlationID);
+      sb.append("]");
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionSendContinuationMessage_V2))
+      }
+      if (!(obj instanceof SessionSendContinuationMessage_V2 other)) {
          return false;
-      SessionSendContinuationMessage_V2 other = (SessionSendContinuationMessage_V2) obj;
-      if (correlationID != other.correlationID)
-         return false;
-      return true;
+      }
+
+      return correlationID == other.correlationID;
    }
 }

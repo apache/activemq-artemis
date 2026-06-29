@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
+import java.util.Objects;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -53,10 +55,13 @@ public class PacketImpl implements Packet {
    // 2.29.0
    public static final int ARTEMIS_2_29_0_VERSION = 135;
 
-   public static final SimpleString OLD_QUEUE_PREFIX = new SimpleString("jms.queue.");
-   public static final SimpleString OLD_TEMP_QUEUE_PREFIX = new SimpleString("jms.tempqueue.");
-   public static final SimpleString OLD_TOPIC_PREFIX = new SimpleString("jms.topic.");
-   public static final SimpleString OLD_TEMP_TOPIC_PREFIX = new SimpleString("jms.temptopic.");
+   // 2.37.0
+   public static final int ARTEMIS_2_37_0_VERSION = 136;
+
+   public static final SimpleString OLD_QUEUE_PREFIX = SimpleString.of("jms.queue.");
+   public static final SimpleString OLD_TEMP_QUEUE_PREFIX = SimpleString.of("jms.tempqueue.");
+   public static final SimpleString OLD_TOPIC_PREFIX = SimpleString.of("jms.topic.");
+   public static final SimpleString OLD_TEMP_TOPIC_PREFIX = SimpleString.of("jms.temptopic.");
 
    // The minimal size for all the packets, Common data for all the packets (look at
    // PacketImpl.encode)
@@ -340,7 +345,7 @@ public class PacketImpl implements Packet {
 
    @Override
    public ActiveMQBuffer encode(final CoreRemotingConnection connection) {
-      ActiveMQBuffer buffer =  createPacket(connection);
+      ActiveMQBuffer buffer = createPacket(connection);
 
       encodeHeader(buffer);
 
@@ -396,8 +401,8 @@ public class PacketImpl implements Packet {
       buffer.readerIndex(PACKET_HEADERS_SIZE);
 
       newNettyBuffer.writeBytes(buffer, buffer.readableBytes() - skipBytes);
-      buffer.setIndex( read, writ );
-      newNettyBuffer.setIndex( 0, writ - PACKET_HEADERS_SIZE - skipBytes);
+      buffer.setIndex(read, writ);
+      newNettyBuffer.setIndex(0, writ - PACKET_HEADERS_SIZE - skipBytes);
 
       return newNettyBuffer;
    }
@@ -432,7 +437,9 @@ public class PacketImpl implements Packet {
       return true;
    }
 
-   /** extensions of this class are supposed to use getPacketString to provide toString functionality */
+   /**
+    * extensions of this class are supposed to use getPacketString to provide toString functionality
+    */
    @Override
    public final String toString() {
       return getPacketString() + "]";
@@ -444,25 +451,21 @@ public class PacketImpl implements Packet {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + (int) (channelID ^ (channelID >>> 32));
-      result = prime * result + size;
-      result = prime * result + type;
-      return result;
+      return Objects.hash(channelID, size, type);
    }
-
 
    @Override
    public boolean equals(Object obj) {
       if (this == obj) {
          return true;
       }
-      if (!(obj instanceof PacketImpl)) {
+      if (!(obj instanceof PacketImpl other)) {
          return false;
       }
-      PacketImpl other = (PacketImpl) obj;
-      return (channelID == other.channelID) && (size == other.size) && (type != other.type);
+
+      return channelID == other.channelID &&
+             size == other.size &&
+             type != other.type;
    }
 
    private int stringEncodeSize(final String str) {

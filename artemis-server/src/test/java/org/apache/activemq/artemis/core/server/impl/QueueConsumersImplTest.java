@@ -16,19 +16,19 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.artemis.core.PriorityAware;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.apache.activemq.artemis.core.PriorityAware;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class QueueConsumersImplTest {
 
    private QueueConsumers<TestPriority> queueConsumers;
 
-   @Before
+   @BeforeEach
    public void setUp() {
       queueConsumers = new QueueConsumersImpl<>();
    }

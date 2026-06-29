@@ -16,9 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -29,15 +37,16 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class JMSMessageGroupsTest extends MultiprotocolJMSClientTestSupport {
 
@@ -58,55 +67,64 @@ public class JMSMessageGroupsTest extends MultiprotocolJMSClientTestSupport {
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       addressSettings.setAutoCreateQueues(isAutoCreateQueues());
       addressSettings.setAutoCreateAddresses(isAutoCreateAddresses());
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
-      addressSettings.setExpiryAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
-      addressSettings.setDefaultGroupFirstKey(SimpleString.toSimpleString("JMSXFirstInGroupID"));
+      addressSettings.setDeadLetterAddress(SimpleString.of(getDeadLetterAddress()));
+      addressSettings.setExpiryAddress(SimpleString.of(getDeadLetterAddress()));
+      addressSettings.setDefaultGroupFirstKey(SimpleString.of("JMSXFirstInGroupID"));
 
 
       server.getConfiguration().getAddressSettings().put("GroupFirst.#", addressSettings);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessageGroupsAMQPProducerAMQPConsumer() throws Exception {
       testMessageGroups(AMQPConnection, AMQPConnection);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessageGroupsCoreProducerCoreConsumer() throws Exception {
       testMessageGroups(CoreConnection, CoreConnection);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessageGroupsCoreProducerAMQPConsumer() throws Exception {
       testMessageGroups(CoreConnection, AMQPConnection);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessageGroupsAMQPProducerCoreConsumer() throws Exception {
       testMessageGroups(AMQPConnection, CoreConnection);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessageGroupsOpenWireProducerOpenWireConsumer() throws Exception {
       testMessageGroups(OpenWireConnection, OpenWireConnection);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessageGroupsCoreProducerOpenWireConsumer() throws Exception {
       testMessageGroups(CoreConnection, OpenWireConnection);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessageGroupsOpenWireProducerCoreConsumer() throws Exception {
       testMessageGroups(OpenWireConnection, CoreConnection);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessageGroupsAMQPProducerOpenWireConsumer() throws Exception {
       testMessageGroups(AMQPConnection, OpenWireConnection);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessageGroupsOpenWireProducerAMQPConsumer() throws Exception {
       testMessageGroups(OpenWireConnection, AMQPConnection);
    }
@@ -121,7 +139,7 @@ public class JMSMessageGroupsTest extends MultiprotocolJMSClientTestSupport {
 
 
    public void testGroupSeqCloseGroup(ConnectionSupplier producerConnectionSupplier, ConnectionSupplier consumerConnectionSupplier) throws Exception {
-      final QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.toSimpleString(getQueueName()));
+      final QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(SimpleString.of(getQueueName()));
 
       try (Connection producerConnection = producerConnectionSupplier.createConnection();
            Session producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -186,7 +204,7 @@ public class JMSMessageGroupsTest extends MultiprotocolJMSClientTestSupport {
       assertNotNull(receivedGroupCloseMessage);
       assertEquals(JMSX_GROUP_ID, receivedGroupCloseMessage.getStringProperty("JMSXGroupID"));
       assertEquals(-1, receivedGroupCloseMessage.getIntProperty("JMSXGroupSeq"));
-      assertEquals("group close should goto the existing group consumer", "Message" + " group close", receivedGroupCloseMessage.getText());
+      assertEquals("Message" + " group close", receivedGroupCloseMessage.getText(), "group close should goto the existing group consumer");
 
       assertNull(consumerA.receiveNoWait());
       assertNull(consumerB.receiveNoWait());
@@ -228,9 +246,9 @@ public class JMSMessageGroupsTest extends MultiprotocolJMSClientTestSupport {
    private void groupFirstCheck(int i, Message message) {
       try {
          if (i == 0) {
-            assertTrue("Message should be marked with first in Group", message.getBooleanProperty("JMSXFirstInGroupID"));
+            assertTrue(message.getBooleanProperty("JMSXFirstInGroupID"), "Message should be marked with first in Group");
          } else {
-            assertFalse("Message should NOT be marked with first in Group", message.propertyExists("JMSXFirstInGroupID"));
+            assertFalse(message.propertyExists("JMSXFirstInGroupID"), "Message should NOT be marked with first in Group");
          }
       } catch (JMSException e) {
          fail(e.getMessage());
@@ -254,7 +272,7 @@ public class JMSMessageGroupsTest extends MultiprotocolJMSClientTestSupport {
 
    private void groupFirstOffCheck(int i, Message message) {
       try {
-         assertFalse("Message should NOT be marked with first in Group", message.propertyExists("JMSXFirstInGroupID"));
+         assertFalse(message.propertyExists("JMSXFirstInGroupID"), "Message should NOT be marked with first in Group");
       } catch (JMSException e) {
          fail(e.getMessage());
       }
@@ -275,7 +293,7 @@ public class JMSMessageGroupsTest extends MultiprotocolJMSClientTestSupport {
          int seq = message.getIntProperty("JMSXGroupSeq");
          logger.debug("Message assigned JMSXGroupID := {}", gid);
          logger.debug("Message assigned JMSXGroupSeq := {}", seq);
-         assertEquals("Sequence order should match", sequence.incrementAndGet(), seq);
+         assertEquals(sequence.incrementAndGet(), seq, "Sequence order should match");
          if (additionalCheck != null) {
             additionalCheck.accept(i, message);
          }

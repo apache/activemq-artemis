@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.client.impl;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -28,8 +29,6 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 
 public final class TopologyMemberImpl implements TopologyMember {
-
-   private static final long serialVersionUID = 1123652191795626133L;
 
    private final Pair<TransportConfiguration, TransportConfiguration> connector;
 
@@ -58,7 +57,13 @@ public final class TopologyMemberImpl implements TopologyMember {
    }
 
    @Override
+   @Deprecated(forRemoval = true)
    public TransportConfiguration getLive() {
+      return getPrimary();
+   }
+
+   @Override
+   public TransportConfiguration getPrimary() {
       return connector.getA();
    }
 
@@ -71,7 +76,7 @@ public final class TopologyMemberImpl implements TopologyMember {
       connector.setB(param);
    }
 
-   public void setLive(final TransportConfiguration param) {
+   public void setPrimary(final TransportConfiguration param) {
       connector.setA(param);
    }
 
@@ -95,9 +100,6 @@ public final class TopologyMemberImpl implements TopologyMember {
       return scaleDownGroupName;
    }
 
-   /**
-    * @param uniqueEventID the uniqueEventID to set
-    */
    public void setUniqueEventID(final long uniqueEventID) {
       this.uniqueEventID = uniqueEventID;
    }
@@ -107,11 +109,10 @@ public final class TopologyMemberImpl implements TopologyMember {
    }
 
    /**
-    * We only need to check if the connection point to the same node,
-    * don't need to compare the whole params map.
+    * We only need to check if the connection point to the same node, don't need to compare the whole params map.
+    *
     * @param connection The connection to the target node
-    * @return true if the connection point to the same node
-    * as this member represents.
+    * @return true if the connection point to the same node as this member represents.
     */
    @Override
    public boolean isMember(RemotingConnection connection) {
@@ -129,8 +130,8 @@ public final class TopologyMemberImpl implements TopologyMember {
 
    @Override
    public String toURI() {
-      TransportConfiguration liveConnector = getLive();
-      Map<String, Object> props = liveConnector.getParams();
+      TransportConfiguration primaryConnector = getPrimary();
+      Map<String, Object> props = primaryConnector.getParams();
       String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, "localhost", props);
       int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, 0, props);
       return "tcp://" + host + ":" + port;
@@ -157,34 +158,24 @@ public final class TopologyMemberImpl implements TopologyMember {
       return "TopologyMember[id=" + nodeId + ", connector=" + connector + ", backupGroupName=" + backupGroupName + ", scaleDownGroupName=" + scaleDownGroupName + "]";
    }
 
-
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof TopologyMemberImpl other)) {
          return false;
+      }
 
-      TopologyMemberImpl that = (TopologyMemberImpl) o;
-
-      // note the uniqueEventId is not park of the equals and hashmap key
-
-      if (connector != null ? !connector.equals(that.connector) : that.connector != null)
-         return false;
-      if (backupGroupName != null ? !backupGroupName.equals(that.backupGroupName) : that.backupGroupName != null)
-         return false;
-      if (scaleDownGroupName != null ? !scaleDownGroupName.equals(that.scaleDownGroupName) : that.scaleDownGroupName != null)
-         return false;
-      return nodeId != null ? nodeId.equals(that.nodeId) : that.nodeId == null;
+      // note the uniqueEventId is not part of the equals and hashmap key
+      return Objects.equals(connector, other.connector) &&
+             Objects.equals(backupGroupName, other.backupGroupName) &&
+             Objects.equals(scaleDownGroupName, other.scaleDownGroupName) &&
+             Objects.equals(nodeId, other.nodeId);
    }
 
    @Override
    public int hashCode() {
-      // note the uniqueEventId is not park of the equals and hashmap key
-      int result = connector != null ? connector.hashCode() : 0;
-      result = 31 * result + (backupGroupName != null ? backupGroupName.hashCode() : 0);
-      result = 31 * result + (scaleDownGroupName != null ? scaleDownGroupName.hashCode() : 0);
-      result = 31 * result + (nodeId != null ? nodeId.hashCode() : 0);
-      return result;
+      return Objects.hash(connector, backupGroupName, scaleDownGroupName, nodeId);
    }
 }

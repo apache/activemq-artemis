@@ -19,16 +19,14 @@ package org.apache.activemq.transport.netty;
 import io.netty.buffer.ByteBuf;
 
 /**
- * Listener interface that should be implemented by users of the various QpidJMS Transport
- * classes.
+ * Listener interface that should be implemented by users of the various QpidJMS Transport classes.
  */
 public interface NettyTransportListener {
 
    /**
     * Called when new incoming data has become available.
     *
-    * @param incoming
-    *        the next incoming packet of data.
+    * @param incoming the next incoming packet of data.
     */
    void onData(ByteBuf incoming);
 
@@ -40,8 +38,7 @@ public interface NettyTransportListener {
    /**
     * Called when an error occurs during normal Transport operations.
     *
-    * @param cause
-    *        the error that triggered this event.
+    * @param cause the error that triggered this event.
     */
    void onTransportError(Throwable cause);
 

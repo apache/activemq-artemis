@@ -24,8 +24,7 @@ import java.lang.annotation.Target;
 /**
  * Info for a MBean Attribute.
  * <p>
- * This annotation is used only for attributes which can be seen
- * through a GUI.
+ * This annotation is used only for attributes which can be seen through a GUI.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

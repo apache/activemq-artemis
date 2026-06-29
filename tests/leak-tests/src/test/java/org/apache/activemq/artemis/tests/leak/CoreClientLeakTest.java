@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.leak;
 
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import io.github.checkleak.core.CheckLeak;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -24,26 +27,37 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class CoreClientLeakTest extends ActiveMQTestBase {
+public class CoreClientLeakTest extends AbstractLeakTest {
 
    ActiveMQServer server;
 
-   @BeforeClass
+   @BeforeAll
    public static void beforeClass() throws Exception {
-      Assume.assumeTrue(CheckLeak.isLoaded());
+      assumeTrue(CheckLeak.isLoaded());
+   }
+
+   @AfterAll
+   public static void afterClass() throws Exception {
+      ServerStatus.clear();
+      MemoryAssertions.assertMemory(new CheckLeak(), 0, ActiveMQServerImpl.class.getName());
+      MemoryAssertions.assertMemory(new CheckLeak(), 0, JournalImpl.class.getName());
+      MemoryAssertions.assertMemory(new CheckLeak(), 0, OrderedExecutor.class.getName());
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, createDefaultConfig(1, true));
@@ -51,21 +65,29 @@ public class CoreClientLeakTest extends ActiveMQTestBase {
       server.start();
    }
 
+   @Override
+   @AfterEach
+   public void tearDown() throws Exception {
+      super.tearDown();
+      server.stop();
+      server = null;
+   }
+
    @Test
    public void testConsumerFiltered() throws Exception {
 
       ServerLocator locator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString emptyString = SimpleString.toSimpleString("");
-      SimpleString dummyFilter = SimpleString.toSimpleString("dummy=true");
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString emptyString = SimpleString.of("");
+      SimpleString dummyFilter = SimpleString.of("dummy=true");
 
 
       try (ClientSessionFactory sf = createSessionFactory(locator);
            ClientSession clientSession = sf.createSession()) {
          try {
             clientSession.start();
-            clientSession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(true));
+            clientSession.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(true));
             CheckLeak checkLeak = new CheckLeak();
             int initialSimpleString = 0;
 
@@ -88,13 +110,16 @@ public class CoreClientLeakTest extends ActiveMQTestBase {
 
             // I am allowing extra 50 strings created elsewhere. it should not happen at the time I created this test but I am allowing this just in case
             if (lastNumberOfSimpleStrings > initialSimpleString + 50) {
-               Assert.fail("There are " + lastNumberOfSimpleStrings + " while there was " + initialSimpleString + " SimpleString objects initially");
+               fail("There are " + lastNumberOfSimpleStrings + " while there was " + initialSimpleString + " SimpleString objects initially");
             }
 
          } finally {
             clientSession.deleteQueue(queue);
          }
       }
+
+      locator.close();
    }
+
 
 }

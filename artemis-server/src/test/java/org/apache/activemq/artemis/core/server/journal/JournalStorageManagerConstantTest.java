@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.core.server.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -34,8 +36,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageM
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JournalStorageManagerConstantTest {
 
@@ -56,22 +57,12 @@ public class JournalStorageManagerConstantTest {
    }
 
    private void assertJournalConstants(JournalImpl journal) {
-      Assert.assertEquals("0.33", "" + journal.getCompactPercentage());
-      Assert.assertEquals(22, journal.getCompactMinFiles());
-      Assert.assertEquals(11, journal.getFilesRepository().getPoolSize());
+      assertEquals("0.33", "" + journal.getCompactPercentage());
+      assertEquals(22, journal.getCompactMinFiles());
+      assertEquals(11, journal.getFilesRepository().getPoolSize());
    }
 
-   ExecutorFactory dumbExecutor = new ExecutorFactory() {
-      @Override
-      public ArtemisExecutor getExecutor() {
-         return new ArtemisExecutor() {
-            @Override
-            public void execute(Runnable command) {
-               command.run();
-            }
-         };
-      }
-   };
+   ExecutorFactory dumbExecutor = () -> (ArtemisExecutor) command -> command.run();
 
    ScheduledExecutorService dumbScheduler = new ScheduledExecutorService() {
       @Override

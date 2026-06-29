@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -74,38 +76,32 @@ public class SessionAcknowledgeMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
-      result = prime * result + (int) (messageID ^ (messageID >>> 32));
-      result = prime * result + (requiresResponse ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), consumerID, messageID, requiresResponse);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", consumerID=" + consumerID);
-      buff.append(", messageID=" + messageID);
-      buff.append(", requiresResponse=" + requiresResponse);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", consumerID=" + consumerID);
+      sb.append(", messageID=" + messageID);
+      sb.append(", requiresResponse=" + requiresResponse);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionAcknowledgeMessage))
+      }
+      if (!(obj instanceof SessionAcknowledgeMessage other)) {
          return false;
-      SessionAcknowledgeMessage other = (SessionAcknowledgeMessage) obj;
-      if (consumerID != other.consumerID)
-         return false;
-      if (messageID != other.messageID)
-         return false;
-      if (requiresResponse != other.requiresResponse)
-         return false;
-      return true;
+      }
+
+      return consumerID == other.consumerID &&
+             messageID == other.messageID &&
+             requiresResponse == other.requiresResponse;
    }
 }

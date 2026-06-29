@@ -26,9 +26,9 @@ import java.io.ObjectOutputStream;
 
 /**
  * A SerializableObjectRefAddr.
- *
+ * <p>
  * A RefAddr that can be used for any serializable object.
- *
+ * <p>
  * Basically the address is the serialized form of the object as a byte[]
  */
 public class SerializableObjectRefAddr extends RefAddr {
@@ -52,7 +52,9 @@ public class SerializableObjectRefAddr extends RefAddr {
 
          bytes = bos.toByteArray();
       } catch (IOException e) {
-         throw new NamingException("Failed to serialize object:" + content + ", " + e.getMessage());
+         NamingException ne = new NamingException("Failed to serialize object: " + content);
+         ne.initCause(e);
+         throw ne;
       }
    }
 

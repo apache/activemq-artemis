@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
@@ -28,7 +30,7 @@ public class DisconnectMessage_V2 extends DisconnectMessage {
 
       this.nodeID = nodeID;
 
-      this.scaleDownNodeID = SimpleString.toSimpleString(scaleDownNodeID);
+      this.scaleDownNodeID = SimpleString.of(scaleDownNodeID);
    }
 
    public DisconnectMessage_V2() {
@@ -53,18 +55,15 @@ public class DisconnectMessage_V2 extends DisconnectMessage {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", nodeID=" + nodeID);
-      buff.append(", scaleDownNodeID=" + scaleDownNodeID);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", nodeID=" + nodeID);
+      sb.append(", scaleDownNodeID=" + scaleDownNodeID);
+      return sb.toString();
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((scaleDownNodeID == null) ? 0 : scaleDownNodeID.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(scaleDownNodeID);
    }
 
    @Override
@@ -75,17 +74,10 @@ public class DisconnectMessage_V2 extends DisconnectMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof DisconnectMessage_V2)) {
+      if (!(obj instanceof DisconnectMessage_V2 other)) {
          return false;
       }
-      DisconnectMessage_V2 other = (DisconnectMessage_V2) obj;
-      if (scaleDownNodeID == null) {
-         if (other.scaleDownNodeID != null) {
-            return false;
-         }
-      } else if (!scaleDownNodeID.equals(other.scaleDownNodeID)) {
-         return false;
-      }
-      return true;
+
+      return Objects.equals(scaleDownNodeID, other.scaleDownNodeID);
    }
 }

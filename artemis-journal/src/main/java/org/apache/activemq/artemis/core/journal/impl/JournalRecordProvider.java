@@ -20,9 +20,10 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 
 /**
  * This is an interface used only internally.
- *
- * During a TX.commit, the JournalTransaction needs to get a valid list of records from either the JournalImpl or JournalCompactor.
- *
+ * <p>
+ * During a TX.commit, the JournalTransaction needs to get a valid list of records from either the JournalImpl or
+ * JournalCompactor.
+ * <p>
  * when a commit is read, the JournalTransaction will inquire the JournalCompactor about the existent records
  */
 public interface JournalRecordProvider {

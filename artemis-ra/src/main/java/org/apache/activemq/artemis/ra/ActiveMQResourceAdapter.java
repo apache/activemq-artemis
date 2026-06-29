@@ -27,6 +27,7 @@ import javax.resource.spi.work.WorkManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.xa.XAResource;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import java.util.Hashtable;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -58,10 +60,9 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.ra.recovery.RecoveryManager;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
+import org.jgroups.JChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import org.jgroups.JChannel;
 
 /**
  * The resource adapter for ActiveMQ
@@ -72,19 +73,10 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
    private static final long serialVersionUID = 4756893709825838770L;
 
-   /**
-    * The Name of the product that this resource adapter represents.
-    */
    public static final String PRODUCT_NAME = "ActiveMQ Artemis";
 
-   /**
-    * The bootstrap context
-    */
-   private BootstrapContext ctx;
+   private transient BootstrapContext ctx;
 
-   /**
-    * The resource adapter properties
-    */
    private final ActiveMQRAProperties raProperties;
 
    /**
@@ -97,14 +89,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    private String unparsedConnectors;
 
-   /**
-    * Have the factory been configured
-    */
    private final AtomicBoolean configured;
 
-   /**
-    * The activations by activation spec
-    */
    private final Map<ActivationSpec, ActiveMQActivation> activations;
 
    private ActiveMQConnectionFactory defaultActiveMQConnectionFactory;
@@ -134,15 +120,12 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    private final Map<ConnectionFactoryProperties, Pair<ActiveMQConnectionFactory, AtomicInteger>> knownConnectionFactories = new HashMap<>();
 
-   /**
-    * Constructor
-    */
    public ActiveMQResourceAdapter() {
       logger.trace("constructor()");
 
       raProperties = new ActiveMQRAProperties();
       configured = new AtomicBoolean(false);
-      activations = Collections.synchronizedMap(new IdentityHashMap<ActivationSpec, ActiveMQActivation>());
+      activations = Collections.synchronizedMap(new IdentityHashMap<>());
       recoveryManager = new RecoveryManager();
    }
 
@@ -151,11 +134,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
-    * Endpoint activation
-    *
-    * @param endpointFactory The endpoint factory
-    * @param spec            The activation spec
-    * @throws ResourceException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void endpointActivation(final MessageEndpointFactory endpointFactory,
@@ -179,10 +158,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
-    * Endpoint deactivation
-    *
-    * @param endpointFactory The endpoint factory
-    * @param spec            The activation spec
+    * {@inheritDoc}
     */
    @Override
    public void endpointDeactivation(final MessageEndpointFactory endpointFactory, final ActivationSpec spec) {
@@ -195,11 +171,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
-    * Get XA resources
-    *
-    * @param specs The activation specs
-    * @return The XA resources
-    * @throws ResourceException Thrown if an error occurs or unsupported
+    * {@inheritDoc}
     */
    @Override
    public XAResource[] getXAResources(final ActivationSpec[] specs) throws ResourceException {
@@ -223,10 +195,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
-    * Start
-    *
-    * @param ctx The bootstrap context
-    * @throws ResourceAdapterInternalException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void start(final BootstrapContext ctx) throws ResourceAdapterInternalException {
@@ -250,7 +219,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
-    * Stop
+    * {@inheritDoc}
     */
    @Override
    public void stop() {
@@ -363,11 +332,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       this.entries = entries;
    }
 
-   /**
-    * Get the discovery group name
-    *
-    * @return The value
-    */
    public String getDiscoveryAddress() {
       logger.trace("getDiscoveryGroupAddress()");
 
@@ -390,261 +354,141 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setJgroupsChannelName(jgroupsChannelName);
    }
 
-   /**
-    * Set the discovery group name
-    *
-    * @param dgn The value
-    */
    public void setDiscoveryAddress(final String dgn) {
       logger.trace("setDiscoveryGroupAddress({})", dgn);
 
       raProperties.setDiscoveryAddress(dgn);
    }
 
-   /**
-    * Get the discovery group port
-    *
-    * @return The value
-    */
    public Integer getDiscoveryPort() {
       logger.trace("getDiscoveryGroupPort()");
 
       return raProperties.getDiscoveryPort();
    }
 
-   /**
-    * set the discovery local bind address
-    *
-    * @param discoveryLocalBindAddress the address value
-    */
    public void setDiscoveryLocalBindAddress(final String discoveryLocalBindAddress) {
       logger.trace("setDiscoveryLocalBindAddress({})", discoveryLocalBindAddress);
 
       raProperties.setDiscoveryLocalBindAddress(discoveryLocalBindAddress);
    }
 
-   /**
-    * get the discovery local bind address
-    *
-    * @return the address value
-    */
    public String getDiscoveryLocalBindAddress() {
       logger.trace("getDiscoveryLocalBindAddress()");
 
       return raProperties.getDiscoveryLocalBindAddress();
    }
 
-   /**
-    * Set the discovery group port
-    *
-    * @param dgp The value
-    */
    public void setDiscoveryPort(final Integer dgp) {
       logger.trace("setDiscoveryGroupPort({})", dgp);
 
       raProperties.setDiscoveryPort(dgp);
    }
 
-   /**
-    * Get discovery refresh timeout
-    *
-    * @return The value
-    */
    public Long getDiscoveryRefreshTimeout() {
       logger.trace("getDiscoveryRefreshTimeout()");
 
       return raProperties.getDiscoveryRefreshTimeout();
    }
 
-   /**
-    * Set discovery refresh timeout
-    *
-    * @param discoveryRefreshTimeout The value
-    */
    public void setDiscoveryRefreshTimeout(final Long discoveryRefreshTimeout) {
       logger.trace("setDiscoveryRefreshTimeout({})", discoveryRefreshTimeout);
 
       raProperties.setDiscoveryRefreshTimeout(discoveryRefreshTimeout);
    }
 
-   /**
-    * Get discovery initial wait timeout
-    *
-    * @return The value
-    */
    public Long getDiscoveryInitialWaitTimeout() {
       logger.trace("getDiscoveryInitialWaitTimeout()");
 
       return raProperties.getDiscoveryInitialWaitTimeout();
    }
 
-   /**
-    * Set discovery initial wait timeout
-    *
-    * @param discoveryInitialWaitTimeout The value
-    */
    public void setDiscoveryInitialWaitTimeout(final Long discoveryInitialWaitTimeout) {
       logger.trace("setDiscoveryInitialWaitTimeout({})", discoveryInitialWaitTimeout);
 
       raProperties.setDiscoveryInitialWaitTimeout(discoveryInitialWaitTimeout);
    }
 
-   /**
-    * Get client failure check period
-    *
-    * @return The value
-    */
    public Long getClientFailureCheckPeriod() {
       logger.trace("getClientFailureCheckPeriod()");
 
       return raProperties.getClientFailureCheckPeriod();
    }
 
-   /**
-    * Set client failure check period
-    *
-    * @param clientFailureCheckPeriod The value
-    */
    public void setClientFailureCheckPeriod(final Long clientFailureCheckPeriod) {
       logger.trace("setClientFailureCheckPeriod({})", clientFailureCheckPeriod);
 
       raProperties.setClientFailureCheckPeriod(clientFailureCheckPeriod);
    }
 
-   /**
-    * Get connection TTL
-    *
-    * @return The value
-    */
    public Long getConnectionTTL() {
       logger.trace("getConnectionTTL()");
 
       return raProperties.getConnectionTTL();
    }
 
-   /**
-    * Set connection TTL
-    *
-    * @param connectionTTL The value
-    */
    public void setConnectionTTL(final Long connectionTTL) {
       logger.trace("setConnectionTTL({})", connectionTTL);
 
       raProperties.setConnectionTTL(connectionTTL);
    }
 
-   /**
-    * Get cacheLargeMessagesClient
-    *
-    * @return The value
-    */
    public Boolean isCacheLargeMessagesClient() {
       logger.trace("isCacheLargeMessagesClient()");
 
       return raProperties.isCacheLargeMessagesClient();
    }
 
-   /**
-    * Set cacheLargeMessagesClient
-    *
-    * @param cacheLargeMessagesClient The value
-    */
    public void setCacheLargeMessagesClient(final Boolean cacheLargeMessagesClient) {
       logger.trace("setCacheLargeMessagesClient({})", cacheLargeMessagesClient);
 
       raProperties.setCacheLargeMessagesClient(cacheLargeMessagesClient);
    }
 
-   /**
-    * Get compressLargeMessage
-    *
-    * @return The value
-    */
    public Boolean isCompressLargeMessage() {
       logger.trace("isCompressLargeMessage()");
 
       return raProperties.isCompressLargeMessage();
    }
 
-   /**
-    * Set failoverOnInitialConnection
-    *
-    * @param failoverOnInitialConnection The value
-    */
    @Deprecated
    public void setFailoverOnInitialConnection(final Boolean failoverOnInitialConnection) {
    }
 
-   /**
-    * Get isFailoverOnInitialConnection
-    *
-    * @return The value
-    */
    @Deprecated
    public Boolean isFailoverOnInitialConnection() {
       return false;
    }
 
-   /**
-    * Set cacheDestinations
-    *
-    * @param cacheDestinations The value
-    */
    public void setCacheDestinations(final Boolean cacheDestinations) {
       logger.trace("setCacheDestinations({})", cacheDestinations);
 
       raProperties.setCacheDestinations(cacheDestinations);
    }
 
-   /**
-    * Get isCacheDestinations
-    *
-    * @return The value
-    */
    public Boolean isCacheDestinations() {
       logger.trace("isCacheDestinations()");
 
       return raProperties.isCacheDestinations();
    }
 
-   /**
-    * Set enable1xPrefixes
-    *
-    * @param enable1xPrefixes The value
-    */
    public void setEnable1xPrefixes(final Boolean enable1xPrefixes) {
       logger.trace("setEnable1xPrefixes({})", enable1xPrefixes);
 
       raProperties.setEnable1xPrefixes(enable1xPrefixes);
    }
 
-   /**
-    * Get isCacheDestinations
-    *
-    * @return The value
-    */
    public Boolean isEnable1xPrefixes() {
       logger.trace("isEnable1xPrefixes()");
 
       return raProperties.isEnable1xPrefixes();
    }
 
-   /**
-    * Set compressLargeMessage
-    *
-    * @param compressLargeMessage The value
-    */
    public void setCompressLargeMessage(final Boolean compressLargeMessage) {
       logger.trace("setCompressLargeMessage({})", compressLargeMessage);
 
       raProperties.setCompressLargeMessage(compressLargeMessage);
    }
 
-   /**
-    * Get compressionLevel
-    *
-    * @return The value
-    */
    public Integer getCompressionLevel() {
       logger.trace("getCompressionLevel()");
 
@@ -653,9 +497,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
    /**
     * Sets what compressionLevel to use when compressing messages
-    * Value must be -1 (default) or 0-9
     *
-    * @param compressionLevel The value
+    * @param compressionLevel must be -1 (default) or 0-9
     */
    public void setCompressionLevel(final Integer compressionLevel) {
       logger.trace("setCompressionLevel({})", compressionLevel);
@@ -663,176 +506,96 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setCompressionLevel(compressionLevel);
    }
 
-   /**
-    * Get call timeout
-    *
-    * @return The value
-    */
    public Long getCallTimeout() {
       logger.trace("getCallTimeout()");
 
       return raProperties.getCallTimeout();
    }
 
-   /**
-    * Set call timeout
-    *
-    * @param callTimeout The value
-    */
    public void setCallTimeout(final Long callTimeout) {
       logger.trace("setCallTimeout({})", callTimeout);
 
       raProperties.setCallTimeout(callTimeout);
    }
 
-   /**
-    * Get call failover timeout
-    *
-    * @return The value
-    */
    public Long getCallFailoverTimeout() {
       logger.trace("getCallFailoverTimeout()");
 
       return raProperties.getCallFailoverTimeout();
    }
 
-   /**
-    * Set call failover timeout
-    *
-    * @param callFailoverTimeout The value
-    */
    public void setCallFailoverTimeout(final Long callFailoverTimeout) {
       logger.trace("setCallFailoverTimeout({})", callFailoverTimeout);
 
       raProperties.setCallFailoverTimeout(callFailoverTimeout);
    }
 
-   /**
-    * Get dups ok batch size
-    *
-    * @return The value
-    */
    public Integer getDupsOKBatchSize() {
       logger.trace("getDupsOKBatchSize()");
 
       return raProperties.getDupsOKBatchSize();
    }
 
-   /**
-    * Set dups ok batch size
-    *
-    * @param dupsOKBatchSize The value
-    */
    public void setDupsOKBatchSize(final Integer dupsOKBatchSize) {
       logger.trace("setDupsOKBatchSize({})", dupsOKBatchSize);
 
       raProperties.setDupsOKBatchSize(dupsOKBatchSize);
    }
 
-   /**
-    * Get transaction batch size
-    *
-    * @return The value
-    */
    public Integer getTransactionBatchSize() {
       logger.trace("getTransactionBatchSize()");
 
       return raProperties.getTransactionBatchSize();
    }
 
-   /**
-    * Set transaction batch size
-    *
-    * @param transactionBatchSize The value
-    */
    public void setTransactionBatchSize(final Integer transactionBatchSize) {
       logger.trace("setTransactionBatchSize({})", transactionBatchSize);
 
       raProperties.setTransactionBatchSize(transactionBatchSize);
    }
 
-   /**
-    * Get consumer window size
-    *
-    * @return The value
-    */
    public Integer getConsumerWindowSize() {
       logger.trace("getConsumerWindowSize()");
 
       return raProperties.getConsumerWindowSize();
    }
 
-   /**
-    * Set consumer window size
-    *
-    * @param consumerWindowSize The value
-    */
    public void setConsumerWindowSize(final Integer consumerWindowSize) {
       logger.trace("setConsumerWindowSize({})", consumerWindowSize);
 
       raProperties.setConsumerWindowSize(consumerWindowSize);
    }
 
-   /**
-    * Get consumer max rate
-    *
-    * @return The value
-    */
    public Integer getConsumerMaxRate() {
       logger.trace("getConsumerMaxRate()");
 
       return raProperties.getConsumerMaxRate();
    }
 
-   /**
-    * Set consumer max rate
-    *
-    * @param consumerMaxRate The value
-    */
    public void setConsumerMaxRate(final Integer consumerMaxRate) {
       logger.trace("setConsumerMaxRate({})", consumerMaxRate);
 
       raProperties.setConsumerMaxRate(consumerMaxRate);
    }
 
-   /**
-    * Get confirmation window size
-    *
-    * @return The value
-    */
    public Integer getConfirmationWindowSize() {
       logger.trace("getConfirmationWindowSize()");
 
       return raProperties.getConfirmationWindowSize();
    }
 
-   /**
-    * Set confirmation window size
-    *
-    * @param confirmationWindowSize The value
-    */
    public void setConfirmationWindowSize(final Integer confirmationWindowSize) {
       logger.trace("setConfirmationWindowSize({})", confirmationWindowSize);
 
       raProperties.setConfirmationWindowSize(confirmationWindowSize);
    }
 
-   /**
-    * Get producer max rate
-    *
-    * @return The value
-    */
    public Integer getProducerMaxRate() {
       logger.trace("getProducerMaxRate()");
 
       return raProperties.getProducerMaxRate();
    }
 
-   /**
-    * Set producer max rate
-    *
-    * @param producerMaxRate The value
-    */
    public void setProducerMaxRate(final Integer producerMaxRate) {
       logger.trace("setProducerMaxRate({})", producerMaxRate);
 
@@ -851,22 +614,12 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       return raProperties.isUseTopologyForLoadBalancing();
    }
 
-   /**
-    * Get producer window size
-    *
-    * @return The value
-    */
    public Integer getProducerWindowSize() {
       logger.trace("getProducerWindowSize()");
 
       return raProperties.getProducerWindowSize();
    }
 
-   /**
-    * Set producer window size
-    *
-    * @param producerWindowSize The value
-    */
    public void setProducerWindowSize(final Integer producerWindowSize) {
       logger.trace("setProducerWindowSize({})", producerWindowSize);
 
@@ -885,288 +638,196 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setProtocolManagerFactoryStr(protocolManagerFactoryStr);
    }
 
+   @Deprecated(forRemoval = true)
    public String getDeserializationBlackList() {
       logger.trace("getDeserializationBlackList()");
 
       return raProperties.getDeserializationBlackList();
    }
 
-   public void setDeserializationBlackList(String deserializationBlackList) {
-      logger.trace("setDeserializationBlackList({})", deserializationBlackList);
+   @Deprecated(forRemoval = true)
+   public void setDeserializationBlackList(String deserializationDenyList) {
+      logger.trace("setDeserializationBlackList({})", deserializationDenyList);
 
-      raProperties.setDeserializationBlackList(deserializationBlackList);
+      raProperties.setDeserializationDenyList(deserializationDenyList);
    }
 
+   @Deprecated(forRemoval = true)
    public String getDeserializationWhiteList() {
       logger.trace("getDeserializationWhiteList()");
 
-      return raProperties.getDeserializationWhiteList();
+      return raProperties.getDeserializationAllowList();
    }
 
-   public void setDeserializationWhiteList(String deserializationWhiteList) {
-      logger.trace("setDeserializationWhiteList({})", deserializationWhiteList);
+   @Deprecated(forRemoval = true)
+   public void setDeserializationWhiteList(String deserializationAllowList) {
+      logger.trace("setDeserializationWhiteList({})", deserializationAllowList);
 
-      raProperties.setDeserializationWhiteList(deserializationWhiteList);
+      raProperties.setDeserializationAllowList(deserializationAllowList);
    }
 
-   /**
-    * Get min large message size
-    *
-    * @return The value
-    */
+   public String getDeserializationDenyList() {
+      logger.trace("getDeserializationDenyList()");
+
+      return raProperties.getDeserializationDenyList();
+   }
+
+   public void setDeserializationDenyList(String deserializationDenyList) {
+      logger.trace("setDeserializationDenyList({})", deserializationDenyList);
+
+      raProperties.setDeserializationBlackList(deserializationDenyList);
+   }
+
+   public String getDeserializationAllowList() {
+      logger.trace("getDeserializationAllowList()");
+
+      return raProperties.getDeserializationAllowList();
+   }
+
+   public void setDeserializationAllowList(String deserializationAllowList) {
+      logger.trace("setDeserializationAllowList({})", deserializationAllowList);
+
+      raProperties.setDeserializationAllowList(deserializationAllowList);
+   }
+
    public Integer getMinLargeMessageSize() {
       logger.trace("getMinLargeMessageSize()");
 
       return raProperties.getMinLargeMessageSize();
    }
 
-   /**
-    * Set min large message size
-    *
-    * @param minLargeMessageSize The value
-    */
    public void setMinLargeMessageSize(final Integer minLargeMessageSize) {
       logger.trace("setMinLargeMessageSize({})", minLargeMessageSize);
 
       raProperties.setMinLargeMessageSize(minLargeMessageSize);
    }
 
-   /**
-    * Get block on acknowledge
-    *
-    * @return The value
-    */
    public Boolean getBlockOnAcknowledge() {
       logger.trace("getBlockOnAcknowledge()");
 
       return raProperties.isBlockOnAcknowledge();
    }
 
-   /**
-    * Set block on acknowledge
-    *
-    * @param blockOnAcknowledge The value
-    */
    public void setBlockOnAcknowledge(final Boolean blockOnAcknowledge) {
       logger.trace("setBlockOnAcknowledge({})", blockOnAcknowledge);
 
       raProperties.setBlockOnAcknowledge(blockOnAcknowledge);
    }
 
-   /**
-    * Get block on non durable send
-    *
-    * @return The value
-    */
    public Boolean getBlockOnNonDurableSend() {
       logger.trace("getBlockOnNonDurableSend()");
 
       return raProperties.isBlockOnNonDurableSend();
    }
 
-   /**
-    * Set block on non durable send
-    *
-    * @param blockOnNonDurableSend The value
-    */
    public void setBlockOnNonDurableSend(final Boolean blockOnNonDurableSend) {
       logger.trace("setBlockOnNonDurableSend({})", blockOnNonDurableSend);
 
       raProperties.setBlockOnNonDurableSend(blockOnNonDurableSend);
    }
 
-   /**
-    * Get block on durable send
-    *
-    * @return The value
-    */
    public Boolean getBlockOnDurableSend() {
       logger.trace("getBlockOnDurableSend()");
 
       return raProperties.isBlockOnDurableSend();
    }
 
-   /**
-    * Set block on durable send
-    *
-    * @param blockOnDurableSend The value
-    */
    public void setBlockOnDurableSend(final Boolean blockOnDurableSend) {
       logger.trace("setBlockOnDurableSend({})", blockOnDurableSend);
 
       raProperties.setBlockOnDurableSend(blockOnDurableSend);
    }
 
-   /**
-    * Get auto group
-    *
-    * @return The value
-    */
    public Boolean getAutoGroup() {
       logger.trace("getAutoGroup()");
 
       return raProperties.isAutoGroup();
    }
 
-   /**
-    * Set auto group
-    *
-    * @param autoGroup The value
-    */
    public void setAutoGroup(final Boolean autoGroup) {
       logger.trace("setAutoGroup({})", autoGroup);
 
       raProperties.setAutoGroup(autoGroup);
    }
 
-   /**
-    * Get pre acknowledge
-    *
-    * @return The value
-    */
    public Boolean getPreAcknowledge() {
       logger.trace("getPreAcknowledge()");
 
       return raProperties.isPreAcknowledge();
    }
 
-   /**
-    * Set pre acknowledge
-    *
-    * @param preAcknowledge The value
-    */
    public void setPreAcknowledge(final Boolean preAcknowledge) {
       logger.trace("setPreAcknowledge({})", preAcknowledge);
 
       raProperties.setPreAcknowledge(preAcknowledge);
    }
 
-   /**
-    * Get number of initial connect attempts
-    *
-    * @return The value
-    */
    public Integer getInitialConnectAttempts() {
       logger.trace("getInitialConnectAttempts()");
 
       return raProperties.getInitialConnectAttempts();
    }
 
-   /**
-    * Set number of initial connect attempts
-    *
-    * @param initialConnectAttempts The value
-    */
    public void setInitialConnectAttempts(final Integer initialConnectAttempts) {
       logger.trace("setInitialConnectionAttempts({})", initialConnectAttempts);
 
       raProperties.setInitialConnectAttempts(initialConnectAttempts);
    }
 
-   /**
-    * Get initial message packet size
-    *
-    * @return The value
-    */
    public Integer getInitialMessagePacketSize() {
       logger.trace("getInitialMessagePacketSize()");
 
       return raProperties.getInitialMessagePacketSize();
    }
 
-   /**
-    * Set initial message packet size
-    *
-    * @param initialMessagePacketSize The value
-    */
    public void setInitialMessagePacketSize(final Integer initialMessagePacketSize) {
       logger.trace("setInitialMessagePacketSize({})", initialMessagePacketSize);
 
       raProperties.setInitialMessagePacketSize(initialMessagePacketSize);
    }
 
-   /**
-    * Get retry interval
-    *
-    * @return The value
-    */
    public Long getRetryInterval() {
       logger.trace("getRetryInterval()");
 
       return raProperties.getRetryInterval();
    }
 
-   /**
-    * Set retry interval
-    *
-    * @param retryInterval The value
-    */
    public void setRetryInterval(final Long retryInterval) {
       logger.trace("setRetryInterval({})", retryInterval);
 
       raProperties.setRetryInterval(retryInterval);
    }
 
-   /**
-    * Get retry interval multiplier
-    *
-    * @return The value
-    */
    public Double getRetryIntervalMultiplier() {
       logger.trace("getRetryIntervalMultiplier()");
 
       return raProperties.getRetryIntervalMultiplier();
    }
 
-   /**
-    * Set retry interval multiplier
-    *
-    * @param retryIntervalMultiplier The value
-    */
    public void setRetryIntervalMultiplier(final Double retryIntervalMultiplier) {
       logger.trace("setRetryIntervalMultiplier({})", retryIntervalMultiplier);
 
       raProperties.setRetryIntervalMultiplier(retryIntervalMultiplier);
    }
 
-   /**
-    * Get maximum time for retry interval
-    *
-    * @return The value
-    */
    public Long getMaxRetryInterval() {
       logger.trace("getMaxRetryInterval()");
 
       return raProperties.getMaxRetryInterval();
    }
 
-   /**
-    * Set maximum time for retry interval
-    *
-    * @param maxRetryInterval The value
-    */
    public void setMaxRetryInterval(final Long maxRetryInterval) {
       logger.trace("setMaxRetryInterval({})", maxRetryInterval);
 
       raProperties.setMaxRetryInterval(maxRetryInterval);
    }
 
-   /**
-    * Get number of reconnect attempts
-    *
-    * @return The value
-    */
    public Integer getReconnectAttempts() {
       logger.trace("getReconnectAttempts()");
 
       return raProperties.getReconnectAttempts();
    }
 
-   /**
-    * Set number of reconnect attempts
-    *
-    * @param reconnectAttempts The value
-    */
    public void setReconnectAttempts(final Integer reconnectAttempts) {
       logger.trace("setReconnectAttempts({})", reconnectAttempts);
 
@@ -1213,44 +874,24 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setUseGlobalPools(useGlobalPools);
    }
 
-   /**
-    * Get the user name
-    *
-    * @return The value
-    */
    public String getUserName() {
       logger.trace("getUserName()");
 
       return raProperties.getUserName();
    }
 
-   /**
-    * Set the user name
-    *
-    * @param userName The value
-    */
    public void setUserName(final String userName) {
       logger.trace("setUserName({})", userName);
 
       raProperties.setUserName(userName);
    }
 
-   /**
-    * Get the password
-    *
-    * @return The value
-    */
    public String getPassword() {
       logger.trace("getPassword()");
 
       return raProperties.getPassword();
    }
 
-   /**
-    * Set the password
-    *
-    * @param password The value
-    */
    public void setPassword(final String password) {
       if (logger.isTraceEnabled()) {
          logger.trace("setPassword(****)");
@@ -1259,23 +900,14 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setPassword(password);
    }
 
-   /**
-    * @return the useJNDI
-    */
    public boolean isUseJNDI() {
       return raProperties.isUseJNDI();
    }
 
-   /**
-    * @param value the useJNDI to set
-    */
    public void setUseJNDI(final Boolean value) {
       raProperties.setUseJNDI(value);
    }
 
-   /**
-    * @return return the jndi params to use
-    */
    public String getJndiParams() {
       return unparsedJndiParams;
    }
@@ -1289,66 +921,36 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       return raProperties.getParsedJndiParams();
    }
 
-   /**
-    * Get the client ID
-    *
-    * @return The value
-    */
    public String getClientID() {
       logger.trace("getClientID()");
 
       return raProperties.getClientID();
    }
 
-   /**
-    * Set the client ID
-    *
-    * @param clientID The client id
-    */
    public void setClientID(final String clientID) {
       logger.trace("setClientID({})", clientID);
 
       raProperties.setClientID(clientID);
    }
 
-   /**
-    * Get the group ID
-    *
-    * @return The value
-    */
    public String getGroupID() {
       logger.trace("getGroupID()");
 
       return raProperties.getGroupID();
    }
 
-   /**
-    * Set the group ID
-    *
-    * @param groupID The group id
-    */
    public void setGroupID(final String groupID) {
       logger.trace("setGroupID({})", groupID);
 
       raProperties.setGroupID(groupID);
    }
 
-   /**
-    * Get the use XA flag
-    *
-    * @return The value
-    */
    public Boolean getUseLocalTx() {
       logger.trace("getUseLocalTx()");
 
       return raProperties.getUseLocalTx();
    }
 
-   /**
-    * Set the use XA flag
-    *
-    * @param localTx The value
-    */
    public void setUseLocalTx(final Boolean localTx) {
       logger.trace("setUseXA({})", localTx);
 
@@ -1379,12 +981,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setSetupInterval(interval);
    }
 
-   /**
-    * Indicates whether some other object is "equal to" this one.
-    *
-    * @param obj Object with which to compare
-    * @return True if this object is the same as the obj argument; false otherwise.
-    */
    @Override
    public boolean equals(final Object obj) {
       logger.trace("equals({})", obj);
@@ -1392,18 +988,13 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (obj == null) {
          return false;
       }
-
-      if (obj instanceof ActiveMQResourceAdapter) {
-         return raProperties.equals(((ActiveMQResourceAdapter) obj).getProperties());
+      if (!(obj instanceof ActiveMQResourceAdapter adapter)) {
+         return false;
       }
-      return false;
+
+      return Objects.equals(raProperties, adapter.getProperties());
    }
 
-   /**
-    * Return the hash code for the object
-    *
-    * @return The hash code
-    */
    @Override
    public int hashCode() {
       logger.trace("hashCode()");
@@ -1411,11 +1002,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       return raProperties.hashCode();
    }
 
-   /**
-    * Get the work manager
-    *
-    * @return The manager
-    */
    public WorkManager getWorkManager() {
       logger.trace("getWorkManager()");
 
@@ -1441,30 +1027,26 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
       // if we are CMP or BMP using local tx we ignore the ack mode as we are transactional
       if (deliveryTransacted || useLocalTx) {
-         // JBPAPP-8845
-         // If transacted we need to send the ack flush as soon as possible
-         // as if any transaction times out, we need the ack on the server already
+         // If transacted we need to send the ack flush as soon as possible as if any transaction times out, we need
+         // the ack on the server already
          if (useLocalTx) {
-            result = parameterFactory.createSession(user, pass, false, false, false, false, 0);
+            result = parameterFactory.createSession(user, pass, false, false, false, false, 0, getClientID());
          } else {
-            result = parameterFactory.createSession(user, pass, true, false, false, false, 0);
+            result = parameterFactory.createSession(user, pass, true, false, false, false, 0, getClientID());
          }
       } else {
          if (preAck != null && preAck) {
-            result = parameterFactory.createSession(user, pass, false, true, true, true, -1);
+            result = parameterFactory.createSession(user, pass, false, true, true, true, -1, getClientID());
          } else {
             // only auto ack and dups ok are supported
-            switch (ackMode) {
-               case Session.AUTO_ACKNOWLEDGE:
-                  result = parameterFactory.createSession(user, pass, false, true, true, false, 0);
-                  break;
-               case Session.DUPS_OK_ACKNOWLEDGE:
+            result = switch (ackMode) {
+               case Session.AUTO_ACKNOWLEDGE -> parameterFactory.createSession(user, pass, false, true, true, false, 0, getClientID());
+               case Session.DUPS_OK_ACKNOWLEDGE -> {
                   int actDupsOkBatchSize = dupsOkBatchSize != null ? dupsOkBatchSize : ActiveMQClient.DEFAULT_ACK_BATCH_SIZE;
-                  result = parameterFactory.createSession(user, pass, false, true, true, false, actDupsOkBatchSize);
-                  break;
-               default:
-                  throw new IllegalArgumentException("Invalid ackmode: " + ackMode);
-            }
+                  yield parameterFactory.createSession(user, pass, false, true, true, false, actDupsOkBatchSize, getClientID());
+               }
+               default -> throw new IllegalArgumentException("Invalid ackmode: " + ackMode);
+            };
          }
       }
 
@@ -1478,20 +1060,12 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       return recoveryManager;
    }
 
-   /**
-    * Get the resource adapter properties
-    *
-    * @return The properties
-    */
    public ActiveMQRAProperties getProperties() {
       logger.trace("getProperties()");
 
       return raProperties;
    }
 
-   /**
-    * Setup the factory
-    */
    protected void setup() throws ActiveMQException {
       raProperties.init();
       defaultActiveMQConnectionFactory = newConnectionFactory(raProperties);
@@ -1517,31 +1091,18 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       return defaultActiveMQConnectionFactory;
    }
 
-   /**
-    * @see ActiveMQRAProperties#getJgroupsChannelLocatorClass()
-    */
    public String getJgroupsChannelLocatorClass() {
       return raProperties.getJgroupsChannelLocatorClass();
    }
 
-   /**
-    * @see ActiveMQRAProperties#setJgroupsChannelLocatorClass(String)
-    */
    public void setJgroupsChannelLocatorClass(String jgroupsChannelLocatorClass) {
       raProperties.setJgroupsChannelLocatorClass(jgroupsChannelLocatorClass);
    }
 
-   /**
-    * @return
-    * @see ActiveMQRAProperties#getJgroupsChannelRefName()
-    */
    public String getJgroupsChannelRefName() {
       return raProperties.getJgroupsChannelRefName();
    }
 
-   /**
-    * @see ActiveMQRAProperties#setJgroupsChannelRefName(java.lang.String)
-    */
    public void setJgroupsChannelRefName(String jgroupsChannelRefName) {
       raProperties.setJgroupsChannelRefName(jgroupsChannelRefName);
    }
@@ -1550,7 +1111,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       ActiveMQConnectionFactory cf;
       boolean known = false;
 
-      if (!knownConnectionFactories.keySet().contains(overrideProperties)) {
+      if (!knownConnectionFactories.containsKey(overrideProperties)) {
          cf = newConnectionFactory(overrideProperties);
          knownConnectionFactories.put(overrideProperties, new Pair<>(cf, new AtomicInteger(1)));
       } else {
@@ -1702,6 +1263,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       setParams(cf, overrideProperties);
 
       //now make sure we are HA in any way
+      cf.setUseTopologyForLoadBalancing(raProperties.isUseTopologyForLoadBalancing());
 
       cf.setReconnectAttempts(0);
       cf.setInitialConnectAttempts(0);
@@ -1755,157 +1317,165 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    private void setParams(final ActiveMQConnectionFactory cf, final ConnectionFactoryProperties overrideProperties) {
-      Boolean val = overrideProperties.isAutoGroup() != null ? overrideProperties.isAutoGroup() : raProperties.isAutoGroup();
-      if (val != null) {
-         cf.setAutoGroup(val);
+      Boolean booleanVal = overrideProperties.isAutoGroup() != null ? overrideProperties.isAutoGroup() : raProperties.isAutoGroup();
+      if (booleanVal != null) {
+         cf.setAutoGroup(booleanVal);
       }
-      val = overrideProperties.isBlockOnAcknowledge() != null ? overrideProperties.isBlockOnAcknowledge() : raProperties.isBlockOnAcknowledge();
-      if (val != null) {
-         cf.setBlockOnAcknowledge(val);
+      booleanVal = overrideProperties.isBlockOnAcknowledge() != null ? overrideProperties.isBlockOnAcknowledge() : raProperties.isBlockOnAcknowledge();
+      if (booleanVal != null) {
+         cf.setBlockOnAcknowledge(booleanVal);
       }
-      val = overrideProperties.isBlockOnNonDurableSend() != null ? overrideProperties.isBlockOnNonDurableSend() : raProperties.isBlockOnNonDurableSend();
-      if (val != null) {
-         cf.setBlockOnNonDurableSend(val);
+      booleanVal = overrideProperties.isBlockOnNonDurableSend() != null ? overrideProperties.isBlockOnNonDurableSend() : raProperties.isBlockOnNonDurableSend();
+      if (booleanVal != null) {
+         cf.setBlockOnNonDurableSend(booleanVal);
       }
-      val = overrideProperties.isBlockOnDurableSend() != null ? overrideProperties.isBlockOnDurableSend() : raProperties.isBlockOnDurableSend();
-      if (val != null) {
-         cf.setBlockOnDurableSend(val);
+      booleanVal = overrideProperties.isBlockOnDurableSend() != null ? overrideProperties.isBlockOnDurableSend() : raProperties.isBlockOnDurableSend();
+      if (booleanVal != null) {
+         cf.setBlockOnDurableSend(booleanVal);
       }
-      val = overrideProperties.isPreAcknowledge() != null ? overrideProperties.isPreAcknowledge() : raProperties.isPreAcknowledge();
-      if (val != null) {
-         cf.setPreAcknowledge(val);
+      booleanVal = overrideProperties.isPreAcknowledge() != null ? overrideProperties.isPreAcknowledge() : raProperties.isPreAcknowledge();
+      if (booleanVal != null) {
+         cf.setPreAcknowledge(booleanVal);
       }
-      val = overrideProperties.isUseGlobalPools() != null ? overrideProperties.isUseGlobalPools() : raProperties.isUseGlobalPools();
-      if (val != null) {
-         cf.setUseGlobalPools(val);
-      }
-
-      val = overrideProperties.isCacheLargeMessagesClient() != null ? overrideProperties.isCacheLargeMessagesClient() : raProperties.isCacheLargeMessagesClient();
-      if (val != null) {
-         cf.setCacheLargeMessagesClient(val);
+      booleanVal = overrideProperties.isUseGlobalPools() != null ? overrideProperties.isUseGlobalPools() : raProperties.isUseGlobalPools();
+      if (booleanVal != null) {
+         cf.setUseGlobalPools(booleanVal);
       }
 
-      val = overrideProperties.isCompressLargeMessage() != null ? overrideProperties.isCompressLargeMessage() : raProperties.isCompressLargeMessage();
-      if (val != null) {
-         cf.setCompressLargeMessage(val);
+      booleanVal = overrideProperties.isCacheLargeMessagesClient() != null ? overrideProperties.isCacheLargeMessagesClient() : raProperties.isCacheLargeMessagesClient();
+      if (booleanVal != null) {
+         cf.setCacheLargeMessagesClient(booleanVal);
       }
 
-      val = overrideProperties.isCacheDestinations() != null ? overrideProperties.isCacheDestinations() : raProperties.isCacheDestinations();
-      if (val != null) {
-         cf.setCacheDestinations(val);
+      booleanVal = overrideProperties.isCompressLargeMessage() != null ? overrideProperties.isCompressLargeMessage() : raProperties.isCompressLargeMessage();
+      if (booleanVal != null) {
+         cf.setCompressLargeMessage(booleanVal);
       }
 
-      Integer val2 = overrideProperties.getConsumerMaxRate() != null ? overrideProperties.getConsumerMaxRate() : raProperties.getConsumerMaxRate();
-      if (val2 != null) {
-         cf.setConsumerMaxRate(val2);
-      }
-      val2 = overrideProperties.getConsumerWindowSize() != null ? overrideProperties.getConsumerWindowSize() : raProperties.getConsumerWindowSize();
-      if (val2 != null) {
-         cf.setConsumerWindowSize(val2);
-      }
-      val2 = overrideProperties.getDupsOKBatchSize() != null ? overrideProperties.getDupsOKBatchSize() : raProperties.getDupsOKBatchSize();
-      if (val2 != null) {
-         cf.setDupsOKBatchSize(val2);
+      booleanVal = overrideProperties.isCacheDestinations() != null ? overrideProperties.isCacheDestinations() : raProperties.isCacheDestinations();
+      if (booleanVal != null) {
+         cf.setCacheDestinations(booleanVal);
       }
 
-      val2 = overrideProperties.getMinLargeMessageSize() != null ? overrideProperties.getMinLargeMessageSize() : raProperties.getMinLargeMessageSize();
-      if (val2 != null) {
-         cf.setMinLargeMessageSize(val2);
+      Integer intVal = overrideProperties.getConsumerMaxRate() != null ? overrideProperties.getConsumerMaxRate() : raProperties.getConsumerMaxRate();
+      if (intVal != null) {
+         cf.setConsumerMaxRate(intVal);
       }
-      val2 = overrideProperties.getProducerMaxRate() != null ? overrideProperties.getProducerMaxRate() : raProperties.getProducerMaxRate();
-      if (val2 != null) {
-         cf.setProducerMaxRate(val2);
+      intVal = overrideProperties.getConsumerWindowSize() != null ? overrideProperties.getConsumerWindowSize() : raProperties.getConsumerWindowSize();
+      if (intVal != null) {
+         cf.setConsumerWindowSize(intVal);
       }
-      val2 = overrideProperties.getProducerWindowSize() != null ? overrideProperties.getProducerWindowSize() : raProperties.getProducerWindowSize();
-      if (val2 != null) {
-         cf.setProducerWindowSize(val2);
+      intVal = overrideProperties.getDupsOKBatchSize() != null ? overrideProperties.getDupsOKBatchSize() : raProperties.getDupsOKBatchSize();
+      if (intVal != null) {
+         cf.setDupsOKBatchSize(intVal);
       }
-      val2 = overrideProperties.getConfirmationWindowSize() != null ? overrideProperties.getConfirmationWindowSize() : raProperties.getConfirmationWindowSize();
-      if (val2 != null) {
-         cf.setConfirmationWindowSize(val2);
+
+      intVal = overrideProperties.getMinLargeMessageSize() != null ? overrideProperties.getMinLargeMessageSize() : raProperties.getMinLargeMessageSize();
+      if (intVal != null) {
+         cf.setMinLargeMessageSize(intVal);
       }
-      val2 = overrideProperties.getReconnectAttempts() != null ? overrideProperties.getReconnectAttempts() : raProperties.getReconnectAttempts();
-      if (val2 != null) {
-         cf.setReconnectAttempts(val2);
+      intVal = overrideProperties.getProducerMaxRate() != null ? overrideProperties.getProducerMaxRate() : raProperties.getProducerMaxRate();
+      if (intVal != null) {
+         cf.setProducerMaxRate(intVal);
+      }
+      intVal = overrideProperties.getProducerWindowSize() != null ? overrideProperties.getProducerWindowSize() : raProperties.getProducerWindowSize();
+      if (intVal != null) {
+         cf.setProducerWindowSize(intVal);
+      }
+      intVal = overrideProperties.getConfirmationWindowSize() != null ? overrideProperties.getConfirmationWindowSize() : raProperties.getConfirmationWindowSize();
+      if (intVal != null) {
+         cf.setConfirmationWindowSize(intVal);
+      }
+      intVal = overrideProperties.getReconnectAttempts() != null ? overrideProperties.getReconnectAttempts() : raProperties.getReconnectAttempts();
+      if (intVal != null) {
+         cf.setReconnectAttempts(intVal);
       } else {
          //the global default is 0 but we should always try to reconnect JCA
          cf.setReconnectAttempts(-1);
       }
-      val2 = overrideProperties.getThreadPoolMaxSize() != null ? overrideProperties.getThreadPoolMaxSize() : raProperties.getThreadPoolMaxSize();
-      if (val2 != null) {
-         cf.setThreadPoolMaxSize(val2);
+      intVal = overrideProperties.getThreadPoolMaxSize() != null ? overrideProperties.getThreadPoolMaxSize() : raProperties.getThreadPoolMaxSize();
+      if (intVal != null) {
+         cf.setThreadPoolMaxSize(intVal);
       }
-      val2 = overrideProperties.getScheduledThreadPoolMaxSize() != null ? overrideProperties.getScheduledThreadPoolMaxSize() : raProperties.getScheduledThreadPoolMaxSize();
-      if (val2 != null) {
-         cf.setScheduledThreadPoolMaxSize(val2);
+      intVal = overrideProperties.getScheduledThreadPoolMaxSize() != null ? overrideProperties.getScheduledThreadPoolMaxSize() : raProperties.getScheduledThreadPoolMaxSize();
+      if (intVal != null) {
+         cf.setScheduledThreadPoolMaxSize(intVal);
       }
-      val2 = overrideProperties.getTransactionBatchSize() != null ? overrideProperties.getTransactionBatchSize() : raProperties.getTransactionBatchSize();
-      if (val2 != null) {
-         cf.setTransactionBatchSize(val2);
+      intVal = overrideProperties.getTransactionBatchSize() != null ? overrideProperties.getTransactionBatchSize() : raProperties.getTransactionBatchSize();
+      if (intVal != null) {
+         cf.setTransactionBatchSize(intVal);
       }
-      val2 = overrideProperties.getInitialConnectAttempts() != null ? overrideProperties.getInitialConnectAttempts() : raProperties.getInitialConnectAttempts();
-      if (val2 != null) {
-         cf.setInitialConnectAttempts(val2);
+      intVal = overrideProperties.getInitialConnectAttempts() != null ? overrideProperties.getInitialConnectAttempts() : raProperties.getInitialConnectAttempts();
+      if (intVal != null) {
+         cf.setInitialConnectAttempts(intVal);
       }
-      val2 = overrideProperties.getInitialMessagePacketSize() != null ? overrideProperties.getInitialMessagePacketSize() : raProperties.getInitialMessagePacketSize();
-      if (val2 != null) {
-         cf.setInitialMessagePacketSize(val2);
+      intVal = overrideProperties.getInitialMessagePacketSize() != null ? overrideProperties.getInitialMessagePacketSize() : raProperties.getInitialMessagePacketSize();
+      if (intVal != null) {
+         cf.setInitialMessagePacketSize(intVal);
       }
-      val2 = overrideProperties.getCompressionLevel() != null ? overrideProperties.getCompressionLevel() : raProperties.getCompressionLevel();
-      if (val2 != null) {
-         cf.setCompressionLevel(val2);
-      }
-
-      Long val3 = overrideProperties.getClientFailureCheckPeriod() != null ? overrideProperties.getClientFailureCheckPeriod() : raProperties.getClientFailureCheckPeriod();
-      if (val3 != null) {
-         cf.setClientFailureCheckPeriod(val3);
-      }
-      val3 = overrideProperties.getCallTimeout() != null ? overrideProperties.getCallTimeout() : raProperties.getCallTimeout();
-      if (val3 != null) {
-         cf.setCallTimeout(val3);
-      }
-      val3 = overrideProperties.getCallFailoverTimeout() != null ? overrideProperties.getCallFailoverTimeout() : raProperties.getCallFailoverTimeout();
-      if (val3 != null) {
-         cf.setCallFailoverTimeout(val3);
-      }
-      val3 = overrideProperties.getConnectionTTL() != null ? overrideProperties.getConnectionTTL() : raProperties.getConnectionTTL();
-      if (val3 != null) {
-         cf.setConnectionTTL(val3);
+      intVal = overrideProperties.getCompressionLevel() != null ? overrideProperties.getCompressionLevel() : raProperties.getCompressionLevel();
+      if (intVal != null) {
+         cf.setCompressionLevel(intVal);
       }
 
-      val3 = overrideProperties.getRetryInterval() != null ? overrideProperties.getRetryInterval() : raProperties.getRetryInterval();
-      if (val3 != null) {
-         cf.setRetryInterval(val3);
+      Long longVal = overrideProperties.getClientFailureCheckPeriod() != null ? overrideProperties.getClientFailureCheckPeriod() : raProperties.getClientFailureCheckPeriod();
+      if (longVal != null) {
+         cf.setClientFailureCheckPeriod(longVal);
+      }
+      longVal = overrideProperties.getCallTimeout() != null ? overrideProperties.getCallTimeout() : raProperties.getCallTimeout();
+      if (longVal != null) {
+         cf.setCallTimeout(longVal);
+      }
+      longVal = overrideProperties.getCallFailoverTimeout() != null ? overrideProperties.getCallFailoverTimeout() : raProperties.getCallFailoverTimeout();
+      if (longVal != null) {
+         cf.setCallFailoverTimeout(longVal);
+      }
+      longVal = overrideProperties.getConnectionTTL() != null ? overrideProperties.getConnectionTTL() : raProperties.getConnectionTTL();
+      if (longVal != null) {
+         cf.setConnectionTTL(longVal);
       }
 
-      val3 = overrideProperties.getMaxRetryInterval() != null ? overrideProperties.getMaxRetryInterval() : raProperties.getMaxRetryInterval();
-      if (val3 != null) {
-         cf.setMaxRetryInterval(val3);
+      longVal = overrideProperties.getRetryInterval() != null ? overrideProperties.getRetryInterval() : raProperties.getRetryInterval();
+      if (longVal != null) {
+         cf.setRetryInterval(longVal);
       }
 
-      Double val4 = overrideProperties.getRetryIntervalMultiplier() != null ? overrideProperties.getRetryIntervalMultiplier() : raProperties.getRetryIntervalMultiplier();
-      if (val4 != null) {
-         cf.setRetryIntervalMultiplier(val4);
+      longVal = overrideProperties.getMaxRetryInterval() != null ? overrideProperties.getMaxRetryInterval() : raProperties.getMaxRetryInterval();
+      if (longVal != null) {
+         cf.setMaxRetryInterval(longVal);
       }
-      String val5 = overrideProperties.getClientID() != null ? overrideProperties.getClientID() : raProperties.getClientID();
-      if (val5 != null) {
-         cf.setClientID(val5);
+
+      Double doubleVal = overrideProperties.getRetryIntervalMultiplier() != null ? overrideProperties.getRetryIntervalMultiplier() : raProperties.getRetryIntervalMultiplier();
+      if (doubleVal != null) {
+         cf.setRetryIntervalMultiplier(doubleVal);
       }
-      val5 = overrideProperties.getConnectionLoadBalancingPolicyClassName() != null ? overrideProperties.getConnectionLoadBalancingPolicyClassName() : raProperties.getConnectionLoadBalancingPolicyClassName();
-      if (val5 != null) {
-         cf.setConnectionLoadBalancingPolicyClassName(val5);
+      String stringVal = overrideProperties.getClientID() != null ? overrideProperties.getClientID() : raProperties.getClientID();
+      if (stringVal != null) {
+         cf.setClientID(stringVal);
       }
-      val5 = overrideProperties.getProtocolManagerFactoryStr() != null ? overrideProperties.getProtocolManagerFactoryStr() : raProperties.getProtocolManagerFactoryStr();
-      if (val5 != null) {
-         cf.setProtocolManagerFactoryStr(val5);
+      stringVal = overrideProperties.getConnectionLoadBalancingPolicyClassName() != null ? overrideProperties.getConnectionLoadBalancingPolicyClassName() : raProperties.getConnectionLoadBalancingPolicyClassName();
+      if (stringVal != null) {
+         cf.setConnectionLoadBalancingPolicyClassName(stringVal);
       }
-      val5 = overrideProperties.getDeserializationBlackList() != null ? overrideProperties.getDeserializationBlackList() : raProperties.getDeserializationBlackList();
-      if (val5 != null) {
-         cf.setDeserializationBlackList(val5);
+      stringVal = overrideProperties.getProtocolManagerFactoryStr() != null ? overrideProperties.getProtocolManagerFactoryStr() : raProperties.getProtocolManagerFactoryStr();
+      if (stringVal != null) {
+         cf.setProtocolManagerFactoryStr(stringVal);
       }
-      val5 = overrideProperties.getDeserializationWhiteList() != null ? overrideProperties.getDeserializationWhiteList() : raProperties.getDeserializationWhiteList();
-      if (val5 != null) {
-         cf.setDeserializationWhiteList(val5);
+      stringVal = overrideProperties.getDeserializationBlackList() != null ? overrideProperties.getDeserializationBlackList() : raProperties.getDeserializationBlackList();
+      if (stringVal != null) {
+         cf.setDeserializationBlackList(stringVal);
+      }
+      stringVal = overrideProperties.getDeserializationWhiteList() != null ? overrideProperties.getDeserializationWhiteList() : raProperties.getDeserializationWhiteList();
+      if (stringVal != null) {
+         cf.setDeserializationWhiteList(stringVal);
+      }
+      stringVal = overrideProperties.getDeserializationDenyList() != null ? overrideProperties.getDeserializationDenyList() : raProperties.getDeserializationDenyList();
+      if (stringVal != null) {
+         cf.setDeserializationDenyList(stringVal);
+      }
+      stringVal = overrideProperties.getDeserializationAllowList() != null ? overrideProperties.getDeserializationAllowList() : raProperties.getDeserializationAllowList();
+      if (stringVal != null) {
+         cf.setDeserializationAllowList(stringVal);
       }
 
       cf.setIgnoreJTA(isIgnoreJTA());
@@ -1920,10 +1490,18 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    public synchronized void closeConnectionFactory(ConnectionFactoryProperties properties) {
-      Pair<ActiveMQConnectionFactory, AtomicInteger> pair = knownConnectionFactories.get(properties);
-      int references = pair.getB().decrementAndGet();
-      if (pair.getA() != null && pair.getA() != defaultActiveMQConnectionFactory && references == 0) {
-         knownConnectionFactories.remove(properties).getA().close();
+      Pair<ActiveMQConnectionFactory, AtomicInteger> factoryPair = knownConnectionFactories.get(properties);
+      if (factoryPair == null) {
+         logger.debug("No connection factory found for client '{}', probably already closed.", properties.getClientID());
+         return;
+      }
+
+      ActiveMQConnectionFactory factory = factoryPair.getA();
+      int referenceCount = factoryPair.getB().decrementAndGet();
+
+      if (factory != null && factory != defaultActiveMQConnectionFactory && referenceCount == 0) {
+         knownConnectionFactories.remove(properties);
+         factory.close();
       }
    }
 

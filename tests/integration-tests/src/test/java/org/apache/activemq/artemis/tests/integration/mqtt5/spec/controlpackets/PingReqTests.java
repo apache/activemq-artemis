@@ -16,27 +16,27 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.handler.codec.mqtt.MqttMessageType;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-public class PingReqTests  extends MQTT5TestSupport {
-
-   public PingReqTests(String protocol) {
-      super(protocol);
-   }
+public class PingReqTests extends MQTT5TestSupport {
 
    /*
     * [MQTT-3.12.4-1] The Server MUST send a PINGRESP packet in response to a PINGREQ packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPingResp() throws Exception {
       final CountDownLatch latch = new CountDownLatch(4);
 
@@ -48,7 +48,7 @@ public class PingReqTests  extends MQTT5TestSupport {
       };
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setKeepAliveInterval(1);
       client.connect(options);

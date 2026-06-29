@@ -21,12 +21,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 
 /**
  * A factory for creating acceptors.
  * <p>
- * An Acceptor is an endpoint that a {@link org.apache.activemq.artemis.spi.core.remoting.Connector} will connect to and is used by the remoting service.
+ * An Acceptor is an endpoint that a {@link org.apache.activemq.artemis.spi.core.remoting.Connector} will connect to and
+ * is used by the remoting service.
  */
 public interface AcceptorFactory {
 
@@ -39,7 +41,6 @@ public interface AcceptorFactory {
     * @param listener            the listener
     * @param threadPool          the threadpool
     * @param scheduledThreadPool a scheduled thread pool
-    * @param protocolMap
     * @return an acceptor
     */
    Acceptor createAcceptor(String name,
@@ -49,6 +50,12 @@ public interface AcceptorFactory {
                            ServerConnectionLifeCycleListener listener,
                            Executor threadPool,
                            ScheduledExecutorService scheduledThreadPool,
-                           Map<String, ProtocolManager> protocolMap);
+                           Map<String, ProtocolManager> protocolMap,
+                           String threadFactoryGroupName,
+                           MetricsManager metricsManager);
+
+   default boolean supportsRemote() {
+      return true;
+   }
 
 }

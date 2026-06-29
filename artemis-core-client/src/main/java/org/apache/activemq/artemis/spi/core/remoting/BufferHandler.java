@@ -21,7 +21,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 /**
  * A BufferHandler that will handle buffers received by an acceptor.
  * <p>
- * The Buffer Handler will decode the buffer and take the appropriate action, typically forwarding to the correct channel.
+ * The Buffer Handler will decode the buffer and take the appropriate action, typically forwarding to the correct
+ * channel.
  */
 public interface BufferHandler {
 

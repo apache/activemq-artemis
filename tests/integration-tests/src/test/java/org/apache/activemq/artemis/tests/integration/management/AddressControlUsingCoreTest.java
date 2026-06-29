@@ -32,6 +32,31 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.ADDRESS + name);
 
          @Override
+         public int getMaxPageReadBytes() {
+            return ((Number)proxy.retrieveAttributeValue("maxPageReadBytes")).intValue();
+         }
+
+         @Override
+         public int getMaxPageReadMessages() {
+            return ((Number)proxy.retrieveAttributeValue("maxPageReadMessages")).intValue();
+         }
+
+         @Override
+         public int getPrefetchPageBytes() {
+            return ((Number)proxy.retrieveAttributeValue("prefetchPageBytes")).intValue();
+         }
+
+         @Override
+         public int getPrefetchPageMessages() {
+            return ((Number)proxy.retrieveAttributeValue("prefetchPageMessages")).intValue();
+         }
+
+         @Override
+         public long getId() {
+            return ((Number)proxy.retrieveAttributeValue("id")).longValue();
+         }
+
+         @Override
          public String getAddress() {
             return (String) proxy.retrieveAttributeValue("address");
          }
@@ -42,7 +67,7 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
-         public String getRoutingTypesAsJSON() throws Exception {
+         public String getRoutingTypesAsJSON() {
             return (String) proxy.retrieveAttributeValue("routingTypesAsJSON");
          }
 
@@ -92,8 +117,8 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
-         public int getAddressLimitPercent() throws Exception {
-            return (int)  proxy.retrieveAttributeValue("addressLimitPercent", Integer.class);
+         public int getAddressLimitPercent() {
+            return (int) proxy.retrieveAttributeValue("addressLimitPercent", Integer.class);
          }
 
          @Override
@@ -103,7 +128,12 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
 
          @Override
          public void unblock() throws Exception {
-            proxy.invokeOperation("unBlock");
+            proxy.invokeOperation("unblock");
+         }
+
+         @Override
+         public boolean isBlockedViaManagement() throws Exception {
+            return (boolean) proxy.retrieveAttributeValue("blockedViaManagement");
          }
 
          @Override
@@ -114,6 +144,11 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          @Override
          public String[] getBindingNames() throws Exception {
             return (String[]) proxy.retrieveAttributeValue("bindingNames", String.class);
+         }
+
+         @Override
+         public long getQueueCount() {
+            return (long) proxy.retrieveAttributeValue("queueCount");
          }
 
          @Override

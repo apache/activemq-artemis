@@ -25,18 +25,12 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * A wrapper for a queue receiver
+ * A wrapper for a {@link QueueReceiver}.
  */
 public class ActiveMQRAQueueReceiver extends ActiveMQRAMessageConsumer implements QueueReceiver {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Create a new wrapper
-    *
-    * @param consumer the queue receiver
-    * @param session  the session
-    */
    public ActiveMQRAQueueReceiver(final QueueReceiver consumer, final ActiveMQRASession session) {
       super(consumer, session);
 
@@ -44,10 +38,7 @@ public class ActiveMQRAQueueReceiver extends ActiveMQRAMessageConsumer implement
    }
 
    /**
-    * Get queue
-    *
-    * @return The queue
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Queue getQueue() throws JMSException {

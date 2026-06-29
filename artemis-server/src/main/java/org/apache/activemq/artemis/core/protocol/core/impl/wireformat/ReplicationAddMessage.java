@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.persistence.Persister;
@@ -70,7 +71,7 @@ public final class ReplicationAddMessage extends PacketImpl {
 
    @Override
    public int expectedEncodeSize() {
-      return  PACKET_HEADERS_SIZE +
+      return PACKET_HEADERS_SIZE +
          DataConstants.SIZE_BYTE + // buffer.writeByte(journalID);
          DataConstants.SIZE_BOOLEAN + // buffer.writeBoolean(operation.toBoolean());
          DataConstants.SIZE_LONG + // buffer.writeLong(id);
@@ -113,16 +114,10 @@ public final class ReplicationAddMessage extends PacketImpl {
       buffer.readBytes(recordData);
    }
 
-   /**
-    * @return the id
-    */
    public long getId() {
       return id;
    }
 
-   /**
-    * @return the journalID
-    */
    public byte getJournalID() {
       return journalID;
    }
@@ -131,57 +126,37 @@ public final class ReplicationAddMessage extends PacketImpl {
       return operation;
    }
 
-   /**
-    * @return the recordType
-    */
    public byte getJournalRecordType() {
       return journalRecordType;
    }
 
-   /**
-    * @return the recordData
-    */
    public byte[] getRecordData() {
       return recordData;
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((encodingData == null) ? 0 : encodingData.hashCode());
-      result = prime * result + (int) (id ^ (id >>> 32));
-      result = prime * result + journalID;
-      result = prime * result + journalRecordType;
-      result = prime * result + ((operation == null) ? 0 : operation.hashCode());
-      result = prime * result + Arrays.hashCode(recordData);
-      return result;
+      return Objects.hash(super.hashCode(), encodingData, id, journalID, journalRecordType, operation,
+                          Arrays.hashCode(recordData));
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReplicationAddMessage))
+      }
+      if (!(obj instanceof ReplicationAddMessage other)) {
          return false;
-      ReplicationAddMessage other = (ReplicationAddMessage) obj;
-      if (encodingData == null) {
-         if (other.encodingData != null)
-            return false;
-      } else if (!encodingData.equals(other.encodingData))
-         return false;
-      if (id != other.id)
-         return false;
-      if (journalID != other.journalID)
-         return false;
-      if (journalRecordType != other.journalRecordType)
-         return false;
-      if (operation != other.operation)
-         return false;
-      if (!Arrays.equals(recordData, other.recordData))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(encodingData, other.encodingData) &&
+             id == other.id &&
+             journalID == other.journalID &&
+             journalRecordType == other.journalRecordType &&
+             operation == other.operation &&
+             Arrays.equals(recordData, other.recordData);
    }
 }

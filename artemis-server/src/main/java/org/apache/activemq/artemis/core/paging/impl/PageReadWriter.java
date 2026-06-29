@@ -27,7 +27,9 @@ import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.Env;
@@ -49,7 +51,6 @@ public class PageReadWriter {
    //sizeOf(START_BYTE) + sizeOf(MESSAGE LENGTH) + sizeOf(END_BYTE)
    private static final int HEADER_AND_TRAILER_SIZE = DataConstants.SIZE_INT + 2;
    private static final int MINIMUM_MSG_PERSISTENT_SIZE = HEADER_AND_TRAILER_SIZE;
-   private static final int HEADER_SIZE = HEADER_AND_TRAILER_SIZE - 1;
    private static final int MIN_CHUNK_SIZE = Env.osPageSize();
 
    public interface SuspectFileCallback {
@@ -83,7 +84,15 @@ public class PageReadWriter {
       assert (activeMQBuffer.readableBytes() == bufferSize) : "messageEncodedSize is different from expected";
       //buffer limit and position are the same
       assert (buffer.remaining() == bufferSize) : "buffer position or limit are changed";
-      file.writeDirect(buffer, false);
+      if (fileFactory.supportsIndividualContext()) {
+         OperationContext context = OperationContextImpl.getContext();
+         if (context != null) {
+            context.storeLineUp();
+         }
+         file.writeDirect(buffer, false, context);
+      } else {
+         file.writeDirect(buffer, false);
+      }
       return bufferSize;
    }
 
@@ -312,10 +321,9 @@ public class PageReadWriter {
 
 
    private static boolean validateLargeMessageStorageManager(PagedMessage msg) {
-      if (!(msg.getMessage() instanceof LargeServerMessage)) {
+      if (!(msg.getMessage() instanceof LargeServerMessage largeServerMessage)) {
          return true;
       }
-      LargeServerMessage largeServerMessage = ((LargeServerMessage) msg.getMessage());
 
       boolean storageManager = largeServerMessage.getStorageManager() != null;
       if (!storageManager) {

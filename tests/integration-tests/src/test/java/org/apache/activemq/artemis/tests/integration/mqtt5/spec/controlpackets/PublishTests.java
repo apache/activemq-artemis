@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,9 +37,8 @@ import io.netty.handler.codec.mqtt.MqttMessageType;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
-import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttAsyncClient;
@@ -44,13 +51,13 @@ import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.eclipse.paho.mqttv5.common.packet.MqttPublish;
 import org.eclipse.paho.mqttv5.common.packet.MqttWireMessage;
 import org.eclipse.paho.mqttv5.common.packet.UserProperty;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-3.3.2-1] The Topic Name MUST be present as the first field in the PUBLISH packet Variable Header. It MUST be a UTF-8 Encoded String.
@@ -79,17 +86,14 @@ public class PublishTests extends MQTT5TestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public PublishTests(String protocol) {
-      super(protocol);
-   }
-
-   /*
+   /**
     * [MQTT-3.3.1-1] The DUP flag MUST be set to 1 by the Client or Server when it attempts to re-deliver a PUBLISH
     * packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testDupFlag() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final AtomicBoolean intercepted = new AtomicBoolean(false);
 
@@ -145,12 +149,13 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.1-2] The DUP flag MUST be set to 0 for all QoS 0 messages.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testDupFlagQoSZero() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -176,16 +181,17 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.1-3] The DUP flag in the outgoing PUBLISH packet is set independently to the incoming PUBLISH packet,
     * its value MUST be determined solely by whether the outgoing PUBLISH packet is a retransmission.
     *
     * The value of the DUP flag from an incoming PUBLISH packet is not propagated when the PUBLISH packet is sent to
     * subscribers by the Server.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testDupFlagNotPropagated() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -215,13 +221,14 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.1-5] If the RETAIN flag is set to 1 in a PUBLISH packet sent by a Client to a Server, the Server MUST
     * replace any existing retained message for this topic and store the Application Message.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainFlag() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       MqttClient producer = createPahoClient("producer");
@@ -251,7 +258,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.1-6] If the Payload contains zero bytes it is processed normally by the Server but any retained message
     * with the same topic name MUST be removed and any future subscribers for the topic will not receive a retained
     * message.
@@ -259,17 +266,20 @@ public class PublishTests extends MQTT5TestSupport {
     * [MQTT-3.3.1-7] A retained message with a Payload containing zero bytes MUST NOT be stored as a retained message on
     * the Server.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainFlagWithEmptyMessage() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
+
+      assertNull(getRetainedMessageQueue(TOPIC));
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       // send first retained message
       producer.publish(TOPIC, "retain1".getBytes(), 2, true);
 
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 1, 2000, 100);
 
       // send second retained message; should *remove* the first
       producer.publish(TOPIC, new byte[0], 2, true);
@@ -277,7 +287,7 @@ public class PublishTests extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 0, 2000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 0, 2000, 100);
 
       final CountDownLatch latch = new CountDownLatch(1);
       MqttClient consumer = createPahoClient(CONSUMER_ID);
@@ -295,23 +305,26 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.1-8] If the RETAIN flag is 0 in a PUBLISH packet sent by a Client to a Server, the Server MUST NOT store
     * the message as a retained message and MUST NOT remove or replace any existing retained message.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainFlagFalse() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
-      final String RETAINED_PAYLOAD = RandomUtil.randomString();
-      final String UNRETAINED_PAYLOAD = RandomUtil.randomString();
+      final String RETAINED_PAYLOAD = RandomUtil.randomUUIDString();
+      final String UNRETAINED_PAYLOAD = RandomUtil.randomUUIDString();
+
+      assertNull(getRetainedMessageQueue(TOPIC));
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
 
       // send retained message
       producer.publish(TOPIC, RETAINED_PAYLOAD.getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 1000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 1, 1000, 100);
 
       // send an unretained message; should *not* remove the existing retained message
       producer.publish(TOPIC, UNRETAINED_PAYLOAD.getBytes(), 2, false);
@@ -319,7 +332,7 @@ public class PublishTests extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      Wait.assertFalse(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() > 1, 1000, 100);
+      Wait.assertFalse(() -> getRetainedMessageQueue(TOPIC).getMessageCount() > 1, 1000, 100);
 
       final CountDownLatch latch = new CountDownLatch(1);
       MqttClient consumer = createPahoClient(CONSUMER_ID);
@@ -338,7 +351,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
     * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
     * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
@@ -349,12 +362,13 @@ public class PublishTests extends MQTT5TestSupport {
     *
     * Simple test with just one subscription.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainHandlingZeroWithOneSubscription() throws Exception {
       internalTestRetainHandlingZero(false, 1);
    }
 
-   /*
+   /**
     * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
     * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
     * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
@@ -365,12 +379,13 @@ public class PublishTests extends MQTT5TestSupport {
     *
     * Testing with lots of individual subscriptions from a single client.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainHandlingZeroWithMultipleSubscriptions() throws Exception {
       internalTestRetainHandlingZero(false, 25);
    }
 
-   /*
+   /**
     * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
     * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
     * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
@@ -381,14 +396,15 @@ public class PublishTests extends MQTT5TestSupport {
     *
     * Testing topic filter subscription.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainHandlingZeroWithTopicFilterSubscription() throws Exception {
       internalTestRetainHandlingZero(true, 25);
    }
 
    public void internalTestRetainHandlingZero(boolean filter, int subscriptionCount) throws Exception {
       final int SUBSCRIPTION_COUNT = subscriptionCount;
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String PREFIX = "myTopic/";
       String[] topicNames = new String[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
@@ -396,7 +412,11 @@ public class PublishTests extends MQTT5TestSupport {
       }
       String[] retainedPayloads = new String[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
-         retainedPayloads[i] = RandomUtil.randomString();
+         retainedPayloads[i] = RandomUtil.randomUUIDString();
+      }
+
+      for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
+         assertNull(getRetainedMessageQueue(topicNames[i]));
       }
 
       // send retained messages
@@ -405,7 +425,7 @@ public class PublishTests extends MQTT5TestSupport {
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
          final String topicName = topicNames[i];
          producer.publish(topicName, retainedPayloads[i].getBytes(), 2, true);
-         Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, topicName, server.getConfiguration().getWildcardConfiguration())).getMessageCount() == 1, 2000, 100);
+         Wait.assertTrue(() -> getRetainedMessageQueue(topicName).getMessageCount() == 1, 2000, 100);
       }
       producer.disconnect();
       producer.close();
@@ -447,7 +467,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
     * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
     * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
@@ -457,17 +477,20 @@ public class PublishTests extends MQTT5TestSupport {
     * send all retained message matching the Topic Filter of the subscription to the Client, and if the subscription did
     * exist the Server MUST NOT send the retained messages.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainHandlingOne() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
+
+      assertNull(getRetainedMessageQueue(TOPIC));
 
       // send retained messages
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "retained".getBytes(), 2, true);
 
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, server.getConfiguration().getWildcardConfiguration())).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
 
@@ -495,7 +518,7 @@ public class PublishTests extends MQTT5TestSupport {
       assertTrue(latch.await(2, TimeUnit.SECONDS));
 
       // ensure the retained message has been successfully acknowledge and removed from the subscription queue
-      Wait.assertTrue(() -> getSubscriptionQueue(TOPIC).getMessageCount() == 0, 2000, 100);
+      Wait.assertTrue(() -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount() == 0, 2000, 100);
 
       consumer.disconnect();
 
@@ -513,7 +536,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
     * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
     * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
@@ -521,16 +544,19 @@ public class PublishTests extends MQTT5TestSupport {
     *
     * [MQTT-3.3.1-11] If Retain Handling is set to 2, the Server MUST NOT send the retained messages
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainHandlingTwo() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
+
+      assertNull(getRetainedMessageQueue(TOPIC));
 
       // send first retained message
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "retained".getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
 
@@ -553,7 +579,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * The setting of the RETAIN flag in an Application Message forwarded by the Server from an *established* connection
     * is controlled by the Retain As Published subscription option.
     *
@@ -561,9 +587,10 @@ public class PublishTests extends MQTT5TestSupport {
     * RETAIN flag to 0 when forwarding an Application Message regardless of how the RETAIN flag was set in the received
     * PUBLISH packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainAsPublishedZeroOnEstablishedSubscription() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       // create consumer
@@ -582,11 +609,13 @@ public class PublishTests extends MQTT5TestSupport {
       subscription.setRetainAsPublished(false);
       consumer.subscribe(new MqttSubscription[]{subscription});
 
+      assertNull(getRetainedMessageQueue(TOPIC));
+
       // send retained message
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "retained".getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
 
@@ -595,16 +624,17 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * The setting of the RETAIN flag in an Application Message forwarded by the Server from an *established* connection
     * is controlled by the Retain As Published subscription option.
     *
     * [MQTT-3.3.1-13] If the value of Retain As Published subscription option is set to 1, the Server MUST set the
     * RETAIN flag equal to the RETAIN flag in the received PUBLISH packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainAsPublishedOneOnEstablishedSubscription() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       // create consumer
@@ -631,11 +661,13 @@ public class PublishTests extends MQTT5TestSupport {
       subscription.setRetainAsPublished(true);
       consumer.subscribe(new MqttSubscription[]{subscription});
 
+      assertNull(getRetainedMessageQueue(TOPIC));
+
       // send retained message
       MqttClient producer = createPahoClient("producer");
       producer.connect();
       producer.publish(TOPIC, "retained".getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      Wait.assertTrue(() -> getRetainedMessageQueue(TOPIC).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
 
@@ -653,14 +685,15 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-3] The Topic Name in a PUBLISH packet sent by a Server to a subscribing Client MUST match the
     * Subscription’s Topic Filter.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTopicFilter() throws Exception {
       final String PREFIX = "myTopic/";
-      final String TOPIC = PREFIX + RandomUtil.randomString();
+      final String TOPIC = PREFIX + RandomUtil.randomUUIDString();
       final String TOPIC_FILTER = PREFIX + "#";
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -692,14 +725,15 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-3] The Topic Name in a PUBLISH packet sent by a Server to a subscribing Client MUST match the
     * Subscription’s Topic Filter.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testX() throws Exception {
       final String PREFIX = "";
-      final String TOPIC = PREFIX + RandomUtil.randomString();
+      final String TOPIC = PREFIX + RandomUtil.randomUUIDString();
 
       final CountDownLatch latch = new CountDownLatch(1);
       MqttClient consumer = createPahoClient("consumer");
@@ -730,24 +764,26 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-4] A Server MUST send the Payload Format Indicator unaltered to all subscribers receiving the message.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPayloadFormatIndicatorTrue() throws Exception {
       internalTestPayloadFormatIndicator(true);
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-4] A Server MUST send the Payload Format Indicator unaltered to all subscribers receiving the message.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPayloadFormatIndicatorFalse() throws Exception {
       internalTestPayloadFormatIndicator(false);
    }
 
    private void internalTestPayloadFormatIndicator(boolean payloadFormatIndicator) throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -787,14 +823,15 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-5] If the Message Expiry Interval has passed and the Server has not managed to start onward delivery
     * to a matching subscriber, then it MUST delete the copy of the message for that subscriber.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMessageExpiryIntervalElapsed() throws Exception {
-      server.createQueue(new QueueConfiguration(EXPIRY_ADDRESS).setRoutingType(RoutingType.ANYCAST));
-      final String CONSUMER_ID = RandomUtil.randomString();
+      server.createQueue(QueueConfiguration.of(EXPIRY_ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -825,23 +862,24 @@ public class PublishTests extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC).getMessageCount(), 1000, 100);
+      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount(), 1000, 100);
       Wait.assertEquals(1L, () -> server.locateQueue("EXPIRY").getMessageCount(), 3000, 100);
-      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC).getMessageCount(), 1000, 100);
+      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount(), 1000, 100);
 
       consumer.connect(options);
       assertFalse(latch.await(1, TimeUnit.SECONDS));
       consumer.disconnect();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-6] The PUBLISH packet sent to a Client by the Server MUST contain a Message Expiry Interval set to the
     * received value minus the time that the message has been waiting in the Server.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMessageExpiryIntervalReturnValue() throws Exception {
-      server.createQueue(new QueueConfiguration(EXPIRY_ADDRESS).setRoutingType(RoutingType.ANYCAST));
-      final String CONSUMER_ID = RandomUtil.randomString();
+      server.createQueue(QueueConfiguration.of(EXPIRY_ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final long EXPIRY_INTERVAL = 5L;
       final long SLEEP = 1000;
@@ -878,7 +916,7 @@ public class PublishTests extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC).getMessageCount(), 500, 100);
+      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount(), 500, 100);
 
       Thread.sleep(SLEEP);
 
@@ -887,13 +925,14 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.disconnect();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-11] A Server MUST NOT send a PUBLISH packet with a Topic Alias greater than the Topic Alias Maximum
     * value sent by the Client in the CONNECT packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testClientTopicAliasMaxFromServer() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final int MESSAGE_COUNT = 25;
       final int ALIAS_MAX = 5;
@@ -928,7 +967,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.disconnect();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-7] A receiver MUST NOT carry forward any Topic Alias mappings from one Network Connection to another.
     *
     * Unfortunately the Paho MQTT 5 client performs automatic validation and therefore refuses to send a message with an
@@ -942,8 +981,9 @@ public class PublishTests extends MQTT5TestSupport {
     *
     *  python3 client_test5.py Test.test_client_topic_alias
     */
-   @Ignore
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Disabled
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTopicAliasesNotCarriedForward() throws Exception {
       final String TOPIC = "myTopicName";
 
@@ -978,13 +1018,14 @@ public class PublishTests extends MQTT5TestSupport {
       producer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-12] A Server MUST accept all Topic Alias values greater than 0 and less than or equal to the Topic
     * Alias Maximum value that it returned in the CONNACK packet.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testServerTopicAliasMax() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final int MESSAGE_COUNT = 25;
       final int ALIAS_MAX = 5;
@@ -1020,13 +1061,14 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.disconnect();
    }
 
-   /*
+   /**
     * From section 3.3.2.3.4 of the MQTT 5 specification:
     *
     * A sender can modify the Topic Alias mapping by sending another PUBLISH in the same Network Connection with the
     * same Topic Alias value and a different non-zero length Topic Name.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testModifiedTopicAlias() throws Exception {
       final String TOPIC_1 = this.getTopicName() + "1";
       final String TOPIC_2 = this.getTopicName() + "2";
@@ -1085,13 +1127,14 @@ public class PublishTests extends MQTT5TestSupport {
       consumer2.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-15] The Server MUST send the Response Topic unaltered to all subscribers receiving the Application
     * Message.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testResponseTopicUnaltered() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final String RESPONSE_TOPIC = "myResponseTopic/a";
 
@@ -1123,13 +1166,14 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-16] The Server MUST send the Correlation Data unaltered to all subscribers receiving the Application
     * Message.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCorrelationDataUnaltered() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final byte[] CORRELATION_DATA = "myCorrelationData".getBytes(StandardCharsets.UTF_8);
 
@@ -1161,20 +1205,21 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-17] The Server MUST send all User Properties unaltered in a PUBLISH packet when forwarding the
     * Application Message to a Client.
     *
     * [MQTT-3.3.2-18] The Server MUST maintain the order of User Properties when forwarding the Application Message.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUserProperties() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final int USER_PROPERTY_COUNT = 10;
       List<UserProperty> userProperties = new ArrayList<>();
       for (int i = 0; i < USER_PROPERTY_COUNT; i++) {
-         userProperties.add(new UserProperty(RandomUtil.randomString(), RandomUtil.randomString()));
+         userProperties.add(new UserProperty(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString()));
       }
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -1209,13 +1254,14 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-20] A Server MUST send the Content Type unaltered to all subscribers receiving the Application
     * Message.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testContentTypeUnaltered() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final String CONTENT_TYPE = "myContentType";
 
@@ -1247,7 +1293,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-1] The receiver of a PUBLISH Packet MUST respond with the packet as determined by the QoS in the
     * PUBLISH Packet.
     *
@@ -1255,29 +1301,32 @@ public class PublishTests extends MQTT5TestSupport {
     * However, the Paho client returns a PUBCOMP instead which is the *end result* of the QoS 2 protocol exchange
     * described at https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_QoS_2:_Exactly.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2() throws Exception {
       internalTestQoS(2);
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-1] The receiver of a PUBLISH Packet MUST respond with the packet as determined by the QoS in the
     * PUBLISH Packet.
     *
     * Spec says response should be PUBACK: https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901120
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS1() throws Exception {
       internalTestQoS(1);
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-1] The receiver of a PUBLISH Packet MUST respond with the packet as determined by the QoS in the
     * PUBLISH Packet.
     *
     * Spec says there should be no response: https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901120
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS0() throws Exception {
       internalTestQoS(0);
    }
@@ -1293,7 +1342,7 @@ public class PublishTests extends MQTT5TestSupport {
          public void deliveryComplete(IMqttToken token) {
             int qos = ((MqttPublish)token.getRequestMessage()).getQoS();
             if (qos == 0) {
-               assertEquals(null, token.getResponse());
+               assertNull(token.getResponse());
             } else if (qos == 1) {
                assertEquals(MqttWireMessage.MESSAGE_TYPE_PUBACK, token.getResponse().getType());
             } else if (qos == 2) {
@@ -1310,7 +1359,7 @@ public class PublishTests extends MQTT5TestSupport {
       producer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-2] When Clients make subscriptions with Topic Filters that include wildcards, it is possible for a
     * Client’s subscriptions to overlap so that a published message might match multiple filters. In this case the
     * Server MUST deliver the message to the Client respecting the maximum QoS of all the matching subscriptions.
@@ -1331,23 +1380,24 @@ public class PublishTests extends MQTT5TestSupport {
     *  |       2        |          2          |        2       |
     *  |================|=====================|================|
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testOverlappingSubscriptionsWithDifferentQoSMaximums() throws Exception {
       final String TOPIC = "foo/a/b/c";
 
       final CountDownLatch consumerLatch = new CountDownLatch(9);
 
-      MqttClient consumer2 = createPahoClient(RandomUtil.randomString());
+      MqttClient consumer2 = createPahoClient(RandomUtil.randomUUIDString());
       consumer2.connect();
       consumer2.setCallback(new TestCallback(consumerLatch, 2));
       consumer2.subscribe("foo/a/b/#", 2);
 
-      MqttClient consumer1 = createPahoClient(RandomUtil.randomString());
+      MqttClient consumer1 = createPahoClient(RandomUtil.randomUUIDString());
       consumer1.connect();
       consumer1.setCallback(new TestCallback(consumerLatch, 1));
       consumer1.subscribe("foo/a/#", 1);
 
-      MqttClient consumer0 = createPahoClient(RandomUtil.randomString());
+      MqttClient consumer0 = createPahoClient(RandomUtil.randomUUIDString());
       consumer0.connect();
       consumer0.setCallback(new TestCallback(consumerLatch, 0));
       consumer0.subscribe("foo/#", 0);
@@ -1379,14 +1429,14 @@ public class PublishTests extends MQTT5TestSupport {
       }
       @Override
       public void messageArrived(String topic, MqttMessage message) throws Exception {
-         int sentAs = Integer.valueOf(new String(message.getPayload(), StandardCharsets.UTF_8));
+         int sentAs = Integer.parseInt(new String(message.getPayload(), StandardCharsets.UTF_8));
          logger.info("QoS of publish: {}; QoS of subscription: {}; QoS of receive: {}", sentAs, qosOfSubscription, message.getQos());
          if (sentAs == 0) {
-            assertTrue(message.getQos() == 0);
+            assertEquals(0, message.getQos());
          } else if (sentAs == 1) {
-            assertTrue(message.getQos() == (qosOfSubscription == 0 ? 0 : 1));
+            assertEquals((qosOfSubscription == 0 ? 0 : 1), message.getQos());
          } else if (sentAs == 2) {
-            assertTrue(message.getQos() == qosOfSubscription);
+            assertEquals(qosOfSubscription, message.getQos());
          } else {
             fail("invalid qos");
          }
@@ -1394,7 +1444,7 @@ public class PublishTests extends MQTT5TestSupport {
       }
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-3] If the Client specified a Subscription Identifier for any of the overlapping subscriptions the
     * Server MUST send those Subscription Identifiers in the message which is published as the result of the
     * subscriptions.
@@ -1406,35 +1456,46 @@ public class PublishTests extends MQTT5TestSupport {
     * [MQTT-3.3.4-5] If the Server sends multiple PUBLISH packets it MUST send, in each of them, the Subscription
     * Identifier of the matching subscription if it has a Subscription Identifier.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscriptionIdentifierMultiLevel() throws Exception {
       // even though only 3 messages are sent, 6 messages will be received due to the overlapping subscriptions
       final CountDownLatch consumerLatch = new CountDownLatch(6);
 
-      MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomString());
+      MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomUUIDString());
       consumer.connect().waitForCompletion();
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
          public void messageArrived(String topic, MqttMessage message) throws Exception {
             try {
-               List<Integer> subscriptionIdentifers = message.getProperties() != null ? message
+               List<Integer> subscriptionIdentifiers = message.getProperties() != null ? message
                   .getProperties()
                   .getSubscriptionIdentifiers() : null;
-               System.out.println("subscriptionIdentifers: " + subscriptionIdentifers + "; message: " + message);
-               if (Arrays.equals(message.getPayload(), "foo/a".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifers.contains(3));
-                  assertEquals(1, subscriptionIdentifers.size());
-               } else if (Arrays.equals(message.getPayload(), "foo/a/b".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifers.contains(2));
-                  assertTrue(subscriptionIdentifers.contains(3));
-                  assertEquals(2, subscriptionIdentifers.size());
-               } else if (Arrays.equals(message.getPayload(), "foo/a/b/c".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifers.contains(1));
-                  assertTrue(subscriptionIdentifers.contains(2));
-                  assertTrue(subscriptionIdentifers.contains(3));
-                  assertEquals(3, subscriptionIdentifers.size());
-               } else {
-                  fail("invalid subscription identifer");
+               System.out.println("subscriptionIdentifiers: " + subscriptionIdentifiers + "; message: " + message);
+               switch (new String(message.getPayload(), StandardCharsets.UTF_8)) {
+                  case "foo" -> {
+                     assertTrue(subscriptionIdentifiers.contains(1));
+                     assertEquals(1, subscriptionIdentifiers.size());
+                  }
+                  case "foo/a" -> {
+                     assertTrue(subscriptionIdentifiers.contains(1));
+                     assertTrue(subscriptionIdentifiers.contains(2));
+                     assertEquals(2, subscriptionIdentifiers.size());
+                  }
+                  case "foo/a/b" -> {
+                     assertTrue(subscriptionIdentifiers.contains(1));
+                     assertTrue(subscriptionIdentifiers.contains(2));
+                     assertTrue(subscriptionIdentifiers.contains(3));
+                     assertEquals(3, subscriptionIdentifiers.size());
+                  }
+                  case "foo/a/b/c" -> {
+                     assertTrue(subscriptionIdentifiers.contains(1));
+                     assertTrue(subscriptionIdentifiers.contains(2));
+                     assertTrue(subscriptionIdentifiers.contains(3));
+                     assertTrue(subscriptionIdentifiers.contains(4));
+                     assertEquals(4, subscriptionIdentifiers.size());
+                  }
+                  default -> fail("invalid subscription identifier");
                }
 
                consumerLatch.countDown();
@@ -1446,7 +1507,7 @@ public class PublishTests extends MQTT5TestSupport {
 
       MqttProperties subscription1Properties = new MqttProperties();
       subscription1Properties.setSubscriptionIdentifier(1);
-      consumer.subscribe(new MqttSubscription[]{new MqttSubscription("foo/a/b/#", 2)}, null, null, subscription1Properties).waitForCompletion();
+      consumer.subscribe(new MqttSubscription[]{new MqttSubscription("foo/#", 2)}, null, null, subscription1Properties).waitForCompletion();
 
       MqttProperties subscription2Properties = new MqttProperties();
       subscription2Properties.setSubscriptionIdentifier(2);
@@ -1454,10 +1515,15 @@ public class PublishTests extends MQTT5TestSupport {
 
       MqttProperties subscription3Properties = new MqttProperties();
       subscription3Properties.setSubscriptionIdentifier(3);
-      consumer.subscribe(new MqttSubscription[]{new MqttSubscription("foo/#", 2)}, null, null, subscription3Properties).waitForCompletion();
+      consumer.subscribe(new MqttSubscription[]{new MqttSubscription("foo/a/b/#", 2)}, null, null, subscription3Properties).waitForCompletion();
+
+      MqttProperties subscription4Properties = new MqttProperties();
+      subscription4Properties.setSubscriptionIdentifier(4);
+      consumer.subscribe(new MqttSubscription[]{new MqttSubscription("foo/a/b/c/#", 2)}, null, null, subscription4Properties).waitForCompletion();
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
+      producer.publish("foo", "foo".getBytes(StandardCharsets.UTF_8), 2, false);
       producer.publish("foo/a", "foo/a".getBytes(StandardCharsets.UTF_8), 2, false);
       producer.publish("foo/a/b", "foo/a/b".getBytes(StandardCharsets.UTF_8), 2, false);
       producer.publish("foo/a/b/c", "foo/a/b/c".getBytes(StandardCharsets.UTF_8), 2, false);
@@ -1469,7 +1535,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-3] If the Client specified a Subscription Identifier for any of the overlapping subscriptions the
     * Server MUST send those Subscription Identifiers in the message which is published as the result of the
     * subscriptions.
@@ -1481,31 +1547,34 @@ public class PublishTests extends MQTT5TestSupport {
     * [MQTT-3.3.4-5] If the Server sends multiple PUBLISH packets it MUST send, in each of them, the Subscription
     * Identifier of the matching subscription if it has a Subscription Identifier.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscriptionIdentifierSingleLevel() throws Exception {
-      final CountDownLatch consumerLatch = new CountDownLatch(3);
+      final CountDownLatch consumerLatch = new CountDownLatch(6);
 
-      MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomString());
+      MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomUUIDString());
       consumer.connect().waitForCompletion();
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
          public void messageArrived(String topic, MqttMessage message) throws Exception {
             try {
-               List<Integer> subscriptionIdentifers = message.getProperties() != null ? message
+               List<Integer> subscriptionIdentifiers = message.getProperties() != null ? message
                   .getProperties()
                   .getSubscriptionIdentifiers() : null;
-               System.out.println("subscriptionIdentifers: " + subscriptionIdentifers + "; message: " + message);
-               if (Arrays.equals(message.getPayload(), "foo/a".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifers.contains(3));
-                  assertEquals(1, subscriptionIdentifers.size());
-               } else if (Arrays.equals(message.getPayload(), "foo/a/b".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifers.contains(2));
-                  assertEquals(1, subscriptionIdentifers.size());
-               } else if (Arrays.equals(message.getPayload(), "foo/a/b/c".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifers.contains(1));
-                  assertEquals(1, subscriptionIdentifers.size());
+               System.out.println("subscriptionIdentifiers: " + subscriptionIdentifiers + "; message: " + message);
+               if (isPayloadEqual(message, "foo/a")) {
+                  assertTrue(subscriptionIdentifiers.contains(3));
+                  assertEquals(1, subscriptionIdentifiers.size());
+               } else if (isPayloadEqual(message, "foo/a-reset")) {
+                  assertEquals(0, subscriptionIdentifiers.size());
+               } else if (isPayloadEqual(message, "foo/a/b") || isPayloadEqual(message, "foo/a/b-reset")) {
+                  assertTrue(subscriptionIdentifiers.contains(2));
+                  assertEquals(1, subscriptionIdentifiers.size());
+               } else if (isPayloadEqual(message, "foo/a/b/c") || isPayloadEqual(message, "foo/a/b/c-reset")) {
+                  assertTrue(subscriptionIdentifiers.contains(1));
+                  assertEquals(1, subscriptionIdentifiers.size());
                } else {
-                  fail("invalid subscription identifer");
+                  fail("invalid subscription identifier");
                }
 
                consumerLatch.countDown();
@@ -1532,6 +1601,14 @@ public class PublishTests extends MQTT5TestSupport {
       producer.publish("foo/a", "foo/a".getBytes(StandardCharsets.UTF_8), 2, false);
       producer.publish("foo/a/b", "foo/a/b".getBytes(StandardCharsets.UTF_8), 2, false);
       producer.publish("foo/a/b/c", "foo/a/b/c".getBytes(StandardCharsets.UTF_8), 2, false);
+
+      //remove association with subscription ID from the topic `foo/+`
+      consumer.subscribe(new MqttSubscription[]{new MqttSubscription("foo/+", 2)}, null, null, null).waitForCompletion();
+      producer.publish("foo/a", "foo/a-reset".getBytes(StandardCharsets.UTF_8), 2, false);
+      producer.publish("foo/a/b", "foo/a/b-reset".getBytes(StandardCharsets.UTF_8), 2, false);
+      producer.publish("foo/a/b/c", "foo/a/b/c-reset".getBytes(StandardCharsets.UTF_8), 2, false);
+
+
       producer.disconnect();
       producer.close();
 
@@ -1540,16 +1617,34 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   private static boolean isPayloadEqual(MqttMessage message, String compare) {
+      return Arrays.equals(message.getPayload(), compare.getBytes(StandardCharsets.UTF_8));
+   }
+
+   /**
     * [MQTT-3.3.4-9] The Server MUST NOT send more than Receive Maximum QoS 1 and QoS 2 PUBLISH packets for which it has
     * not received PUBACK, PUBCOMP, or PUBREC with a Reason Code of 128 or greater from the Client.
     *
     * This is impossible to test with the Paho client directly because it doesn't invoke the callback concurrently.
-    * Therefore, we must use interceptors as a kind of hack to determine whether or not we're implementing flow control
+    * Therefore, we must use interceptors as a kind of hack to determine whether we're implementing flow control
     * properly.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
-   public void testReceiveMaximum() throws Exception {
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testReceiveMaximumSetByClient() throws Exception {
+      testReceiveMaximum(false);
+   }
+
+   /**
+    * @see PublishTests#testReceiveMaximumSetByClient()
+    */
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testImplicitReceiveMaximumByDefaultMaximumInFlightPublishMessages() throws Exception {
+      testReceiveMaximum(true);
+   }
+
+   private void testReceiveMaximum(boolean useDefault) throws Exception {
       AtomicInteger count = new AtomicInteger(0);
       AtomicBoolean failed = new AtomicBoolean(false);
       final int MESSAGE_COUNT = 50;
@@ -1572,12 +1667,21 @@ public class PublishTests extends MQTT5TestSupport {
       server.getRemotingService().addIncomingInterceptor(incomingInterceptor);
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
+      if (useDefault) {
+         getProtocolManager().setDefaultMaximumInFlightPublishMessages(RECEIVE_MAXIMUM); // must be used when missing Receive Maximum from the client
+      } else {
+         getProtocolManager().setDefaultMaximumInFlightPublishMessages(1); // Receive Maximum from the client must override this
+      }
+
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
-      MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomString());
+      final String CONSUMER_ID = "consumer";
+      MqttAsyncClient consumer = createAsyncPahoClient(CONSUMER_ID);
       MqttConnectionOptions options = new MqttConnectionOptions();
-      options.setReceiveMaximum(RECEIVE_MAXIMUM);
+      if (!useDefault) {
+         options.setReceiveMaximum(RECEIVE_MAXIMUM);
+      }
       consumer.connect(options).waitForCompletion();
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
@@ -1593,24 +1697,25 @@ public class PublishTests extends MQTT5TestSupport {
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          producer.publish(TOPIC, "foo".getBytes(StandardCharsets.UTF_8), (RandomUtil.randomPositiveInt() % 2) + 1, false);
       }
-      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
+      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded(), 2000, 100);
       producer.disconnect();
       producer.close();
 
-      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC).getMessageCount(), 15000, 100);
+      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount(), 15000, 100);
       assertTrue(latch.await(15, TimeUnit.SECONDS));
       assertFalse(failed.get());
       consumer.disconnect();
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-9] The Server MUST NOT send more than Receive Maximum QoS 1 and QoS 2 PUBLISH packets for which it has
     * not received PUBACK, PUBCOMP, or PUBREC with a Reason Code of 128 or greater from the Client.
     *
     * Flow control isn't enforced on QoS 0 messages.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testReceiveMaximumQoS0() throws Exception {
       AtomicInteger count = new AtomicInteger(0);
       AtomicBoolean succeeded = new AtomicBoolean(false);
@@ -1635,9 +1740,11 @@ public class PublishTests extends MQTT5TestSupport {
       };
       server.getRemotingService().addIncomingInterceptor(incomingInterceptor);
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
+      getProtocolManager().setDefaultMaximumInFlightPublishMessages(1); // must not be taken into account for QoS 0
 
       final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
-      MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomString());
+      final String CONSUMER_ID = "consumer";
+      MqttAsyncClient consumer = createAsyncPahoClient(CONSUMER_ID);
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setReceiveMaximum(RECEIVE_MAXIMUM);
       consumer.connect(options).waitForCompletion();
@@ -1655,30 +1762,32 @@ public class PublishTests extends MQTT5TestSupport {
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          producer.publish(TOPIC, ("foo" + i).getBytes(StandardCharsets.UTF_8), 0, false);
       }
-      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
+      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded(), 2000, 100);
       producer.disconnect();
       producer.close();
 
-      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC).getMessageCount(), 8000, 100);
+      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount(), 8000, 100);
       assertTrue(latch.await(8, TimeUnit.SECONDS));
       assertTrue(succeeded.get());
       consumer.disconnect();
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-10] The Server MUST NOT delay the sending of any packets other than PUBLISH packets due to having sent
     * Receive Maximum PUBLISH packets without receiving acknowledgements for them.
     *
     * Conducting this test with a PINGRESP packet. If the broker sends a PINGRESP to the client while it is delaying
     * PUBLISH packets then it is a success.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPacketDelayReceiveMaximum() throws Exception {
       AtomicBoolean succeeded = new AtomicBoolean(false);
       final int MESSAGE_COUNT = 2;
       final int RECEIVE_MAXIMUM = 1;
       final String TOPIC = this.getTopicName();
+      final String CONSUMER_ID = "consumer";
       final AtomicBoolean messageArrived = new AtomicBoolean(false);
 
       MQTTInterceptor outgoingInterceptor = (packet, connection) -> {
@@ -1690,7 +1799,7 @@ public class PublishTests extends MQTT5TestSupport {
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient consumer = createPahoClient("consumer");
+      MqttClient consumer = createPahoClient(CONSUMER_ID);
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setReceiveMaximum(RECEIVE_MAXIMUM);
       options.setKeepAliveInterval(2);
@@ -1709,7 +1818,7 @@ public class PublishTests extends MQTT5TestSupport {
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          producer.publish(TOPIC, "foo".getBytes(StandardCharsets.UTF_8), 2, false);
       }
-      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
+      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded(), 2000, 100);
       producer.disconnect();
       producer.close();
 

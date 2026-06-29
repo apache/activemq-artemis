@@ -37,6 +37,15 @@
          </static-connectors>
       </pool>
    </connection-router>
+   <connection-router name="simple-router-connector2">
+      <key-type>USER_NAME</key-type>
+      <policy name="FIRST_ELEMENT"/>
+      <pool>
+         <static-connectors>
+            <connector-ref>connector2</connector-ref>
+         </static-connectors>
+      </pool>
+   </connection-router>
    <connection-router name="consistent-hash-router">
       <key-type>SNI_HOST</key-type>
       <key-filter>^[^.]+</key-filter>

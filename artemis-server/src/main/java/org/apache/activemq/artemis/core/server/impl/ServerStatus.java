@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.core.server.impl;
 
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -38,7 +40,13 @@ public class ServerStatus {
       instance.immutableStateValues.clear();
    }
 
-   public static synchronized ServerStatus getInstanceFor(ActiveMQServerImpl activeMQServer) {
+   public static void stopping(ActiveMQServerImpl serverStopping) {
+      if (instance.server == serverStopping) {
+         clear();
+      }
+   }
+
+   public static synchronized ServerStatus starting(ActiveMQServerImpl activeMQServer) {
       if (instance.server == null) {
          instance.server = activeMQServer;
          instance.immutableStateValues.put("version", instance.server.getVersion().getFullVersion());
@@ -46,12 +54,16 @@ public class ServerStatus {
       return instance;
    }
 
+   public static ActiveMQServerImpl getServer() {
+      return instance.server;
+   }
+
    public static synchronized ServerStatus getInstance() {
       return instance;
    }
 
    private ActiveMQServerImpl server;
-   private final HashMap<String, String> immutableStateValues = new HashMap<>();
+   private final Map<String, String> immutableStateValues = new HashMap<>();
    private JsonObject globalStatus = JsonLoader.createObjectBuilder().build();
 
    public synchronized String asJson() {
@@ -61,11 +73,11 @@ public class ServerStatus {
 
    private synchronized void updateServerStatus() {
       if (instance.server != null) {
-         HashMap<String, String> snapshotOfServerStatusAttributes = new HashMap<>();
+         Map<String, String> snapshotOfServerStatusAttributes = new HashMap<>();
          snapshotOfServerStatusAttributes.putAll(immutableStateValues);
          snapshotOfServerStatusAttributes.put("identity", server.getIdentity());
          SimpleString nodeId = server.getNodeID();
-         snapshotOfServerStatusAttributes.put("nodeId", nodeId == null ? null : nodeId.toString());
+         snapshotOfServerStatusAttributes.put("nodeId", Objects.toString(nodeId, null));
          snapshotOfServerStatusAttributes.put("uptime", server.getUptime());
          snapshotOfServerStatusAttributes.put("state", server.getState().toString());
 
@@ -77,7 +89,7 @@ public class ServerStatus {
       update(component, JsonUtil.readJsonObject(statusJson));
    }
 
-   public synchronized void update(String component, HashMap<String, String> statusAttributes) {
+   public synchronized void update(String component, Map<String, String> statusAttributes) {
       update(component, JsonUtil.toJsonObject(statusAttributes));
    }
 

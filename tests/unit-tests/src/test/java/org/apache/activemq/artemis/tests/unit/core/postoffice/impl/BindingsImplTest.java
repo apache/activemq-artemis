@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.transaction.xa.Xid;
 import java.util.Collections;
 import java.util.List;
@@ -45,14 +47,15 @@ import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.selector.filter.Filterable;
+import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes.FakeQueue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BindingsImplTest extends ActiveMQTestBase {
 
    @Test
    public void testGetNextBindingWithLoadBalancingOnDemand() throws Exception {
-      final FakeRemoteBinding fake = new FakeRemoteBinding(new SimpleString("a"));
+      final FakeRemoteBinding fake = new FakeRemoteBinding(SimpleString.of("a"));
       fake.filter = null;  // such that it wil match all messages
       fake.messageLoadBalancingType = MessageLoadBalancingType.ON_DEMAND;
       final Bindings bind = new BindingsImpl(null, null, new NullStorageManager(1000));
@@ -63,7 +66,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
    @Test
    public void testGetNextBindingWithLoadBalancingOff() throws Exception {
-      final FakeRemoteBinding fake = new FakeRemoteBinding(new SimpleString("a"));
+      final FakeRemoteBinding fake = new FakeRemoteBinding(SimpleString.of("a"));
       fake.filter = null;  // such that it wil match all messages
       fake.messageLoadBalancingType = MessageLoadBalancingType.OFF;
       final Bindings bind = new BindingsImpl(null, null, new NullStorageManager(1000));
@@ -74,7 +77,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
    @Test
    public void testGetNextBindingWithLoadBalancingOffWithRedistribution() throws Exception {
-      final FakeRemoteBinding fake = new FakeRemoteBinding(new SimpleString("a"));
+      final FakeRemoteBinding fake = new FakeRemoteBinding(SimpleString.of("a"));
       fake.filter = null;  // such that it wil match all messages
       fake.messageLoadBalancingType = MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION;
       final Bindings bind = new BindingsImpl(null, null, new NullStorageManager(1000));
@@ -100,25 +103,22 @@ public class BindingsImplTest extends ActiveMQTestBase {
    }
 
    private void internalTest(final boolean route) throws Exception {
-      final FakeBinding fake = new FakeBinding(new SimpleString("a"));
+      final FakeBinding fake = new FakeBinding(SimpleString.of("a"));
 
       final Bindings bind = new BindingsImpl(null, null, new NullStorageManager(1000));
       bind.addBinding(fake);
-      bind.addBinding(new FakeBinding(new SimpleString("a")));
-      bind.addBinding(new FakeBinding(new SimpleString("a")));
+      bind.addBinding(new FakeBinding(SimpleString.of("a")));
+      bind.addBinding(new FakeBinding(SimpleString.of("a")));
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               bind.removeBindingByUniqueName(fake.getUniqueName());
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+      Thread t = new Thread(() -> {
+         try {
+            bind.removeBindingByUniqueName(fake.getUniqueName());
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
-      Queue queue = new FakeQueue(new SimpleString("a"));
+      Queue queue = new FakeQueue(SimpleString.of("a"));
       t.start();
 
       for (int i = 0; i < 100; i++) {
@@ -138,7 +138,22 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
 
       @Override
+      public boolean isAsync() {
+         return false;
+      }
+
+      @Override
+      public Transaction setAsync(boolean async) {
+         return null;
+      }
+
+      @Override
       public void setProtocolData(Object data) {
+
+      }
+
+      @Override
+      public void afterWired(Runnable runnable) {
 
       }
 
@@ -235,33 +250,21 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.transaction.Transaction#rollback()
-       */
       @Override
       public void rollback() throws Exception {
 
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.transaction.Transaction#setState(org.apache.activemq.artemis.core.transaction.Transaction.State)
-       */
       @Override
       public void setState(final State state) {
 
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.transaction.Transaction#suspend()
-       */
       @Override
       public void suspend() {
 
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.transaction.Transaction#getDistinctQueues()
-       */
       public Set<Queue> getDistinctQueues() {
          return Collections.emptySet();
       }
@@ -286,7 +289,6 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
       @Override
       public RefsOperation createRefsOperation(Queue queue, AckReason reason) {
-         // TODO Auto-generated method stub
          return null;
       }
 
@@ -294,21 +296,25 @@ public class BindingsImplTest extends ActiveMQTestBase {
       public boolean hasTimedOut() {
          return false;
       }
+
+      @Override
+      public void delay() {
+
+      }
+
+      @Override
+      public void delayDone() {
+
+      }
    }
 
    private final class FakeFilter implements Filter {
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.filter.Filter#getFilterString()
-       */
       @Override
       public SimpleString getFilterString() {
          return null;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.filter.Filter#match(org.apache.activemq.artemis.core.server.ServerMessage)
-       */
       @Override
       public boolean match(final Message message) {
          return false;
@@ -324,7 +330,6 @@ public class BindingsImplTest extends ActiveMQTestBase {
       public boolean match(Filterable filterable) {
          return false;
       }
-
    }
 
    private class FakeBinding implements Binding {
@@ -342,7 +347,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
 
       final SimpleString name;
-      final SimpleString uniqueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      final SimpleString uniqueName = SimpleString.of(UUID.randomUUID().toString());
 
       FakeBinding(final SimpleString name) {
          this.name = name;
@@ -353,35 +358,23 @@ public class BindingsImplTest extends ActiveMQTestBase {
          return null;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getBindable()
-       */
       @Override
       public Bindable getBindable() {
 
          return null;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getClusterName()
-       */
       @Override
       public SimpleString getClusterName() {
 
          return null;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getDistance()
-       */
       @Override
       public int getDistance() {
          return 0;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getFilter()
-       */
       @Override
       public Filter getFilter() {
          return filter;
@@ -389,29 +382,19 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
       @Override
       public Long getID() {
-         return Long.valueOf(0L);
+         return 0L;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getRoutingName()
-       */
       @Override
       public SimpleString getRoutingName() {
          return name;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getType()
-       */
       @Override
       public BindingType getType() {
-
          return null;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getUniqueName()
-       */
       @Override
       public SimpleString getUniqueName() {
          return uniqueName;
@@ -432,9 +415,6 @@ public class BindingsImplTest extends ActiveMQTestBase {
          routedCount.incrementAndGet();
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#toManagementString()
-       */
       @Override
       public String toManagementString() {
          return null;
@@ -447,12 +427,10 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
       @Override
       public void routeWithAck(Message message, RoutingContext context) {
-
       }
-
    }
 
-   private final class FakeRemoteBinding extends FakeBinding implements RemoteQueueBinding  {
+   private final class FakeRemoteBinding extends FakeBinding implements RemoteQueueBinding {
       MessageLoadBalancingType messageLoadBalancingType;
       FakeRemoteBinding(SimpleString name) {
          super(name);
@@ -497,6 +475,10 @@ public class BindingsImplTest extends ActiveMQTestBase {
       @Override
       public long getRemoteQueueID() {
          return 0;
+      }
+
+      @Override
+      public void setFilter(Filter filter) {
       }
 
       @Override

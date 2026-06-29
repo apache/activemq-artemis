@@ -55,7 +55,7 @@ public class FederatedAddressConsumerKey implements FederatedConsumerKey {
          data.put("routeType", routingType.name().toLowerCase());
          data.put("upstream", upstream.toString());
          data.put("federation", federation.toString());
-         queueName = SimpleString.toSimpleString(StrSubstitutor.replace(queueNameFormat, data));
+         queueName = SimpleString.of(StrSubstitutor.replace(queueNameFormat, data));
       }
       return queueName;
    }
@@ -94,14 +94,18 @@ public class FederatedAddressConsumerKey implements FederatedConsumerKey {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof FederatedAddressConsumerKey)) return false;
-      FederatedAddressConsumerKey that = (FederatedAddressConsumerKey) o;
-      return Objects.equals(address, that.address) &&
-            Objects.equals(queueNameFormat, that.queueNameFormat) &&
-            routingType == that.routingType &&
-            Objects.equals(queueFilterString, that.queueFilterString);
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof FederatedAddressConsumerKey other)) {
+         return false;
+      }
+
+      return Objects.equals(address, other.address) &&
+             Objects.equals(queueNameFormat, other.queueNameFormat) &&
+             Objects.equals(routingType, other.routingType) &&
+             Objects.equals(queueFilterString, other.queueFilterString);
    }
 
    @Override

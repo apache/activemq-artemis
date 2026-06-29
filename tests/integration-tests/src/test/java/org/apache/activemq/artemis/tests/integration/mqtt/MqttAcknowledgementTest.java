@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.LinkedList;
 
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -27,9 +30,9 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.jgroups.util.UUID;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class MqttAcknowledgementTest extends MQTTTestSupport {
 
@@ -39,7 +42,7 @@ public class MqttAcknowledgementTest extends MQTTTestSupport {
    private MqttClient subscriber;
    private MqttClient sender;
 
-   @After
+   @AfterEach
    public void clean() throws MqttException {
       messageArrived = false;
       messageIds.clear();
@@ -53,14 +56,18 @@ public class MqttAcknowledgementTest extends MQTTTestSupport {
       sender.close();
    }
 
-   @Test(timeout = 300000)
+   @Test
+   @Timeout(60)
    public void testAcknowledgementQOS1() throws Exception {
       test(1);
    }
 
-   @Test(timeout = 300000, expected = AssertionError.class)
+   @Test
+   @Timeout(60)
    public void testAcknowledgementQOS0() throws Exception {
-      test(0);
+      assertThrows(AssertionError.class, () -> {
+         test(0);
+      });
    }
 
    private void test(int qos) throws Exception {
@@ -77,7 +84,7 @@ public class MqttAcknowledgementTest extends MQTTTestSupport {
 
       boolean satisfied = Wait.waitFor(() -> messageIds.size() == 2, 5_000);
       if (!satisfied) {
-         Assert.fail();
+         fail();
       }
 
       subscriber.messageArrivedComplete(messageIds.getLast(), qos);
@@ -94,12 +101,12 @@ public class MqttAcknowledgementTest extends MQTTTestSupport {
          }
       }, 60_000);
       if (!satisfied) {
-         Assert.fail();
+         fail();
       }
 
       satisfied = Wait.waitFor(() -> messageArrived == true, 5_000);
       if (!satisfied) {
-         Assert.fail();
+         fail();
       }
    }
 

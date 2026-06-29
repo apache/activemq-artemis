@@ -60,7 +60,6 @@ public interface JournalFile {
 
    /**
     * Callback for when a file is removed. to cleanup negatives and avoid leaks.
-    * @param fileRemoved
     */
    void fileRemoved(JournalFile fileRemoved);
 
@@ -81,13 +80,13 @@ public interface JournalFile {
    /**
     * Whether this file's contents can deleted and the file reused.
     *
-    * @return {@code true} if the file can already be deleted.
+    * @return {@code true} if the file can already be deleted
     */
    boolean isCanReclaim();
 
    /**
-    * This is a field to identify that records on this file actually belong to the current file.
-    * The possible implementation for this is fileID &amp; Integer.MAX_VALUE
+    * This is a field to identify that records on this file actually belong to the current file. The possible
+    * implementation for this is fileID &amp; Integer.MAX_VALUE
     */
    int getRecordID();
 

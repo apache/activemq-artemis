@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,35 +102,31 @@ public class InVMConnector extends AbstractConnector {
 
    private final boolean bufferPoolingEnabled;
 
-   private static ExecutorService threadPoolExecutor;
+   private static ExecutorService executorService;
 
    public static synchronized void resetThreadPool() {
-      if (threadPoolExecutor != null) {
-         threadPoolExecutor.shutdownNow();
-         if (threadPoolExecutor instanceof ThreadPoolExecutor) {
-            ThreadPoolExecutor tp = (ThreadPoolExecutor) threadPoolExecutor;
-            if (tp.getThreadFactory() instanceof ActiveMQThreadFactory) {
-               ActiveMQThreadFactory tf = (ActiveMQThreadFactory)tp.getThreadFactory();
-               if (!tf.join(10, TimeUnit.SECONDS)) {
-                  // resetThreadPool is only used on tests.
-                  // no need to use a logger method, this is just fine.
-                  logger.warn("Thread pool is still busy. couldn't stop on time");
-               }
+      if (executorService != null) {
+         executorService.shutdownNow();
+         if (executorService instanceof ThreadPoolExecutor threadPoolExecutor && threadPoolExecutor.getThreadFactory() instanceof ActiveMQThreadFactory activeMQThreadFactory) {
+            if (!activeMQThreadFactory.join(10, TimeUnit.SECONDS)) {
+               // resetThreadPool is only used on tests.
+               // no need to use a logger method, this is just fine.
+               logger.warn("Thread pool is still busy. couldn't stop on time");
             }
          }
-         threadPoolExecutor = null;
+         executorService = null;
       }
    }
 
    private static synchronized ExecutorService getInVMExecutor() {
-      if (threadPoolExecutor == null) {
+      if (executorService == null) {
          if (ActiveMQClient.getGlobalThreadPoolSize() <= -1) {
-            threadPoolExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), ActiveMQThreadFactory.defaultThreadFactory(InVMConnector.class.getName()));
+            executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), ActiveMQThreadFactory.defaultThreadFactory(InVMConnector.class.getName()));
          } else {
-            threadPoolExecutor = new ActiveMQThreadPoolExecutor(0, ActiveMQClient.getGlobalThreadPoolSize(), 60L, TimeUnit.SECONDS, ActiveMQThreadFactory.defaultThreadFactory(InVMConnector.class.getName()));
+            executorService = new ActiveMQThreadPoolExecutor(0, ActiveMQClient.getGlobalThreadPoolSize(), 60L, TimeUnit.SECONDS, ActiveMQThreadFactory.defaultThreadFactory(InVMConnector.class.getName()));
          }
       }
-      return threadPoolExecutor;
+      return executorService;
    }
 
    public InVMConnector(final Map<String, Object> configuration,
@@ -169,7 +166,7 @@ public class InVMConnector extends AbstractConnector {
       }
 
       for (Connection connection : connections.values()) {
-         listener.connectionDestroyed(connection.getID());
+         listener.connectionDestroyed(connection.getID(), false);
       }
 
       started = false;
@@ -232,7 +229,7 @@ public class InVMConnector extends AbstractConnector {
    // This may be an injection point for mocks on tests
    protected Connection internalCreateConnection(final BufferHandler handler,
                                                  final ClientConnectionLifeCycleListener listener,
-                                                 final Executor serverExecutor) {
+                                                 final ArtemisExecutor serverExecutor) {
       // No acceptor on a client connection
       InVMConnection inVMConnection = new InVMConnection(id, handler, listener, serverExecutor);
       inVMConnection.setEnableBufferPooling(bufferPoolingEnabled);
@@ -267,30 +264,20 @@ public class InVMConnector extends AbstractConnector {
       }
 
       @Override
-      public void connectionDestroyed(final Object connectionID) {
+      public void connectionDestroyed(final Object connectionID, boolean failed) {
          if (connections.remove(connectionID) != null) {
             // Close the corresponding connection on the other side
             acceptor.disconnect((String) connectionID);
 
             // Execute on different thread to avoid deadlocks
-            closeExecutor.execute(new Runnable() {
-               @Override
-               public void run() {
-                  listener.connectionDestroyed(connectionID);
-               }
-            });
+            closeExecutor.execute(() -> listener.connectionDestroyed(connectionID, failed));
          }
       }
 
       @Override
       public void connectionException(final Object connectionID, final ActiveMQException me) {
          // Execute on different thread to avoid deadlocks
-         closeExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-               listener.connectionException(connectionID, me);
-            }
-         });
+         closeExecutor.execute(() -> listener.connectionException(connectionID, me));
       }
 
       @Override

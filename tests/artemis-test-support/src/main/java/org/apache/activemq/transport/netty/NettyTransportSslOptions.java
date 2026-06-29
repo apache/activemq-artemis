@@ -21,8 +21,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Holds the defined SSL options for connections that operate over a secure transport. Options
- * are read from the environment and can be overridden by specifying them on the connection URI.
+ * Holds the defined SSL options for connections that operate over a secure transport. Options are read from the
+ * environment and can be overridden by specifying them on the connection URI.
  */
 public class NettyTransportSslOptions extends NettyTransportOptions {
 
@@ -58,115 +58,64 @@ public class NettyTransportSslOptions extends NettyTransportOptions {
       INSTANCE.setTrustStorePassword(System.getProperty("javax.net.ssl.keyStorePassword"));
    }
 
-   /**
-    * @return the keyStoreLocation currently configured.
-    */
    public String getKeyStoreLocation() {
       return keyStoreLocation;
    }
 
-   /**
-    * Sets the location on disk of the key store to use.
-    *
-    * @param keyStoreLocation
-    *        the keyStoreLocation to use to create the key manager.
-    */
    public void setKeyStoreLocation(String keyStoreLocation) {
       this.keyStoreLocation = keyStoreLocation;
    }
 
-   /**
-    * @return the keyStorePassword
-    */
    public String getKeyStorePassword() {
       return keyStorePassword;
    }
 
-   /**
-    * @param keyStorePassword
-    *        the keyStorePassword to set
-    */
    public void setKeyStorePassword(String keyStorePassword) {
       this.keyStorePassword = keyStorePassword;
    }
 
-   /**
-    * @return the trustStoreLocation
-    */
    public String getTrustStoreLocation() {
       return trustStoreLocation;
    }
 
-   /**
-    * @param trustStoreLocation
-    *        the trustStoreLocation to set
-    */
    public void setTrustStoreLocation(String trustStoreLocation) {
       this.trustStoreLocation = trustStoreLocation;
    }
 
-   /**
-    * @return the trustStorePassword
-    */
    public String getTrustStorePassword() {
       return trustStorePassword;
    }
 
-   /**
-    * @param trustStorePassword
-    *        the trustStorePassword to set
-    */
    public void setTrustStorePassword(String trustStorePassword) {
       this.trustStorePassword = trustStorePassword;
    }
 
-   /**
-    * @return the storeType
-    */
    public String getStoreType() {
       return storeType;
    }
 
-   /**
-    * @param storeType
-    *        the format that the store files are encoded in.
-    */
    public void setStoreType(String storeType) {
       this.storeType = storeType;
    }
 
-   /**
-    * @return the enabledCipherSuites
-    */
    public String[] getEnabledCipherSuites() {
       return enabledCipherSuites;
    }
 
-   /**
-    * @param enabledCipherSuites
-    *        the enabledCipherSuites to set
-    */
    public void setEnabledCipherSuites(String[] enabledCipherSuites) {
       this.enabledCipherSuites = enabledCipherSuites;
    }
 
-   /**
-    * @return the disabledCipherSuites
-    */
    public String[] getDisabledCipherSuites() {
       return disabledCipherSuites;
    }
 
-   /**
-    * @param disabledCipherSuites
-    *        the disabledCipherSuites to set
-    */
    public void setDisabledCipherSuites(String[] disabledCipherSuites) {
       this.disabledCipherSuites = disabledCipherSuites;
    }
 
    /**
-    * @return the enabledProtocols or null if the defaults should be used
+    * {@return the enabledProtocols or null if the defaults should be used}
     */
    public String[] getEnabledProtocols() {
       return enabledProtocols;
@@ -175,16 +124,14 @@ public class NettyTransportSslOptions extends NettyTransportOptions {
    /**
     * The protocols to be set as enabled.
     *
-    * @param enabledProtocols
-    *        the enabled protocols to set, or null if the defaults should be used.
+    * @param enabledProtocols the enabled protocols to set, or null if the defaults should be used.
     */
    public void setEnabledProtocols(String[] enabledProtocols) {
       this.enabledProtocols = enabledProtocols;
    }
 
    /**
-    *
-    * @return the protocols to disable or null if none should be
+    * {@return the protocols to disable or null if none should be}
     */
    public String[] getDisabledProtocols() {
       return disabledProtocols;
@@ -193,72 +140,40 @@ public class NettyTransportSslOptions extends NettyTransportOptions {
    /**
     * The protocols to be disable.
     *
-    * @param disabledProtocols
-    *        the protocols to disable, or null if none should be.
+    * @param disabledProtocols the protocols to disable, or null if none should be.
     */
    public void setDisabledProtocols(String[] disabledProtocols) {
       this.disabledProtocols = disabledProtocols;
    }
 
-   /**
-    * @return the context protocol to use
-    */
    public String getContextProtocol() {
       return contextProtocol;
    }
 
-   /**
-    * The protocol value to use when creating an SSLContext via
-    * SSLContext.getInstance(protocol).
-    *
-    * @param contextProtocol
-    *        the context protocol to use.
-    */
    public void setContextProtocol(String contextProtocol) {
       this.contextProtocol = contextProtocol;
    }
 
-   /**
-    * @return the trustAll
-    */
    public boolean isTrustAll() {
       return trustAll;
    }
 
-   /**
-    * @param trustAll
-    *        the trustAll to set
-    */
    public void setTrustAll(boolean trustAll) {
       this.trustAll = trustAll;
    }
 
-   /**
-    * @return the verifyHost
-    */
    public boolean isVerifyHost() {
       return verifyHost;
    }
 
-   /**
-    * @param verifyHost
-    *        the verifyHost to set
-    */
    public void setVerifyHost(boolean verifyHost) {
       this.verifyHost = verifyHost;
    }
 
-   /**
-    * @return the key alias
-    */
    public String getKeyAlias() {
       return keyAlias;
    }
 
-   /**
-    * @param keyAlias
-    *        the key alias to use
-    */
    public void setKeyAlias(String keyAlias) {
       this.keyAlias = keyAlias;
    }

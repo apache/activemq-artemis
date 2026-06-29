@@ -55,8 +55,8 @@ public class DuplicateIDCacheBenchmark {
    @Setup
    public void init() throws Exception {
       cache = persist ?
-         DuplicateIDCaches.persistent(SimpleString.toSimpleString("benchmark"), size, new NullStorageManager()) :
-         DuplicateIDCaches.inMemory(SimpleString.toSimpleString("benchmark"), size);
+         DuplicateIDCaches.persistent(SimpleString.of("benchmark"), size, new NullStorageManager()) :
+         DuplicateIDCaches.inMemory(SimpleString.of("benchmark"), size);
       final int idSize = findNextHigherPowerOf2(size);
       idsMask = idSize - 1;
       nextId = 0;

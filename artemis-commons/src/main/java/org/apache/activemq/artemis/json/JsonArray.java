@@ -33,67 +33,71 @@ import java.util.stream.Stream;
  *   {"name":"sue", "age": 42},
  *  ]
  * </pre>
- *
- *
  */
 public interface JsonArray extends JsonValue, List<JsonValue> {
 
    /**
-    * @return the JsonObject at the given position
+    * {@return the JsonObject at the given position}
+    *
     * @throws IndexOutOfBoundsException if the index is out of range
-    * @throws ClassCastException if the value at the specified position is not
-    *                            assignable to the JsonObject
+    * @throws ClassCastException        if the value at the specified position is not assignable to the JsonObject
     */
    JsonObject getJsonObject(int index);
 
    /**
-    * @return the JsonArray at the given position
+    * {@return the JsonArray at the given position}
+    *
     * @throws IndexOutOfBoundsException if the index is out of range
-    * @throws ClassCastException if the value at the specified position is not
-    *                            assignable to the JsonArray
+    * @throws ClassCastException        if the value at the specified position is not assignable to the JsonArray
     */
    JsonArray getJsonArray(int index);
 
    /**
-    * @return the JsonNumber at the given position
+    * {@return the JsonNumber at the given position}
+    *
     * @throws IndexOutOfBoundsException if the index is out of range
-    * @throws ClassCastException if the value at the specified position is not
-    *                            assignable to the JsonNumber
+    * @throws ClassCastException        if the value at the specified position is not assignable to the JsonNumber
     */
    JsonNumber getJsonNumber(int index);
 
    /**
-    * @return the JsonString at the given position
+    * {@return the JsonString at the given position}
+    *
     * @throws IndexOutOfBoundsException if the index is out of range
-    * @throws ClassCastException if the value at the specified position is not
-    *                            assignable to the JsonString
+    * @throws ClassCastException        if the value at the specified position is not assignable to the JsonString
     */
    JsonString getJsonString(int index);
 
    /**
-    * @return the respective JsonValue at the given position
+    * {@return the respective JsonValue at the given position}
+    *
     * @throws IndexOutOfBoundsException if the index is out of range
-    * @throws ClassCastException if the value at the specified position is not
-    *                            assignable to the given slazz
+    * @throws ClassCastException        if the value at the specified position is not assignable to the given slazz
     */
    <T extends JsonValue> List<T> getValuesAs(Class<T> clazz);
 
    /**
-    * Returns a list for the array. The value and the type of the elements
-    * in the list is specified by the {@code func} argument.
-    * <p>This method can be used to obtain a list of the unwrapped types, such as
-    * <pre>{@code
+    * Returns a {@code List} for the array. The value and the type of the elements in the list is specified by the
+    * {@code func} argument.
+    * <p>
+    * This method can be used to obtain a list of the unwrapped types, such as
+    * <pre>
+    * {@code
     *     List<String> strings = ary1.getValuesAs(JsonString::getString);
     *     List<Integer> ints = ary2.getValuesAs(JsonNumber::intValue);
-    * } </pre>
+    * }
+    * </pre>
     * It can also be used to obtain a list of simple projections, such as
-    * <pre> {@code
+    * <pre>
+    * {@code
     *     Lsit<Integer> stringsizes = arr.getValueAs((JsonString v) -> v.getString().length();
-    * } </pre>
-    * @param <K> The element type (must be a subtype of JsonValue) of this JsonArray.
-    * @param <T> The element type of the returned List
+    * }
+    * </pre>
+    *
+    * @param <K>  The element type (must be a subtype of JsonValue) of this JsonArray.
+    * @param <T>  The element type of the returned List
     * @param func The function that maps the elements of this JsonArray to the target elements.
-    * @return A List of the specified values and type.
+    * @return A List of the specified values and type
     * @throws ClassCastException if the {@code JsonArray} contains a value of wrong type
     */
    default <T, K extends JsonValue> List<T> getValuesAs(Function<K, T> func) {
@@ -102,57 +106,58 @@ public interface JsonArray extends JsonValue, List<JsonValue> {
    }
 
    /**
-    * @return the native String at the given position
+    * {@return the native String at the given position}
+    *
     * @throws IndexOutOfBoundsException if the index is out of range
-    * @throws ClassCastException if the value at the specified position is not
-    *                            assignable to a String
+    * @throws ClassCastException        if the value at the specified position is not assignable to a String
     */
    String getString(int index);
 
    /**
-    * @return the native String at the given position or the defaultValue if null
+    * {@return the native String at the given position or the defaultValue if null}
+    *
     * @throws IndexOutOfBoundsException if the index is out of range
-    * @throws ClassCastException if the value at the specified position is not
-    *                            assignable to a String
+    * @throws ClassCastException        if the value at the specified position is not assignable to a String
     */
    String getString(int index, String defaultValue);
 
    /**
-    * @return the native int value at the given position
+    * {@return the native int value at the given position}
+    *
     * @throws IndexOutOfBoundsException if the index is out of range
-    * @throws ClassCastException if the value at the specified position is not
-    *                            assignable to an int
-    * @throws NullPointerException if an object with the given name doesn't exist
+    * @throws ClassCastException        if the value at the specified position is not assignable to an int
+    * @throws NullPointerException      if an object with the given name doesn't exist
     */
    int getInt(int index);
 
    /**
-    * @return the native int value at the given position or the defaultValue if null
+    * {@return the native int value at the given position or the defaultValue if null}
+    *
     * @throws IndexOutOfBoundsException if the index is out of range
-    * @throws ClassCastException if the value at the specified position is not
-    *                            assignable to an int
+    * @throws ClassCastException        if the value at the specified position is not assignable to an int
     */
    int getInt(int index, int defaultValue);
 
    /**
-    * @return the native boolean value at the given position
+    * {@return the native boolean value at the given position}
+    *
     * @throws IndexOutOfBoundsException if the index is out of range
-    * @throws ClassCastException if the value at the specified position is not
-    *                            assignable to a boolean
-    * @throws NullPointerException if an object with the given name doesn't exist
+    * @throws ClassCastException        if the value at the specified position is not assignable to a boolean
+    * @throws NullPointerException      if an object with the given name doesn't exist
     */
    boolean getBoolean(int index);
 
    /**
-    * @return the native boolean value at the given position or the defaultValue if null
+    * {@return the native boolean value at the given position or the defaultValue if null}
+    *
     * @throws IndexOutOfBoundsException if the index is out of range
-    * @throws ClassCastException if the value at the specified position is not
-    *                            assignable to a boolean
+    * @throws ClassCastException        if the value at the specified position is not assignable to a boolean
     */
    boolean getBoolean(int index, boolean defaultValue);
 
    /**
-    * @return whether the value at the given position is {@link JsonValue#NULL}.
+    * {@return whether the value at the given position is {@link JsonValue#NULL}}
+    *
     * @throws IndexOutOfBoundsException if the index is out of range
     */
    boolean isNull(int index);

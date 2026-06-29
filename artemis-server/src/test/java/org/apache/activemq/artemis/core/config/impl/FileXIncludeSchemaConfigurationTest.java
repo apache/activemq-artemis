@@ -17,19 +17,33 @@
 package org.apache.activemq.artemis.core.config.impl;
 
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class FileXIncludeSchemaConfigurationTest extends FileConfigurationTest {
 
-   public FileXIncludeSchemaConfigurationTest(boolean xxeEnabled) {
-      super(xxeEnabled);
-      Assume.assumeTrue(xxeEnabled);
+   @Override
+   protected String getConfigurationName() {
+      return "ConfigurationTest-xinclude-schema-config.xml";
    }
 
-   @BeforeClass
-   public static void setupProperties() {
+   public FileXIncludeSchemaConfigurationTest(boolean xxeEnabled) {
+      super(xxeEnabled);
+   }
+
+   @Override
+   @BeforeEach
+   public void setUp() throws Exception {
+      assumeTrue(xxeEnabled);
+
+      super.setUp();
+   }
+
+   @Override
+   public void setupProperties() {
       System.setProperty("xincludePath", "./src/test/resources");
       System.setProperty("a2Prop", "a2");
       System.setProperty("falseProp", "false");
@@ -37,8 +51,8 @@ public class FileXIncludeSchemaConfigurationTest extends FileConfigurationTest {
       System.setProperty("ninetyTwoProp", "92");
    }
 
-   @AfterClass
-   public static void clearProperties() {
+   @Override
+   public void clearProperties() {
       System.clearProperty("xincludePath");
       System.clearProperty("a2Prop");
       System.clearProperty("falseProp");
@@ -47,11 +61,12 @@ public class FileXIncludeSchemaConfigurationTest extends FileConfigurationTest {
    }
 
    @Override
+   @TestTemplate
    public void testSerialize() throws Exception {
-      // ConfigurationImplTest#testSerialize() assumes the one plugin it registers is the only one in the configuration.
+      // super#testSerialize() assumes the one plugin it registers is the only one in the configuration.
 
-      // Check the expected 2 from the include file are present
-      assertEquals("included broker plugins are not present", 2, conf.getBrokerPlugins().size());
+      // Check the expected 2 plugins from the include file are present
+      assertEquals(2, conf.getBrokerPlugins().size(), "included broker plugins are not present");
 
       // Clear the list
       for (ActiveMQServerBasePlugin plugin : conf.getBrokerPlugins()) {
@@ -60,10 +75,5 @@ public class FileXIncludeSchemaConfigurationTest extends FileConfigurationTest {
 
       // Allow the test to proceed
       super.testSerialize();
-   }
-
-   @Override
-   protected String getConfigurationName() {
-      return "ConfigurationTest-xinclude-schema-config.xml";
    }
 }

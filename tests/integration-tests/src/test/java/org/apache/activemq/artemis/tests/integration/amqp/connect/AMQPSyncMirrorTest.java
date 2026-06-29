@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -34,6 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
@@ -52,6 +58,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -62,9 +69,8 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +84,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
    private ActiveMQServer slowServer;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
@@ -97,7 +103,6 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
    public void testPersistedSendAMQPLarge() throws Exception {
       testPersistedSend("AMQP", false, 200 * 1024);
    }
-
 
    @Test
    public void testPersistedSendCore() throws Exception {
@@ -173,7 +178,8 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
                   logger.warn(e.getMessage(), e);
                }
             }
-            if (recordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL) {
+            if (recordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL ||
+                recordType == JournalRecordIds.ADD_LARGE_MESSAGE) {
                try {
                   countStored.incrementAndGet();
                   if (!transactional) {
@@ -206,15 +212,15 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
          waitForServerToStart(server);
 
          server.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-         server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+         server.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
          Wait.waitFor(() -> slowServer.locateQueue(getQueueName()) != null);
          Queue replicatedQueue = slowServer.locateQueue(getQueueName());
 
          ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + AMQP_PORT);
 
-         if (factory instanceof ActiveMQConnectionFactory) {
-            ((ActiveMQConnectionFactory) factory).getServerLocator().setBlockOnAcknowledge(true);
+         if (factory instanceof ActiveMQConnectionFactory connectionFactory) {
+            connectionFactory.getServerLocator().setBlockOnAcknowledge(true);
          }
 
          Connection connection = factory.createConnection();
@@ -226,14 +232,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
 
          producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         final String bodyMessage;
-         {
-            StringBuffer buffer = new StringBuffer();
-            for (int i = 0; i < messageSize; i++) {
-               buffer.append("large Buffer...");
-            }
-            bodyMessage = buffer.toString();
-         }
+         final String bodyMessage = "large Buffer...".repeat(messageSize);
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             logger.debug("===>>> send message {}", i);
@@ -271,7 +270,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
 
                Wait.assertEquals(i, replicatedQueue::getMessageCount);
 
-               Assert.assertTrue(sendDone.await(10, TimeUnit.SECONDS));
+               assertTrue(sendDone.await(10, TimeUnit.SECONDS));
 
                pool.execute(() -> {
                   try {
@@ -283,10 +282,10 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
                });
             }
 
-            Assert.assertFalse("sendPending.await() not supposed to succeed", sendPending.await(10, TimeUnit.MILLISECONDS));
+            assertFalse(sendPending.await(10, TimeUnit.MILLISECONDS), "sendPending.await() not supposed to succeed");
             logger.debug("semSend.release");
             semSend.release();
-            Assert.assertTrue(sendPending.await(10, TimeUnit.SECONDS));
+            assertTrue(sendPending.await(10, TimeUnit.SECONDS));
             Wait.assertEquals(i + 1, replicatedQueue::getMessageCount);
          }
 
@@ -303,7 +302,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             logger.debug("===<<< Receiving message {}", i);
             Message message = consumer.receive(5000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             semAck.acquire();
 
             CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -326,15 +325,15 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
                // non transactional ack in AMQP is always async. No need to verify anything else here
                logger.debug("non transactional and amqp is always asynchronous. No need to verify anything");
             } else {
-               Assert.assertFalse(countDownLatch.await(10, TimeUnit.MILLISECONDS));
+               assertFalse(countDownLatch.await(10, TimeUnit.MILLISECONDS));
             }
 
             semAck.release();
-            Assert.assertTrue(countDownLatch.await(10, TimeUnit.SECONDS));
+            assertTrue(countDownLatch.await(10, TimeUnit.SECONDS));
             Wait.assertEquals(NUMBER_OF_MESSAGES - i - 1, replicatedQueue::getMessageCount);
          }
 
-         Assert.assertEquals(0, errors.get());
+         assertEquals(0, errors.get());
       } finally {
          semAck.release();
          semSend.release();
@@ -385,6 +384,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
    }
 
    private interface StorageCallback {
+
       void storage(boolean isUpdate,
                    boolean isCommit,
                    long txID,
@@ -424,7 +424,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
                                            Object record,
                                            boolean sync,
                                            IOCompletion callback) throws Exception {
-                  storageCallback.storage(false, false,  -1, id, recordType, persister, record);
+                  storageCallback.storage(false, false, -1, id, recordType, persister, record);
                   super.appendAddRecord(id, recordType, persister, record, sync, callback);
                }
 
@@ -451,7 +451,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
                                               boolean sync,
                                               IOCompletion callback,
                                               boolean lineUpContext) throws Exception {
-                  storageCallback.storage(false, true, txID, txID, (byte)0, null, null);
+                  storageCallback.storage(false, true, txID, txID, (byte) 0, null, null);
                   super.appendCommitRecord(txID, sync, callback, lineUpContext);
                }
 
@@ -471,4 +471,129 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
          }
       };
    }
+
+
+   @Test
+   public void testSimpleACK_TX_AMQP() throws Exception {
+      testSimpleAckSync("AMQP", true, false, 1024);
+   }
+
+   @Test
+   public void testSimpleACK_TX_CORE() throws Exception {
+      testSimpleAckSync("CORE", true, false, 1024);
+   }
+
+   @Test
+   public void testSimpleACK_NoTX_AMQP() throws Exception {
+      testSimpleAckSync("AMQP", false, false, 1024);
+   }
+
+   @Test
+   public void testSimpleACK_NoTX_CORE() throws Exception {
+      testSimpleAckSync("CORE", false, false, 1024);
+   }
+
+   @Test
+   public void testSimpleACK_NoTX_CORE_Large() throws Exception {
+      testSimpleAckSync("CORE", false, false, 255 * 1024);
+   }
+
+   @Test
+   public void testSimpleACK_TX_CORE_Large() throws Exception {
+      testSimpleAckSync("CORE", true, false, 255 * 1024);
+   }
+
+   @Test
+   public void testSimple_Core_Individual_Large() throws Exception {
+      testSimpleAckSync("CORE", false, true, 255 * 1024);
+   }
+
+   @Test
+   public void testSimple_Core_Individual() throws Exception {
+      testSimpleAckSync("CORE", false, true, 1024);
+   }
+
+   public void testSimpleAckSync(final String protocol, final boolean tx, final boolean individualAck, int messageSize) throws Exception {
+      AtomicInteger errors = new AtomicInteger(0);
+
+      final int NUMBER_OF_MESSAGES = 10;
+
+      slowServer = createServerWithCallbackStorage(SLOW_SERVER_PORT, SLOW_SERVER_NAME, (isUpdate, isTX, txId, id, recordType, persister, record) -> {
+      });
+      slowServer.setIdentity("slowServer");
+      server.setIdentity("server");
+
+      ExecutorService pool = Executors.newFixedThreadPool(5);
+      runAfter(pool::shutdown);
+
+      configureMirrorTowardsSlow(server);
+
+      slowServer.getConfiguration().setName("slow");
+      server.getConfiguration().setName("fast");
+      slowServer.start();
+      server.start();
+
+      waitForServerToStart(slowServer);
+      waitForServerToStart(server);
+
+      Wait.waitFor(() -> server.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_mirror") != null, 5000);
+      Queue snf = server.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_mirror");
+      assertNotNull(snf);
+      // Mirror is configured to block, we cannot allow anything other than block
+      assertEquals(AddressFullMessagePolicy.BLOCK, snf.getPagingStore().getAddressFullMessagePolicy());
+
+      server.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
+      server.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+
+      Wait.waitFor(() -> slowServer.locateQueue(getQueueName()) != null);
+      Queue replicatedQueue = slowServer.locateQueue(getQueueName());
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + AMQP_PORT);
+
+      if (factory instanceof ActiveMQConnectionFactory connectionFactory) {
+         connectionFactory.getServerLocator().setBlockOnAcknowledge(true);
+      }
+
+      Connection connection = factory.createConnection();
+      runAfter(connection::close);
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(session.createQueue(getQueueName()));
+
+      connection.start();
+
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+      final String bodyMessage = "large Buffer...".repeat(messageSize);
+
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         int theI = i;
+         TextMessage message = session.createTextMessage(bodyMessage);
+         message.setStringProperty("strProperty", "" + theI);
+         producer.send(message);
+         Wait.assertEquals(i + 1, replicatedQueue::getMessageCount, 5000);
+      }
+
+      Wait.assertEquals(NUMBER_OF_MESSAGES, replicatedQueue::getMessageCount);
+
+      connection.start();
+
+      Session clientSession = connection.createSession(tx, tx ? Session.SESSION_TRANSACTED : (individualAck ? ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE : Session.CLIENT_ACKNOWLEDGE));
+      MessageConsumer consumer = clientSession.createConsumer(clientSession.createQueue(getQueueName()));
+
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         Message message = consumer.receive(5000);
+         assertNotNull(message);
+
+         message.acknowledge();
+
+         if (tx) {
+            clientSession.commit();
+         }
+
+         Wait.assertEquals(NUMBER_OF_MESSAGES - i - 1, replicatedQueue::getMessageCount, 5000);
+      }
+
+      assertEquals(0, errors.get());
+   }
+
 }

@@ -21,6 +21,7 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Assert;
@@ -58,12 +59,15 @@ public class MessageIdList extends Assert implements MessageListener {
    }
 
    @Override
-   public boolean equals(Object that) {
-      if (that instanceof MessageIdList) {
-         MessageIdList thatList = (MessageIdList) that;
-         return getMessageIds().equals(thatList.getMessageIds());
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
       }
-      return false;
+      if (!(obj instanceof MessageIdList other)) {
+         return false;
+      }
+
+      return Objects.equals(getMessageIds(), other.getMessageIds());
    }
 
    @Override
@@ -162,8 +166,6 @@ public class MessageIdList extends Assert implements MessageListener {
    /**
     * Performs a testing assertion that the correct number of messages have
     * been received without waiting
-    *
-    * @param messageCount
     */
    public void assertMessagesReceivedNoWait(int messageCount) {
       assertEquals("expected number of messages when received", messageCount, getMessageCount());
@@ -173,8 +175,6 @@ public class MessageIdList extends Assert implements MessageListener {
     * Performs a testing assertion that the correct number of messages have
     * been received waiting for the messages to arrive up to a fixed amount of
     * time.
-    *
-    * @param messageCount
     */
    public void assertMessagesReceived(int messageCount) {
       waitForMessagesToArrive(messageCount);
@@ -194,8 +194,6 @@ public class MessageIdList extends Assert implements MessageListener {
    /**
     * Asserts that there are at most the number of messages received without
     * waiting
-    *
-    * @param messageCount
     */
    public void assertAtMostMessagesReceived(int messageCount) {
       int actual = getMessageCount();
@@ -251,8 +249,6 @@ public class MessageIdList extends Assert implements MessageListener {
    /**
     * Gets the amount of time the message listener will spend sleeping to
     * simulate a processing delay.
-    *
-    * @return
     */
    public long getProcessingDelay() {
       return processingDelay;
@@ -261,8 +257,6 @@ public class MessageIdList extends Assert implements MessageListener {
    /**
     * Sets the amount of time the message listener will spend sleeping to
     * simulate a processing delay.
-    *
-    * @param processingDelay
     */
    public void setProcessingDelay(long processingDelay) {
       this.processingDelay = processingDelay;

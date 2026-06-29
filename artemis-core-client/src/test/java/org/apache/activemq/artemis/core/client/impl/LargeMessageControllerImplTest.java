@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.core.client.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
@@ -24,8 +27,8 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +37,8 @@ public class LargeMessageControllerImplTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 10_000)
+   @Test
+   @Timeout(10)
    public void testControllerTimeout() throws Exception {
 
       ClientConsumerInternal consumerMock = Mockito.mock(ClientConsumerInternal.class);
@@ -64,13 +68,13 @@ public class LargeMessageControllerImplTest {
          exceptionCounter++;
       }
 
-      Assert.assertEquals(1, exceptionCounter);
+      assertEquals(1, exceptionCounter);
 
       largeMessageController.addPacket(createBytes(900, filling), 1000, false);
 
-      Assert.assertTrue(largeMessageController.waitCompletion(0));
-      Assert.assertEquals(1000, bytesWritten.get());
-      Assert.assertEquals(0, errors.get());
+      assertTrue(largeMessageController.waitCompletion(0));
+      assertEquals(1000, bytesWritten.get());
+      assertEquals(0, errors.get());
    }
 
    byte[] createBytes(int size, byte fill) {

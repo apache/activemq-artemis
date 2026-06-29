@@ -47,16 +47,11 @@ public class PagedMessageImpl implements PagedMessage {
       private static final byte NOT_CORE = 2;
 
       public static boolean isLargeMessage(byte encodedValue) {
-         switch (encodedValue) {
-            case LargeMessageType.NONE:
-               return false;
-            case LargeMessageType.CORE:
-            case LargeMessageType.OLD_CORE:
-            case LargeMessageType.NOT_CORE:
-               return true;
-            default:
-               throw new IllegalStateException("This largeMessageType isn't supported: " + encodedValue);
-         }
+         return switch (encodedValue) {
+            case LargeMessageType.NONE -> false;
+            case LargeMessageType.CORE, LargeMessageType.OLD_CORE, LargeMessageType.NOT_CORE -> true;
+            default -> throw new IllegalStateException("This largeMessageType isn't supported: " + encodedValue);
+         };
       }
 
       public static boolean isCoreLargeMessage(Message message) {
@@ -78,9 +73,9 @@ public class PagedMessageImpl implements PagedMessage {
          return NOT_CORE;
       }
    }
+
    /**
-    * Large messages will need to be instantiated lazily during getMessage when the StorageManager
-    * is available
+    * Large messages will need to be instantiated lazily during getMessage when the StorageManager is available
     */
    private byte[] largeMessageLazyData;
 
@@ -107,6 +102,7 @@ public class PagedMessageImpl implements PagedMessage {
       this.storageManager = null;
       this.queueIDs = queueIDs;
       this.message = message;
+      this.message.setPaged();
       this.storedSize = 0;
       checkLargeMessage();
    }
@@ -161,7 +157,7 @@ public class PagedMessageImpl implements PagedMessage {
    @Override
    public void initMessage(StorageManager storage) {
       if (largeMessageLazyData != null) {
-         LargeServerMessage lgMessage = storage.createLargeMessage();
+         LargeServerMessage lgMessage = storage.createCoreLargeMessage();
 
          ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(largeMessageLazyData);
          lgMessage = LargeMessagePersister.getInstance().decode(buffer, lgMessage, null);
@@ -171,11 +167,12 @@ public class PagedMessageImpl implements PagedMessage {
          lgMessage.toMessage().usageUp();
          lgMessage.setPaged();
          this.message = lgMessage.toMessage();
+         this.message.setPaged();
          largeMessageLazyData = null;
          checkLargeMessage();
       } else {
-         if (message != null && message instanceof LargeServerMessage) {
-            ((LargeServerMessage)message).setStorageManager(storageManager);
+         if (message != null && message instanceof LargeServerMessage largeServerMessage) {
+            largeServerMessage.setStorageManager(storageManager);
          }
       }
    }
@@ -213,7 +210,8 @@ public class PagedMessageImpl implements PagedMessage {
             largeMessageLazyData = new byte[largeMessageHeaderSize];
             buffer.readBytes(largeMessageLazyData);
          } else {
-            this.message = storageManager.createLargeMessage().toMessage();
+            this.message = storageManager.createCoreLargeMessage().toMessage();
+            this.message.setPaged();
             LargeMessagePersister.getInstance().decode(buffer, (LargeServerMessage) message, null);
             ((LargeServerMessage) message).setStorageManager(storageManager);
             ((LargeServerMessage) message).toMessage().usageUp();

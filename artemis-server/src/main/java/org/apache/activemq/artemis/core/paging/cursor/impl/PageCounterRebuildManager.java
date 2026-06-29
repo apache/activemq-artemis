@@ -39,10 +39,13 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 
-/** this class will copy current data from the Subscriptions, count messages while the server is already active
- * performing other activity */
+/**
+ * this class will copy current data from the Subscriptions, count messages while the server is already active
+ * performing other activity
+ */
 public class PageCounterRebuildManager implements Runnable {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -58,7 +61,7 @@ public class PageCounterRebuildManager implements Runnable {
    private final Set<Long> storedLargeMessages;
 
 
-   public PageCounterRebuildManager(PagingManager pagingManager, PagingStore store, Map<Long, PageTransactionInfo> transactions, Set<Long> storedLargeMessages) {
+   public PageCounterRebuildManager(PagingManager pagingManager, PagingStore store, Map<Long, PageTransactionInfo> transactions, Set<Long> storedLargeMessages, AtomicLong minPageTXIDFound) {
       // we make a copy of the data because we are allowing data to influx. We will consolidate the values at the end
       initialize(store);
       this.pagingManager = pagingManager;
@@ -67,15 +70,18 @@ public class PageCounterRebuildManager implements Runnable {
       this.transactions = transactions;
       this.storedLargeMessages = storedLargeMessages;
    }
-   /** this method will perform the copy from Acked recorded from the subscription into a separate data structure.
-    * So we can count data while we consolidate at the end */
+
+   /**
+    * this method will perform the copy from Acked recorded from the subscription into a separate data structure. So we
+    * can count data while we consolidate at the end
+    */
    private void initialize(PagingStore store) {
-      store.lock(-1);
+      store.writeLock();
       try {
          try {
-            paging = store.isPaging();
+            paging = store.isStorePaging();
             if (!paging) {
-               logger.debug("Destination {} was not paging, no need to rebuild counters");
+               logger.trace("Destination {} was not paging, no need to rebuild counters", store.getAddress());
                store.getCursorProvider().forEachSubscription(subscription -> {
                   subscription.getCounter().markRebuilding();
                   subscription.getCounter().finishRebuild();
@@ -88,8 +94,8 @@ public class PageCounterRebuildManager implements Runnable {
             Page currentPage = store.getCurrentPage();
             limitPageId = store.getCurrentWritingPage();
             limitMessageNr = currentPage.getNumberOfMessages();
-            if (logger.isDebugEnabled()) {
-               logger.debug("PageCounterRebuild for {}, Current writing page {} and limit will be {} with lastMessage on last page={}", store.getStoreName(), store.getCurrentWritingPage(), limitPageId, limitMessageNr);
+            if (logger.isTraceEnabled()) {
+               logger.trace("PageCounterRebuild for {}, Current writing page {} and limit will be {} with lastMessage on last page={}", store.getStoreName(), store.getCurrentWritingPage(), limitPageId, limitMessageNr);
             }
          } catch (Exception e) {
             logger.warn(e.getMessage(), e);
@@ -133,18 +139,10 @@ public class PageCounterRebuildManager implements Runnable {
             });
          });
       } finally {
-         store.unlock();
+         store.writeUnlock();
       }
    }
 
-   private synchronized PageSubscriptionCounter getCounter(long queueID) {
-      CopiedSubscription copiedSubscription = copiedSubscriptionMap.get(queueID);
-      if (copiedSubscription != null) {
-         return copiedSubscription.subscriptionCounter;
-      } else {
-         return null;
-      }
-   }
 
    private CopiedSubscription getSubscription(long queueID) {
       return copiedSubscriptionMap.get(queueID);
@@ -196,25 +194,26 @@ public class PageCounterRebuildManager implements Runnable {
 
    public void rebuild() throws Exception {
       if (pgStore == null) {
-         logger.debug("Page store is null during rebuildCounters");
+         logger.trace("Page store is null during rebuildCounters");
          return;
       }
 
       if (!paging) {
-         logger.debug("Ignoring call to rebuild pgStore {}", pgStore.getAddress());
+         logger.trace("Ignoring call to rebuild pgStore {}", pgStore.getAddress());
       }
 
-      logger.debug("Rebuilding counter for store {}", pgStore.getAddress());
+      logger.debug("Rebuilding page counter for address {}", pgStore.getAddress());
 
       for (long pgid = pgStore.getFirstPage(); pgid <= limitPageId; pgid++) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Rebuilding counter on messages from page {} on rebuildCounters for address {}", pgid, pgStore.getAddress());
+         if (logger.isTraceEnabled()) {
+            logger.trace("Rebuilding counter on messages from page {} on rebuildCounters for address {}", pgid, pgStore.getAddress());
          }
+         logger.debug("{} reading paging {} of {}", pgStore.getAddress(), pgid, limitPageId);
          Page page = pgStore.newPageObject(pgid);
 
          if (!page.getFile().exists()) {
             if (logger.isDebugEnabled()) {
-               logger.debug("Skipping page {} on store {}", pgid, pgStore.getAddress());
+               logger.trace("Skipping page {} on store {}", pgid, pgStore.getAddress());
             }
             continue;
          }
@@ -227,14 +226,14 @@ public class PageCounterRebuildManager implements Runnable {
                PagedMessage msg = iter.next();
                if (storedLargeMessages != null && msg.getMessage().isLargeMessage()) {
                   if (logger.isDebugEnabled()) {
-                     logger.debug("removing storedLargeMessage {}", msg.getMessage().getMessageID());
+                     logger.trace("removing storedLargeMessage {}", msg.getMessage().getMessageID());
                   }
                   storedLargeMessages.remove(msg.getMessage().getMessageID());
                }
                if (limitPageId == pgid) {
                   if (msg.getMessageNumber() >= limitMessageNr) {
                      if (logger.isDebugEnabled()) {
-                        logger.debug("Rebuild counting on {} reached the last message at {}-{}", pgStore.getAddress(), limitPageId, limitMessageNr);
+                        logger.trace("Rebuild counting on {} reached the last message at {}-{}", pgStore.getAddress(), limitPageId, limitMessageNr);
                      }
                      // this is the limit where we should count..
                      // anything beyond this will be new data
@@ -252,6 +251,9 @@ public class PageCounterRebuildManager implements Runnable {
 
                if (msg.getTransactionID() > 0) {
                   txInfo = transactions.get(msg.getTransactionID());
+                  if (txInfo != null) {
+                     txInfo.setOrphaned(false);
+                  }
                }
 
                Transaction preparedTX = txInfo == null ? null : txInfo.getPreparedTransaction();
@@ -286,7 +288,7 @@ public class PageCounterRebuildManager implements Runnable {
                      boolean txIncluded = msg.getTransactionID() <= 0 || transactions == null || txInfo != null;
 
                      if (!txIncluded) {
-                        logger.debug("TX is not included for {}", msg);
+                        logger.trace("TX is not included for {}", msg);
                      }
 
                      if (ok && txIncluded) { // not acked and TX is ok

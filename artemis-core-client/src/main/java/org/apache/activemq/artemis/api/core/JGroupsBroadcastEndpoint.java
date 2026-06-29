@@ -27,7 +27,7 @@ import java.lang.invoke.MethodHandles;
 import org.jgroups.JChannel;
 
 /**
- * This class is the implementation of ActiveMQ Artemis members discovery that will use JGroups.
+ * This class is the implementation of Apache Artemis members discovery that will use JGroups.
  */
 public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
 
@@ -96,6 +96,9 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
       if (clientOpened) {
          return;
       }
+      if (channel.getChannel() == null || channel.getChannel().isClosed()) {
+         initChannel();
+      }
       internalOpen();
       receiver = new JGroupsReceiver();
       channel.addReceiver(receiver);
@@ -104,8 +107,9 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
 
    @Override
    public synchronized void openBroadcaster() throws Exception {
-      if (broadcastOpened)
+      if (broadcastOpened) {
          return;
+      }
       internalOpen();
       broadcastOpened = true;
    }
@@ -133,10 +137,8 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
    }
 
    /**
-    * Closes the channel used in this JGroups Broadcast.
-    * Can be overridden by implementations that use an externally managed channel.
-    *
-    * @param channel
+    * Closes the channel used in this JGroups Broadcast. Can be overridden by implementations that use an externally
+    * managed channel.
     */
    protected synchronized void internalCloseChannel(JChannelWrapper channel) {
       channel.close(true);

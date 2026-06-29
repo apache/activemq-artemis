@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -24,6 +28,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.xml.parsers.DocumentBuilder;
 import java.net.URI;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -32,11 +37,25 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.junit.Test;
+import org.apache.activemq.filter.XPathExpression;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JMSXPathSelectorTest extends MultiprotocolJMSClientTestSupport {
 
    private static final String NORMAL_QUEUE_NAME = "NORMAL";
+
+   @BeforeEach
+   @Override
+   public void setUp() throws Exception {
+      super.setUp();
+
+      // Set dummy XPathEvaluator to avoid activemq-broker dependency.
+      // OpenWire JMS client initializes it to parse XPATH selectors,
+      // but the actual evaluation happens server-side.
+      System.setProperty("org.apache.activemq.XPathEvaluatorClassName",
+         DummyXPathEvaluator.class.getName());
+   }
 
    @Override
    protected URI getBrokerQpidJMSConnectionURI() {
@@ -58,8 +77,8 @@ public class JMSXPathSelectorTest extends MultiprotocolJMSClientTestSupport {
       super.createAddressAndQueues(server);
 
       //Add Standard Queue
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(NORMAL_QUEUE_NAME), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(NORMAL_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(NORMAL_QUEUE_NAME), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(NORMAL_QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Test
@@ -148,6 +167,17 @@ public class JMSXPathSelectorTest extends MultiprotocolJMSClientTestSupport {
          TextMessage message2 = producerSession.createTextMessage();
          message2.setText(goodBody);
          p.send(queue1, message2, deliveryMode, priority, timeToLive);
+      }
+   }
+
+   protected static class DummyXPathEvaluator implements XPathExpression.XPathEvaluator {
+      public DummyXPathEvaluator(String xpathExpression, DocumentBuilder builder) {
+      }
+
+      @Override
+      public boolean evaluate(org.apache.activemq.command.Message message) {
+         assert false : "DummyXPathEvaluator.evaluate() should never be called";
+         return false;
       }
    }
 }

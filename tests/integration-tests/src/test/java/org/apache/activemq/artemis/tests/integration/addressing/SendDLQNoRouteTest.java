@@ -26,32 +26,32 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class SendDLQNoRouteTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private ClientSessionFactory sessionFactory;
-
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
       server = createServer(true);
       server.start();
    }
 
 
-   @Test(timeout = 20_000)
+   @Test
+   @Timeout(20)
    public void testDLQNoRoute() throws Exception {
       AddressSettings addressSettings = new AddressSettings().setSendToDLAOnNoRoute(true);
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString("DLA"));
+      addressSettings.setDeadLetterAddress(SimpleString.of("DLA"));
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
 
-      AddressInfo info = new AddressInfo(SimpleString.toSimpleString("info")).addRoutingType(RoutingType.MULTICAST);
+      AddressInfo info = new AddressInfo(SimpleString.of("info")).addRoutingType(RoutingType.MULTICAST);
       server.addAddressInfo(info);
 
-      AddressInfo dla = new AddressInfo(SimpleString.toSimpleString("DLA")).addRoutingType(RoutingType.MULTICAST);
+      AddressInfo dla = new AddressInfo(SimpleString.of("DLA")).addRoutingType(RoutingType.MULTICAST);
       server.addAddressInfo(dla);
 
 

@@ -20,10 +20,10 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteHandler;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteServerConnect;
-import org.apache.activemq.artemis.core.server.cluster.qourum.ServerConnectVote;
-import org.apache.activemq.artemis.core.server.cluster.qourum.Vote;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumVoteHandler;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumVoteServerConnect;
+import org.apache.activemq.artemis.core.server.cluster.quorum.ServerConnectVote;
+import org.apache.activemq.artemis.core.server.cluster.quorum.Vote;
 
 public class ServerConnectVoteHandler implements QuorumVoteHandler {
    private final ActiveMQServerImpl server;
@@ -39,9 +39,9 @@ public class ServerConnectVoteHandler implements QuorumVoteHandler {
       try {
          TopologyMemberImpl member = server.getClusterManager().getDefaultConnection(null).getTopology().getMember(nodeid);
 
-         if (member != null && member.getLive() != null) {
+         if (member != null && member.getPrimary() != null) {
             ActiveMQServerLogger.LOGGER.nodeFoundInClusterTopology(nodeid);
-            return new ServerConnectVote(nodeid, (Boolean) vote.getVote(), member.getLive().toString());
+            return new ServerConnectVote(nodeid, (Boolean) vote.getVote(), member.getPrimary().toString());
          }
          ActiveMQServerLogger.LOGGER.nodeNotFoundInClusterTopology(nodeid);
       } catch (Exception e) {
@@ -52,7 +52,7 @@ public class ServerConnectVoteHandler implements QuorumVoteHandler {
 
    @Override
    public SimpleString getQuorumName() {
-      return QuorumVoteServerConnect.LIVE_FAILOVER_VOTE;
+      return QuorumVoteServerConnect.PRIMARY_FAILOVER_VOTE;
    }
 
    @Override

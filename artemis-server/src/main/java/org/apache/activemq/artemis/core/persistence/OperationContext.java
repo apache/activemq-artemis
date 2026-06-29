@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.persistence;
 
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 
 /**
@@ -27,19 +28,13 @@ import org.apache.activemq.artemis.core.journal.IOCompletion;
 public interface OperationContext extends IOCompletion {
 
    /**
-    * Execute the task when all IO operations are complete,
-    * Or execute it immediately if nothing is pending.
-    *
-    * @param runnable  the tas to be executed.
-    * @param storeOnly There are tasks that won't need to wait on replication or paging and will need to
-    *                  be completed as soon as the response from the journal is received. An example would be the
-    *                  DuplicateCache
+    * Execute the task when all IO operations are complete, Or execute it immediately if nothing is pending. Notice it's
+    * possible to pass a consistencyLevel to what should be waited before completing the operation.
     */
-   void executeOnCompletion(IOCallback runnable, boolean storeOnly);
+   void executeOnCompletion(IOCallback runnable, OperationConsistencyLevel consistencyLevel);
 
    /**
-    * Execute the task when all IO operations are complete,
-    * Or execute it immediately if nothing is pending.
+    * Execute the task when all IO operations are complete, Or execute it immediately if nothing is pending.
     *
     * @param runnable the tas to be executed.
     */
@@ -56,13 +51,14 @@ public interface OperationContext extends IOCompletion {
    void waitCompletion() throws Exception;
 
    /**
-    * @param timeout in milliseconds
-    * @return
-    * @throws Exception
+    * Wait for the completion of this operation.
+    *
+    * @param timeout how long to wait in milliseconds
+    * @return {@code true} if the operation completed within the specified timeout; {@code false} if not
     */
    boolean waitCompletion(long timeout) throws Exception;
 
-   default void clear() {
+   default void reset() {
 
    }
 }

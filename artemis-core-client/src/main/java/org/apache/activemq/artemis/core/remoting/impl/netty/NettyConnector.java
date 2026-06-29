@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.NETTY_HTTP_HEADER_PREFIX;
+
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -170,8 +172,10 @@ public class NettyConnector extends AbstractConnector {
    public static final Map<String, Object> DEFAULT_CONFIG;
 
    static {
-      // Disable resource leak detection for performance reasons by default
-      ResourceLeakDetector.setLevel(Level.DISABLED);
+      // Disable default Netty leak detection if the Netty leak detection level system properties are not in use
+      if (System.getProperty("io.netty.leakDetectionLevel") == null && System.getProperty("io.netty.leakDetection.level") == null) {
+         ResourceLeakDetector.setLevel(Level.DISABLED);
+      }
 
       // Set default Configuration
       Map<String, Object> config = new HashMap<>();
@@ -196,10 +200,6 @@ public class NettyConnector extends AbstractConnector {
 
    private boolean httpEnabled;
 
-   private long httpMaxClientIdleTime;
-
-   private long httpClientIdleScanPeriod;
-
    private boolean httpRequiresSessionId;
 
    // if true, after the connection, the connector will send
@@ -207,19 +207,19 @@ public class NettyConnector extends AbstractConnector {
    // will be handled by the server's http server.
    private boolean httpUpgradeEnabled;
 
-   private boolean proxyEnabled;
+   private boolean socksEnabled;
 
-   private String proxyHost;
+   private String socksHost;
 
-   private int proxyPort;
+   private int socksPort;
 
-   private SocksVersion proxyVersion;
+   private SocksVersion socksVersion;
 
-   private String proxyUsername;
+   private String socksUsername;
 
-   private String proxyPassword;
+   private String socksPassword;
 
-   private boolean proxyRemoteDNS;
+   private boolean socksRemoteDNS;
 
    private boolean useServlet;
 
@@ -241,6 +241,8 @@ public class NettyConnector extends AbstractConnector {
 
    private String keyStorePassword;
 
+   private String keyPassword;
+
    private String keyStoreAlias;
 
    private String trustStoreProvider;
@@ -252,6 +254,10 @@ public class NettyConnector extends AbstractConnector {
    private String trustStorePassword;
 
    private String crlPath;
+
+   private String crcOptions;
+
+   private String ocspResponderURL;
 
    private String enabledCipherSuites;
 
@@ -309,6 +315,8 @@ public class NettyConnector extends AbstractConnector {
 
    private final ClientProtocolManager protocolManager;
 
+   private final Map<String, String> httpHeaders;
+
    public NettyConnector(final Map<String, Object> configuration,
                          final BufferHandler handler,
                          final BaseConnectionLifeCycleListener<?> listener,
@@ -358,29 +366,32 @@ public class NettyConnector extends AbstractConnector {
       httpEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_ENABLED_PROP_NAME, TransportConstants.DEFAULT_HTTP_ENABLED, configuration);
       servletPath = ConfigurationHelper.getStringProperty(TransportConstants.SERVLET_PATH, TransportConstants.DEFAULT_SERVLET_PATH, configuration);
       if (httpEnabled) {
-         httpMaxClientIdleTime = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME, TransportConstants.DEFAULT_HTTP_CLIENT_IDLE_TIME, configuration);
-         httpClientIdleScanPeriod = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_CLIENT_IDLE_SCAN_PERIOD, TransportConstants.DEFAULT_HTTP_CLIENT_SCAN_PERIOD, configuration);
          httpRequiresSessionId = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_REQUIRES_SESSION_ID, TransportConstants.DEFAULT_HTTP_REQUIRES_SESSION_ID, configuration);
+         httpHeaders = new HashMap<>();
+         for (Map.Entry<String, Object> header : configuration.entrySet()) {
+            if (header.getKey().startsWith(NETTY_HTTP_HEADER_PREFIX)) {
+               httpHeaders.put(header.getKey().substring(NETTY_HTTP_HEADER_PREFIX.length()), header.getValue().toString());
+            }
+         }
       } else {
-         httpMaxClientIdleTime = 0;
-         httpClientIdleScanPeriod = -1;
          httpRequiresSessionId = false;
+         httpHeaders = Collections.emptyMap();
       }
 
       httpUpgradeEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, TransportConstants.DEFAULT_HTTP_UPGRADE_ENABLED, configuration);
 
-      proxyEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.PROXY_ENABLED_PROP_NAME, TransportConstants.DEFAULT_PROXY_ENABLED, configuration);
-      if (proxyEnabled) {
-         proxyHost = ConfigurationHelper.getStringProperty(TransportConstants.PROXY_HOST_PROP_NAME, TransportConstants.DEFAULT_PROXY_HOST, configuration);
-         proxyPort = ConfigurationHelper.getIntProperty(TransportConstants.PROXY_PORT_PROP_NAME, TransportConstants.DEFAULT_PROXY_PORT, configuration);
+      socksEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SOCKS_ENABLED_PROP_NAME, TransportConstants.DEFAULT_SOCKS_ENABLED, configuration);
+      if (socksEnabled) {
+         socksHost = ConfigurationHelper.getStringProperty(TransportConstants.SOCKS_HOST_PROP_NAME, TransportConstants.DEFAULT_SOCKS_HOST, configuration);
+         socksPort = ConfigurationHelper.getIntProperty(TransportConstants.SOCKS_PORT_PROP_NAME, TransportConstants.DEFAULT_SOCKS_PORT, configuration);
 
-         int socksVersionNumber = ConfigurationHelper.getIntProperty(TransportConstants.PROXY_VERSION_PROP_NAME, TransportConstants.DEFAULT_PROXY_VERSION, configuration);
-         proxyVersion = SocksVersion.valueOf((byte) socksVersionNumber);
+         int socksVersionNumber = ConfigurationHelper.getIntProperty(TransportConstants.SOCKS_VERSION_PROP_NAME, TransportConstants.DEFAULT_SOCKS_VERSION, configuration);
+         socksVersion = SocksVersion.valueOf((byte) socksVersionNumber);
 
-         proxyUsername = ConfigurationHelper.getStringProperty(TransportConstants.PROXY_USERNAME_PROP_NAME, TransportConstants.DEFAULT_PROXY_USERNAME, configuration);
-         proxyPassword = ConfigurationHelper.getStringProperty(TransportConstants.PROXY_PASSWORD_PROP_NAME, TransportConstants.DEFAULT_PROXY_PASSWORD, configuration);
+         socksUsername = ConfigurationHelper.getStringProperty(TransportConstants.SOCKS_USERNAME_PROP_NAME, TransportConstants.DEFAULT_SOCKS_USERNAME, configuration);
+         socksPassword = ConfigurationHelper.getStringProperty(TransportConstants.SOCKS_PASSWORD_PROP_NAME, TransportConstants.DEFAULT_SOCKS_PASSWORD, configuration);
 
-         proxyRemoteDNS = ConfigurationHelper.getBooleanProperty(TransportConstants.PROXY_REMOTE_DNS_PROP_NAME, TransportConstants.DEFAULT_PROXY_REMOTE_DNS, configuration);
+         socksRemoteDNS = ConfigurationHelper.getBooleanProperty(TransportConstants.SOCKS_REMOTE_DNS_PROP_NAME, TransportConstants.SOCKS_PROXY_REMOTE_DNS, configuration);
       }
 
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
@@ -408,6 +419,8 @@ public class NettyConnector extends AbstractConnector {
          keyStorePath = ConfigurationHelper.getStringProperty(TransportConstants.KEYSTORE_PATH_PROP_NAME, TransportConstants.DEFAULT_KEYSTORE_PATH, configuration);
 
          keyStorePassword = ConfigurationHelper.getPasswordProperty(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, TransportConstants.DEFAULT_KEYSTORE_PASSWORD, configuration, ActiveMQDefaultConfiguration.getPropMaskPassword(), ActiveMQDefaultConfiguration.getPropPasswordCodec());
+
+         keyPassword = ConfigurationHelper.getPasswordProperty(TransportConstants.KEY_PASSWORD_PROP_NAME, TransportConstants.DEFAULT_KEY_PASSWORD, configuration, ActiveMQDefaultConfiguration.getPropMaskPassword(), ActiveMQDefaultConfiguration.getPropPasswordCodec());
 
          keyStoreAlias = ConfigurationHelper.getStringProperty(TransportConstants.KEYSTORE_ALIAS_PROP_NAME, TransportConstants.DEFAULT_KEYSTORE_ALIAS, configuration);
 
@@ -438,12 +451,19 @@ public class NettyConnector extends AbstractConnector {
          useDefaultSslContext = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME, TransportConstants.DEFAULT_USE_DEFAULT_SSL_CONTEXT, configuration);
 
          trustManagerFactoryPlugin = ConfigurationHelper.getStringProperty(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME, TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN, configuration);
+
+         crcOptions = ConfigurationHelper.getStringProperty(TransportConstants.CRC_OPTIONS_PROP_NAME, TransportConstants.DEFAULT_CRC_OPTIONS, configuration);
+
+         ocspResponderURL = ConfigurationHelper.getStringProperty(TransportConstants.OCSP_RESPONDER_URL_PROP_NAME, TransportConstants.DEFAULT_OCSP_RESPONDER_URL, configuration);
       } else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStoreType = TransportConstants.DEFAULT_KEYSTORE_TYPE;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
          keyStorePassword = TransportConstants.DEFAULT_KEYSTORE_PASSWORD;
+         keyPassword = TransportConstants.DEFAULT_KEY_PASSWORD;
          keyStoreAlias = TransportConstants.DEFAULT_KEYSTORE_ALIAS;
+         crcOptions = TransportConstants.DEFAULT_CRC_OPTIONS;
+         ocspResponderURL = TransportConstants.DEFAULT_OCSP_RESPONDER_URL;
          passwordCodecClass = TransportConstants.DEFAULT_PASSWORD_CODEC_CLASS;
          trustStoreProvider = TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER;
          trustStoreType = TransportConstants.DEFAULT_TRUSTSTORE_TYPE;
@@ -507,6 +527,14 @@ public class NettyConnector extends AbstractConnector {
       String serverName = ConfigurationHelper.getStringProperty(TransportConstants.ACTIVEMQ_SERVER_NAME, null, configuration);
       String acceptor = ConfigurationHelper.getStringProperty(TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME, null, configuration);
       return ", activemqServerName=" + serverName + ", httpUpgradeEndpoint=" + acceptor;
+   }
+
+   public String getCrcOptions() {
+      return crcOptions;
+   }
+
+   public String getOcspResponderURL() {
+      return ocspResponderURL;
    }
 
    @Override
@@ -581,6 +609,7 @@ public class NettyConnector extends AbstractConnector {
       final String realKeyStoreProvider;
       final String realKeyStoreType;
       final String realKeyStorePassword;
+      final String realKeyPassword;
       final String realKeyStoreAlias;
       final String realTrustStorePath;
       final String realTrustStoreProvider;
@@ -593,6 +622,7 @@ public class NettyConnector extends AbstractConnector {
             realKeyStoreProvider = keyStoreProvider;
             realKeyStoreType = keyStoreType;
             realKeyStorePassword = keyStorePassword;
+            realKeyPassword = keyPassword;
             realKeyStoreAlias = keyStoreAlias;
             realTrustStorePath = trustStorePath;
             realTrustStoreProvider = trustStoreProvider;
@@ -607,6 +637,7 @@ public class NettyConnector extends AbstractConnector {
                tempKeyStorePassword = processSslPasswordProperty(tempKeyStorePassword, tempPasswordCodecClass);
             }
             realKeyStorePassword = tempKeyStorePassword;
+            realKeyPassword = keyPassword;
             realKeyStoreAlias = keyStoreAlias;
 
             Pair<String, String> keyStoreCompat = SSLSupport.getValidProviderAndType(Stream.of(System.getProperty(ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME), System.getProperty(JAVAX_KEYSTORE_PROVIDER_PROP_NAME), keyStoreProvider).map(v -> useDefaultSslContext ? keyStoreProvider : v).filter(Objects::nonNull).findFirst().orElse(null),
@@ -631,6 +662,7 @@ public class NettyConnector extends AbstractConnector {
          realKeyStoreProvider = null;
          realKeyStoreType = null;
          realKeyStorePassword = null;
+         realKeyPassword = null;
          realKeyStoreAlias = null;
          realTrustStorePath = null;
          realTrustStoreProvider = null;
@@ -638,30 +670,24 @@ public class NettyConnector extends AbstractConnector {
          realTrustStorePassword = null;
       }
 
-      bootstrap.handler(new ChannelInitializer<Channel>() {
+      bootstrap.handler(new ChannelInitializer<>() {
          @Override
          public void initChannel(Channel channel) throws Exception {
             final ChannelPipeline pipeline = channel.pipeline();
 
-            if (proxyEnabled && (proxyRemoteDNS || !isTargetLocalHost())) {
-               InetSocketAddress proxyAddress = new InetSocketAddress(proxyHost, proxyPort);
-               ProxyHandler proxyHandler;
-               switch (proxyVersion) {
-                  case SOCKS5:
-                     proxyHandler = new Socks5ProxyHandler(proxyAddress, proxyUsername, proxyPassword);
-                     break;
-                  case SOCKS4a:
-                     proxyHandler = new Socks4ProxyHandler(proxyAddress, proxyUsername);
-                     break;
-                  default:
-                     throw new IllegalArgumentException("Unknown SOCKS proxy version");
-               }
+            if (socksEnabled && (socksRemoteDNS || !isTargetLocalHost())) {
+               InetSocketAddress proxyAddress = new InetSocketAddress(socksHost, socksPort);
+               ProxyHandler proxyHandler = switch (socksVersion) {
+                  case SOCKS5 -> new Socks5ProxyHandler(proxyAddress, socksUsername, socksPassword);
+                  case SOCKS4a -> new Socks4ProxyHandler(proxyAddress, socksUsername);
+                  default -> throw new IllegalArgumentException("Unknown SOCKS proxy version");
+               };
 
                channel.pipeline().addLast(proxyHandler);
 
-               logger.debug("Using a SOCKS proxy at {}:{}", proxyHost, proxyPort);
+               logger.debug("Using a SOCKS proxy at {}:{}", socksHost, socksPort);
 
-               if (proxyRemoteDNS) {
+               if (socksRemoteDNS) {
                   bootstrap.resolver(NoopAddressResolverGroup.INSTANCE);
                }
             }
@@ -673,6 +699,7 @@ public class NettyConnector extends AbstractConnector {
                   .keystorePath(realKeyStorePath)
                   .keystoreType(realKeyStoreType)
                   .keystorePassword(realKeyStorePassword)
+                  .keyPassword(realKeyPassword)
                   .keystoreAlias(realKeyStoreAlias)
                   .truststoreProvider(realTrustStoreProvider)
                   .truststorePath(realTrustStorePath)
@@ -681,6 +708,8 @@ public class NettyConnector extends AbstractConnector {
                   .trustManagerFactoryPlugin(trustManagerFactoryPlugin)
                   .crlPath(crlPath)
                   .trustAll(trustAll)
+                  .crcOptions(crcOptions)
+                  .ocspResponderURL(ocspResponderURL)
                   .build();
 
                final SSLEngine engine;
@@ -743,7 +772,7 @@ public class NettyConnector extends AbstractConnector {
 
                pipeline.addLast(new HttpObjectAggregator(Integer.MAX_VALUE));
 
-               pipeline.addLast(new HttpHandler());
+               pipeline.addLast(new HttpHandler(httpHeaders));
             }
 
             if (httpUpgradeEnabled) {
@@ -832,7 +861,7 @@ public class NettyConnector extends AbstractConnector {
       channelClazz = null;
 
       for (Connection connection : connections.values()) {
-         listener.connectionDestroyed(connection.getID());
+         listener.connectionDestroyed(connection.getID(), false);
       }
 
       connections.clear();
@@ -851,8 +880,9 @@ public class NettyConnector extends AbstractConnector {
    /**
     * Create and return a connection from this connector.
     * <p>
-    * This method must NOT throw an exception if it fails to create the connection
-    * (e.g. network is not available), in this case it MUST return null.<br>
+    * This method must NOT throw an exception if it fails to create the connection (e.g. network is not available), in
+    * this case it MUST return null.
+    * <p>
     * This version can be used for testing purposes.
     *
     * @param onConnect a callback that would be called right after {@link Bootstrap#connect()}
@@ -868,7 +898,7 @@ public class NettyConnector extends AbstractConnector {
 
    public NettyConnection createConnection(Consumer<ChannelFuture> onConnect, String host, int port) {
       InetSocketAddress remoteDestination;
-      if (proxyEnabled && proxyRemoteDNS) {
+      if (socksEnabled && socksRemoteDNS) {
          remoteDestination = InetSocketAddress.createUnresolved(IPV6Util.stripBracketsAndZoneID(host), port);
       } else {
          remoteDestination = new InetSocketAddress(IPV6Util.stripBracketsAndZoneID(host), port);
@@ -1042,10 +1072,9 @@ public class NettyConnector extends AbstractConnector {
       public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
          logger.debug("Received msg={}", msg);
 
-         if (msg instanceof HttpResponse) {
-            HttpResponse response = (HttpResponse) msg;
-            if (response.status().code() == HttpResponseStatus.SWITCHING_PROTOCOLS.code() && response.headers().get(HttpHeaderNames.UPGRADE).equals(ACTIVEMQ_REMOTING)) {
-               String accept = response.headers().get(SEC_ACTIVEMQ_REMOTING_ACCEPT);
+         if (msg instanceof HttpResponse httpResponse) {
+            if (httpResponse.status().code() == HttpResponseStatus.SWITCHING_PROTOCOLS.code() && httpResponse.headers().get(HttpHeaderNames.UPGRADE).equals(ACTIVEMQ_REMOTING)) {
+               String accept = httpResponse.headers().get(SEC_ACTIVEMQ_REMOTING_ACCEPT);
                String expectedResponse = createExpectedResponse(MAGIC_NUMBER, ctx.channel().attr(REMOTING_KEY).get());
 
                if (expectedResponse.equals(accept)) {
@@ -1091,15 +1120,7 @@ public class NettyConnector extends AbstractConnector {
       }
    }
 
-   class HttpHandler extends ChannelDuplexHandler {
-
-      private Channel channel;
-
-      private long lastSendTime = 0;
-
-      private boolean waitingGet = false;
-
-      private HttpIdleTimer task;
+   public class HttpHandler extends ChannelDuplexHandler {
 
       private final String url;
 
@@ -1110,29 +1131,15 @@ public class NettyConnector extends AbstractConnector {
       private boolean handshaking = false;
 
       private String cookie;
+      private Map<String, String> headers;
 
-      HttpHandler() throws Exception {
+      HttpHandler(Map<String, String> headers) throws Exception {
          url = new URI("http", null, host, port, servletPath, null, null).toString();
+         this.headers = headers;
       }
 
-      @Override
-      public void channelActive(final ChannelHandlerContext ctx) throws Exception {
-         super.channelActive(ctx);
-         channel = ctx.channel();
-         if (httpClientIdleScanPeriod > 0) {
-            task = new HttpIdleTimer();
-            java.util.concurrent.Future<?> future = scheduledThreadPool.scheduleAtFixedRate(task, httpClientIdleScanPeriod, httpClientIdleScanPeriod, TimeUnit.MILLISECONDS);
-            task.setFuture(future);
-         }
-      }
-
-      @Override
-      public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
-         if (task != null) {
-            task.close();
-         }
-
-         super.channelInactive(ctx);
+      public Map<String, String> getHeaders() {
+         return headers;
       }
 
       @Override
@@ -1150,13 +1157,13 @@ public class NettyConnector extends AbstractConnector {
             active = true;
             handShakeFuture.run();
          }
-         waitingGet = false;
          ctx.fireChannelRead(response.content());
       }
 
       @Override
       public void write(final ChannelHandlerContext ctx, final Object msg, ChannelPromise promise) throws Exception {
-         if (msg instanceof ByteBuf) {
+         Object toSend = msg;
+         if (msg instanceof ByteBuf buf) {
             if (httpRequiresSessionId && !active) {
                if (handshaking) {
                   handshaking = true;
@@ -1166,53 +1173,18 @@ public class NettyConnector extends AbstractConnector {
                   }
                }
             }
-
-            ByteBuf buf = (ByteBuf) msg;
             FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, url, buf);
-            httpRequest.headers().add(HttpHeaderNames.HOST, NettyConnector.this.host);
+            httpRequest.headers().add(HttpHeaderNames.HOST, String.format("%s:%d", host, port));
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+               httpRequest.headers().add(header.getKey(), header.getValue());
+            }
             if (cookie != null) {
                httpRequest.headers().add(HttpHeaderNames.COOKIE, cookie);
             }
             httpRequest.headers().add(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
-            ctx.write(httpRequest, promise);
-            lastSendTime = System.currentTimeMillis();
-         } else {
-            ctx.write(msg, promise);
-            lastSendTime = System.currentTimeMillis();
+            toSend = httpRequest;
          }
-      }
-
-      private class HttpIdleTimer implements Runnable {
-
-         private boolean closed = false;
-
-         private java.util.concurrent.Future<?> future;
-
-         @Override
-         public synchronized void run() {
-            if (closed) {
-               return;
-            }
-
-            if (!waitingGet && System.currentTimeMillis() > lastSendTime + httpMaxClientIdleTime) {
-               FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, url);
-               httpRequest.headers().add(HttpHeaderNames.HOST, NettyConnector.this.host);
-               waitingGet = true;
-               channel.writeAndFlush(httpRequest);
-            }
-         }
-
-         public synchronized void setFuture(final java.util.concurrent.Future<?> future) {
-            this.future = future;
-         }
-
-         public void close() {
-            if (future != null) {
-               future.cancel(false);
-            }
-
-            closed = true;
-         }
+         ctx.write(toSend, promise);
       }
    }
 
@@ -1231,27 +1203,17 @@ public class NettyConnector extends AbstractConnector {
       }
 
       @Override
-      public void connectionDestroyed(final Object connectionID) {
+      public void connectionDestroyed(final Object connectionID, boolean failed) {
          if (connections.remove(connectionID) != null) {
             // Execute on different thread to avoid deadlocks
-            closeExecutor.execute(new Runnable() {
-               @Override
-               public void run() {
-                  listener.connectionDestroyed(connectionID);
-               }
-            });
+            closeExecutor.execute(() -> listener.connectionDestroyed(connectionID, failed));
          }
       }
 
       @Override
       public void connectionException(final Object connectionID, final ActiveMQException me) {
          // Execute on different thread to avoid deadlocks
-         closeExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-               listener.connectionException(connectionID, me);
-            }
-         });
+         closeExecutor.execute(() -> listener.connectionException(connectionID, me));
       }
 
       @Override

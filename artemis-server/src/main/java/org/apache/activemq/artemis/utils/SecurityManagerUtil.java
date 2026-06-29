@@ -17,23 +17,28 @@
 package org.apache.activemq.artemis.utils;
 
 import javax.security.auth.Subject;
+
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SecurityManagerUtil {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
    private static final String WILDCARD = "*";
 
-   public static Set<RolePrincipal> getPrincipalsInRole(final CheckType checkType, final Set<Role> roles, final String rolePrincipalClass) {
+   public static Set<RolePrincipal> getPrincipalsInRole(final CheckType checkType, final Set<Role> roles, final Class rolePrincipalClass) {
       Set principals = new HashSet<>();
       for (Role role : roles) {
          if (checkType.hasRole(role)) {
@@ -47,7 +52,16 @@ public class SecurityManagerUtil {
       return principals;
    }
 
-   public static Object createGroupPrincipal(String name, String groupClass) throws Exception {
+   public static String getUserFromSubject(Subject subject, Class<? extends Principal> principalClass) {
+      if (subject != null) {
+         for (Principal candidate : subject.getPrincipals(principalClass)) {
+            return candidate.getName();
+         }
+      }
+      return null;
+   }
+
+   public static Object createGroupPrincipal(String name, Class cls) throws Exception {
       if (WILDCARD.equals(name)) {
          // simple match all group principal - match any name and class
          return new Principal() {
@@ -69,8 +83,6 @@ public class SecurityManagerUtil {
       }
       Object[] param = new Object[]{name};
 
-      Class<?> cls = Class.forName(groupClass);
-
       Constructor<?>[] constructors = cls.getConstructors();
       int i;
       Object instance;
@@ -83,7 +95,7 @@ public class SecurityManagerUtil {
       if (i < constructors.length) {
          instance = constructors[i].newInstance(param);
       } else {
-         instance = cls.newInstance();
+         instance = cls.getDeclaredConstructor().newInstance();
          Method[] methods = cls.getMethods();
          i = 0;
          for (i = 0; i < methods.length; i++) {
@@ -106,32 +118,29 @@ public class SecurityManagerUtil {
    /**
     * This method tries to match the RolePrincipals in the Subject with the provided Set of Roles and CheckType
     */
-   public static boolean authorize(final Subject subject, final Set<Role> roles, final CheckType checkType, final String rolePrincipalClass) {
-      boolean authorized = false;
+   public static boolean authorize(final Subject subject, final Set<Role> roles, final CheckType checkType, final Class rolePrincipalClass) {
 
       if (subject != null) {
          Set<RolePrincipal> rolesWithPermission = getPrincipalsInRole(checkType, roles, rolePrincipalClass);
 
          // Check the caller's roles
-         Set<Principal> rolesForSubject = new HashSet<>();
+         Set<Principal> rolesForSubject;
          try {
-            rolesForSubject.addAll(subject.getPrincipals(Class.forName(rolePrincipalClass).asSubclass(Principal.class)));
+            rolesForSubject = subject.getPrincipals(rolePrincipalClass);
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.failedToFindRolesForTheSubject(e);
+            return false;
          }
-         if (rolesForSubject.size() > 0 && rolesWithPermission.size() > 0) {
-            Iterator<Principal> rolesForSubjectIter = rolesForSubject.iterator();
-            while (!authorized && rolesForSubjectIter.hasNext()) {
-               Iterator<RolePrincipal> rolesWithPermissionIter = rolesWithPermission.iterator();
-               Principal subjectRole = rolesForSubjectIter.next();
-               while (!authorized && rolesWithPermissionIter.hasNext()) {
-                  Principal roleWithPermission = rolesWithPermissionIter.next();
-                  authorized = subjectRole.equals(roleWithPermission);
+         if (!rolesForSubject.isEmpty() && !rolesWithPermission.isEmpty()) {
+            for (Principal subjectRole : rolesForSubject) {
+               if (rolesWithPermission.contains(subjectRole)) {
+                  logger.trace("user is authorized");
+                  return true;
                }
             }
          }
       }
-
-      return authorized;
+      logger.trace("user is NOT authorized");
+      return false;
    }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -60,17 +62,14 @@ public class ClusterTopologyChangeMessage_V4 extends ClusterTopologyChangeMessag
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + serverVersion;
-      return result;
+      return super.hashCode() + Objects.hashCode(serverVersion);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", clientVersion=" + serverVersion);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", clientVersion=" + serverVersion);
+      return sb.toString();
    }
 
    @Override
@@ -81,10 +80,9 @@ public class ClusterTopologyChangeMessage_V4 extends ClusterTopologyChangeMessag
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ClusterTopologyChangeMessage_V4)) {
+      if (!(obj instanceof ClusterTopologyChangeMessage_V4 other)) {
          return false;
       }
-      ClusterTopologyChangeMessage_V4 other = (ClusterTopologyChangeMessage_V4) obj;
       return serverVersion == other.serverVersion;
    }
 }

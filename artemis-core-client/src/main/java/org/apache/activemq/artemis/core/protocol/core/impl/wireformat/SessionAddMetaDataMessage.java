@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 /**
  * A SessionAddMetaDataMessage
- *
+ * <p>
  * Packet deprecated: It exists only to support old formats
  */
 public class SessionAddMetaDataMessage extends PacketImpl {
@@ -66,41 +68,30 @@ public class SessionAddMetaDataMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((data == null) ? 0 : data.hashCode());
-      result = prime * result + ((key == null) ? 0 : key.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), data, key);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", key=" + key);
-      buff.append(", data=" + data);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", key=" + key);
+      sb.append(", data=" + data);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionAddMetaDataMessage))
+      }
+      if (!(obj instanceof SessionAddMetaDataMessage other)) {
          return false;
-      SessionAddMetaDataMessage other = (SessionAddMetaDataMessage) obj;
-      if (data == null) {
-         if (other.data != null)
-            return false;
-      } else if (!data.equals(other.data))
-         return false;
-      if (key == null) {
-         if (other.key != null)
-            return false;
-      } else if (!key.equals(other.key))
-         return false;
-      return true;
-   }
+      }
 
+      return Objects.equals(data, other.data) &&
+             Objects.equals(key, other.key);
+   }
 }

@@ -16,13 +16,15 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
- * Ping is sent on the client side by {@link org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl}. At the server's
- * side it is handled by org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl
+ * Ping is sent on the client side by {@link org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl}. At
+ * the server's side it is handled by org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl
  */
 public final class Ping extends PacketImpl {
 
@@ -64,17 +66,14 @@ public final class Ping extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buf = new StringBuffer(super.getPacketString());
-      buf.append(", connectionTTL=" + connectionTTL);
-      return buf.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", connectionTTL=" + connectionTTL);
+      return sb.toString();
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (connectionTTL ^ (connectionTTL >>> 32));
-      return result;
+      return super.hashCode() + Objects.hashCode(connectionTTL);
    }
 
    @Override
@@ -85,13 +84,10 @@ public final class Ping extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof Ping)) {
+      if (!(obj instanceof Ping other)) {
          return false;
       }
-      Ping other = (Ping) obj;
-      if (connectionTTL != other.connectionTTL) {
-         return false;
-      }
-      return true;
+
+      return connectionTTL == other.connectionTTL;
    }
 }

@@ -29,8 +29,6 @@ import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
 
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_DATA;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_UNKNOWN;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_BINARY;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.EMPTY_BINARY;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_CONTENT_TYPE;
@@ -64,14 +62,10 @@ public class CoreObjectMessageWrapper extends CoreMessageWrapper {
          this.setStringProperty(JMS_AMQP_CONTENT_TYPE, SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString());
       }
 
-      switch (getOrignalEncoding()) {
-         case AMQP_VALUE_BINARY:
-            return new AmqpValue(payload);
-         case AMQP_DATA:
-         case AMQP_UNKNOWN:
-         default:
-            return new Data(payload);
-      }
+      return switch (getOrignalEncoding()) {
+         case AMQP_VALUE_BINARY -> new AmqpValue(payload);
+         default -> new Data(payload);
+      };
 
    }
 

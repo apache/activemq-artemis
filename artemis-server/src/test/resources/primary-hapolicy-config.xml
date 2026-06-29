@@ -30,7 +30,7 @@
                <max-saved-replicated-journals-size>73</max-saved-replicated-journals-size>
                <manager>
                   <class-name>
-                     org.apache.activemq.artemis.core.config.impl.HAPolicyConfigurationTest$FakeDistributedPrimitiveManager
+                     org.apache.activemq.artemis.core.config.impl.HAPolicyConfigurationTest$FakeDistributedLockManager
                   </class-name>
                   <properties>
                      <property key="connect-string" value="127.0.0.1:6666"/>

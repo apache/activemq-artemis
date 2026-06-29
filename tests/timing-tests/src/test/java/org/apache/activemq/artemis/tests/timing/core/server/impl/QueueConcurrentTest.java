@@ -16,29 +16,28 @@
  */
 package org.apache.activemq.artemis.tests.timing.core.server.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeQueueFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * A concurrent QueueTest
- *
+ * <p>
  * All the concurrent queue tests go in here
  */
 public class QueueConcurrentTest extends ActiveMQTestBase {
@@ -48,26 +47,26 @@ public class QueueConcurrentTest extends ActiveMQTestBase {
    private FakeQueueFactory queueFactory = new FakeQueueFactory();
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       queueFactory = new FakeQueueFactory();
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       queueFactory.stop();
       super.tearDown();
    }
 
-   /*
+   /**
     * Concurrent set consumer not busy, busy then, call deliver while messages are being added and consumed
     */
    @Test
    public void testConcurrentAddsDeliver() throws Exception {
 
-      QueueImpl queue = (QueueImpl) queueFactory.createQueueWith(QueueConfig.builderWith(1, new SimpleString("address1"), new SimpleString("queue1")).durable(false).temporary(false).autoCreated(false).build());
+      QueueImpl queue = (QueueImpl) queueFactory.createQueueWith(QueueConfiguration.of("queue1").setAddress("address1").setId(1L).setDurable(false).setTemporary(false).setAutoCreated(false), null, null);
 
       FakeConsumer consumer = new FakeConsumer();
 

@@ -61,10 +61,10 @@ public class LDAPLoginModuleMaskPasswordTest extends AbstractLdapTestUnit {
    public void testLoginMaskedPassword() throws LoginException {
       LoginContext context = new LoginContext("LDAPLoginMaskedPassword", callbacks -> {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("secret".toCharArray());
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }
@@ -78,10 +78,10 @@ public class LDAPLoginModuleMaskPasswordTest extends AbstractLdapTestUnit {
    public void testLoginMaskedPasswordUnauthenticated() throws LoginException {
       LoginContext context = new LoginContext("LDAPLoginMaskedPassword", callbacks -> {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword("nosecret".toCharArray());
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("nosecret".toCharArray());
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }
@@ -90,7 +90,7 @@ public class LDAPLoginModuleMaskPasswordTest extends AbstractLdapTestUnit {
       try {
          context.login();
       } catch (FailedLoginException le) {
-         assertEquals(le.getMessage(), "Password does not match for user: first");
+         assertEquals("Password does not match for user: first", le.getMessage());
          return;
       }
       fail("Should have failed authenticating");
@@ -100,10 +100,10 @@ public class LDAPLoginModuleMaskPasswordTest extends AbstractLdapTestUnit {
    public void testLoginExternalCodec() throws LoginException {
       LoginContext context = new LoginContext("LDAPLoginExternalPasswordCodec", callbacks -> {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("secret".toCharArray());
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }
@@ -118,10 +118,10 @@ public class LDAPLoginModuleMaskPasswordTest extends AbstractLdapTestUnit {
    public void testLoginExternalCodec2() throws LoginException {
       LoginContext context = new LoginContext("LDAPLoginExternalPasswordCodec2", callbacks -> {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("secret".toCharArray());
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }
@@ -136,10 +136,10 @@ public class LDAPLoginModuleMaskPasswordTest extends AbstractLdapTestUnit {
    public void testLoginExternalCodecUnauthenticated() throws LoginException {
       LoginContext context = new LoginContext("LDAPLoginExternalPasswordCodec", callbacks -> {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword("nosecret".toCharArray());
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("nosecret".toCharArray());
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }
@@ -148,7 +148,7 @@ public class LDAPLoginModuleMaskPasswordTest extends AbstractLdapTestUnit {
       try {
          context.login();
       } catch (FailedLoginException le) {
-         assertEquals(le.getMessage(), "Password does not match for user: first");
+         assertEquals("Password does not match for user: first", le.getMessage());
          return;
       }
       fail("Should have failed authenticating");

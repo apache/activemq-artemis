@@ -25,28 +25,32 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReceiveImmediateTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ReceiveImmediateTest.queue");
+   private final SimpleString QUEUE = SimpleString.of("ReceiveImmediateTest.queue");
 
-   private final SimpleString ADDRESS = new SimpleString("ReceiveImmediateTest.address");
+   private final SimpleString ADDRESS = SimpleString.of("ReceiveImmediateTest.address");
 
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Configuration config = createDefaultInVMConfig();
@@ -84,28 +88,27 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setDurable(false));
 
       ClientConsumer consumer = session.createConsumer(QUEUE, null, false);
       session.start();
 
       session.stop();
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
 
       session.start();
       long start = System.currentTimeMillis();
       ClientMessage msg = consumer.receive(2000);
       long end = System.currentTimeMillis();
-      Assert.assertNull(msg);
+      assertNull(msg);
       // we waited for at least 2000ms
-      Assert.assertTrue("waited only " + (end - start), end - start >= 2000);
+      assertTrue(end - start >= 2000, "waited only " + (end - start));
 
       consumer.close();
 
       session.close();
    }
 
-   // https://jira.jboss.org/browse/HORNETQ-450
    @Test
    public void testReceivedImmediateFollowedByReceive() throws Exception {
       locator.setBlockOnNonDurableSend(true);
@@ -113,7 +116,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -138,7 +141,6 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
       session.close();
    }
 
-   // https://jira.jboss.org/browse/HORNETQ-450
    @Test
    public void testReceivedImmediateFollowedByAsyncConsume() throws Exception {
 
@@ -147,7 +149,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -167,12 +169,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
 
       final AtomicBoolean receivedAsync = new AtomicBoolean(false);
 
-      consumer.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(ClientMessage message) {
-            receivedAsync.set(true);
-         }
-      });
+      consumer.setMessageHandler(message1 -> receivedAsync.set(true));
 
       Thread.sleep(1000);
 
@@ -188,13 +185,13 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, true, false);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setDurable(false));
 
       ClientConsumer consumer = session.createConsumer(QUEUE, null, browser);
       session.start();
 
       ClientMessage message = consumer.receiveImmediate();
-      Assert.assertNull(message);
+      assertNull(message);
 
       session.close();
    }
@@ -205,7 +202,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setDurable(false));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -221,20 +218,20 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receiveImmediate();
-         Assert.assertNotNull("did not receive message " + i, message2);
-         Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
+         assertNotNull(message2, "did not receive message " + i);
+         assertEquals("m" + i, message2.getBodyBuffer().readString());
          if (!browser) {
             message2.acknowledge();
          }
       }
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
 
-      Assert.assertNull(consumer.receiveImmediate());
+      assertNull(consumer.receiveImmediate());
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
       int messagesOnServer = browser ? numMessages : 0;
-      Assert.assertEquals(messagesOnServer, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
+      assertEquals(messagesOnServer, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       consumer.close();
 

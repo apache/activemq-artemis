@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.reader;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 public class BytesMessageUtil extends MessageUtil {
@@ -128,36 +130,30 @@ public class BytesMessageUtil extends MessageUtil {
    }
 
    /**
-    * Returns true if it could send the Object to any known format
-    *
-    * @param message
-    * @param value
-    * @return
+    * {@return {@code true} if it could send the Object to any known format}
     */
    public static boolean bytesWriteObject(ActiveMQBuffer message, Object value) {
-      if (value == null) {
-         throw new NullPointerException("Attempt to write a null value");
-      }
-      if (value instanceof String) {
-         bytesWriteUTF(message, (String) value);
-      } else if (value instanceof Boolean) {
-         bytesWriteBoolean(message, (Boolean) value);
-      } else if (value instanceof Character) {
-         bytesWriteChar(message, (Character) value);
-      } else if (value instanceof Byte) {
-         bytesWriteByte(message, (Byte) value);
-      } else if (value instanceof Short) {
-         bytesWriteShort(message, (Short) value);
-      } else if (value instanceof Integer) {
-         bytesWriteInt(message, (Integer) value);
-      } else if (value instanceof Long) {
-         bytesWriteLong(message, (Long) value);
-      } else if (value instanceof Float) {
-         bytesWriteFloat(message, (Float) value);
-      } else if (value instanceof Double) {
-         bytesWriteDouble(message, (Double) value);
-      } else if (value instanceof byte[]) {
-         bytesWriteBytes(message, (byte[]) value);
+      Objects.requireNonNull(value, "Attempt to write a null value");
+      if (value instanceof String string) {
+         bytesWriteUTF(message, string);
+      } else if (value instanceof Boolean booleanValue) {
+         bytesWriteBoolean(message, booleanValue);
+      } else if (value instanceof Character character) {
+         bytesWriteChar(message, character);
+      } else if (value instanceof Byte byteValue) {
+         bytesWriteByte(message, byteValue);
+      } else if (value instanceof Short shortValue) {
+         bytesWriteShort(message, shortValue);
+      } else if (value instanceof Integer integer) {
+         bytesWriteInt(message, integer);
+      } else if (value instanceof Long longValue) {
+         bytesWriteLong(message, longValue);
+      } else if (value instanceof Float floatValue) {
+         bytesWriteFloat(message, floatValue);
+      } else if (value instanceof Double doubleValue) {
+         bytesWriteDouble(message, doubleValue);
+      } else if (value instanceof byte[] bytes) {
+         bytesWriteBytes(message, bytes);
       } else {
          return false;
       }

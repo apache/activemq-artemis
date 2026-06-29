@@ -42,9 +42,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/*
-* takes care of updating the cluster with a backups transport configuration which is based on each cluster connection.
-* */
+/**
+ * This takes care of updating the cluster with a backups transport configuration which is based on each cluster
+ * connection.
+ */
 public class BackupManager implements ActiveMQComponent {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -74,20 +75,24 @@ public class BackupManager implements ActiveMQComponent {
       this.clusterManager = clusterManager;
    }
 
-   /** This is meant for testing and assertions, please don't do anything stupid with it!
-    *  I mean, please don't use it outside of testing context */
+   /**
+    * This is meant for testing and assertions, please don't do anything stupid with it! I mean, please don't use it
+    * outside of testing context
+    */
    public List<BackupConnector> getBackupConnectors() {
       return backupConnectors;
    }
 
-   /*
-   * Start the backup manager if not already started. This entails deploying a backup connector based on a cluster
-   * configuration, informing the cluster manager so that it can add it to its topology and announce itself to the cluster.
-   * */
+   /**
+    * Start the backup manager if not already started. This entails deploying a backup connector based on a cluster
+    * configuration, informing the cluster manager so that it can add it to its topology and announce itself to the
+    * cluster.
+    */
    @Override
    public synchronized void start() throws Exception {
-      if (started)
+      if (started) {
          return;
+      }
       //deploy the backup connectors using the cluster configuration
       for (ClusterConnectionConfiguration config : configuration.getClusterConfigurations()) {
          logger.debug("deploy backup config {}", config);
@@ -107,31 +112,32 @@ public class BackupManager implements ActiveMQComponent {
       started = true;
    }
 
-   /*
-   * stop all the connectors
-   * */
+   /**
+    * stop all the connectors
+    */
    @Override
    public synchronized void stop() {
-      if (!started)
+      if (!started) {
          return;
+      }
       for (BackupConnector backupConnector : backupConnectors) {
          backupConnector.close();
       }
       started = false;
    }
 
-   /*
-   * announce the fact that we are a backup server ready to fail over if required.
-   */
+   /**
+    * announce the fact that we are a backup server ready to fail over if required.
+    */
    public void announceBackup() {
       for (BackupConnector backupConnector : backupConnectors) {
          backupConnector.announceBackup();
       }
    }
 
-   /*
-   * create the connectors using the cluster configurations
-   * */
+   /**
+    * create the connectors using the cluster configurations
+    */
    private void deployBackupConnector(final ClusterConnectionConfiguration config) throws Exception {
       if (!config.validateConfiguration()) {
          return;
@@ -139,14 +145,16 @@ public class BackupManager implements ActiveMQComponent {
 
       TransportConfiguration connector = config.getTransportConfiguration(configuration);
 
-      if (connector == null)
+      if (connector == null) {
          return;
+      }
 
       if (config.getDiscoveryGroupName() != null) {
          DiscoveryGroupConfiguration dg = config.getDiscoveryGroupConfiguration(configuration);
 
-         if (dg == null)
+         if (dg == null) {
             return;
+         }
 
          DiscoveryBackupConnector backupConnector = new DiscoveryBackupConnector(dg, config, connector, clusterManager);
 
@@ -160,9 +168,9 @@ public class BackupManager implements ActiveMQComponent {
       }
    }
 
-   /*
-   * called to notify us that we have been activated as a live server so the connectors are no longer needed.
-   * */
+   /**
+    * called to notify us that we have been activated so the connectors are no longer needed.
+    */
    public void activated() {
       for (BackupConnector backupConnector : backupConnectors) {
          backupConnector.close();
@@ -183,9 +191,9 @@ public class BackupManager implements ActiveMQComponent {
       return true;
    }
 
-   /*
-   * A backup connector will connect to the cluster and announce that we are a backup server ready to fail over.
-   * */
+   /**
+    * A backup connector will connect to the cluster and announce that we are a backup server ready to fail over.
+    */
    public abstract class BackupConnector {
 
       private volatile ServerLocatorInternal backupServerLocator;
@@ -215,19 +223,21 @@ public class BackupManager implements ActiveMQComponent {
          this.clusterManager = clusterManager;
       }
 
-      /*
-      * used to create the server locator needed, will be connectors or discovery
-      * */
+      /**
+       * used to create the server locator needed, will be connectors or discovery
+       */
       abstract ServerLocatorInternal createServerLocator(Topology topology);
 
-      /** This is for test assertions, please be careful, don't use outside of testing! */
+      /**
+       * This is for test assertions, please be careful, don't use outside of testing!
+       */
       public ServerLocator getBackupServerLocator() {
          return backupServerLocator;
       }
 
-      /*
-      * start the connector by creating the server locator to use.
-      * */
+      /**
+       * start the connector by creating the server locator to use.
+       */
       void start() {
          stopping = false;
          backupAnnounced = false;
@@ -240,83 +250,77 @@ public class BackupManager implements ActiveMQComponent {
             backupServerLocator.setIdentity("backupLocatorFor='" + server + "'");
             backupServerLocator.setReconnectAttempts(-1);
             backupServerLocator.setInitialConnectAttempts(-1);
+            backupServerLocator.setCallTimeout(config.getCallTimeout());
             backupServerLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(backupServerLocator, server.getStorageManager()));
          }
       }
 
-      /*
-      * this connects to the cluster and announces that we are a backup
-      * */
+      /**
+       * this connects to the cluster and announces that we are a backup
+       */
       public void announceBackup() {
          //this has to be done in a separate thread
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
+         executor.execute(() -> {
+            if (stopping) {
+               return;
+            }
+
+            try {
+               //make a copy to avoid npe if we are nulled on close
+               ServerLocatorInternal localBackupLocator = backupServerLocator;
+               if (localBackupLocator == null) {
+                  if (!stopping) {
+                     ActiveMQServerLogger.LOGGER.errorAnnouncingBackup(this.toString());
+                  }
+                  return;
+               }
+               if (logger.isDebugEnabled()) {
+                  logger.debug("{}:: announcing {} to {}", BackupConnector.this, connector, backupServerLocator);
+               }
+
+               announcingBackup = true;
+               //connect to the cluster
+               ClientSessionFactoryInternal backupSessionFactory = localBackupLocator.connect();
+               //send the announce message
+               if (backupSessionFactory != null) {
+                  ClusterControl clusterControl = clusterManager.getClusterController().connectToNodeInCluster(backupSessionFactory);
+                  clusterControl.authorize();
+                  clusterControl.sendNodeAnnounce(System.currentTimeMillis(), nodeManager.getNodeId().toString(), server.getHAPolicy().getBackupGroupName(), server.getHAPolicy().getScaleDownClustername(), true, connector, null);
+                  ActiveMQServerLogger.LOGGER.backupAnnounced();
+                  backupAnnounced = true;
+               }
+            } catch (RejectedExecutionException e) {
+               // assumption is that the whole server is being stopped. So the exception is ignored.
+            } catch (Exception e) {
+               if (scheduledExecutor.isShutdown()) {
+                  return;
+               }
                if (stopping) {
                   return;
                }
+               ActiveMQServerLogger.LOGGER.errorAnnouncingBackup(e);
 
-               try {
-                  //make a copy to avoid npe if we are nulled on close
-                  ServerLocatorInternal localBackupLocator = backupServerLocator;
-                  if (localBackupLocator == null) {
-                     if (!stopping)
-                        ActiveMQServerLogger.LOGGER.errorAnnouncingBackup(this.toString());
-                     return;
-                  }
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("{}:: announcing {} to {}", BackupConnector.this, connector, backupServerLocator);
-                  }
-
-                  announcingBackup = true;
-                  //connect to the cluster
-                  ClientSessionFactoryInternal backupSessionFactory = localBackupLocator.connect();
-                  //send the announce message
-                  if (backupSessionFactory != null) {
-                     ClusterControl clusterControl = clusterManager.getClusterController().connectToNodeInCluster(backupSessionFactory);
-                     clusterControl.authorize();
-                     clusterControl.sendNodeAnnounce(System.currentTimeMillis(), nodeManager.getNodeId().toString(), server.getHAPolicy().getBackupGroupName(), server.getHAPolicy().getScaleDownClustername(), true, connector, null);
-                     ActiveMQServerLogger.LOGGER.backupAnnounced();
-                     backupAnnounced = true;
-                  }
-               } catch (RejectedExecutionException e) {
-                  // assumption is that the whole server is being stopped. So the exception is ignored.
-               } catch (Exception e) {
-                  if (scheduledExecutor.isShutdown())
-                     return;
-                  if (stopping)
-                     return;
-                  ActiveMQServerLogger.LOGGER.errorAnnouncingBackup(e);
-
-                  retryConnection();
-               } finally {
-                  announcingBackup = false;
-               }
+               retryConnection();
+            } finally {
+               announcingBackup = false;
             }
          });
       }
 
-      /** it will re-schedule the connection after a timeout, using a scheduled executor */
+      /**
+       * it will re-schedule the connection after a timeout, using a scheduled executor
+       */
       protected void retryConnection() {
-         scheduledExecutor.schedule(new Runnable() {
-            @Override
-            public void run() {
-               announceBackup();
-            }
-
-         }, config.getRetryInterval(), TimeUnit.MILLISECONDS);
+         scheduledExecutor.schedule(this::announceBackup, config.getRetryInterval(), TimeUnit.MILLISECONDS);
       }
 
-      /*
-      * called to notify the cluster manager about the backup
-      * */
+      /**
+       * called to notify the cluster manager about the backup
+       */
       public void informTopology() {
          clusterManager.informClusterOfBackup(config.getName());
       }
 
-      /*
-      * close everything
-      * */
       public void close() {
          stopping = true;
          if (announcingBackup) {
@@ -326,15 +330,12 @@ public class BackupManager implements ActiveMQComponent {
            */
             closeLocator(backupServerLocator);
          }
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               synchronized (BackupConnector.this) {
-                  closeLocator(backupServerLocator);
-                  backupServerLocator = null;
-               }
-
+         executor.execute(() -> {
+            synchronized (BackupConnector.this) {
+               closeLocator(backupServerLocator);
+               backupServerLocator = null;
             }
+
          });
       }
 
@@ -349,9 +350,6 @@ public class BackupManager implements ActiveMQComponent {
       }
    }
 
-   /*
-   * backup connector using static connectors
-   * */
    private final class StaticBackupConnector extends BackupConnector {
 
       private final TransportConfiguration[] tcConfigs;
@@ -389,9 +387,6 @@ public class BackupManager implements ActiveMQComponent {
 
    }
 
-   /*
-   * backup connector using discovery
-   * */
    private final class DiscoveryBackupConnector extends BackupConnector {
 
       private final DiscoveryGroupConfiguration discoveryGroupConfiguration;

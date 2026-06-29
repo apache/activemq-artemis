@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -33,9 +36,7 @@ import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -46,10 +47,10 @@ public class AsyncOpenCloseTest extends ActiveMQTestBase {
 
    @Test
    public void testCloseOnSubmit() throws Exception {
-      Assume.assumeTrue(LibaioContext.isLoaded());
+      assumeTrue(LibaioContext.isLoaded());
       AtomicInteger errors = new AtomicInteger(0);
 
-      SequentialFileFactory factory = new AIOSequentialFileFactory(temporaryFolder.getRoot(), (Throwable error, String message, String file) -> errors.incrementAndGet(), 4 * 1024);
+      SequentialFileFactory factory = new AIOSequentialFileFactory(temporaryFolder, (Throwable error, String message, String file) -> errors.incrementAndGet(), 4 * 1024);
       factory.start();
 
       SequentialFile file = factory.createSequentialFile("fileAIO.bin");
@@ -97,8 +98,8 @@ public class AsyncOpenCloseTest extends ActiveMQTestBase {
                      try {
                         if (!valve.await(1, TimeUnit.MILLISECONDS)) {
                            logger.debug("blocking");
-                           blocked.await();
-                           valve.await(10, TimeUnit.SECONDS);
+                           blocked.await(1, TimeUnit.SECONDS);
+                           valve.await(1, TimeUnit.SECONDS);
                            logger.debug("unblocking");
                         }
                      } catch (Exception e) {
@@ -118,7 +119,7 @@ public class AsyncOpenCloseTest extends ActiveMQTestBase {
             logger.debug("Closing");
             file.close(false, false);
             // even though the callback is blocked, the content of the file should already be good as written
-            validateFile(file, (byte) writtenByte);
+            validateFile(file, writtenByte);
             valve.countDown();
             Wait.assertEquals(0, submit::get, 5000, 10);
 
@@ -129,7 +130,7 @@ public class AsyncOpenCloseTest extends ActiveMQTestBase {
          factory.stop();
       }
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
 
    }
 
@@ -137,7 +138,7 @@ public class AsyncOpenCloseTest extends ActiveMQTestBase {
       FileInputStream fileInputStream = new FileInputStream(file.getJavaFile());
       byte[] wholeFile = fileInputStream.readAllBytes();
       for (int i = 0; i < wholeFile.length; i++) {
-         Assert.assertEquals(writtenByte, (byte) wholeFile[i]);
+         assertEquals(writtenByte, (byte) wholeFile[i]);
       }
       fileInputStream.close();
    }

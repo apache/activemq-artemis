@@ -17,16 +17,23 @@
 
 package org.apache.activemq.artemis.tests.soak.owleak;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,33 +42,47 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.utils.TestParameters;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.tests.soak.TestParameters.intMandatoryProperty;
-import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
 /**
  * Refer to ./scripts/parameters.sh for suggested parameters
- *
- * Even though this test is not testing Paging, it will use Page just to generate enough load to the server to compete for resources in Native Buffers.
- *
+ * <p>
+ * Even though this test is not testing Paging, it will use Page just to generate enough load to the server to compete
+ * for resources in Native Buffers.
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class OWLeakTest extends SoakTestBase {
 
    private static final int OK = 33; // arbitrary code. if the spawn returns this the test went fine
 
    public static final String SERVER_NAME_0 = "openwire-leaktest";
+
+   @BeforeAll
+   public static void createServers() throws Exception {
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_0);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
+         cliCreateServer.createServer();
+      }
+   }
+
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final String TEST_NAME = "OW_LEAK";
    private static final boolean TEST_ENABLED = Boolean.parseBoolean(testProperty(TEST_NAME, "TEST_ENABLED", "true"));
@@ -75,16 +96,16 @@ public class OWLeakTest extends SoakTestBase {
 
    public OWLeakTest(String protocol) {
       this.protocol = protocol;
-      NUMBER_OF_MESSAGES = intMandatoryProperty(TEST_NAME, protocol + "_NUMBER_OF_MESSAGES");
-      PRODUCERS = intMandatoryProperty(TEST_NAME, protocol + "_PRODUCERS");
-      MESSAGE_SIZE = intMandatoryProperty(TEST_NAME, protocol + "_MESSAGE_SIZE");
+      NUMBER_OF_MESSAGES = TestParameters.testProperty(TEST_NAME, protocol + "_NUMBER_OF_MESSAGES", 50);
+      PRODUCERS = TestParameters.testProperty(TEST_NAME, protocol + "_PRODUCERS", 5);
+      MESSAGE_SIZE = TestParameters.testProperty(TEST_NAME, protocol + "_MESSAGE_SIZE", 10_000);
    }
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameters(name = "protocol={0}")
    public static Collection<Object[]> parameters() {
       String[] protocols = PROTOCOL_LIST.split(",");
 
-      ArrayList<Object[]> parameters = new ArrayList<>();
+      List<Object[]> parameters = new ArrayList<>();
       for (String str : protocols) {
          logger.debug("Adding {} to the list for the test", str);
          parameters.add(new Object[]{str});
@@ -93,9 +114,9 @@ public class OWLeakTest extends SoakTestBase {
       return parameters;
    }
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
-      Assume.assumeTrue(TEST_ENABLED);
+      assumeTrue(TEST_ENABLED);
       cleanupData(SERVER_NAME_0);
 
       serverProcess = startServer(SERVER_NAME_0, 0, 10_000);
@@ -103,13 +124,13 @@ public class OWLeakTest extends SoakTestBase {
 
 
    private static String createLMBody(int messageSize, int producer, int sequence) {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       String baseString = "A Large body from producer " + producer + ", sequence " + sequence;
 
-      while (buffer.length() < messageSize) {
-         buffer.append(baseString);
+      while (sb.length() < messageSize) {
+         sb.append(baseString);
       }
-      return buffer.toString();
+      return sb.toString();
    }
 
 
@@ -175,13 +196,13 @@ public class OWLeakTest extends SoakTestBase {
 
                for (int i = 0; i < NUMBER_OF_MESSAGES * PRODUCERS; i++) {
                   TextMessage message = (TextMessage) consumer.receive(60_000);
-                  Assert.assertNotNull(message);
+                  assertNotNull(message);
                   int producerID = message.getIntProperty("producerID");
                   int sequence = message.getIntProperty("sequence");
                   logger.debug("Received message {} from producer {}", sequence, producerID);
-                  Assert.assertEquals(producerSequence[producerID], sequence);
+                  assertEquals(producerSequence[producerID], sequence);
                   producerSequence[producerID]++;
-                  Assert.assertEquals(createLMBody(MESSAGE_SIZE, producerID, sequence), message.getText());
+                  assertEquals(createLMBody(MESSAGE_SIZE, producerID, sequence), message.getText());
                   semaphore.release();
                }
 
@@ -216,7 +237,7 @@ public class OWLeakTest extends SoakTestBase {
 
                   if (msg > 5000L) {
                      message = (TextMessage) consumer.receive(10000);
-                     Assert.assertNotNull(message);
+                     assertNotNull(message);
                   }
 
                   if (msg % 100L == 0L) {
@@ -239,9 +260,9 @@ public class OWLeakTest extends SoakTestBase {
          });
 
 
-         Assert.assertTrue(latch.await(TEST_TIMEOUT_MINUTES, TimeUnit.MINUTES));
+         assertTrue(latch.await(TEST_TIMEOUT_MINUTES, TimeUnit.MINUTES));
 
-         Assert.assertEquals(0, errors.get());
+         assertEquals(0, errors.get());
 
          System.exit(OK);
       } catch (Throwable e) {
@@ -250,14 +271,14 @@ public class OWLeakTest extends SoakTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testValidateLeaks() throws Exception {
       // I am using a spawn for the test client, as this test will need a big VM for the client.
       // so I need control over the memory size for the VM.
       Process process = SpawnedVMSupport.spawnVM(OWLeakTest.class.getName(), new String[]{"-Xmx3G"}, "" + PRODUCERS, "" + NUMBER_OF_MESSAGES, "" + MESSAGE_SIZE, protocol);
       logger.debug("Process PID::{}", process.pid());
-      Assert.assertTrue(process.waitFor(TEST_TIMEOUT_MINUTES, TimeUnit.MINUTES));
-      Assert.assertEquals(OK, process.exitValue());
+      assertTrue(process.waitFor(TEST_TIMEOUT_MINUTES, TimeUnit.MINUTES));
+      assertEquals(OK, process.exitValue());
 
    }
 

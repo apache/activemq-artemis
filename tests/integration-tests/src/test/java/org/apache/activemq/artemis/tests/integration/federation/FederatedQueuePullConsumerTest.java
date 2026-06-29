@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.federation;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -37,13 +42,13 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class FederatedQueuePullConsumerTest extends FederatedTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       getServer(0).getConfiguration().addConnectorConfiguration("server-pull-1", "tcp://localhost:" + 61617 + "?consumerWindowSize=0;ackBatchSize=10");
@@ -76,8 +81,8 @@ public class FederatedQueuePullConsumerTest extends FederatedTestBase {
       getServer(0).getAddressSettingsRepository().getMatch("#").setAutoCreateAddresses(true).setAutoCreateQueues(true);
       getServer(1).getAddressSettingsRepository().getMatch("#").setAutoCreateAddresses(true).setAutoCreateQueues(true);
 
-      getServer(0).addAddressInfo(new AddressInfo(SimpleString.toSimpleString("source"), RoutingType.MULTICAST));
-      getServer(1).addAddressInfo(new AddressInfo(SimpleString.toSimpleString("source"), RoutingType.MULTICAST));
+      getServer(0).addAddressInfo(new AddressInfo(SimpleString.of("source"), RoutingType.MULTICAST));
+      getServer(1).addAddressInfo(new AddressInfo(SimpleString.of("source"), RoutingType.MULTICAST));
 
       getServer(0).getConfiguration().getFederationConfigurations().add(new FederationConfiguration().setName("default").addFederationPolicy(new FederationAddressPolicyConfiguration().setName("myAddressPolicy").addInclude(new FederationAddressPolicyConfiguration.Matcher().setAddressMatch("#"))).addUpstreamConfiguration(new FederationUpstreamConfiguration().setName("server1-upstream").addPolicyRef("myAddressPolicy").setStaticConnectors(Collections.singletonList(connector))));
 
@@ -125,8 +130,8 @@ public class FederatedQueuePullConsumerTest extends FederatedTestBase {
       getServer(0).getAddressSettingsRepository().getMatch("#").setAutoCreateAddresses(true).setAutoCreateQueues(true);
       getServer(1).getAddressSettingsRepository().getMatch("#").setAutoCreateAddresses(true).setAutoCreateQueues(true);
 
-      getServer(1).createQueue(new QueueConfiguration("Test.Q.1").setRoutingType(RoutingType.ANYCAST));
-      getServer(1).createQueue(new QueueConfiguration("Test.Q.2").setRoutingType(RoutingType.ANYCAST));
+      getServer(1).createQueue(QueueConfiguration.of("Test.Q.1").setRoutingType(RoutingType.ANYCAST));
+      getServer(1).createQueue(QueueConfiguration.of("Test.Q.2").setRoutingType(RoutingType.ANYCAST));
 
       getServer(0).getConfiguration().getFederationConfigurations().add(new FederationConfiguration()
                                                                            .setName("default")
@@ -214,7 +219,7 @@ public class FederatedQueuePullConsumerTest extends FederatedTestBase {
 
          // verify batch end
          final int mumMessages = 150;
-         for (int i = 0; i < mumMessages; i++ ) {
+         for (int i = 0; i < mumMessages; i++) {
             producer.send(session1.createTextMessage("1-" + i));
          }
 
@@ -227,7 +232,7 @@ public class FederatedQueuePullConsumerTest extends FederatedTestBase {
          Wait.assertTrue(() -> getMessageCount(getServer(0), queueName) < 100, 2000, 100);
 
          // verify all available
-         for (int i = 0; i < mumMessages; i++ ) {
+         for (int i = 0; i < mumMessages; i++) {
             assertNotNull(consumer0.receive(4000));
          }
 

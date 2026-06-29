@@ -32,7 +32,7 @@ public final class NoOpDuplicateIDCache implements DuplicateIDCache {
 
    @Override
    public boolean atomicVerify(byte[] duplID, Transaction tx) throws Exception {
-      return false;
+      return true;
    }
 
    @Override
@@ -73,5 +73,10 @@ public final class NoOpDuplicateIDCache implements DuplicateIDCache {
    @Override
    public List<Pair<byte[], Long>> getMap() {
       return Collections.emptyList();
+   }
+
+   @Override
+   public int getSize() {
+      return 0;
    }
 }

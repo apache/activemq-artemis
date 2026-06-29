@@ -1,57 +1,65 @@
 = Command Line Interface
+:idprefix:
+:idseparator: -
+:docinfo: shared
 
-ActiveMQ Artemis has a Command Line Interface (CLI) that can used to manage a few aspects of the broker like instance creation, basic user management, queues, etc.
+A Command Line Interface (CLI) can used to manage a few aspects of the broker like instance creation, basic user management, queue & address management, etc.
+This interface is designed for simple use-cases with _humans_ in mind.
+It is not an exhaustive set of commands for complete broker management.
+There is a comprehensive xref:management.adoc[management API] available with many operations that return JSON formatted output which is better suited for use in scripts and other automated processes.
 
 There are two ways the CLI can be used:
 
-* Bash Shell
-** A traditional CLI that can be accessed by `./artemis <COMMAND> ARGUMENTS...`
-* Artemis Shell
-** A shell emulation that is accesssed by `./artemis` or `./artemis shell`.
+* Traditional CLI commands, e.g.: `./artemis [COMMAND] [PARAMETERS]`
+* A custom shell that is accesssed using the `./artemis` or `./artemis shell` commands.
 
-All commands available through the traditional Command Line Interface (CLI) are also available through the Shell interface.
+All commands available through the traditional CLI commands are also available through the shell interface.
 
-The Shell interface will reuse some information as you repeat commands, such as the user, password, and target broker URI making the repetitive use a bit simpler.
-
-The CLI interface however could be used in your bash scripts for your own automation while the Shell session being a user interface in a terminal session.
+One benefit of the shell is that it will *reuse* some information as you repeat commands.
+For example, once you supply the broker URI and username & password to one command those values will be transparently applied other commands in the same shell session.
+Of course, the shell also allows you to avoid retyping `./artemis` for every command.
 
 == Getting Help
 
-All of these commands can be accessed in the form of calling "artemis [COMMAND] [PARAMETERS]". You can get a complete list of available commands by typing:
+You can get a complete list of available commands by typing:
 [,console]
 ----
 $ ./artemis help
 Usage: artemis [COMMAND]
-ActiveMQ Artemis Command Line
+Apache Artemis Command Line
 Commands:
-  help           use 'help <command>' for more information
-  auto-complete  Generates the auto complete script file to be used in bash or
-                   zsh.
-  shell          JLine3 shell helping using the CLI
-  producer       Send message(s) to a broker.
-  transfer       Move messages from one destination towards another destination.
-  consumer       Consume messages from a queue.
-  browser        Browse messages on a queue.
-  mask           Mask a password and print it out.
-  version        Print version information.
-  perf           use 'help perf' for sub commands list
-  check          use 'help check' for sub commands list
-  queue          use 'help check' for sub commands list
-  address        use 'help address' for sub commands list
-  data           use 'help data' for sub commands list
-  create         Create a new broker instance.
-  upgrade        Update a broker instance to the current artemis.home, keeping
-                   all the data and broker.xml. Warning: backup your instance
-                   before using this command and compare the files.
+  help        use 'help <command>' for more information
+  pwd         Information on current folder and instance.
+  shell       JLine3 shell helping using the CLI
+  producer    Send message(s) to a broker.
+  transfer    Move messages from one destination towards another destination.
+  consumer    Consume messages from a queue.
+  browser     Browse messages on a queue.
+  mask        Mask a password and print it out.
+  version     Print version information.
+  perf        use 'help perf' for sub commands list
+  check       use 'help check' for sub commands list
+  queue       use 'help queue' for sub commands list
+  address     use 'help address' for sub commands list
+  connect     Connect to the broker validating credentials for commands.
+  disconnect  Clear previously typed user credentials.
+  data        use 'help data' for sub commands list
+  create      Create a new broker instance.
+  upgrade     Update a broker instance to the current artemis.home, keeping all
+                the data and broker.xml. Warning: backup your instance before
+                using this command and compare the files.
+  completion  Generates the auto complete script file to be used in bash or
+                zsh. Usage: source <(./artemis completion)
 ----
 
-It is also possible to use help at a specific command or sub-command for more information.
-Examples:
-
-To get a list of sub commands for data, you type `./artemis help data`, e.g.:
+It is also possible to use `help` at a specific command or sub-command for more information.
+For example, to get a list of sub-commands for `data` you type `./artemis help data`:
 
 [,console]
 ----
+$ ./artemis help data
+Usage: artemis data [COMMAND]
+use 'help data' for sub commands list
 Commands:
   recover  Recover (undelete) every message on the journal by creating a new
              output journal. Rolled back and acked messages will be sent out to
@@ -67,14 +75,15 @@ Commands:
   compact  Compact the journal of a non running server.
 ----
 
-Or getting information about a particular command (e.g. `./artemis help create`).
+Or you can get help for a particular command.
+For example, `./artemis help create`:
 
 [,console]
 ----
 Usage: artemis create [--aio] [--allow-anonymous] [--autocreate] [--autodelete]
-                      [--blocking] [--clustered] [--cygwin]
+                      [--backup] [--blocking] [--clustered]
                       [--disable-persistence] [--failover-on-shutdown]
-                      [--force] [--jdbc] [--mapped] [--nio]
+                      [--force] [--jdbc] [--linux] [--mapped] [--nio]
                       [--no-amqp-acceptor] [--no-autocreate] [--no-autotune]
                       [--no-fsync] [--no-hornetq-acceptor] [--no-mqtt-acceptor]
                       [--no-stomp-acceptor] [--no-web] [--paging]
@@ -113,7 +122,7 @@ Usage: artemis create [--aio] [--allow-anonymous] [--autocreate] [--autodelete]
                       [--ssl-key-password=<sslKeyPassword>]
                       [--ssl-trust=<sslTrust>]
                       [--ssl-trust-password=<sslTrustPassword>]
-                      [--static-cluster=<staticNode>] [--user=<user>]
+                      [--staticCluster=<staticNode>] [--user=<user>]
                       [--java-options=<javaOptions>]... <directory>
 Create a new broker instance.
       <directory>            The instance directory to hold the broker's
@@ -131,6 +140,8 @@ Create a new broker instance.
                                Default: true.
       --autodelete           Allow automatic deletion of addresses & queues.
                                Default: false.
+      --backup               Be a backup broker. Valid for shared store or
+                               replication.
       --blocking             Block producers when address becomes full.
                                Opposite of --paging. Default: false.
       --cluster-password=<clusterPassword>
@@ -138,9 +149,7 @@ Create a new broker instance.
       --cluster-user=<clusterUser>
                              The user to use for clustering. Default: input.
       --clustered            Enable clustering.
-      --cygwin               Force Cygwin script creation. Default: based on
-                               your actual system.
-      --data=<data>          Directory where ActiveMQ data are stored. Paths
+      --data=<data>          Directory where Apache Artemis data is stored. Paths
                                can be absolute or relative to artemis.instance
                                directory. Default: data.
       --default-port=<defaultPort>
@@ -149,7 +158,7 @@ Create a new broker instance.
       --disable-persistence  Disable message persistence to the journal
       --encoding=<encoding>  The encoding that text files should use. Default:
                                UTF-8.
-      --etc=<etc>            Directory where ActiveMQ configuration is located.
+      --etc=<etc>            Directory where Apache Artemis configuration is located.
                                Paths can be absolute or relative to artemis.
                                instance directory. Default: etc.
       --failover-on-shutdown Whether broker shutdown will trigger failover for
@@ -163,7 +172,7 @@ Create a new broker instance.
       --global-max-size=<globalMaxSize>
                              Maximum amount of memory which message data may
                                consume. Default: half of the JVM's max memory.
-      --home=<home>          Directory where ActiveMQ Artemis is installed.
+      --home=<home>          Directory where Apache Artemis is installed.
       --host=<host>          Broker's host name. Default: 0.0.0.0 or input if
                                clustered).
       --http-host=<httpHost> Embedded web server's host name. Default:
@@ -205,6 +214,8 @@ Create a new broker instance.
       --journal-retention-max-bytes=<retentionMaxBytes>
                              Maximum number of bytes to keep in the retention
                                directory.
+      --linux, --cygwin      Force Linux or Cygwin script creation. Default:
+                               based on your actual system.
       --mapped               Set the journal as mapped.
       --max-hops=<maxHops>   Number of hops on the cluster configuration.
       --message-load-balancing=<messageLoadBalancing>
@@ -248,8 +259,7 @@ Create a new broker instance.
       --shared-store         Enable broker shared store.
       --silent               Disable all the inputs, and make a best guess for
                                any required input.
-      --slave                Be a slave broker. Valid for shared store or
-                               replication.
+      --slave                Deprecated for removal. Use 'backup' instead.
       --ssl-key=<sslKey>     Embedded web server's key store path.
       --ssl-key-password=<sslKeyPassword>
                              The key store's password.
@@ -257,7 +267,7 @@ Create a new broker instance.
                                authentication.
       --ssl-trust-password=<sslTrustPassword>
                              The trust store's password.
-      --static-cluster=<staticNode>
+      --staticCluster, --static-cluster=<staticNode>
                              Cluster node connectors list separated by comma, e.
                                g. "tcp://server:61616,tcp://server2:61616,tcp:
                                //server3:61616".
@@ -275,34 +285,28 @@ Create a new broker instance.
                                your actual system.
 ----
 
-== Bash and ZSH auto complete
+== Bash and Zsh auto complete
 
-Bash and ZSH provide ways to auto-complete command line interfaces. To integrate with that functionality you have the option to generate the 'auto-complete' script:
-
-[,console]
-----
-$ ./artemis auto-complete
-----
-
-This will generate a file named auto-complete-artemis.sh that should be used with:
+Bash and Zsh provide ways to auto-complete commands. To integrate with that functionality you have the option to generate the auto-complete script, i.e.:
 
 [,console]
 ----
-$ source ./auto-complete-artemis.sh
+$ source <(./artemis completion)
 ----
 
-After the auto completion installed in the bash session, bash would start to show auto-completion information upon the pressure of the key [TAB]:
+After the auto-completion is installed you can view auto-completion information by pressing kbd:[TAB]:
 
 [,console]
 ----
 $ ./artemis
-activation     browser        create         kill           perf-journal   run            transfer       version
-address        check          data           mask           producer       shell          upgrade
-auto-complete  consumer       help           perf           queue          stop           user
+activation    check         consumer      disconnect    mask          producer      run           transfer      version
+address       completion    create        help          perf          pwd           shell         upgrade
+browser       connect       data          kill          perf-journal  queue         stop          user
 ----
 
-Same showing options:
+In order to see the various parameters available you must type `--` then press kbd:[TAB]:
 
+[,console]
 ----
 $ ./artemis create --
 --addresses                             --jdbc-bindings-table-name              --paging
@@ -318,9 +322,8 @@ $ ./artemis create --
 
 == Input required
 
-Some functionality on the CLI may require user input if not provided through a parameter in cases like connecting to a broker or creating the broker instance.
-
-For example:
+Some functionality may require interactive user input if not explicitly provided through a parameter.
+For example, in cases like connecting to a broker or creating the broker instance:
 
 [,console]
 ----
@@ -330,22 +333,22 @@ Connection failed::AMQ229031: Unable to validate user from /127.0.0.1:56320. Use
 
 --user:
 Type the username for a retry
-a
+myUser
 
 --password: is mandatory with this configuration:
 Type the password for a retry
 ----
 
-== Artemis Shell
+== Shell
 
-To initialize the shell session, type './artemis shell' (or just ./artemis if you prefer):
+To initialize the shell session, type `./artemis shell` (or just `./artemis` if you prefer):
 
 [,console]
 ----
 $ ./artemis
 ----
 
-The ActiveMQ Artemis Shell provides an interface that can be used to call the CLI commands directly without leaving the Java Virtual Machine.
+The shell provides an interface that can be used to execute commands directly without leaving the Java Virtual Machine.
 
 [,console]
 ----
@@ -354,31 +357,31 @@ The ActiveMQ Artemis Shell provides an interface that can be used to call the CL
    / _ \|  _ \ __|/ _ \  \/  | |/  __/
   / ___ \ | \/ |_/  __/ |\/| | |\___ \
  /_/   \_\|   \__\____|_|  |_|_|/___ /
- Apache ActiveMQ Artemis
+ Apache Artemis
 
 
 For a list of commands, type help or press <TAB>:
 Type exit or press <CTRL-D> to leave the session:
-Apache ActiveMQ Artemis >
+Apache Artemis >
 ----
 
-=== Connecting
+=== Connecting Interactively
 
-It is possible to authenticate your CLI client once to the server, and reuse the connection information for future commands being performed:
+It is possible to authenticate your CLI client once to the server and reuse the connection information for additional commands:
 
 [,console]
 ----
-Apache ActiveMQ Artemis > connect --user=a --password=b --url tcp://localhost:61616
+Apache Artemis > connect --user=myUser --password=myPass --url tcp://localhost:61616
 Connection brokerURL = tcp://localhost:61616
 Connection Successful!
 ----
 Now any command requiring authentication will reuse these parameters.
 
-For example the sub-command 'queue stat' will reuse previous information to perform its connection to the broker.
+For example the sub-command `queue stat` will reuse previous information to perform its connection to the broker.
 
-[,console]
+[%nowrap,console]
 ----
-Apache ActiveMQ Artemis > queue stat
+Apache Artemis > queue stat
 Connection brokerURL = tcp://localhost:61616
 |NAME                     |ADDRESS                  |CONSUMER_COUNT|MESSAGE_COUNT|MESSAGES_ADDED|DELIVERING_COUNT|MESSAGES_ACKED|SCHEDULED_COUNT|ROUTING_TYPE|
 |DLQ                      |DLQ                      |0             |0            |0             |0               |0             |0              |ANYCAST     |
@@ -387,26 +390,24 @@ Connection brokerURL = tcp://localhost:61616
 |activemq.management.0b...|activemq.management.0b...|1             |0            |0             |0               |0             |0              |MULTICAST   |
 ----
 
-==== Connecting from Command Line
+=== Connecting Statically
 
-To make the initial connection simpler, it is possible to start the shell with an initial connection from the startup:
-
-[,console]
-----
-$ ./artemis shell --user <username> --password <password> --url <tcp://myserver:myport>
-----
-
-The CLI should not ask for an user/password for any further commands with this option being used:
-
-Example:
+It is possible to start the shell with an initial connection configured statically, e.g.:
 
 [,console]
 ----
-$ ./artemis shell --user a --password b
+$ ./artemis shell --user <username> --password <password> --url tcp://<hostname>:<port>
+----
+
+The CLI should not ask for a the broker URL or user/password for any further commands, e.g.:
+
+[%nowrap,console]
+----
+$ ./artemis shell --user myUser --password myPass
 ...
 
 
-Apache ActiveMQ Artemis > queue stat
+Apache Artemis > queue stat
 Connection brokerURL = tcp://localhost:61616
 |NAME                     |ADDRESS                  |CONSUMER_COUNT|MESSAGE_COUNT|MESSAGES_ADDED|DELIVERING_COUNT|MESSAGES_ACKED|SCHEDULED_COUNT|ROUTING_TYPE|
 |DLQ                      |DLQ                      |0             |0            |0             |0               |0             |0              |ANYCAST     |

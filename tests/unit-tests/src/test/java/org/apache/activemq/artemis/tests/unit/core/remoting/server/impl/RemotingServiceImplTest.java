@@ -22,17 +22,19 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
 import org.apache.activemq.artemis.tests.unit.core.remoting.server.impl.fake.FakeInterceptor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RemotingServiceImplTest {
 
@@ -42,11 +44,11 @@ public class RemotingServiceImplTest {
 
    private Configuration configuration;
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       serviceRegistry = new ServiceRegistryImpl();
       configuration = new ConfigurationImpl();
-      configuration.setAcceptorConfigurations(new HashSet<TransportConfiguration>());
+      configuration.setAcceptorConfigurations(new HashSet<>());
       remotingService = new RemotingServiceImpl(null, configuration, null, null, null, null, null, serviceRegistry);
    }
 
@@ -61,9 +63,9 @@ public class RemotingServiceImplTest {
 
       remotingService = new RemotingServiceImpl(null, configuration, null, null, null, null, null, serviceRegistry);
 
-      assertTrue(remotingService.getIncomingInterceptors().size() == 5);
-      assertTrue(remotingService.getIncomingInterceptors().get(0) instanceof FakeInterceptor);
-      assertTrue(remotingService.getIncomingInterceptors().get(0) != remotingService.getIncomingInterceptors().get(1));
+      assertEquals(5, remotingService.getIncomingInterceptors().size());
+      assertInstanceOf(FakeInterceptor.class, remotingService.getIncomingInterceptors().get(0));
+      assertNotSame(remotingService.getIncomingInterceptors().get(0), remotingService.getIncomingInterceptors().get(1));
    }
 
    /**
@@ -90,8 +92,8 @@ public class RemotingServiceImplTest {
 
       method.invoke(remotingService, configuration);
 
-      assertTrue(((List) incomingInterceptors.get(remotingService)).size() == 2);
-      assertTrue(((List) outgoingInterceptors.get(remotingService)).size() == 2);
+      assertEquals(2, ((List) incomingInterceptors.get(remotingService)).size());
+      assertEquals(2, ((List) outgoingInterceptors.get(remotingService)).size());
       assertTrue(((List) incomingInterceptors.get(remotingService)).contains(serviceRegistry.getIncomingInterceptors(null).get(0)));
       assertTrue(((List) outgoingInterceptors.get(remotingService)).contains(serviceRegistry.getOutgoingInterceptors(null).get(0)));
    }
@@ -118,8 +120,8 @@ public class RemotingServiceImplTest {
 
       remotingService = new RemotingServiceImpl(null, configuration, null, null, null, null, null, serviceRegistry);
 
-      assertTrue(((List) incomingInterceptors.get(remotingService)).size() == 2);
-      assertTrue(((List) outgoingInterceptors.get(remotingService)).size() == 2);
+      assertEquals(2, ((List) incomingInterceptors.get(remotingService)).size());
+      assertEquals(2, ((List) outgoingInterceptors.get(remotingService)).size());
       assertTrue(((List) incomingInterceptors.get(remotingService)).contains(serviceRegistry.getIncomingInterceptors(null).get(0)));
       assertTrue(((List) outgoingInterceptors.get(remotingService)).contains(serviceRegistry.getOutgoingInterceptors(null).get(0)));
    }

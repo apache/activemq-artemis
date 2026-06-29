@@ -21,6 +21,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+
 /**
  * A factory for producing executors that run all tasks in order, which delegate to a single common executor instance.
  */
@@ -63,7 +64,9 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
       return new OrderedExecutor(parent).setFair(fair);
    }
 
-   /** I couldn't figure out how to make a new method to return a generic Actor with a given type */
+   /**
+    * I couldn't figure out how to make a new method to return a generic Actor with a given type
+    */
    public Executor getParent() {
       return parent;
    }

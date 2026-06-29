@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -30,7 +36,8 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
 
@@ -70,7 +77,8 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
       server.getConfiguration().getAddressSettings().put(AUTO_CREATION_TOPIC_PREFIX + "#", autoCreateTopicAddressSettings);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageOnAnonymousProducerCausesQueueAutoCreation() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -86,13 +94,13 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          message.setAddress(queueName);
          message.setText(getTestName());
 
-         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.toSimpleString(queueName));
+         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.of(queueName));
          assertFalse(addressQueryResult.isExists());
 
          sender.send(message);
          sender.close();
 
-         addressQueryResult = server.addressQuery(SimpleString.toSimpleString(queueName));
+         addressQueryResult = server.addressQuery(SimpleString.of(queueName));
          assertTrue(addressQueryResult.isExists());
          assertTrue(addressQueryResult.getRoutingTypes().contains(RoutingType.ANYCAST));
          assertTrue(addressQueryResult.isAutoCreated());
@@ -101,7 +109,7 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          AmqpReceiver receiver = session.createReceiver(queueName);
          receiver.flow(1);
          AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
-         assertNotNull("Should have read message", received);
+         assertNotNull(received, "Should have read message");
          assertEquals(getTestName(), received.getText());
          received.accept();
 
@@ -111,7 +119,8 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageOnAnonymousProducerCausesTopicAutoCreation() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -129,12 +138,12 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          message.setAddress(topicName);
          message.setText("creating-topic-address");
 
-         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.toSimpleString(topicName));
+         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.of(topicName));
          assertFalse(addressQueryResult.isExists());
 
          sender.send(message);
 
-         addressQueryResult = server.addressQuery(SimpleString.toSimpleString(topicName));
+         addressQueryResult = server.addressQuery(SimpleString.of(topicName));
          assertTrue(addressQueryResult.isExists());
          assertTrue(addressQueryResult.getRoutingTypes().contains(RoutingType.MULTICAST));
          assertTrue(addressQueryResult.isAutoCreated());
@@ -152,12 +161,12 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          sender.send(message2);
 
          AmqpMessage received1 = receiver1.receive(10, TimeUnit.SECONDS);
-         assertNotNull("Should have read message", received1);
+         assertNotNull(received1, "Should have read message");
          assertEquals(getTestName(), received1.getText());
          received1.accept();
 
          AmqpMessage received2 = receiver2.receive(10, TimeUnit.SECONDS);
-         assertNotNull("Should have read message", received2);
+         assertNotNull(received2, "Should have read message");
          assertEquals(getTestName(), received2.getText());
          received1.accept();
 
@@ -169,7 +178,8 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageOnAnonymousProducerWithDestinationTypeAnnotationCausesQueueAutoCreation() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -189,13 +199,13 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          message.setAddress(queueName);
          message.setText(getTestName());
 
-         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.toSimpleString(queueName));
+         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.of(queueName));
          assertFalse(addressQueryResult.isExists());
 
          sender.send(message);
          sender.close();
 
-         addressQueryResult = server.addressQuery(SimpleString.toSimpleString(queueName));
+         addressQueryResult = server.addressQuery(SimpleString.of(queueName));
          assertTrue(addressQueryResult.isExists());
          assertTrue(addressQueryResult.getRoutingTypes().contains(RoutingType.ANYCAST));
          assertTrue(addressQueryResult.isAutoCreated());
@@ -204,7 +214,7 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          AmqpReceiver receiver = session.createReceiver(queueName);
          receiver.flow(1);
          AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
-         assertNotNull("Should have read message", received);
+         assertNotNull(received, "Should have read message");
          assertEquals(getTestName(), received.getText());
          received.accept();
 
@@ -214,7 +224,8 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageOnAnonymousProducerWithDestinationTypeAnnotationCausesTopicAutoCreation() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -233,12 +244,12 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          message.setAddress(topicName);
          message.setText("creating-topic-address");
 
-         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.toSimpleString(topicName));
+         AddressQueryResult addressQueryResult = server.addressQuery(SimpleString.of(topicName));
          assertFalse(addressQueryResult.isExists());
 
          sender.send(message);
 
-         addressQueryResult = server.addressQuery(SimpleString.toSimpleString(topicName));
+         addressQueryResult = server.addressQuery(SimpleString.of(topicName));
          assertTrue(addressQueryResult.isExists());
          assertTrue(addressQueryResult.getRoutingTypes().contains(RoutingType.MULTICAST));
          assertTrue(addressQueryResult.isAutoCreated());
@@ -257,12 +268,12 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          sender.send(message2);
 
          AmqpMessage received1 = receiver1.receive(10, TimeUnit.SECONDS);
-         assertNotNull("Should have read message", received1);
+         assertNotNull(received1, "Should have read message");
          assertEquals(getTestName(), received1.getText());
          received1.accept();
 
          AmqpMessage received2 = receiver2.receive(10, TimeUnit.SECONDS);
-         assertNotNull("Should have read message", received2);
+         assertNotNull(received2, "Should have read message");
          assertEquals(getTestName(), received2.getText());
          received1.accept();
 
@@ -274,7 +285,8 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageOnAnonymousRelayLinkUsingMessageTo() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -295,7 +307,7 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
          AmqpReceiver receiver = session.createReceiver(getQueueName());
          receiver.flow(1);
          AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
-         assertNotNull("Should have read message", received);
+         assertNotNull(received, "Should have read message");
          assertEquals("msg1", received.getMessageId());
          received.accept();
 
@@ -305,7 +317,8 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageFailsOnAnonymousRelayLinkWhenNoToValueSet() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -332,7 +345,8 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageFailsOnAnonymousRelayWhenToFieldHasNonExistingAddress() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

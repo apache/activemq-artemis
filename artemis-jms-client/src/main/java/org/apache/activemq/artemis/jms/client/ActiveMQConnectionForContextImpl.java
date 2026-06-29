@@ -28,18 +28,13 @@ import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
 
 public abstract class ActiveMQConnectionForContextImpl implements ActiveMQConnectionForContext {
 
-   final Runnable closeRunnable = new Runnable() {
-      @Override
-      public void run() {
-         try {
-            close();
-         } catch (JMSException e) {
-            throw JmsExceptionUtils.convertToRuntimeException(e);
-         }
+   final ReferenceCounter refCounter = new ReferenceCounterUtil(() -> {
+      try {
+         close();
+      } catch (JMSException e) {
+         throw JmsExceptionUtils.convertToRuntimeException(e);
       }
-   };
-
-   final ReferenceCounter refCounter = new ReferenceCounterUtil(closeRunnable);
+   });
 
    protected final ThreadAwareContext threadAwareContext = new ThreadAwareContext();
 

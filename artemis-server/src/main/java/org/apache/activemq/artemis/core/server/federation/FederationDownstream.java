@@ -145,7 +145,7 @@ public class FederationDownstream extends AbstractFederationStream implements Se
                this.clientSession = (ClientSessionInternal) clientSessionFactory.createSession(getUser(), getPassword(), false, true, true, clientSessionFactory.getServerLocator().isPreAcknowledge(), clientSessionFactory.getServerLocator().getAckBatchSize());
                this.clientSession.addFailureListener(this);
                this.clientSession.addMetaData(FederatedQueueConsumer.FEDERATION_NAME, federation.getName().toString());
-               this.clientSession.addMetaData(FEDERATION_DOWNSTREAM_NAME, config.getName().toString());
+               this.clientSession.addMetaData(FEDERATION_DOWNSTREAM_NAME, config.getName());
                this.clientSession.start();
 
                CoreRemotingConnection connection = (CoreRemotingConnection) clientSessionFactory.getConnection();

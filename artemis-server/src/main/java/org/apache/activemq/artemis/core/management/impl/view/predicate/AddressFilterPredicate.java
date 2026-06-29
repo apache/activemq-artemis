@@ -16,54 +16,20 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
-import org.apache.activemq.artemis.core.management.impl.view.AddressField;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 
-public class AddressFilterPredicate extends ActiveMQFilterPredicate<AddressInfo> {
-
-   private AddressField f;
-
-   private final ActiveMQServer server;
-
-   public AddressFilterPredicate(ActiveMQServer server) {
+public class AddressFilterPredicate extends ActiveMQFilterPredicate<AddressControl, AddressPredicateFilterPart> {
+   public AddressFilterPredicate() {
       super();
-      this.server = server;
    }
 
    @Override
-   public boolean test(AddressInfo address) {
-      if (f == null)
-         return true;
-      try {
-         switch (f) {
-            case ID:
-               return matches(address.getId());
-            case NAME:
-               return matches(address.getName());
-            case ROUTING_TYPES:
-               return matchAny(address.getRoutingTypes());
-            case PRODUCER_ID:
-               return matches("TODO");
-            case QUEUE_COUNT:
-               return matches(server.bindingQuery(address.getName()).getQueueNames().size());
-         }
-      } catch (Exception e) {
-         return false;
-      }
-
-      return true;
+   protected boolean filter(AddressControl address, AddressPredicateFilterPart filterPart) throws Exception {
+      return filterPart.filterPart(address);
    }
 
    @Override
-   public void setField(String field) {
-      if (field != null && !field.equals("")) {
-         this.f = AddressField.valueOfName(field);
-
-         //for backward compatibility
-         if (this.f == null) {
-            this.f = AddressField.valueOf(field);
-         }
-      }
+   public AddressPredicateFilterPart createFilterPart(String field, String operation, String value) {
+      return new AddressPredicateFilterPart(this, field, operation, value);
    }
 }

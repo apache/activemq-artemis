@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.timing.jms.bridge.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -64,11 +72,8 @@ import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -78,16 +83,13 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
    private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
-   private static final String SOURCE = RandomUtil.randomString();
+   private static final String SOURCE = RandomUtil.randomUUIDString();
 
-   private static final String TARGET = RandomUtil.randomString();
+   private static final String TARGET = RandomUtil.randomUUIDString();
 
    private ActiveMQServer server;
 
    private static final AtomicBoolean tcclClassFound = new AtomicBoolean(false);
-
-   @Rule
-   public ExpectedException thrown = ExpectedException.none();
 
 
    protected static TransactionManager newTransactionManager() {
@@ -134,21 +136,11 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
    }
 
    private static DestinationFactory newDestinationFactory(final Destination dest) {
-      return new DestinationFactory() {
-         @Override
-         public Destination createDestination() throws Exception {
-            return dest;
-         }
-      };
+      return () -> dest;
    }
 
    private static ConnectionFactoryFactory newConnectionFactoryFactory(final ConnectionFactory cf) {
-      return new ConnectionFactoryFactory() {
-         @Override
-         public ConnectionFactory createConnectionFactory() throws Exception {
-            return cf;
-         }
-      };
+      return () -> cf;
    }
 
    private static ConnectionFactory createConnectionFactory() {
@@ -215,12 +207,12 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       bridge.setTransactionManager(tm);
       bridge.setQualityOfServiceMode(QualityOfServiceMode.AT_MOST_ONCE);
 
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
       bridge.start();
 
       Thread.sleep(50);
-      Assert.assertFalse(bridge.isStarted());
-      Assert.assertTrue(bridge.isFailed());
+      assertFalse(bridge.isStarted());
+      assertTrue(bridge.isFailed());
 
       bridge.stop();
 
@@ -268,12 +260,12 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       bridge.setTransactionManager(tm);
       bridge.setQualityOfServiceMode(QualityOfServiceMode.AT_MOST_ONCE);
 
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
       bridge.start();
 
       Thread.sleep(500);
-      Assert.assertTrue(bridge.isStarted());
-      Assert.assertFalse(bridge.isFailed());
+      assertTrue(bridge.isStarted());
+      assertFalse(bridge.isFailed());
 
       bridge.stop();
    }
@@ -292,7 +284,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
-      Assert.assertNotNull(bridge);
+      assertNotNull(bridge);
 
       bridge.setSourceConnectionFactoryFactory(sourceCFF);
       bridge.setSourceDestinationFactory(sourceDF);
@@ -310,15 +302,15 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       bridge.setTargetUsername("targetuser");
       bridge.setTargetPassword("ENC(56a0db3b71043054269d11823973462f)");
 
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
       bridge.start();
-      Assert.assertTrue(bridge.isStarted());
+      assertTrue(bridge.isStarted());
 
       assertEquals("sourcepassword", bridge.getSourcePassword());
       assertEquals("targetpassword", bridge.getTargetPassword());
 
       bridge.stop();
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
    }
 
    @Test
@@ -333,7 +325,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
-      Assert.assertNotNull(bridge);
+      assertNotNull(bridge);
 
       bridge.setSourceConnectionFactoryFactory(sourceCFF);
       bridge.setSourceDestinationFactory(sourceDF);
@@ -346,21 +338,15 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       bridge.setTransactionManager(tm);
       bridge.setQualityOfServiceMode(QualityOfServiceMode.AT_MOST_ONCE);
 
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
       bridge.start();
-      Assert.assertTrue(bridge.isStarted());
+      assertTrue(bridge.isStarted());
 
       Connection targetConn = JMSBridgeImplTest.createConnectionFactory().createConnection();
       Session targetSess = targetConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer consumer = targetSess.createConsumer(targetDF.createDestination());
       final List<Message> messages = new LinkedList<>();
-      MessageListener listener = new MessageListener() {
-
-         @Override
-         public void onMessage(final Message message) {
-            messages.add(message);
-         }
-      };
+      MessageListener listener = message -> messages.add(message);
       consumer.setMessageListener(listener);
       targetConn.start();
 
@@ -370,13 +356,13 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       producer.send(sourceSess.createTextMessage());
       sourceConn.close();
 
-      Assert.assertEquals(0, messages.size());
+      assertEquals(0, messages.size());
       Thread.sleep(3 * maxBatchTime);
 
-      Assert.assertEquals(1, messages.size());
+      assertEquals(1, messages.size());
 
       bridge.stop();
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
 
       targetConn.close();
    }
@@ -392,7 +378,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
-      Assert.assertNotNull(bridge);
+      assertNotNull(bridge);
 
       bridge.setSourceConnectionFactoryFactory(sourceCFF);
       bridge.setSourceDestinationFactory(sourceDF);
@@ -405,21 +391,18 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       bridge.setTransactionManager(tm);
       bridge.setQualityOfServiceMode(QualityOfServiceMode.AT_MOST_ONCE);
 
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
       bridge.start();
-      Assert.assertTrue(bridge.isStarted());
+      assertTrue(bridge.isStarted());
 
       Connection targetConn = JMSBridgeImplTest.createConnectionFactory().createConnection();
       Session targetSess = targetConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer consumer = targetSess.createConsumer(targetDF.createDestination());
       final List<Message> messages = new LinkedList<>();
       final CountDownLatch latch = new CountDownLatch(numMessages);
-      MessageListener listener = new MessageListener() {
-         @Override
-         public void onMessage(final Message message) {
-            messages.add(message);
-            latch.countDown();
-         }
+      MessageListener listener = message -> {
+         messages.add(message);
+         latch.countDown();
       };
       consumer.setMessageListener(listener);
       targetConn.start();
@@ -437,20 +420,20 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
 
       Thread.sleep(1000);
 
-      Assert.assertEquals(0, messages.size());
+      assertEquals(0, messages.size());
 
       TextMessage msg = sourceSess.createTextMessage();
 
       producer.send(msg);
 
-      Assert.assertTrue(latch.await(10000, TimeUnit.MILLISECONDS));
+      assertTrue(latch.await(10000, TimeUnit.MILLISECONDS));
 
       sourceConn.close();
 
-      Assert.assertEquals(numMessages, messages.size());
+      assertEquals(numMessages, messages.size());
 
       bridge.stop();
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
 
       targetConn.close();
    }
@@ -475,7 +458,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
-      Assert.assertNotNull(bridge);
+      assertNotNull(bridge);
 
       bridge.setSourceConnectionFactoryFactory(sourceCFF);
       bridge.setSourceDestinationFactory(sourceDF);
@@ -488,9 +471,9 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       bridge.setTransactionManager(tm);
       bridge.setQualityOfServiceMode(QualityOfServiceMode.AT_MOST_ONCE);
 
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
       bridge.start();
-      Assert.assertTrue(bridge.isStarted());
+      assertTrue(bridge.isStarted());
 
       Connection sourceConn = JMSBridgeImplTest.createConnectionFactory().createConnection();
       Session sourceSess = sourceConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -504,12 +487,12 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       }
 
       sourceConn.close();
-      SimpleString add = new SimpleString(JMSBridgeImplTest.SOURCE);
+      SimpleString add = SimpleString.of(JMSBridgeImplTest.SOURCE);
       QueueControl jmsQueueControl = MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(), ObjectNameBuilder.DEFAULT.getQueueObjectName(add, add, RoutingType.ANYCAST), QueueControl.class, false);
       assertNotEquals(jmsQueueControl.getDeliveringCount(), numMessages);
 
       bridge.stop();
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
    }
 
    @Test
@@ -536,7 +519,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
-      Assert.assertNotNull(bridge);
+      assertNotNull(bridge);
 
       bridge.setSourceConnectionFactoryFactory(sourceCFF);
       bridge.setSourceDestinationFactory(sourceDF);
@@ -549,17 +532,17 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       bridge.setTransactionManager(tm);
       bridge.setQualityOfServiceMode(QualityOfServiceMode.AT_MOST_ONCE);
 
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
       bridge.start();
-      Assert.assertTrue(bridge.isStarted());
+      assertTrue(bridge.isStarted());
 
       sourceConn.get().getExceptionListener().onException(new JMSException("exception on the source"));
       Thread.sleep(4 * bridge.getFailureRetryInterval());
       // reconnection must have succeeded
-      Assert.assertTrue(bridge.isStarted());
+      assertTrue(bridge.isStarted());
 
       bridge.stop();
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
    }
 
    @Test
@@ -592,7 +575,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
-      Assert.assertNotNull(bridge);
+      assertNotNull(bridge);
 
       bridge.setSourceConnectionFactoryFactory(sourceCFF);
       bridge.setSourceDestinationFactory(sourceDF);
@@ -605,14 +588,14 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       bridge.setTransactionManager(tm);
       bridge.setQualityOfServiceMode(QualityOfServiceMode.AT_MOST_ONCE);
 
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
       bridge.start();
-      Assert.assertTrue(bridge.isStarted());
+      assertTrue(bridge.isStarted());
 
       sourceConn.get().getExceptionListener().onException(new JMSException("exception on the source"));
       Thread.sleep(4 * bridge.getFailureRetryInterval());
       // reconnection must have failed
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
 
    }
 
@@ -642,7 +625,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
          TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
          JMSBridgeImpl bridge = new JMSBridgeImpl();
-         Assert.assertNotNull(bridge);
+         assertNotNull(bridge);
 
          bridge.setSourceConnectionFactoryFactory(sourceCFF);
          bridge.setSourceDestinationFactory(sourceDF);
@@ -655,9 +638,9 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
          bridge.setTransactionManager(tm);
          bridge.setQualityOfServiceMode(QualityOfServiceMode.AT_MOST_ONCE);
 
-         Assert.assertFalse(bridge.isStarted());
+         assertFalse(bridge.isStarted());
          bridge.start();
-         Assert.assertTrue(bridge.isStarted());
+         assertTrue(bridge.isStarted());
 
          unsetMockTCCL(mockTccl);
          tcclClassFound.set(false);
@@ -665,14 +648,15 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
          sourceConn.get().getExceptionListener().onException(new JMSException("exception on the source"));
          Thread.sleep(4 * bridge.getFailureRetryInterval());
          // reconnection must have succeeded
-         Assert.assertTrue(bridge.isStarted());
+         assertTrue(bridge.isStarted());
 
          bridge.stop();
-         Assert.assertFalse(bridge.isStarted());
+         assertFalse(bridge.isStarted());
          assertTrue(tcclClassFound.get());
       } finally {
-         if (mockTccl != null)
+         if (mockTccl != null) {
             unsetMockTCCL(mockTccl);
+         }
       }
    }
 
@@ -689,7 +673,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -697,8 +681,8 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
-      server.createQueue(new QueueConfiguration(JMSBridgeImplTest.SOURCE).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(JMSBridgeImplTest.TARGET).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(JMSBridgeImplTest.SOURCE).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(JMSBridgeImplTest.TARGET).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Test
@@ -710,7 +694,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
-      Assert.assertNotNull(bridge);
+      assertNotNull(bridge);
 
       bridge.setSourceConnectionFactoryFactory(sourceCFF);
       bridge.setSourceDestinationFactory(sourceDF);
@@ -722,7 +706,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       bridge.setMaxBatchSize(10);
       bridge.setQualityOfServiceMode(QualityOfServiceMode.DUPLICATES_OK);
 
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
       bridge.start();
 
       Field field = JMSBridgeImpl.class.getDeclaredField("tm");
@@ -730,40 +714,41 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       assertNull(field.get(bridge));
 
       bridge.stop();
-      Assert.assertFalse(bridge.isStarted());
+      assertFalse(bridge.isStarted());
    }
 
    @Test
    public void testThrowErrorWhenTMNotSetForOnceOnly() throws Exception {
-      thrown.expect(RuntimeException.class);
+      assertThrows(RuntimeException.class, () -> {
 
-      ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
-      ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
-      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
-      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
+         ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
+         ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
+         DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
+         DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
 
-      JMSBridgeImpl bridge = new JMSBridgeImpl();
-      Assert.assertNotNull(bridge);
+         JMSBridgeImpl bridge = new JMSBridgeImpl();
+         assertNotNull(bridge);
 
-      bridge.setSourceConnectionFactoryFactory(sourceCFF);
-      bridge.setSourceDestinationFactory(sourceDF);
-      bridge.setTargetConnectionFactoryFactory(targetCFF);
-      bridge.setTargetDestinationFactory(targetDF);
-      bridge.setFailureRetryInterval(10);
-      bridge.setMaxRetries(1);
-      bridge.setMaxBatchTime(-1);
-      bridge.setMaxBatchSize(10);
-      bridge.setQualityOfServiceMode(QualityOfServiceMode.ONCE_AND_ONLY_ONCE);
+         bridge.setSourceConnectionFactoryFactory(sourceCFF);
+         bridge.setSourceDestinationFactory(sourceDF);
+         bridge.setTargetConnectionFactoryFactory(targetCFF);
+         bridge.setTargetDestinationFactory(targetDF);
+         bridge.setFailureRetryInterval(10);
+         bridge.setMaxRetries(1);
+         bridge.setMaxBatchTime(-1);
+         bridge.setMaxBatchSize(10);
+         bridge.setQualityOfServiceMode(QualityOfServiceMode.ONCE_AND_ONLY_ONCE);
 
-      Assert.assertFalse(bridge.isStarted());
-      bridge.start();
+         assertFalse(bridge.isStarted());
+         bridge.start();
 
-      Field field = JMSBridgeImpl.class.getDeclaredField("tm");
-      field.setAccessible(true);
-      assertNotNull(field.get(bridge));
+         Field field = JMSBridgeImpl.class.getDeclaredField("tm");
+         field.setAccessible(true);
+         assertNotNull(field.get(bridge));
 
-      bridge.stop();
-      Assert.assertFalse(bridge.isStarted());
+         bridge.stop();
+         assertFalse(bridge.isStarted());
+      });
    }
 
    private static class MockContextClassLoader extends ClassLoader {

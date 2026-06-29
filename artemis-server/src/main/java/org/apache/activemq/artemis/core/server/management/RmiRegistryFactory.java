@@ -37,16 +37,10 @@ public class RmiRegistryFactory {
    private String host;
    private HostLimitedServerSocketFactory socketFactory;
 
-   /**
-    * @return the port
-    */
    public int getPort() {
       return port;
    }
 
-   /**
-    * @param port the port to set
-    */
    public void setPort(int port) {
       this.port = port;
    }
@@ -59,11 +53,8 @@ public class RmiRegistryFactory {
       this.host = host;
    }
 
-   /**
-    * Create a server socket for testing purposes.
-    */
    ServerSocket createTestSocket() throws IOException {
-      return socketFactory.createServerSocket(1100);
+      return socketFactory.createServerSocket(0);
    }
 
    public Object getObject() throws Exception {

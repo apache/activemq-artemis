@@ -38,11 +38,11 @@ under the License.
 
       <ha-policy>
          <replication>
-            <slave>
+            <backup>
                <allow-failback>true</allow-failback>
                <!-- not needed but tells the backup not to restart after failback as there will be > 0 backups saved -->
                <max-saved-replicated-journals-size>0</max-saved-replicated-journals-size>
-            </slave>
+            </backup>
          </replication>
       </ha-policy>
 
@@ -85,7 +85,7 @@ under the License.
       </security-settings>
       <address-settings>
          <!-- if you define auto-create on certain queues, management has to be auto-create -->
-         <address-setting match="activemq.management#">
+         <address-setting match="activemq.management.#">
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
@@ -104,8 +104,10 @@ under the License.
             <!-- with -1 only the global-max-size is in use for limiting -->
             <max-size-bytes>10MB</max-size-bytes>
             <page-size-bytes>1MB</page-size-bytes>
+
             <max-read-page-messages>-1</max-read-page-messages>
-            <max-read-page-bytes>-1</max-read-page-bytes>
+            <max-read-page-bytes>20M</max-read-page-bytes>
+            <prefetch-page-bytes>2MB</prefetch-page-bytes>
 
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>

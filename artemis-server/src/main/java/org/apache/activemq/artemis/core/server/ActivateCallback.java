@@ -18,38 +18,39 @@ package org.apache.activemq.artemis.core.server;
 
 public interface ActivateCallback {
 
-   /*
+   /**
     * this is called before any services are started when the server first initialised
     */
    default void preActivate() {
    }
 
-   /*
-    * this is called after most of the services have been started but before any cluster resources or JMS resources have been
+   /**
+    * this is called after most of the services have been started but before any cluster resources or JMS resources have
+    * been
     */
    default void activated() {
    }
 
-   /*
+   /**
     * this is called when the server is stopping, after any network resources and clients are closed but before the rest
     * of the resources
     */
    default void deActivate() {
    }
 
-   /*
+   /**
     * this is called when the server is stopping, before any resources or clients are closed/stopped
     */
    default void preDeActivate() {
    }
 
-   /*
+   /**
     * this is called when all resources have been started including any JMS resources
     */
    default void activationComplete() {
    }
 
-   /*
+   /**
     * This is called when the broker is stopped (no shutdown in place)
     */
    default void stop(ActiveMQServer server) {
@@ -57,6 +58,4 @@ public interface ActivateCallback {
 
    default void shutdown(ActiveMQServer server) {
    }
-
-
 }

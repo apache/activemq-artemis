@@ -17,9 +17,6 @@
 package org.apache.activemq.cli.test;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -28,50 +25,39 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
-import org.apache.activemq.artemis.component.WebTmpCleaner;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementContext;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
+import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+public class WebServerCLITest extends ArtemisTestCase {
 
-public class WebServerCLITest {
-
-   @Rule
-   public TemporaryFolder temporaryFolder;
-
-   @Rule
-   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File temporaryFolder;
 
    private String original = System.getProperty("java.security.auth.login.config");
 
-   public WebServerCLITest() {
-      File parent = new File("./target/tmp");
-      parent.mkdirs();
-      temporaryFolder = new TemporaryFolder(parent);
-   }
-
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
-      System.setProperty("java.security.auth.login.config", temporaryFolder.getRoot().getAbsolutePath() + "/etc/login.config");
+      System.setProperty("java.security.auth.login.config", temporaryFolder.getAbsolutePath() + "/etc/login.config");
       Run.setEmbedded(true);
       PropertiesLoader.resetUsersAndGroupsCache();
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       ActiveMQClient.clearThreadPools();
       System.clearProperty("artemis.instance");
@@ -90,49 +76,21 @@ public class WebServerCLITest {
    @Test
    public void testStopEmbeddedWebServerOnCriticalIOError() throws Exception {
       Run.setEmbedded(true);
-      File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
+      File instance1 = new File(temporaryFolder, "instance_user");
       System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
-      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-stomp-acceptor", "--no-hornetq-acceptor");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune", "--no-amqp-acceptor", "--no-mqtt-acceptor", "--no-stomp-acceptor", "--no-hornetq-acceptor", "--user", "admin", "--password", "admin");
       System.setProperty("artemis.instance", instance1.getAbsolutePath());
       Object result = Artemis.internalExecute("run");
       ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>) result).getB();
       List<ActiveMQComponent> externalComponents = activeMQServer.getExternalComponents();
 
-      /**
-       * simulate critical IO error as this is what is eventually called by org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl.ShutdownOnCriticalErrorListener
-       */
+      // simulate critical IO error as this is what is eventually called by org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl.ShutdownOnCriticalErrorListener
       ((ActiveMQServerImpl) activeMQServer).stop(false, true, false);
 
       for (ActiveMQComponent externalComponent : externalComponents) {
          assertTrue(Wait.waitFor(() -> externalComponent.isStarted() == false, 3000, 100));
       }
       stopServer();
-   }
-
-
-   @Test
-   public void testCleanupFolder() throws Exception {
-      List<File> fileList = new ArrayList<>();
-      for (int i = 0; i < 10; i++) {
-         File directory =  temporaryFolder.newFolder("test & output " + i);
-         fillup(directory);
-      }
-      Process process = WebTmpCleaner.cleanupTmpFiles(null, fileList);
-      Assert.assertEquals(0, process.waitFor());
-      for (File f : fileList) {
-         Assert.assertFalse(f.exists());
-      }
-
-   }
-
-   private void fillup(File file) throws Exception {
-      file.mkdirs();
-      for (int i = 0; i < 10; i++) {
-         File fi = new File(file, "file" + i + ".txt");
-         PrintStream str = new PrintStream(new FileOutputStream(fi));
-         str.println("hello");
-         str.close();
-      }
    }
 
    private void stopServer() throws Exception {

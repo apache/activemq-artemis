@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTopologyUpdatesMessage {
@@ -38,9 +40,6 @@ public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTo
       buffer.writeInt(clientVersion);
    }
 
-   /**
-    * @return the clientVersion
-    */
    public int getClientVersion() {
       return clientVersion;
    }
@@ -53,30 +52,28 @@ public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTo
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + clientVersion;
-      return result;
+      return super.hashCode() + Objects.hashCode(clientVersion);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", clientVersion=" + clientVersion);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", clientVersion=" + clientVersion);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SubscribeClusterTopologyUpdatesMessageV2))
+      }
+      if (!(obj instanceof SubscribeClusterTopologyUpdatesMessageV2 other)) {
          return false;
-      SubscribeClusterTopologyUpdatesMessageV2 other = (SubscribeClusterTopologyUpdatesMessageV2) obj;
-      if (clientVersion != other.clientVersion)
-         return false;
-      return true;
+      }
+
+      return clientVersion == other.clientVersion;
    }
 }

@@ -20,11 +20,10 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * An expression which performs an operation on two expression values
- *
- * @version $Revision: 1.3 $
  */
 public abstract class UnaryExpression implements Expression {
 
@@ -43,8 +42,8 @@ public abstract class UnaryExpression implements Expression {
             if (rvalue == null) {
                return null;
             }
-            if (rvalue instanceof Number) {
-               return negate((Number) rvalue);
+            if (rvalue instanceof Number number) {
+               return negate(number);
             }
             return null;
          }
@@ -85,7 +84,7 @@ public abstract class UnaryExpression implements Expression {
 
          @Override
          public String toString() {
-            StringBuffer answer = new StringBuffer();
+            StringBuilder answer = new StringBuilder();
             answer.append(right);
             answer.append(" ");
             answer.append(getExpressionSymbol());
@@ -212,7 +211,7 @@ public abstract class UnaryExpression implements Expression {
          bd = bd.negate();
 
          if (BD_LONG_MIN_VALUE.compareTo(bd) == 0) {
-            return Long.valueOf(Long.MIN_VALUE);
+            return Long.MIN_VALUE;
          }
          return bd;
       } else {
@@ -228,55 +227,31 @@ public abstract class UnaryExpression implements Expression {
       right = expression;
    }
 
-   /**
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "(" + getExpressionSymbol() + " " + right.toString() + ")";
    }
 
-   /**
-    * @see java.lang.Object#hashCode()
-    */
    @Override
    public int hashCode() {
-      int result = right.hashCode();
-      result = 31 * result + getExpressionSymbol().hashCode();
-      return result;
+      return Objects.hash(right, getExpressionSymbol());
    }
 
-   /**
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof UnaryExpression other)) {
          return false;
       }
 
-      final UnaryExpression that = (UnaryExpression) o;
-
-      if (!this.getExpressionSymbol().equals(that.getExpressionSymbol())) {
-         return false;
-      }
-
-      if (right != null && !right.equals(that.right)) {
-         return false;
-      }
-
-      return true;
+      return Objects.equals(this.getExpressionSymbol(), other.getExpressionSymbol()) &&
+             Objects.equals(this.right, other.right);
    }
 
    /**
-    * Returns the symbol that represents this binary expression. For example,
-    * addition is represented by "+"
-    *
-    * @return
+    * {@return the symbol that represents this binary expression, e.g. addition is represented by "+"}
     */
    public abstract String getExpressionSymbol();
 

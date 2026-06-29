@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +30,8 @@ import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +42,14 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testReceiverCanDrainMessagesQueue() throws Exception {
       doTestReceiverCanDrainMessages(false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testReceiverCanDrainMessagesTopic() throws Exception {
       doTestReceiverCanDrainMessages(true);
    }
@@ -73,7 +80,7 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
       receiver.drain(MSG_COUNT);
       for (int i = 0; i < MSG_COUNT; ++i) {
          AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
-         assertNotNull("Failed to read message: " + (i + 1), message);
+         assertNotNull(message, "Failed to read message: " + (i + 1));
          logger.info("Read message: {}", message.getMessageId());
          message.accept();
       }
@@ -82,12 +89,14 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPullWithNoMessageGetDrainedQueue() throws Exception {
       doTestPullWithNoMessageGetDrained(false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPullWithNoMessageGetDrainedTopic() throws Exception {
       doTestPullWithNoMessageGetDrained(true);
    }
@@ -123,12 +132,14 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPullOneFromRemoteQueue() throws Exception {
       doTestPullOneFromRemote(false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPullOneFromRemoteTopic() throws Exception {
       doTestPullOneFromRemote(true);
    }
@@ -168,12 +179,14 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMultipleZeroResultPullsQueue() throws Exception {
       doTestMultipleZeroResultPulls(false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMultipleZeroResultPullsTopic() throws Exception {
       doTestMultipleZeroResultPulls(true);
    }

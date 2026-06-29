@@ -17,13 +17,10 @@
 
 package org.apache.activemq.artemis.core.persistence;
 
-
-
-/** this is a list for all the persisters
-    The sole purpose of this is to make sure these IDs will not be duplicate
-     so we know where to find IDs.
-*/
-
+/**
+ * This is a list for all the persisters. The sole purpose of this is to make sure these IDs will not be duplicate so we
+ * know where to find IDs.
+ */
 public class PersisterIDs {
 
    public static final int MAX_PERSISTERS = 5;

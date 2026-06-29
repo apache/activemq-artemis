@@ -16,30 +16,38 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class QueueConfigTest {
 
    @Test
    public void addressMustBeDefaultedToName() {
-      final QueueConfig queueConfig = QueueConfig.builderWith(1L, new SimpleString("queue_name")).build();
-      Assert.assertEquals(queueConfig.name(), queueConfig.address());
+      final QueueConfig queueConfig = QueueConfig.builderWith(1L, SimpleString.of("queue_name")).build();
+      assertEquals(queueConfig.name(), queueConfig.address());
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test
    public void cannotAllowNullAddress() {
-      QueueConfig.builderWith(1L, new SimpleString("queue_name"), null);
+      assertThrows(IllegalStateException.class, () -> {
+         QueueConfig.builderWith(1L, SimpleString.of("queue_name"), null);
+      });
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test
    public void cannotAllowNullNameWithoutAddress() {
-      QueueConfig.builderWith(1L, null);
+      assertThrows(IllegalStateException.class, () -> {
+         QueueConfig.builderWith(1L, null);
+      });
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test
    public void cannotAllowNullNameWithAddress() {
-      QueueConfig.builderWith(1L, null, new SimpleString("queue_address"));
+      assertThrows(IllegalStateException.class, () -> {
+         QueueConfig.builderWith(1L, null, SimpleString.of("queue_address"));
+      });
    }
 }

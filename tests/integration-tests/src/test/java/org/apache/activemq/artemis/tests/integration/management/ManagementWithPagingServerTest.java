@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonNumber;
 import org.apache.activemq.artemis.json.JsonObject;
@@ -23,6 +29,8 @@ import org.apache.activemq.artemis.json.JsonValue;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.JsonUtil;
@@ -41,14 +49,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * This class contains tests for core management
- * functionalities that are affected by a server
- * in paging mode.
+ * This class contains tests for core management functionalities that are affected by a server in paging mode.
  */
 public class ManagementWithPagingServerTest extends ManagementTestBase {
 
@@ -59,10 +64,10 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
 
    @Test
    public void testListMessagesAsJSON() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
-      session1.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       QueueControl queueControl = createManagementControl(address, queue);
 
@@ -107,16 +112,16 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
 
    @Test
    public void testListMessagesAsJSONWithFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
-      session1.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       QueueControl queueControl = createManagementControl(address, queue);
 
       int num = 1000;
 
-      SimpleString key = new SimpleString("key");
+      SimpleString key = SimpleString.of("key");
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
       String filter = key + " =" + matchingValue;
@@ -139,12 +144,12 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       }
 
       String jsonString = queueControl.listMessagesAsJSON(filter);
-      Assert.assertNotNull(jsonString);
+      assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(num / 2, array.size());
+      assertEquals(num / 2, array.size());
 
       long l = Long.parseLong(array.getJsonObject(0).get("key").toString().replaceAll("\"", ""));
-      Assert.assertEquals(matchingValue, l);
+      assertEquals(matchingValue, l);
 
       long n = queueControl.countMessages(filter);
       assertEquals(num / 2, n);
@@ -161,10 +166,10 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
    //message iteration.
    @Test
    public void testListMessagesAsJSONWhilePagingOnGoing() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
-      session1.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       QueueControl queueControl = createManagementControl(address, queue);
 
@@ -197,8 +202,128 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       assertNull(console.getError());
    }
 
+   @Test
+   public void testCopyMessageWhilstPaging() throws Exception {
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+
+      SimpleString otherAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString otherQueue = RandomUtil.randomUUIDSimpleString();
+
+      session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
+      session1.createQueue(QueueConfiguration.of(otherQueue).setAddress(otherAddress));
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      QueueControl otherQueueControl = createManagementControl(otherAddress, otherQueue);
+
+      int num = 100;
+
+      ClientProducer producer = session1.createProducer(address);
+      for (int i = 0; i < num; i++) {
+         ClientMessage message = session1.createMessage(true).writeBodyBufferString("Message" + i);
+         producer.send(message);
+      }
+
+      Map<String, Object>[] messages = queueControl.listMessages(null);
+
+      long messageID = (Long) messages[99].get("messageID");
+
+      assertTrue(queueControl.copyMessage(messageID, otherQueue.toString()));
+
+      messageID = (Long) messages[0].get("messageID");
+
+      assertTrue(queueControl.copyMessage(messageID, otherQueue.toString()));
+
+      Map<String, Object>[] copiedMessages = otherQueueControl.listMessages(null);
+
+      //this validates copying of a paged message
+      assertEquals(2, copiedMessages.length);
+   }
+
+   @Test
+   public void testCopyMessageWhilstPagingSameAddress() throws Exception {
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+
+      SimpleString otherQueue = RandomUtil.randomUUIDSimpleString();
+
+      session1.createQueue(QueueConfiguration.of(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+      session1.createQueue(QueueConfiguration.of(otherQueue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+
+      QueueControl queueControl = createManagementControl(address, queue, RoutingType.ANYCAST);
+
+      QueueControl otherQueueControl = createManagementControl(address, otherQueue, RoutingType.ANYCAST);
+
+      int num = 200;
+
+      ClientProducer producer = session1.createProducer(address);
+      for (int i = 0; i < num; i++) {
+         ClientMessage message = session1.createMessage(true).writeBodyBufferString("Message" + i);
+         producer.send(message);
+      }
+
+      Map<String, Object>[] messages = queueControl.listMessages(null);
+
+      assertEquals(100, messages.length);
+
+      Map<String, Object>[] otherMessages = otherQueueControl.listMessages(null);
+
+      assertEquals(100, otherMessages.length);
+
+      long messageID = (Long) messages[0].get("messageID");
+
+      assertTrue(queueControl.copyMessage(messageID, otherQueue.toString()));
+
+      otherMessages = otherQueueControl.listMessages(null);
+
+      assertEquals(101, otherMessages.length);
+
+      messageID = (Long) otherMessages[100].get("messageID");
+
+      //this validates copying of a paged message
+      assertTrue(otherQueueControl.copyMessage(messageID, queue.toString()));
+   }
+
+   @Test
+   public void testMoveMessageWhilstPagingAndConsuming() throws Exception {
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+
+      SimpleString otherAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString otherQueue = RandomUtil.randomUUIDSimpleString();
+
+      session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
+      session1.createQueue(QueueConfiguration.of(otherQueue).setAddress(otherAddress));
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      QueueControl otherQueueControl = createManagementControl(otherAddress, otherQueue);
+
+      int num = 1000;
+
+      ClientProducer producer = session1.createProducer(address);
+      for (int i = 0; i < num; i++) {
+         ClientMessage message = session1.createMessage(true).writeBodyBufferString("Message" + i);
+         producer.send(message);
+      }
+
+      ManagementCopyThread console = new ManagementCopyThread(queueControl, otherQueue.toString());
+      ReceiverThread receiver = new ReceiverThread(queue, num, 0);
+      console.start();
+      receiver.start();
+
+      receiver.join();
+      console.stop = true;
+      console.join();
+
+      Map<String, Object>[] messages = otherQueueControl.listMessages(null);
+
+      assertEquals(messages.length, console.copiedMessages);
+   }
+
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -327,6 +452,46 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
                   Thread.sleep(1000);
                } catch (InterruptedException e) {
                   //ignore
+               }
+            }
+         } catch (Exception e) {
+            error = e;
+         }
+      }
+
+      public Exception getError() {
+         return error;
+      }
+
+      public void exit() {
+         stop = true;
+      }
+   }
+
+   private class ManagementCopyThread extends Thread {
+
+      private QueueControl queueControl;
+      private String queue;
+      private volatile boolean stop = false;
+
+      int copiedMessages = 0;
+      private Exception error = null;
+
+      private ManagementCopyThread(QueueControl queueControl, String queue) {
+         this.queueControl = queueControl;
+         this.queue = queue;
+      }
+
+      @Override
+      public void run() {
+         try {
+            Random random = new Random(System.currentTimeMillis());
+            while (!stop) {
+               long messageID = random.nextInt(1000);
+               boolean copied = queueControl.copyMessage(messageID, queue);
+               System.out.println("messageID = " + messageID);
+               if (copied) {
+                  copiedMessages++;
                }
             }
          } catch (Exception e) {

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -29,8 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DeleteQueueRestartTest extends ActiveMQTestBase {
 
@@ -62,7 +63,7 @@ public class DeleteQueueRestartTest extends ActiveMQTestBase {
 
       final ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(DeleteQueueRestartTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(DeleteQueueRestartTest.ADDRESS));
 
       ClientProducer prod = session.createProducer(DeleteQueueRestartTest.ADDRESS);
 
@@ -74,19 +75,16 @@ public class DeleteQueueRestartTest extends ActiveMQTestBase {
       final CountDownLatch count = new CountDownLatch(1);
 
       // Using another thread, as the deleteQueue is a blocked call
-      new Thread() {
-         @Override
-         public void run() {
-            try {
-               session.deleteQueue(DeleteQueueRestartTest.ADDRESS);
-               session.close();
-               count.countDown();
-            } catch (ActiveMQException e) {
-            }
+      new Thread(() -> {
+         try {
+            session.deleteQueue(DeleteQueueRestartTest.ADDRESS);
+            session.close();
+            count.countDown();
+         } catch (ActiveMQException e) {
          }
-      }.start();
+      }).start();
 
-      Assert.assertTrue(count.await(5, TimeUnit.SECONDS));
+      assertTrue(count.await(5, TimeUnit.SECONDS));
 
       server.stop();
 

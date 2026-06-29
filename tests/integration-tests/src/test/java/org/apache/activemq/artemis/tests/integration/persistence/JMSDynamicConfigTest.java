@@ -16,14 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.naming.NamingException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JMSDynamicConfigTest extends JMSTestBase {
 
@@ -36,7 +40,7 @@ public class JMSDynamicConfigTest extends JMSTestBase {
 
    @Test
    public void testStart() throws Exception {
-      ArrayList<String> connectors = new ArrayList<>();
+      List<String> connectors = new ArrayList<>();
 
       connectors.add("invm");
 

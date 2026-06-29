@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.api.core;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -24,11 +25,12 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 /**
  * This file represents how we are using Discovery.
  * <p>
- * The discovery configuration could either use plain UDP, or JGroups.<br>
- * If using UDP, all the UDP properties will be filled and the jgroups properties will be
- * {@code null}.<br>
- * If using JGroups, all the UDP properties will be -1 or {@code null} and the jgroups properties
- * will be filled.<br>
+ * The discovery configuration could either use plain UDP or JGroups.
+ * <p>
+ * If using UDP, all the UDP properties will be filled and the jgroups properties will be {@code null}.
+ * <p>
+ * If using JGroups, all the UDP properties will be -1 or {@code null} and the jgroups properties will be filled.
+ * <p>
  * If by any reason, both properties are filled, the JGroups takes precedence. That means, if
  * {@code jgroupsFile != null} then the Grouping method used will be JGroups.
  */
@@ -42,9 +44,9 @@ public final class DiscoveryGroupConfiguration implements Serializable {
 
    private long discoveryInitialWaitTimeout = ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT;
 
-   /*
-   * This is the actual object used by the class, it has to be transient so we can handle deserialization with a 2.2 client
-   * */
+   private long stoppingTimeout = ActiveMQClient.DEFAULT_DISCOVERY_STOPPING_TIMEOUT;
+
+   // This is the actual object used by the class, it has to be transient so we can handle deserialization with a 2.2 client
    private BroadcastEndpointFactory endpointFactory;
 
    public DiscoveryGroupConfiguration() {
@@ -58,35 +60,31 @@ public final class DiscoveryGroupConfiguration implements Serializable {
       return refreshTimeout;
    }
 
-   /**
-    * @param name the name to set
-    */
    public DiscoveryGroupConfiguration setName(final String name) {
       this.name = name;
       return this;
    }
 
-   /**
-    * @param refreshTimeout the refreshTimeout to set
-    */
    public DiscoveryGroupConfiguration setRefreshTimeout(final long refreshTimeout) {
       this.refreshTimeout = refreshTimeout;
       return this;
    }
 
-   /**
-    * @return the discoveryInitialWaitTimeout
-    */
    public long getDiscoveryInitialWaitTimeout() {
       return discoveryInitialWaitTimeout;
    }
 
-   /**
-    * @param discoveryInitialWaitTimeout the discoveryInitialWaitTimeout to set
-    */
    public DiscoveryGroupConfiguration setDiscoveryInitialWaitTimeout(long discoveryInitialWaitTimeout) {
       this.discoveryInitialWaitTimeout = discoveryInitialWaitTimeout;
       return this;
+   }
+
+   public long getStoppingTimeout() {
+      return stoppingTimeout;
+   }
+
+   public void setStoppingTimeout(long stoppingTimeout) {
+      this.stoppingTimeout = stoppingTimeout;
    }
 
    public BroadcastEndpointFactory getBroadcastEndpointFactory() {
@@ -99,30 +97,22 @@ public final class DiscoveryGroupConfiguration implements Serializable {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof DiscoveryGroupConfiguration other)) {
          return false;
+      }
 
-      DiscoveryGroupConfiguration that = (DiscoveryGroupConfiguration) o;
-
-      if (discoveryInitialWaitTimeout != that.discoveryInitialWaitTimeout)
-         return false;
-      if (refreshTimeout != that.refreshTimeout)
-         return false;
-      if (name != null ? !name.equals(that.name) : that.name != null)
-         return false;
-
-      return true;
+      return discoveryInitialWaitTimeout == other.discoveryInitialWaitTimeout &&
+             refreshTimeout == other.refreshTimeout &&
+             Objects.equals(name, other.name);
    }
 
    @Override
    public int hashCode() {
-      int result = name != null ? name.hashCode() : 0;
-      result = 31 * result + (int) (refreshTimeout ^ (refreshTimeout >>> 32));
-      result = 31 * result + (int) (discoveryInitialWaitTimeout ^ (discoveryInitialWaitTimeout >>> 32));
-      return result;
+      return Objects.hash(name, refreshTimeout, discoveryInitialWaitTimeout);
    }
 
    @Override

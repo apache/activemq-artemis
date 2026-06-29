@@ -32,26 +32,18 @@ public class CoreTransactionDetail extends TransactionDetail {
 
    @Override
    public String decodeMessageType(Message msg) {
-      if (!(msg instanceof ICoreMessage)) {
+      if (!(msg instanceof ICoreMessage coreMessage)) {
          return "N/A";
       }
-      int type = ((ICoreMessage)msg).getType();
-      switch (type) {
-         case Message.DEFAULT_TYPE: // 0
-            return "Default";
-         case Message.OBJECT_TYPE: // 2
-            return "ObjectMessage";
-         case Message.TEXT_TYPE: // 3
-            return "TextMessage";
-         case Message.BYTES_TYPE: // 4
-            return "ByteMessage";
-         case Message.MAP_TYPE: // 5
-            return "MapMessage";
-         case Message.STREAM_TYPE: // 6
-            return "StreamMessage";
-         default:
-            return "(Unknown Type)";
-      }
+      return switch (coreMessage.getType()) {
+         case Message.DEFAULT_TYPE -> "Default"; // 0
+         case Message.OBJECT_TYPE -> "ObjectMessage"; // 2
+         case Message.TEXT_TYPE -> "TextMessage"; // 3
+         case Message.BYTES_TYPE -> "ByteMessage"; // 4
+         case Message.MAP_TYPE -> "MapMessage"; // 5
+         case Message.STREAM_TYPE -> "StreamMessage"; // 6
+         default -> "(Unknown Type)";
+      };
    }
 
    @Override

@@ -49,9 +49,11 @@ import org.apache.activemq.artemis.core.server.group.impl.Proposal;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.BiConsumer;
 
 public final class BindingsImpl implements Bindings {
@@ -66,8 +68,8 @@ public final class BindingsImpl implements Bindings {
    private final Map<Long, Binding> bindingsIdMap = new ConcurrentHashMap<>();
 
    /**
-    * This is the same as bindingsIdMap but indexed on the binding's uniqueName rather than ID. Two maps are
-    * maintained to speed routing, otherwise we'd have to loop through the bindingsIdMap when routing to an FQQN.
+    * This is the same as bindingsIdMap but indexed on the binding's uniqueName rather than ID. Two maps are maintained
+    * to speed routing, otherwise we'd have to loop through the bindingsIdMap when routing to an FQQN.
     */
    private final Map<String, Binding> bindingsNameMap = new ConcurrentHashMap<>();
 
@@ -86,7 +88,12 @@ public final class BindingsImpl implements Bindings {
    /**
     * This has a version about adds and removes
     */
-   private final AtomicInteger version = new AtomicInteger(sequenceVersion.incrementAndGet());
+   private volatile int version;
+
+   private static final AtomicIntegerFieldUpdater<BindingsImpl> VERSION_UPDATER = AtomicIntegerFieldUpdater
+      .newUpdater(BindingsImpl.class, "version");
+
+   private volatile boolean hasLocal;
 
    public BindingsImpl(final SimpleString name, final GroupingHandler groupingHandler, StorageManager storageManager) {
       this.groupingHandler = groupingHandler;
@@ -140,8 +147,8 @@ public final class BindingsImpl implements Bindings {
          bindingsIdMap.put(binding.getID(), binding);
          bindingsNameMap.put(String.valueOf(binding.getUniqueName()), binding);
 
-         if (binding instanceof RemoteQueueBinding) {
-            setMessageLoadBalancingType(((RemoteQueueBinding) binding).getMessageLoadBalancingType());
+         if (binding instanceof RemoteQueueBinding remoteQueueBinding) {
+            setMessageLoadBalancingType(remoteQueueBinding.getMessageLoadBalancingType());
          }
          if (logger.isTraceEnabled()) {
             logger.trace("Adding binding {} into {} bindingTable: {}", binding, this, debugBindings());
@@ -157,7 +164,19 @@ public final class BindingsImpl implements Bindings {
    }
 
    private void updated() {
-      version.set(sequenceVersion.incrementAndGet());
+      VERSION_UPDATER.set(this, sequenceVersion.incrementAndGet());
+      checkBindingsIdMap();
+   }
+
+   private void checkBinding(Long bindingID, Binding binding) {
+      if (binding instanceof LocalQueueBinding) {
+         hasLocal = true;
+      }
+   }
+
+   private void checkBindingsIdMap() {
+      hasLocal = false;
+      bindingsIdMap.forEach(this::checkBinding);
    }
 
    @Override
@@ -201,14 +220,8 @@ public final class BindingsImpl implements Bindings {
    }
 
    @Override
-   public boolean contains(Class clazz) {
-      for (Binding binding : getBindings()) {
-         if (clazz.isInstance(binding)) {
-            return true;
-         }
-      }
-
-      return false;
+   public boolean hasLocalBinding() {
+      return hasLocal;
    }
 
 
@@ -218,16 +231,20 @@ public final class BindingsImpl implements Bindings {
                                final RoutingContext context) throws Exception {
       final MessageLoadBalancingType loadBalancingType = this.messageLoadBalancingType;
       if (loadBalancingType.equals(MessageLoadBalancingType.STRICT) || loadBalancingType.equals(MessageLoadBalancingType.OFF)) {
+         logger.debug("Rejecting redistribution of message={} as the loadBalancingType is {}", message, loadBalancingType);
          return null;
       }
 
-      logger.trace("Redistributing message {}", message);
+      if (logger.isDebugEnabled()) {
+         logger.debug("Redistributing message {}, originatingQueue={}, currentBindings={}", message, originatingQueue.getName(), this.name);
+      }
 
       final SimpleString routingName = CompositeAddress.isFullyQualified(message.getAddress()) && originatingQueue.getRoutingType() == RoutingType.ANYCAST ? CompositeAddress.extractAddressName(message.getAddressSimpleString()) : originatingQueue.getName();
 
       final Pair<Binding[], CopyOnWriteBindings.BindingIndex> bindingsAndPosition = routingNameBindingMap.getBindings(routingName);
 
       if (bindingsAndPosition == null) {
+         logger.debug("Rejecting message redistribution for message={} as bindingsAndPosition is null", message);
          // The value can become null if it's concurrently removed while we're iterating - this is expected
          // ConcurrentHashMap behaviour!
          return null;
@@ -259,6 +276,7 @@ public final class BindingsImpl implements Bindings {
          }
       }
       if (nextBinding == null) {
+         logger.debug("there was no nextBinding, returning null while redistributing message={}", message);
          return null;
       }
 
@@ -279,6 +297,7 @@ public final class BindingsImpl implements Bindings {
 
       bindingIndex.setIndex(nextPosition);
       nextBinding.route(copyRedistribute, context);
+      logger.debug("Redistribution successful on message={}, towards bindings={}", message, bindings);
       return copyRedistribute;
    }
 
@@ -290,14 +309,15 @@ public final class BindingsImpl implements Bindings {
    private void route(final Message message,
                       final RoutingContext context,
                       final boolean groupRouting) throws Exception {
-      final int currentVersion = version.get();
+      final int currentVersion = VERSION_UPDATER.get(this);
       final boolean reusableContext = context.isReusable(message, currentVersion);
 
       if (!reusableContext) {
          context.clear();
       }
 
-      /* This is a special treatment for scaled-down messages involving SnF queues.
+      /*
+       * This is a special treatment for scaled-down messages involving SnF queues.
        * See org.apache.activemq.artemis.core.server.impl.ScaleDownHandler.scaleDownMessages() for the logic that sends messages with this property
        */
       final byte[] ids = message.removeExtraBytesProperty(Message.HDR_SCALEDOWN_TO_IDS);
@@ -324,12 +344,6 @@ public final class BindingsImpl implements Bindings {
          } else if (groupRouting && groupingHandler != null && (groupId = message.getGroupID()) != null) {
             context.clear().setReusable(false);
             routeUsingStrictOrdering(message, context, groupingHandler, groupId, 0);
-         } else if (CompositeAddress.isFullyQualified(message.getAddress())) {
-            context.clear().setReusable(false);
-            final Binding theBinding = bindingsNameMap.get(String.valueOf(CompositeAddress.extractQueueName(message.getAddressSimpleString())));
-            if (theBinding != null) {
-               theBinding.route(message, context);
-            }
          } else {
             // in a optimization, we are reusing the previous context if everything is right for it
             // so the simpleRouting will only happen if needed
@@ -350,7 +364,9 @@ public final class BindingsImpl implements Bindings {
          }
          final Filter filter = binding.getFilter();
          if (filter == null || filter.match(message)) {
-            binding.getBindable().route(message, context);
+            if (!(binding instanceof DivertBinding && context.isDivertDisabled())) {
+               binding.getBindable().route(message, context);
+            }
             routed = true;
          }
       }
@@ -362,8 +378,7 @@ public final class BindingsImpl implements Bindings {
       while (buffer.hasRemaining()) {
          long id = buffer.getLong();
          for (Map.Entry<Long, Binding> entry : bindingsIdMap.entrySet()) {
-            if (entry.getValue() instanceof RemoteQueueBinding) {
-               RemoteQueueBinding remoteQueueBinding = (RemoteQueueBinding) entry.getValue();
+            if (entry.getValue() instanceof RemoteQueueBinding remoteQueueBinding) {
                if (remoteQueueBinding.getRemoteQueueID() == id) {
                   message.putExtraBytesProperty(Message.HDR_ROUTE_TO_IDS, ByteBuffer.allocate(8).putLong(remoteQueueBinding.getID()).array());
                }
@@ -397,7 +412,9 @@ public final class BindingsImpl implements Bindings {
          }
 
          if (nextBinding != null) {
-            nextBinding.route(message, context);
+            if (!(context.isDivertDisabled() && nextBinding instanceof DivertBinding)) {
+               nextBinding.route(message, context);
+            }
          }
       });
    }
@@ -410,9 +427,8 @@ public final class BindingsImpl implements Bindings {
    /**
     * This code has a race on the assigned value to routing names.
     * <p>
-    * This is not that much of an issue because<br>
-    * Say you have the same queue name bound into two servers. The routing will load balance between
-    * these two servers. This will eventually send more messages to one server than the other
+    * This is not that much of an issue because say you have the same queue name bound into two servers. The routing
+    * will load balance between these two servers. This will eventually send more messages to one server than the other
     * (depending if you are using multi-thread), and not lose messages.
     */
    private Binding getNextBinding(final Message message,
@@ -440,8 +456,7 @@ public final class BindingsImpl implements Bindings {
                nextPosition = moveNextPosition(nextPosition, bindingsCount);
                break;
             }
-            //https://issues.jboss.org/browse/HORNETQ-1254 When !routeWhenNoConsumers,
-            // the localQueue should always have the priority over the secondary bindings
+            // When !routeWhenNoConsumers, the localQueue should always have the priority over the secondary bindings
             if (lastLowPriorityBinding == -1 || loadBalancingType.equals(MessageLoadBalancingType.ON_DEMAND) && binding instanceof LocalQueueBinding) {
                lastLowPriorityBinding = nextPosition;
             }
@@ -474,8 +489,11 @@ public final class BindingsImpl implements Bindings {
          return false;
       }
 
-      final Filter filter = binding.getFilter();
+      if (CompositeAddress.isFullyQualified(message.getAddress()) && binding instanceof QueueBinding && !UUID.stripTrailingUUID(binding.getClusterName()).equals(CompositeAddress.extractQueueName(message.getAddressSimpleString()))) {
+         return false;
+      }
 
+      final Filter filter = binding.getFilter();
       if (filter == null || filter.match(message)) {
          return true;
       }
@@ -658,7 +676,6 @@ public final class BindingsImpl implements Bindings {
 
    /**
     * debug method: used just for tests!!
-    * @return
     */
    public Map<SimpleString, List<Binding>> getRoutingNameBindingMap() {
       return routingNameBindingMap.copyAsMap();

@@ -91,33 +91,27 @@ public class ExecuteUtil {
       final ProcessHolder processHolder = new ProcessHolder();
       processHolder.process = processBuilder.start();
 
-      processHolder.inputStreamReader = new Thread() {
-         @Override
-         public void run() {
-            try {
-               readStream(processHolder.process.getInputStream(), true, logOutput);
-            } catch (Exception dontCare) {
+      processHolder.inputStreamReader = new Thread(() -> {
+         try {
+            readStream(processHolder.process.getInputStream(), true, logOutput);
+         } catch (Exception dontCare) {
 
-            }
          }
-      };
-      processHolder.errorStreamReader = new Thread() {
-         @Override
-         public void run() {
-            try {
-               readStream(processHolder.process.getErrorStream(), true, logOutput);
-            } catch (Exception dontCare) {
+      });
+      processHolder.errorStreamReader = new Thread(() -> {
+         try {
+            readStream(processHolder.process.getErrorStream(), true, logOutput);
+         } catch (Exception dontCare) {
 
-            }
          }
-      };
+      });
       processHolder.errorStreamReader.start();
       processHolder.inputStreamReader.start();
       return processHolder;
    }
 
    private static void logCommand(String[] command) {
-      StringBuffer logCommand = new StringBuffer();
+      StringBuilder logCommand = new StringBuilder();
       for (String c : command) {
          logCommand.append(c + " ");
       }

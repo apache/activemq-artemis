@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.apache.activemq.artemis.tests.unit.util.InVMContext;
+
 /**
  * An in-VM JNDI InitialContextFactory. Lightweight JNDI implementation used for testing.
  */
@@ -36,7 +38,7 @@ public class InVMInitialContextFactory implements InitialContextFactory {
    }
 
    /**
-    * @return the JNDI environment to use to get this InitialContextFactory.
+    * @return the JNDI environment to use to get this InitialContextFactory
     */
    public static Hashtable<String, String> getJNDIEnvironment(final int serverIndex) {
       Hashtable<String, String> env = new Hashtable<>();
@@ -81,12 +83,12 @@ public class InVMInitialContextFactory implements InitialContextFactory {
       // Note! This MUST be synchronized
       synchronized (InVMInitialContextFactory.initialContexts) {
 
-         InVMContext ic = (InVMContext) InVMInitialContextFactory.initialContexts.get(Integer.valueOf(serverIndex));
+         InVMContext ic = (InVMContext) InVMInitialContextFactory.initialContexts.get(serverIndex);
 
          if (ic == null) {
             ic = new InVMContext(s);
             ic.bind("java:/", new InVMContext(s));
-            InVMInitialContextFactory.initialContexts.put(Integer.valueOf(serverIndex), ic);
+            InVMInitialContextFactory.initialContexts.put(serverIndex, ic);
          }
 
          return ic;

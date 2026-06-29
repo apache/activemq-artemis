@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.e2e.brokerConnection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -27,10 +32,10 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
 import org.apache.activemq.artemis.tests.e2e.common.E2ETestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DualMirrorWithContainerTest extends E2ETestBase {
 
@@ -44,12 +49,12 @@ public class DualMirrorWithContainerTest extends E2ETestBase {
    private final String SERVER_A_LOCATION = basedir + "/target/brokerConnect/serverA";
    private final String SERVER_B_LOCATION = basedir + "/target/brokerConnect/serverB";
 
-   @Before
+   @BeforeEach
    public void beforeStart() throws Exception {
       disableCheckThread();
       ValidateContainer.assumeArtemisContainer();
 
-      Assert.assertNotNull(basedir);
+      assertNotNull(basedir);
       recreateBrokerDirectory(SERVER_B_LOCATION);
       recreateBrokerDirectory(SERVER_A_LOCATION);
       ContainerService service = ContainerService.getService();
@@ -78,7 +83,7 @@ public class DualMirrorWithContainerTest extends E2ETestBase {
    }
 
 
-   @After
+   @AfterEach
    public void afterStop() {
       ContainerService.getService().stop(serverA);
       ContainerService.getService().stop(serverB);
@@ -102,14 +107,7 @@ public class DualMirrorWithContainerTest extends E2ETestBase {
 
       int NUMBER_OF_MESSAGES = 1_000;
       int FAILURE_INTERVAL = 500;
-      String extraBody = "message ";
-      if (largemessage) {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < 200 * 1024) {
-            buffer.append("This is large ");
-         }
-         extraBody = buffer.toString();
-      }
+      String extraBody = largemessage ? RandomUtil.randomAlphaNumericString(200 * 1024) : "message ";
 
       try (Connection connectionA = cfA.createConnection("artemis", "artemis")) {
 
@@ -153,10 +151,10 @@ public class DualMirrorWithContainerTest extends E2ETestBase {
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage)consumerB.receive(5_000);
-            Assert.assertNotNull("expected message at " + i, message);
-            Assert.assertEquals(extraBody + i, message.getText());
+            assertNotNull(message, "expected message at " + i);
+            assertEquals(extraBody + i, message.getText());
          }
-         Assert.assertNull(consumerB.receiveNoWait());
+         assertNull(consumerB.receiveNoWait());
          sessionB.rollback();
       }
 
@@ -175,15 +173,15 @@ public class DualMirrorWithContainerTest extends E2ETestBase {
          int op = 0;
          for (int i = 0; i < NUMBER_OF_MESSAGES; i += 2) {
             TextMessage message = (TextMessage)consumerB.receive(5_000);
-            Assert.assertNotNull("expected message at " + i, message);
-            Assert.assertEquals(extraBody + i, message.getText());
+            assertNotNull(message, "expected message at " + i);
+            assertEquals(extraBody + i, message.getText());
 
             if (op++ > 0 && op % FAILURE_INTERVAL == 0) {
                restartA(++restarted);
             }
          }
 
-         Assert.assertNull(consumerB.receiveNoWait());
+         assertNull(consumerB.receiveNoWait());
       }
 
       System.out.println("Restarted serverA " + restarted + " times");
@@ -202,15 +200,15 @@ public class DualMirrorWithContainerTest extends E2ETestBase {
 
          for (int i = 1; i < NUMBER_OF_MESSAGES; i += 2) {
             TextMessage message = (TextMessage)consumerA.receive(5_000);
-            Assert.assertNotNull("expected message at " + i, message);
+            assertNotNull(message, "expected message at " + i);
             // We should only have red left
-            Assert.assertEquals("Unexpected message at " + i + " with i=" + message.getIntProperty("i"), "red", message.getStringProperty("color"));
-            Assert.assertEquals(extraBody + i, message.getText());
+            assertEquals("red", message.getStringProperty("color"), "Unexpected message at " + i + " with i=" + message.getIntProperty("i"));
+            assertEquals(extraBody + i, message.getText());
          }
 
          sessionA.commit();
 
-         Assert.assertNull(consumerA.receiveNoWait());
+         assertNull(consumerA.receiveNoWait());
       }
 
       Thread.sleep(5000);
@@ -228,7 +226,7 @@ public class DualMirrorWithContainerTest extends E2ETestBase {
          TextMessage message = (TextMessage)consumerB.receiveNoWait();
 
          if (message != null) {
-            Assert.fail("was expected null, however received " + message.getText());
+            fail("was expected null, however received " + message.getText());
          }
       }
 

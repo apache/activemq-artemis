@@ -20,11 +20,13 @@ import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
 import javax.naming.InitialContext;
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -34,7 +36,6 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
@@ -50,7 +51,6 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class LocalTestServer implements Server, Runnable {
 
@@ -58,7 +58,7 @@ public class LocalTestServer implements Server, Runnable {
 
    private boolean started = false;
 
-   private final HashMap<String, List<String>> allBindings = new HashMap<>();
+   private final Map<String, List<String>> allBindings = new HashMap<>();
    private JMSServerManagerImpl jmsServerManager;
 
 
@@ -89,7 +89,7 @@ public class LocalTestServer implements Server, Runnable {
    }
 
    @Override
-   public synchronized void start(final HashMap<String, Object> configuration,
+   public synchronized void start(final Map<String, Object> configuration,
                                   final boolean clearJournal) throws Exception {
       if (isStarted()) {
          return;
@@ -274,7 +274,7 @@ public class LocalTestServer implements Server, Runnable {
       List<TransportConfiguration> connectorConfigs = new ArrayList<>();
       connectorConfigs.add(new TransportConfiguration(NettyConnectorFactory.class.getName()));
 
-      ArrayList<String> connectors = new ArrayList<>();
+      List<String> connectors = new ArrayList<>();
       connectors.add("netty");
 
       getJMSServerManager().createConnectionFactory(objectName, false, type, connectors, clientId, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES, ActiveMQClient.DEFAULT_COMPRESSION_LEVEL, prefetchSize, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, blockOnAcknowledge, true, true, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, dupsOkBatchSize, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS, ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION, null, jndiBindings);
@@ -323,7 +323,7 @@ public class LocalTestServer implements Server, Runnable {
 
    @Override
    public Long getMessageCountForQueue(final String queueName) throws Exception {
-      QueueControl queue = (QueueControl) getActiveMQServer().getManagementService().getResource("queue." + queueName);
+      QueueControl queue = getActiveMQServer().getManagementService().getQueueControl(queueName);
       if (queue != null) {
          queue.flushExecutor();
          return queue.getMessageCount();
@@ -334,18 +334,18 @@ public class LocalTestServer implements Server, Runnable {
 
    @Override
    public void removeAllMessages(final String queueName) throws Exception {
-      QueueControl queue = (QueueControl) getActiveMQServer().getManagementService().getResource(ResourceNames.QUEUE + queueName);
+      QueueControl queue = getActiveMQServer().getManagementService().getQueueControl(queueName);
       queue.removeMessages(null);
    }
 
    @Override
    public List<String> listAllSubscribersForTopic(final String s) throws Exception {
-      ObjectName objectName = ObjectNameBuilder.DEFAULT.getAddressObjectName(new SimpleString(s));
+      ObjectName objectName = ObjectNameBuilder.DEFAULT.getAddressObjectName(SimpleString.of(s));
       AddressControl topic = MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(), objectName, AddressControl.class, false);
       Object[] subInfos = topic.getQueueNames();
       List<String> subs = new ArrayList<>();
       for (Object o : subInfos) {
-         subs.add( ((String) o).split("\\.")[1]);
+         subs.add(((String) o).split("\\.")[1]);
       }
       return subs;
    }

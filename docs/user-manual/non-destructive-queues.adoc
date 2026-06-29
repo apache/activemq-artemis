@@ -1,6 +1,7 @@
 = Non-Destructive Queues
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 When a consumer attaches to a queue, the normal behaviour is that messages are sent to that consumer are acquired exclusively by that consumer, and when the consumer acknowledges them, the messages are removed from the queue.
 

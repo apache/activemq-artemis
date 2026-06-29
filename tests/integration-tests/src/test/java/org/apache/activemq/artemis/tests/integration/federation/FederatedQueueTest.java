@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.federation;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -39,24 +45,13 @@ import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/**
- * Federated Queue Test
- */
 public class FederatedQueueTest extends FederatedTestBase {
 
-
-   // I could not make this test to fail locally even after many retries
-   // however I have seen eventually failures on the CI
-   @Rule
-   public RetryRule retryRule = new RetryRule(1);
-
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
@@ -90,8 +85,8 @@ public class FederatedQueueTest extends FederatedTestBase {
       getServer(0).getAddressSettingsRepository().getMatch("#").setAutoCreateAddresses(true).setAutoCreateQueues(true);
       getServer(1).getAddressSettingsRepository().getMatch("#").setAutoCreateAddresses(true).setAutoCreateQueues(true);
 
-      getServer(1).createQueue(new QueueConfiguration("Test.Q.1").setRoutingType(RoutingType.ANYCAST));
-      getServer(1).createQueue(new QueueConfiguration("Test.Q.2").setRoutingType(RoutingType.ANYCAST));
+      getServer(1).createQueue(QueueConfiguration.of("Test.Q.1").setRoutingType(RoutingType.ANYCAST));
+      getServer(1).createQueue(QueueConfiguration.of("Test.Q.2").setRoutingType(RoutingType.ANYCAST));
 
       getServer(0).getConfiguration().getFederationConfigurations().add(new FederationConfiguration()
                                                                            .setName("default")
@@ -215,7 +210,7 @@ public class FederatedQueueTest extends FederatedTestBase {
 
          Message message = consumer0.receive(1000);
          assertNotNull(message);
-         assertEquals(message.getBooleanProperty(TestTransformer.TEST_PROPERTY), true);
+         assertTrue(message.getBooleanProperty(TestTransformer.TEST_PROPERTY));
       }
    }
 
@@ -304,6 +299,15 @@ public class FederatedQueueTest extends FederatedTestBase {
 
    @Test
    public void testWithLargeMessage() throws Exception {
+      internalTestWithLargeMessages(1);
+   }
+
+   @Test
+   public void testWithMultipleLargeMessages() throws Exception {
+      internalTestWithLargeMessages(5);
+   }
+
+   private void internalTestWithLargeMessages(int messageNumber) throws Exception {
       String queueName = getName();
 
       FederationConfiguration federationConfiguration = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server1", queueName);
@@ -312,21 +316,25 @@ public class FederatedQueueTest extends FederatedTestBase {
 
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      final String payload = new String(new byte[1 * 1024 * 1024]).replace('\0','+');
+      final String payload = new String(new byte[1 * 1024 * 1024]).replace('\0', '+');
       try (Connection connection1 = cf1.createConnection();
            Connection connection0 = cf0.createConnection()) {
          connection1.start();
          Session session1 = connection1.createSession();
          Queue queue1 = session1.createQueue(queueName);
          MessageProducer producer = session1.createProducer(queue1);
-         producer.send(session1.createTextMessage(payload));
+         for (int i = 0; i < messageNumber; i++) {
+            producer.send(session1.createTextMessage(payload));
+         }
 
          connection0.start();
          Session session0 = connection0.createSession();
          Queue queue0 = session0.createQueue(queueName);
          MessageConsumer consumer0 = session0.createConsumer(queue0);
 
-         assertNotNull(consumer0.receive(60000));
+         for (int i = 0; i < messageNumber; i++) {
+            assertNotNull(consumer0.receive(1000));
+         }
       }
    }
 
@@ -490,23 +498,23 @@ public class FederatedQueueTest extends FederatedTestBase {
          producer1.send(session1.createTextMessage("hello"));
          assertNotNull(consumer0.receive(1000));
 
-         Wait.assertTrue(() -> getServer(0).getPostOffice().getBinding(SimpleString.toSimpleString(queueName)) != null);
-         Wait.assertTrue(() -> getServer(1).getPostOffice().getBinding(SimpleString.toSimpleString(queueName)) != null);
+         Wait.assertTrue(() -> getServer(0).getPostOffice().getBinding(SimpleString.of(queueName)) != null);
+         Wait.assertTrue(() -> getServer(1).getPostOffice().getBinding(SimpleString.of(queueName)) != null);
          //Wait to see if extra consumers are created - this tests to make sure there is no loop and tests the FederatedQueue metaDataFilterString
          //is working properly - should only be 1 consumer on each (1 for the local consumer on broker0 and 1 for the federated consumer on broker1)
-         assertFalse(Wait.waitFor(() -> getServer(0).locateQueue(SimpleString.toSimpleString(queueName)).getConsumerCount() > 1, 500, 100));
-         assertFalse(Wait.waitFor(() -> getServer(1).locateQueue(SimpleString.toSimpleString(queueName)).getConsumerCount() > 1, 500, 100));
+         assertFalse(Wait.waitFor(() -> getServer(0).locateQueue(SimpleString.of(queueName)).getConsumerCount() > 1, 500, 100));
+         assertFalse(Wait.waitFor(() -> getServer(1).locateQueue(SimpleString.of(queueName)).getConsumerCount() > 1, 500, 100));
 
          //Test consumer move from broker 0, to broker 1
          final int server1ConsumerCount = getServer(1).getConnectionCount();
          consumer0.close();
-         Wait.waitFor(() -> ((QueueBinding) getServer(0).getPostOffice().getBinding(SimpleString.toSimpleString(queueName))).consumerCount() == 0, 1000);
+         Wait.waitFor(() -> ((QueueBinding) getServer(0).getPostOffice().getBinding(SimpleString.of(queueName))).consumerCount() == 0, 1000);
 
          //Make sure we don't drop connection if shared
          if (shared) {
             assertFalse(Wait.waitFor(() -> getServer(1).getConnectionCount() == server1ConsumerCount - 1,
                     500, 100));
-            assertTrue(server1ConsumerCount == getServer(1).getConnectionCount());
+            assertEquals(server1ConsumerCount, getServer(1).getConnectionCount());
          }
 
          MessageConsumer consumer1 = session1.createConsumer(queue1);
@@ -584,7 +592,7 @@ public class FederatedQueueTest extends FederatedTestBase {
       Connection connection1 = cf1.createConnection();
       connection1.start();
       Session session1 = connection1.createSession();
-      Queue queue1 =  session1.createQueue(queueName);
+      Queue queue1 = session1.createQueue(queueName);
       MessageProducer producer = session1.createProducer(queue1);
       producer.send(session1.createTextMessage("hello"));
 
@@ -592,7 +600,7 @@ public class FederatedQueueTest extends FederatedTestBase {
       Connection connection0 = cf0.createConnection();
       connection0.start();
       Session session0 = connection0.createSession();
-      Queue queue0 =  session0.createQueue(queueName);
+      Queue queue0 = session0.createQueue(queueName);
       MessageConsumer consumer0 = session0.createConsumer(queue0);
 
       assertNotNull(consumer0.receive(1000));
@@ -613,7 +621,7 @@ public class FederatedQueueTest extends FederatedTestBase {
       connection1 = cf1.createConnection();
       connection1.start();
       session1 = connection1.createSession();
-      queue1 =  session1.createQueue(queueName);
+      queue1 = session1.createQueue(queueName);
       producer = session1.createProducer(queue1);
       producer.send(session1.createTextMessage("hello"));
 
@@ -623,7 +631,7 @@ public class FederatedQueueTest extends FederatedTestBase {
    }
 
    private boolean getConsumerCount(ActiveMQServer server, String queueName, int count) {
-      QueueBinding binding = (QueueBinding)server.getPostOffice().getBinding(SimpleString.toSimpleString(queueName));
+      QueueBinding binding = (QueueBinding)server.getPostOffice().getBinding(SimpleString.of(queueName));
       if (binding == null) {
          return false;
       }
@@ -646,7 +654,7 @@ public class FederatedQueueTest extends FederatedTestBase {
       Connection connection1 = cf1.createConnection();
       connection1.start();
       Session session1 = connection1.createSession();
-      Queue queue1 =  session1.createQueue(queueName);
+      Queue queue1 = session1.createQueue(queueName);
       MessageProducer producer = session1.createProducer(queue1);
       producer.send(session1.createTextMessage("hello"));
 
@@ -654,7 +662,7 @@ public class FederatedQueueTest extends FederatedTestBase {
       Connection connection0 = cf0.createConnection();
       connection0.start();
       Session session0 = connection0.createSession();
-      Queue queue0 =  session0.createQueue(queueName);
+      Queue queue0 = session0.createQueue(queueName);
       MessageConsumer consumer0 = session0.createConsumer(queue0);
 
       assertNotNull(consumer0.receive(1000));
@@ -675,14 +683,14 @@ public class FederatedQueueTest extends FederatedTestBase {
       connection0 = getCF(0).createConnection();
       connection0.start();
       session0 = connection0.createSession();
-      queue0 =  session0.createQueue(queueName);
+      queue0 = session0.createQueue(queueName);
       consumer0 = session0.createConsumer(queue0);
       producer.send(session1.createTextMessage("hello"));
 
-      Wait.assertTrue(() -> getServer(1).getPostOffice().getBinding(SimpleString.toSimpleString(queueName)) != null);
+      Wait.assertTrue(() -> getServer(1).getPostOffice().getBinding(SimpleString.of(queueName)) != null);
       Wait.waitFor(() -> ((QueueBinding) getServer(1)
             .getPostOffice()
-            .getBinding(SimpleString.toSimpleString(queueName)))
+            .getBinding(SimpleString.of(queueName)))
             .consumerCount() == 1);
 
       assertNotNull(consumer0.receive(5000));
@@ -704,5 +712,4 @@ public class FederatedQueueTest extends FederatedTestBase {
          return message;
       }
    }
-
 }

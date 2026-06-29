@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -35,13 +37,8 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecord;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-/**
- * Authored by Fabio Nascimento Brandao through https://issues.apache.org/jira/browse/ARTEMIS-3868
- * Clebert added some refactoring to make it a Unit Test
- * */
 public class JournalCompactSplitTest extends ActiveMQTestBase {
    private static final long RECORDS_TO_CREATE = 100;
 
@@ -95,10 +92,10 @@ public class JournalCompactSplitTest extends ActiveMQTestBase {
          }
       });
 
-      Assert.assertEquals(RECORDS_TO_CREATE, recordCount.get());
+      assertEquals(RECORDS_TO_CREATE, recordCount.get());
 
       journalImpl.compact();
-      Assert.assertEquals(2, journalImpl.getDataFilesCount());
+      assertEquals(2, journalImpl.getDataFilesCount());
    }
 
    private void createFileWithRecords(SequentialFileFactory fileFactory) throws Exception {
@@ -121,7 +118,9 @@ public class JournalCompactSplitTest extends ActiveMQTestBase {
          JournalAddRecord record = new JournalAddRecord(true, i, JournalImpl.ADD_RECORD, EncoderPersister.getInstance(), new ByteArrayEncoding(z));
          record.setFileID(1);
          compactCount--;
-         if (compactCount < 0) compactCount = 10;
+         if (compactCount < 0) {
+            compactCount = 10;
+         }
 
          // this test is playing with the order of compact count
          record.setCompactCount(compactCount);

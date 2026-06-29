@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,11 +29,12 @@ import javax.jms.Session;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-/** This test would fail only if your hostname contains dot on its name.
- * my box name was in the format of xxx-xxx.xxx when it failed. */
+/**
+ * This test would fail only if your hostname contains dot on its name. my box name was in the format of xxx-xxx.xxx
+ * when it failed.
+ */
 public class TempQueueWithDotTest extends BasicOpenWireTest {
 
    @Override
@@ -40,9 +44,10 @@ public class TempQueueWithDotTest extends BasicOpenWireTest {
       return configuration;
    }
 
-   /** This fails sometimes on some computers depending on your computer name.
-    * It failed for me when I used xxx-xxxx.xxx.
-    * As Openwire will use your uname as the temp queue ID. */
+   /**
+    * This fails sometimes on some computers depending on your computer name. It failed for me when I used xxx-xxxx.xxx.
+    * As Openwire will use your uname as the temp queue ID.
+    */
    @Test
    public void testSimple() throws Exception {
       testSimple("OPENWIRE");
@@ -74,7 +79,7 @@ public class TempQueueWithDotTest extends BasicOpenWireTest {
 
          connection.start();
 
-         Assert.assertNotNull(consumer.receive(500));
+         assertNotNull(consumer.receive(500));
       } finally {
          connection.close();
       }

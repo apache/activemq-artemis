@@ -57,12 +57,13 @@ import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.UPGRADE;
 import static io.netty.handler.codec.http.HttpResponseStatus.SWITCHING_PROTOCOLS;
@@ -71,19 +72,24 @@ import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnecto
 import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_ACCEPT;
 import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_KEY;
 import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.createExpectedResponse;
-import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
+import static org.apache.activemq.artemis.utils.RandomUtil.randomUUIDString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test that Netty Connector can connect to a Web Server and upgrade from a HTTP request to its remoting protocol.
  *
  * See the tests/security-resources/build.sh script for details on the security resources used.
  */
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
 
    private Boolean useSSL = false;
 
-   @Parameterized.Parameters(name = "useSSL={0}")
+   @Parameters(name = "useSSL={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -92,7 +98,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       this.useSSL = useSSL;
    }
 
-   private static final SimpleString QUEUE = new SimpleString("NettyConnectorWithHTTPUpgradeTest");
+   private static final SimpleString QUEUE = SimpleString.of("NettyConnectorWithHTTPUpgradeTest");
 
    private static final int HTTP_PORT = 8789;
 
@@ -109,14 +115,14 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
    private final String PASSWORD = "securepass";
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-      HashMap<String, Object> httpAcceptorParams = new HashMap<>();
+      Map<String, Object> httpAcceptorParams = new HashMap<>();
       // This prop controls the usage of HTTP Get + Upgrade from Netty connector
       httpAcceptorParams.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
       httpAcceptorParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
-      acceptorName = randomString();
+      acceptorName = randomUUIDString();
 
       conf = createDefaultNettyConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, httpAcceptorParams, acceptorName));
 
@@ -124,7 +130,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
 
       server.start();
 
-      HashMap<String, Object> httpConnectorParams = new HashMap<>();
+      Map<String, Object> httpConnectorParams = new HashMap<>();
       httpConnectorParams.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
       httpConnectorParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
       if (useSSL) {
@@ -135,23 +141,23 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, httpConnectorParams));
       addServerLocator(locator);
 
-      // THe web server owns the HTTP port, not ActiveMQ Artemis.
+      // THe web server owns the HTTP port, not Apache Artemis.
       startWebServer(HTTP_PORT);
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       stopWebServer();
       super.tearDown();
    }
 
-   @Test
+   @TestTemplate
    public void sendAndReceiveOverHTTPPort() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -179,9 +185,9 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       session.close();
    }
 
-   @Test
+   @TestTemplate
    public void HTTPUpgradeConnectorUsingNormalAcceptor() throws Exception {
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
 
       // create a new locator that points an HTTP-upgrade connector to the normal acceptor
       params.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
@@ -203,8 +209,8 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       // make sure we failed *before* the HTTP hand-shake timeout elapsed (which is hard-coded to 30 seconds, see org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.HttpUpgradeHandler.awaitHandshake())
       assertTrue((System.currentTimeMillis() - start) < 30000);
       assertNotNull(e);
-      assertTrue(e instanceof ActiveMQNotConnectedException);
-      assertTrue(((ActiveMQException) e).getType() == ActiveMQExceptionType.NOT_CONNECTED);
+      assertInstanceOf(ActiveMQNotConnectedException.class, e);
+      assertEquals(ActiveMQExceptionType.NOT_CONNECTED, ((ActiveMQException) e).getType());
    }
 
    private void startWebServer(int port) throws Exception {
@@ -233,12 +239,11 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
             }
             p.addLast("decoder", new HttpRequestDecoder());
             p.addLast("encoder", new HttpResponseEncoder());
-            p.addLast("http-upgrade-handler", new SimpleChannelInboundHandler<Object>() {
-               // handle HTTP GET + Upgrade with a handshake specific to ActiveMQ Artemis remoting.
+            p.addLast("http-upgrade-handler", new SimpleChannelInboundHandler<>() {
+               // handle HTTP GET + Upgrade with a handshake specific to Apache Artemis remoting.
                @Override
                protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-                  if (msg instanceof HttpRequest) {
-                     HttpRequest request = (HttpRequest) msg;
+                  if (msg instanceof HttpRequest request) {
 
                      for (Map.Entry<String, String> entry : request.headers()) {
                         System.out.println(entry);

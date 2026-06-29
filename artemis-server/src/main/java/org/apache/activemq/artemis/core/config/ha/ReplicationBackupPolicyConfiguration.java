@@ -27,16 +27,14 @@ public class ReplicationBackupPolicyConfiguration implements HAPolicyConfigurati
 
    private String groupName = null;
 
-   /*
-    * used in the replicated policy after failover
-    * */
+   // used in the replicated policy after failover
    private boolean allowFailBack = false;
 
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
 
    private long retryReplicationWait = ActiveMQDefaultConfiguration.getDefaultRetryReplicationWait();
 
-   private DistributedPrimitiveManagerConfiguration distributedManagerConfiguration = null;
+   private DistributedLockManagerConfiguration distributedManagerConfiguration = null;
 
    public static final ReplicationBackupPolicyConfiguration withDefault() {
       return new ReplicationBackupPolicyConfiguration();
@@ -47,7 +45,7 @@ public class ReplicationBackupPolicyConfiguration implements HAPolicyConfigurati
 
    @Override
    public HAPolicyConfiguration.TYPE getType() {
-      return TYPE.BACKUP;
+      return TYPE.REPLICATION_BACKUP_LOCK_MANAGER;
    }
 
    public String getClusterName() {
@@ -104,12 +102,12 @@ public class ReplicationBackupPolicyConfiguration implements HAPolicyConfigurati
       return this;
    }
 
-   public ReplicationBackupPolicyConfiguration setDistributedManagerConfiguration(DistributedPrimitiveManagerConfiguration configuration) {
+   public ReplicationBackupPolicyConfiguration setDistributedManagerConfiguration(DistributedLockManagerConfiguration configuration) {
       this.distributedManagerConfiguration = configuration;
       return this;
    }
 
-   public DistributedPrimitiveManagerConfiguration getDistributedManagerConfiguration() {
+   public DistributedLockManagerConfiguration getDistributedManagerConfiguration() {
       return distributedManagerConfiguration;
    }
 }

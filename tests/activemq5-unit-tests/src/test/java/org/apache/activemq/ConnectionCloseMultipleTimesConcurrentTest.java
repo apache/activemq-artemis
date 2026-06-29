@@ -25,9 +25,6 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
-/**
- *
- */
 public class ConnectionCloseMultipleTimesConcurrentTest extends TestCase {
 
    private ActiveMQConnection connection;
@@ -43,9 +40,6 @@ public class ConnectionCloseMultipleTimesConcurrentTest extends TestCase {
       connection.start();
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       if (connection.isStarted()) {
@@ -56,9 +50,6 @@ public class ConnectionCloseMultipleTimesConcurrentTest extends TestCase {
       }
    }
 
-   /**
-    * @throws javax.jms.JMSException
-    */
    public void testCloseMultipleTimes() throws Exception {
       connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -68,19 +59,16 @@ public class ConnectionCloseMultipleTimesConcurrentTest extends TestCase {
       final CountDownLatch latch = new CountDownLatch(size);
 
       for (int i = 0; i < size; i++) {
-         executor.submit(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  connection.close();
+         executor.submit(() -> {
+            try {
+               connection.close();
 
-                  assertFalse(connection.isStarted());
-                  assertTrue(connection.isClosed());
+               assertFalse(connection.isStarted());
+               assertTrue(connection.isClosed());
 
-                  latch.countDown();
-               } catch (JMSException e) {
-                  // ignore
-               }
+               latch.countDown();
+            } catch (JMSException e) {
+               // ignore
             }
          });
       }

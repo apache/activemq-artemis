@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.QueueConnection;
 import javax.jms.Session;
 import java.util.ArrayList;
@@ -40,13 +45,13 @@ import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
 
-   /*
-   * the second server has no queue so this tests for partial initialisation
-   * */
+   /**
+    * The second server has no queue so this tests for partial initialisation
+    */
    @Test
    public void testShutdownOnPartialConnect() throws Exception {
       secondaryServer.getAddressSettingsRepository().getMatch(MDBQUEUE).setAutoCreateQueues(false).setAutoCreateAddresses(false);
@@ -68,7 +73,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       //make sure that activation didn't start, i.e. no MDB consumers
-      assertEquals(((Queue) server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE).getBindable()).getConsumerCount(), 0);
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE).getBindable()).getConsumerCount());
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
 
       qResourceAdapter.stop();
@@ -77,8 +82,6 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
    /**
     * https://bugzilla.redhat.com/show_bug.cgi?id=1029076
     * Look at the logs for this test, if you see exceptions it's an issue.
-    *
-    * @throws Exception
     */
    @Test
    public void testNonDurableInCluster() throws Exception {
@@ -112,7 +115,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "test");
+      assertEquals("test", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
@@ -210,7 +213,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
 
       assertTrue(primaryQueue.getConsumerCount() < CONSUMER_COUNT);
       assertTrue(secondaryQueue.getConsumerCount() < CONSUMER_COUNT);
-      assertTrue(primaryQueue.getConsumerCount() + secondaryQueue.getConsumerCount() == CONSUMER_COUNT);
+      assertEquals(CONSUMER_COUNT, primaryQueue.getConsumerCount() + secondaryQueue.getConsumerCount());
 
       ClientSession session = addClientSession(locator.createSessionFactory().createSession());
       ClientProducer clientProducer = session.createProducer(MDBQUEUEPREFIXED);
@@ -221,7 +224,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "test");
+      assertEquals("test", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       try {
          for (int i = 0; i < 10; i++) {

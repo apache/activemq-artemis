@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.cluster;
 
 import java.util.List;
+
 import org.apache.activemq.artemis.api.core.ActiveMQClusterSecurityException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -31,8 +32,11 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ClusterControllerTest extends ClusterTestBase {
 
@@ -40,7 +44,7 @@ public class ClusterControllerTest extends ClusterTestBase {
    private ClusterConnectionConfiguration clusterConf1;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -91,7 +95,7 @@ public class ClusterControllerTest extends ClusterTestBase {
       ActiveMQServer serverNode = getServer(node);
       ClusterManager clusterManager = serverNode.getClusterManager();
       ClusterController clusterController = clusterManager.getClusterController();
-      ServerLocator serverNodeLocator = clusterController.getServerLocator(new SimpleString(clusterConnectionConfigurationBeforeStart.getName()));
+      ServerLocator serverNodeLocator = clusterController.getServerLocator(SimpleString.of(clusterConnectionConfigurationBeforeStart.getName()));
       List<ClusterConnectionConfiguration> serverNodeClusterConnectionConfigurations = serverNodeConfiguration.getClusterConfigurations();
 
       do {
@@ -143,7 +147,7 @@ public class ClusterControllerTest extends ClusterTestBase {
             clusterControl.authorize();
             fail("should throw ActiveMQClusterSecurityException");
          } catch (Exception e) {
-            assertTrue("should throw ActiveMQClusterSecurityException", e instanceof ActiveMQClusterSecurityException);
+            assertInstanceOf(ActiveMQClusterSecurityException.class, e, "should throw ActiveMQClusterSecurityException");
          }
       }
    }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,8 +28,7 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MappedSequentialFileFactoryTest extends SequentialFileFactoryTestBase {
 
@@ -62,122 +63,104 @@ public class MappedSequentialFileFactoryTest extends SequentialFileFactoryTestBa
          calls.incrementAndGet();
       });
 
-      Thread threadOpen = new Thread() {
-         @Override
-         public void run() {
-            try {
-               Thread.currentThread().interrupt();
-               SequentialFile file = factory.createSequentialFile("file.txt");
-               file.open();
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+      Thread threadOpen = new Thread(() -> {
+         try {
+            Thread.currentThread().interrupt();
+            SequentialFile file = factory.createSequentialFile("file.txt");
+            file.open();
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       threadOpen.start();
       threadOpen.join();
 
-      Thread threadClose = new Thread() {
-         @Override
-         public void run() {
-            try {
-               SequentialFile file = factory.createSequentialFile("file.txt");
-               file.open();
-               file.write(fakeEncoding, true);
-               Thread.currentThread().interrupt();
-               file.close();
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+      Thread threadClose = new Thread(() -> {
+         try {
+            SequentialFile file = factory.createSequentialFile("file.txt");
+            file.open();
+            file.write(fakeEncoding, true);
+            Thread.currentThread().interrupt();
+            file.close();
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       threadClose.start();
       threadClose.join();
 
-      Thread threadWrite = new Thread() {
-         @Override
-         public void run() {
-            try {
-               SequentialFile file = factory.createSequentialFile("file.txt");
-               file.open();
-               Thread.currentThread().interrupt();
-               file.write(fakeEncoding, true);
-               file.close();
+      Thread threadWrite = new Thread(() -> {
+         try {
+            SequentialFile file = factory.createSequentialFile("file.txt");
+            file.open();
+            Thread.currentThread().interrupt();
+            file.write(fakeEncoding, true);
+            file.close();
 
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       threadWrite.start();
       threadWrite.join();
 
-      Thread threadFill = new Thread() {
-         @Override
-         public void run() {
-            try {
-               SequentialFile file = factory.createSequentialFile("file.txt");
-               file.open();
-               Thread.currentThread().interrupt();
-               file.fill(fakeEncoding.getEncodeSize());
-               file.close();
+      Thread threadFill = new Thread(() -> {
+         try {
+            SequentialFile file = factory.createSequentialFile("file.txt");
+            file.open();
+            Thread.currentThread().interrupt();
+            file.fill(fakeEncoding.getEncodeSize());
+            file.close();
 
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       threadFill.start();
       threadFill.join();
 
-      Thread threadWriteDirect = new Thread() {
-         @Override
-         public void run() {
-            try {
-               SequentialFile file = factory.createSequentialFile("file.txt");
-               file.open();
-               ByteBuffer buffer = ByteBuffer.allocate(10);
-               buffer.put(new byte[10]);
-               Thread.currentThread().interrupt();
-               file.writeDirect(buffer, true);
-               file.close();
+      Thread threadWriteDirect = new Thread(() -> {
+         try {
+            SequentialFile file = factory.createSequentialFile("file.txt");
+            file.open();
+            ByteBuffer buffer = ByteBuffer.allocate(10);
+            buffer.put(new byte[10]);
+            Thread.currentThread().interrupt();
+            file.writeDirect(buffer, true);
+            file.close();
 
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       threadWriteDirect.start();
       threadWriteDirect.join();
 
-      Thread threadRead = new Thread() {
-         @Override
-         public void run() {
-            try {
-               SequentialFile file = factory.createSequentialFile("file.txt");
-               file.open();
-               file.write(fakeEncoding, true);
-               file.position(0);
-               ByteBuffer readBytes = ByteBuffer.allocate(fakeEncoding.getEncodeSize());
-               Thread.currentThread().interrupt();
-               file.read(readBytes);
-               file.close();
+      Thread threadRead = new Thread(() -> {
+         try {
+            SequentialFile file = factory.createSequentialFile("file.txt");
+            file.open();
+            file.write(fakeEncoding, true);
+            file.position(0);
+            ByteBuffer readBytes = ByteBuffer.allocate(fakeEncoding.getEncodeSize());
+            Thread.currentThread().interrupt();
+            file.read(readBytes);
+            file.close();
 
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       threadRead.start();
       threadRead.join();
 
       // An interrupt exception shouldn't issue a shutdown
-      Assert.assertEquals(0, calls.get());
+      assertEquals(0, calls.get());
    }
 }

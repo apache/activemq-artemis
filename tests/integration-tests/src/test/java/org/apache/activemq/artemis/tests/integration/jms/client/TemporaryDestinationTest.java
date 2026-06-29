@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -39,13 +46,13 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TemporaryDestinationTest extends JMSTestBase {
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
@@ -94,7 +101,7 @@ public class TemporaryDestinationTest extends JMSTestBase {
 
          assertFalse(((ActiveMQDestination) tempQueue).isCreated());
 
-         assertFalse(conn.containsTemporaryQueue(SimpleString.toSimpleString(tempQueue.getQueueName())));
+         assertFalse(conn.containsTemporaryQueue(SimpleString.of(tempQueue.getQueueName())));
       } finally {
          if (conn != null) {
             conn.close();
@@ -234,7 +241,7 @@ public class TemporaryDestinationTest extends JMSTestBase {
 
          TemporaryQueue tempQueue = producerSession.createTemporaryQueue();
 
-         assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(tempQueue.getQueueName())));
+         assertNotNull(server.getAddressInfo(SimpleString.of(tempQueue.getQueueName())));
 
          server.stop();
 
@@ -244,7 +251,7 @@ public class TemporaryDestinationTest extends JMSTestBase {
 
          waitForServerToStart(server);
 
-         assertNull(server.getAddressInfo(SimpleString.toSimpleString(tempQueue.getQueueName())));
+         assertNull(server.getAddressInfo(SimpleString.of(tempQueue.getQueueName())));
       } finally {
          if (conn != null) {
             conn.close();
@@ -282,7 +289,7 @@ public class TemporaryDestinationTest extends JMSTestBase {
             assertFalse(((ServerSessionImpl)serverSession).cloneProducers().containsKey(temporaryQueue.getQueueName()));
          }
          Wait.assertTrue(() -> server.locateQueue(temporaryQueue.getQueueName()) == null, 1000, 100);
-         Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString(temporaryQueue.getQueueName())) == null, 1000, 100);
+         Wait.assertTrue(() -> server.getAddressInfo(SimpleString.of(temporaryQueue.getQueueName())) == null, 1000, 100);
       } finally {
          if (conn != null) {
             conn.close();
@@ -316,11 +323,11 @@ public class TemporaryDestinationTest extends JMSTestBase {
          // These next two assertions are here to validate the test itself
          // The queue and address should be found on the server while they still exist on the connection
          Wait.assertFalse(() -> server.locateQueue(temporaryQueue.getQueueName()) == null, 1000, 100);
-         Wait.assertFalse(() -> server.getAddressInfo(SimpleString.toSimpleString(temporaryQueue.getQueueName())) == null, 1000, 100);
+         Wait.assertFalse(() -> server.getAddressInfo(SimpleString.of(temporaryQueue.getQueueName())) == null, 1000, 100);
       }
 
       Wait.assertTrue(() -> server.locateQueue(temporaryQueue.getQueueName()) == null, 1000, 100);
-      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString(temporaryQueue.getQueueName())) == null, 1000, 100);
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.of(temporaryQueue.getQueueName())) == null, 1000, 100);
    }
 
    @Test
@@ -329,7 +336,7 @@ public class TemporaryDestinationTest extends JMSTestBase {
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("IDo", "Exist");
       securityManager.getConfiguration().addRole("IDo", "myrole");
-      Role myRole = new Role("myrole", true, true, true, true, true, true, true, true, true, true);
+      Role myRole = new Role("myrole", true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> anySet = new HashSet<>();
       anySet.add(myRole);
       server.getSecurityRepository().addMatch("#", anySet);

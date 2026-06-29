@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -33,8 +35,7 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NonExistentQueueTest extends JMSTestBase {
 
@@ -51,7 +52,7 @@ public class NonExistentQueueTest extends JMSTestBase {
       try {
          MessageProducer messageProducer = session.createProducer(null);
          messageProducer.send(destination, session.createMessage());
-         Assert.fail("Succeeded in sending message to a non-existent destination using JMS 1 API!");
+         fail("Succeeded in sending message to a non-existent destination using JMS 1 API!");
       } catch (JMSException e) { // Expected }
 
       }
@@ -62,7 +63,7 @@ public class NonExistentQueueTest extends JMSTestBase {
 
       try {
          jmsProducer.send(destination, context.createMessage());
-         Assert.fail("Succeeded in sending message to a non-existent destination using JMS 2 API!");
+         fail("Succeeded in sending message to a non-existent destination using JMS 2 API!");
       } catch (JMSRuntimeException e) { // Expected }
       }
 

@@ -32,67 +32,67 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 
 /**
- * Helper class to use ActiveMQ Artemis Core messages to manage server resources.
+ * Helper class to use Apache Artemis Core messages to manage server resources.
  */
 public final class ManagementHelper {
 
-   public static final SimpleString HDR_RESOURCE_NAME = new SimpleString("_AMQ_ResourceName");
+   public static final SimpleString HDR_RESOURCE_NAME = SimpleString.of("_AMQ_ResourceName");
 
-   public static final SimpleString HDR_ATTRIBUTE = new SimpleString("_AMQ_Attribute");
+   public static final SimpleString HDR_ATTRIBUTE = SimpleString.of("_AMQ_Attribute");
 
-   public static final SimpleString HDR_OPERATION_NAME = new SimpleString("_AMQ_OperationName");
+   public static final SimpleString HDR_OPERATION_NAME = SimpleString.of("_AMQ_OperationName");
 
-   public static final SimpleString HDR_OPERATION_SUCCEEDED = new SimpleString("_AMQ_OperationSucceeded");
+   public static final SimpleString HDR_OPERATION_SUCCEEDED = SimpleString.of("_AMQ_OperationSucceeded");
 
-   public static final SimpleString HDR_NOTIFICATION_TYPE = new SimpleString("_AMQ_NotifType");
+   public static final SimpleString HDR_NOTIFICATION_TYPE = SimpleString.of("_AMQ_NotifType");
 
-   public static final SimpleString HDR_NOTIFICATION_TIMESTAMP = new SimpleString("_AMQ_NotifTimestamp");
+   public static final SimpleString HDR_NOTIFICATION_TIMESTAMP = SimpleString.of("_AMQ_NotifTimestamp");
 
-   public static final SimpleString HDR_ROUTING_NAME = new SimpleString("_AMQ_RoutingName");
+   public static final SimpleString HDR_ROUTING_NAME = SimpleString.of("_AMQ_RoutingName");
 
-   public static final SimpleString HDR_CLUSTER_NAME = new SimpleString("_AMQ_ClusterName");
+   public static final SimpleString HDR_CLUSTER_NAME = SimpleString.of("_AMQ_ClusterName");
 
-   public static final SimpleString HDR_ADDRESS = new SimpleString("_AMQ_Address");
+   public static final SimpleString HDR_ADDRESS = SimpleString.of("_AMQ_Address");
 
-   public static final SimpleString HDR_ROUTING_TYPE = new SimpleString("_AMQ_Routing_Type");
+   public static final SimpleString HDR_ROUTING_TYPE = SimpleString.of("_AMQ_Routing_Type");
 
-   public static final SimpleString HDR_BINDING_ID = new SimpleString("_AMQ_Binding_ID");
+   public static final SimpleString HDR_BINDING_ID = SimpleString.of("_AMQ_Binding_ID");
 
-   public static final SimpleString HDR_BINDING_TYPE = new SimpleString("_AMQ_Binding_Type");
+   public static final SimpleString HDR_BINDING_TYPE = SimpleString.of("_AMQ_Binding_Type");
 
-   public static final SimpleString HDR_FILTERSTRING = new SimpleString("_AMQ_FilterString");
+   public static final SimpleString HDR_FILTERSTRING = SimpleString.of("_AMQ_FilterString");
 
-   public static final SimpleString HDR_DISTANCE = new SimpleString("_AMQ_Distance");
+   public static final SimpleString HDR_DISTANCE = SimpleString.of("_AMQ_Distance");
 
-   public static final SimpleString HDR_CONSUMER_COUNT = new SimpleString("_AMQ_ConsumerCount");
+   public static final SimpleString HDR_CONSUMER_COUNT = SimpleString.of("_AMQ_ConsumerCount");
 
-   public static final SimpleString HDR_USER = new SimpleString("_AMQ_User");
+   public static final SimpleString HDR_USER = SimpleString.of("_AMQ_User");
 
-   public static final SimpleString HDR_VALIDATED_USER = new SimpleString("_AMQ_ValidatedUser");
+   public static final SimpleString HDR_VALIDATED_USER = SimpleString.of("_AMQ_ValidatedUser");
 
-   public static final SimpleString HDR_CERT_SUBJECT_DN = new SimpleString("_AMQ_CertSubjectDN");
+   public static final SimpleString HDR_CERT_SUBJECT_DN = SimpleString.of("_AMQ_CertSubjectDN");
 
-   public static final SimpleString HDR_CHECK_TYPE = new SimpleString("_AMQ_CheckType");
+   public static final SimpleString HDR_CHECK_TYPE = SimpleString.of("_AMQ_CheckType");
 
-   public static final SimpleString HDR_SESSION_NAME = new SimpleString("_AMQ_SessionName");
+   public static final SimpleString HDR_SESSION_NAME = SimpleString.of("_AMQ_SessionName");
 
-   public static final SimpleString HDR_REMOTE_ADDRESS = new SimpleString("_AMQ_RemoteAddress");
+   public static final SimpleString HDR_REMOTE_ADDRESS = SimpleString.of("_AMQ_RemoteAddress");
 
-   public static final SimpleString HDR_PROPOSAL_GROUP_ID = new SimpleString("_JBM_ProposalGroupId");
+   public static final SimpleString HDR_PROPOSAL_GROUP_ID = SimpleString.of("_JBM_ProposalGroupId");
 
-   public static final SimpleString HDR_PROPOSAL_VALUE = new SimpleString("_JBM_ProposalValue");
+   public static final SimpleString HDR_PROPOSAL_VALUE = SimpleString.of("_JBM_ProposalValue");
 
-   public static final SimpleString HDR_PROPOSAL_ALT_VALUE = new SimpleString("_JBM_ProposalAltValue");
+   public static final SimpleString HDR_PROPOSAL_ALT_VALUE = SimpleString.of("_JBM_ProposalAltValue");
 
-   public static final SimpleString HDR_CONSUMER_NAME = new SimpleString("_AMQ_ConsumerName");
+   public static final SimpleString HDR_CONSUMER_NAME = SimpleString.of("_AMQ_ConsumerName");
 
-   public static final SimpleString HDR_CONNECTION_NAME = new SimpleString("_AMQ_ConnectionName");
+   public static final SimpleString HDR_CONNECTION_NAME = SimpleString.of("_AMQ_ConnectionName");
 
-   public static final SimpleString HDR_MESSAGE_ID = new SimpleString("_AMQ_Message_ID");
+   public static final SimpleString HDR_MESSAGE_ID = SimpleString.of("_AMQ_Message_ID");
 
-   public static final SimpleString HDR_PROTOCOL_NAME = new SimpleString("_AMQ_Protocol_Name");
+   public static final SimpleString HDR_PROTOCOL_NAME = SimpleString.of("_AMQ_Protocol_Name");
 
-   public static final SimpleString HDR_CLIENT_ID = new SimpleString("_AMQ_Client_ID");
+   public static final SimpleString HDR_CLIENT_ID = SimpleString.of("_AMQ_Client_ID");
 
    // Lambda declaration for management function. Pretty much same thing as java.util.function.Consumer but with an exception in the declaration that was needed.
    public interface MessageAcceptor {
@@ -112,20 +112,27 @@ public final class ManagementHelper {
       }
    }
 
-   /** Utility function to reuse a ClientSessionConnection and perform a single management operation via core. */
+   /**
+    * Utility function to reuse a ClientSessionConnection and perform a single management operation via core.
+    */
    public static void doManagement(ClientSession session, MessageAcceptor setup, MessageAcceptor ok, MessageAcceptor failed) throws Exception {
       session.start();
-      ClientRequestor requestor = new ClientRequestor(session, "activemq.management");
-      ClientMessage message = session.createMessage(false);
+      try (ClientRequestor requestor = new ClientRequestor(session, "activemq.management")) {
+         ClientMessage message = session.createMessage(false);
 
-      setup.accept(message);
+         setup.accept(message);
 
-      ClientMessage reply = requestor.request(message);
+         ClientMessage reply = requestor.request(message);
 
-      if (ManagementHelper.hasOperationSucceeded(reply)) {
-         ok.accept(reply);
-      } else {
-         failed.accept(reply);
+         if (ManagementHelper.hasOperationSucceeded(reply)) {
+            if (ok != null) {
+               ok.accept(reply);
+            }
+         } else {
+            if (failed != null) {
+               failed.accept(reply);
+            }
+         }
       }
    }
 
@@ -138,12 +145,13 @@ public final class ManagementHelper {
     * @see ResourceNames
     */
    public static void putAttribute(final ICoreMessage message, final String resourceName, final String attribute) {
-      message.putStringProperty(ManagementHelper.HDR_RESOURCE_NAME, new SimpleString(resourceName));
-      message.putStringProperty(ManagementHelper.HDR_ATTRIBUTE, new SimpleString(attribute));
+      message.putStringProperty(ManagementHelper.HDR_RESOURCE_NAME, SimpleString.of(resourceName));
+      message.putStringProperty(ManagementHelper.HDR_ATTRIBUTE, SimpleString.of(attribute));
    }
 
    /**
-    * Stores an operation invocation in a message to invoke the corresponding operation the value from the server resource.
+    * Stores an operation invocation in a message to invoke the corresponding operation the value from the server
+    * resource.
     *
     * @param message       message
     * @param resourceName  the name of the resource
@@ -157,7 +165,8 @@ public final class ManagementHelper {
    }
 
    /**
-    * Stores an operation invocation in a  message to invoke the corresponding operation the value from the server resource.
+    * Stores an operation invocation in a  message to invoke the corresponding operation the value from the server
+    * resource.
     *
     * @param message       message
     * @param resourceName  the name of the server resource
@@ -170,8 +179,8 @@ public final class ManagementHelper {
                                              final String operationName,
                                              final Object... parameters) throws Exception {
       // store the name of the operation in the headers
-      message.putStringProperty(ManagementHelper.HDR_RESOURCE_NAME, new SimpleString(resourceName));
-      message.putStringProperty(ManagementHelper.HDR_OPERATION_NAME, new SimpleString(operationName));
+      message.putStringProperty(ManagementHelper.HDR_RESOURCE_NAME, SimpleString.of(resourceName));
+      message.putStringProperty(ManagementHelper.HDR_OPERATION_NAME, SimpleString.of(operationName));
 
       // and the params go in the body, since might be too large for header
 
@@ -185,11 +194,11 @@ public final class ManagementHelper {
          paramString = null;
       }
 
-      message.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString(paramString));
+      message.getBodyBuffer().writeNullableSimpleString(SimpleString.of(paramString));
    }
 
    /**
-    * Used by ActiveMQ Artemis management service.
+    * Used by Apache Artemis management service.
     */
    public static Object[] retrieveOperationParameters(final Message message) throws Exception {
       SimpleString sstring = message.toCore().getReadOnlyBodyBuffer().readNullableSimpleString();
@@ -205,21 +214,21 @@ public final class ManagementHelper {
    }
 
    /**
-    * Returns whether the JMS message corresponds to the result of a management operation invocation.
+    * {@return whether the JMS message corresponds to the result of a management operation invocation}
     */
    public static boolean isOperationResult(final Message message) {
       return message.containsProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED);
    }
 
    /**
-    * Returns whether the JMS message corresponds to the result of a management attribute value.
+    * {@return whether the JMS message corresponds to the result of a management attribute value}
     */
    public static boolean isAttributesResult(final Message message) {
       return !ManagementHelper.isOperationResult(message);
    }
 
    /**
-    * Used by ActiveMQ Artemis management service.
+    * Used by Apache Artemis management service.
     */
    public static void storeResult(final CoreMessage message, final Object result) throws Exception {
       String resultString;
@@ -234,14 +243,13 @@ public final class ManagementHelper {
          resultString = null;
       }
 
-      message.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString(resultString));
+      message.getBodyBuffer().writeNullableSimpleString(SimpleString.of(resultString));
    }
 
    /**
-    * Returns the result of an operation invocation or an attribute value.
-    * <br>
-    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
-    * and the result will be a String corresponding to the server exception.
+    * {@return the result of an operation invocation or an attribute value; if an error occurred on the server {@link
+    * #hasOperationSucceeded(Message)} will return {@code false} and the result will be a {@code String} corresponding
+    * to the server exception}
     */
    public static Object[] getResults(final ICoreMessage message) throws Exception {
       SimpleString sstring = message.getReadOnlyBodyBuffer().readNullableSimpleString();
@@ -256,20 +264,18 @@ public final class ManagementHelper {
    }
 
    /**
-    * Returns the result of an operation invocation or an attribute value.
-    * <br>
-    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
-    * and the result will be a String corresponding to the server exception.
+    * {@return the result of an operation invocation or an attribute value; if an error occurred on the server {@link
+    * #hasOperationSucceeded(Message)} will return {@code false} and the result will be a {@code String} corresponding
+    * to the server exception}
     */
    public static Object getResult(final ICoreMessage message) throws Exception {
       return getResult(message, null);
    }
 
    /**
-    * Returns the result of an operation invocation or an attribute value.
-    * <br>
-    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
-    * and the result will be a String corresponding to the server exception.
+    * {@return the result of an operation invocation or an attribute value; if an error occurred on the server {@link
+    * #hasOperationSucceeded(Message)} will return {@code false} and the result will be a {@code String} corresponding
+    * to the server exception}
     */
    public static Object getResult(final ICoreMessage message, Class desiredType) throws Exception {
       Object[] res = ManagementHelper.getResults(message);
@@ -282,9 +288,12 @@ public final class ManagementHelper {
    }
 
    /**
-    * Returns whether the invocation of the management operation on the server resource succeeded.
+    * {@return whether the invocation of the management operation on the server resource succeeded}
     */
    public static boolean hasOperationSucceeded(final Message message) {
+      if (message == null) {
+         return false;
+      }
       if (!ManagementHelper.isOperationResult(message)) {
          return false;
       }

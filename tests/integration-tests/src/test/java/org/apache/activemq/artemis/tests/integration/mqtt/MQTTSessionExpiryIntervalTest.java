@@ -16,21 +16,46 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
+import java.util.Collection;
+
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.QoS;
 import org.fusesource.mqtt.client.Topic;
-import org.junit.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@ExtendWith(ParameterizedTestExtension.class)
 public class MQTTSessionExpiryIntervalTest extends MQTTTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60 * 1000)
+   @Parameters(name = "sessionExpiryInterval={0}")
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][] {
+         {3},
+         {0}
+      });
+   }
+
+   public int sessionExpiryInterval;
+
+   public MQTTSessionExpiryIntervalTest(int sessionExpiryInterval) {
+      this.sessionExpiryInterval = sessionExpiryInterval;
+   }
+
+   @TestTemplate
+   @Timeout(60)
    public void testCustomSessionExpiryInterval() throws Exception {
       final MQTT mqttSub = createMQTTConnection("MQTT-Sub-Client", false);
 
@@ -48,8 +73,6 @@ public class MQTTSessionExpiryIntervalTest extends MQTTTestSupport {
 
    @Override
    protected void addMQTTConnector() throws Exception {
-      server.getConfiguration().addAcceptorConfiguration("MQTT", "tcp://localhost:" + port + "?protocols=MQTT;anycastPrefix=anycast:;multicastPrefix=multicast:;defaultMqttSessionExpiryInterval=3");
-
-      logger.debug("Added MQTT connector to broker");
+      server.getConfiguration().addAcceptorConfiguration("MQTT", "tcp://localhost:" + port + "?protocols=MQTT;anycastPrefix=anycast:;multicastPrefix=multicast:;defaultMqttSessionExpiryInterval=" + sessionExpiryInterval);
    }
 }

@@ -42,6 +42,9 @@ ${jdbc}
        -->
       <journal-type>${journal.settings}</journal-type>
 
+      <!-- Set this attribute to true to enable the system to purge the paging folder once it exits the paging state -->
+      <purge-page-folders>${purge-page-folders}</purge-page-folders>
+
       <paging-directory>${data.dir}/paging</paging-directory>
 
       <bindings-directory>${data.dir}/bindings</bindings-directory>
@@ -114,14 +117,21 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <permission type="consume" roles="${role}"/>
             <permission type="browse" roles="${role}"/>
             <permission type="send" roles="${role}"/>
-            <!-- we need this otherwise ./artemis data imp wouldn't work -->
+         </security-setting>
+         <security-setting match="activemq.management.#">
             <permission type="manage" roles="${role}"/>
+            <permission type="createNonDurableQueue" roles="${role}"/>
+            <permission type="deleteNonDurableQueue" roles="${role}"/>
+            <permission type="createAddress" roles="${role}"/>
+            <permission type="deleteAddress" roles="${role}"/>
+            <permission type="consume" roles="${role}"/>
+            <permission type="send" roles="${role}"/>
          </security-setting>
       </security-settings>
 
       <address-settings>
          <!-- if you define auto-create on certain queues, management has to be auto-create -->
-         <address-setting match="activemq.management#">
+         <address-setting match="activemq.management.#">
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>

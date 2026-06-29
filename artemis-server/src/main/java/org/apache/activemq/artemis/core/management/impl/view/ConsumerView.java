@@ -16,20 +16,24 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view;
 
-import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
-import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import java.util.Date;
 
-import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
+import org.apache.activemq.artemis.core.management.impl.view.predicate.ConsumerPredicateFilterPart;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConsumerFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
-public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
+public class ConsumerView extends ActiveMQAbstractView<ServerConsumer, ConsumerPredicateFilterPart> {
 
-   private static final String defaultSortColumn = ConsumerField.ID.getName();
+   public static final String CONSUMER_STATUS_OK = "OK";
+   public static final String CONSUMER_STATUS_ORPHANED = "Orphaned";
+
+
+   private static final String defaultSortField = ConsumerField.ID.getName();
 
    private final ActiveMQServer server;
 
@@ -53,16 +57,10 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          return null;
       }
 
-      String consumerClientID = consumer.getConnectionClientID();
-      if (consumerClientID == null && session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
-         //for the special case for JMS
-         consumerClientID = session.getMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY);
-      }
-
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
          .add(ConsumerField.ID.getName(), toString(consumer.getSequentialID()))
          .add(ConsumerField.SESSION.getName(), toString(consumer.getSessionName()))
-         .add(ConsumerField.CLIENT_ID.getName(), toString(consumerClientID))
+         .add(ConsumerField.CLIENT_ID.getName(), toString(consumer.getConnectionClientID()))
          .add(ConsumerField.USER.getName(), toString(session.getUsername()))
          .add(ConsumerField.VALIDATED_USER.getName(), toString(session.getValidatedUser()))
          .add(ConsumerField.PROTOCOL.getName(), toString(consumer.getConnectionProtocolName()))
@@ -80,7 +78,9 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          .add(ConsumerField.MESSAGES_ACKNOWLEDGED.getName(), toString(consumer.getMessagesAcknowledged()))
          .add(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName(), toString(consumer.getMessagesAcknowledgedAwaitingCommit()))
          .add(ConsumerField.LAST_DELIVERED_TIME.getName(), consumer.getLastDeliveredTime())
-         .add(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName(), consumer.getLastAcknowledgedTime());
+         .add(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName(), consumer.getLastAcknowledgedTime())
+         .add(ConsumerField.STATUS.getName(), ConsumerView.checkConsumerStatus(consumer, server));
+
       return obj;
    }
 
@@ -95,54 +95,42 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
 
       ConsumerField field = ConsumerField.valueOfName(fieldName);
 
-      switch (field) {
-         case ID:
-            return consumer.getSequentialID();
-         case SESSION:
-            return consumer.getSessionName();
-         case USER:
-            return session.getUsername();
-         case VALIDATED_USER:
-            return session.getValidatedUser();
-         case CLIENT_ID:
-            return consumer.getConnectionClientID();
-         case PROTOCOL:
-            return consumer.getConnectionProtocolName();
-         case QUEUE:
-            return consumer.getQueueName();
-         case QUEUE_TYPE:
-            return consumer.getQueueType();
-         case FILTER:
-            return consumer.getFilterString();
-         case LOCAL_ADDRESS:
-            return consumer.getConnectionLocalAddress();
-         case REMOTE_ADDRESS:
-            return consumer.getConnectionRemoteAddress();
-         case CREATION_TIME:
-            return new Date(consumer.getCreationTime());
-         case MESSAGES_IN_TRANSIT:
-            return consumer.getMessagesInTransit();
-         case MESSAGES_IN_TRANSIT_SIZE:
-            return consumer.getMessagesInTransitSize();
-         case MESSAGES_DELIVERED:
-            return consumer.getMessagesDelivered();
-         case MESSAGES_DELIVERED_SIZE:
-            return consumer.getMessagesDeliveredSize();
-         case MESSAGES_ACKNOWLEDGED:
-            return consumer.getMessagesAcknowledged();
-         case MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT:
-            return consumer.getMessagesAcknowledgedAwaitingCommit();
-         case LAST_DELIVERED_TIME:
-            return consumer.getLastDeliveredTime();
-         case LAST_ACKNOWLEDGED_TIME:
-            return consumer.getLastAcknowledgedTime();
-         default:
-            throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      return switch (field) {
+         case ID -> consumer.getSequentialID();
+         case SESSION -> consumer.getSessionName();
+         case USER -> session.getUsername();
+         case VALIDATED_USER -> session.getValidatedUser();
+         case CLIENT_ID -> consumer.getConnectionClientID();
+         case PROTOCOL -> consumer.getConnectionProtocolName();
+         case QUEUE -> consumer.getQueueName();
+         case QUEUE_TYPE -> consumer.getQueueType();
+         case FILTER -> consumer.getFilterString();
+         case LOCAL_ADDRESS -> consumer.getConnectionLocalAddress();
+         case REMOTE_ADDRESS -> consumer.getConnectionRemoteAddress();
+         case CREATION_TIME -> new Date(consumer.getCreationTime());
+         case MESSAGES_IN_TRANSIT -> consumer.getMessagesInTransit();
+         case MESSAGES_IN_TRANSIT_SIZE -> consumer.getMessagesInTransitSize();
+         case MESSAGES_DELIVERED -> consumer.getMessagesDelivered();
+         case MESSAGES_DELIVERED_SIZE -> consumer.getMessagesDeliveredSize();
+         case MESSAGES_ACKNOWLEDGED -> consumer.getMessagesAcknowledged();
+         case MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT -> consumer.getMessagesAcknowledgedAwaitingCommit();
+         case LAST_DELIVERED_TIME -> consumer.getLastDeliveredTime();
+         case LAST_ACKNOWLEDGED_TIME -> consumer.getLastAcknowledgedTime();
+         case STATUS -> checkConsumerStatus(consumer, server);
+         default -> throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      };
+   }
+
+   public static String checkConsumerStatus(ServerConsumer consumer, ActiveMQServer server) {
+      if (server.getRemotingService() != null && server.getRemotingService().getConnection((consumer).getConnectionID()) == null) {
+         return CONSUMER_STATUS_ORPHANED;
+      } else {
+         return CONSUMER_STATUS_OK;
       }
    }
 
    @Override
    public String getDefaultOrderColumn() {
-      return defaultSortColumn;
+      return defaultSortField;
    }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -28,8 +30,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +57,7 @@ public class BlockingSendTest extends ActiveMQTestBase {
 
       session = factory.createSession();
 
-      session.createQueue(new QueueConfiguration("queue").setAddress("address").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("queue").setAddress("address").setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer("address");
 
@@ -70,7 +71,7 @@ public class BlockingSendTest extends ActiveMQTestBase {
 
       ClientMessage msg = consumer.receive(5000);
 
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
 
       msg.acknowledge();
    }

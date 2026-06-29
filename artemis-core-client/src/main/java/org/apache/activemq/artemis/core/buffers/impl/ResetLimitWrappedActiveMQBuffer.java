@@ -36,8 +36,6 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper 
    /**
     * We need to turn of notifications of body changes on reset on the server side when dealing with AMQP conversions,
     * for that reason this method will set the message to null here
-    *
-    * @param message
     */
    public void setMessage(Message message) {
       this.message = message;

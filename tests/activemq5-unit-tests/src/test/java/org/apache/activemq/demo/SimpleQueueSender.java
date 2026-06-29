@@ -16,13 +16,11 @@
  */
 
 /**
- * The SimpleQueueSender class consists only of a main method,
- * which sends several messages to a queue.
- *
- * Run this program in conjunction with SimpleQueueReceiver.
- * Specify a queue name on the command line when you run the
- * program.  By default, the program sends one message.  Specify
- * a number after the queue name to send that number of messages.
+ * The SimpleQueueSender class consists only of a main method, which sends several messages to a queue.
+ * <p>
+ * Run this program in conjunction with SimpleQueueReceiver. Specify a queue name on the command line when you run the
+ * program.  By default, the program sends one message.  Specify a number after the queue name to send that number of
+ * messages.
  */
 package org.apache.activemq.demo;
 
@@ -53,8 +51,7 @@ public final class SimpleQueueSender {
    /**
     * Main method.
     *
-    * @param args the queue used by the example and, optionally, the number of
-    *             messages to send
+    * @param args the queue used by the example and, optionally, the number of messages to send
     */
    public static void main(String[] args) {
       String queueName = null;
@@ -79,9 +76,7 @@ public final class SimpleQueueSender {
          numMsgs = 1;
       }
 
-        /*
-         * Create a JNDI API InitialContext object if none exists yet.
-         */
+      // Create a JNDI API InitialContext object if none exists yet.
       try {
          jndiContext = new InitialContext();
       } catch (NamingException e) {
@@ -89,9 +84,7 @@ public final class SimpleQueueSender {
          System.exit(1);
       }
 
-        /*
-         * Look up connection factory and queue. If either does not exist, exit.
-         */
+      // Look up connection factory and queue. If either does not exist, exit.
       try {
          queueConnectionFactory = (QueueConnectionFactory) jndiContext.lookup("QueueConnectionFactory");
          queue = (Queue) jndiContext.lookup(queueName);
@@ -100,12 +93,10 @@ public final class SimpleQueueSender {
          System.exit(1);
       }
 
-        /*
-         * Create connection. Create session from connection; false means
-         * session is not transacted. Create sender and text message. Send
-         * messages, varying text slightly. Send end-of-messages message.
-         * Finally, close connection.
-         */
+     /*
+      * Create connection. Create session from connection; false means session is not transacted. Create sender and text
+      * message. Send messages, varying text slightly. Send end-of-messages message. Finally, close connection.
+      */
       try {
          queueConnection = queueConnectionFactory.createQueueConnection();
          queueSession = queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -117,9 +108,7 @@ public final class SimpleQueueSender {
             queueSender.send(message);
          }
 
-            /*
-             * Send a non-text control message indicating end of messages.
-             */
+         // Send a non-text control message indicating end of messages.
          queueSender.send(queueSession.createMessage());
       } catch (JMSException e) {
          LOG.info("Exception occurred: " + e.toString());

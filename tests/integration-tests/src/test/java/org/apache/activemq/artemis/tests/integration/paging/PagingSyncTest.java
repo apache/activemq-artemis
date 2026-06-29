@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -29,15 +30,13 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * A PagingOrderTest.
- * <br>
+ * <p>
  * PagingTest has a lot of tests already. I decided to create a newer one more specialized on Ordering and counters
  */
 public class PagingSyncTest extends ActiveMQTestBase {
@@ -48,7 +47,7 @@ public class PagingSyncTest extends ActiveMQTestBase {
 
 
 
-   static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+   static final SimpleString ADDRESS = SimpleString.of("TestQueue");
 
    @Test
    public void testOrder1() throws Throwable {
@@ -56,7 +55,7 @@ public class PagingSyncTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<>());
 
       server.start();
 
@@ -71,9 +70,9 @@ public class PagingSyncTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false, false);
 
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] body = new byte[messageSize];
 
@@ -90,7 +89,7 @@ public class PagingSyncTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
       }

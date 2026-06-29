@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
+import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
@@ -31,38 +30,43 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.directory.server.annotations.CreateLdapServer;
-import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockserver.socket.PortFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(FrameworkRunner.class)
-@CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP", port = 1024)}, allowAnonymousAccess = true)
 @ApplyLdifFiles("test.ldif")
 public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
 
@@ -71,19 +75,50 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
    private static final String PRINCIPAL = "uid=admin,ou=system";
    private static final String CREDENTIALS = "secret";
 
+   private static LdapServer ldapServer;
+
    private final String loginConfigSysPropName = "java.security.auth.login.config";
    private String oldLoginConfig;
 
    @Before
-   public void setLoginConfigSysProperty() {
+   public void setUp() throws Exception {
       oldLoginConfig = System.getProperty(loginConfigSysPropName, null);
       System.setProperty(loginConfigSysPropName, "src/test/resources/login.config");
+
+      if (ldapServer == null) {
+         ldapServer = new LdapServer();
+
+         TcpTransport ldapTcpTransport = new TcpTransport(1024);
+         ldapServer.addTransports(ldapTcpTransport);
+
+         TcpTransport ldapsTcpTransport = new TcpTransport(1025);
+         ldapsTcpTransport.setEnableSSL(true);
+         ldapServer.addTransports(ldapsTcpTransport);
+
+         DirectoryService directoryService = getService();
+         directoryService.setAllowAnonymousAccess(true);
+         ldapServer.setDirectoryService(directoryService);
+
+         String keystore = Objects.requireNonNull(this.getClass().getClassLoader().
+            getResource("server-keystore-without-ca.p12")).getFile();
+         ldapServer.setKeystoreFile(keystore);
+         ldapServer.setCertificatePassword("securepass");
+
+         ldapServer.start();
+      }
    }
 
    @After
    public void resetLoginConfigSysProperty() {
       if (oldLoginConfig != null) {
          System.setProperty(loginConfigSysPropName, oldLoginConfig);
+      }
+   }
+
+   @AfterClass
+   public static void stopLDAPServer() {
+      if (ldapServer != null) {
+         ldapServer.stop();
       }
    }
 
@@ -98,7 +133,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       env.put(Context.SECURITY_CREDENTIALS, CREDENTIALS);
       DirContext ctx = new InitialDirContext(env);
 
-      HashSet<String> set = new HashSet<>();
+      Set<String> set = new HashSet<>();
 
       NamingEnumeration<NameClassPair> list = ctx.list("ou=system");
 
@@ -116,20 +151,61 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
    }
 
    @Test
+   public void testRunningSSL() throws Exception {
+      Hashtable<String, Object> env = new Hashtable<>();
+      env.put(Context.PROVIDER_URL, "ldaps://localhost:1025");
+      env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+      env.put(Context.SECURITY_AUTHENTICATION, "simple");
+      env.put(Context.SECURITY_PRINCIPAL, PRINCIPAL);
+      env.put(Context.SECURITY_CREDENTIALS, CREDENTIALS);
+
+      // Uncomment to enable SSL debugging
+      // System.setProperty("-Djavax.net.debug", "all");
+      System.setProperty("javax.net.ssl.trustStore", Objects.requireNonNull(this.getClass().
+         getClassLoader().getResource("server-ca-truststore.p12")).getFile());
+      System.setProperty("javax.net.ssl.trustStorePassword", "securepass");
+
+      DirContext ctx = null;
+
+      try {
+         ctx = new InitialDirContext(env);
+
+         Set<String> set = new HashSet<>();
+
+         NamingEnumeration<NameClassPair> list = ctx.list("ou=system");
+
+         while (list.hasMore()) {
+            NameClassPair ncp = list.next();
+            set.add(ncp.getName());
+         }
+
+         assertTrue(set.contains("uid=admin"));
+         assertTrue(set.contains("ou=users"));
+         assertTrue(set.contains("ou=groups"));
+         assertTrue(set.contains("ou=configuration"));
+         assertTrue(set.contains("prefNodeName=sysPrefRoot"));
+      } finally {
+         System.clearProperty("javax.net.ssl.trustStore");
+         System.clearProperty("javax.net.ssl.trustStorePassword");
+
+         if (ctx != null) {
+            ctx.close();
+         }
+      }
+   }
+
+   @Test
    public void testLogin() throws Exception {
       logger.info("num session: {}", ldapServer.getLdapSessionManager().getSessions().length);
 
-      LoginContext context = new LoginContext("LDAPLogin", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (int i = 0; i < callbacks.length; i++) {
-               if (callbacks[i] instanceof NameCallback) {
-                  ((NameCallback) callbacks[i]).setName("first");
-               } else if (callbacks[i] instanceof PasswordCallback) {
-                  ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
-               } else {
-                  throw new UnsupportedCallbackException(callbacks[i]);
-               }
+      LoginContext context = new LoginContext("LDAPLogin", callbacks -> {
+         for (int i = 0; i < callbacks.length; i++) {
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("secret".toCharArray());
+            } else {
+               throw new UnsupportedCallbackException(callbacks[i]);
             }
          }
       });
@@ -137,57 +213,6 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       context.logout();
 
       assertTrue("sessions still active after logout", waitFor(() -> ldapServer.getLdapSessionManager().getSessions().length == 0));
-   }
-
-   @Test
-   public void testLoginPooled() throws Exception {
-      CallbackHandler callbackHandler = callbacks -> {
-         for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
-            } else {
-               throw new UnsupportedCallbackException(callbacks[i]);
-            }
-         }
-      };
-
-      LoginContext context = new LoginContext("LDAPLoginPooled", callbackHandler);
-      context.login();
-      context.logout();
-
-      // again
-      context.login();
-      context.logout();
-
-      // new context
-      context = new LoginContext("LDAPLoginPooled", callbackHandler);
-      context.login();
-      context.logout();
-
-      Executor pool = Executors.newCachedThreadPool();
-      for (int i = 0; i < 20; i++) {
-         pool.execute(() -> {
-            try {
-               LoginContext context1 = new LoginContext("LDAPLoginPooled", callbackHandler);
-               context1.login();
-               context1.logout();
-            } catch (Exception ignored) {
-            }
-         });
-      }
-
-      /*
-       * The number of sessions here is variable due to the pool used to create the LoginContext objects and the pooling
-       * for the LDAP connections (which are managed by the JVM implementation). We really just need to confirm that
-       * there are still connections to the LDAP server open even after all the LoginContext objects are closed as that
-       * will indicate the LDAP connection pooling is working.
-       */
-      assertTrue("not enough active sessions after logout", waitFor(() -> ldapServer.getLdapSessionManager().getSessions().length >= 5));
-
-      ((ExecutorService) pool).shutdown();
-      ((ExecutorService) pool).awaitTermination(2, TimeUnit.SECONDS);
    }
 
    public interface Condition {
@@ -206,24 +231,21 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
 
    @Test
    public void testUnauthenticated() throws Exception {
-      LoginContext context = new LoginContext("UnAuthenticatedLDAPLogin", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (int i = 0; i < callbacks.length; i++) {
-               if (callbacks[i] instanceof NameCallback) {
-                  ((NameCallback) callbacks[i]).setName("first");
-               } else if (callbacks[i] instanceof PasswordCallback) {
-                  ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
-               } else {
-                  throw new UnsupportedCallbackException(callbacks[i]);
-               }
+      LoginContext context = new LoginContext("UnAuthenticatedLDAPLogin", callbacks -> {
+         for (int i = 0; i < callbacks.length; i++) {
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("secret".toCharArray());
+            } else {
+               throw new UnsupportedCallbackException(callbacks[i]);
             }
          }
       });
       try {
          context.login();
       } catch (LoginException le) {
-         assertEquals(le.getCause().getMessage(), "Empty password is not allowed");
+         assertEquals("Empty password is not allowed", le.getCause().getMessage());
          return;
       }
       fail("Should have failed authenticating");
@@ -233,17 +255,14 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
 
    @Test
    public void testAuthenticatedViaBindOnAnonConnection() throws Exception {
-      LoginContext context = new LoginContext("AnonBindCheckUserLDAPLogin", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (int i = 0; i < callbacks.length; i++) {
-               if (callbacks[i] instanceof NameCallback) {
-                  ((NameCallback) callbacks[i]).setName("first");
-               } else if (callbacks[i] instanceof PasswordCallback) {
-                  ((PasswordCallback) callbacks[i]).setPassword("wrongSecret".toCharArray());
-               } else {
-                  throw new UnsupportedCallbackException(callbacks[i]);
-               }
+      LoginContext context = new LoginContext("AnonBindCheckUserLDAPLogin", callbacks -> {
+         for (int i = 0; i < callbacks.length; i++) {
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("wrongSecret".toCharArray());
+            } else {
+               throw new UnsupportedCallbackException(callbacks[i]);
             }
          }
       });
@@ -257,17 +276,14 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
 
    @Test
    public void testAuthenticatedOkViaBindOnAnonConnection() throws Exception {
-      LoginContext context = new LoginContext("AnonBindCheckUserLDAPLogin", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (int i = 0; i < callbacks.length; i++) {
-               if (callbacks[i] instanceof NameCallback) {
-                  ((NameCallback) callbacks[i]).setName("first");
-               } else if (callbacks[i] instanceof PasswordCallback) {
-                  ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
-               } else {
-                  throw new UnsupportedCallbackException(callbacks[i]);
-               }
+      LoginContext context = new LoginContext("AnonBindCheckUserLDAPLogin", callbacks -> {
+         for (int i = 0; i < callbacks.length; i++) {
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("secret".toCharArray());
+            } else {
+               throw new UnsupportedCallbackException(callbacks[i]);
             }
          }
       });
@@ -281,7 +297,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       LoginModule loginModule = new LDAPLoginModule();
       JaasCallbackHandler callbackHandler = new JaasCallbackHandler(null, null, null);
 
-      loginModule.initialize(new Subject(), callbackHandler, null, new HashMap<String, Object>());
+      loginModule.initialize(new Subject(), callbackHandler, null, new HashMap<>());
 
       // login should return false due to null username
       assertFalse(loginModule.login());
@@ -296,7 +312,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       JaasCallbackHandler callbackHandler = new JaasCallbackHandler(null, null, null);
 
       Field configMap = null;
-      HashMap<String, Object> options = new HashMap<>();
+      Map<String, Object> options = new HashMap<>();
       for (Field field: loginModule.getClass().getDeclaredFields()) {
          if (Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()) && field.getType().isAssignableFrom(String.class)) {
             field.setAccessible(true);
@@ -317,17 +333,14 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
 
    @Test
    public void testEmptyPassword() throws Exception {
-      LoginContext context = new LoginContext("LDAPLogin", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (int i = 0; i < callbacks.length; i++) {
-               if (callbacks[i] instanceof NameCallback) {
-                  ((NameCallback) callbacks[i]).setName("first");
-               } else if (callbacks[i] instanceof PasswordCallback) {
-                  ((PasswordCallback) callbacks[i]).setPassword("".toCharArray());
-               } else {
-                  throw new UnsupportedCallbackException(callbacks[i]);
-               }
+      LoginContext context = new LoginContext("LDAPLogin", callbacks -> {
+         for (int i = 0; i < callbacks.length; i++) {
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("".toCharArray());
+            } else {
+               throw new UnsupportedCallbackException(callbacks[i]);
             }
          }
       });
@@ -342,17 +355,14 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
 
    @Test
    public void testNullPassword() throws Exception {
-      LoginContext context = new LoginContext("LDAPLogin", new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (int i = 0; i < callbacks.length; i++) {
-               if (callbacks[i] instanceof NameCallback) {
-                  ((NameCallback) callbacks[i]).setName("first");
-               } else if (callbacks[i] instanceof PasswordCallback) {
-                  ((PasswordCallback) callbacks[i]).setPassword(null);
-               } else {
-                  throw new UnsupportedCallbackException(callbacks[i]);
-               }
+      LoginContext context = new LoginContext("LDAPLogin", callbacks -> {
+         for (int i = 0; i < callbacks.length; i++) {
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword(null);
+            } else {
+               throw new UnsupportedCallbackException(callbacks[i]);
             }
          }
       });
@@ -366,7 +376,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
    }
    @Test
    public void testEnvironmentProperties() throws Exception {
-      HashMap<String, Object> options = new HashMap<>();
+      Map<String, Object> options = new HashMap<>();
 
       // set module configs
       for (LDAPLoginModule.ConfigKey configKey: LDAPLoginModule.ConfigKey.values()) {
@@ -390,6 +400,8 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
             options.put(configKey.getName(), "s");
          } else if (configKey.getName().equals("debug")) {
             options.put(configKey.getName(), "true");
+         } else if (configKey.getName().equals("passwordCodec")) {
+            options.put(configKey.getName(), "my.password.Codec");
          } else {
             options.put(configKey.getName(), configKey.getName() + "_value_set");
          }
@@ -409,13 +421,15 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       loginModule.openContext();
 
       // get created environment
-      Hashtable<?, ?> environment = loginModule.context.getEnvironment();
+      Map<?, ?> environment = loginModule.context.getEnvironment();
       // cleanup
       loginModule.closeContext();
 
       // module config keys should not be passed to environment
       for (LDAPLoginModule.ConfigKey configKey: LDAPLoginModule.ConfigKey.values()) {
-         assertEquals("value should not be set for key: " + configKey.getName(), null, environment.get(configKey.getName()));
+         if (!LDAPLoginModule.ConfigKey.PASSWORD_CODEC.equals(configKey)) {
+            assertNull("value should not be set for key: " + configKey.getName(), environment.get(configKey.getName()));
+         }
       }
 
       // extra, non-module configs should be passed to environment
@@ -423,8 +437,8 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       assertEquals("value should be set for key: " + "randomConfig", "some-value", environment.get("randomConfig"));
 
       // non-string configs should not be passed to environment
-      assertEquals("value should not be set for key: " + "non.string.1", null, environment.get("non.string.1"));
-      assertEquals("value should not be set for key: " + "non.string.2", null, environment.get("non.string.2"));
+      assertNull("value should not be set for key: " + "non.string.1", environment.get("non.string.1"));
+      assertNull("value should not be set for key: " + "non.string.2", environment.get("non.string.2"));
 
       // environment configs should be set
       assertEquals("value should be set for key: " + Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory", environment.get(Context.INITIAL_CONTEXT_FACTORY));
@@ -436,14 +450,185 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       assertEquals("value should be set for key: " + Context.SECURITY_PRINCIPAL, PRINCIPAL, environment.get(Context.SECURITY_PRINCIPAL));
       assertEquals("value should be set for key: " + Context.SECURITY_CREDENTIALS, CREDENTIALS, environment.get(Context.SECURITY_CREDENTIALS));
       assertEquals("value should be set for key: " + Context.SECURITY_PROTOCOL, "s", environment.get(Context.SECURITY_PROTOCOL));
+
+      // passwordCodec should be set
+      assertEquals("value should be set for key: " + "passwordCodec", "my.password.Codec", environment.get("passwordCodec"));
    }
 
    private boolean presentIn(Set<LDAPLoginProperty> ldapProps, String propertyName) {
       for (LDAPLoginProperty conf : ldapProps) {
-         if (conf.getPropertyName().equals(propertyName) && (conf.getPropertyValue() != null && !"".equals(conf.getPropertyValue())))
+         if (conf.getPropertyName().equals(propertyName) && (conf.getPropertyValue() != null && !"".equals(conf.getPropertyValue()))) {
             return true;
+         }
       }
       return false;
    }
 
+   @Test
+   public void testLDAPLoginSSLSocketFactoryWithTruststore() throws Exception {
+      Map<String, Object> extraOptions = new HashMap<>();
+      extraOptions.put("truststorePath", Objects.requireNonNull(this.getClass().
+         getClassLoader().getResource("server-ca-truststore.jks")).getFile());
+      extraOptions.put("truststorePassword", "securepass");
+
+      testLDAPSConnectionWithLDAPLoginSSLSocketFactory(extraOptions, true);
+   }
+
+   @Test
+   public void testLDAPLoginSSLSocketFactoryWithDefaultPasswordCodecAndTruststore() throws Exception {
+      Map<String, Object> extraOptions = new HashMap<>();
+      extraOptions.put("truststorePath", Objects.requireNonNull(this.getClass().
+         getClassLoader().getResource("server-ca-truststore.jks")).getFile());
+      extraOptions.put("truststorePassword", PasswordMaskingUtil.wrap(
+         PasswordMaskingUtil.getDefaultCodec().encode("securepass")));
+
+      testLDAPSConnectionWithLDAPLoginSSLSocketFactory(extraOptions, true);
+   }
+
+   @Test
+   public void testLDAPLoginSSLSocketFactoryWithCustomPasswordCodecAndTruststore() throws Exception {
+      Map<String, Object> extraOptions = new HashMap<>();
+      extraOptions.put("passwordCodec", TestSensitiveDataCodec.class.getName());
+      extraOptions.put("truststorePath", Objects.requireNonNull(this.getClass().
+         getClassLoader().getResource("server-ca-truststore.jks")).getFile());
+      extraOptions.put("truststorePassword", "ENC(ssaperuces)");
+
+      testLDAPSConnectionWithLDAPLoginSSLSocketFactory(extraOptions, true);
+   }
+
+   @Test
+   public void testLDAPLoginSSLSocketFactoryWithNoFallbackRevocationCheckerAndTruststore() throws Exception {
+      Map<String, Object> extraOptions = new HashMap<>();
+      extraOptions.put("crcOptions", "NO_FALLBACK");
+      extraOptions.put("truststorePath", Objects.requireNonNull(this.getClass().
+         getClassLoader().getResource("server-ca-truststore.jks")).getFile());
+      extraOptions.put("truststorePassword", "securepass");
+
+      try {
+         testLDAPSConnectionWithLDAPLoginSSLSocketFactory(extraOptions, true);
+         fail("Should have thrown CommunicationException");
+      } catch (Exception e) {
+         assertEquals(CommunicationException.class, e.getClass());
+      }
+   }
+
+   @Test
+   public void testLDAPLoginSSLSocketFactoryWithSoftFailRevocationCheckerAndTruststore() throws Exception {
+      Map<String, Object> extraOptions = new HashMap<>();
+      extraOptions.put("crcOptions", "SOFT_FAIL");
+      extraOptions.put("ocspResponderURL", "http://localhost:" + PortFactory.findFreePort());
+      extraOptions.put("truststorePath", Objects.requireNonNull(this.getClass().
+         getClassLoader().getResource("server-ca-truststore.jks")).getFile());
+      extraOptions.put("truststorePassword", "securepass");
+
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
+         testLDAPSConnectionWithLDAPLoginSSLSocketFactory(extraOptions, true);
+
+         assertTrue(loggerHandler.findText("AMQ212081",
+            "[CN=ActiveMQ Artemis Server,OU=Artemis,O=ActiveMQ,L=AMQ,ST=AMQ,C=AMQ]", "Exception"));
+      }
+   }
+
+   @Test
+   public void testLDAPLoginSSLSocketFactoryWithInvalidTruststore() throws Exception {
+      Map<String, Object> extraOptions = new HashMap<>();
+      extraOptions.put("truststorePath", "invalid-ca-truststore.jks");
+      extraOptions.put("truststorePassword", "securepass");
+
+      try {
+         testLDAPSConnectionWithLDAPLoginSSLSocketFactory(extraOptions, true);
+         fail("Should have thrown CommunicationException");
+      } catch (Exception e) {
+         assertEquals(CommunicationException.class, e.getClass());
+      }
+   }
+
+   @Test
+   public void testLDAPLoginSSLSocketFactoryWithWrongTruststore() throws Exception {
+      Map<String, Object> extraOptions = new HashMap<>();
+      extraOptions.put("truststorePath", Objects.requireNonNull(this.getClass().
+         getClassLoader().getResource("other-server-truststore.jks")).getFile());
+      extraOptions.put("truststorePassword", "securepass");
+
+      try {
+         testLDAPSConnectionWithLDAPLoginSSLSocketFactory(extraOptions, true);
+         fail("Should have thrown CommunicationException");
+      } catch (Exception e) {
+         assertEquals(CommunicationException.class, e.getClass());
+      }
+   }
+
+   @Test
+   public void testLDAPLoginSSLSocketFactoryWithTrustAll() throws Exception {
+      Map<String, Object> extraOptions = new HashMap<>();
+      extraOptions.put("trustAll", "true");
+
+      testLDAPSConnectionWithLDAPLoginSSLSocketFactory(extraOptions, true);
+   }
+
+   @Test
+   public void testLDAPLoginSSLSocketFactoryWithMultipleLDAPLoginModules() throws Exception {
+      Map<String, Object> extraOptions = new HashMap<>();
+      extraOptions.put("truststorePath", Objects.requireNonNull(this.getClass().
+         getClassLoader().getResource("server-ca-truststore.jks")).getFile());
+      extraOptions.put("truststorePassword", "securepass");
+
+      try {
+         testLDAPSConnectionWithLDAPLoginSSLSocketFactory(extraOptions, false);
+
+         try {
+            testLDAPSConnectionWithLDAPLoginSSLSocketFactory(Collections.emptyMap(), false);
+            fail("Should have thrown CommunicationException");
+         } catch (Exception e) {
+            assertEquals(CommunicationException.class, e.getClass());
+         }
+
+         testLDAPSConnectionWithLDAPLoginSSLSocketFactory(Collections.singletonMap("trustAll", "true"), false);
+      } finally {
+         LDAPLoginSSLSocketFactory.getSSLContextFactory().clearSSLContexts();
+      }
+   }
+
+   private void testLDAPSConnectionWithLDAPLoginSSLSocketFactory(Map<String, Object> extraOptions, boolean clearSSLContexts) throws Exception {
+      Map<String, Object> options = new HashMap<>();
+
+      // Set basic LDAP connection options for LDAPS
+      options.put("initialContextFactory", "com.sun.jndi.ldap.LdapCtxFactory");
+      options.put("connectionURL", "ldaps://localhost:1025");
+      options.put("connectionUsername", PRINCIPAL);
+      options.put("connectionPassword", CREDENTIALS);
+      options.put("authentication", "simple");
+      options.put("connectionProtocol", "ssl");
+
+      // Set SSL configuration options
+      options.put("java.naming.ldap.factory.socket", LDAPLoginSSLSocketFactory.class.getName());
+      options.putAll(extraOptions);
+
+      LDAPLoginModule loginModule = new LDAPLoginModule();
+      loginModule.initialize(new Subject(), null, null, options);
+
+      try {
+         assertNull("The environment should be cleared before opening context", LDAPLoginModule.getEnvironment());
+         loginModule.openContext();
+         assertNull("The environment should be cleared after opening context", LDAPLoginModule.getEnvironment());
+      } finally {
+         if (clearSSLContexts) {
+            LDAPLoginSSLSocketFactory.getSSLContextFactory().clearSSLContexts();
+         }
+         loginModule.closeContext();
+      }
+   }
+
+
+   public static class TestSensitiveDataCodec implements SensitiveDataCodec<String> {
+      @Override
+      public String decode(Object encodedValue) throws Exception {
+         return new StringBuilder((String) encodedValue).reverse().toString();
+      }
+
+      @Override
+      public String encode(Object value) throws Exception {
+         return new StringBuilder((String) value).reverse().toString();
+      }
+   }
 }

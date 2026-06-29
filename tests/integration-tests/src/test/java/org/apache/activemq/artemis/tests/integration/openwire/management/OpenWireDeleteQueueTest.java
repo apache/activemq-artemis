@@ -19,9 +19,7 @@ package org.apache.activemq.artemis.tests.integration.openwire.management;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.io.IOException;
@@ -42,17 +40,19 @@ import org.apache.activemq.artemis.tests.integration.management.ManagementContro
 import org.apache.activemq.artemis.tests.integration.openwire.OpenWireTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.TransportListener;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OpenWireDeleteQueueTest extends OpenWireTestBase {
 
    private ActiveMQServerControl serverControl;
-   private SimpleString queueName1 = new SimpleString("queue1");
+   private SimpleString queueName1 = SimpleString.of("queue1");
 
    private ConnectionFactory factory;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -62,8 +62,8 @@ public class OpenWireDeleteQueueTest extends OpenWireTestBase {
 
    @Override
    protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {
-      addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
-      addressSettingsMap.put(queueName1.toString(), new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
+      addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")));
+      addressSettingsMap.put(queueName1.toString(), new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")));
 
    }
 
@@ -95,13 +95,10 @@ public class OpenWireDeleteQueueTest extends OpenWireTestBase {
          CountDownLatch three = new CountDownLatch(3);
 
          final MessageConsumer messageConsumer = session.createConsumer(destination);
-         messageConsumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-               one.countDown();
-               two.countDown();
-               three.countDown();
-            }
+         messageConsumer.setMessageListener(message -> {
+            one.countDown();
+            two.countDown();
+            three.countDown();
          });
 
          producer.send(session.createTextMessage("one"));
@@ -138,10 +135,10 @@ public class OpenWireDeleteQueueTest extends OpenWireTestBase {
          // the test op, will force a disconnect, failover will kick in..
          serverControl.destroyQueue(queueName1.toString(), true);
 
-         assertTrue("Binding gone!", Wait.waitFor(() -> {
+         assertTrue(Wait.waitFor(() -> {
             String bindings = serverControl.listBindingsForAddress(queueName1.toString());
             return !bindings.contains(queueName1);
-         }));
+         }), "Binding gone!");
 
 
          assertTrue(failoverStart.await(5, TimeUnit.SECONDS));
@@ -151,10 +148,10 @@ public class OpenWireDeleteQueueTest extends OpenWireTestBase {
          producer.send(session.createTextMessage("two"));
          assertTrue(two.await(5, TimeUnit.SECONDS));
 
-         assertTrue("binding auto created for message two", Wait.waitFor(() -> {
+         assertTrue(Wait.waitFor(() -> {
             String bindings = serverControl.listBindingsForAddress(queueName1.toString());
             return bindings.contains(queueName1);
-         }, 5000));
+         }, 5000), "binding auto created for message two");
 
          // sanity check on third
          producer.send(session.createTextMessage("three"));

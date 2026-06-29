@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.crossprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
+import java.util.Collection;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -23,9 +31,6 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
-import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -46,41 +51,42 @@ import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImp
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int NUMBER_OF_SERVERS = 2;
-   private static final SimpleString queueName = SimpleString.toSimpleString("queues.0");
+   private static final SimpleString queueName = SimpleString.of("queues.0");
 
    // I'm taking any number that /2 = Odd
    // to avoid perfect roundings and making sure messages are evenly distributed
    private static final int NUMBER_OF_MESSAGES = 77 * 2;
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameters(name = "protocol={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{"AMQP"}, {"CORE"}, {"OPENWIRE"}});
    }
 
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public String protocol;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -93,7 +99,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
       setupCluster(loadBalancingType);
 
-      AddressSettings as = new AddressSettings().setRedistributionDelay(0).setExpiryAddress(SimpleString.toSimpleString("queues.expiry"));
+      AddressSettings as = new AddressSettings().setRedistributionDelay(0).setExpiryAddress(SimpleString.of("queues.expiry"));
 
       getServer(0).getAddressSettingsRepository().addMatch("queues.*", as);
       getServer(1).getAddressSettingsRepository().addMatch("queues.*", as);
@@ -101,12 +107,12 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       startServers(0);
       startServers(1);
 
-      createQueue(SimpleString.toSimpleString("queues.expiry"));
+      createQueue(SimpleString.of("queues.expiry"));
       createQueue(queueName);
    }
 
    private void createQueue(SimpleString queueName) throws Exception {
-      QueueConfiguration queueConfiguration = new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST);
+      QueueConfiguration queueConfiguration = QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST);
       servers[0].createQueue(queueConfiguration);
       servers[1].createQueue(queueConfiguration);
    }
@@ -123,7 +129,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       } else if (protocol.equals("CORE")) {
          return new ActiveMQConnectionFactory("tcp://localhost:" + (61616 + node));
       } else {
-         Assert.fail("Protocol " + protocol + " unknown");
+         fail("Protocol " + protocol + " unknown");
          return null;
       }
    }
@@ -136,7 +142,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testLoadBalancing() throws Exception {
 
       startServers(MessageLoadBalancingType.STRICT);
@@ -179,7 +185,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
       receiveMessages(connection[0], consumer[0], NUMBER_OF_MESSAGES / 2, true);
       connection[1].start();
-      Assert.assertNull(consumer[1].receiveNoWait());
+      assertNull(consumer[1].receiveNoWait());
       connection[1].stop();
 
       servers[0].stop();
@@ -199,7 +205,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testRedistributionStoppedWithNoRemoteConsumers() throws Exception {
       startServers(MessageLoadBalancingType.ON_DEMAND);
 
@@ -265,7 +271,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       Wait.assertEquals(0, servers[1].locateQueue(queueName)::getMessageCount);
    }
 
-   @Test
+   @TestTemplate
    public void testExpireRedistributed() throws Exception {
       startServers(MessageLoadBalancingType.ON_DEMAND);
 
@@ -304,7 +310,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       connection.close();
    }
 
-   @Test
+   @TestTemplate
    public void testRestartConnection() throws Exception {
 
       startServers(MessageLoadBalancingType.STRICT);
@@ -391,15 +397,15 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
    }
 
-   @Test
+   @TestTemplate
    public void testRedistributeAfterLoadBalanced() throws Exception {
 
       startServers(MessageLoadBalancingType.ON_DEMAND);
 
       ConnectionFactory[] factory = new ConnectionFactory[NUMBER_OF_SERVERS];
       Connection[] connection = new Connection[NUMBER_OF_SERVERS];
-      Session[]  session = new Session[NUMBER_OF_SERVERS];
-      MessageConsumer[]  consumer = new MessageConsumer[NUMBER_OF_SERVERS];
+      Session[] session = new Session[NUMBER_OF_SERVERS];
+      MessageConsumer[] consumer = new MessageConsumer[NUMBER_OF_SERVERS];
 
       // this will pre create consumers to make sure messages are distributed evenly without redistribution
       for (int node = 0; node < NUMBER_OF_SERVERS; node++) {
@@ -424,17 +430,11 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
          ClientSessionFactory coreFactory = locator.createSessionFactory();
          ClientSession clientSession = coreFactory.createSession();
          ClientProducer producer = clientSession.createProducer(queueName);
+         String largeBody = " ".repeat(10 * 1024);
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             ClientMessage message = clientSession.createMessage((byte)0, true);
-            StringBuffer stringbuffer = new StringBuffer();
-            stringbuffer.append("hello");
-            if (i % 3 == 0) {
-               // making 1/3 of the messages to be large message
-               for (int j = 0; j < 10 * 1024; j++) {
-                  stringbuffer.append(" ");
-               }
-            }
-            message.getBodyBuffer().writeUTF(stringbuffer.toString());
+            // making 1/3 of the messages to be large
+            message.getBodyBuffer().writeUTF(i % 3 == 0 ? largeBody : "hello");
             producer.send(message);
          }
          coreFactory.close();
@@ -448,9 +448,9 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
          MessageProducer pd = sn.createProducer(sn.createQueue(queueName.toString()));
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
-            StringBuffer stringbuffer = new StringBuffer();
-            stringbuffer.append("hello");
-            Message message = sn.createTextMessage(stringbuffer.toString());
+            StringBuilder sb = new StringBuilder();
+            sb.append("hello");
+            Message message = sn.createTextMessage(sb.toString());
             pd.send(message);
          }
 
@@ -475,12 +475,12 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
       for (int i = 0; i < messageCount; i++) {
          Message msg = messageConsumer.receive(5000);
-         Assert.assertNotNull("did not receive message at " + i, msg);
+         assertNotNull(msg, "did not receive message at " + i);
       }
 
       // this means no more messages received
       if (exactCount) {
-         Assert.assertNull(messageConsumer.receiveNoWait());
+         assertNull(messageConsumer.receiveNoWait());
       }
    }
 
@@ -515,11 +515,6 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       clearServer(0, 1);
    }
 
-   /**
-    * @param serverID
-    * @return
-    * @throws Exception
-    */
    @Override
    protected ConfigurationImpl createBasicConfig(final int serverID) {
       ConfigurationImpl configuration = super.createBasicConfig(serverID);

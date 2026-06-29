@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.service.extensions.xa.recovery;
 
 public class ActiveMQRegistryImpl implements ActiveMQRegistry {
 
+   private static final long serialVersionUID = 1287755577474193967L;
+
    private static ActiveMQRegistryImpl instance;
 
    public static ActiveMQRegistry getInstance() {

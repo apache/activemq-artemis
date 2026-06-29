@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.jms.tests.message.foreign;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Message;
 import javax.jms.TextMessage;
 
@@ -24,10 +27,9 @@ import org.apache.activemq.artemis.jms.tests.message.MessageTestBase;
 import org.apache.activemq.artemis.jms.tests.message.SimpleJMSMessage;
 import org.apache.activemq.artemis.jms.tests.message.SimpleJMSTextMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -40,14 +42,14 @@ public class ForeignMessageTest extends MessageTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       message = createForeignMessage();
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
       message = null;
@@ -90,9 +92,9 @@ public class ForeignMessageTest extends MessageTestBase {
       Message rec = queueCons.receive();
       ProxyAssertSupport.assertNotNull(rec);
 
-      Assert.assertNull(rec.getJMSCorrelationIDAsBytes());
+      assertNull(rec.getJMSCorrelationIDAsBytes());
 
-      Assert.assertEquals("mycorrelationid", msg.getJMSCorrelationID());
+      assertEquals("mycorrelationid", msg.getJMSCorrelationID());
    }
 
    @Test
@@ -115,7 +117,7 @@ public class ForeignMessageTest extends MessageTestBase {
 
       assertByteArraysEqual(bytes, bytesrec);
 
-      Assert.assertNull(rec.getJMSCorrelationID());
+      assertNull(rec.getJMSCorrelationID());
    }
 
    private void assertByteArraysEqual(final byte[] bytes1, final byte[] bytes2) {

@@ -25,13 +25,13 @@ import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeSet;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -48,8 +48,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.cli.commands.ActionAbstract;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionConfigurationAbtract;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
@@ -57,18 +57,19 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ListUtil;
 import org.apache.activemq.artemis.utils.XmlProvider;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 /**
- * Read XML output from <code>org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataExporter</code>, create a core session, and
- * send the messages to a running instance of ActiveMQ Artemis.  It uses the StAX <code>javax.xml.stream.XMLStreamReader</code>
- * for speed and simplicity.
+ * Read XML output from {@code org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataExporter}, create a core
+ * session, and send the messages to a running instance of Apache Artemis.  It uses the StAX
+ * {@code javax.xml.stream.XMLStreamReader} for speed and simplicity.
  */
 @Command(name = "imp", description = "Import all message-data using an XML that could be interpreted by any system.")
-public final class XmlDataImporter extends ActionAbstract {
+public final class XmlDataImporter extends ConnectionConfigurationAbtract {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -85,15 +86,17 @@ public final class XmlDataImporter extends ActionAbstract {
 
    final Map<String, Long> queueIDs = new HashMap<>();
 
-   HashMap<String, String> oldPrefixTranslation = new HashMap<>();
+   Map<String, String> oldPrefixTranslation = new HashMap<>();
 
    private ClientSession session;
    private ClientProducer producer;
 
-   @Option(names = "--host", description = "The host used to import the data. Default: localhost.")
-   public String host = "localhost";
+   @Deprecated(forRemoval = true)
+   @Option(names = "--host", description = "The host used to import the data. Default: null.", hidden = true)
+   public String host = null;
 
-   @Option(names = "--port", description = "The port used to import the data. Default: 61616.")
+   @Deprecated(forRemoval = true)
+   @Option(names = "--port", description = "The port used to import the data. Default: 61616.", hidden = true)
    public int port = 61616;
 
    @Option(names = "--transaction", description = "Import every message using a single transction. If anything goes wrong during the process the entire import will be aborted. Default: false.", hidden = true)
@@ -101,12 +104,6 @@ public final class XmlDataImporter extends ActionAbstract {
 
    @Option(names = "--commit-interval", description = "How often to commit.", hidden = true)
    public int commitInterval = 1000;
-
-   @Option(names = "--user", description = "User name used to import the data. Default: null.")
-   public String user = null;
-
-   @Option(names = "--password", description = "User name used to import the data. Default: null.")
-   public String password = null;
 
    @Option(names = "--input", description = "The input file name. Default: exp.dmp.", required = true)
    public String input = "exp.dmp";
@@ -118,22 +115,6 @@ public final class XmlDataImporter extends ActionAbstract {
    public boolean legacyPrefixes = false;
 
    TreeSet<XMLMessageImporter.MessageInfo> messages;
-
-   public String getPassword() {
-      return password;
-   }
-
-   public void setPassword(String password) {
-      this.password = password;
-   }
-
-   public String getUser() {
-      return user;
-   }
-
-   public void setUser(String user) {
-      this.user = user;
-   }
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -149,9 +130,9 @@ public final class XmlDataImporter extends ActionAbstract {
 
    /**
     * This is the normal constructor for programmatic access to the
-    * <code>org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataImporter</code> if the session passed
-    * in uses auto-commit for sends.
-    * <br>
+    * {@code org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataImporter} if the session passed in uses
+    * auto-commit for sends.
+    * <p>
     * If the session needs to be transactional then use the constructor which takes 2 sessions.
     *
     * @param inputStream the stream from which to read the XML for import
@@ -163,9 +144,9 @@ public final class XmlDataImporter extends ActionAbstract {
 
    /**
     * This is the constructor to use if you wish to import all messages transactionally.
-    * <br>
-    * Pass in a session which doesn't use auto-commit for sends, and one that does (for management
-    * operations necessary during import).
+    * <p>
+    * Pass in a session which doesn't use auto-commit for sends, and one that does (for management operations necessary
+    * during import).
     *
     * @param inputStream       the stream from which to read the XML for import
     * @param session           used for sending messages, doesn't need to auto-commit sends
@@ -174,6 +155,7 @@ public final class XmlDataImporter extends ActionAbstract {
    public void process(InputStream inputStream,
                        ClientSession session,
                        ClientSession managementSession) throws Exception {
+      Objects.requireNonNull(inputStream);
       reader = XmlProvider.createXMLStreamReader(inputStream);
       messageReader = new XMLMessageImporter(reader, session);
       messageReader.setOldPrefixTranslation(oldPrefixTranslation);
@@ -190,10 +172,16 @@ public final class XmlDataImporter extends ActionAbstract {
    }
 
    public void process(InputStream inputStream, String host, int port) throws Exception {
-      HashMap<String, Object> connectionParams = new HashMap<>();
-      connectionParams.put(TransportConstants.HOST_PROP_NAME, host);
-      connectionParams.put(TransportConstants.PORT_PROP_NAME, Integer.toString(port));
-      ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams));
+      ServerLocator serverLocator;
+      if (host != null) {
+         Map<String, Object> connectionParams = Map.of(
+            TransportConstants.HOST_PROP_NAME, host,
+            TransportConstants.PORT_PROP_NAME, Integer.toString(port)
+         );
+         serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams));
+      } else {
+         serverLocator = ActiveMQClient.createServerLocator(brokerURL);
+      }
       ClientSessionFactory sf = serverLocator.createSessionFactory();
 
       ClientSession session = null;
@@ -243,22 +231,12 @@ public final class XmlDataImporter extends ActionAbstract {
    }
 
    private static URL findResource(final String resourceName) {
-      return AccessController.doPrivileged(new PrivilegedAction<URL>() {
-         @Override
-         public URL run() {
-            return ClassloadingUtil.findResource(resourceName);
-         }
-      });
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<URL>) () -> ClassloadingUtil.findResource(resourceName));
    }
 
    private void processXml() throws Exception {
       if (sort) {
-         messages = new TreeSet<XMLMessageImporter.MessageInfo>(new Comparator<XMLMessageImporter.MessageInfo>() {
-            @Override
-            public int compare(XMLMessageImporter.MessageInfo o1, XMLMessageImporter.MessageInfo o2) {
-               return Long.compare(o1.id, o2.id);
-            }
-         });
+         messages = new TreeSet<XMLMessageImporter.MessageInfo>(Comparator.comparingLong(o -> o.id));
       }
       while (reader.hasNext()) {
          if (logger.isDebugEnabled()) {
@@ -299,7 +277,7 @@ public final class XmlDataImporter extends ActionAbstract {
       messageNr++;
 
       if (messageNr % commitInterval == 0) {
-         System.err.println("Processed " + messageNr + " messages");
+         getActionContext().err.println("Processed " + messageNr + " messages");
          session.commit();
       }
       XMLMessageImporter.MessageInfo info = messageReader.readMessage(false);
@@ -310,8 +288,23 @@ public final class XmlDataImporter extends ActionAbstract {
       }
    }
 
+
+   private void createUndefinedQueue(String name, RoutingType routingType) throws Exception {
+      ClientSession.QueueQuery queueQuery = managementSession.queueQuery(SimpleString.of(name));
+      if (!queueQuery.isExists()) {
+         managementSession.createQueue(QueueConfiguration.of(name).setRoutingType(routingType).setDurable(true).setAutoCreateAddress(true));
+      }
+   }
+
+
    private void sendMessage(List<String> queues, Message message) throws Exception {
-      final String destination = addressMap.get(queues.get(0));
+      String destination = addressMap.get(queues.get(0));
+      if (destination == null) {
+         createUndefinedQueue(queues.get(0), message.getRoutingType());
+         destination = queues.get(0);
+         addressMap.put(queues.get(0), queues.get(0));
+      }
+
       final ByteBuffer buffer = ByteBuffer.allocate(queues.size() * 8);
 
       final boolean debugLog = logger.isDebugEnabled();
@@ -321,7 +314,7 @@ public final class XmlDataImporter extends ActionAbstract {
       }
 
       for (String queue : queues) {
-         long queueID;
+         long queueID = -1;
 
          if (queueIDs.containsKey(queue)) {
             queueID = queueIDs.get(queue);
@@ -337,17 +330,27 @@ public final class XmlDataImporter extends ActionAbstract {
                   logger.debug("Requesting ID for: {}", queue);
                }
                ClientMessage reply = requestor.request(managementMessage);
-               Number idObject = (Number) ManagementHelper.getResult(reply);
-               queueID = idObject.longValue();
+               if (ManagementHelper.hasOperationSucceeded(reply)) {
+                  Number idObject = (Number) ManagementHelper.getResult(reply);
+                  queueID = idObject.longValue();
+               } else {
+                  if (debugLog) {
+                     logger.debug("Failed to get ID for {}, reply: {}", queue, ManagementHelper.getResult(reply, String.class));
+                  }
+               }
             }
 
             if (debugLog) {
                logger.debug("ID for {} is: {}", queue, queueID);
             }
-            queueIDs.put(queue, queueID);  // store it so we don't have to look it up every time
+            if (queueID != -1) {
+               queueIDs.put(queue, queueID);  // store it so we don't have to look it up every time
+            }
          }
 
-         buffer.putLong(queueID);
+         if (queueID != -1) {
+            buffer.putLong(queueID);
+         }
          if (debugLog) {
             debugLogMessage.append(queue).append(", ");
          }
@@ -359,7 +362,7 @@ public final class XmlDataImporter extends ActionAbstract {
       }
 
       message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, buffer.array());
-      producer.send(SimpleString.toSimpleString(destination), message);
+      producer.send(SimpleString.of(destination), message);
    }
 
    private void oldBinding() throws Exception {
@@ -418,17 +421,17 @@ public final class XmlDataImporter extends ActionAbstract {
       }
 
 
-      ClientSession.AddressQuery addressQuery = session.addressQuery(SimpleString.toSimpleString(address));
+      ClientSession.AddressQuery addressQuery = session.addressQuery(SimpleString.of(address));
 
       if (!addressQuery.isExists()) {
-         session.createAddress(SimpleString.toSimpleString(address), routingType, true);
+         session.createAddress(SimpleString.of(address), routingType, true);
       }
 
       if (!filter.equals(FilterImpl.GENERIC_IGNORED_FILTER)) {
-         ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString(queueName));
+         ClientSession.QueueQuery queueQuery = session.queueQuery(SimpleString.of(queueName));
 
          if (!queueQuery.isExists()) {
-            session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter));
+            session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter));
             if (logger.isDebugEnabled()) {
                logger.debug("Binding queue(name={}, address={}, filter={})", queueName, address, filter);
             }
@@ -465,10 +468,10 @@ public final class XmlDataImporter extends ActionAbstract {
          }
       }
 
-      ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString(queueName));
+      ClientSession.QueueQuery queueQuery = session.queueQuery(SimpleString.of(queueName));
 
       if (!queueQuery.isExists()) {
-         session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(RoutingType.valueOf(routingType)).setFilterString(filter));
+         session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setRoutingType(RoutingType.valueOf(routingType)).setFilterString(filter));
          if (logger.isDebugEnabled()) {
             logger.debug("Binding queue(name={}, address={}, filter={})", queueName, address, filter);
          }
@@ -495,19 +498,17 @@ public final class XmlDataImporter extends ActionAbstract {
          }
       }
 
-      ClientSession.AddressQuery addressQuery = session.addressQuery(new SimpleString(addressName));
+      ClientSession.AddressQuery addressQuery = session.addressQuery(SimpleString.of(addressName));
 
       if (!addressQuery.isExists()) {
          EnumSet<RoutingType> set = EnumSet.noneOf(RoutingType.class);
          for (String routingType : ListUtil.toList(routingTypes)) {
             set.add(RoutingType.valueOf(routingType));
          }
-         session.createAddress(SimpleString.toSimpleString(addressName), set, false);
+         session.createAddress(SimpleString.of(addressName), set, false);
          logger.debug("Binding address(name={}, routingTypes={})", addressName, routingTypes);
       } else {
          logger.debug("Binding {} already exists so won't re-bind.", addressName);
       }
    }
-
-
 }

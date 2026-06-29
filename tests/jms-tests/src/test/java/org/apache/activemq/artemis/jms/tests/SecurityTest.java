@@ -16,7 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.jms.BytesMessage;
 import javax.jms.CompletionListener;
@@ -42,14 +43,13 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.DefaultConnectionProperties;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test JMS Security.
- * <br>
+ * <p>
  * This test must be run with the Test security config. on the server
  */
 public class SecurityTest extends JMSTestCase {
@@ -57,14 +57,14 @@ public class SecurityTest extends JMSTestCase {
    private String originalAmqPassword;
    private String originalBrokerBindUrl;
 
-   @Before
+   @BeforeEach
    public void setupProperty() {
       originalAmqUser = System.getProperty(DefaultConnectionProperties.AMQ_USER);
       originalAmqPassword = System.getProperty(DefaultConnectionProperties.AMQ_PASSWORD);
       originalBrokerBindUrl = System.getProperty(DefaultConnectionProperties.BROKER_BIND_URL);
    }
 
-   @After
+   @AfterEach
    public void clearProperty() {
       if (originalAmqUser == null) {
          System.clearProperty(DefaultConnectionProperties.AMQ_USER);
@@ -138,7 +138,7 @@ public class SecurityTest extends JMSTestCase {
       DefaultConnectionProperties.initialize();
       ConnectionFactory cf = new ActiveMQConnectionFactory();
       Connection conn = addConnection(cf.createConnection());
-      Assert.assertTrue(((ActiveMQConnectionFactory) cf).isCompressLargeMessage());
+      assertTrue(((ActiveMQConnectionFactory) cf).isCompressLargeMessage());
    }
 
    /**
@@ -194,9 +194,9 @@ public class SecurityTest extends JMSTestCase {
     */
    @Test
    public void testLoginValidUserAndPasswordButNotAuthorisedToSend() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
+      SimpleString queueName = SimpleString.of("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
-         getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         getJmsServer().createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection("guest", "guest");
@@ -219,9 +219,9 @@ public class SecurityTest extends JMSTestCase {
     */
    @Test
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistent() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
+      SimpleString queueName = SimpleString.of("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
-         getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         getJmsServer().createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       connectionFactory.setConfirmationWindowSize(100);
@@ -265,9 +265,9 @@ public class SecurityTest extends JMSTestCase {
     */
    @Test
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendNonPersistentJMS2() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
+      SimpleString queueName = SimpleString.of("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
-         getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         getJmsServer().createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       connectionFactory.setConfirmationWindowSize(100);
@@ -311,9 +311,9 @@ public class SecurityTest extends JMSTestCase {
     */
    @Test
    public void testLoginValidUserAndPasswordButNotAuthorisedToSendLargeNonPersistent() throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString("guest.cannot.send");
+      SimpleString queueName = SimpleString.of("guest.cannot.send");
       if (getJmsServer().locateQueue(queueName) == null) {
-         getJmsServer().createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
+         getJmsServer().createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       }
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       connectionFactory.setConfirmationWindowSize(100);
@@ -353,8 +353,6 @@ public class SecurityTest extends JMSTestCase {
       }
       connection.close();
    }
-
-   /* Now some client id tests */
 
    /**
     * user/pwd with preconfigured clientID, should return preconf
@@ -409,7 +407,7 @@ public class SecurityTest extends JMSTestCase {
       }
    }
 
-   /*
+   /**
     * Try setting client ID after an operation has been performed on the connection
     */
    @Test

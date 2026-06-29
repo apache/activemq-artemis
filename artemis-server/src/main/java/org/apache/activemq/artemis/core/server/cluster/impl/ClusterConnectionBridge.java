@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.cluster.impl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,6 +30,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -40,12 +42,12 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
@@ -92,8 +94,6 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
    private final String storeAndForwardPrefix;
 
-   private TopologyMemberImpl member;
-
    public ClusterConnectionBridge(final ClusterConnection clusterConnection,
                                   final ClusterManager clusterManager,
                                   final ServerLocatorInternal targetLocator,
@@ -122,22 +122,24 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                   final MessageFlowRecord flowRecord,
                                   final TransportConfiguration connector,
                                   final String storeAndForwardPrefix,
-                                  final StorageManager storageManager) throws ActiveMQException {
+                                  final StorageManager storageManager,
+                                  final String clientId) throws ActiveMQException {
       super(targetLocator, new BridgeConfiguration()
-         .setName(name == null ? null : name.toString())
+         .setName(Objects.toString(name, null))
          .setInitialConnectAttempts(initialConnectAttempts)
          .setReconnectAttempts(reconnectAttempts)
          .setReconnectAttemptsOnSameNode(0) // reconnectAttemptsOnSameNode means nothing on the clustering bridge since we always try the same
          .setRetryInterval(retryInterval)
          .setRetryIntervalMultiplier(retryMultiplier)
          .setMaxRetryInterval(maxRetryInterval)
-         .setFilterString(filterString == null ? null : filterString.toString())
-         .setForwardingAddress(forwardingAddress == null ? null : forwardingAddress.toString())
+         .setFilterString(Objects.toString(filterString, null))
+         .setForwardingAddress(Objects.toString(forwardingAddress, null))
          .setUseDuplicateDetection(useDuplicateDetection)
          .setUser(user)
          .setPassword(password)
          .setTransformerConfiguration(transformer)
-         .setRoutingType(ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType())), nodeUUID, queue, executor, scheduledExecutor, server);
+         .setRoutingType(ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType()))
+         .setClientId(clientId), nodeUUID, queue, executor, scheduledExecutor, server);
 
       this.discoveryLocator = discoveryLocator;
 
@@ -184,7 +186,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
    }
 
    @Override
-   protected Message beforeForward(final Message message, final SimpleString forwardingAddress) {
+   protected Message beforeForward(final Message message, final SimpleString forwardingAddress) throws ActiveMQException {
       // We make a copy of the message, then we strip out the unwanted routing id headers and leave
       // only
       // the one pertinent for the address node - this is important since different queues on different
@@ -199,11 +201,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
       Set<SimpleString> propNames = new HashSet<>(messageCopy.getPropertyNames());
 
       byte[] queueIds = message.getExtraBytesProperty(idsHeaderName);
-
       if (queueIds == null) {
-         // Sanity check only
-         ActiveMQServerLogger.LOGGER.noQueueIdDefined(message, messageCopy, idsHeaderName);
-         throw new IllegalStateException("no queueIDs defined");
+         throw ActiveMQMessageBundle.BUNDLE.noQueueIdsDefined(idsHeaderName);
       }
 
       for (SimpleString propName : propNames) {
@@ -244,9 +243,9 @@ public class ClusterConnectionBridge extends BridgeImpl {
             "." +
             clusterConnection.getServer().toString().replaceAll(CompositeAddress.SEPARATOR, "_");
 
-         SimpleString notifQueueName = new SimpleString(qName);
+         SimpleString notifQueueName = SimpleString.of(qName);
 
-         SimpleString filter = new SimpleString("(" + ManagementHelper.HDR_BINDING_TYPE + " <> " + BindingType.DIVERT.toInt() +
+         SimpleString filter = SimpleString.of("(" + ManagementHelper.HDR_BINDING_TYPE + " <> " + BindingType.DIVERT.toInt() +
                                                    " OR "
                                                    + ManagementHelper.HDR_BINDING_TYPE + " IS NULL)" +
                                                    " AND " +
@@ -257,6 +256,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                                    CoreNotificationType.BINDING_ADDED +
                                                    "', '" +
                                                    CoreNotificationType.BINDING_REMOVED +
+                                                   "', '" +
+                                                   CoreNotificationType.BINDING_UPDATED +
                                                    "', '" +
                                                    CoreNotificationType.CONSUMER_CREATED +
                                                    "', '" +
@@ -278,7 +279,12 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                                    createPermissiveManagementNotificationToFilter() +
                                                    ")");
 
-         sessionConsumer.createQueue(new QueueConfiguration(notifQueueName).setAddress(managementNotificationAddress).setFilterString(filter).setDurable(false).setTemporary(true));
+         sessionConsumer.createQueue(QueueConfiguration.of(notifQueueName)
+                                        .setAddress(managementNotificationAddress)
+                                        .setFilterString(filter)
+                                        .setDurable(false)
+                                        .setTemporary(true)
+                                        .setRoutingType(RoutingType.MULTICAST));
 
          notifConsumer = sessionConsumer.createConsumer(notifQueueName);
 
@@ -300,12 +306,9 @@ public class ClusterConnectionBridge extends BridgeImpl {
       }
    }
 
-
    /**
     * Takes in a string of an address filter or comma separated list and generates an appropriate JMS selector for
     * filtering queues.
-    *
-    * @param address
     */
    public static String createSelectorFromAddress(String address) {
       StringBuilder stringBuilder = new StringBuilder();
@@ -339,29 +342,35 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
       // Build the address matching part of the selector
       StringBuilder builder = new StringBuilder("(");
-      if (includes.size() > 0) {
-         if (excludes.size() > 0)
+      if (!includes.isEmpty()) {
+         if (!excludes.isEmpty()) {
             builder.append("(");
+         }
          for (int i = 0; i < includes.size(); i++) {
             builder.append("(" + ManagementHelper.HDR_ADDRESS + " LIKE '" + includes.get(i) + "%')");
-            if (i < includes.size() - 1)
+            if (i < includes.size() - 1) {
                builder.append(" OR ");
+            }
          }
-         if (excludes.size() > 0)
+         if (!excludes.isEmpty()) {
             builder.append(")");
+         }
       }
 
       // Build the address exclusion part of the selector
-      if (excludes.size() > 0) {
-         if (includes.size() > 0)
+      if (!excludes.isEmpty()) {
+         if (!includes.isEmpty()) {
             builder.append(" AND (");
+         }
          for (int i = 0; i < excludes.size(); i++) {
             builder.append("(" + ManagementHelper.HDR_ADDRESS + " NOT LIKE '" + excludes.get(i) + "%')");
-            if (i < excludes.size() - 1)
+            if (i < excludes.size() - 1) {
                builder.append(" AND ");
+            }
          }
-         if (includes.size() > 0)
+         if (!includes.isEmpty()) {
             builder.append(")");
+         }
       }
       builder.append(")");
       return builder.toString();
@@ -381,9 +390,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
    }
 
    /**
-    * Create a filter rule,in addition to SESSION_CREATED notifications, all other notifications using managementNotificationAddress
-    * as the routing address will be filtered.
-    * @return
+    * Create a filter rule,in addition to SESSION_CREATED notifications, all other notifications using
+    * managementNotificationAddress as the routing address will be filtered.
     */
    private String createPermissiveManagementNotificationToFilter() {
       StringBuilder filterBuilder = new StringBuilder(ManagementHelper.HDR_NOTIFICATION_TYPE).append(" = '")

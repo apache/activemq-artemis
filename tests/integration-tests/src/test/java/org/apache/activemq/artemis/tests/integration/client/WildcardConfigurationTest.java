@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -29,9 +33,8 @@ import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class WildcardConfigurationTest extends ActiveMQTestBase {
 
@@ -41,7 +44,7 @@ public class WildcardConfigurationTest extends ActiveMQTestBase {
    private ClientSessionFactory sf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       WildcardConfiguration wildcardConfiguration = new WildcardConfiguration();
@@ -57,15 +60,15 @@ public class WildcardConfigurationTest extends ActiveMQTestBase {
 
    @Test
    public void testBasicWildcardRouting() throws Exception {
-      SimpleString addressAB = new SimpleString("a/b");
-      SimpleString addressAC = new SimpleString("a/c");
-      SimpleString address = new SimpleString("a/*");
-      SimpleString queueName1 = new SimpleString("Q1");
-      SimpleString queueName2 = new SimpleString("Q2");
-      SimpleString queueName = new SimpleString("Q");
-      clientSession.createQueue(new QueueConfiguration(queueName1).setAddress(addressAB).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(queueName2).setAddress(addressAC).setDurable(false));
-      clientSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setDurable(false));
+      SimpleString addressAB = SimpleString.of("a/b");
+      SimpleString addressAC = SimpleString.of("a/c");
+      SimpleString address = SimpleString.of("a/*");
+      SimpleString queueName1 = SimpleString.of("Q1");
+      SimpleString queueName2 = SimpleString.of("Q2");
+      SimpleString queueName = SimpleString.of("Q");
+      clientSession.createQueue(QueueConfiguration.of(queueName1).setAddress(addressAB).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName2).setAddress(addressAC).setDurable(false));
+      clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(address).setDurable(false));
       ClientProducer producer = clientSession.createProducer(addressAB);
       ClientProducer producer2 = clientSession.createProducer(addressAC);
       ClientConsumer clientConsumer = clientSession.createConsumer(queueName);
@@ -73,15 +76,15 @@ public class WildcardConfigurationTest extends ActiveMQTestBase {
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m1", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receive(500);
-      Assert.assertNotNull(m);
-      Assert.assertEquals("m2", m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m.acknowledge();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
 }

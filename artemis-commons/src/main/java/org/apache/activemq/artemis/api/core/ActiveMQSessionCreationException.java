@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- * The creation of a session was rejected by the server (e.g. if the server is starting and has not
- * finish to be initialized.
+ * The creation of a session was rejected by the server (e.g. if the server is starting and has not finish to be
+ * initialized.
  */
 public final class ActiveMQSessionCreationException extends ActiveMQException {
 

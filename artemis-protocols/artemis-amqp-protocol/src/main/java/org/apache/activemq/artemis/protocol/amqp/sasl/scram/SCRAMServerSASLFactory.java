@@ -16,13 +16,11 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.sasl.scram;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
@@ -45,8 +43,8 @@ import org.apache.activemq.artemis.spi.core.security.scram.UserData;
 import org.slf4j.Logger;
 
 /**
- * abstract class that implements the SASL-SCRAM authentication scheme, concrete implementations
- * must supply the {@link SCRAM} type to use and be register via SPI
+ * abstract class that implements the SASL-SCRAM authentication scheme, concrete implementations must supply the
+ * {@link SCRAM} type to use and be register via SPI
  */
 public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
 
@@ -72,8 +70,8 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
    public ServerSASL create(ActiveMQServer server, ProtocolManager<AmqpInterceptor, AMQPRoutingHandler> manager, Connection connection,
                             RemotingConnection remotingConnection) {
       try {
-         if (manager instanceof ProtonProtocolManager) {
-            String loginConfigScope = ((ProtonProtocolManager) manager).getSaslLoginConfigScope();
+         if (manager instanceof ProtonProtocolManager protonProtocolManager) {
+            String loginConfigScope = protonProtocolManager.getSaslLoginConfigScope();
             return new JAASSCRAMServerSASL(scramType, loginConfigScope, logger);
          }
       } catch (NoSuchAlgorithmException e) {
@@ -97,23 +95,19 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
 
       @Override
       protected UserData aquireUserData(String userName) throws LoginException {
-         loginContext = new LoginContext(loginConfigScope, new CallbackHandler() {
-
-            @Override
-            public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-               for (Callback callback : callbacks) {
-                  if (callback instanceof NameCallback) {
-                     ((NameCallback) callback).setName(userName);
-                  } else if (callback instanceof SCRAMMechanismCallback) {
-                     ((SCRAMMechanismCallback) callback).setMechanism(mechanism.getName());
-                  } else if (callback instanceof DigestCallback) {
-                     ((DigestCallback) callback).setDigest(scram.getDigest());
-                  } else if (callback instanceof HmacCallback) {
-                     ((HmacCallback) callback).setHmac(scram.getHmac());
-                  } else {
-                     throw new UnsupportedCallbackException(callback, "Unrecognized Callback " +
-                              callback.getClass().getSimpleName());
-                  }
+         loginContext = new LoginContext(loginConfigScope, callbacks -> {
+            for (Callback callback : callbacks) {
+               if (callback instanceof NameCallback nameCallback) {
+                  nameCallback.setName(userName);
+               } else if (callback instanceof SCRAMMechanismCallback scramMechanismCallback) {
+                  scramMechanismCallback.setMechanism(mechanism.getName());
+               } else if (callback instanceof DigestCallback digestCallback) {
+                  digestCallback.setDigest(scram.getDigest());
+               } else if (callback instanceof HmacCallback hmacCallback) {
+                  hmacCallback.setHmac(scram.getHmac());
+               } else {
+                  throw new UnsupportedCallbackException(callback, "Unrecognized Callback " +
+                           callback.getClass().getSimpleName());
                }
             }
          });

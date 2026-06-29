@@ -16,6 +16,16 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyByte;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -44,7 +54,7 @@ import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.core.server.NodeLocator;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
@@ -54,45 +64,38 @@ import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicaPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationBackupPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationPrimaryPolicy;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager;
-import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager;
+import org.apache.activemq.artemis.core.server.cluster.quorum.SharedNothingBackupQuorum;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.version.Version;
-import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
+import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyByte;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
-
 public class BackupActivationNoReconnectTest {
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void verifyReplicationBackupActivation() throws Exception {
       ReplicationBackupPolicy policy = Mockito.mock(ReplicationBackupPolicy.class);
       ReplicationPrimaryPolicy replicationPrimaryPolicy = Mockito.mock(ReplicationPrimaryPolicy.class);
-      when(policy.getLivePolicy()).thenReturn(replicationPrimaryPolicy);
+      when(policy.getPrimaryPolicy()).thenReturn(replicationPrimaryPolicy);
       ActiveMQServerImpl server = Mockito.mock(ActiveMQServerImpl.class);
 
-      DistributedPrimitiveManager distributedManager = Mockito.mock(DistributedPrimitiveManager.class);
+      DistributedLockManager distributedManager = Mockito.mock(DistributedLockManager.class);
       ReplicationBackupActivation replicationBackupActivation = new ReplicationBackupActivation(server, distributedManager, policy);
 
-      verifySingleAttemptToLocateLive(server, replicationBackupActivation);
+      verifySingleAttemptToLocatePrimary(server, replicationBackupActivation);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void verifySharedNothingBackupActivation() throws Exception {
       ActiveMQServerImpl server = Mockito.mock(ActiveMQServerImpl.class);
       when(server.isStarted()).thenReturn(true);
@@ -112,10 +115,10 @@ public class BackupActivationNoReconnectTest {
       ReplicaPolicy replicaPolicy = new ReplicaPolicy(null, 0);
       replicaPolicy.setAllowFailback(false);
 
-      verifySingleAttemptToLocateLive(server, replicaPolicy.createActivation(server, false, activationParams, null));
+      verifySingleAttemptToLocatePrimary(server, replicaPolicy.createActivation(server, false, activationParams, null));
    }
 
-   protected void verifySingleAttemptToLocateLive(ActiveMQServerImpl server, Activation activation) throws Exception {
+   protected void verifySingleAttemptToLocatePrimary(ActiveMQServerImpl server, Activation activation) throws Exception {
 
       NodeManager nodeManager = Mockito.mock(NodeManager.class);
       when(server.getNodeManager()).thenReturn(nodeManager);
@@ -137,14 +140,14 @@ public class BackupActivationNoReconnectTest {
 
 
       final CountDownLatch gotLocator = new CountDownLatch(1);
-      final AtomicReference<LiveNodeLocator> locatorAtomicReference = new AtomicReference<>();
+      final AtomicReference<NodeLocator> locatorAtomicReference = new AtomicReference<>();
       doAnswer(invocation -> {
-         locatorAtomicReference.set((LiveNodeLocator) invocation.getArguments()[0]);
+         locatorAtomicReference.set((NodeLocator) invocation.getArguments()[0]);
          gotLocator.countDown();
          return null;
       }).when(clusterController).addClusterTopologyListenerForReplication(Mockito.any());
 
-      when(server.checkLiveIsNotColocated(Mockito.anyString())).thenReturn(true);
+      when(server.checkBrokerIsNotColocated(Mockito.anyString())).thenReturn(true);
 
       ClusterControl clusterControl = Mockito.mock(ClusterControl.class);
       when(clusterController.connectToNodeInReplicatedCluster(Mockito.any())).thenReturn(clusterControl);
@@ -157,6 +160,7 @@ public class BackupActivationNoReconnectTest {
          final ServerLocatorConfig locatorConfig = Mockito.mock(ServerLocatorConfig.class);
          final int reconnectAttempts = 1;
          final Executor threadPool = Mockito.mock(Executor.class);
+         final Executor flowControlThreadPool = Mockito.mock(Executor.class);
          final ScheduledExecutorService scheduledThreadPool = Mockito.mock(ScheduledExecutorService.class);
          final ClientProtocolManager clientProtocolManager = Mockito.mock(ClientProtocolManager.class);
          when(serverLocator.newProtocolManager()).thenReturn(clientProtocolManager);
@@ -164,7 +168,7 @@ public class BackupActivationNoReconnectTest {
          Map<String, Object> urlParams = new HashMap<>();
          urlParams.put("port", serverSocket.getLocalPort());
          when(connectorConfig.getCombinedParams()).thenReturn(urlParams);
-         ClientSessionFactoryImpl sessionFactory = new ClientSessionFactoryImpl(serverLocator, connectorConfig, locatorConfig, reconnectAttempts, threadPool, scheduledThreadPool, null, null);
+         ClientSessionFactoryImpl sessionFactory = new ClientSessionFactoryImpl(serverLocator, connectorConfig, locatorConfig, reconnectAttempts, threadPool, scheduledThreadPool, flowControlThreadPool, null, null);
          when(clusterControl.getSessionFactory()).thenReturn(sessionFactory);
          when(clientProtocolManager.isAlive()).thenReturn(true);
 
@@ -248,7 +252,7 @@ public class BackupActivationNoReconnectTest {
          Socket clientSocket = serverSocket.accept();
 
          // wait till failure listener is installed, then close
-         assertTrue("Replication observer in play", gotReplicationObserverListener.await(5, TimeUnit.SECONDS));
+         assertTrue(gotReplicationObserverListener.await(5, TimeUnit.SECONDS), "Replication observer in play");
          clientSocket.close();
 
          // propagate the failure
@@ -260,7 +264,7 @@ public class BackupActivationNoReconnectTest {
          if (activationThread.isAlive()) {
             String dump = ThreadDumpUtil.threadDump("Activation thread is still alive!");
             activationThread.interrupt();
-            Assert.fail(dump);
+            fail(dump);
          }
 
          assertTrue(failure.await(5, TimeUnit.SECONDS));

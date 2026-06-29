@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SessionCloseOnGCTest extends ActiveMQTestBase {
 
@@ -32,7 +32,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -43,8 +43,8 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
    }
 
    /**
-    * Make sure Sessions are not leaking after closed..
-    * Also... we want to make sure the SessionFactory will close itself when there are not references into it
+    * Make sure Sessions are not leaking after closed. Also... we want to make sure the SessionFactory will close itself
+    * when there are not references into it
     */
    @Test
    public void testValidateFactoryGC1() throws Exception {

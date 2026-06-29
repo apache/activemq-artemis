@@ -24,16 +24,23 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
-
+import javax.jms.TextMessage;
+import javax.jms.Topic;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MessageTest extends JMSTestBase {
 
@@ -47,11 +54,6 @@ public class MessageTest extends JMSTestBase {
 
    private static final String propName3 = "myprop3";
 
-
-
-   /**
-    * @see https://jira.jboss.org/jira/browse/HORNETQ-242
-    */
    @Test
    public void testStreamMessageReadsNull() throws Exception {
       Connection conn = cf.createConnection();
@@ -74,7 +76,7 @@ public class MessageTest extends JMSTestBase {
 
          StreamMessage received = (StreamMessage) sendAndConsumeMessage(msg, prod, cons);
 
-         Assert.assertNotNull(received);
+         assertNotNull(received);
 
          assertEquals(1, received.readObject());
          assertEquals(2, received.readObject());
@@ -186,7 +188,7 @@ public class MessageTest extends JMSTestBase {
 
       msg.setStringProperty("Test", null);
 
-      assertEquals(null, msg.getStringProperty("Test"));
+      assertNull(msg.getStringProperty("Test"));
 
       msg.setObjectProperty(MessageTest.propName1, null);
 
@@ -202,7 +204,7 @@ public class MessageTest extends JMSTestBase {
 
       Message received = sendAndConsumeMessage(msg, prod, cons);
 
-      Assert.assertNotNull(received);
+      assertNotNull(received);
 
       checkProperties(received);
    }
@@ -211,16 +213,16 @@ public class MessageTest extends JMSTestBase {
 
 
    private void checkProperties(final Message message) throws Exception {
-      Assert.assertNull(message.getObjectProperty(MessageTest.propName1));
-      Assert.assertNull(message.getStringProperty(MessageTest.propName1));
-      Assert.assertNull(message.getStringProperty(MessageTest.propName2));
-      Assert.assertNull(message.getObjectProperty(MessageTest.propName2));
-      Assert.assertNull(message.getStringProperty(MessageTest.propName3));
-      Assert.assertNull(message.getObjectProperty(MessageTest.propName3));
+      assertNull(message.getObjectProperty(MessageTest.propName1));
+      assertNull(message.getStringProperty(MessageTest.propName1));
+      assertNull(message.getStringProperty(MessageTest.propName2));
+      assertNull(message.getObjectProperty(MessageTest.propName2));
+      assertNull(message.getStringProperty(MessageTest.propName3));
+      assertNull(message.getObjectProperty(MessageTest.propName3));
 
       try {
          logger.debug("{}", message.getIntProperty(MessageTest.propName1));
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (NumberFormatException e) {
          // Ok
       }
@@ -235,7 +237,7 @@ public class MessageTest extends JMSTestBase {
       } catch (NumberFormatException e) {
          // Ok
       }
-      Assert.assertEquals(false, message.getBooleanProperty(MessageTest.propName1));
+      assertFalse(message.getBooleanProperty(MessageTest.propName1));
       try {
          logger.debug("{}", message.getLongProperty(MessageTest.propName1));
       } catch (NumberFormatException e) {
@@ -253,7 +255,42 @@ public class MessageTest extends JMSTestBase {
       }
    }
 
-   // https://issues.jboss.org/browse/HORNETQ-988
+   /**
+    * @see <a href="https://issues.apache.org/jira/browse/ARTEMIS-4270">ARTEMIS-4270</a>
+    */
+   @Test
+   public void testWildcardRoutingHierarchyWithMultipleConsumers() throws Exception {
+      Topic parentTopic = createTopic(true, "a.#");
+      Topic childTopic = createTopic(true, "a.b.#");
+      try (Connection conn = cf.createConnection()) {
+         conn.start();
+
+         try (Session session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE)) {
+            MessageConsumer parentConsumer = session.createConsumer(parentTopic);
+            MessageConsumer childConsumer = session.createConsumer(childTopic);
+
+            MessageProducer producer = session.createProducer(null);
+
+            producer.send(session.createTopic("a.b.c"), session.createTextMessage("m1"));
+            producer.send(session.createTopic("a.b"), session.createTextMessage("m2"));
+
+            Message m = parentConsumer.receive(5_000);
+            assertInstanceOf(TextMessage.class, m);
+            assertEquals("m1", ((TextMessage) m).getText());
+            m = parentConsumer.receive(5_000);
+            assertInstanceOf(TextMessage.class, m);
+            assertEquals("m2", ((TextMessage) m).getText());
+
+            m = childConsumer.receive(5_000);
+            assertInstanceOf(TextMessage.class, m);
+            assertEquals("m1", ((TextMessage) m).getText());
+            m = childConsumer.receive(5_000);
+            assertInstanceOf(TextMessage.class, m);
+            assertEquals("m2", ((TextMessage) m).getText());
+         }
+      }
+   }
+
    @Test
    public void testShouldNotThrowException() throws Exception {
       Connection conn = null;

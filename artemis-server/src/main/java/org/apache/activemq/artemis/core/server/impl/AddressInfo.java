@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.json.JsonNumber;
@@ -26,6 +27,7 @@ import org.apache.activemq.artemis.json.JsonValue;
 import java.io.StringReader;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -35,7 +37,6 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
-import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.utils.CompositeAddress;
@@ -102,29 +103,19 @@ public class AddressInfo {
    }
 
    public AddressInfo(String name) {
-      this(SimpleString.toSimpleString(name), createEmptySet());
+      this(SimpleString.of(name), createEmptySet());
    }
 
    public AddressInfo(SimpleString name) {
       this(name, createEmptySet());
    }
 
-   /**
-    * Creates an AddressInfo object with a Set of routing types
-    * @param name
-    * @param routingTypes
-    */
    public AddressInfo(SimpleString name, EnumSet<RoutingType> routingTypes) {
       this.name = CompositeAddress.extractAddressName(name);
       this.createdTimestamp = System.currentTimeMillis();
       setRoutingTypes(routingTypes);
    }
 
-   /**
-    * Creates an AddressInfo object with a single RoutingType associated with it.
-    * @param name
-    * @param routingType
-    */
    public AddressInfo(SimpleString name, RoutingType routingType) {
       this.name = CompositeAddress.extractAddressName(name);
       this.createdTimestamp = System.currentTimeMillis();
@@ -162,7 +153,7 @@ public class AddressInfo {
    }
 
    public EnumSet<RoutingType> getRoutingTypes() {
-      return routingTypes == null ? createEmptySet() : routingTypes;
+      return Objects.requireNonNullElseGet(routingTypes, () -> createEmptySet());
    }
 
    public AddressInfo setRoutingTypes(final EnumSet<RoutingType> routingTypes) {
@@ -216,8 +207,8 @@ public class AddressInfo {
          Bindings bindings = postOffice.lookupBindingsForAddress(this.getName());
          if (bindings != null) {
             for (Binding binding : bindings.getBindings()) {
-               if (binding instanceof QueueBinding) {
-                  ((QueueBinding) binding).getQueue().pause(false);
+               if (binding instanceof LocalQueueBinding localQueueBinding) {
+                  localQueueBinding.getQueue().pause(false);
                }
             }
          }
@@ -250,8 +241,8 @@ public class AddressInfo {
          Bindings bindings = postOffice.lookupBindingsForAddress(this.getName());
          if (bindings != null) {
             for (Binding binding : bindings.getBindings()) {
-               if (binding instanceof QueueBinding) {
-                  ((QueueBinding) binding).getQueue().pause(false);
+               if (binding instanceof LocalQueueBinding localQueueBinding) {
+                  localQueueBinding.getQueue().pause(false);
                }
             }
          }
@@ -278,8 +269,8 @@ public class AddressInfo {
          Bindings bindings = postOffice.lookupBindingsForAddress(this.getName());
          if (bindings != null) {
             for (Binding binding : bindings.getBindings()) {
-               if (binding instanceof QueueBinding) {
-                  ((QueueBinding) binding).getQueue().resume();
+               if (binding instanceof LocalQueueBinding localQueueBinding) {
+                  localQueueBinding.getQueue().resume();
                }
             }
          }
@@ -307,25 +298,26 @@ public class AddressInfo {
 
    @Override
    public String toString() {
-      StringBuilder buff = new StringBuilder();
-      buff.append("Address [name=").append(name);
-      buff.append(", id=").append(id);
-      buff.append(", routingTypes={");
+      StringBuilder builder = new StringBuilder();
+      builder.append("Address [name=").append(name);
+      builder.append(", id=").append(id);
+      builder.append(", routingTypes={");
       for (RoutingType routingType : getRoutingTypes()) {
-         buff.append(routingType.toString()).append(",");
+         builder.append(routingType.toString()).append(",");
       }
       // delete hanging comma
-      if (buff.charAt(buff.length() - 1) == ',') {
-         buff.deleteCharAt(buff.length() - 1);
+      if (builder.charAt(builder.length() - 1) == ',') {
+         builder.deleteCharAt(builder.length() - 1);
       }
-      buff.append("}");
-      buff.append(", autoCreated=").append(autoCreated);
-      buff.append(", paused=").append(paused);
-      buff.append(", bindingRemovedTimestamp=").append(bindingRemovedTimestamp);
-      buff.append(", swept=").append(swept);
-      buff.append(", createdTimestamp=").append(createdTimestamp);
-      buff.append("]");
-      return buff.toString();
+      builder.append("}");
+      builder.append(", autoCreated=").append(autoCreated);
+      builder.append(", paused=").append(paused);
+      builder.append(", bindingRemovedTimestamp=").append(bindingRemovedTimestamp);
+      builder.append(", swept=").append(swept);
+      builder.append(", createdTimestamp=").append(createdTimestamp);
+      builder.append(", temporary=").append(temporary);
+      builder.append("]");
+      return builder.toString();
    }
 
    public boolean isInternal() {
@@ -410,7 +402,7 @@ public class AddressInfo {
          this.id = jsonLong.longValue();
       } else if (key.equals("name")) {
          JsonString jasonString = (JsonString) value;
-         this.name = SimpleString.toSimpleString(jasonString.getString());
+         this.name = SimpleString.of(jasonString.getString());
       } else if (key.equals("auto-created")) {
          this.autoCreated = Boolean.valueOf(value.toString());
       } else if (key.equals("temporary")) {
@@ -427,6 +419,8 @@ public class AddressInfo {
       } else if (key.equals("created-timestamp")) {
          JsonNumber jsonLong = (JsonNumber) value;
          this.createdTimestamp = jsonLong.longValue();
+      } else if (key.equals("internal")) {
+         this.internal = Boolean.valueOf(value.toString());
       }
    }
 

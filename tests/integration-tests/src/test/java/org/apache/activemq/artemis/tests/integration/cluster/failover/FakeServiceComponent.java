@@ -19,7 +19,9 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.apache.activemq.artemis.core.server.ServiceComponent;
 
-/** used by tests that are simulating a WebServer that should or should not go down */
+/**
+ * used by tests that are simulating a WebServer that should or should not go down
+ */
 public class FakeServiceComponent implements ServiceComponent {
 
    final String description;

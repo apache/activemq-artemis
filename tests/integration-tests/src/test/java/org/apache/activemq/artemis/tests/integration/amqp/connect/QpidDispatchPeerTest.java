@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -38,17 +43,19 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ExecuteUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/** This test will only be executed if you have qdrouterd available on your system, otherwise is ignored by an assume exception. */
+/**
+ * This test will only be executed if you have qdrouterd available on your system, otherwise is ignored by an assume
+ * exception.
+ */
 public class QpidDispatchPeerTest extends AmqpClientTestSupport {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -57,14 +64,14 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
    /**
     * This will validate if the environemnt has qdrouterd installed and if this test can be used or not.
     */
-   @BeforeClass
+   @BeforeAll
    public static void validateqdrotuer() {
       try {
          int result = ExecuteUtil.runCommand(true, "qdrouterd", "--version");
-         Assume.assumeTrue("qdrouterd does not exist", result == 0);
+         assumeTrue(result == 0, "qdrouterd does not exist");
       } catch (Exception e) {
          logger.debug(e.getMessage(), e);
-         Assume.assumeNoException("qdrouterd does not exist", e);
+         assumeTrue(false, "qdrouterd does not exist");
       }
    }
 
@@ -75,13 +82,13 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
       return server;
    }
 
-   @Before
+   @BeforeEach
    public void startQpidRouter() throws Exception {
       URL qpidConfig = this.getClass().getClassLoader().getResource("QpidRouterPeerTest-qpidr.conf");
       qpidProcess = ExecuteUtil.run(true, "qdrouterd", "-c", qpidConfig.getFile());
    }
 
-   @After
+   @AfterEach
    public void stopQpidRouter() throws Exception {
       qpidProcess.kill();
    }
@@ -89,52 +96,61 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
    public void pauseThenKill(int timeToWait) throws Exception {
       long pid = qpidProcess.pid();
       int result = ExecuteUtil.runCommand(true, "kill", "-STOP", Long.toString(pid));
-      Assert.assertEquals(0, result);
+      assertEquals(0, result);
       logger.info("\n{}\nPaused\n{}", "*".repeat(127), "*".repeat(127));
       Thread.sleep(timeToWait);
       result = ExecuteUtil.runCommand(true, "kill", "-9", Long.toString(pid));
-      Assert.assertEquals(0, result);
+      assertEquals(0, result);
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(60)
    public void testWithMatchingDifferentNamesOnQueueKill() throws Exception {
       internalMultipleQueues(true, true, true, false, false);
    }
 
-
-   /** On this test the max reconnect attemps is reached. after a reconnect I will force a stop on the broker connection and retry it.
-    *  The reconnection should succeed. */
-   @Test(timeout = 60_000)
+   /**
+    * On this test the max reconnect attemps is reached. after a reconnect I will force a stop on the broker connection
+    * and retry it. The reconnection should succeed.
+    */
+   @Test
+   @Timeout(60)
    public void testWithMatchingDifferentNamesOnQueueKillMaxAttempts() throws Exception {
       internalMultipleQueues(true, true, true, false, true);
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(60)
    public void testWithMatchingDifferentNamesOnQueuePauseMaxAttempts() throws Exception {
       internalMultipleQueues(true, true, false, true, false);
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(60)
    public void testWithMatchingDifferentNamesOnQueuePause() throws Exception {
       internalMultipleQueues(true, true, false, true, false);
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(60)
    public void testWithMatchingDifferentNamesOnQueue() throws Exception {
       internalMultipleQueues(true, true, false, false, false);
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(60)
    public void testWithMatching() throws Exception {
       internalMultipleQueues(true, false, false, false, false);
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(60)
    public void testwithQueueName() throws Exception {
       internalMultipleQueues(false, false, false, false, false);
    }
 
-   @Test(timeout = 60_000)
+   @Test
+   @Timeout(60)
    public void testwithQueueNameDistinctName() throws Exception {
       internalMultipleQueues(false, true, false, false, false);
    }
@@ -155,7 +171,7 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
       server.start();
       for (int i = 0; i < numberOfQueues; i++) {
          server.addAddressInfo(new AddressInfo("queue.test" + i).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false).setTemporary(false));
-         server.createQueue(new QueueConfiguration(createQueueName(i, distinctNaming)).setAddress("queue.test" + i).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(createQueueName(i, distinctNaming)).setAddress("queue.test" + i).setRoutingType(RoutingType.ANYCAST));
       }
 
       for (int dest = 0; dest < numberOfQueues; dest++) {
@@ -216,10 +232,10 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
                   ExecuteUtil.runCommand(true, "qdstat", "-b", "127.0.0.1:24622", "-l");
                   System.out.println("*******************************************************************************************************************************");
                }
-               Assert.assertNotNull(received);
-               Assert.assertEquals("hello " + i, received.getText());
+               assertNotNull(received);
+               assertEquals("hello " + i, received.getText());
             }
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
          } finally {
             try {
                connectionConsumer.close();

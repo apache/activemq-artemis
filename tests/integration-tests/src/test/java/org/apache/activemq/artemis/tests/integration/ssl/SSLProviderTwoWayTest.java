@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.ssl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -27,15 +32,14 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Map;
 
-@RunWith(Parameterized.class)
+//Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class SSLProviderTwoWayTest extends SSLTestBase {
 
    public SSLProviderTwoWayTest(String sslProvider, String clientSslProvider) {
@@ -52,7 +56,7 @@ public class SSLProviderTwoWayTest extends SSLTestBase {
       params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
    }
 
-   @Test
+   @TestTemplate
    public void testProviderConfig() {
       NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor(getNettyAcceptorName());
       assertNotNull(acceptor);
@@ -61,9 +65,9 @@ public class SSLProviderTwoWayTest extends SSLTestBase {
       assertTrue((Boolean) acceptor.getConfiguration().get(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME));
    }
 
-   @Test
+   @TestTemplate
    public void testProviderLoading2Way() throws Exception {
-      Assume.assumeTrue(isOpenSSLSupported());
+      assumeTrue(isOpenSSLSupported());
 
       final String text = "Hello SSL!";
       StringBuilder uri = new StringBuilder("tcp://" + tc.getParams().get(TransportConstants.HOST_PROP_NAME).toString()
@@ -81,7 +85,7 @@ public class SSLProviderTwoWayTest extends SSLTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocator(uri.toString()));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.createQueue(new QueueConfiguration(QUEUE).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(QUEUE).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = addClientProducer(session.createProducer(QUEUE));
 
       ClientMessage message = createTextMessage(session, text);
@@ -91,8 +95,8 @@ public class SSLProviderTwoWayTest extends SSLTestBase {
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
 
    }
 

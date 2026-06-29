@@ -24,7 +24,7 @@ import org.jgroups.JChannel;
 
 /**
  * An implementation of BroadcastEndpointFactory that uses an externally managed JChannel for JGroups clustering.
- *
+ * <p>
  * Note - the underlying JChannel is not closed in this implementation.
  */
 public class ChannelBroadcastEndpointFactory implements BroadcastEndpointFactory {

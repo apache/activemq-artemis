@@ -68,7 +68,7 @@ public class DestinationUtil {
                escape(subscriptionName);
          }
       }
-      return SimpleString.toSimpleString(queueName);
+      return SimpleString.of(queueName);
    }
 
 }

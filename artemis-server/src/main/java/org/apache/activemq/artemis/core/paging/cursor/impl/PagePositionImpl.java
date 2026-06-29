@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor.impl;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 
 public class PagePositionImpl implements PagePosition {
@@ -24,10 +26,9 @@ public class PagePositionImpl implements PagePosition {
 
    /**
     * The index of the message on the page file.
-    *
-    * This can be used as -1 in cases where the message is irrelevant,
-    * for instance when a cursor is storing the next message to be received
-    * or when a page is marked as fully complete (as the ACKs are removed)
+    * <p>
+    * This can be used as -1 in cases where the message is irrelevant, for instance when a cursor is storing the next
+    * message to be received or when a page is marked as fully complete (as the ACKs are removed)
     */
    private final int messageNr;
 
@@ -37,8 +38,7 @@ public class PagePositionImpl implements PagePosition {
    private long recordID = -1;
 
    /**
-    * Optional size value that can be set to specify the peristent size of the message
-    * for metrics tracking purposes
+    * Optional size value that can be set to specify the peristent size of the message for metrics tracking purposes
     */
    private long persistentSize;
 
@@ -47,50 +47,31 @@ public class PagePositionImpl implements PagePosition {
       this.messageNr = messageNr;
    }
 
-
-   /**
-    * @return the recordID
-    */
    @Override
    public long getRecordID() {
       return recordID;
    }
 
-   /**
-    * @param recordID the recordID to set
-    */
    @Override
    public void setRecordID(long recordID) {
       this.recordID = recordID;
    }
 
-   /**
-    * @return the pageNr
-    */
    @Override
    public long getPageNr() {
       return pageNr;
    }
 
-   /**
-    * @return the messageNr
-    */
    @Override
    public int getMessageNr() {
       return messageNr;
    }
 
-   /**
-    * @return the persistentSize
-    */
    @Override
    public long getPersistentSize() {
       return persistentSize;
    }
 
-   /**
-    * @param persistentSize the persistentSize to set
-    */
    @Override
    public void setPersistentSize(long persistentSize) {
       this.persistentSize = persistentSize;
@@ -102,37 +83,31 @@ public class PagePositionImpl implements PagePosition {
          return 1;
       } else if (pageNr < o.getPageNr()) {
          return -1;
-      } else return Long.compare(recordID, o.getRecordID());
+      } else {
+         return Long.compare(recordID, o.getRecordID());
+      }
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + messageNr;
-      result = prime * result + (int) (pageNr ^ (pageNr >>> 32));
-      return result;
+      return Objects.hash(messageNr, pageNr);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof PagePositionImpl other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      PagePositionImpl other = (PagePositionImpl) obj;
-      if (messageNr != other.messageNr)
-         return false;
-      if (pageNr != other.pageNr)
-         return false;
-      return true;
+      }
+
+      return messageNr == other.messageNr &&
+             pageNr == other.pageNr;
    }
 
    @Override
    public String toString() {
       return "PagePositionImpl [pageNr=" + pageNr + ", messageNr=" + messageNr + ", recordID=" + recordID + "]";
    }
-
 }

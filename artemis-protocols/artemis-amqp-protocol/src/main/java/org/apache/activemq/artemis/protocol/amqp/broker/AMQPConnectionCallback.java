@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
@@ -130,7 +131,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
    public boolean isSupportsAnonymous() {
       boolean supportsAnonymous = false;
       try {
-         server.getSecurityStore().authenticate(null, null, null);
+         server.getSecurityStore().authenticate(null, null, protonConnectionDelegate);
          supportsAnonymous = true;
       } catch (Exception e) {
          // authentication failed so no anonymous support
@@ -181,6 +182,9 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       return connection.isWritable(readyListener);
    }
 
+   public boolean isLargeMessageSync() {
+      return server.getConfiguration().isLargeMessageSync();
+   }
 
    public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection) {
       return new AMQPSessionCallback(this, manager, connection, this.connection, sessionExecutor, server.newOperationContext());
@@ -268,11 +272,11 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       return null;
    }
 
-   public String invokeIncomingInterceptors(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+   public String invokeIncomingInterceptors(Message message, ActiveMQProtonRemotingConnection connection) {
       return manager.invokeIncoming(message, connection);
    }
 
-   public String invokeOutgoingInterceptors(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+   public String invokeOutgoingInterceptors(Message message, ActiveMQProtonRemotingConnection connection) {
       return manager.invokeOutgoing(message, connection);
    }
 }

@@ -41,7 +41,7 @@ public class DiscoveryGroupService extends DiscoveryService implements Discovery
 
    @Override
    public void start() throws Exception {
-      discoveryGroup = new DiscoveryGroup(localTarget.getNodeID(), config.getName(), config.getRefreshTimeout(), config.getBroadcastEndpointFactory(), null);
+      discoveryGroup = new DiscoveryGroup(localTarget.getNodeID(), config.getName(), config.getRefreshTimeout(), config.getStoppingTimeout(), config.getBroadcastEndpointFactory(), null);
       discoveryGroup.registerListener(this);
 
       discoveryGroup.start();

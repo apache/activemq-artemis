@@ -33,18 +33,10 @@ import org.apache.activemq.util.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * ActiveMQMessageAuditTest
- */
 public class ActiveMQMessageAuditTest extends TestCase {
 
    static final Logger LOG = LoggerFactory.getLogger(ActiveMQMessageAuditTest.class);
 
-   /**
-    * Constructor for ActiveMQMessageAuditTest.
-    *
-    * @param name
-    */
    public ActiveMQMessageAuditTest(String name) {
       super(name);
    }
@@ -62,10 +54,7 @@ public class ActiveMQMessageAuditTest extends TestCase {
       super.tearDown();
    }
 
-   /**
-    * test case for isDuplicate
-    */
-   public void testIsDuplicateString() {
+    public void testIsDuplicateString() {
       int count = 10000;
       ActiveMQMessageAudit audit = new ActiveMQMessageAudit();
       IdGenerator idGen = new IdGenerator();

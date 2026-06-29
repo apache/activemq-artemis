@@ -23,14 +23,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 
 public class ActiveMQXASession extends ActiveMQSession implements XAQueueSession, XATopicSession {
 
-   /**
-    * @param connection
-    * @param transacted
-    * @param xa
-    * @param ackMode
-    * @param session
-    * @param sessionType
-    */
    protected ActiveMQXASession(final ConnectionFactoryOptions options,
                                ActiveMQConnection connection,
                                boolean transacted,

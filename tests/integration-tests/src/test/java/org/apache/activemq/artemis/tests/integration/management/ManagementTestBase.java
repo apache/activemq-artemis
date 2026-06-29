@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
@@ -27,9 +30,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class ManagementTestBase extends ActiveMQTestBase {
 
@@ -47,12 +49,12 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
          ClientMessage m = null;
          for (int i = 0; i < expected; i++) {
             m = consumer.receive(500);
-            Assert.assertNotNull("expected to received " + expected + " messages, got only " + i, m);
+            assertNotNull(m, "expected to received " + expected + " messages, got only " + i);
             m.acknowledge();
          }
          session.commit();
          m = consumer.receiveImmediate();
-         Assert.assertNull("received one more message than expected (" + expected + ")", m);
+         assertNull(m, "received one more message than expected (" + expected + ")");
       } finally {
          if (consumer != null) {
             consumer.close();
@@ -66,7 +68,7 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -74,7 +76,7 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
    }
@@ -88,7 +90,7 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
    }
 
    protected QueueControl createManagementControl(final String address, final String queue) throws Exception {
-      return createManagementControl(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queue));
+      return createManagementControl(SimpleString.of(address), SimpleString.of(queue));
    }
 
    protected QueueControl createManagementControl(final SimpleString address,

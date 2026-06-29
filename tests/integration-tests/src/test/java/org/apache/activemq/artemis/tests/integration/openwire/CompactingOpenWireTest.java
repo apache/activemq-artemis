@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -37,9 +42,8 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -49,7 +53,7 @@ public class CompactingOpenWireTest extends BasicOpenWireTest {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       realStore = true;
       super.setUp();
@@ -57,8 +61,8 @@ public class CompactingOpenWireTest extends BasicOpenWireTest {
       createFactories();
 
       for (int i = 0; i < 30; i++) {
-         SimpleString coreQueue = new SimpleString(queueName + i);
-         this.server.createQueue(new QueueConfiguration(coreQueue).setRoutingType(RoutingType.ANYCAST));
+         SimpleString coreQueue = SimpleString.of(queueName + i);
+         this.server.createQueue(QueueConfiguration.of(coreQueue).setRoutingType(RoutingType.ANYCAST));
          testQueues.put(queueName, coreQueue);
       }
    }
@@ -106,44 +110,41 @@ public class CompactingOpenWireTest extends BasicOpenWireTest {
          String space1k = new String(new char[5]).replace('\0', ' ');
          for (int i = 0; i < THREADS; i++) {
             final int id = i % 10;
-            executorService.submit(new Runnable() {
-               @Override
-               public void run() {
-                  try (Connection connection = factory.createConnection()) {
+            executorService.submit(() -> {
+               try (Connection connection = factory.createConnection()) {
 
-                     Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-                     Session consumerSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+                  Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+                  Session consumerSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-                     Queue queue = session.createQueue(queueName + id);
-                     MessageProducer producer = session.createProducer(queue);
-                     MessageConsumer consumer = consumerSession.createConsumer(queue);
-                     connection.start();
+                  Queue queue = session.createQueue(queueName + id);
+                  MessageProducer producer = session.createProducer(queue);
+                  MessageConsumer consumer = consumerSession.createConsumer(queue);
+                  connection.start();
 
-                     for (int j = 0; j < 1000 && running.get(); j++) {
-                        TextMessage textMessage = session.createTextMessage("test");
-                        textMessage.setStringProperty("1k", space1k);
-                        producer.send(textMessage);
-                        if (j % 2 == 0) {
-                           session.commit();
-                           TextMessage message = (TextMessage) consumer.receive(5000);
-                           Assert.assertNotNull(message);
+                  for (int j = 0; j < 1000 && running.get(); j++) {
+                     TextMessage textMessage = session.createTextMessage("test");
+                     textMessage.setStringProperty("1k", space1k);
+                     producer.send(textMessage);
+                     if (j % 2 == 0) {
+                        session.commit();
+                        TextMessage message = (TextMessage) consumer.receive(5000);
+                        assertNotNull(message);
 
-                           Assert.assertEquals("test", message.getText());
+                        assertEquals("test", message.getText());
 
-                           message.acknowledge();
-                        } else {
-                           session.rollback();
-                        }
-
+                        message.acknowledge();
+                     } else {
+                        session.rollback();
                      }
-                     logger.debug("Done! ");
 
-                  } catch (Throwable t) {
-                     errors.incrementAndGet();
-                     t.printStackTrace();
-                  } finally {
-                     latchDone.countDown();
                   }
+                  logger.debug("Done! ");
+
+               } catch (Throwable t) {
+                  errors.incrementAndGet();
+                  t.printStackTrace();
+               } finally {
+                  latchDone.countDown();
                }
             });
          }
@@ -151,10 +152,10 @@ public class CompactingOpenWireTest extends BasicOpenWireTest {
          running.set(false);
          compactDone.await(10, TimeUnit.MINUTES);
          executorService.shutdownNow();
-         Assert.assertEquals(0, errors.get());
-         Assert.assertFalse(loggerHandler.findText("AMQ144003")); // error compacting
-         Assert.assertFalse(loggerHandler.findText("AMQ222055")); // records not found
-         Assert.assertFalse(loggerHandler.findText("AMQ222302")); // string conversion issue
+         assertEquals(0, errors.get());
+         assertFalse(loggerHandler.findText("AMQ144003")); // error compacting
+         assertFalse(loggerHandler.findText("AMQ222055")); // records not found
+         assertFalse(loggerHandler.findText("AMQ222302")); // string conversion issue
       } finally {
          running.set(false);
          executorService.shutdownNow();
@@ -175,7 +176,7 @@ public class CompactingOpenWireTest extends BasicOpenWireTest {
       Map<Integer, AtomicInteger> counts = countJournal(server.getConfiguration());
       counts.forEach((a, b) -> System.out.println(a + " = " + b));
       AtomicInteger duplicateIDCounts = counts.get((int)JournalRecordIds.DUPLICATE_ID);
-      Assert.assertTrue("There are duplicate IDs on the journal even though the system was reconfigured to not persist them::" + duplicateIDCounts, duplicateIDCounts == null || duplicateIDCounts.get() == 0);
+      assertTrue(duplicateIDCounts == null || duplicateIDCounts.get() == 0, "There are duplicate IDs on the journal even though the system was reconfigured to not persist them::" + duplicateIDCounts);
 
    }
 }

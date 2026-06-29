@@ -16,9 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -41,8 +48,8 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,13 +62,14 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
 
    final int NUM_MESSAGES = 10;
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testAddressControlSendMessage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      server.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
 
       AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mBeanServer);
-      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      assertEquals(1, addressControl.getQueueNames().length);
       addressControl.sendMessage(null, org.apache.activemq.artemis.api.core.Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, fullUser, fullPass);
 
       Wait.assertEquals(1, addressControl::getMessageCount);
@@ -85,18 +93,19 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testAddressControlSendMessageWithText() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      server.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
 
       AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mBeanServer);
-      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      assertEquals(1, addressControl.getQueueNames().length);
       addressControl.sendMessage(null, org.apache.activemq.artemis.api.core.Message.TEXT_TYPE, "test", false, fullUser, fullPass);
 
       Wait.assertEquals(1, addressControl::getMessageCount);
 
-      Assert.assertEquals(1, addressControl.getMessageCount());
+      assertEquals(1, addressControl.getMessageCount());
 
       Connection connection = createConnection("myClientId");
       try {
@@ -143,7 +152,7 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          BytesMessage m = (BytesMessage) consumer.receive(5000);
-         Assert.assertNotNull("Could not receive message count=" + i + " on consumer", m);
+         assertNotNull(m, "Could not receive message count=" + i + " on consumer");
 
          m.reset();
 
@@ -155,24 +164,27 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
             logger.debug("Received {} count - {}", ByteUtil.bytesToHex(bytesReceived, 1), m.getIntProperty("count"));
          }
 
-         Assert.assertArrayEquals(bytes, bytesReceived);
+         assertArrayEquals(bytes, bytesReceived);
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
       logger.debug("taken = {}", taken);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testBytesMessageSendReceiveFromAMQPToAMQP() throws Throwable {
       testBytesMessageSendReceive(createConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testBytesMessageSendReceiveFromCoreToAMQP() throws Throwable {
       testBytesMessageSendReceive(createCoreConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testBytesMessageSendReceiveFromAMQPToCore() throws Throwable {
       testBytesMessageSendReceive(createConnection(), createCoreConnection());
    }
@@ -203,24 +215,27 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          Message m = consumer.receive(5000);
-         Assert.assertNotNull("Could not receive message count=" + i + " on consumer", m);
+         assertNotNull(m, "Could not receive message count=" + i + " on consumer");
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
       logger.debug("taken = {}", taken);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessageSendReceiveFromAMQPToAMQP() throws Throwable {
       testMessageSendReceive(createConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessageSendReceiveFromCoreToAMQP() throws Throwable {
       testMessageSendReceive(createCoreConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessageSendReceiveFromAMQPToCore() throws Throwable {
       testMessageSendReceive(createConnection(), createCoreConnection());
    }
@@ -247,27 +262,30 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          MapMessage m = (MapMessage) consumer.receive(5000);
-         Assert.assertNotNull("Could not receive message count=" + i + " on consumer", m);
+         assertNotNull(m, "Could not receive message count=" + i + " on consumer");
 
-         Assert.assertEquals(i, m.getInt("i"));
-         Assert.assertEquals(i, m.getIntProperty("count"));
+         assertEquals(i, m.getInt("i"));
+         assertEquals(i, m.getIntProperty("count"));
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
       logger.debug("taken = {}", taken);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMapMessageSendReceiveFromAMQPToAMQP() throws Throwable {
       testMapMessageSendReceive(createConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMapMessageSendReceiveFromCoreToAMQP() throws Throwable {
       testMapMessageSendReceive(createCoreConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMapMessageSendReceiveFromAMQPToCore() throws Throwable {
       testMapMessageSendReceive(createConnection(), createCoreConnection());
    }
@@ -292,25 +310,28 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          TextMessage m = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull("Could not receive message count=" + i + " on consumer", m);
-         Assert.assertEquals("text" + i, m.getText());
+         assertNotNull(m, "Could not receive message count=" + i + " on consumer");
+         assertEquals("text" + i, m.getText());
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
       logger.debug("taken = {}", taken);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testTextMessageSendReceiveFromAMQPToAMQP() throws Throwable {
       testTextMessageSendReceive(createConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testTextMessageSendReceiveFromCoreToAMQP() throws Throwable {
       testTextMessageSendReceive(createCoreConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testTextMessageSendReceiveFromAMQPToCore() throws Throwable {
       testTextMessageSendReceive(createConnection(), createCoreConnection());
    }
@@ -334,25 +355,28 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          StreamMessage m = (StreamMessage) consumer.receive(5000);
-         Assert.assertNotNull("Could not receive message count=" + i + " on consumer", m);
+         assertNotNull(m, "Could not receive message count=" + i + " on consumer");
 
-         Assert.assertEquals(i, m.readInt());
-         Assert.assertEquals(true, m.readBoolean());
-         Assert.assertEquals("test", m.readString());
+         assertEquals(i, m.readInt());
+         assertTrue(m.readBoolean());
+         assertEquals("test", m.readString());
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testStreamMessageSendReceiveFromAMQPToAMQP() throws Throwable {
       testStreamMessageSendReceive(createConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testStreamMessageSendReceiveFromCoreToAMQP() throws Throwable {
       testStreamMessageSendReceive(createCoreConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testStreamMessageSendReceiveFromAMQPToCore() throws Throwable {
       testStreamMessageSendReceive(createConnection(), createCoreConnection());
    }
@@ -376,23 +400,26 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
       objectMessage = (ObjectMessage) cons.receive(5000);
       assertNotNull(objectMessage);
       @SuppressWarnings("unchecked")
-      ArrayList<String> received = (ArrayList<String>) objectMessage.getObject();
-      assertEquals(received.get(0), "aString");
+      List<String> received = (ArrayList<String>) objectMessage.getObject();
+      assertEquals("aString", received.get(0));
 
       consumerConnection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testObjectMessageWithArrayListPayloadFromAMQPToAMQP() throws Throwable {
       testObjectMessageWithArrayListPayload(createConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testObjectMessageWithArrayListPayloadFromCoreToAMQP() throws Throwable {
       testObjectMessageWithArrayListPayload(createCoreConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testObjectMessageWithArrayListPayloadFromAMQPToCore() throws Throwable {
       testObjectMessageWithArrayListPayload(createConnection(), createCoreConnection());
    }
@@ -416,27 +443,30 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ObjectMessage msg = (ObjectMessage) consumer.receive(5000);
-         Assert.assertNotNull("Could not receive message count=" + i + " on consumer", msg);
+         assertNotNull(msg, "Could not receive message count=" + i + " on consumer");
 
          AnythingSerializable someSerialThing = (AnythingSerializable) msg.getObject();
-         Assert.assertEquals(i, someSerialThing.getCount());
+         assertEquals(i, someSerialThing.getCount());
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
       logger.debug("taken = {}", taken);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testObjectMessageUsingCustomTypeFromAMQPToAMQP() throws Throwable {
       testObjectMessageUsingCustomType(createConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testObjectMessageUsingCustomTypeFromCoreToAMQP() throws Throwable {
       testObjectMessageUsingCustomType(createCoreConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testObjectMessageUsingCustomTypeFromAMQPToCore() throws Throwable {
       testObjectMessageUsingCustomType(createConnection(), createCoreConnection());
    }
@@ -478,33 +508,36 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
       Queue consumerQueue = consumerSession.createQueue(getQueueName());
       MessageConsumer messageConsumer = consumerSession.createConsumer(consumerQueue);
       TextMessage received = (TextMessage) messageConsumer.receive(5000);
-      Assert.assertNotNull(received);
-      Assert.assertEquals("msg:0", received.getText());
-      Assert.assertEquals(received.getBooleanProperty("true"), true);
-      Assert.assertEquals(received.getBooleanProperty("false"), false);
-      Assert.assertEquals(received.getStringProperty("foo"), "bar");
-      Assert.assertEquals(received.getDoubleProperty("double"), 66.6, 0.0001);
-      Assert.assertEquals(received.getFloatProperty("float"), 56.789f, 0.0001);
-      Assert.assertEquals(received.getIntProperty("int"), 8);
-      Assert.assertEquals(received.getByteProperty("byte"), (byte) 10);
+      assertNotNull(received);
+      assertEquals("msg:0", received.getText());
+      assertTrue(received.getBooleanProperty("true"));
+      assertFalse(received.getBooleanProperty("false"));
+      assertEquals("bar", received.getStringProperty("foo"));
+      assertEquals(66.6, received.getDoubleProperty("double"), 0.0001);
+      assertEquals(56.789f, received.getFloatProperty("float"), 0.0001);
+      assertEquals(8, received.getIntProperty("int"));
+      assertEquals((byte) 10, received.getByteProperty("byte"));
 
       received = (TextMessage) messageConsumer.receive(5000);
-      Assert.assertNotNull(received);
+      assertNotNull(received);
 
       consumerConnection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPropertiesArePreservedFromAMQPToAMQP() throws Throwable {
       testPropertiesArePreserved(createConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPropertiesArePreservedFromCoreToAMQP() throws Throwable {
       testPropertiesArePreserved(createCoreConnection(), createConnection());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPropertiesArePreservedFromAMQPToCore() throws Throwable {
       testPropertiesArePreserved(createConnection(), createCoreConnection());
    }

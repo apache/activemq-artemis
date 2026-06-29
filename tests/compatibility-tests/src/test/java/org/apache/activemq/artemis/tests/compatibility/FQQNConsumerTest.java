@@ -17,35 +17,38 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_2_4_0;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_2_1_0;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_2_7_0;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_2_6_3;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.tests.compatibility.base.ServerBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_ONE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_SEVEN_ZERO;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_SIX_THREE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_ZERO;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class FQQNConsumerTest extends ServerBase {
 
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
 
       // FQQN was added into 2.7.0, hence we only test the server as SNAPSHOT or TWO_SEVEN_ZERO
-      List testsList = combinatory(new Object[]{SNAPSHOT}, new Object[]{SNAPSHOT, TWO_ZERO, TWO_FOUR, TWO_ONE, TWO_SIX_THREE, TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_ZERO, TWO_FOUR, TWO_ONE, TWO_SIX_THREE, TWO_SEVEN_ZERO});
-      addCombinations(testsList, null, new Object[] {TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_SEVEN_ZERO});
+      List testsList = combinatory(SNAPSHOT, new Object[]{SNAPSHOT}, new Object[]{SNAPSHOT, ARTEMIS_2_4_0, ARTEMIS_2_1_0, ARTEMIS_2_6_3, ARTEMIS_2_7_0}, new Object[]{SNAPSHOT, ARTEMIS_2_4_0, ARTEMIS_2_1_0, ARTEMIS_2_6_3, ARTEMIS_2_7_0});
+      if (getJavaVersion() <= 22) {
+         // 2.7.0 server fails on JDK23+ without workarounds.
+         addCombinations(testsList, SNAPSHOT, new Object[] {ARTEMIS_2_7_0}, new Object[]{SNAPSHOT, ARTEMIS_2_7_0}, new Object[]{SNAPSHOT, ARTEMIS_2_7_0});
+      }
       return testsList;
    }
 
@@ -53,23 +56,23 @@ public class FQQNConsumerTest extends ServerBase {
       super(server, sender, receiver);
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
-      evaluate(serverClassloader, "fqqnconsumertest/artemisServer.groovy", serverFolder.getRoot().getAbsolutePath());
+      FileUtil.deleteDirectory(serverFolder);
+      evaluate(serverClassloader, "fqqnconsumertest/artemisServer.groovy", serverFolder.getAbsolutePath());
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Throwable {
       execute(serverClassloader, "server.stop();");
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceive() throws Throwable {
-      evaluate(senderClassloader,  "fqqnconsumertest/fqqnConsumerProducer.groovy", server, sender, "sendMessage");
-      evaluate(receiverClassloader,  "fqqnconsumertest/fqqnConsumerProducer.groovy", server, receiver, "receiveMessage");
+      evaluate(senderClassloader, "fqqnconsumertest/fqqnConsumerProducer.groovy", server, sender, "sendMessage");
+      evaluate(receiverClassloader, "fqqnconsumertest/fqqnConsumerProducer.groovy", server, receiver, "receiveMessage");
    }
 
 }

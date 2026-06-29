@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +31,7 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class InvalidConnectorTest extends JMSTestBase {
 
@@ -53,7 +56,7 @@ public class InvalidConnectorTest extends JMSTestBase {
 
       TransportConfiguration tc = tcs[0];
 
-      assertNotSame(tc.getParams().get(TransportConstants.HOST_PROP_NAME), "0.0.0.0");
+      assertNotSame("0.0.0.0", tc.getParams().get(TransportConstants.HOST_PROP_NAME));
       assertEquals(tc.getParams().get(TransportConstants.HOST_PROP_NAME), InetAddress.getLocalHost().getHostName());
    }
 }

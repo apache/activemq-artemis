@@ -16,15 +16,16 @@
  */
 package org.apache.activemq.artemis.core.server.routing.policies;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.core.server.routing.KeyResolver;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
 
 public class ConsistentHashModuloPolicyTest {
 
@@ -32,11 +33,11 @@ public class ConsistentHashModuloPolicyTest {
    public void transformKey() {
       ConsistentHashModuloPolicy underTest = new ConsistentHashModuloPolicy();
 
-      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, underTest.transformKey(KeyResolver.NULL_KEY_VALUE));
+      assertEquals(KeyResolver.NULL_KEY_VALUE, underTest.transformKey(KeyResolver.NULL_KEY_VALUE));
 
-      Assert.assertEquals("AA", underTest.transformKey("AA")); // default modulo 0 does nothing
+      assertEquals("AA", underTest.transformKey("AA")); // default modulo 0 does nothing
 
-      HashMap<String, String> properties = new HashMap<>();
+      Map<String, String> properties = new HashMap<>();
 
       final int modulo = 2;
       properties.put(ConsistentHashModuloPolicy.MODULO, String.valueOf(modulo));
@@ -56,7 +57,7 @@ public class ConsistentHashModuloPolicyTest {
    @Test
    public void transformKeyNotNegative() {
       ConsistentHashModuloPolicy underTest = new ConsistentHashModuloPolicy();
-      HashMap<String, String> properties = new HashMap<>();
+      Map<String, String> properties = new HashMap<>();
       final int modulo = 2;
       properties.put(ConsistentHashModuloPolicy.MODULO, String.valueOf(modulo));
       underTest.init(properties);
@@ -65,7 +66,7 @@ public class ConsistentHashModuloPolicyTest {
 
       String[] values = new String[]{"ONE", "TWO", "THREE", "FOUR"};
       for (String v : values) {
-         assertTrue("non negative for: " + v, Integer.valueOf(underTest.transformKey(v)) >= 0);
+         assertTrue(Integer.parseInt(underTest.transformKey(v)) >= 0, "non negative for: " + v);
       }
    }
 
@@ -79,7 +80,7 @@ public class ConsistentHashModuloPolicyTest {
             return negs[v++ % negs.length];
          }
       };
-      HashMap<String, String> properties = new HashMap<>();
+      Map<String, String> properties = new HashMap<>();
       final int modulo = 2;
       properties.put(ConsistentHashModuloPolicy.MODULO, String.valueOf(modulo));
       underTest.init(properties);
@@ -87,7 +88,7 @@ public class ConsistentHashModuloPolicyTest {
       assertNotNull(underTest.getProperties());
 
       for (int i = 0; i < negs.length; i++) {
-         assertTrue("non negative for: " + i, Integer.valueOf(underTest.transformKey("BLA")) >= 0);
+         assertTrue(Integer.parseInt(underTest.transformKey("BLA")) >= 0, "non negative for: " + i);
       }
    }
 }

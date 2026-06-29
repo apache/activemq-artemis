@@ -17,9 +17,11 @@
 package org.apache.activemq.artemis.core.config.routing;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class CacheConfiguration implements Serializable {
-   private boolean persisted = false;
+
+   private boolean persisted;
 
    private int timeout = 0;
 
@@ -42,5 +44,23 @@ public class CacheConfiguration implements Serializable {
    public CacheConfiguration setTimeout(int timeout) {
       this.timeout = timeout;
       return this;
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(persisted, timeout);
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+
+      if (obj instanceof CacheConfiguration other) {
+         return persisted == other.persisted && timeout == other.timeout;
+      }
+
+      return false;
    }
 }

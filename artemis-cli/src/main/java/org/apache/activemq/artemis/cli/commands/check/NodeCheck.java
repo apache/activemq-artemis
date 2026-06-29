@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.cli.commands.check;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.management.NodeInfo;
 import picocli.CommandLine.Command;
@@ -35,8 +36,12 @@ public class NodeCheck extends CheckAbstract {
    @Option(names = "--memoryUsage", description = "Memory usage percentage to check.")
    private Integer memoryUsage;
 
+   @Deprecated(forRemoval = true)
    @Option(names = "--live", description = "Check that the node has a connected live.")
    private boolean live;
+
+   @Option(names = "--primary", description = "Check that the node has a connected live.")
+   private boolean primary;
 
    @Option(names = "--backup", description = "Check that the node has a connected backup.")
    private boolean backup;
@@ -68,12 +73,16 @@ public class NodeCheck extends CheckAbstract {
       this.memoryUsage = memoryUsage;
    }
 
-   public boolean isLive() {
-      return live;
+   public boolean isPrimary() {
+      return live || primary;
    }
 
    public void setLive(boolean live) {
       this.live = live;
+   }
+
+   public void setPrimary(boolean primary) {
+      this.primary = primary;
    }
 
    public boolean isBackup() {
@@ -94,10 +103,10 @@ public class NodeCheck extends CheckAbstract {
 
    @Override
    protected CheckTask[] getCheckTasks() {
-      ArrayList<CheckTask> checkTasks = new ArrayList<>();
+      List<CheckTask> checkTasks = new ArrayList<>();
 
-      if (live) {
-         checkTasks.add(new CheckTask("the node has a live", this::checkNodeLive));
+      if (primary || live) {
+         checkTasks.add(new CheckTask("the node has a primary", this::checkNodePrimary));
       }
 
       if (backup) {
@@ -130,7 +139,7 @@ public class NodeCheck extends CheckAbstract {
          }
       }
 
-      if (up || checkTasks.size() == 0) {
+      if (up || checkTasks.isEmpty()) {
          checkTasks.add(0, new CheckTask("the node is started", this::checkNodeUp));
       }
 
@@ -143,7 +152,7 @@ public class NodeCheck extends CheckAbstract {
       }
    }
 
-   private void checkNodeLive(final CheckContext context) throws Exception {
+   private void checkNodePrimary(final CheckContext context) throws Exception {
       String nodeId = getName();
 
       if (nodeId == null) {
@@ -152,8 +161,8 @@ public class NodeCheck extends CheckAbstract {
 
       NodeInfo node = context.getTopology().get(nodeId);
 
-      if (node == null || node.getLive() == null) {
-         throw new CheckException("No live found for the node " + nodeId);
+      if (node == null || node.getPrimary() == null) {
+         throw new CheckException("No primary found for the node " + nodeId);
       }
    }
 
@@ -173,7 +182,7 @@ public class NodeCheck extends CheckAbstract {
 
    private void checkNodePeers(final CheckContext context) throws Exception {
       int topologyPeers = context.getTopology().values().stream().
-         mapToInt(node -> (node.getLive() != null ? 1 : 0) +
+         mapToInt(node -> (node.getPrimary() != null ? 1 : 0) +
             (node.getBackup() != null ? 1 : 0)).sum();
 
       if (topologyPeers < peers) {
@@ -194,7 +203,7 @@ public class NodeCheck extends CheckAbstract {
       Double diskStoreUsage = context.getManagementProxy().
          getAttribute("broker", "DiskStoreUsage", Double.class, 0);
 
-      checkNodeResourceUsage("DiskStoreUsage", (int)(diskStoreUsage *  100), maxDiskUsage);
+      checkNodeResourceUsage("DiskStoreUsage", (int)(diskStoreUsage * 100), maxDiskUsage);
    }
 
    private void checkNodeMemoryUsage(final CheckContext context) throws Exception {

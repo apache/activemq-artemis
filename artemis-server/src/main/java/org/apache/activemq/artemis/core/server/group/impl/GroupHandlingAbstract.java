@@ -41,7 +41,7 @@ public abstract class GroupHandlingAbstract implements GroupingHandler {
    protected final SimpleString address;
 
    // no need to synchronize listeners as we use a single threaded executor on all its accesses
-   final Set<UnproposalListener> listeners = Collections.newSetFromMap(new WeakHashMap<UnproposalListener, Boolean>());
+   final Set<UnproposalListener> listeners = Collections.newSetFromMap(new WeakHashMap<>());
 
    public GroupHandlingAbstract(final Executor executor,
                                 final ManagementService managementService,
@@ -56,23 +56,15 @@ public abstract class GroupHandlingAbstract implements GroupingHandler {
       if (executor == null) {
          listeners.add(listener);
       } else {
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               listeners.add(listener);
-            }
-         });
+         executor.execute(() -> listeners.add(listener));
       }
    }
 
    protected void fireUnproposed(final SimpleString groupID) {
 
-      Runnable runnable = new Runnable() {
-         @Override
-         public void run() {
-            for (UnproposalListener listener : listeners) {
-               listener.unproposed(groupID);
-            }
+      Runnable runnable = () -> {
+         for (UnproposalListener listener : listeners) {
+            listener.unproposed(groupID);
          }
       };
       if (executor != null) {

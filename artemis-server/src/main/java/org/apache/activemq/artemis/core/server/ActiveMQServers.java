@@ -32,8 +32,8 @@ import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 /**
  * ActiveMQServers is a factory class for instantiating ActiveMQServer instances.
  * <p>
- * This class should be used when you want to instantiate an ActiveMQServer instance for embedding in
- * your own application, as opposed to directly instantiating an implementing instance.
+ * This class should be used when you want to instantiate an ActiveMQServer instance for embedding in your own
+ * application, as opposed to directly instantiating an implementing instance.
  */
 public final class ActiveMQServers {
 
@@ -75,7 +75,7 @@ public final class ActiveMQServers {
       LegacyJMSConfiguration legacyJMSConfiguration = new LegacyJMSConfiguration(config);
       new FileDeploymentManager(configURL).addDeployable(config).addDeployable(legacyJMSConfiguration).readConfiguration();
 
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, mbeanServer, securityManager);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, mbeanServer, securityManager, config.isPersistenceEnabled());
 
       return server;
    }

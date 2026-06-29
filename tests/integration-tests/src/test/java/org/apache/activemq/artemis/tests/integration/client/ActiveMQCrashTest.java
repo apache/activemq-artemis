@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
@@ -32,16 +32,13 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
-/**
- * From https://jira.jboss.org/jira/browse/HORNETQ-144
- */
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 public class ActiveMQCrashTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -68,12 +65,7 @@ public class ActiveMQCrashTest extends ActiveMQTestBase {
 
       ClientSession session = clientSessionFactory.createSession();
 
-      session.setSendAcknowledgementHandler(new SendAcknowledgementHandler() {
-         @Override
-         public void sendAcknowledged(final Message message) {
-            ackReceived = true;
-         }
-      });
+      session.setSendAcknowledgementHandler(message -> ackReceived = true);
 
       ClientProducer producer = session.createProducer("fooQueue");
 
@@ -85,7 +77,7 @@ public class ActiveMQCrashTest extends ActiveMQTestBase {
 
       Thread.sleep(250);
 
-      Assert.assertFalse(ackReceived);
+      assertFalse(ackReceived);
 
       session.close();
    }
@@ -106,16 +98,13 @@ public class ActiveMQCrashTest extends ActiveMQTestBase {
             try {
                logger.debug("Stopping server");
 
-               new Thread() {
-                  @Override
-                  public void run() {
-                     try {
-                        server.stop();
-                     } catch (Exception e) {
-                        e.printStackTrace();
-                     }
+               new Thread(() -> {
+                  try {
+                     server.stop();
+                  } catch (Exception e) {
+                     e.printStackTrace();
                   }
-               }.start();
+               }).start();
             } catch (Exception e) {
                e.printStackTrace();
             }
@@ -128,7 +117,7 @@ public class ActiveMQCrashTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();

@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-3.15.1-1] Bits 3,2,1 and 0 of the Fixed Header of the AUTH packet are reserved and MUST all be set to 0. The Client or Server MUST treat any other value as malformed and close the Network Connection.
@@ -34,13 +34,8 @@ import org.junit.Ignore;
  * Not implemented.
  *
  * [MQTT-3.15.2-1] The sender of the AUTH Packet MUST use one of the Authenticate Reason Codes.
- *
  */
 
-@Ignore
-public class AuthTests  extends MQTT5TestSupport {
-
-   public AuthTests(String protocol) {
-      this.protocol = protocol;
-   }
+@Disabled
+public class AuthTests extends MQTT5TestSupport {
 }

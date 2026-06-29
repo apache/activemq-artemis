@@ -1,24 +1,25 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * <br>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <br>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
 package org.apache.activemq.artemis.tests.integration.plugin;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 import io.micrometer.core.instrument.Measurement;
 import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.Tag;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -45,42 +47,38 @@ import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlug
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.hamcrest.Matcher;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(Parameterized.class)
 public class MetricsPluginTest extends ActiveMQTestBase {
-
-   private boolean legacyConfig;
-
-   @Parameterized.Parameters(name = "legacyConfig={0}")
-   public static Collection<Object[]> getParams() {
-      return Arrays.asList(new Object[][]{{true}, {false}});
-   }
-
-   public MetricsPluginTest(boolean legacyConfig) {
-      this.legacyConfig = legacyConfig;
-   }
 
    protected ActiveMQServer server;
    protected ClientSession session;
    protected ClientSessionFactory sf;
    protected ServerLocator locator;
+   private static final String UUID_NAMESPACE = "uuid";
+
+   protected void configureServer(ActiveMQServer server) {
+      server.getConfiguration()
+         .setUuidNamespace(UUID_NAMESPACE)
+         .setMetricsConfiguration(new MetricsConfiguration().setPlugin(new SimpleMetricsPlugin().init(null)));
+   }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultInVMConfig());
-      if (legacyConfig) {
-         server.getConfiguration().setMetricsPlugin(new SimpleMetricsPlugin().init(null));
-      } else {
-         server.getConfiguration().setMetricsConfiguration(new MetricsConfiguration().setPlugin(new SimpleMetricsPlugin().init(null)));
-      }
+      configureServer(server);
       server.start();
       locator = createInVMNonHALocator();
       sf = createSessionFactory(locator);
@@ -89,108 +87,144 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
    @Test
    public void testForArtemisMetricsPresence() throws Exception {
-      class Metric {
-         public final String name;
-         public final String description;
-         public final Double value;
-
-         private Metric(String name, String description, Double value) {
-            this.name = name;
-            this.description = description;
-            this.value = value;
-         }
-
-         @Override
-         public String toString() {
-            return name + ": " + value + " (" + description + ")";
-         }
-
-         @Override
-         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Metric metric = (Metric) o;
-            return Objects.equals(name, metric.name) &&
-                    Objects.equals(description, metric.description) &&
-                    Objects.equals(value, metric.value);
-         }
-
-         @Override
-         public int hashCode() {
-            return Objects.hash(name, description, value);
-         }
-      }
 
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";
-      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
 
+      Matcher<Iterable<? extends Metric>> anyOrder = containsInAnyOrder(
+         // broker metrics
+         new Metric("artemis.address.memory.usage", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.address.memory.usage.percentage", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.connection.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.total.connection.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.session.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.total.session.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.active", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.replica.sync", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.disk.store.usage", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.authentication.count", 0.0, Arrays.asList(Tag.of("broker", "localhost"), Tag.of("result", "success"))),
+         new Metric("artemis.authentication.count", 0.0, Arrays.asList(Tag.of("broker", "localhost"), Tag.of("result", "failure"))),
+         new Metric("artemis.authorization.count", 0.0, Arrays.asList(Tag.of("broker", "localhost"), Tag.of("result", "success"))),
+         new Metric("artemis.authorization.count", 0.0, Arrays.asList(Tag.of("broker", "localhost"), Tag.of("result", "failure"))),
+         // simpleQueue metrics
+         new Metric("artemis.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.durable.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.durable.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.delivering.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.delivering.durable.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.delivering.persistent_size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.delivering.durable.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.scheduled.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.scheduled.durable.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.scheduled.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.scheduled.durable.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.messages.acknowledged", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.messages.added", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.messages.killed", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.messages.expired", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.consumer.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         // simpleAddress metrics
+         new Metric("artemis.routed.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.unrouted.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.address.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.number.of.pages", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.limit.percent", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
+         // activemq.notifications metrics
+         new Metric("artemis.routed.message.count", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.unrouted.message.count", 2.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.address.size", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.number.of.pages", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.limit.percent", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost")))
+      );
+
+      // Making sure any async operations will have time to fill up the data structure
+      Wait.waitFor(() -> anyOrder.matches(parseMetrics()), 10_000, 100);
+      // doing the actual assertion. I do this in two steps for proper formatting on junit as an assertion error
+      assertThat(parseMetrics(), anyOrder);
+   }
+
+   class Metric {
+      public final String name;
+      public final Double value;
+      public final List<Tag> tags;
+
+      private Metric(String name, Double value) {
+         this(name, value, Collections.emptyList());
+      }
+
+      private Metric(String name, Double value, List<Tag> tags) {
+         this.name = name;
+         this.value = value;
+         this.tags = tags;
+      }
+
+      @Override
+      public String toString() {
+         return name + ": " + value + ": " + tags;
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (!(obj instanceof Metric other)) {
+            return false;
+         }
+
+         return Objects.equals(name, other.name) &&
+            Objects.equals(value, other.value) &&
+            Objects.equals(tags, other.tags);
+      }
+
+      @Override
+      public int hashCode() {
+         return Objects.hash(name, value, tags);
+      }
+   }
+
+   private List<Metric> parseMetrics() {
       Map<Meter.Id, Double> metrics = getMetrics();
       List<Metric> artemisMetrics = metrics.entrySet().stream()
               .map(entry -> new Metric(
                       entry.getKey().getName(),
-                      entry.getKey().getDescription(),
-                      entry.getValue()))
+                      entry.getValue(),
+                      entry.getKey().getTags()))
               .filter(metric -> metric.name.startsWith("artemis"))
               .collect(Collectors.toList());
-
-//      for (Metric metric : artemisMetrics) {
-//          IntegrationTestLogger.LOGGER.info(metric);
-//      }
-
-      assertThat(artemisMetrics, containsInAnyOrder(
-              // artemis.(un)routed.message.count is present twice, because of activemq.notifications address
-              new Metric("artemis.address.memory.usage", "Memory used by all the addresses on broker for in-memory messages", 0.0),
-              new Metric("artemis.address.memory.usage.percentage", "Memory used by all the addresses on broker as a percentage of the global-max-size", 0.0),
-              new Metric("artemis.connection.count", "Number of clients connected to this server", 1.0),
-              new Metric("artemis.consumer.count", "number of consumers consuming messages from this queue", 0.0),
-              new Metric("artemis.delivering.durable.message.count", "number of durable messages that this queue is currently delivering to its consumers", 0.0),
-              new Metric("artemis.delivering.durable.persistent.size", "persistent size of durable messages that this queue is currently delivering to its consumers", 0.0),
-              new Metric("artemis.delivering.message.count", "number of messages that this queue is currently delivering to its consumers", 0.0),
-              new Metric("artemis.delivering.persistent_size", "persistent size of messages that this queue is currently delivering to its consumers", 0.0),
-              new Metric("artemis.disk.store.usage", "Fraction of total disk store used", 0.0),
-              new Metric("artemis.durable.message.count", "number of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
-              new Metric("artemis.durable.persistent.size", "persistent size of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
-              new Metric("artemis.message.count", "number of messages currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
-              new Metric("artemis.messages.acknowledged", "number of messages acknowledged from this queue since it was created", 0.0),
-              new Metric("artemis.messages.added", "number of messages added to this queue since it was created", 0.0),
-              new Metric("artemis.messages.expired", "number of messages expired from this queue since it was created", 0.0),
-              new Metric("artemis.messages.killed", "number of messages removed from this queue since it was created due to exceeding the max delivery attempts", 0.0),
-              new Metric("artemis.persistent.size", "persistent size of all messages (including durable and non-durable) currently in this queue (includes scheduled, paged, and in-delivery messages)", 0.0),
-              new Metric("artemis.routed.message.count", "number of messages routed to one or more bindings", 0.0),
-              new Metric("artemis.routed.message.count", "number of messages routed to one or more bindings", 0.0),
-              new Metric("artemis.scheduled.durable.message.count", "number of durable scheduled messages in this queue", 0.0),
-              new Metric("artemis.scheduled.durable.persistent.size", "persistent size of durable scheduled messages in this queue", 0.0),
-              new Metric("artemis.scheduled.message.count", "number of scheduled messages in this queue", 0.0),
-              new Metric("artemis.scheduled.persistent.size", "persistent size of scheduled messages in this queue", 0.0),
-              new Metric("artemis.total.connection.count", "Number of clients which have connected to this server since it was started", 1.0),
-              new Metric("artemis.unrouted.message.count", "number of messages not routed to any bindings", 0.0),
-              new Metric("artemis.unrouted.message.count", "number of messages not routed to any bindings", 2.0),
-              new Metric("artemis.address.size", "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking", 0.0),
-              new Metric("artemis.address.size", "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking", 0.0),
-              new Metric("artemis.number.of.pages", "number of pages used by this address", 0.0),
-              new Metric("artemis.number.of.pages", "number of pages used by this address", 0.0)
-      ));
+      return artemisMetrics;
    }
 
    @Test
-   public void testForBasicMetricsPresenceAndValue() throws Exception {
-      internalTestForBasicMetrics(true);
+   public void testForBasicQueueMetricsPresenceAndValue() throws Exception {
+      internalTestForBasicQueueMetrics(true, false);
    }
 
    @Test
-   public void testDisablingMetrics() throws Exception {
-      internalTestForBasicMetrics(false);
+   public void testDisablingQueueMetrics() throws Exception {
+      internalTestForBasicQueueMetrics(false, false);
    }
 
-   private void internalTestForBasicMetrics(boolean enabled) throws Exception {
+   @Test
+   public void testForBasicUuidQueueMetricsPresenceAndValue() throws Exception {
+      internalTestForBasicQueueMetrics(true, true);
+   }
+
+   @Test
+   public void testDisablingUuidQueueMetrics() throws Exception {
+      internalTestForBasicQueueMetrics(false, true);
+   }
+
+   private void internalTestForBasicQueueMetrics(boolean enabled, boolean uuid) throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
       final String queueName = "simpleQueue";
-      final String addressName = "simpleAddress";
+      final String addressName = uuid ? RandomUtil.randomUUIDString() : "simpleAddress";
 
-      server.getAddressSettingsRepository().getMatch(addressName).setEnableMetrics(enabled);
+      server.getAddressSettingsRepository().getMatch(uuid ? UUID_NAMESPACE + "." + addressName : addressName).setEnableMetrics(enabled);
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setDurable(!uuid));
       ClientProducer producer = session.createProducer(addressName);
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString(data);
@@ -205,7 +239,9 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       checkMetric(metrics, "artemis.message.count", "queue", queueName, 1.0, enabled);
       checkMetric(metrics, "artemis.messages.added", "queue", queueName, 1.0, enabled);
       checkMetric(metrics, "artemis.messages.acknowledged", "queue", queueName, 0.0, enabled);
-      checkMetric(metrics, "artemis.durable.message.count", "queue", queueName, 1.0, enabled);
+      if (!uuid) {
+         checkMetric(metrics, "artemis.durable.message.count", "queue", queueName, 1.0, enabled);
+      }
       checkMetric(metrics, "artemis.delivering.message.count", "queue", queueName, 0.0, enabled);
       checkMetric(metrics, "artemis.routed.message.count", "address", addressName, 1.0, enabled);
       checkMetric(metrics, "artemis.unrouted.message.count", "address", addressName, 0.0, enabled);
@@ -224,7 +260,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       assertEquals(data, message.getBodyBuffer().readString());
       session.commit(); // force the ack to be committed
 
-      assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.toSimpleString(queueName)).getMessagesAcknowledged() == 1, 1000, 100));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.of(queueName)).getMessagesAcknowledged() == 1, 1000, 100));
 
       consumer.close();
 
@@ -248,18 +284,18 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
       server.getAddressSettingsRepository().getMatch(addressName).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxSizeBytes(1024 * 10).setPageSizeBytes(1024 * 5);
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer(addressName);
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString(data);
       long messageCount = 0;
-      while (!server.getPagingManager().getPageStore(new SimpleString(addressName)).isPaging()) {
+      while (!server.getPagingManager().getPageStore(SimpleString.of(addressName)).isPaging()) {
          producer.send(message);
          messageCount++;
       }
 
       Wait.assertEquals(messageCount, server.locateQueue(queueName)::getMessageCount, 2000, 100);
-      checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, Double.valueOf(messageCount));
+      checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, (double) messageCount);
 
       for (int i = 0; i < messageCount; i++) {
          producer.send(message);
@@ -267,7 +303,13 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       producer.close();
 
       Wait.assertEquals(messageCount * 2, server.locateQueue(queueName)::getMessageCount, 2000, 100);
-      checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, Double.valueOf(messageCount * 2));
+      checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, (double) (messageCount * 2));
+   }
+
+   @Test
+   public void testMetricsPluginRegistration() {
+      assertEquals(SimpleMetricsPlugin.class, server.getConfiguration().getMetricsConfiguration().getPlugin().getClass());
+      assertEquals(server, ((SimpleMetricsPlugin)server.getConfiguration().getMetricsConfiguration().getPlugin()).getServer());
    }
 
    public Map<Meter.Id, Double> getMetrics() {
@@ -277,7 +319,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
    public static Map<Meter.Id, Double> getMetrics(ActiveMQServer server) {
       Map<Meter.Id, Double> metrics = new HashMap<>();
       List<Meter> meters = server.getMetricsManager().getMeterRegistry().getMeters();
-      assertTrue(meters.size() > 0);
+      assertFalse(meters.isEmpty());
       for (Meter meter : meters) {
          Iterable<Measurement> measurements = meter.measure();
          for (Measurement measurement : measurements) {
@@ -299,10 +341,10 @@ public class MetricsPluginTest extends ActiveMQTestBase {
               .findFirst();
 
       if (enabled) {
-         assertTrue(metric + " for " + tag + " " + tagValue + " not present", actualValue.isPresent());
-         assertEquals(metric + " not equal", expectedValue, actualValue.getAsDouble(), 0);
+         assertTrue(actualValue.isPresent(), metric + " for " + tag + " " + tagValue + " not present");
+         assertEquals(expectedValue, actualValue.getAsDouble(), 0, metric + " not equal");
       } else {
-         assertFalse(metric + " for " + tag + " " + tagValue + " present", actualValue.isPresent());
+         assertFalse(actualValue.isPresent(), metric + " for " + tag + " " + tagValue + " present");
       }
    }
 }

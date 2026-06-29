@@ -16,37 +16,38 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
-import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
 
 public class NettyConnectorFactoryTest {
 
    @Test
    public void testCreateConnectorSetsDefaults() {
       // Test defaults are added when TransportConfig params are empty
-      TransportConfiguration tc = new TransportConfiguration(NettyConnectorFactory.class.getName(), new HashMap<String, Object>());
-      assertTrue(tc.getParams().equals(NettyConnector.DEFAULT_CONFIG));
+      TransportConfiguration tc = new TransportConfiguration(NettyConnectorFactory.class.getName(), new HashMap<>());
+      assertEquals(NettyConnector.DEFAULT_CONFIG, tc.getParams());
 
       // Test defaults are added when TransportConfig params are null
       tc = new TransportConfiguration(NettyConnectorFactory.class.getName(), null);
-      assertTrue(tc.getParams().equals(NettyConnector.DEFAULT_CONFIG));
+      assertEquals(NettyConnector.DEFAULT_CONFIG, tc.getParams());
 
       // Test defaults are added when TransportConfig params are null
       tc = new TransportConfiguration(NettyConnectorFactory.class.getName());
-      assertTrue(tc.getParams().equals(NettyConnector.DEFAULT_CONFIG));
+      assertEquals(NettyConnector.DEFAULT_CONFIG, tc.getParams());
 
       // Test defaults are not set when TransportConfig params are not empty
       Map<String, Object> params = new HashMap<>();
       params.put("Foo", "Bar");
       tc = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
-      assertTrue(tc.getParams().size() == 1);
+      assertEquals(1, tc.getParams().size());
       assertTrue(tc.getParams().containsKey("Foo"));
    }
 }

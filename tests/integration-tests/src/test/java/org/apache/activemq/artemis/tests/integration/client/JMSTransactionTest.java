@@ -23,7 +23,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import javax.jms.CompletionListener;
 import javax.jms.Connection;
@@ -36,7 +37,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class JMSTransactionTest extends JMSTestBase {
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testAsyncProduceMessageAndCommit() throws Throwable {
       final String queueName = "TEST";
       final int messages = 10;
@@ -86,7 +88,7 @@ public class JMSTransactionTest extends JMSTestBase {
          session.commit();
          Wait.assertEquals(messages, sentMessages::get);
 
-         org.apache.activemq.artemis.core.server.Queue queueView = server.locateQueue(SimpleString.toSimpleString(queueName));
+         org.apache.activemq.artemis.core.server.Queue queueView = server.locateQueue(SimpleString.of(queueName));
          Wait.assertEquals(messages, queueView::getMessageCount);
       }
    }

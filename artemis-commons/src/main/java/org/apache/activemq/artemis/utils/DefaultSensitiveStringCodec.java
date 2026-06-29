@@ -26,28 +26,25 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
+import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
  * A DefaultSensitiveDataCodec
- *
- * The default implementation of SensitiveDataCodec.
- * This class is used when the user indicates in the config
- * file to use a masked password but doesn't give a
- * codec implementation.
- *
- * It supports one-way hash (digest) and two-way (encrypt-decrpt) algorithms
- * The two-way uses "Blowfish" algorithm
- * The one-way uses "PBKDF2" hash algorithm
+ * <p>
+ * The default implementation of SensitiveDataCodec. This class is used when the user indicates in the config file to
+ * use a masked password but doesn't give a codec implementation.
+ * <p>
+ * It supports one-way hash (digest) and two-way (encrypt-decrpt) algorithms The two-way uses "Blowfish" algorithm The
+ * one-way uses "PBKDF2" hash algorithm
  */
 public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
 
@@ -59,15 +56,23 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
    public static final String TWO_WAY = "two-way";
    public static final String KEY_SYSTEM_PROPERTY = "artemis.default.sensitive.string.codec.key";
 
-   private CodecAlgorithm algorithm = new BlowfishAlgorithm(Collections.EMPTY_MAP);
+   private CodecAlgorithm algorithm;
 
    @Override
    public String decode(Object secret) throws Exception {
+      if (algorithm == null) {
+         throw new IllegalStateException("Algorithm not initialized");
+      }
+
       return algorithm.decode((String) secret);
    }
 
    @Override
    public String encode(Object secret) throws Exception {
+      if (algorithm == null) {
+         throw new IllegalStateException("Algorithm not initialized");
+      }
+
       return algorithm.encode((String) secret);
    }
 
@@ -76,6 +81,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       String algorithm = params.get(ALGORITHM);
       if (algorithm == null || algorithm.equals(TWO_WAY)) {
          //two way
+         ActiveMQUtilLogger.LOGGER.deprecatedDefaultCodecTwoWayAlgorithm();
          this.algorithm = new BlowfishAlgorithm(params);
       } else if (algorithm.equals(ONE_WAY)) {
          this.algorithm = new PBKDF2Algorithm(params);
@@ -85,10 +91,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
    }
 
    /**
-    * This main class is as documented on configuration-index.md, where the user can mask the password here. *
-    *
-    * @param args
-    * @throws Exception
+    * This main class is as documented on configuration-index.md, where the user can mask the password here.
     */
    public static void main(String[] args) throws Exception {
       if (args.length != 1) {
@@ -131,6 +134,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       }
    }
 
+   @Deprecated
    private class BlowfishAlgorithm extends CodecAlgorithm {
 
       private byte[] internalKey = "clusterpassword".getBytes();
@@ -143,7 +147,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
             updateKey(key);
          } else {
             key = System.getProperty(KEY_SYSTEM_PROPERTY);
-            if (key != null && key.trim().length() > 0) {
+            if (key != null && !key.trim().isEmpty()) {
                logger.trace("Set key from system property {}", KEY_SYSTEM_PROPERTY);
                updateKey(key);
             }
@@ -219,13 +223,12 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
    }
 
    public static String envVarNameFromSystemPropertyName(final String systemPropertyName) {
-      return systemPropertyName.replace(".","_").toUpperCase(Locale.getDefault());
+      return systemPropertyName.replace(".", "_").toUpperCase(Locale.getDefault());
    }
 
    private static class PBKDF2Algorithm extends CodecAlgorithm {
       private static final String SEPARATOR = ":";
       private String sceretKeyAlgorithm = "PBKDF2WithHmacSHA1";
-      private String randomScheme = "SHA1PRNG";
       private int keyLength = 64 * 8;
       private int saltLength = 32;
       private int iterations = 1024;
@@ -236,7 +239,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
          super(params);
          skf = SecretKeyFactory.getInstance(sceretKeyAlgorithm);
          if (sr == null) {
-            sr = SecureRandom.getInstance(randomScheme);
+            sr = new SecureRandom();
          }
       }
 

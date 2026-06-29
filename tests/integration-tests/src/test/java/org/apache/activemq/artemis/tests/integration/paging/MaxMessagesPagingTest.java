@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -39,7 +46,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.paging.impl.PagingManagerTestAccessor;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerImplAccessor;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -50,8 +57,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.SizeAwareMetric;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -66,7 +72,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
    @Test
    public void testGlobalMaxMessages() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("testGlobalMaxMessages");
+      final SimpleString ADDRESS = SimpleString.of("testGlobalMaxMessages");
       clearDataRecreateServerDirs();
 
       Configuration config = createDefaultInVMConfig();
@@ -87,7 +93,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
-      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS));
+      session.createQueue(QueueConfiguration.of(ADDRESS).setAddress(ADDRESS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -119,7 +125,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
       for (int i = 0; i < 30; i++) {
          message = consumer.receive(5000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.acknowledge();
       }
       session.commit();
@@ -144,11 +150,11 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
       Wait.assertTrue(queue.getPagingStore()::isPaging);
 
-      SizeAwareMetric globalSizeMetric = PagingManagerTestAccessor.globalSizeAwareMetric(server.getPagingManager());
+      SizeAwareMetric globalSizeMetric = PagingManagerImplAccessor.globalSizeAwareMetric(server.getPagingManager());
 
       // this is validating the test is actually validating paging after over elements
-      Assert.assertTrue(globalSizeMetric.isOverElements());
-      Assert.assertFalse(globalSizeMetric.isOverSize());
+      assertTrue(globalSizeMetric.isOverElements());
+      assertFalse(globalSizeMetric.isOverSize());
 
       session.close();
    }
@@ -177,12 +183,12 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
       for (int adr = 1; adr <= 2; adr++) {
-         SimpleString address = new SimpleString(baseAddress + adr);
-         session.createQueue(new QueueConfiguration(address).setAddress(address));
+         SimpleString address = SimpleString.of(baseAddress + adr);
+         session.createQueue(QueueConfiguration.of(address).setAddress(address));
       }
 
       for (int adr = 1; adr <= 2; adr++) {
-         SimpleString address = new SimpleString(baseAddress + adr);
+         SimpleString address = SimpleString.of(baseAddress + adr);
          ClientProducer producer = session.createProducer(address);
 
          ClientMessage message = null;
@@ -207,11 +213,11 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
          }
       }
 
-      SizeAwareMetric globalSizeMetric = PagingManagerTestAccessor.globalSizeAwareMetric(server.getPagingManager());
+      SizeAwareMetric globalSizeMetric = PagingManagerImplAccessor.globalSizeAwareMetric(server.getPagingManager());
 
       // this is validating the test is actually validating paging after over elements
-      Assert.assertTrue(globalSizeMetric.isOverElements());
-      Assert.assertFalse(globalSizeMetric.isOverSize());
+      assertTrue(globalSizeMetric.isOverElements());
+      assertFalse(globalSizeMetric.isOverSize());
 
       session.close();
    }
@@ -243,12 +249,12 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
       for (int adr = 1; adr <= 2; adr++) {
-         SimpleString address = new SimpleString(baseAddress + adr);
-         session.createQueue(new QueueConfiguration(address).setAddress(address));
+         SimpleString address = SimpleString.of(baseAddress + adr);
+         session.createQueue(QueueConfiguration.of(address).setAddress(address));
       }
 
       for (int adr = 1; adr <= 1; adr++) {
-         SimpleString address = new SimpleString(baseAddress + adr);
+         SimpleString address = SimpleString.of(baseAddress + adr);
          ClientProducer producer = session.createProducer(address);
 
          ClientMessage message = null;
@@ -265,7 +271,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
             if (i >= 4) {
                Wait.assertTrue(queue.getPagingStore()::isPaging);
             } else {
-               Assert.assertFalse(queue.getPagingStore().isPaging());
+               assertFalse(queue.getPagingStore().isPaging());
             }
          }
       }
@@ -298,8 +304,8 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
       for (int adr = 0; adr < 11; adr++) {
-         SimpleString address = new SimpleString(baseAddress + adr);
-         session.createQueue(new QueueConfiguration(address).setAddress(address));
+         SimpleString address = SimpleString.of(baseAddress + adr);
+         session.createQueue(QueueConfiguration.of(address).setAddress(address));
          ClientProducer producer = session.createProducer(address);
 
          ClientMessage message = null;
@@ -318,7 +324,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
          if (adr >= 9) {
             Wait.assertTrue(queue.getPagingStore()::isPaging);
          } else {
-            Assert.assertFalse(queue.getPagingStore().isPaging());
+            assertFalse(queue.getPagingStore().isPaging());
          }
       }
    }
@@ -367,7 +373,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
 
       server.addAddressInfo(new AddressInfo(ADDRESS).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
 
@@ -397,7 +403,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
          try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
             producer.send(session.createTextMessage("should fail"));
             if (durable) {
-               Assert.fail(("supposed to fail"));
+               fail(("supposed to fail"));
             } else {
                // in case of async send, the exception will not propagate to the client, and we should still check the logger on that case
                Wait.assertTrue(() -> loggerHandler.findTrace("is full")); // my intention was to assert for "AMQ229102" howerver openwire is not using the code here
@@ -409,11 +415,11 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("OK", message.getText());
+            assertNotNull(message);
+            assertEquals("OK", message.getText());
          }
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
 
          consumer.close();
          producer.close();
@@ -459,7 +465,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
    private void internalBlockMaxMessages(String protocolSend, String protocolReceive, ActiveMQServer server, boolean global) throws Exception {
 
-      final int MESSAGES = 1000;
+      final int MESSAGES = 1200;
 
       logger.info("\n{}\nSending {}, Receiving {}\n{}", "*".repeat(80), protocolSend, protocolReceive, "*".repeat(80));
 
@@ -475,7 +481,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       server.getAddressSettingsRepository().addMatch(ADDRESS, set);
 
       server.addAddressInfo(new AddressInfo(ADDRESS).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory factorySend = CFUtil.createConnectionFactory(protocolSend, "tcp://localhost:61616");
       Connection connSend = factorySend.createConnection();
@@ -496,8 +502,9 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
             try {
                Session session = connSend.createSession(false, Session.AUTO_ACKNOWLEDGE);
                MessageProducer producer = session.createProducer(session.createQueue(ADDRESS));
-               producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+               producer.setDeliveryMode(protocolSend.equals("OPENWIRE") ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
                for (int i = 0; i < MESSAGES; i++) {
+                  logger.debug("Sending {} protocol {}", i, protocolSend);
                   producer.send(session.createTextMessage("OK!" + i));
                }
                session.close();
@@ -509,9 +516,9 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
          });
 
          Wait.assertTrue(() -> loggerHandler.findText("AMQ222183"), 5000, 10); //unblock
-         Assert.assertFalse(loggerHandler.findText("AMQ221046")); // should not been unblocked
+         assertFalse(loggerHandler.findText("AMQ221046")); // should not been unblocked
 
-         Assert.assertFalse(done.await(100, TimeUnit.MILLISECONDS));
+         assertFalse(done.await(200, TimeUnit.MILLISECONDS));
       }
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
@@ -519,8 +526,8 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
          MessageConsumer consumer = sessionReceive.createConsumer(sessionReceive.createQueue(ADDRESS));
          for (int i = 0; i < MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("OK!" + i, message.getText());
+            assertNotNull(message);
+            assertEquals("OK!" + i, message.getText());
          }
          sessionReceive.close();
 
@@ -582,7 +589,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       server.getAddressSettingsRepository().addMatch(ADDRESS, set);
 
       server.addAddressInfo(new AddressInfo(ADDRESS).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       ConnectionFactory factorySend = CFUtil.createConnectionFactory(protocolSend, "tcp://localhost:61616");
       Connection connSend = factorySend.createConnection();
@@ -606,16 +613,16 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
             if (repeat == 0) {
                // the server will only log it on the first repeat as expected
-               Assert.assertTrue(loggerHandler.findText("AMQ222039")); // dropped messages
+               assertTrue(loggerHandler.findText("AMQ222039")); // dropped messages
             }
 
             Session sessionReceive = connReceive.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = sessionReceive.createConsumer(sessionReceive.createQueue(ADDRESS));
             for (int i = 0; i < 10; i++) {
                TextMessage message = (TextMessage) consumer.receive(5000);
-               Assert.assertNotNull(message);
+               assertNotNull(message);
             }
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
             sessionReceive.close();
          }
       }

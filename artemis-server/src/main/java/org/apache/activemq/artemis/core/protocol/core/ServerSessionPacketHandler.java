@@ -161,6 +161,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private static final String PRODUCER_ID_PREFIX = "artemis:sender:ID:";
 
+   private final ActiveMQServer server;
+
    private final ServerSession session;
 
    private final StorageManager storageManager;
@@ -180,9 +182,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private final Object largeMessageLock = new Object();
 
-   private final Pool<NullResponseMessage> poolNullResponse;
-
-   private final Pool<NullResponseMessage_V2> poolNullResponseV2;
+   protected final Pool<NullResponseMessage> poolNullResponse;
 
    private final IntObjectHashMap<String> producers = new IntObjectHashMap<>();
 
@@ -190,6 +190,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                                      final ServerSession session,
                                      final Channel channel) {
       this.session = session;
+
+      this.server = server;
 
       session.addCloseable((boolean failed) -> clearLargeMessage());
 
@@ -213,8 +215,11 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       // no confirmation window size means no resend cache hence NullResponsePackets
       // won't get cached on it because need confirmation
-      poolNullResponse = new MpscPool<>(this.channel.getConfirmationWindowSize() == -1 ? MAX_CACHED_NULL_RESPONSES : 0, NullResponseMessage::reset, () -> new NullResponseMessage());
-      poolNullResponseV2 = new MpscPool<>(this.channel.getConfirmationWindowSize() == -1 ? MAX_CACHED_NULL_RESPONSES : 0, NullResponseMessage_V2::reset, () -> new NullResponseMessage_V2());
+      if (remotingConnection.isVersionBeforeAsyncResponseChange()) {
+         poolNullResponse = new MpscPool<>(this.channel.getConfirmationWindowSize() == -1 ? MAX_CACHED_NULL_RESPONSES : 0, NullResponseMessage::reset, NullResponseMessage::new);
+      } else {
+         poolNullResponse = new MpscPool<>(this.channel.getConfirmationWindowSize() == -1 ? MAX_CACHED_NULL_RESPONSES : 0, NullResponseMessage::reset, NullResponseMessage_V2::new);
+      }
    }
 
    private void clearLargeMessage() {
@@ -378,7 +383,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case CREATE_QUEUE: {
                   CreateQueueMessage request = (CreateQueueMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createQueue(new QueueConfiguration(request.getQueueName())
+                  session.createQueue(QueueConfiguration.of(request.getQueueName())
                                          .setAddress(request.getAddress())
                                          .setRoutingType(getRoutingTypeFromAddress(request.getAddress()))
                                          .setFilterString(request.getFilterString())
@@ -404,7 +409,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = request.isRequiresResponse();
                   QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
                   if (!(result.isExists() && Objects.equals(result.getAddress(), request.getAddress()) && Objects.equals(result.getFilterString(), request.getFilterString()))) {
-                     session.createSharedQueue(new QueueConfiguration(request.getQueueName())
+                     session.createSharedQueue(QueueConfiguration.of(request.getQueueName())
                                                   .setAddress(request.getAddress())
                                                   .setFilterString(request.getFilterString())
                                                   .setDurable(request.isDurable()));
@@ -457,7 +462,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   final int clientVersion = remotingConnection.getChannelVersion();
                   BindingQueryResult result = session.executeBindingQuery(request.getAddress());
 
-                  /* if the session is JMS and it's from an older client then we need to add the old prefix to the queue
+                  /*
+                   * if the session is JMS and it's from an older client then we need to add the old prefix to the queue
                    * names otherwise the older client won't realize the queue exists and will try to create it and receive
                    * an error
                    */
@@ -660,9 +666,9 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                      // this is used to create/destroy the producer so needs to be unique
                      String senderName = PRODUCER_ID_PREFIX + UUIDGenerator.getInstance().generateUUID();
                      producers.put(message.getId(), senderName);
-                     session.addProducer(senderName, ActiveMQClient.DEFAULT_CORE_PROTOCOL, message.getAddress() != null ? message.getAddress().toString() : null);
+                     session.addProducer(senderName, ActiveMQClient.DEFAULT_CORE_PROTOCOL, Objects.toString(message.getAddress(), null));
                   } else {
-                     ActiveMQServerLogger.LOGGER.producerAlreadyExists(message.getId(),session.getName(), remotingConnection.getRemoteAddress());
+                     ActiveMQServerLogger.LOGGER.producerAlreadyExists(message.getId(), session.getName(), remotingConnection.getRemoteAddress());
                   }
                   break;
                }
@@ -701,31 +707,13 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       return RoutingType.MULTICAST;
    }
 
-   private boolean requireNullResponseMessage_V1(Packet packet) {
-      return channel.getConnection().isVersionBeforeAsyncResponseChange();
-   }
-
-   private NullResponseMessage createNullResponseMessage_V1(Packet packet) {
-      assert requireNullResponseMessage_V1(packet);
-      return  poolNullResponse.borrow();
-   }
-
-   private NullResponseMessage_V2 createNullResponseMessage_V2(Packet packet) {
-      assert !requireNullResponseMessage_V1(packet);
-      NullResponseMessage_V2 response;
-      response = poolNullResponseV2.borrow();
+   private Packet createNullResponseMessage(Packet packet) {
+      NullResponseMessage response = poolNullResponse.borrow();
 
       // this should be already set by the channel too, but let's do it just in case
       response.setCorrelationID(packet.getCorrelationID());
 
       return response;
-   }
-
-   private Packet createNullResponseMessage(Packet packet) {
-      if (requireNullResponseMessage_V1(packet)) {
-         return createNullResponseMessage_V1(packet);
-      }
-      return createNullResponseMessage_V2(packet);
    }
 
    private Packet createSessionXAResponseMessage(Packet packet) {
@@ -739,15 +727,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    }
 
    private void releaseResponse(Packet packet) {
-      if (poolNullResponse == null || poolNullResponseV2 == null) {
-         return;
-      }
-      if (packet instanceof NullResponseMessage) {
-         poolNullResponse.release((NullResponseMessage) packet);
-         return;
-      }
-      if (packet instanceof NullResponseMessage_V2) {
-         poolNullResponseV2.release((NullResponseMessage_V2) packet);
+      if (packet instanceof NullResponseMessage message) {
+         poolNullResponse.release(message);
       }
    }
 
@@ -1008,8 +989,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       for (CloseListener closeListener : listeners) {
          closeListener.connectionClosed();
-         if (closeListener instanceof FailureListener) {
-            remotingConnection.removeFailureListener((FailureListener) closeListener);
+         if (closeListener instanceof FailureListener listener) {
+            remotingConnection.removeFailureListener(listener);
          }
       }
    }
@@ -1039,10 +1020,10 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       // before we have transferred the connection, leaving it in a started state
       session.setTransferring(true);
 
-      // Note. We do not destroy the replicating connection here. In the case the live server has really crashed
+      // Note. We do not destroy the replicating connection here. In the case the primary server has really crashed
       // then the connection will get cleaned up anyway when the server ping timeout kicks in.
-      // In the case the live server is really still up, i.e. a split brain situation (or in tests), then closing
-      // the replicating connection will cause the outstanding responses to be be replayed on the live server,
+      // In the case the primary server is really still up, i.e. a split brain situation (or in tests), then closing
+      // the replicating connection will cause the outstanding responses to be replayed on the primary server,
       // if these reach the client who then subsequently fails over, on reconnection to backup, it will have
       // received responses that the backup did not know about.
 
@@ -1079,7 +1060,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       if (logger.isDebugEnabled()) {
          logger.debug("initializing large message {}", id);
       }
-      LargeServerMessage largeMsg = storageManager.createLargeMessage(id, message);
+      LargeServerMessage largeMsg = storageManager.createCoreLargeMessage(id, message);
 
       logger.trace("sendLarge::{}", largeMsg);
 
@@ -1121,7 +1102,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          currentLargeMessage.addBytes(body);
 
          if (!continues) {
-            currentLargeMessage.releaseResources(true, true);
+            currentLargeMessage.releaseResources(server.getConfiguration().isLargeMessageSync(), true);
 
             if (messageBodySize >= 0) {
                currentLargeMessage.toMessage().putLongProperty(Message.HDR_LARGE_BODY_SIZE, messageBodySize);
@@ -1132,7 +1113,16 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             currentLargeMessage = null;
 
             try {
-               session.send(session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage) message.toMessage(), storageManager), false, producers.get(senderID), false);
+               Message m = EmbedMessageUtil.extractEmbedded((ICoreMessage) message.toMessage(), storageManager);
+               session.send(session.getCurrentTransaction(), m, false, producers.get(senderID), false);
+
+               /*
+                * The message embedded in the large Core message (e.g. an AMQP message) may, in fact, not be large. If
+                * this is the case then we need to clean up the large message file that's no longer needed.
+                */
+               if (!m.isLargeMessage()) {
+                  message.deleteFile();
+               }
             } catch (Exception e) {
                message.deleteFile();
                throw e;

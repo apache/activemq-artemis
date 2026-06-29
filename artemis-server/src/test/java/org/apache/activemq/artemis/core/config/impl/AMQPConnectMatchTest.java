@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AMQPConnectMatchTest {
 
@@ -30,7 +32,7 @@ public class AMQPConnectMatchTest {
       String checkAddressMatching = "AD.TEST";
       String checkAddressNotMatching = "DD.TEST";
       WildcardConfiguration configuration = new WildcardConfiguration();
-      Assert.assertTrue(AMQPBrokerConnectionElement.match(SimpleString.toSimpleString(match), SimpleString.toSimpleString(checkAddressMatching), configuration));
-      Assert.assertFalse(AMQPBrokerConnectionElement.match(SimpleString.toSimpleString(match), SimpleString.toSimpleString(checkAddressNotMatching), configuration));
+      assertTrue(AMQPBrokerConnectionElement.match(SimpleString.of(match), SimpleString.of(checkAddressMatching), configuration));
+      assertFalse(AMQPBrokerConnectionElement.match(SimpleString.of(match), SimpleString.of(checkAddressNotMatching), configuration));
    }
 }

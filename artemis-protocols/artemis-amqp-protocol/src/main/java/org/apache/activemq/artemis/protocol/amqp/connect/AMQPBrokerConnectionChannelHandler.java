@@ -62,7 +62,7 @@ public class AMQPBrokerConnectionChannelHandler extends ChannelDuplexHandler {
    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
       synchronized (this) {
          if (active) {
-            listenerExecutor.execute(() -> listener.connectionDestroyed(channelId(ctx.channel())));
+            listenerExecutor.execute(() -> listener.connectionDestroyed(channelId(ctx.channel()), true));
             super.channelInactive(ctx);
             active = false;
          }

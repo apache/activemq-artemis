@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
@@ -29,9 +31,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -437,9 +438,8 @@ public class TransactedSessionTest extends JMSTestCase {
    }
 
    /**
-    * Make sure redelivered flag is set on redelivery via rollback, different setup: we close the
-    * rolled back session and we receive the message whose acknowledgment was cancelled on a new
-    * session.
+    * Make sure redelivered flag is set on redelivery via rollback, different setup: we close the rolled back session
+    * and we receive the message whose acknowledgment was cancelled on a new session.
     */
    @Test
    public void testRedeliveredQueue2() throws Exception {
@@ -624,7 +624,7 @@ public class TransactedSessionTest extends JMSTestCase {
    }
 
    @Test
-   @Ignore
+   @Disabled
    public void _testSendCommitQueueCommitsInOrder() throws Exception {
       Connection conn = null;
 
@@ -662,7 +662,7 @@ public class TransactedSessionTest extends JMSTestCase {
 
             // wait for the first message to be received before we continue sending
             if (!started) {
-               Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+               assertTrue(latch.await(5, TimeUnit.SECONDS));
                started = true;
             } else {
                if (myReceiver.failed) {
@@ -949,7 +949,6 @@ public class TransactedSessionTest extends JMSTestCase {
     * Rollback the receiving session
     * Close the connection
     * Create a new connection, session and consumer - verify messages are redelivered
-    *
     */
 
    @Test
@@ -1018,10 +1017,9 @@ public class TransactedSessionTest extends JMSTestCase {
 
    }
 
-   /*
+   /**
     * Send multiple messages in multiple contiguous sessions
     */
-
    @Test
    public void testSendMultipleQueue() throws Exception {
       Connection conn = createConnection();

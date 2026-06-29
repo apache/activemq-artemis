@@ -34,6 +34,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.broker.BrokerFactory;
@@ -106,7 +107,7 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
       assertEquals(10, cf.getRedeliveryPolicy().getMaximumRedeliveries());
       assertEquals(10000, cf.getRedeliveryPolicy().getInitialRedeliveryDelay());
       assertEquals(10000, cf.getRedeliveryPolicy().getRedeliveryDelay());
-      assertEquals(true, cf.getRedeliveryPolicy().isUseExponentialBackOff());
+      assertTrue(cf.getRedeliveryPolicy().isUseExponentialBackOff());
       assertEquals(2.0, cf.getRedeliveryPolicy().getBackOffMultiplier(), 0.1);
 
       // the broker url have been adjusted.
@@ -497,7 +498,7 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
                                                     ConnectionId connectionId,
                                                     Xid tid) throws Exception {
       BrokerService broker = BrokerRegistry.getInstance().lookup(brokerName);
-      CopyOnWriteArrayList<TransportConnection> connections = broker.getTransportConnectors().get(0).getConnections();
+      List<TransportConnection> connections = broker.getTransportConnectors().get(0).getConnections();
       for (TransportConnection connection : connections) {
          if (connection.getConnectionId().equals(clientId)) {
             try {

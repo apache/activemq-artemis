@@ -25,36 +25,41 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
+
+@ExtendWith(ParameterizedTestExtension.class)
 public class CreateQueueTest extends ActiveMQTestBase {
 
    private boolean legacyCreateQueue;
 
-   public final SimpleString addressA = new SimpleString("addressA");
-   public final SimpleString addressB = new SimpleString("addressB");
-   public final SimpleString queueA = new SimpleString("queueA");
-   public final SimpleString queueB = new SimpleString("queueB");
-   public final SimpleString queueC = new SimpleString("queueC");
-   public final SimpleString queueD = new SimpleString("queueD");
+   public final SimpleString addressA = SimpleString.of("addressA");
+   public final SimpleString addressB = SimpleString.of("addressB");
+   public final SimpleString queueA = SimpleString.of("queueA");
+   public final SimpleString queueB = SimpleString.of("queueB");
+   public final SimpleString queueC = SimpleString.of("queueC");
+   public final SimpleString queueD = SimpleString.of("queueD");
 
    private ServerLocator locator;
    private ActiveMQServer server;
    private ClientSessionFactory cf;
 
-   @Parameterized.Parameters(name = "legacyCreateQueue={0}")
+   @Parameters(name = "legacyCreateQueue={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -64,7 +69,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
@@ -74,7 +79,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
       cf = createSessionFactory(locator);
    }
 
-   @Test
+   @TestTemplate
    public void testUnsupportedRoutingType() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoCreateAddresses(false));
@@ -86,11 +91,11 @@ public class CreateQueueTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             sendSession.createQueue(addressA, RoutingType.MULTICAST, queueA);
          } else {
-            sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA));
+            sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA));
          }
          fail("Creating a queue here should fail since the queue routing type differs from what is supported on the address.");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQException);
+         assertInstanceOf(ActiveMQException.class, e);
          ActiveMQException ae = (ActiveMQException) e;
          assertEquals(ActiveMQExceptionType.INTERNAL_ERROR, ae.getType());
       }
@@ -101,18 +106,18 @@ public class CreateQueueTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             sendSession.createQueue(addressB, RoutingType.ANYCAST, queueB);
          } else {
-            sendSession.createQueue(new QueueConfiguration(queueB).setAddress(addressB).setRoutingType(RoutingType.ANYCAST));
+            sendSession.createQueue(QueueConfiguration.of(queueB).setAddress(addressB).setRoutingType(RoutingType.ANYCAST));
          }
          fail("Creating a queue here should fail since the queue routing type differs from what is supported on the address.");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQException);
+         assertInstanceOf(ActiveMQException.class, e);
          ActiveMQException ae = (ActiveMQException) e;
          assertEquals(ActiveMQExceptionType.INTERNAL_ERROR, ae.getType());
       }
       sendSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testAddressDoesNotExist() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoCreateAddresses(false));
@@ -122,11 +127,11 @@ public class CreateQueueTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             sendSession.createQueue(addressA, RoutingType.MULTICAST, queueA);
          } else {
-            sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA));
+            sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA));
          }
          fail("Creating a queue here should fail since the queue's address doesn't exist and auto-create-addresses = false.");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQException);
+         assertInstanceOf(ActiveMQException.class, e);
          ActiveMQException ae = (ActiveMQException) e;
          assertEquals(ActiveMQExceptionType.ADDRESS_DOES_NOT_EXIST, ae.getType());
       }

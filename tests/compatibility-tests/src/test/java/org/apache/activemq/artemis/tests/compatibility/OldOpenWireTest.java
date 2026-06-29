@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.AMQ_5_11;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -29,19 +33,15 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.compatibility.base.ClasspathBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.AMQ_5_11;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class OldOpenWireTest extends ClasspathBase {
 
    EmbeddedActiveMQ server;
 
-   @Before
+   @BeforeEach
    public void setServer() throws Throwable {
 
       ConfigurationImpl configuration = new ConfigurationImpl();
@@ -54,15 +54,15 @@ public class OldOpenWireTest extends ClasspathBase {
       server.setConfiguration(configuration);
       server.start();
       server.getActiveMQServer().addAddressInfo(new AddressInfo("Test").addRoutingType(RoutingType.ANYCAST));
-      server.getActiveMQServer().createQueue(new QueueConfiguration("Test").setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server.getActiveMQServer().createQueue(QueueConfiguration.of("Test").setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       server.getActiveMQServer().addAddressInfo(new AddressInfo("DLQ").addRoutingType(RoutingType.ANYCAST));
-      server.getActiveMQServer().createQueue(new QueueConfiguration("DLQ").setDurable(true).setRoutingType(RoutingType.ANYCAST));
+      server.getActiveMQServer().createQueue(QueueConfiguration.of("DLQ").setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
-      server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLQ")));
+      server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("DLQ")));
    }
 
-   @After
+   @AfterEach
    public void shutdownServer() throws Throwable {
       if (server != null) {
          server.stop();
@@ -86,7 +86,7 @@ public class OldOpenWireTest extends ClasspathBase {
       evaluate(getClasspath(AMQ_5_11), "oldOpenWire/receiveOW.groovy", "20");
 
       Wait.assertEquals(0L, queue::getMessageCount, 1000, 100);
-      Assert.assertEquals(0L, dlq.getMessageCount());
+      assertEquals(0L, dlq.getMessageCount());
    }
 
 }

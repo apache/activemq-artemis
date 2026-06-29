@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 /**
  * This class holds all the properties required to configure a queue. The only strictly required property is
  * {@code name}. Some defaults will be enforced for properties which are not explicitly set:
- * <p><ul>
+ * <ul>
  * <li>{@code address} : the value set for {@code name}
  * <li>{@code transient} : {@code false}
  * <li>{@code temporary} : {@code false}
@@ -39,9 +39,12 @@ import org.apache.activemq.artemis.utils.JsonLoader;
  * <li>{@code autoCreated} : {@code false}
  * <li>{@code internal} : {@code false}
  * <li>{@code configurationManaged} : {@code false}
- * </ul><p>
+ * </ul>
  */
 public class QueueConfiguration implements Serializable {
+
+   // The prefix for Mirror SNF Queues
+   public static final String MIRROR_ADDRESS = "$ACTIVEMQ_ARTEMIS_MIRROR";
 
    private static final long serialVersionUID = 2601016432150225938L;
 
@@ -111,10 +114,47 @@ public class QueueConfiguration implements Serializable {
    private Boolean autoCreated;
    private Boolean fqqn;
 
+   /**
+    * Instance factory which invokes {@link #setName(SimpleString)}
+    *
+    * @param name the name to use for the queue
+    * @see #setName(SimpleString)
+    */
+   public static QueueConfiguration of(final String name) {
+      return new QueueConfiguration(name);
+   }
+
+   /**
+    * Instance factory which invokes {@link #setName(SimpleString)}
+    *
+    * @param name the name to use for the queue
+    * @see #setName(SimpleString)
+    */
+   public static QueueConfiguration of(final SimpleString name) {
+      return new QueueConfiguration(name);
+   }
+
+   /**
+    * {@return the {@code QueueConfiguration} instance which is a copy of the input parameter}
+    */
+   public static QueueConfiguration of(final QueueConfiguration queueConfiguration) {
+      return new QueueConfiguration(queueConfiguration);
+   }
+
+   /**
+    * @deprecated
+    * Use {@link #of(String)} instead.
+    */
+   @Deprecated(forRemoval = true)
    public QueueConfiguration() {
    }
 
-   public QueueConfiguration(QueueConfiguration o) {
+   /**
+    * @param o create a copy of this
+    * @deprecated Use {@link #of(QueueConfiguration)} instead.
+    */
+   @Deprecated(forRemoval = true)
+   public QueueConfiguration(final QueueConfiguration o) {
       id = o.id;
       name = o.name;
       address = o.address;
@@ -152,10 +192,11 @@ public class QueueConfiguration implements Serializable {
    /**
     * Instantiate this object and invoke {@link #setName(SimpleString)}
     *
-    * @see #setName(SimpleString)
-    *
     * @param name the name to use for the queue
+    * @see #setName(SimpleString)
+    * @deprecated Use {@link #of(SimpleString)} instead.
     */
+   @Deprecated(forRemoval = true)
    public QueueConfiguration(SimpleString name) {
       setName(name);
    }
@@ -163,18 +204,19 @@ public class QueueConfiguration implements Serializable {
    /**
     * Instantiate this object and invoke {@link #setName(SimpleString)}
     *
-    * @see #setName(SimpleString)
-    *
     * @param name the name to use for the queue
+    * @see #setName(SimpleString)
+    * @deprecated Use {@link #of(String)} instead.
     */
+   @Deprecated(forRemoval = true)
    public QueueConfiguration(String name) {
-      this(SimpleString.toSimpleString(name));
+      this(SimpleString.of(name));
    }
 
    /**
     * Set the value of a parameter based on its "key" {@code String}. Valid key names and corresponding {@code static}
     * {@code final} are:
-    * <p><ul>
+    * <ul>
     * <li>id: {@link #ID}
     * <li>name: {@link #NAME}
     * <li>address: {@link #ADDRESS}
@@ -205,12 +247,12 @@ public class QueueConfiguration implements Serializable {
     * <li>internal: {@link #INTERNAL}
     * <li>transient: {@link #TRANSIENT}
     * <li>auto-created: {@link #AUTO_CREATED}
-    * </ul><p>
+    * </ul>
     * The {@code String}-based values will be converted to the proper value types based on the underlying property. For
     * example, if you pass the value "TRUE" for the key "auto-created" the {@code String} "TRUE" will be converted to
     * the {@code Boolean} {@code true}.
     *
-    * @param key the key to set to the value
+    * @param key   the key to set to the value
     * @param value the value to set for the key
     * @return this {@code QueueConfiguration}
     */
@@ -227,7 +269,7 @@ public class QueueConfiguration implements Serializable {
          } else if (key.equals(DURABLE)) {
             setDurable(Boolean.valueOf(value));
          } else if (key.equals(USER)) {
-            setUser(SimpleString.toSimpleString(value));
+            setUser(SimpleString.of(value));
          } else if (key.equals(MAX_CONSUMERS)) {
             setMaxConsumers(Integer.valueOf(value));
          } else if (key.equals(EXCLUSIVE)) {
@@ -291,10 +333,14 @@ public class QueueConfiguration implements Serializable {
    }
 
    /**
-    * @return the name of the address; if the address is {@code null} then return the value of {@link #getName()}.
+    * {@return the name of the address; if the address is {@code null} then return the value of {@link #getName()}}
     */
    public SimpleString getAddress() {
-      return address == null ? getName() : address;
+      return Objects.requireNonNullElse(address, getName());
+   }
+
+   public boolean isAddressNull() {
+      return address == null;
    }
 
    /**
@@ -317,10 +363,12 @@ public class QueueConfiguration implements Serializable {
    }
 
    /**
+    * Converts the input {@code String} and invokes {@link #setAddress(SimpleString)}
+    *
     * @see QueueConfiguration#setAddress(SimpleString)
     */
    public QueueConfiguration setAddress(String address) {
-      return setAddress(SimpleString.toSimpleString(address));
+      return setAddress(SimpleString.of(address));
    }
 
    public SimpleString getName() {
@@ -347,10 +395,12 @@ public class QueueConfiguration implements Serializable {
    }
 
    /**
+    * Converts the input {@code String} and invokes {@link #setName(SimpleString)}
+    *
     * @see QueueConfiguration#setName(SimpleString)
     */
    public QueueConfiguration setName(String name) {
-      return setName(SimpleString.toSimpleString(name));
+      return setName(SimpleString.of(name));
    }
 
    public RoutingType getRoutingType() {
@@ -366,21 +416,36 @@ public class QueueConfiguration implements Serializable {
       return filterString;
    }
 
+   /**
+    * This sets the {@code SimpleString} value that will be used to create a {@code Filter} for the {@code Queue}
+    * implementation on the broker. The filter's syntax is not validated here.
+    * @param filterString the filter to use; an empty value or a value filled with whitespace is equivalent to passing
+    *                     {@code null}
+    * @return this {@code QueueConfiguration}
+    */
    public QueueConfiguration setFilterString(SimpleString filterString) {
-      this.filterString = filterString;
+      if (filterString == null || filterString.isEmpty() || filterString.isBlank()) {
+         this.filterString = null;
+      } else {
+         this.filterString = filterString;
+      }
       return this;
    }
 
+   /**
+    * Converts the {@code String} parameter to {@code SimpleString} and invokes
+    * {@link #setFilterString(SimpleString)}
+    * @see #setFilterString(SimpleString)
+    */
    public QueueConfiguration setFilterString(String filterString) {
-      return setFilterString(filterString == null ? null : SimpleString.toSimpleString(filterString));
+      return setFilterString(SimpleString.of(filterString));
    }
 
    /**
     * defaults to {@code true}
-    * @return
     */
    public Boolean isDurable() {
-      return durable == null ? true : durable;
+      return Objects.requireNonNullElse(durable, true);
    }
 
    public QueueConfiguration setDurable(Boolean durable) {
@@ -398,7 +463,7 @@ public class QueueConfiguration implements Serializable {
    }
 
    public QueueConfiguration setUser(String user) {
-      return setUser(SimpleString.toSimpleString(user));
+      return setUser(SimpleString.of(user));
    }
 
    public Integer getMaxConsumers() {
@@ -438,7 +503,7 @@ public class QueueConfiguration implements Serializable {
    }
 
    public QueueConfiguration setLastValueKey(String lastValueKey) {
-      return setLastValueKey(SimpleString.toSimpleString(lastValueKey));
+      return setLastValueKey(SimpleString.of(lastValueKey));
    }
 
    public Boolean isNonDestructive() {
@@ -533,7 +598,7 @@ public class QueueConfiguration implements Serializable {
    }
 
    public QueueConfiguration setGroupFirstKey(String groupFirstKey) {
-      return setGroupFirstKey(SimpleString.toSimpleString(groupFirstKey));
+      return setGroupFirstKey(SimpleString.of(groupFirstKey));
    }
 
    public Boolean isAutoDelete() {
@@ -574,10 +639,9 @@ public class QueueConfiguration implements Serializable {
 
    /**
     * defaults to {@code false}
-    * @return
     */
    public Boolean isConfigurationManaged() {
-      return configurationManaged == null ? false : configurationManaged;
+      return Objects.requireNonNullElse(configurationManaged, false);
    }
 
    public QueueConfiguration setConfigurationManaged(Boolean configurationManaged) {
@@ -587,10 +651,9 @@ public class QueueConfiguration implements Serializable {
 
    /**
     * defaults to {@code false}
-    * @return
     */
    public Boolean isTemporary() {
-      return temporary == null ? false : temporary;
+      return Objects.requireNonNullElse(temporary, false);
    }
 
    public QueueConfiguration setTemporary(Boolean temporary) {
@@ -609,10 +672,9 @@ public class QueueConfiguration implements Serializable {
 
    /**
     * defaults to {@code false}
-    * @return
     */
    public Boolean isInternal() {
-      return internal == null ? false : internal;
+      return Objects.requireNonNullElse(internal, false);
    }
 
    public QueueConfiguration setInternal(Boolean internal) {
@@ -622,10 +684,9 @@ public class QueueConfiguration implements Serializable {
 
    /**
     * defaults to {@code false}
-    * @return
     */
    public Boolean isTransient() {
-      return _transient == null ? false : _transient;
+      return Objects.requireNonNullElse(_transient, false);
    }
 
    public QueueConfiguration setTransient(Boolean _transient) {
@@ -635,10 +696,9 @@ public class QueueConfiguration implements Serializable {
 
    /**
     * defaults to {@code false}
-    * @return
     */
    public Boolean isAutoCreated() {
-      return autoCreated == null ? false : autoCreated;
+      return Objects.requireNonNullElse(autoCreated, false);
    }
 
    public QueueConfiguration setAutoCreated(Boolean autoCreated) {
@@ -650,15 +710,22 @@ public class QueueConfiguration implements Serializable {
     * Based on if the name or address uses FQQN when set
     *
     * defaults to {@code false}
-    * @return
     */
    public Boolean isFqqn() {
-      return fqqn == null ? Boolean.FALSE : fqqn;
+      return Objects.requireNonNullElse(fqqn, Boolean.FALSE);
    }
 
    /**
     * This method returns a JSON-formatted {@code String} representation of this {@code QueueConfiguration}. It is a
-    * simple collection of key/value pairs. The keys used are referenced in {@link #set(String, String)}.
+    * simple collection of key/value pairs. The keys used are referenced in {@link #set(String, String)}. For example:
+    * <pre>
+    * {
+    *   "name": "myQueue",
+    *   "address": "myAddress",
+    *   "routing-type": "ANYCAST",
+    *   "durable": true
+    * }
+    * </pre>
     *
     * @return a JSON-formatted {@code String} representation of this {@code QueueConfiguration}
     */
@@ -767,19 +834,27 @@ public class QueueConfiguration implements Serializable {
 
    /**
     * This method returns a {@code QueueConfiguration} created from the JSON-formatted input {@code String}. The input
-    * should be a simple object of key/value pairs. Valid keys are referenced in {@link #set(String, String)}.
+    * should be a simple object of key/value pairs. Valid keys are referenced in {@link #set(String, String)}. For
+    * example:
+    * <pre>
+    * {
+    *   "name": "myQueue",
+    *   "address": "myAddress",
+    *   "routing-type": "ANYCAST",
+    *   "durable": true
+    * }
+    * </pre>
     *
-    * @param jsonString
     * @return the {@code QueueConfiguration} created from the JSON-formatted input {@code String}
     */
    public static QueueConfiguration fromJSON(String jsonString) {
       JsonObject json = JsonLoader.readObject(new StringReader(jsonString));
 
       // name is the only required value
-      if (!json.keySet().contains(NAME)) {
+      if (!json.containsKey(NAME)) {
          return null;
       }
-      QueueConfiguration result = new QueueConfiguration(json.getString(NAME));
+      QueueConfiguration result = QueueConfiguration.of(json.getString(NAME));
 
       for (Map.Entry<String, JsonValue> entry : json.entrySet()) {
          result.set(entry.getKey(), entry.getValue().getValueType() == JsonValue.ValueType.STRING ? ((JsonString)entry.getValue()).getString() : entry.getValue().toString());
@@ -789,117 +864,60 @@ public class QueueConfiguration implements Serializable {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof QueueConfiguration other)) {
          return false;
+      }
 
-      QueueConfiguration that = (QueueConfiguration) o;
+      return Objects.equals(id, other.id) &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(address, other.address) &&
+             Objects.equals(routingType, other.routingType) &&
+             Objects.equals(filterString, other.filterString) &&
+             Objects.equals(durable, other.durable) &&
+             Objects.equals(user, other.user) &&
+             Objects.equals(maxConsumers, other.maxConsumers) &&
+             Objects.equals(exclusive, other.exclusive) &&
+             Objects.equals(groupRebalance, other.groupRebalance) &&
+             Objects.equals(groupRebalancePauseDispatch, other.groupRebalancePauseDispatch) &&
+             Objects.equals(groupBuckets, other.groupBuckets) &&
+             Objects.equals(groupFirstKey, other.groupFirstKey) &&
+             Objects.equals(lastValue, other.lastValue) &&
+             Objects.equals(lastValueKey, other.lastValueKey) &&
+             Objects.equals(nonDestructive, other.nonDestructive) &&
+             Objects.equals(purgeOnNoConsumers, other.purgeOnNoConsumers) &&
+             Objects.equals(enabled, other.enabled) &&
+             Objects.equals(consumersBeforeDispatch, other.consumersBeforeDispatch) &&
+             Objects.equals(delayBeforeDispatch, other.delayBeforeDispatch) &&
+             Objects.equals(consumerPriority, other.consumerPriority) &&
+             Objects.equals(autoDelete, other.autoDelete) &&
+             Objects.equals(autoDeleteDelay, other.autoDeleteDelay) &&
+             Objects.equals(autoDeleteMessageCount, other.autoDeleteMessageCount) &&
+             Objects.equals(ringSize, other.ringSize) &&
+             Objects.equals(configurationManaged, other.configurationManaged) &&
+             Objects.equals(temporary, other.temporary) &&
+             Objects.equals(autoCreateAddress, other.autoCreateAddress) &&
+             Objects.equals(internal, other.internal) &&
+             Objects.equals(_transient, other._transient) &&
+             Objects.equals(autoCreated, other.autoCreated) &&
+             Objects.equals(fqqn, other.fqqn);
+   }
 
-      if (!Objects.equals(id, that.id))
-         return false;
-      if (!Objects.equals(name, that.name))
-         return false;
-      if (!Objects.equals(address, that.address))
-         return false;
-      if (!Objects.equals(routingType, that.routingType))
-         return false;
-      if (!Objects.equals(filterString, that.filterString))
-         return false;
-      if (!Objects.equals(durable, that.durable))
-         return false;
-      if (!Objects.equals(user, that.user))
-         return false;
-      if (!Objects.equals(maxConsumers, that.maxConsumers))
-         return false;
-      if (!Objects.equals(exclusive, that.exclusive))
-         return false;
-      if (!Objects.equals(groupRebalance, that.groupRebalance))
-         return false;
-      if (!Objects.equals(groupRebalancePauseDispatch, that.groupRebalancePauseDispatch))
-         return false;
-      if (!Objects.equals(groupBuckets, that.groupBuckets))
-         return false;
-      if (!Objects.equals(groupFirstKey, that.groupFirstKey))
-         return false;
-      if (!Objects.equals(lastValue, that.lastValue))
-         return false;
-      if (!Objects.equals(lastValueKey, that.lastValueKey))
-         return false;
-      if (!Objects.equals(nonDestructive, that.nonDestructive))
-         return false;
-      if (!Objects.equals(purgeOnNoConsumers, that.purgeOnNoConsumers))
-         return false;
-      if (!Objects.equals(enabled, that.enabled))
-         return false;
-      if (!Objects.equals(consumersBeforeDispatch, that.consumersBeforeDispatch))
-         return false;
-      if (!Objects.equals(delayBeforeDispatch, that.delayBeforeDispatch))
-         return false;
-      if (!Objects.equals(consumerPriority, that.consumerPriority))
-         return false;
-      if (!Objects.equals(autoDelete, that.autoDelete))
-         return false;
-      if (!Objects.equals(autoDeleteDelay, that.autoDeleteDelay))
-         return false;
-      if (!Objects.equals(autoDeleteMessageCount, that.autoDeleteMessageCount))
-         return false;
-      if (!Objects.equals(ringSize, that.ringSize))
-         return false;
-      if (!Objects.equals(configurationManaged, that.configurationManaged))
-         return false;
-      if (!Objects.equals(temporary, that.temporary))
-         return false;
-      if (!Objects.equals(autoCreateAddress, that.autoCreateAddress))
-         return false;
-      if (!Objects.equals(internal, that.internal))
-         return false;
-      if (!Objects.equals(_transient, that._transient))
-         return false;
-      if (!Objects.equals(autoCreated, that.autoCreated))
-         return false;
-      if (!Objects.equals(fqqn, that.fqqn))
-         return false;
-
-      return true;
+   public boolean isMirrorQueue() {
+      return isInternal() && name != null && name.toString().startsWith(MIRROR_ADDRESS);
    }
 
    @Override
    public int hashCode() {
-      int result = Objects.hashCode(id);
-      result = 31 * result + Objects.hashCode(name);
-      result = 31 * result + Objects.hashCode(address);
-      result = 31 * result + Objects.hashCode(routingType);
-      result = 31 * result + Objects.hashCode(filterString);
-      result = 31 * result + Objects.hashCode(durable);
-      result = 31 * result + Objects.hashCode(user);
-      result = 31 * result + Objects.hashCode(maxConsumers);
-      result = 31 * result + Objects.hashCode(exclusive);
-      result = 31 * result + Objects.hashCode(groupRebalance);
-      result = 31 * result + Objects.hashCode(groupRebalancePauseDispatch);
-      result = 31 * result + Objects.hashCode(groupBuckets);
-      result = 31 * result + Objects.hashCode(groupFirstKey);
-      result = 31 * result + Objects.hashCode(lastValue);
-      result = 31 * result + Objects.hashCode(lastValueKey);
-      result = 31 * result + Objects.hashCode(nonDestructive);
-      result = 31 * result + Objects.hashCode(purgeOnNoConsumers);
-      result = 31 * result + Objects.hashCode(enabled);
-      result = 31 * result + Objects.hashCode(consumersBeforeDispatch);
-      result = 31 * result + Objects.hashCode(delayBeforeDispatch);
-      result = 31 * result + Objects.hashCode(consumerPriority);
-      result = 31 * result + Objects.hashCode(autoDelete);
-      result = 31 * result + Objects.hashCode(autoDeleteDelay);
-      result = 31 * result + Objects.hashCode(autoDeleteMessageCount);
-      result = 31 * result + Objects.hashCode(ringSize);
-      result = 31 * result + Objects.hashCode(configurationManaged);
-      result = 31 * result + Objects.hashCode(temporary);
-      result = 31 * result + Objects.hashCode(autoCreateAddress);
-      result = 31 * result + Objects.hashCode(internal);
-      result = 31 * result + Objects.hashCode(_transient);
-      result = 31 * result + Objects.hashCode(autoCreated);
-      result = 31 * result + Objects.hashCode(fqqn);
-      return result;
+      return Objects.hash(id, name, address, routingType, filterString, durable, user, maxConsumers, exclusive,
+                          groupRebalance, groupRebalancePauseDispatch, groupBuckets, groupFirstKey, lastValue,
+                          lastValueKey, nonDestructive, purgeOnNoConsumers, enabled, consumersBeforeDispatch,
+                          delayBeforeDispatch, consumerPriority, autoDelete, autoDeleteDelay, autoDeleteMessageCount,
+                          ringSize, configurationManaged, temporary, autoCreateAddress, internal, _transient,
+                          autoCreated, fqqn);
    }
 
    @Override

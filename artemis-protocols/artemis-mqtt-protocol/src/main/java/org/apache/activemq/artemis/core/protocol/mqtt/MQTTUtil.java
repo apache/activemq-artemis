@@ -16,9 +16,11 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -27,16 +29,13 @@ import io.netty.handler.codec.mqtt.MqttConnAckVariableHeader;
 import io.netty.handler.codec.mqtt.MqttConnectMessage;
 import io.netty.handler.codec.mqtt.MqttConnectPayload;
 import io.netty.handler.codec.mqtt.MqttConnectVariableHeader;
-import io.netty.handler.codec.mqtt.MqttFixedHeader;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageIdVariableHeader;
-import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttProperties;
 import io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType;
 import io.netty.handler.codec.mqtt.MqttPubReplyMessageVariableHeader;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
-import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.codec.mqtt.MqttReasonCodeAndPropertiesVariableHeader;
 import io.netty.handler.codec.mqtt.MqttSubAckMessage;
 import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
@@ -44,14 +43,21 @@ import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.commons.text.CaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CONTENT_TYPE;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CORRELATION_DATA;
@@ -86,33 +92,35 @@ public class MQTTUtil {
 
    public static final char SLASH = '/';
 
+   public static final String MQTT_SESSION_STORE = DOLLAR + "sys.mqtt.sessions";
+
    public static final String MQTT_RETAIN_ADDRESS_PREFIX = DOLLAR + "sys.mqtt.retain.";
 
-   public static final SimpleString MQTT_QOS_LEVEL_KEY = SimpleString.toSimpleString("mqtt.qos.level");
+   public static final SimpleString MQTT_QOS_LEVEL_KEY = SimpleString.of("mqtt.qos.level");
 
-   public static final SimpleString MQTT_MESSAGE_ID_KEY = SimpleString.toSimpleString("mqtt.message.id");
+   public static final SimpleString MQTT_MESSAGE_ID_KEY = SimpleString.of("mqtt.message.id");
 
-   public static final SimpleString MQTT_MESSAGE_TYPE_KEY = SimpleString.toSimpleString("mqtt.message.type");
+   public static final SimpleString MQTT_MESSAGE_TYPE_KEY = SimpleString.of("mqtt.message.type");
 
-   public static final SimpleString MQTT_MESSAGE_RETAIN_KEY = SimpleString.toSimpleString("mqtt.message.retain");
+   public static final SimpleString MQTT_MESSAGE_RETAIN_KEY = SimpleString.of("mqtt.message.retain");
 
-   public static final SimpleString MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY = SimpleString.toSimpleString("mqtt.message.retain.initial.distribution");
+   public static final SimpleString MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY = SimpleString.of("mqtt.message.retain.initial.distribution");
 
-   public static final SimpleString MQTT_PAYLOAD_FORMAT_INDICATOR_KEY = SimpleString.toSimpleString("mqtt.payload.format.indicator");
+   public static final SimpleString MQTT_PAYLOAD_FORMAT_INDICATOR_KEY = SimpleString.of("mqtt.payload.format.indicator");
 
-   public static final SimpleString MQTT_RESPONSE_TOPIC_KEY = SimpleString.toSimpleString("mqtt.response.topic");
+   public static final SimpleString MQTT_RESPONSE_TOPIC_KEY = SimpleString.of("mqtt.response.topic");
 
-   public static final SimpleString MQTT_CORRELATION_DATA_KEY = SimpleString.toSimpleString("mqtt.correlation.data");
+   public static final SimpleString MQTT_CORRELATION_DATA_KEY = SimpleString.of("mqtt.correlation.data");
 
    public static final String MQTT_USER_PROPERTY_EXISTS_KEY = "mqtt.user.property.exists";
 
    public static final String MQTT_USER_PROPERTY_KEY_PREFIX = "mqtt.ordered.user.property.";
 
-   public static final SimpleString MQTT_USER_PROPERTY_KEY_PREFIX_SIMPLE = SimpleString.toSimpleString(MQTT_USER_PROPERTY_KEY_PREFIX);
+   public static final SimpleString MQTT_USER_PROPERTY_KEY_PREFIX_SIMPLE = SimpleString.of(MQTT_USER_PROPERTY_KEY_PREFIX);
 
-   public static final SimpleString MQTT_CONTENT_TYPE_KEY = SimpleString.toSimpleString("mqtt.content.type");
+   public static final SimpleString MQTT_CONTENT_TYPE_KEY = SimpleString.of("mqtt.content.type");
 
-   public static final String MANAGEMENT_QUEUE_PREFIX = DOLLAR + "sys.mqtt.queue.qos2.";
+   public static final String QOS2_MANAGEMENT_QUEUE_PREFIX = DOLLAR + "sys.mqtt.queue.qos2.";
 
    public static final String SHARED_SUBSCRIPTION_PREFIX = DOLLAR + "share/";
 
@@ -120,7 +128,7 @@ public class MQTTUtil {
 
    public static final int TWO_BYTE_INT_MAX = Integer.decode("0xFFFF"); // 65_535
 
-    // https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901011
+   // https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901011
    public static final int VARIABLE_BYTE_INT_MAX = 268_435_455;
 
    public static final int MAX_PACKET_SIZE = VARIABLE_BYTE_INT_MAX;
@@ -135,26 +143,73 @@ public class MQTTUtil {
 
    public static final int DEFAULT_MAXIMUM_PACKET_SIZE = MAX_PACKET_SIZE;
 
-   public static String convertMqttTopicFilterToCoreAddress(String filter, WildcardConfiguration wildcardConfiguration) {
-      return convertMqttTopicFilterToCoreAddress(null, filter, wildcardConfiguration);
+   public static final int DEFAULT_MAXIMUM_IN_FLIGHT_PUBLISH_MESSAGES = TWO_BYTE_INT_MAX;
+
+   public static final WildcardConfiguration MQTT_WILDCARD = new WildcardConfiguration().setDelimiter(SLASH).setAnyWords(HASH).setSingleWord(PLUS);
+
+   /**
+    * This method takes the MQTT-related input and translates it into the proper name for a core subscription queue. The
+    * {@code topicFilter} may be either for a shared subscription in the format {@code $share/<shareName>/<topicFilter>}
+    * or a normal MQTT topic filter (e.g. {@code a/b/#}, {@code a/+/c}, {@code a/b/c}, etc.).
+    *
+    * @param topicFilter           the MQTT topic filter
+    * @param clientId              the MQTT client ID, used for normal (i.e. non-shared) subscriptions
+    * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker
+    * @return the name of the core subscription queue based on the input
+    */
+   public static String getCoreQueueFromMqttTopic(String topicFilter, String clientId, WildcardConfiguration wildcardConfiguration) {
+      Objects.requireNonNull(topicFilter, "MQTT topic filter must not be null");
+      Objects.requireNonNull(wildcardConfiguration, "Broker wildcard configuration must not be null");
+
+      if (isSharedSubscription(topicFilter)) {
+         Pair<String, String> decomposed = decomposeSharedSubscriptionTopicFilter(topicFilter);
+         return new StringBuilder().append(decomposed.getA()).append(".").append(getCoreAddressFromMqttTopic(decomposed.getB(), wildcardConfiguration)).toString();
+      } else {
+         Objects.requireNonNull(clientId, "MQTT client ID must not be null");
+         return new StringBuilder().append(clientId).append(".").append(getCoreAddressFromMqttTopic(topicFilter, wildcardConfiguration)).toString();
+      }
    }
 
-   public static String convertMqttTopicFilterToCoreAddress(String prefixToAdd, String filter, WildcardConfiguration wildcardConfiguration) {
-      if (filter == null) {
-         return "";
-      }
+   /**
+    * This method takes the MQTT-related input and translates it into the proper name for a core address. The
+    * {@code topicFilter} must be normal (i.e. non-shared). It should not be in the format
+    * {@code $share/<shareName>/<topicFilter>}.
+    *
+    * @param topicFilter           the MQTT topic filter
+    * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker
+    * @return the name of the core addres based on the input
+    */
+   public static String getCoreAddressFromMqttTopic(String topicFilter, WildcardConfiguration wildcardConfiguration) {
+      Objects.requireNonNull(topicFilter, "MQTT topic filter must not be null");
+      Objects.requireNonNull(wildcardConfiguration, "Broker wildcard configuration must not be null");
 
-      String converted = MQTT_WILDCARD.convert(filter, wildcardConfiguration);
-      if (prefixToAdd != null) {
-         converted = prefixToAdd + converted;
-      }
-      return converted;
+      return MQTT_WILDCARD.convert(topicFilter, wildcardConfiguration);
    }
 
-   public static String convertCoreAddressToMqttTopicFilter(String address, WildcardConfiguration wildcardConfiguration) {
-      if (address == null) {
-         return "";
-      }
+   /**
+    * This is exactly the same as {@link #getCoreAddressFromMqttTopic(String, WildcardConfiguration)} except that it
+    * also prefixes the return with
+    * {@link org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil#MQTT_RETAIN_ADDRESS_PREFIX}
+    *
+    * @param topicFilter           the MQTT topic filter
+    * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker
+    * @return the name of the core address based on the input, stripping
+    * {@link org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil#MQTT_RETAIN_ADDRESS_PREFIX} if it exists
+    */
+   public static String getCoreRetainAddressFromMqttTopic(String topicFilter, WildcardConfiguration wildcardConfiguration) {
+      return MQTT_RETAIN_ADDRESS_PREFIX + getCoreAddressFromMqttTopic(topicFilter, wildcardConfiguration);
+   }
+
+   /**
+    * Convert a Core address name into a proper MQTT topic name
+    *
+    * @param address               the core address; can't be {@code null}
+    * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker; can't be {@code null}
+    * @return the name of the MQTT topic based on the input
+    */
+   public static String getMqttTopicFromCoreAddress(String address, WildcardConfiguration wildcardConfiguration) {
+      Objects.requireNonNull(address, "Address must not be null");
+      Objects.requireNonNull(wildcardConfiguration, "Broker wildcard configuration must not be null");
 
       if (address.startsWith(MQTT_RETAIN_ADDRESS_PREFIX)) {
          address = address.substring(MQTT_RETAIN_ADDRESS_PREFIX.length());
@@ -163,17 +218,7 @@ public class MQTTUtil {
       return wildcardConfiguration.convert(address, MQTT_WILDCARD);
    }
 
-   public static class MQTTWildcardConfiguration extends WildcardConfiguration {
-      public MQTTWildcardConfiguration() {
-         setDelimiter(SLASH);
-         setSingleWord(PLUS);
-         setAnyWords(HASH);
-      }
-   }
-
-   public static final WildcardConfiguration MQTT_WILDCARD = new MQTTWildcardConfiguration();
-
-   private static ICoreMessage createServerMessage(MQTTSession session, SimpleString address, MqttPublishMessage mqttPublishMessage) {
+   public static ICoreMessage createServerMessage(MQTTSession session, SimpleString address, MqttPublishMessage mqttPublishMessage) {
       long id = session.getServer().getStorageManager().generateID();
 
       CoreMessage message = new CoreMessage(id, mqttPublishMessage.fixedHeader().remainingLength(), session.getCoreMessageObjectPools());
@@ -206,7 +251,7 @@ public class MQTTUtil {
        * Maintain the original order of the properties by using a decomposable name that indicates the original order.
        */
       List<MqttProperties.StringPair> userProperties = getProperty(List.class, properties, USER_PROPERTY);
-      if (userProperties != null && userProperties.size() != 0) {
+      if (userProperties != null && !userProperties.isEmpty()) {
          message.putIntProperty(MQTT_USER_PROPERTY_EXISTS_KEY, userProperties.size());
          for (int i = 0; i < userProperties.size(); i++) {
             String key = new StringBuilder()
@@ -244,15 +289,6 @@ public class MQTTUtil {
       return message;
    }
 
-   public static Message createPubRelMessage(MQTTSession session, SimpleString address, int messageId) {
-      MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBREL, false, MqttQoS.AT_LEAST_ONCE, false, 0);
-      MqttPublishMessage publishMessage = new MqttPublishMessage(fixedHeader, null, null);
-      Message message = createServerMessage(session, address, publishMessage)
-         .putIntProperty(MQTTUtil.MQTT_MESSAGE_ID_KEY, messageId)
-         .putIntProperty(MQTTUtil.MQTT_MESSAGE_TYPE_KEY, MqttMessageType.PUBREL.value());
-      return message;
-   }
-
    public static void logMessage(MQTTSessionState state, MqttMessage message, boolean inbound, MQTTVersion version) {
       if (logger.isTraceEnabled()) {
          StringBuilder log = new StringBuilder("MQTT(");
@@ -278,7 +314,7 @@ public class MQTTUtil {
                case PUBLISH:
                   MqttPublishVariableHeader publishHeader = (MqttPublishVariableHeader) message.variableHeader();
                   String topicName = publishHeader.topicName();
-                  if (topicName == null || topicName.length() == 0) {
+                  if (topicName == null || topicName.isEmpty()) {
                      topicName = "<empty>";
                   }
                   log.append("(" + publishHeader.packetId() + ")")
@@ -290,9 +326,9 @@ public class MQTTUtil {
                   for (MqttProperties.MqttProperty property : ((MqttPublishMessage)message).variableHeader().properties().listAll()) {
                      Object value = property.value();
                      if (value != null) {
-                        if (value instanceof byte[]) {
-                           value = new String((byte[]) value, StandardCharsets.UTF_8);
-                        } else if (value instanceof ArrayList && ((ArrayList)value).size() > 0 && ((ArrayList)value).get(0) instanceof MqttProperties.StringPair) {
+                        if (value instanceof byte[] bytes) {
+                           value = new String(bytes, StandardCharsets.UTF_8);
+                        } else if (value instanceof ArrayList<?> list && !list.isEmpty() && list.get(0) instanceof MqttProperties.StringPair) {
                            StringBuilder userProperties = new StringBuilder();
                            userProperties.append("[");
                            for (MqttProperties.StringPair pair : (ArrayList<MqttProperties.StringPair>) value) {
@@ -390,7 +426,7 @@ public class MQTTUtil {
          return "<empty>";
       }
       String publishPayload = message.payload().toString(StandardCharsets.UTF_8);
-      if (publishPayload.length() == 0) {
+      if (publishPayload.isEmpty()) {
          return "<empty>";
       }
       return publishPayload.length() > maxPayloadLogSize ? publishPayload.substring(0, maxPayloadLogSize) : publishPayload;
@@ -424,65 +460,57 @@ public class MQTTUtil {
       return size;
    }
 
-   /*
+   /**
     * https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901027
     */
    private static int calculatePublishPropertiesSize(MqttProperties properties) {
-      int size = 0;
-      try {
-         try {
-            for (MqttProperties.MqttProperty property : properties.listAll()) {
-               MqttPropertyType propertyType = MqttPropertyType.valueOf(property.propertyId());
-               switch (propertyType) {
-                  case PAYLOAD_FORMAT_INDICATOR:
-                     size += calculateVariableByteIntegerSize(property.propertyId());
-                     size += 1;
-                     break;
-                  case TOPIC_ALIAS:
-                     size += calculateVariableByteIntegerSize(property.propertyId());
-                     size += 2;
-                     break;
-                  case PUBLICATION_EXPIRY_INTERVAL: // AKA "Message Expiry Interval"
-                     size += calculateVariableByteIntegerSize(property.propertyId());
-                     size += 4;
-                     break;
-                  case SUBSCRIPTION_IDENTIFIER:
-                     size += calculateVariableByteIntegerSize(property.propertyId());
-                     size += calculateVariableByteIntegerSize(((MqttProperties.IntegerProperty) property).value());
-                     break;
-                  case CONTENT_TYPE:
-                  case RESPONSE_TOPIC:
-                     size += calculateVariableByteIntegerSize(property.propertyId());
-                     size += ByteBufUtil.utf8Bytes(((MqttProperties.StringProperty) property).value());
-                     break;
-                  case USER_PROPERTY:
-                     for (MqttProperties.StringPair pair : ((MqttProperties.UserProperties) property).value()) {
-                        size += calculateVariableByteIntegerSize(property.propertyId());
-                        size += ByteBufUtil.utf8Bytes(pair.key);
-                        size += ByteBufUtil.utf8Bytes(pair.value);
-                     }
-                     break;
-                  case CORRELATION_DATA:
-                     size += calculateVariableByteIntegerSize(property.propertyId());
-                     size += 2;
-                     size += ((MqttProperties.BinaryProperty) property).value().length;
-                     break;
-                  default:
-                     //shouldn't reach here
-                     throw new EncoderException("Unknown property type: " + propertyType);
-               }
-            }
-            size += calculateVariableByteIntegerSize(size);
-
-            return size;
-         } finally {
-         }
-      } catch (RuntimeException e) {
-         throw e;
+      if (properties == null) {
+         return 0;
       }
+      int size = 0;
+      for (MqttProperties.MqttProperty property : properties.listAll()) {
+         MqttPropertyType propertyType = MqttPropertyType.valueOf(property.propertyId());
+         size += switch (propertyType) {
+            case PAYLOAD_FORMAT_INDICATOR -> {
+               yield calculateVariableByteIntegerSize(property.propertyId()) + 1;
+            }
+            case TOPIC_ALIAS -> {
+               yield calculateVariableByteIntegerSize(property.propertyId()) + 2;
+            }
+            case PUBLICATION_EXPIRY_INTERVAL -> { // AKA "Message Expiry Interval"
+               yield calculateVariableByteIntegerSize(property.propertyId()) + 4;
+            }
+            case SUBSCRIPTION_IDENTIFIER -> {
+               yield calculateVariableByteIntegerSize(property.propertyId()) +
+                  calculateVariableByteIntegerSize(((MqttProperties.IntegerProperty) property).value());
+            }
+            case CONTENT_TYPE, RESPONSE_TOPIC -> {
+               yield calculateVariableByteIntegerSize(property.propertyId()) +
+                  ByteBufUtil.utf8Bytes(((MqttProperties.StringProperty) property).value());
+            }
+            case USER_PROPERTY -> {
+               int userPropertySize = 0;
+               for (MqttProperties.StringPair pair : ((MqttProperties.UserProperties) property).value()) {
+                  userPropertySize += calculateVariableByteIntegerSize(property.propertyId());
+                  userPropertySize += ByteBufUtil.utf8Bytes(pair.key);
+                  userPropertySize += ByteBufUtil.utf8Bytes(pair.value);
+               }
+               yield userPropertySize;
+            }
+            case CORRELATION_DATA -> {
+               yield calculateVariableByteIntegerSize(property.propertyId()) + 2 +
+                  ((MqttProperties.BinaryProperty) property).value().length;
+            }
+            default -> throw new EncoderException("Unknown property type: " + propertyType);
+         };
+
+      }
+      size += calculateVariableByteIntegerSize(size);
+
+      return size;
    }
 
-   /*
+   /**
     * https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Remaining_Length:
     * "The packet size is the total number of bytes in an MQTT Control Packet, this is equal to the length of the Fixed
     * Header plus the Remaining Length."
@@ -494,9 +522,7 @@ public class MQTTUtil {
       return 1 + calculateVariableByteIntegerSize(message.fixedHeader().remainingLength()) + message.fixedHeader().remainingLength();
    }
 
-   /*
-    * https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901011
-    */
+   // https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901011
    private static int calculateVariableByteIntegerSize(int vbi) {
       int count = 0;
       do {
@@ -525,5 +551,53 @@ public class MQTTUtil {
       }
 
       return defaultReturnValue == null ? null : defaultReturnValue;
+   }
+
+   /**
+    * MQTT shared subscriptions are specified with
+    * <a href="https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901250">this syntax</a>.
+    *
+    * @param topicFilter String in the format {@code $share/<shareName>/<topicFilter>}
+    * @return {@code Pair<String, String>} with {@code shareName} and {@code topicFilter} respectively or {@code null}
+    * and {@code topicFilter} if not in the shared-subscription format.
+    */
+   public static Pair<String, String> decomposeSharedSubscriptionTopicFilter(String topicFilter) {
+      if (isSharedSubscription(topicFilter)) {
+         int prefix = SHARED_SUBSCRIPTION_PREFIX.length();
+         String shareName = topicFilter.substring(prefix, topicFilter.indexOf(SLASH, prefix));
+         String parsedTopicName = topicFilter.substring(topicFilter.indexOf(SLASH, prefix) + 1);
+         return new Pair<>(shareName, parsedTopicName);
+      } else {
+         return new Pair<>(null, topicFilter);
+      }
+   }
+
+   /**
+    * Test whether an MQTT topic filter is for a shared subscription.
+    *
+    * @param topicFilter the MQTT topic filter
+    * @return {@code true} if the input starts with {@code $share/}, {@code false} otherwise
+    */
+   public static boolean isSharedSubscription(String topicFilter) {
+      if (topicFilter.startsWith(SHARED_SUBSCRIPTION_PREFIX)) {
+         return true;
+      } else {
+         return false;
+      }
+   }
+
+   public static void sendMessageDirectlyToQueue(StorageManager storageManager, PostOffice postOffice, Message message, Queue queue, final Transaction incomingTx) throws Exception {
+      Transaction tx = incomingTx;
+      if (incomingTx == null) {
+         tx = new TransactionImpl(storageManager);
+         tx.setAsync(true);
+      }
+      RoutingContext context = new RoutingContextImpl(tx);
+      queue.route(message, context);
+      postOffice.processRoute(message, context, false);
+      if (incomingTx == null) {
+         // commit the transaction we created otherwise leave it for the caller to commit
+         tx.commit();
+      }
    }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +29,7 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AddAndRemoveStressTest extends ActiveMQTestBase {
 
@@ -107,23 +108,23 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
 
       impl.start();
 
-      ArrayList<RecordInfo> info = new ArrayList<>();
-      ArrayList<PreparedTransactionInfo> trans = new ArrayList<>();
+      List<RecordInfo> info = new ArrayList<>();
+      List<PreparedTransactionInfo> trans = new ArrayList<>();
 
       impl.load(info, trans, null);
 
       impl.forceMoveNextFile();
 
-      if (info.size() > 0) {
+      if (!info.isEmpty()) {
          System.out.println("Info ID: " + info.get(0).id);
       }
 
       impl.stop();
 
-      Assert.assertEquals(0, info.size());
-      Assert.assertEquals(0, trans.size());
+      assertEquals(0, info.size());
+      assertEquals(0, trans.size());
 
-      Assert.assertEquals(0, impl.getDataFilesCount());
+      assertEquals(0, impl.getDataFilesCount());
 
    }
 
@@ -169,12 +170,12 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
 
       impl.start();
 
-      ArrayList<RecordInfo> info = new ArrayList<>();
-      ArrayList<PreparedTransactionInfo> trans = new ArrayList<>();
+      List<RecordInfo> info = new ArrayList<>();
+      List<PreparedTransactionInfo> trans = new ArrayList<>();
 
       impl.load(info, trans, null);
 
-      if (info.size() > 0) {
+      if (!info.isEmpty()) {
          System.out.println("Info ID: " + info.get(0).id);
       }
 
@@ -183,9 +184,9 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
 
       impl.stop();
 
-      Assert.assertEquals(0, info.size());
-      Assert.assertEquals(0, trans.size());
-      Assert.assertEquals(0, impl.getDataFilesCount());
+      assertEquals(0, info.size());
+      assertEquals(0, trans.size());
+      assertEquals(0, impl.getDataFilesCount());
 
       System.out.println("Size = " + impl.getDataFilesCount());
 

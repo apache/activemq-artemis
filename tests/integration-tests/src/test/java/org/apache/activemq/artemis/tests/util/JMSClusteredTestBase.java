@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -37,7 +39,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class JMSClusteredTestBase extends ActiveMQTestBase {
 
@@ -63,9 +65,6 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
 
    protected static final int MAX_HOPS = 1;
 
-   /**
-    * @throws Exception
-    */
    protected Queue createQueue(final String name) throws Exception {
       jmsServer2.createQueue(false, name, null, true, "/queue/" + name);
       jmsServer1.createQueue(false, name, null, true, "/queue/" + name);
@@ -88,7 +87,7 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -111,9 +110,6 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
       cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(2)));
    }
 
-   /**
-    * @throws Exception
-    */
    private void setupServer2() throws Exception {
       Configuration configuration = createConfigServer(2, 1);
 
@@ -126,9 +122,6 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
       jmsServer2.setRegistry(new JndiBindingRegistry(context2));
    }
 
-   /**
-    * @throws Exception
-    */
    private void setupServer1() throws Exception {
       Configuration configuration = createConfigServer(1, 2);
 
@@ -145,9 +138,6 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
       return false;
    }
 
-   /**
-    * @return
-    */
    protected Configuration createConfigServer(final int source, final int destination) throws Exception {
       final String destinationLabel = "toServer" + destination;
       final String sourceLabel = "server" + source;

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -33,8 +36,8 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RetroactiveAddressFailoverTest extends FailoverTestBase {
 
@@ -47,7 +50,7 @@ public class RetroactiveAddressFailoverTest extends FailoverTestBase {
    String delimiter = ".";
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setRetryInterval(100);
@@ -58,15 +61,15 @@ public class RetroactiveAddressFailoverTest extends FailoverTestBase {
    public void testFailover() throws Exception {
       final int MESSAGE_COUNT = 10;
       final int OFFSET = 5;
-      ActiveMQServer live = liveServer.getServer();
+      ActiveMQServer primary = primaryServer.getServer();
       ActiveMQServer backup = backupServer.getServer();
       ClientSession session = addClientSession(sf.createSession(true, true));
-      final SimpleString queueName = SimpleString.toSimpleString("simpleQueue");
-      final SimpleString addressName = SimpleString.toSimpleString("myAddress");
+      final SimpleString queueName = SimpleString.of("simpleQueue");
+      final SimpleString addressName = SimpleString.of("myAddress");
       final SimpleString divertQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
-      live.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(MESSAGE_COUNT));
+      primary.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(MESSAGE_COUNT));
       backup.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(MESSAGE_COUNT));
-      live.addAddressInfo(new AddressInfo(addressName));
+      primary.addAddressInfo(new AddressInfo(addressName));
 
       ClientProducer producer = addClientProducer(session.createProducer(addressName));
       for (int j = 0; j < OFFSET; j++) {
@@ -75,7 +78,7 @@ public class RetroactiveAddressFailoverTest extends FailoverTestBase {
          producer.send(message);
       }
 
-      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> live.locateQueue(divertQueue).getMessageCount() == OFFSET);
+      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> primary.locateQueue(divertQueue).getMessageCount() == OFFSET);
 
       crash(session);
 
@@ -89,7 +92,7 @@ public class RetroactiveAddressFailoverTest extends FailoverTestBase {
 
       org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(divertQueue).getMessageCount() == MESSAGE_COUNT);
 
-      session.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
       org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(queueName) != null);
       org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> backup.locateQueue(queueName).getMessageCount() == MESSAGE_COUNT);
 

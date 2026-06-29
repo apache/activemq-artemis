@@ -16,8 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import java.io.File;
-import java.util.ArrayList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.Arrays;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -30,15 +31,10 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JournalCrashTest extends SpawnedTestBase {
 
@@ -54,7 +50,7 @@ public class JournalCrashTest extends SpawnedTestBase {
 
    private ClientSessionFactory factory;
 
-   private final SimpleString QUEUE = new SimpleString("queue");
+   private final SimpleString QUEUE = SimpleString.of("queue");
 
    private ServerLocator locator;
 
@@ -66,17 +62,6 @@ public class JournalCrashTest extends SpawnedTestBase {
       server.start();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
-   }
-
-   protected void stopServer() throws Exception {
-      locator.close();
-      closeSessionFactory(factory);
-
-      factory = null;
-
-      stopComponent(server);
-
-      server = null;
    }
 
    /**
@@ -96,10 +81,6 @@ public class JournalCrashTest extends SpawnedTestBase {
          restart.startServer();
 
          restart.sendMessages(start, end);
-
-         // System.out.println("....end");
-         // System.out.flush();
-
          Runtime.getRuntime().halt(100);
       } catch (Exception e) {
          e.printStackTrace(System.out);
@@ -111,7 +92,7 @@ public class JournalCrashTest extends SpawnedTestBase {
       try (ClientSession session = factory.createSession(false, false)) {
 
          try {
-            session.createQueue(new QueueConfiguration(QUEUE));
+            session.createQueue(QueueConfiguration.of(QUEUE));
          } catch (Exception ignored) {
          }
 
@@ -119,14 +100,12 @@ public class JournalCrashTest extends SpawnedTestBase {
 
          for (int i = start; i < end; i++) {
             ClientMessage msg = session.createMessage(true);
-            msg.putIntProperty(new SimpleString("key"), i);
+            msg.putIntProperty(SimpleString.of("key"), i);
             msg.getBodyBuffer().writeUTF("message " + i);
             prod.send(msg);
          }
 
          session.commit();
-         session.close();
-         // server.stop(); -- this test was not supposed to stop the server, it should crash
       }
    }
 
@@ -136,8 +115,6 @@ public class JournalCrashTest extends SpawnedTestBase {
       runExternalProcess(getTestDir(), JournalCrashTest.FIRST_RUN, JournalCrashTest.SECOND_RUN);
       runExternalProcess(getTestDir(), JournalCrashTest.SECOND_RUN, JournalCrashTest.THIRD_RUN);
       runExternalProcess(getTestDir(), JournalCrashTest.THIRD_RUN, JournalCrashTest.FOURTH_RUN);
-
-      printJournal();
 
       startServer();
 
@@ -149,47 +126,19 @@ public class JournalCrashTest extends SpawnedTestBase {
          for (int i = 0; i < JournalCrashTest.FOURTH_RUN; i++) {
             ClientMessage msg = consumer.receive(5000);
 
-            Assert.assertNotNull("Msg at " + i, msg);
+            assertNotNull(msg, "Msg at " + i);
 
             msg.acknowledge();
 
-            Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
+            assertEquals(i, msg.getObjectProperty(SimpleString.of("key")));
          }
-         session.close();
       }
    }
 
-   /**
-    * @throws Exception
-    * @throws InterruptedException
-    */
    private void runExternalProcess(final String tempDir, final int start, final int end) throws Exception {
-      System.err.println("running external process...");
       Process process = SpawnedVMSupport.spawnVM(this.getClass().getCanonicalName(), "-Xms128m", "-Xmx128m", new String[]{}, true, true, tempDir, Integer.toString(start), Integer.toString(end));
 
-      Assert.assertEquals(100, process.waitFor());
+      assertEquals(100, process.waitFor());
    }
 
-   /**
-    * @throws Exception
-    */
-   private void printJournal() throws Exception {
-      NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getJournalDir()), 100);
-      JournalImpl journal = new JournalImpl(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), 2, 2, 0, 0, factory, "activemq-data", "amq", 100);
-
-      ArrayList<RecordInfo> records = new ArrayList<>();
-      ArrayList<PreparedTransactionInfo> transactions = new ArrayList<>();
-
-      journal.start();
-      journal.load(records, transactions, null);
-
-      //      System.out.println("===============================================");
-      //      System.out.println("Journal records at the end:");
-      //
-      //      for (RecordInfo record : records)
-      //      {
-      //         System.out.println(record.id + ", update = " + record.isUpdate);
-      //      }
-      journal.stop();
-   }
 }

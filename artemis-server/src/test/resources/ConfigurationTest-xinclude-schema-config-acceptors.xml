@@ -15,6 +15,6 @@
   limitations under the License.
 -->
 <acceptors xmlns="urn:activemq:core">
-   <acceptor>tcp://0.0.0.0:61616?tcpNoDelay=456;connectionTtl=44;connectionsAllowed=${ninetyTwoProp}</acceptor>
-   <acceptor>vm://0?e1=z1;e2=567;connectionsAllowed=87</acceptor>
+   <acceptor name="tcp">tcp://0.0.0.0:61616?tcpNoDelay=456;connectionTtl=44;connectionsAllowed=${ninetyTwoProp}</acceptor>
+   <acceptor name="vm">vm://0?e1=z1;e2=567;connectionsAllowed=87</acceptor>
 </acceptors>

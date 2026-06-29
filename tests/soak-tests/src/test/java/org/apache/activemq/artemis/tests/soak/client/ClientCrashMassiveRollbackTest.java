@@ -29,16 +29,16 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ClientCrashMassiveRollbackTest extends ActiveMQTestBase {
    protected ActiveMQServer server;
@@ -47,7 +47,7 @@ public class ClientCrashMassiveRollbackTest extends ActiveMQTestBase {
    protected ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Configuration config = createDefaultNettyConfig();
@@ -94,9 +94,9 @@ public class ClientCrashMassiveRollbackTest extends ActiveMQTestBase {
       SendAcknowledgementHandler sendHandler = message -> {
       };
       session.setSendAcknowledgementHandler(sendHandler);
-      session.createQueue(new QueueConfiguration(queueName).setAddress(queueName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(queueName).setRoutingType(RoutingType.ANYCAST));
       ClientProducer producer = session.createProducer(queueName);
-      QueueControl queueControl = (QueueControl)server.getManagementService().getResource(ResourceNames.QUEUE + queueName);
+      QueueControl queueControl = server.getManagementService().getQueueControl(queueName);
 
       thread.start();
 
@@ -111,8 +111,8 @@ public class ClientCrashMassiveRollbackTest extends ActiveMQTestBase {
 
       thread.interrupt();
 
-      Assert.assertEquals(messageCount, queueControl.getMessageCount());
-      Assert.assertEquals(ActiveMQServer.SERVER_STATE.STARTED, server.getState());
+      assertEquals(messageCount, queueControl.getMessageCount());
+      assertEquals(ActiveMQServer.SERVER_STATE.STARTED, server.getState());
 
       server.stop();
 

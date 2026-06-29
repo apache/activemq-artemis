@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Base class to embed an ActiveMQ Artemis server into a test.
+ * Base class to embed an Apache Artemis server into a test.
  */
 public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -75,13 +75,14 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
                                       .setSecurityEnabled(false)
                                       .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
                                       .addAddressSetting("#",
-                                                         new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("dla"))
-                                                                              .setExpiryAddress(SimpleString.toSimpleString("expiry")));
+                                                         new AddressSettings().setDeadLetterAddress(SimpleString.of("dla"))
+                                                                              .setExpiryAddress(SimpleString.of("expiry")));
       init();
    }
 
    /**
     * Create a default EmbeddedActiveMQResource with the specified serverId
+    *
     * @param serverId server id
     */
    protected EmbeddedActiveMQDelegate(int serverId) {
@@ -98,6 +99,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    /**
     * Creates an EmbeddedActiveMQResource using the specified configuration
+    *
     * @param configuration ActiveMQServer configuration
     */
    protected EmbeddedActiveMQDelegate(Configuration configuration) {
@@ -107,6 +109,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    /**
     * Creates an EmbeddedActiveMQResource using the specified configuration file
+    *
     * @param filename ActiveMQServer configuration file name
     */
    protected EmbeddedActiveMQDelegate(String filename) {
@@ -128,11 +131,9 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    /**
     * Adds properties to a ClientMessage
-    * @param message
-    * @param properties
     */
    public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
-      if (properties != null && properties.size() > 0) {
+      if (properties != null && !properties.isEmpty()) {
          for (Map.Entry<String, Object> property : properties.entrySet()) {
             message.putObjectProperty(property.getKey(), property.getValue());
          }
@@ -237,7 +238,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public long getMessageCount(String queueName) {
-      return getMessageCount(SimpleString.toSimpleString(queueName));
+      return getMessageCount(SimpleString.of(queueName));
    }
 
    @Override
@@ -253,7 +254,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public Queue locateQueue(String queueName) {
-      return locateQueue(SimpleString.toSimpleString(queueName));
+      return locateQueue(SimpleString.of(queueName));
    }
 
    @Override
@@ -263,7 +264,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public List<Queue> getBoundQueues(String address) {
-      return getBoundQueues(SimpleString.toSimpleString(address));
+      return getBoundQueues(SimpleString.of(address));
    }
 
    @Override
@@ -290,12 +291,12 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public Queue createQueue(String name) {
-      return createQueue(SimpleString.toSimpleString(name), SimpleString.toSimpleString(name));
+      return createQueue(SimpleString.of(name), SimpleString.of(name));
    }
 
    @Override
    public Queue createQueue(String address, String name) {
-      return createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(name));
+      return createQueue(SimpleString.of(address), SimpleString.of(name));
    }
 
    @Override
@@ -303,7 +304,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
       Queue queue = null;
       try {
          queue = server.getActiveMQServer()
-                       .createQueue(new QueueConfiguration(name).setAddress(address).setDurable(isUseDurableQueue()));
+                       .createQueue(QueueConfiguration.of(name).setAddress(address).setDurable(isUseDurableQueue()));
       } catch (Exception ex) {
          throw new EmbeddedActiveMQResourceException(String.format("Failed to create queue: queueName = %s, name = %s",
                                                                    address.toString(), name.toString()),
@@ -315,21 +316,21 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public void createSharedQueue(String name, String user) {
-      createSharedQueue(SimpleString.toSimpleString(name), SimpleString.toSimpleString(name),
-                        SimpleString.toSimpleString(user));
+      createSharedQueue(SimpleString.of(name), SimpleString.of(name),
+                        SimpleString.of(user));
    }
 
    @Override
    public void createSharedQueue(String address, String name, String user) {
-      createSharedQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(name),
-                        SimpleString.toSimpleString(user));
+      createSharedQueue(SimpleString.of(address), SimpleString.of(name),
+                        SimpleString.of(user));
    }
 
    @Override
    public void createSharedQueue(SimpleString address, SimpleString name, SimpleString user) {
       try {
          server.getActiveMQServer()
-               .createSharedQueue(new QueueConfiguration(name).setAddress(address)
+               .createSharedQueue(QueueConfiguration.of(name).setAddress(address)
                                                               .setRoutingType(RoutingType.MULTICAST)
                                                               .setDurable(isUseDurableQueue())
                                                               .setUser(user));
@@ -401,32 +402,32 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public void sendMessage(String address, ClientMessage message) {
-      sendMessage(SimpleString.toSimpleString(address), message);
+      sendMessage(SimpleString.of(address), message);
    }
 
    @Override
    public ClientMessage sendMessage(String address, byte[] body) {
-      return sendMessage(SimpleString.toSimpleString(address), body);
+      return sendMessage(SimpleString.of(address), body);
    }
 
    @Override
    public ClientMessage sendMessage(String address, String body) {
-      return sendMessage(SimpleString.toSimpleString(address), body);
+      return sendMessage(SimpleString.of(address), body);
    }
 
    @Override
    public ClientMessage sendMessageWithProperties(String address, Map<String, Object> properties) {
-      return sendMessageWithProperties(SimpleString.toSimpleString(address), properties);
+      return sendMessageWithProperties(SimpleString.of(address), properties);
    }
 
    @Override
    public ClientMessage sendMessageWithProperties(String address, byte[] body, Map<String, Object> properties) {
-      return sendMessageWithProperties(SimpleString.toSimpleString(address), body, properties);
+      return sendMessageWithProperties(SimpleString.of(address), body, properties);
    }
 
    @Override
    public ClientMessage sendMessageWithProperties(String address, String body, Map<String, Object> properties) {
-      return sendMessageWithProperties(SimpleString.toSimpleString(address), body, properties);
+      return sendMessageWithProperties(SimpleString.of(address), body, properties);
    }
 
    @Override
@@ -478,12 +479,12 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public ClientMessage receiveMessage(String queueName) {
-      return receiveMessage(SimpleString.toSimpleString(queueName));
+      return receiveMessage(SimpleString.of(queueName));
    }
 
    @Override
    public ClientMessage receiveMessage(String queueName, long timeout) {
-      return receiveMessage(SimpleString.toSimpleString(queueName), timeout);
+      return receiveMessage(SimpleString.of(queueName), timeout);
    }
 
    @Override
@@ -500,12 +501,12 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public ClientMessage browseMessage(String queueName) {
-      return browseMessage(SimpleString.toSimpleString(queueName), defaultReceiveTimeout);
+      return browseMessage(SimpleString.of(queueName), defaultReceiveTimeout);
    }
 
    @Override
    public ClientMessage browseMessage(String queueName, long timeout) {
-      return browseMessage(SimpleString.toSimpleString(queueName), timeout);
+      return browseMessage(SimpleString.of(queueName), timeout);
    }
 
    @Override
@@ -633,7 +634,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
                try {
                   message = consumer.receive(timeout);
                } catch (ActiveMQException amqEx) {
-                  failureCause =  new EmbeddedActiveMQResourceException(String.format("ClientConsumer.receive( timeout = %d ) for %s failed",
+                  failureCause = new EmbeddedActiveMQResourceException(String.format("ClientConsumer.receive( timeout = %d ) for %s failed",
                                                                         timeout, address.toString()), amqEx);
                   throw failureCause;
                }

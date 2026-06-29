@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PagePositionTest extends ActiveMQTestBase {
 

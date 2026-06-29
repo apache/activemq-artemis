@@ -28,12 +28,12 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * <p>
- * A main class which setups up a classpath and then passes
- * execution off to the ActiveMQ Artemis cli main.
- * </p>
+ * A main class which setups up a classpath and then passes execution off to the Apache Artemis cli main.
  */
 public class Artemis {
+
+   public static final String EXTRA_LIBS_SYSTEM_PROPERTY = "artemis.extra.libs";
+   public static final String EXTRA_LIBS_ENVIRONMENT_VARIABLE = "ARTEMIS_EXTRA_LIBS";
 
    public static void main(String[] args) throws Throwable {
       String home = System.getProperty("artemis.home");
@@ -58,7 +58,7 @@ public class Artemis {
 
 
 
-      Object result = execute(fileHome, fileInstance, fileBrokerETC, true, args);
+      Object result = execute(fileHome, fileInstance, fileBrokerETC, true, true, args);
       if (result instanceof Exception) {
          // Set a nonzero status code for the exceptions caught and printed by org.apache.activemq.artemis.cli.Artemis.execute
          System.exit(1);
@@ -68,15 +68,15 @@ public class Artemis {
    /**
     * This is a good method for booting an embedded command
     */
-   public static Object execute(File artemisHome, File artemisInstance, File fileBrokerETC, boolean useSystemOut, List<String> args) throws Throwable {
-      return execute(artemisHome, artemisInstance, fileBrokerETC, useSystemOut, args.toArray(new String[args.size()]));
+   public static Object execute(File artemisHome, File artemisInstance, File fileBrokerETC, boolean useSystemOut, boolean enableShell, List<String> args) throws Throwable {
+      return execute(artemisHome, artemisInstance, fileBrokerETC, useSystemOut, enableShell, args.toArray(new String[args.size()]));
    }
 
    /**
     * This is a good method for booting an embedded command
     */
-   public static Object execute(File fileHome, File fileInstance, File fileBrokerETC, boolean useSystemOut, String... args) throws Throwable {
-      ArrayList<File> dirs = new ArrayList<>();
+   public static Object execute(File fileHome, File fileInstance, File fileBrokerETC, boolean useSystemOut, boolean enableShell, String... args) throws Throwable {
+      List<File> dirs = new ArrayList<>();
       if (fileHome != null) {
          dirs.add(new File(fileHome, "lib"));
       }
@@ -84,7 +84,17 @@ public class Artemis {
          dirs.add(new File(fileInstance, "lib"));
       }
 
-      ArrayList<URL> urls = new ArrayList<>();
+      String extraLibs = System.getProperty(EXTRA_LIBS_SYSTEM_PROPERTY);
+      if (extraLibs == null) {
+         extraLibs = System.getenv(EXTRA_LIBS_ENVIRONMENT_VARIABLE);
+      }
+      if (extraLibs != null) {
+         for (String extraLib: extraLibs.split(",")) {
+            dirs.add(new File(extraLib));
+         }
+      }
+
+      List<URL> urls = new ArrayList<>();
 
       // Without the etc on the config, things like JGroups configuration wouldn't be loaded
       if (fileBrokerETC == null && fileInstance != null) {
@@ -106,7 +116,7 @@ public class Artemis {
          if (bootdir.exists() && bootdir.isDirectory()) {
 
             // Find the jar files in the directory..
-            ArrayList<File> files = new ArrayList<>();
+            List<File> files = new ArrayList<>();
             for (File f : bootdir.listFiles()) {
                if (f.getName().endsWith(".jar") || f.getName().endsWith(".zip")) {
                   files.add(f);
@@ -114,12 +124,7 @@ public class Artemis {
             }
 
             // Sort the list by file name..
-            Collections.sort(files, new Comparator<File>() {
-               @Override
-               public int compare(File file, File file1) {
-                  return file.getName().compareTo(file1.getName());
-               }
-            });
+            Collections.sort(files, Comparator.comparing(File::getName));
 
             for (File f : files) {
                add(urls, f);
@@ -138,10 +143,10 @@ public class Artemis {
       URLClassLoader loader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
       Thread.currentThread().setContextClassLoader(loader);
       Class<?> clazz = loader.loadClass("org.apache.activemq.artemis.cli.Artemis");
-      Method method = clazz.getMethod("execute", Boolean.TYPE, Boolean.TYPE, File.class, File.class, File.class, args.getClass());
+      Method method = clazz.getMethod("execute", Boolean.TYPE, Boolean.TYPE, Boolean.TYPE, File.class, File.class, File.class, args.getClass());
 
       try {
-         return method.invoke(null, useSystemOut, useSystemOut, fileHome, fileInstance, fileBrokerETC, args);
+         return method.invoke(null, useSystemOut, useSystemOut, enableShell, fileHome, fileInstance, fileBrokerETC, args);
       } catch (InvocationTargetException e) {
          throw e.getTargetException();
       } finally {
@@ -150,7 +155,7 @@ public class Artemis {
 
    }
 
-   private static void add(ArrayList<URL> urls, File file) {
+   private static void add(List<URL> urls, File file) {
       try {
          urls.add(file.toURI().toURL());
       } catch (MalformedURLException e) {

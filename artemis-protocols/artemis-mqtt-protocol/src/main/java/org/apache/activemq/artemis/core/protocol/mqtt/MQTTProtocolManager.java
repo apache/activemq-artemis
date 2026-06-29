@@ -16,12 +16,10 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -36,6 +34,7 @@ import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManager;
@@ -47,7 +46,6 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInterceptor, MQTTConnection, MQTTRoutingHandler> implements NotificationListener {
 
@@ -59,9 +57,6 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
    private final List<MQTTInterceptor> incomingInterceptors = new ArrayList<>();
    private final List<MQTTInterceptor> outgoingInterceptors = new ArrayList<>();
-
-   private final Map<String, MQTTConnection> connectedClients  = new ConcurrentHashMap<>();
-   private final Map<String, MQTTSessionState> sessionStates = new ConcurrentHashMap<>();
 
    private int defaultMqttSessionExpiryInterval = -1;
 
@@ -77,15 +72,27 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
    private boolean allowLinkStealing = true;
 
+   private int defaultMaximumInFlightPublishMessages = MQTTUtil.DEFAULT_MAXIMUM_IN_FLIGHT_PUBLISH_MESSAGES;
+
    private final MQTTRoutingHandler routingHandler;
+
+   private MQTTStateManager sessionStateManager;
 
    MQTTProtocolManager(ActiveMQServer server,
                        List<BaseInterceptor> incomingInterceptors,
-                       List<BaseInterceptor> outgoingInterceptors) {
+                       List<BaseInterceptor> outgoingInterceptors) throws Exception {
       this.server = server;
       this.updateInterceptors(incomingInterceptors, outgoingInterceptors);
       server.getManagementService().addNotificationListener(this);
       routingHandler = new MQTTRoutingHandler(server);
+      sessionStateManager = MQTTStateManager.getInstance(server);
+      server.registerActivateCallback(new CleaningActivateCallback() {
+         @Override
+         public void deActivate() {
+            MQTTStateManager.removeInstance(server);
+            sessionStateManager = null;
+         }
+      });
    }
 
    public int getDefaultMqttSessionExpiryInterval() {
@@ -149,22 +156,32 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
       this.allowLinkStealing = allowLinkStealing;
    }
 
+   public int getDefaultMaximumInFlightPublishMessages() {
+      return defaultMaximumInFlightPublishMessages;
+   }
+
+   public void setDefaultMaximumInFlightPublishMessages(int defaultMaximumInFlightPublishMessages) {
+      this.defaultMaximumInFlightPublishMessages = defaultMaximumInFlightPublishMessages;
+   }
+
    @Override
    public void onNotification(Notification notification) {
-      if (!(notification.getType() instanceof CoreNotificationType))
+      if (!(notification.getType() instanceof CoreNotificationType type)) {
          return;
+      }
 
-      CoreNotificationType type = (CoreNotificationType) notification.getType();
-      if (type != CoreNotificationType.SESSION_CREATED)
+      if (type != CoreNotificationType.SESSION_CREATED) {
          return;
+      }
 
       TypedProperties props = notification.getProperties();
 
       SimpleString protocolName = props.getSimpleStringProperty(ManagementHelper.HDR_PROTOCOL_NAME);
 
       //Only process SESSION_CREATED notifications for the MQTT protocol
-      if (protocolName == null || !protocolName.toString().startsWith(MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME))
+      if (protocolName == null || !protocolName.toString().startsWith(MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME)) {
          return;
+      }
 
       int distance = props.getIntProperty(ManagementHelper.HDR_DISTANCE);
 
@@ -176,7 +193,7 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
           * in the SESSION_CREATED notification, you need to close this connection.
           * Avoid consumers with the same client ID in the cluster appearing at different nodes at the same time.
           */
-         MQTTConnection mqttConnection = connectedClients.get(clientId);
+         MQTTConnection mqttConnection = sessionStateManager.getConnectedClients().get(clientId);
          if (mqttConnection != null) {
             mqttConnection.destroy();
          }
@@ -195,39 +212,6 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
       this.outgoingInterceptors.clear();
       this.outgoingInterceptors.addAll(getFactory().filterInterceptors(outgoing));
-   }
-
-   public void scanSessions() {
-      List<String> toRemove = new ArrayList();
-      for (Map.Entry<String, MQTTSessionState> entry : sessionStates.entrySet()) {
-         MQTTSessionState state = entry.getValue();
-         logger.debug("Inspecting session: {}", state);
-         int sessionExpiryInterval = getSessionExpiryInterval(state);
-         if (!state.isAttached() && sessionExpiryInterval > 0 && state.getDisconnectedTime() + (sessionExpiryInterval * 1000) < System.currentTimeMillis()) {
-            toRemove.add(entry.getKey());
-         }
-         if (state.isWill() && !state.isAttached() && state.isFailed() && state.getWillDelayInterval() > 0 && state.getDisconnectedTime() + (state.getWillDelayInterval() * 1000) < System.currentTimeMillis()) {
-            state.getSession().sendWillMessage();
-         }
-      }
-
-      for (String key : toRemove) {
-         logger.debug("Removing state for session: {}", key);
-         MQTTSessionState state = removeSessionState(key);
-         if (state != null && state.isWill() && !state.isAttached() && state.isFailed()) {
-            state.getSession().sendWillMessage();
-         }
-      }
-   }
-
-   private int getSessionExpiryInterval(MQTTSessionState state) {
-      int sessionExpiryInterval;
-      if (state.getClientSessionExpiryInterval() == 0) {
-         sessionExpiryInterval = getDefaultMqttSessionExpiryInterval();
-      } else {
-         sessionExpiryInterval = state.getClientSessionExpiryInterval();
-      }
-      return sessionExpiryInterval;
    }
 
    @Override
@@ -281,9 +265,11 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
    /**
     * Relevant portions of the specs we support:
-    * MQTT 3.1 - https://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html#connect
-    * MQTT 3.1.1 - http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718028
-    * MQTT 5 - https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901033
+    * <ul>
+    * <li>MQTT 3.1 - https://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html#connect
+    * <li>MQTT 3.1.1 - http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718028
+    * <li>MQTT 5 - https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901033
+    * </ul>
     */
    @Override
    public boolean isProtocol(byte[] array) {
@@ -320,8 +306,9 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
    private boolean validateRemainingLength(ByteBuf buffer) {
       byte msb = (byte) 0b10000000;
       for (byte i = 0; i < 4; i++) {
-         if ((readByte(buffer) & msb) != msb)
+         if ((readByte(buffer) & msb) != msb) {
             return true;
+         }
       }
       return false;
    }
@@ -348,56 +335,7 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
       return super.invokeInterceptors(this.outgoingInterceptors, mqttMessage, connection);
    }
 
-   public boolean isClientConnected(String clientId, MQTTConnection connection) {
-      MQTTConnection connectedConn = connectedClients.get(clientId);
-
-      if (connectedConn != null) {
-         return connectedConn.equals(connection);
-      }
-
-      return false;
-   }
-
-   public boolean isClientConnected(String clientId) {
-      return connectedClients.containsKey(clientId);
-   }
-
-   public void removeConnectedClient(String clientId) {
-      connectedClients.remove(clientId);
-   }
-
-   /**
-    * @param clientId
-    * @param connection
-    * @return the {@code MQTTConnection} that the added connection replaced or null if there was no previous entry for
-    * the {@code clientId}
-    */
-   public MQTTConnection addConnectedClient(String clientId, MQTTConnection connection) {
-      return connectedClients.put(clientId, connection);
-   }
-
-   public MQTTConnection getConnectedClient(String clientId) {
-      return connectedClients.get(clientId);
-   }
-
-   public MQTTSessionState getSessionState(String clientId) {
-      /* [MQTT-3.1.2-4] Attach an existing session if one exists otherwise create a new one. */
-      return sessionStates.computeIfAbsent(clientId, MQTTSessionState::new);
-   }
-
-   public MQTTSessionState removeSessionState(String clientId) {
-      if (clientId == null) {
-         return null;
-      }
-      return sessionStates.remove(clientId);
-   }
-
-   public Map<String, MQTTSessionState> getSessionStates() {
-      return new HashMap<>(sessionStates);
-   }
-
-   /** For DEBUG only */
-   public Map<String, MQTTConnection> getConnectedClients() {
-      return connectedClients;
+   public MQTTStateManager getStateManager() {
+      return sessionStateManager;
    }
 }

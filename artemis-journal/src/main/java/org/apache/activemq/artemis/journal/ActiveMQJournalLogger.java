@@ -22,18 +22,12 @@ import org.apache.activemq.artemis.logs.annotation.LogMessage;
 import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
- * Logger Code 14
+ * Logger Codes 140000 - 148999
  */
-@LogBundle(projectCode = "AMQ", regexID = "14[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "14[0-8][0-9]{3}", retiredIDs = {141000, 141002, 142000, 142001, 142002, 142003, 142016, 142017, 142020, 142030, 142034, 142035, 144001, 144005})
 public interface ActiveMQJournalLogger {
 
    ActiveMQJournalLogger LOGGER = BundleFactory.newBundle(ActiveMQJournalLogger.class, ActiveMQJournalLogger.class.getPackage().getName());
-
-   @LogMessage(id = 141000, value = "*** running direct journal blast: {}", level = LogMessage.Level.INFO)
-   void runningJournalBlast(Integer numIts);
-
-   @LogMessage(id = 141002, value = "starting thread for sync speed test", level = LogMessage.Level.INFO)
-   void startingThread();
 
    @LogMessage(id = 141003, value = "Write rate = {} bytes / sec or {} MiB / sec", level = LogMessage.Level.INFO)
    void writeRate(Double rate, Long l);
@@ -58,18 +52,6 @@ public interface ActiveMQJournalLogger {
 
    @LogMessage(id = 141010, value = "Initialising JDBC data source {} with properties {}", level = LogMessage.Level.INFO)
    void initializingJdbcDataSource(String dataSourceClassName, String dataSourceProperties);
-
-   @LogMessage(id = 142000, value = "You have a native library with a different version than expected", level = LogMessage.Level.WARN)
-   void incompatibleNativeLibrary();
-
-   @LogMessage(id = 142001, value = "Could not get lock after 60 seconds on closing Asynchronous File: {}", level = LogMessage.Level.WARN)
-   void couldNotGetLock(String fileName);
-
-   @LogMessage(id = 142002, value = "Asynchronous File: {} being finalized with opened state", level = LogMessage.Level.WARN)
-   void fileFinalizedWhileOpen(String fileName);
-
-   @LogMessage(id = 142003, value = "AIO Callback Error: {}", level = LogMessage.Level.WARN)
-   void callbackError(String error);
 
    @LogMessage(id = 142004, value = "Inconsistency during compacting: CommitRecord ID = {} for an already committed transaction during compacting", level = LogMessage.Level.WARN)
    void inconsistencyDuringCompacting(Long transactionID);
@@ -107,20 +89,11 @@ public interface ActiveMQJournalLogger {
    @LogMessage(id = 142015, value = "Uncommitted transaction with id {} found and discarded", level = LogMessage.Level.WARN)
    void uncomittedTxFound(Long id);
 
-   @LogMessage(id = 142016, value = "Could not stop compactor executor after 120 seconds", level = LogMessage.Level.WARN)
-   void couldNotStopCompactor();
-
-   @LogMessage(id = 142017, value = "Could not stop journal executor after 60 seconds", level = LogMessage.Level.WARN)
-   void couldNotStopJournalExecutor();
-
    @LogMessage(id = 142018, value = "Temporary files were left unattended after a crash on journal directory, deleting invalid files now", level = LogMessage.Level.WARN)
    void tempFilesLeftOpen();
 
    @LogMessage(id = 142019, value = "Deleting orphaned file {}", level = LogMessage.Level.WARN)
    void deletingOrphanedFile(String fileToDelete);
-
-   @LogMessage(id = 142020, value = "Could not get lock after 60 seconds on closing Asynchronous File: {}", level = LogMessage.Level.WARN)
-   void errorClosingFile(String fileToDelete);
 
    @LogMessage(id = 142021, value = "Error on IO callback, {}", level = LogMessage.Level.WARN)
    void errorOnIOCallback(String errorMessage);
@@ -149,9 +122,6 @@ public interface ActiveMQJournalLogger {
    @LogMessage(id = 142029, value = "Error closing file", level = LogMessage.Level.WARN)
    void errorClosingFile(Throwable e);
 
-   @LogMessage(id = 142030, value = "Could not open a file in 60 Seconds", level = LogMessage.Level.WARN)
-   void errorOpeningFile(Throwable e);
-
    @LogMessage(id = 142031, value = "Error retrieving ID part of the file name {}", level = LogMessage.Level.WARN)
    void errorRetrievingID(String fileName, Throwable e);
 
@@ -161,17 +131,8 @@ public interface ActiveMQJournalLogger {
    @LogMessage(id = 142033, value = "Error reinitializing file {}", level = LogMessage.Level.WARN)
    void errorReinitializingFile(JournalFile file, Throwable e);
 
-   @LogMessage(id = 142034, value = "Exception on submitting write", level = LogMessage.Level.WARN)
-   void errorSubmittingWrite(Throwable e);
-
-   @LogMessage(id = 142035, value = "Could not stop journal append executor after 60 seconds", level = LogMessage.Level.WARN)
-   void couldNotStopJournalAppendExecutor();
-
    @LogMessage(id = 144000, value = "Failed to delete file {}", level = LogMessage.Level.ERROR)
    void errorDeletingFile(Object e);
-
-   @LogMessage(id = 144001, value = "Error starting poller", level = LogMessage.Level.ERROR)
-   void errorStartingPoller(Exception e);
 
    @LogMessage(id = 144002, value = "Error pushing opened file", level = LogMessage.Level.ERROR)
    void errorPushingFile(Exception e);
@@ -181,9 +142,6 @@ public interface ActiveMQJournalLogger {
 
    @LogMessage(id = 144004, value = "Error scheduling compacting", level = LogMessage.Level.ERROR)
    void errorSchedulingCompacting(Throwable e);
-
-   @LogMessage(id = 144005, value = "Failed to performance blast", level = LogMessage.Level.ERROR)
-   void failedToPerfBlast(Throwable e);
 
    @LogMessage(id = 144006, value = "IOError code {}, {}", level = LogMessage.Level.ERROR)
    void ioError(int errorCode, String errorMessage);
@@ -203,4 +161,7 @@ public interface ActiveMQJournalLogger {
    // same as criticalIO but with the FileName associated (if there's a file available)
    @LogMessage(id = 144011, value = "Critical IO Exception happened: {} on {}", level = LogMessage.Level.WARN)
    void criticalIOFile(String message, String fileName, Throwable error);
+
+   @LogMessage(id = 144012, value = "Journal Record sized at {}, which is too close to the max record Size at {}. Record = {}. Internal broker operations such as redistribution and DLQ may be compromised. Move large headers into the body of messages.", level = LogMessage.Level.WARN)
+   void largeHeaderWarning(long recordSize, long maxRecordSize, Object originalData);
 }

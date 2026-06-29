@@ -24,23 +24,15 @@ import java.util.function.Consumer;
 public interface ArtemisExecutor extends Executor {
 
    /**
-    * Artemis is supposed to implement this properly, however in tests or tools
-    * this can be used as a fake, doing a simple delegate and using the default methods implemented here.
-    * @param executor
-    * @return
+    * Artemis is supposed to implement this properly, however in tests or tools this can be used as a fake, doing a
+    * simple delegate and using the default methods implemented here.
     */
    static ArtemisExecutor delegate(Executor executor) {
-      return new ArtemisExecutor() {
-         @Override
-         public void execute(Runnable command) {
-            executor.execute(command);
-         }
-      };
+      return executor::execute;
    }
 
    /**
-    * It will wait the current execution (if there is one) to finish
-    * but will not complete any further executions.
+    * It will wait the current execution (if there is one) to finish but will not complete any further executions.
     *
     * @param onPendingTask it will be called for each pending task found
     * @return the number of pending tasks that won't be executed
@@ -49,12 +41,13 @@ public interface ArtemisExecutor extends Executor {
       return 0;
    }
 
-   /** To be used to flush an executor from a different thread.
-    *  WARNING: Do not call this within the executor. That would be stoopid ;)
-    *
-    * @param timeout
-    * @param unit
-    * @return
+   default boolean inHandler() {
+      return false;
+   }
+
+   /**
+    * To be used to flush an executor from a different thread.
+    * <b>WARNING</b>: Do not call this within the executor. That would be stoopid ;)
     */
    default boolean flush(long timeout, TimeUnit unit) {
       CountDownLatch latch = new CountDownLatch(1);
@@ -67,8 +60,7 @@ public interface ArtemisExecutor extends Executor {
    }
 
    /**
-    * It will wait the current execution (if there is one) to finish
-    * but will not complete any further executions
+    * It will wait the current execution (if there is one) to finish but will not complete any further executions
     */
    default int shutdownNow() {
       return shutdownNow(t -> {
@@ -91,26 +83,20 @@ public interface ArtemisExecutor extends Executor {
       return false;
    }
 
-   /** If this OrderedExecutor is fair, it will yield for another executors after each task ran */
+   /**
+    * If this OrderedExecutor is fair, it will yield for another executors after each task ran
+    */
    default ArtemisExecutor setFair(boolean fair) {
       return this;
    }
 
-
-
    /**
-    * This will verify if the executor is flushed with no wait (or very minimal wait if not the {@link org.apache.activemq.artemis.utils.actors.OrderedExecutor}
-    * @return
+    * This will verify if the executor is flushed with no wait (or very minimal wait if not the
+    * {@link org.apache.activemq.artemis.utils.actors.OrderedExecutor}
     */
    default boolean isFlushed() {
       CountDownLatch latch = new CountDownLatch(1);
-      Runnable runnable = new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      };
-      execute(runnable);
+      execute(latch::countDown);
       try {
          return latch.await(100, TimeUnit.MILLISECONDS);
       } catch (InterruptedException e) {

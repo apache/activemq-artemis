@@ -24,10 +24,11 @@ import javax.management.openmbean.CompositeData;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+// Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
 public class QueueControlUsingCoreTest extends QueueControlTest {
 
    public QueueControlUsingCoreTest(boolean durable) {
@@ -149,7 +150,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
 
          @Override
          public int changeMessagesPriority(final String filter, final int newPriority) throws Exception {
-            return (Integer) proxy.invokeOperation("changeMessagesPriority", filter, newPriority);
+            return (Integer) proxy.invokeOperation(Integer.class, "changeMessagesPriority", filter, newPriority);
          }
 
          @Override
@@ -219,7 +220,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
 
          @Override
          public boolean isEnabled() {
-            return  (Boolean) proxy.retrieveAttributeValue("isEnabled");
+            return (Boolean) proxy.retrieveAttributeValue("isEnabled");
          }
 
          @Override
@@ -250,6 +251,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public String getLastValueKey() {
             return (String) proxy.retrieveAttributeValue("lastValueKey");
+         }
+
+         @Override
+         public boolean isInternalQueue() {
+            return (boolean) proxy.retrieveAttributeValue("internalQueue");
          }
 
          @Override
@@ -407,25 +413,26 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return (String) proxy.invokeOperation("listMessageCounterHistory");
          }
 
-         /**
-          * Returns the first message on the queue as JSON
-          */
          @Override
          public String getFirstMessageAsJSON() throws Exception {
             return (String) proxy.invokeOperation("getFirstMessageAsJSON");
          }
 
-         /**
-          * Returns the timestamp of the first message in milliseconds.
-          */
+         @Override
+         public String peekFirstMessageAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("peekFirstMessageAsJSON");
+         }
+
+         @Override
+         public String peekFirstScheduledMessageAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("peekFirstScheduledMessageAsJSON");
+         }
+
          @Override
          public Long getFirstMessageTimestamp() throws Exception {
             return (Long) proxy.invokeOperation("getFirstMessageTimestamp");
          }
 
-         /**
-          * Returns the age of the first message in milliseconds.
-          */
          @Override
          public Long getFirstMessageAge() throws Exception {
             return (Long) proxy.invokeOperation(Long.class, "getFirstMessageAge");
@@ -485,6 +492,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public boolean copyMessage(long messageID, String targetQueue) throws Exception {
+            return (Boolean) proxy.invokeOperation("copyMessage", messageID, targetQueue);
+         }
+
+         @Override
          public int moveMessages(final String filter,
                                  final String otherQueueName,
                                  final boolean rejectDuplicates) throws Exception {
@@ -511,6 +523,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public int retryMessages() throws Exception {
             return (Integer) proxy.invokeOperation(Integer.class, "retryMessages");
+         }
+
+         @Override
+         public int retryMessages(String filter) throws Exception {
+            return (Integer) proxy.invokeOperation(Integer.class, "retryMessages", filter);
          }
 
          @Override
@@ -593,8 +610,13 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
-         public boolean isPaused() throws Exception {
-            return (Boolean) proxy.invokeOperation("isPaused");
+         public boolean isPaused() {
+            return (Boolean) proxy.retrieveAttributeValue("paused");
+         }
+
+         @Override
+         public boolean isPersistedPause() {
+            return (Boolean) proxy.retrieveAttributeValue("persistedPause");
          }
 
          @Override

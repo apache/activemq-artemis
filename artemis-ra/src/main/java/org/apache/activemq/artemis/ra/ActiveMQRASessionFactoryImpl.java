@@ -59,77 +59,31 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-
-   /**
-    * Are we closed?
-    */
    private boolean closed = false;
 
-   /**
-    * The naming reference
-    */
    private Reference reference;
 
-   /**
-    * The user name
-    */
    private String userName;
 
-   /**
-    * The password
-    */
    private String password;
 
-   /**
-    * The client ID
-    */
    private String clientID;
 
-   /**
-    * The connection type
-    */
    private final int type;
 
-   /**
-    * Whether we are started
-    */
    private boolean started = false;
 
-   /**
-    * The managed connection factory
-    */
    private final ActiveMQRAManagedConnectionFactory mcf;
    private final TransactionSynchronizationRegistry tsr;
 
-   /**
-    * The connection manager
-    */
    private ConnectionManager cm;
 
-   /**
-    * The sessions
-    */
    private final Set<ActiveMQRASession> sessions = new HashSet<>();
 
-   /**
-    * The temporary queues
-    */
    private final Set<TemporaryQueue> tempQueues = new HashSet<>();
 
-   /**
-    * The temporary topics
-    */
    private final Set<TemporaryTopic> tempTopics = new HashSet<>();
 
-   private boolean allowLocalTransaction;
-
-   /**
-    * Constructor
-    *
-    * @param mcf  The managed connection factory
-    * @param cm   The connection manager
-    * @param type The connection type
-    */
    public ActiveMQRASessionFactoryImpl(final ActiveMQRAManagedConnectionFactory mcf,
                                        final ConnectionManager cm,
                                        final TransactionSynchronizationRegistry tsr,
@@ -151,38 +105,39 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
       }
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public JMSContext createContext(int sessionMode) {
       boolean inJtaTx = inJtaTransaction();
-      int sessionModeToUse;
-      switch (sessionMode) {
-         case Session.AUTO_ACKNOWLEDGE:
-         case Session.DUPS_OK_ACKNOWLEDGE:
-         case ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE:
-         case ActiveMQJMSConstants.PRE_ACKNOWLEDGE:
-            sessionModeToUse = sessionMode;
-            break;
+      int sessionModeToUse = switch (sessionMode) {
+         case Session.AUTO_ACKNOWLEDGE, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE,
+              ActiveMQJMSConstants.PRE_ACKNOWLEDGE -> sessionMode;
+
          //these are prohibited in JEE unless not in a JTA tx where they should be ignored and auto_ack used
-         case Session.CLIENT_ACKNOWLEDGE:
+         case Session.CLIENT_ACKNOWLEDGE -> {
             if (!inJtaTx) {
                throw ActiveMQRABundle.BUNDLE.invalidSessionTransactedModeRuntime();
             }
-            sessionModeToUse = Session.AUTO_ACKNOWLEDGE;
-            break;
-         case Session.SESSION_TRANSACTED:
+            yield Session.AUTO_ACKNOWLEDGE;
+         }
+         case Session.SESSION_TRANSACTED -> {
             if (!inJtaTx) {
                throw ActiveMQRABundle.BUNDLE.invalidClientAcknowledgeModeRuntime();
             }
-            sessionModeToUse = Session.AUTO_ACKNOWLEDGE;
-            break;
-         default:
-            throw ActiveMQRABundle.BUNDLE.invalidAcknowledgeMode(sessionMode);
-      }
+            yield Session.AUTO_ACKNOWLEDGE;
+         }
+         default -> throw ActiveMQRABundle.BUNDLE.invalidAcknowledgeMode(sessionMode);
+      };
       incrementRefCounter();
 
       return new ActiveMQRAJMSContext(this, sessionModeToUse, threadAwareContext);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public XAJMSContext createXAContext() {
       incrementRefCounter();
@@ -191,9 +146,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Set the naming reference
-    *
-    * @param reference The reference
+    * {@inheritDoc}
     */
    @Override
    public void setReference(final Reference reference) {
@@ -203,9 +156,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Get the naming reference
-    *
-    * @return The reference
+    * {@inheritDoc}
     */
    @Override
    public Reference getReference() {
@@ -214,22 +165,12 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
       return reference;
    }
 
-   /**
-    * Set the user name
-    *
-    * @param name The user name
-    */
    public void setUserName(final String name) {
       logger.trace("setUserName({})", name);
 
       userName = name;
    }
 
-   /**
-    * Set the password
-    *
-    * @param password The password
-    */
    public void setPassword(final String password) {
       logger.trace("setPassword(****)");
 
@@ -237,10 +178,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Get the client ID
-    *
-    * @return The client ID
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public String getClientID() throws JMSException {
@@ -256,10 +194,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Set the client ID -- throws IllegalStateException
-    *
-    * @param cID The client ID
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setClientID(final String cID) throws JMSException {
@@ -269,12 +204,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Create a queue session
-    *
-    * @param transacted      Use transactions
-    * @param acknowledgeMode The acknowledge mode
-    * @return The queue session
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public QueueSession createQueueSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
@@ -292,10 +222,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Create a XA queue session
-    *
-    * @return The XA queue session
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public XAQueueSession createXAQueueSession() throws JMSException {
@@ -312,14 +239,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Create a connection consumer -- throws IllegalStateException
-    *
-    * @param queue           The queue
-    * @param messageSelector The message selector
-    * @param sessionPool     The session pool
-    * @param maxMessages     The number of max messages
-    * @return The connection consumer
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public ConnectionConsumer createConnectionConsumer(final Queue queue,
@@ -334,12 +254,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Create a topic session
-    *
-    * @param transacted      Use transactions
-    * @param acknowledgeMode The acknowledge mode
-    * @return The topic session
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public TopicSession createTopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
@@ -357,10 +272,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Create a XA topic session
-    *
-    * @return The XA topic session
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public XATopicSession createXATopicSession() throws JMSException {
@@ -377,14 +289,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Create a connection consumer -- throws IllegalStateException
-    *
-    * @param topic           The topic
-    * @param messageSelector The message selector
-    * @param sessionPool     The session pool
-    * @param maxMessages     The number of max messages
-    * @return The connection consumer
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public ConnectionConsumer createConnectionConsumer(final Topic topic,
@@ -399,15 +304,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Create a durable connection consumer -- throws IllegalStateException
-    *
-    * @param topic            The topic
-    * @param subscriptionName The subscription name
-    * @param messageSelector  The message selector
-    * @param sessionPool      The session pool
-    * @param maxMessages      The number of max messages
-    * @return The connection consumer
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public ConnectionConsumer createDurableConnectionConsumer(final Topic topic,
@@ -423,15 +320,6 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
       throw new IllegalStateException(ISE);
    }
 
-   /**
-    * Create a connection consumer -- throws IllegalStateException
-    *
-    * @param destination The destination
-    * @param pool        The session pool
-    * @param maxMessages The number of max messages
-    * @return The connection consumer
-    * @throws JMSException Thrown if an error occurs
-    */
    public ConnectionConsumer createConnectionConsumer(final Destination destination,
                                                       final ServerSessionPool pool,
                                                       final int maxMessages) throws JMSException {
@@ -443,14 +331,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Create a connection consumer -- throws IllegalStateException
-    *
-    * @param destination The destination
-    * @param name        The name
-    * @param pool        The session pool
-    * @param maxMessages The number of max messages
-    * @return The connection consumer
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public ConnectionConsumer createConnectionConsumer(final Destination destination,
@@ -465,12 +346,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Create a session
-    *
-    * @param transacted      Use transactions
-    * @param acknowledgeMode The acknowledge mode
-    * @return The session
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Session createSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
@@ -483,10 +359,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Create a XA session
-    *
-    * @return The XA session
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public XASession createXASession() throws JMSException {
@@ -497,10 +370,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Get the connection metadata
-    *
-    * @return The connection metadata
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public ConnectionMetaData getMetaData() throws JMSException {
@@ -511,10 +381,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Get the exception listener -- throws IllegalStateException
-    *
-    * @return The exception listener
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public ExceptionListener getExceptionListener() throws JMSException {
@@ -524,10 +391,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Set the exception listener -- throws IllegalStateException
-    *
-    * @param listener The exception listener
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setExceptionListener(final ExceptionListener listener) throws JMSException {
@@ -537,9 +401,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Start
-    *
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void start() throws JMSException {
@@ -559,10 +421,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Stop
-    *
-    * @throws IllegalStateException
-    * @throws JMSException          Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void stop() throws JMSException {
@@ -572,9 +431,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Close
-    *
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void close() throws JMSException {
@@ -585,18 +442,6 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
       }
 
       closed = true;
-
-      synchronized (sessions) {
-         for (Iterator<ActiveMQRASession> i = sessions.iterator(); i.hasNext(); ) {
-            ActiveMQRASession session = i.next();
-            try {
-               session.closeSession();
-            } catch (Throwable t) {
-               logger.trace("Error closing session", t);
-            }
-            i.remove();
-         }
-      }
 
       synchronized (tempQueues) {
          for (Iterator<TemporaryQueue> i = tempQueues.iterator(); i.hasNext(); ) {
@@ -623,13 +468,22 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
             i.remove();
          }
       }
+
+      synchronized (sessions) {
+         for (Iterator<ActiveMQRASession> i = sessions.iterator(); i.hasNext(); ) {
+            ActiveMQRASession session = i.next();
+            try {
+               session.closeSession();
+            } catch (Throwable t) {
+               logger.trace("Error closing session", t);
+            }
+            i.remove();
+         }
+      }
    }
 
    /**
-    * Close session
-    *
-    * @param session The session
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void closeSession(final ActiveMQRASession session) throws JMSException {
@@ -641,9 +495,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Add temporary queue
-    *
-    * @param temp The temporary queue
+    * {@inheritDoc}
     */
    @Override
    public void addTemporaryQueue(final TemporaryQueue temp) {
@@ -655,9 +507,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    }
 
    /**
-    * Add temporary topic
-    *
-    * @param temp The temporary topic
+    * {@inheritDoc}
     */
    @Override
    public void addTemporaryTopic(final TemporaryTopic temp) {
@@ -706,26 +556,10 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
       throw new IllegalStateException(ISE);
    }
 
-   /**
-    * Allocation a connection
-    *
-    * @param sessionType The session type
-    * @return The session
-    * @throws JMSException Thrown if an error occurs
-    */
    protected ActiveMQRASession allocateConnection(final int sessionType) throws JMSException {
       return allocateConnection(false, Session.AUTO_ACKNOWLEDGE, sessionType);
    }
 
-   /**
-    * Allocate a connection
-    *
-    * @param transacted      Use transactions
-    * @param acknowledgeMode The acknowledge mode
-    * @param sessionType     The session type
-    * @return The session
-    * @throws JMSException Thrown if an error occurs
-    */
    protected ActiveMQRASession allocateConnection(boolean transacted,
                                                   int acknowledgeMode,
                                                   final int sessionType) throws JMSException {
@@ -808,8 +642,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                   session.close();
                } catch (Throwable ignored) {
                }
-               if (t instanceof Exception) {
-                  throw (Exception) t;
+               if (t instanceof Exception exception) {
+                  throw exception;
                } else {
                   throw new RuntimeException("Unexpected error: ", t);
                }
@@ -821,8 +655,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
             current = current.getCause();
          }
 
-         if (current != null && current instanceof JMSException) {
-            throw (JMSException) current;
+         if (current != null && current instanceof JMSException jmsException) {
+            throw jmsException;
          } else {
             JMSException je = new JMSException("Could not create a session: " + e.getMessage());
             je.setLinkedException(e);

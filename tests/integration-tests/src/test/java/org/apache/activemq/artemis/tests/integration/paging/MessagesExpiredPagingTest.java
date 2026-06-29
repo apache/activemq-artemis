@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -28,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -39,10 +44,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -68,16 +72,16 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
    ExecutorService expiresExecutor;
 
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       running.set(false);
       expiresExecutor.shutdown();
-      Assert.assertTrue(expiresExecutor.awaitTermination(10, TimeUnit.SECONDS));
+      assertTrue(expiresExecutor.awaitTermination(10, TimeUnit.SECONDS));
       super.tearDown();
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -101,7 +105,7 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
       server.addAddressInfo(new AddressInfo(ADDRESS).addRoutingType(RoutingType.MULTICAST));
 
       for (int i = 0; i < NUMBER_OF_QUEUES; i++) {
-         Queue queue = server.createQueue(new QueueConfiguration("q" + i).setRoutingType(RoutingType.MULTICAST).setAddress(ADDRESS));
+         Queue queue = server.createQueue(QueueConfiguration.of("q" + i).setRoutingType(RoutingType.MULTICAST).setAddress(ADDRESS));
          queues[i] = queue;
          expiresExecutor.execute(() -> {
             Thread.currentThread().setName("Expiry on " + queue.getName() + ".." + Thread.currentThread().getName());
@@ -122,41 +126,33 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
 
    @Test
    public void testSendReceiveCORELarge() throws Exception {
-      testSendReceive("CORE", 50, 20, 10, 500 * 1024);
+      testSendReceive(CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616"), 50, 20, 10, 500 * 1024);
    }
 
    @Test
    public void testSendReceiveCORE() throws Exception {
-      testSendReceive("CORE", 5000, 1000, 100, 0);
+      testSendReceive(CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616"), 5000, 1000, 100, 0);
    }
 
    @Test
    public void testSendReceiveAMQP() throws Exception {
-      testSendReceive("AMQP", 5000, 1000, 100, 0);
+      testSendReceive(CFUtil.createConnectionFactory("AMQP", "tcp://localhost:61616"), 5000, 1000, 100, 0);
    }
 
    @Test
    public void testSendReceiveAMQPLarge() throws Exception {
-      testSendReceive("AMQP", 50, 20, 10, 500 * 1024);
+      testSendReceive(CFUtil.createConnectionFactory("AMQP", "tcp://localhost:61616"), 50, 20, 10, 500 * 1024);
    }
 
    @Test
    public void testSendReceiveOpenWire() throws Exception {
-      testSendReceive("OPENWIRE", 5000, 1000, 100, 0);
+      ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) CFUtil.createConnectionFactory("OPENWIRE", "tcp://localhost:61616");
+      cf.setWatchTopicAdvisories(false);
+      testSendReceive(cf, 5000, 1000, 100, 0);
    }
 
-   public void testSendReceive(String protocol, int numberOfMessages, int numberOfMessageSecondWave, int pagingInterval, int bodySize) throws Exception {
-      ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
-
-      String extraBody;
-      {
-         StringBuffer buffer = new StringBuffer();
-         for (int i = 0; i < bodySize; i++) {
-            buffer.append("*");
-         }
-         extraBody = buffer.toString();
-      }
-
+   public void testSendReceive(ConnectionFactory factory, int numberOfMessages, int numberOfMessageSecondWave, int pagingInterval, int bodySize) throws Exception {
+      String extraBody = "*".repeat(bodySize);
 
       Consumer[] consumers = new Consumer[NUMBER_OF_QUEUES];
 
@@ -192,7 +188,7 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
                   producer.setTimeToLive(10);
                   c.consumedDelta.set(0);
                }
-               queues[0].getPagingStore().forceAnotherPage();
+               queues[0].getPagingStore().forceAnotherPage(true);
             }
             producer.send(session.createTextMessage("hello" + extraBody));
          }
@@ -200,7 +196,7 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
          producer.setTimeToLive(300);
          for (int i = 0; i < numberOfMessageSecondWave; i++) {
             if (i > 0 && i % pagingInterval == 0) {
-               queues[0].getPagingStore().forceAnotherPage();
+               queues[0].getPagingStore().forceAnotherPage(true);
             }
             producer.send(session.createTextMessage("hello" + extraBody));
          }
@@ -218,8 +214,8 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
          // first check just to make sure topics are being consumed regularly
          for (Consumer c : consumers) {
             c.join(5000);
-            Assert.assertFalse(c.isAlive());
-            Assert.assertEquals(0, c.errors.get());
+            assertFalse(c.isAlive());
+            assertEquals(0, c.errors.get());
          }
       }
    }
@@ -252,7 +248,7 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
                while (running.get()) {
                   TextMessage message = (TextMessage)consumer.receive(500);
                   if (message != null) {
-                     Assert.assertTrue(message.getText().length() > minimalSize);
+                     assertTrue(message.getText().length() > minimalSize);
                      consumed.incrementAndGet();
                      consumedDelta.incrementAndGet();
                      Thread.sleep(2);

@@ -27,32 +27,22 @@ public class ClusterConnectionMetrics {
    private final long messagesPendingAcknowledgement;
    private final long messagesAcknowledged;
 
-   /**
-    * @param messagesPendingAcknowledgement
-    * @param messagesAcknowledged
-    */
    public ClusterConnectionMetrics(long messagesPendingAcknowledgement, long messagesAcknowledged) {
       super();
       this.messagesPendingAcknowledgement = messagesPendingAcknowledgement;
       this.messagesAcknowledged = messagesAcknowledged;
    }
 
-   /**
-    * @return the messagesPendingAcknowledgement
-    */
    public long getMessagesPendingAcknowledgement() {
       return messagesPendingAcknowledgement;
    }
 
-   /**
-    * @return the messagesAcknowledged
-    */
    public long getMessagesAcknowledged() {
       return messagesAcknowledged;
    }
 
    /**
-    * @return New map containing the Cluster Connection metrics
+    * {@return New map containing the Cluster Connection metrics}
     */
    public Map<String, Object> convertToMap() {
       final Map<String, Object> metrics = new HashMap<>();

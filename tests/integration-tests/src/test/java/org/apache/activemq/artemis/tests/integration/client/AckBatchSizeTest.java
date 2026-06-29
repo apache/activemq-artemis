@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -29,8 +32,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,20 +40,17 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public final SimpleString addressA = new SimpleString("addressA");
+   public final SimpleString addressA = SimpleString.of("addressA");
 
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString queueA = SimpleString.of("queueA");
 
-   public final SimpleString queueB = new SimpleString("queueB");
+   public final SimpleString queueB = SimpleString.of("queueB");
 
-   public final SimpleString queueC = new SimpleString("queueC");
+   public final SimpleString queueC = SimpleString.of("queueC");
 
    /*ackbatchSize tests*/
 
-   /*
-   * tests that wed don't acknowledge until the correct ackBatchSize is reached
-   * */
-
+   // tests that we don't acknowledge until the correct ackBatchSize is reached
    private int getMessageEncodeSize(final SimpleString address) throws Exception {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory cf = createSessionFactory(locator);
@@ -76,13 +75,13 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, true, true);
 
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = (ClientMessage)sendSession.createMessage(false).setAddress(addressA);
-         Assert.assertEquals(originalSize, message.getEncodeSize());
+         assertEquals(originalSize, message.getEncodeSize());
          cp.send(message);
-         Assert.assertEquals(originalSize, message.getEncodeSize());
+         assertEquals(originalSize, message.getEncodeSize());
       }
 
       ClientConsumer consumer = session.createConsumer(queueA);
@@ -90,23 +89,21 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages - 1; i++) {
          logger.debug("Receive ");
          ClientMessage m = consumer.receive(5000);
-         Assert.assertEquals(0, m.getPropertyNames().size());
-         Assert.assertEquals("expected to be " + originalSize, originalSize, m.getEncodeSize());
+         assertEquals(0, m.getPropertyNames().size());
+         assertEquals(originalSize, m.getEncodeSize(), "expected to be " + originalSize);
          m.acknowledge();
       }
 
       ClientMessage m = consumer.receive(5000);
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(numMessages, q.getDeliveringCount());
+      assertEquals(numMessages, q.getDeliveringCount());
       m.acknowledge();
-      Assert.assertEquals(0, q.getDeliveringCount());
+      assertEquals(0, q.getDeliveringCount());
       sendSession.close();
       session.close();
    }
 
-   /*
-   * tests that when the ackBatchSize is 0 we ack every message directly
-   * */
+   // tests that when the ackBatchSize is 0 we ack every message directly
    @Test
    public void testAckBatchSizeZero() throws Exception {
       ActiveMQServer server = createServer(false);
@@ -118,7 +115,7 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       int numMessages = 100;
 
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));
@@ -130,11 +127,11 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       ClientMessage[] messages = new ClientMessage[numMessages];
       for (int i = 0; i < numMessages; i++) {
          messages[i] = consumer.receive(5000);
-         Assert.assertNotNull(messages[i]);
+         assertNotNull(messages[i]);
       }
       for (int i = 0; i < numMessages; i++) {
          messages[i].acknowledge();
-         Assert.assertEquals(numMessages - i - 1, q.getDeliveringCount());
+         assertEquals(numMessages - i - 1, q.getDeliveringCount());
       }
       sendSession.close();
       session.close();

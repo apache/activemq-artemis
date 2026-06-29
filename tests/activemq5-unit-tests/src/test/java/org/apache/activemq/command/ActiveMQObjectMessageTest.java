@@ -23,16 +23,8 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-/**
- *
- */
 public class ActiveMQObjectMessageTest extends TestCase {
 
-   /**
-    * Constructor for ActiveMQObjectMessageTest.
-    *
-    * @param name
-    */
    public ActiveMQObjectMessageTest(String name) {
       super(name);
    }
@@ -41,17 +33,11 @@ public class ActiveMQObjectMessageTest extends TestCase {
       junit.textui.TestRunner.run(ActiveMQObjectMessageTest.class);
    }
 
-   /*
-    * @see TestCase#setUp()
-    */
    @Override
    protected void setUp() throws Exception {
       super.setUp();
    }
 
-   /*
-    * @see TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       super.tearDown();

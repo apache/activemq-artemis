@@ -16,15 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.e2e.brokerConnection;
 
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.io.File;
 
 import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
-import org.junit.Assume;
 
-/** The purpose of this class is to validate if "artemis-centos" and docker (or an equivalent) is available on the environment.
- *  Tests can use an assume to be ignored in case the image is not available.
- *  The test will also cache the result by creating a file target/org.apache.activemq.artemis.tests.smoke.brokerConnection.ValidateContainer.ok
- *  So, we won't keep redoing the check during development on an IDE. */
+/**
+ * The purpose of this class is to validate if the container and Docker (or an equivalent) is available on the
+ * environment. Tests can use an assume to be ignored in case the image is not available. The test will also cache the
+ * result by creating a file target/org.apache.activemq.artemis.tests.smoke.brokerConnection.ValidateContainer.ok So, we
+ * won't keep redoing the check during development on an IDE.
+ */
 public class ValidateContainer {
 
    private static final boolean hasContainer;
@@ -56,9 +59,11 @@ public class ValidateContainer {
       return hasContainer;
    }
 
-   /** assume clause to validate the Artemis Container and the Container provider are available  */
+   /**
+    * assume clause to validate the Artemis Container and the Container provider are available
+    */
    public static void assumeArtemisContainer() {
-      Assume.assumeTrue("Please build artemis.centos container image before running these tests", hasContainer());
+      assumeTrue(hasContainer(), "Please build the container using 'mvn install -De2e-tests.skipImageBuild=false' before running these tests");
    }
 
 }

@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -53,7 +55,7 @@ public class MQTTQueueCleanTest extends MQTTTestSupport {
          server.addAddressInfo(new AddressInfo(address)
                                   .addRoutingType(RoutingType.MULTICAST));
 
-         server.createQueue(new QueueConfiguration(queueName)
+         server.createQueue(QueueConfiguration.of(queueName)
                                .setAddress(address)
                                .setRoutingType(RoutingType.MULTICAST)
                                .setConfigurationManaged(true));
@@ -66,10 +68,10 @@ public class MQTTQueueCleanTest extends MQTTTestSupport {
       clientProvider.disconnect();
 
       if (managed) {
-         assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.toSimpleString(queueName)) != null &&
-            server.locateQueue(SimpleString.toSimpleString(queueName)).getConsumerCount() == 0, 5000, 10));
+         assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.of(queueName)) != null &&
+            server.locateQueue(SimpleString.of(queueName)).getConsumerCount() == 0, 5000, 10));
       } else {
-         assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.toSimpleString(queueName)) == null, 5000, 10));
+         assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.of(queueName)) == null, 5000, 10));
       }
    }
 
@@ -85,7 +87,7 @@ public class MQTTQueueCleanTest extends MQTTTestSupport {
       clientProvider.subscribe(topic, AT_LEAST_ONCE);
       server.stop();
       server.start();
-      Wait.assertTrue(() -> server.locateQueue(SimpleString.toSimpleString(queueName)) == null, 5000, 10);
+      Wait.assertTrue(() -> server.locateQueue(SimpleString.of(queueName)) == null, 5000, 10);
    }
 
    @Test
@@ -118,7 +120,7 @@ public class MQTTQueueCleanTest extends MQTTTestSupport {
                clientProvider.disconnect();
             }
             clientProviders.clear();
-            assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.toSimpleString(queueName)) == null, 5000, 10));
+            assertTrue(Wait.waitFor(() -> server.locateQueue(SimpleString.of(queueName)) == null, 5000, 10));
          }
       }
    }

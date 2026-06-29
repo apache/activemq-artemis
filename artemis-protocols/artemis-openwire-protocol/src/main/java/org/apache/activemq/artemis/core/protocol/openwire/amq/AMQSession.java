@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
 import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
-import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -51,6 +51,8 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
+import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
+import org.apache.activemq.artemis.utils.runnables.RunnableList;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ConnectionInfo;
 import org.apache.activemq.command.ConsumerInfo;
@@ -78,6 +80,8 @@ public class AMQSession implements SessionCallback {
    private final ActiveMQServer server;
    private final OpenWireConnection connection;
 
+   private final RunnableList blockedRunnables = new RunnableList();
+
    private final AtomicBoolean started = new AtomicBoolean(false);
 
    private final ScheduledExecutorService scheduledPool;
@@ -102,7 +106,7 @@ public class AMQSession implements SessionCallback {
                      OpenWireProtocolManager protocolManager, CoreMessageObjectPools coreMessageObjectPools) {
       this.connInfo = connInfo;
       this.sessInfo = sessInfo;
-      this.clientId = SimpleString.toSimpleString(connInfo.getClientId());
+      this.clientId = SimpleString.of(connInfo.getClientId());
       this.server = server;
       this.connection = connection;
       this.protocolManager = protocolManager;
@@ -175,14 +179,17 @@ public class AMQSession implements SessionCallback {
             }
             isInternalAddress = connection.isSuppressInternalManagementObjects();
          }
+
          if (openWireDest.isQueue()) {
             openWireDest = protocolManager.virtualTopicConsumerToFQQN(openWireDest);
-            SimpleString queueName = new SimpleString(convertWildcard(openWireDest));
-
-            if (!checkAutoCreateQueue(queueName, openWireDest.isTemporary(), OpenWireUtil.extractFilterStringOrNull(info, openWireDest))) {
-               throw new InvalidDestinationException("Destination doesn't exist: " + queueName);
-            }
          }
+
+         SimpleString queueName = SimpleString.of(convertWildcard(openWireDest));
+
+         boolean temporary = openWireDest.isTemporary() || AdvisorySupport.isAdvisoryTopic(openWireDest);
+
+         checkAutoCreate(queueName, temporary, OpenWireUtil.extractFilterStringOrNull(info, openWireDest), openWireDest.isQueue());
+
          AMQConsumer consumer = new AMQConsumer(this, openWireDest, info, scheduledPool, isInternalAddress);
 
          long nativeID = consumerIDGenerator.generateID();
@@ -193,7 +200,7 @@ public class AMQSession implements SessionCallback {
       return consumersList;
    }
 
-   private boolean checkCachedExistingQueues(final SimpleString address,
+   private void checkCachedExistingQueues(final SimpleString address,
                                              final String physicalName,
                                              final boolean isTemporary) throws Exception {
       String[] existingQueuesCache = this.existingQueuesCache;
@@ -211,26 +218,19 @@ public class AMQSession implements SessionCallback {
       final String existingQueue = existingQueuesCache[index];
       if (existingQueue != null && existingQueue.equals(physicalName)) {
          //if the information is stale (ie no longer valid) it will fail later
-         return true;
+         return;
       }
-      final boolean hasQueue = checkAutoCreateQueue(address, isTemporary);
-      if (hasQueue) {
-         existingQueuesCache[index] = physicalName;
-      }
-      return hasQueue;
+      checkAutoCreate(address, isTemporary, null, true);
+      existingQueuesCache[index] = physicalName;
    }
 
-   private boolean checkAutoCreateQueue(SimpleString queueName, boolean isTemporary) throws Exception {
-      return checkAutoCreateQueue(queueName, isTemporary, null);
-   }
-
-   private boolean checkAutoCreateQueue(SimpleString queueName, boolean isTemporary, String filter) throws Exception {
-
-      boolean hasQueue = true;
-      if (!connection.containsKnownDestination(queueName)) {
-         RoutingType routingTypeToUse = RoutingType.ANYCAST;
-         if (CompositeAddress.isFullyQualified(queueName.toString())) {
-            SimpleString addressToUse = CompositeAddress.extractAddressName(queueName);
+   private void checkAutoCreate(SimpleString destinationName, boolean isTemporary, String filter, boolean isQueue) throws Exception {
+      if (isQueue && connection.containsKnownDestination(destinationName)) {
+         return;
+      } else {
+         RoutingType routingTypeToUse;
+         if (CompositeAddress.isFullyQualified(destinationName.toString())) {
+            SimpleString addressToUse = CompositeAddress.extractAddressName(destinationName);
             AddressInfo addressInfo = server.getAddressInfo(addressToUse);
             if (addressInfo != null) {
                routingTypeToUse = addressInfo.getRoutingType();
@@ -238,18 +238,22 @@ public class AMQSession implements SessionCallback {
                AddressSettings as = server.getAddressSettingsRepository().getMatch(addressToUse.toString());
                routingTypeToUse = as.getDefaultAddressRoutingType();
             }
+         } else if (isQueue) {
+            routingTypeToUse = RoutingType.ANYCAST;
+         } else {
+            routingTypeToUse = RoutingType.MULTICAST;
          }
-         AutoCreateResult autoCreateResult = coreSession.checkAutoCreate(new QueueConfiguration(queueName)
-                                                                            .setAddress(queueName)
+         AutoCreateResult autoCreateResult = coreSession.checkAutoCreate(QueueConfiguration.of(destinationName)
+                                                                            .setAddress(destinationName)
                                                                             .setRoutingType(routingTypeToUse)
                                                                             .setTemporary(isTemporary)
                                                                             .setFilterString(filter));
          if (autoCreateResult == AutoCreateResult.NOT_FOUND) {
-            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
+            throw new InvalidDestinationException("Destination '" + destinationName + "' doesn't exist and auto-creation is disabled.");
+         } else if (isQueue) {
+            connection.addKnownDestination(destinationName);
          }
-         connection.addKnownDestination(queueName);
       }
-      return hasQueue;
    }
 
    public void start() {
@@ -291,19 +295,17 @@ public class AMQSession implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference reference,
-                          org.apache.activemq.artemis.api.core.Message message,
+   public int sendMessage(MessageReference ref,
                           ServerConsumer consumer,
                           int deliveryCount) {
       AMQConsumer theConsumer = (AMQConsumer) consumer.getProtocolData();
       //clear up possible rolledback ids.
-      theConsumer.removeRolledback(reference);
-      return theConsumer.handleDeliver(reference, message.toCore());
+      theConsumer.removeRolledback(ref);
+      return theConsumer.handleDeliver(ref, ref.getMessage().toCore());
    }
 
    @Override
-   public int sendLargeMessage(MessageReference reference,
-                               org.apache.activemq.artemis.api.core.Message message,
+   public int sendLargeMessage(MessageReference ref,
                                ServerConsumer consumerID,
                                long bodySize,
                                int deliveryCount) {
@@ -322,8 +324,7 @@ public class AMQSession implements SessionCallback {
 
    @Override
    public void closed() {
-      // TODO Auto-generated method stub
-
+      blockedRunnables.cancel();
    }
 
    @Override
@@ -340,6 +341,7 @@ public class AMQSession implements SessionCallback {
 
    @Override
    public void disconnect(ServerConsumer serverConsumer, String errorMessage) {
+      blockedRunnables.cancel();
       // for an openwire consumer this is fatal because unlike with activemq5 sending
       // to the address will not auto create the consumer binding and it will be in limbo.
       // forcing disconnect allows it to failover and recreate its binding.
@@ -362,6 +364,14 @@ public class AMQSession implements SessionCallback {
 
       final ActiveMQDestination destination = messageSend.getDestination();
 
+      if (producerInfo.getDestination() == null) {
+         // a named producer will have its target destination checked on create but an
+         // anonymous producer can send to different addresses on each send so we need to
+         // check here before going into message conversion and pre-dispatch stages before
+         // the target gets a security check.
+         checkDestinationForSendPermission(destination);
+      }
+
       final ActiveMQDestination[] actualDestinations;
       final int actualDestinationsCount;
       if (destination.isComposite()) {
@@ -377,13 +387,15 @@ public class AMQSession implements SessionCallback {
 
       assert clientId.toString().equals(this.connection.getState().getInfo().getClientId()) : "Session cached clientId must be the same of the connection";
       originalCoreMsg.putStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME, clientId);
-      /* ActiveMQ failover transport will attempt to reconnect after connection failure.  Any sent messages that did
-      * not receive acks will be resent.  (ActiveMQ broker handles this by returning a last sequence id received to
-      * the client).  To handle this in Artemis we use a duplicate ID cache.  To do this we check to see if the
-      * message comes from failover connection.  If so we add a DUPLICATE_ID to handle duplicates after a resend. */
+      /*
+       * ActiveMQ failover transport will attempt to reconnect after connection failure.  Any sent messages that did
+       * not receive acks will be resent.  (ActiveMQ broker handles this by returning a last sequence id received to
+       * the client). To handle this in Artemis we use a duplicate ID cache.  To do this we check to see if the
+       * message comes from failover connection.  If so we add a DUPLICATE_ID to handle duplicates after a resend.
+       */
 
       if (connection.getContext().isFaultTolerant() && protocolManager.isOpenwireUseDuplicateDetectionOnFailover() && !messageSend.getProperties().containsKey(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID.toString()) && !isTemporary(producerInfo)) {
-         originalCoreMsg.putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.toSimpleString(messageSend.getMessageId().toString()));
+         originalCoreMsg.putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.of(messageSend.getMessageId().toString()));
       }
 
       final boolean shouldBlockProducer = producerInfo.getWindowSize() > 0 || messageSend.isResponseRequired();
@@ -397,7 +409,7 @@ public class AMQSession implements SessionCallback {
       for (int i = 0; i < actualDestinationsCount; i++) {
          final ActiveMQDestination dest = actualDestinations != null ? actualDestinations[i] : destination;
          final String physicalName = dest.getPhysicalName();
-         final SimpleString address = SimpleString.toSimpleString(physicalName, coreMessageObjectPools.getAddressStringSimpleStringPool());
+         final SimpleString address = SimpleString.of(physicalName, coreMessageObjectPools.getAddressStringSimpleStringPool());
          //the last coreMsg could be directly the original one -> it avoid 1 copy if actualDestinations > 1 and ANY copy if actualDestinations == 1
          final org.apache.activemq.artemis.api.core.Message coreMsg = (i == actualDestinationsCount - 1) ? originalCoreMsg : originalCoreMsg.copy();
          coreMsg.setAddress(address);
@@ -414,7 +426,7 @@ public class AMQSession implements SessionCallback {
             sendShouldBlockProducer(producerInfo, messageSend, sendProducerAck, store, dest, count, coreMsg, address);
          } else {
             if (store != null) {
-               if (!store.checkMemory(true, this::restoreAutoRead, this::blockConnection)) {
+               if (!store.checkMemory(true, this::restoreAutoRead, this::blockConnection, this.blockedRunnables::add)) {
                   restoreAutoRead();
                   throw new ResourceAllocationException("Queue is full " + address);
                }
@@ -442,62 +454,65 @@ public class AMQSession implements SessionCallback {
                                         final AtomicInteger count,
                                         final org.apache.activemq.artemis.api.core.Message coreMsg,
                                         final SimpleString address) throws ResourceAllocationException {
-      final Runnable task = () -> {
-         Exception exceptionToSend = null;
 
-         try {
-            getCoreSession().send(coreMsg, false, producerInfo.getProducerId().toString(), dest.isTemporary());
-         } catch (Exception e) {
-            logger.debug("Sending exception to the client", e);
-            exceptionToSend = e;
-         }
-         connection.enableTtl();
-         if (count == null || count.decrementAndGet() == 0) {
-            if (exceptionToSend != null) {
-               this.connection.getContext().setDontSendReponse(false);
-               connection.sendException(exceptionToSend);
-            } else {
-               server.getStorageManager().afterCompleteOperations(new IOCallback() {
-                  @Override
-                  public void done() {
-                     if (sendProducerAck) {
-                        try {
-                           ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
-                           connection.dispatchAsync(ack);
-                        } catch (Exception e) {
+      final AtomicRunnable task = new AtomicRunnable() {
+         @Override
+         public void atomicRun() {
+            Exception exceptionToSend = null;
+            try {
+               getCoreSession().send(coreMsg, false, producerInfo.getProducerId().toString(), dest.isTemporary());
+            } catch (Exception e) {
+               logger.debug("Sending exception to the client", e);
+               exceptionToSend = e;
+            }
+            connection.enableTtl();
+            if (count == null || count.decrementAndGet() == 0) {
+               if (exceptionToSend != null) {
+                  connection.getContext().setDontSendReponse(false);
+                  connection.sendException(exceptionToSend);
+               } else {
+                  server.getStorageManager().afterCompleteOperations(new IOCallback() {
+                     @Override
+                     public void done() {
+                        if (sendProducerAck) {
+                           try {
+                              ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
+                              connection.dispatchAsync(ack);
+                           } catch (Exception e) {
+                              connection.getContext().setDontSendReponse(false);
+                              logger.warn(e.getMessage(), e);
+                              connection.sendException(e);
+                           }
+                        } else {
                            connection.getContext().setDontSendReponse(false);
-                           logger.warn(e.getMessage(), e);
-                           connection.sendException(e);
-                        }
-                     } else {
-                        connection.getContext().setDontSendReponse(false);
-                        try {
-                           Response response = new Response();
-                           response.setCorrelationId(messageSend.getCommandId());
-                           connection.dispatchAsync(response);
-                        } catch (Exception e) {
-                           logger.warn(e.getMessage(), e);
-                           connection.sendException(e);
+                           try {
+                              Response response = new Response();
+                              response.setCorrelationId(messageSend.getCommandId());
+                              connection.dispatchAsync(response);
+                           } catch (Exception e) {
+                              logger.warn(e.getMessage(), e);
+                              connection.sendException(e);
+                           }
                         }
                      }
-                  }
 
-                  @Override
-                  public void onError(int errorCode, String errorMessage) {
-                     try {
-                        final IOException e = new IOException(errorMessage);
-                        logger.warn(errorMessage);
-                        connection.serviceException(e);
-                     } catch (Exception ex) {
-                        logger.debug(ex.getMessage(), ex);
+                     @Override
+                     public void onError(int errorCode, String errorMessage) {
+                        try {
+                           final IOException e = new IOException(errorMessage);
+                           logger.warn(errorMessage);
+                           connection.serviceException(e);
+                        } catch (Exception ex) {
+                           logger.debug(ex.getMessage(), ex);
+                        }
                      }
-                  }
-               });
+                  });
+               }
             }
          }
       };
       if (store != null) {
-         if (!store.checkMemory(false, task, null)) {
+         if (!store.checkMemory(false, task, null, blockedRunnables::add)) {
             this.connection.getContext().setDontSendReponse(false);
             connection.enableTtl();
             throw new ResourceAllocationException("Queue is full " + address);
@@ -544,7 +559,16 @@ public class AMQSession implements SessionCallback {
    }
 
    public void close() throws Exception {
-      this.coreSession.close(false);
+      this.close(false);
+   }
+
+   @Override
+   public void close(boolean failed) {
+      blockedRunnables.cancel();
+      try {
+         this.coreSession.close(failed);
+      } catch (Exception bestEffort) {
+      }
    }
 
    public OpenWireConnection getConnection() {
@@ -553,5 +577,26 @@ public class AMQSession implements SessionCallback {
 
    public boolean isInternal() {
       return sessInfo.getSessionId().getValue() == -1;
+   }
+
+   public void checkDestinationForSendPermission(ActiveMQDestination destination) throws Exception {
+      if (server.getSecurityStore().isSecurityEnabled()) {
+         if (destination.isComposite()) {
+            for (ActiveMQDestination composite : destination.getCompositeDestinations()) {
+               doCheckDestinationForSendPermission(composite);
+            }
+         } else {
+            doCheckDestinationForSendPermission(destination);
+         }
+      }
+   }
+
+   private void doCheckDestinationForSendPermission(ActiveMQDestination destination) throws Exception {
+      final SimpleString destinationName = SimpleString.of(destination.getPhysicalName());
+      final SimpleString address = CompositeAddress.extractAddressName(destinationName);
+      final SimpleString queue = CompositeAddress.isFullyQualified(destinationName) ?
+         CompositeAddress.extractQueueName(destinationName) : null;
+
+      server.getSecurityStore().check(address, queue, CheckType.SEND, getCoreSession());
    }
 }

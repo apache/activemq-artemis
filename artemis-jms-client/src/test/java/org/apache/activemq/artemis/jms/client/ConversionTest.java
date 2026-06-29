@@ -16,17 +16,17 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Test conversion from Core message to JMS message.
@@ -45,7 +45,7 @@ public class ConversionTest {
       Map<String, Object> jmsMap = ActiveMQMessage.coreMaptoJMSMap(messageMap);
 
       Object priority = jmsMap.get("JMSPriority");
-      assertTrue(priority instanceof Integer);
+      assertInstanceOf(Integer.class, priority);
       assertEquals(9, priority);
       assertNotNull(jmsMap.get("JMSMessageID"));
       assertEquals("ID:" + uuid, jmsMap.get("JMSMessageID"));

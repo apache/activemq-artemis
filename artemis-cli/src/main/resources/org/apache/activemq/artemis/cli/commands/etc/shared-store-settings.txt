@@ -1,8 +1,8 @@
 
       <ha-policy>
          <shared-store>
-            <${master-slave}>
+            <${primary-backup}>
                <failover-on-shutdown>${failover-on-shutdown}</failover-on-shutdown>
-            </${master-slave}>
+            </${primary-backup}>
          </shared-store>
       </ha-policy>

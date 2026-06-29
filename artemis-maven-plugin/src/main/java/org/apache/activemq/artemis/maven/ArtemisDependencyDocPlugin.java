@@ -22,43 +22,39 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactResult;
 
-/** The following substitutions are made for each line
- * X{group} with the groupID
- * X{artifact} with the artifactID
- * X{version} with the version
- * X{classifier} with the classifier of the component
- * X{package} a combination of the maven group:artifact:classifier
- * X{url} with the url
- * X{file} with the fileName
- * X{fileMD} with the fileName on a LINK with MD style
- * X{URI} with the URI
- * X{detail} with the detail provided in the config */
-@Mojo(name = "dependency-doc", defaultPhase = LifecyclePhase.VERIFY)
+/**
+ * The following substitutions are made for each line
+ * <ul>
+ * <li>{@code X{group}} with the groupID
+ * <li>{@code X{artifact}} with the artifactID
+ * <li>{@code X{version}} with the version
+ * <li>{@code X{classifier}} with the classifier of the component
+ * <li>{@code X{package}} a combination of the maven group:artifact:classifier
+ * <li>{@code X{url}} with the url
+ * <li>{@code X{file}} with the fileName
+ * <li>{@code X{fileMD}} with the fileName on a LINK with MD style
+ * <li>{@code X{URI}} with the URI
+ * <li>{@code X{detail}} with the detail provided in the config
+ * </ul>
+ */
+@Mojo(name = "dependency-doc", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
 
    @Parameter
    String name;
-
-   /**
-    * The plugin descriptor
-    */
-   private PluginDescriptor descriptor;
 
    @Parameter
    private String[] groupOrder;
@@ -89,8 +85,6 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
    @Parameter
    private String file;
 
-   private MavenProject project;
-
    @Override
    protected boolean isIgnore() {
       return false;
@@ -118,7 +112,7 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
    }
 
    private String getPackageName(org.eclipse.aether.artifact.Artifact artifact) {
-      return artifact.getGroupId() + ":" + artifact.getArtifactId() + (artifact.getClassifier() != null && !artifact.getClassifier().equals("") ? ":" + artifact.getClassifier() : "");
+      return artifact.getGroupId() + ":" + artifact.getArtifactId() + (artifact.getClassifier() != null && !artifact.getClassifier().isEmpty() ? ":" + artifact.getClassifier() : "");
    }
 
    private String getGroupOrder(String group) {
@@ -138,7 +132,7 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
    @Override
    protected void doExecute() {
 
-      HashMap<String, String> keys = new HashMap<>();
+      Map<String, String> keys = new HashMap<>();
 
       if (detailKey != null) {
          if (detailValue == null) {
@@ -175,13 +169,10 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
 
          List<org.eclipse.aether.artifact.Artifact> artifacts = explodeDependencies(newArtifact(lib));
 
-         Collections.sort(artifacts, new Comparator<Artifact>() {
-            @Override
-            public int compare(Artifact o1, Artifact o2) {
-               String pref1 = getGroupOrder(o1.getGroupId());
-               String pref2 = getGroupOrder(o2.getGroupId());
-               return (pref1 + o1.getGroupId() + o1.getArtifactId()).compareTo(pref2 + o2.getGroupId() + o2.getArtifactId());
-            }
+         Collections.sort(artifacts, (o1, o2) -> {
+            String pref1 = getGroupOrder(o1.getGroupId());
+            String pref2 = getGroupOrder(o2.getGroupId());
+            return (pref1 + o1.getGroupId() + o1.getArtifactId()).compareTo(pref2 + o2.getGroupId() + o2.getArtifactId());
          });
 
          artifacts.forEach((art) -> {
@@ -194,7 +185,7 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
 
                ArtifactResult result = resolveArtifact(art);
 
-               HashMap<String, String> filter = new HashMap<>();
+               Map<String, String> filter = new HashMap<>();
                filter.put("X{detail}", detail);
                filter.put("X{group}", art.getGroupId());
                filter.put("X{artifact}", art.getArtifactId());
@@ -207,7 +198,7 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
 
                filter.put("X{uri}", uri);
 
-               if (uri.equals("")) {
+               if (uri.isEmpty()) {
                   filter.put("X{fileMD}", result.getArtifact().getFile().getName());
                } else {
                   filter.put("X{fileMD}", "link:" + uri + "[" + result.getArtifact().getFile().getName() + "]");
@@ -241,8 +232,7 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
    private String getURI(ArtifactResult result) {
       Artifact art = result.getArtifact();
       String uri = "";
-      if (result.getRepository() instanceof RemoteRepository) {
-         RemoteRepository remoteRepository = (RemoteRepository) result.getRepository();
+      if (result.getRepository() instanceof RemoteRepository remoteRepository) {
          uri = remoteRepository.getUrl();
       } else {
          uri = defaultRepo;

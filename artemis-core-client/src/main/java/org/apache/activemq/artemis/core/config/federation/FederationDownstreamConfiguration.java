@@ -56,6 +56,7 @@ public class FederationDownstreamConfiguration extends FederationStreamConfigura
       //The federated server that creates the upstream back will rely on its config from the acceptor for TLS
       stripParam(params, TransportConstants.SSL_ENABLED_PROP_NAME);
       stripParam(params, TransportConstants.SSL_PROVIDER);
+      stripParam(params, TransportConstants.SSL_HANDSHAKE_TIMEOUT);
       stripParam(params, TransportConstants.KEYSTORE_PATH_PROP_NAME);
       stripParam(params, TransportConstants.KEYSTORE_PASSWORD_PROP_NAME);
       stripParam(params, TransportConstants.KEYSTORE_PROVIDER_PROP_NAME);
@@ -83,19 +84,19 @@ public class FederationDownstreamConfiguration extends FederationStreamConfigura
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof FederationDownstreamConfiguration other)) {
          return false;
       }
-      if (!super.equals(o)) {
+      if (!super.equals(obj)) {
          return false;
       }
-      FederationDownstreamConfiguration that = (FederationDownstreamConfiguration) o;
-      return Objects.equals(upstreamConfigurationRef, that.upstreamConfigurationRef) &&
-         Objects.equals(upstreamConfiguration, that.upstreamConfiguration);
+
+      return Objects.equals(upstreamConfigurationRef, other.upstreamConfigurationRef) &&
+             Objects.equals(upstreamConfiguration, other.upstreamConfiguration);
    }
 
    @Override

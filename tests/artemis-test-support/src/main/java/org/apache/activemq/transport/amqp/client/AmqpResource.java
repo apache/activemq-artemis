@@ -20,77 +20,73 @@ import org.apache.activemq.transport.amqp.client.util.AsyncResult;
 
 /**
  * AmqpResource specification.
- *
- * All AMQP types should implement this interface to allow for control of state
- * and configuration details.
+ * <p>
+ * All AMQP types should implement this interface to allow for control of state and configuration details.
  */
 public interface AmqpResource extends AmqpEventSink {
 
    /**
-    * Perform all the work needed to open this resource and store the request
-    * until such time as the remote peer indicates the resource has become active.
+    * Perform all the work needed to open this resource and store the request until such time as the remote peer
+    * indicates the resource has become active.
     *
     * @param request The initiating request that triggered this open call.
     */
    void open(AsyncResult request);
 
    /**
-    * @return if the resource has moved to the opened state on the remote.
+    * {@return if the resource has moved to the opened state on the remote}
     */
    boolean isOpen();
 
    /**
-    * Called to indicate that this resource is now remotely opened.  Once opened a
-    * resource can start accepting incoming requests.
+    * Called to indicate that this resource is now remotely opened.  Once opened a resource can start accepting incoming
+    * requests.
     */
    void opened();
 
    /**
-    * Perform all work needed to close this resource and store the request
-    * until such time as the remote peer indicates the resource has been closed.
+    * Perform all work needed to close this resource and store the request until such time as the remote peer indicates
+    * the resource has been closed.
     *
     * @param request The initiating request that triggered this close call.
     */
    void close(AsyncResult request);
 
    /**
-    * Perform all work needed to detach this resource and store the request
-    * until such time as the remote peer indicates the resource has been detached.
+    * Perform all work needed to detach this resource and store the request until such time as the remote peer indicates
+    * the resource has been detached.
     *
     * @param request The initiating request that triggered this detach call.
     */
    void detach(AsyncResult request);
 
    /**
-    * @return if the resource has moved to the closed state on the remote.
+    * {@return if the resource has moved to the closed state on the remote}
     */
    boolean isClosed();
 
    /**
-    * Called to indicate that this resource is now remotely closed.  Once closed a
-    * resource can not accept any incoming requests.
+    * Called to indicate that this resource is now remotely closed.  Once closed a resource can not accept any incoming
+    * requests.
     */
    void closed();
 
    /**
-    * Sets the failed state for this Resource and triggers a failure signal for
-    * any pending ProduverRequest.
+    * Sets the failed state for this Resource and triggers a failure signal for any pending ProduverRequest.
     */
    void failed();
 
    /**
-    * Called to indicate that the remote end has become closed but the resource
-    * was not awaiting a close.  This could happen during an open request where
-    * the remote does not set an error condition or during normal operation.
+    * Called to indicate that the remote end has become closed but the resource was not awaiting a close.  This could
+    * happen during an open request where the remote does not set an error condition or during normal operation.
     *
     * @param connection The connection that owns this resource.
     */
    void remotelyClosed(AmqpConnection connection);
 
    /**
-    * Called to indicate that the local end has become closed but the resource
-    * was not awaiting a close.  This could happen during an open request where
-    * the remote does not set an error condition or during normal operation.
+    * Called to indicate that the local end has become closed but the resource was not awaiting a close.  This could
+    * happen during an open request where the remote does not set an error condition or during normal operation.
     *
     * @param connection The connection that owns this resource.
     * @param error      The error that triggered the local close of this resource.
@@ -98,8 +94,7 @@ public interface AmqpResource extends AmqpEventSink {
    void locallyClosed(AmqpConnection connection, Exception error);
 
    /**
-    * Sets the failed state for this Resource and triggers a failure signal for
-    * any pending ProduverRequest.
+    * Sets the failed state for this Resource and triggers a failure signal for any pending ProduverRequest.
     *
     * @param cause The Exception that triggered the failure.
     */

@@ -16,18 +16,13 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
+import javax.security.auth.Subject;
 import java.security.Principal;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Krb5LoginModuleTest {
 
@@ -36,10 +31,7 @@ public class Krb5LoginModuleTest {
       Krb5LoginModule underTest = new Krb5LoginModule();
 
       final Subject subject = new Subject();
-      underTest.initialize(subject, new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-         }
+      underTest.initialize(subject, callbacks -> {
       }, null, null);
 
       assertFalse(underTest.login());
@@ -50,12 +42,7 @@ public class Krb5LoginModuleTest {
       Krb5LoginModule underTest = new Krb5LoginModule();
 
       final Subject subject = new Subject();
-      underTest.initialize(subject, new CallbackHandler() {
-         @Override
-         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            ((PrincipalsCallback) callbacks[0]).setPeerPrincipals(new Principal[] {new UserPrincipal("A")});
-         }
-      }, null, null);
+      underTest.initialize(subject, callbacks -> ((PrincipalsCallback) callbacks[0]).setPeerPrincipals(new Principal[] {new UserPrincipal("A")}), null, null);
 
       assertTrue(underTest.login());
    }

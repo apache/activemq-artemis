@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 /**
- * The JAXB POJOs for the XML configuration of ActiveMQ Artemis broker
+ * The JAXB POJOs for the XML configuration of Apache Artemis broker
  */
 @javax.xml.bind.annotation.XmlSchema(
    namespace = "http://activemq.apache.org/schema",

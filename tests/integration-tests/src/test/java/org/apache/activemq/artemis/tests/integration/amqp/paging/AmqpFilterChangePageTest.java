@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.paging;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -38,8 +41,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AmqpFilterChangePageTest extends ActiveMQTestBase {
 
@@ -55,7 +57,7 @@ public class AmqpFilterChangePageTest extends ActiveMQTestBase {
       server.start();
 
       server.addAddressInfo(new AddressInfo("AD1").addRoutingType(RoutingType.MULTICAST));
-      server.createQueue(new QueueConfiguration("Q1").setAddress("AD1").setDurable(true).setFilterString("color='red'"));
+      server.createQueue(QueueConfiguration.of("Q1").setAddress("AD1").setDurable(true).setFilterString("color='red'"));
 
       ConnectionFactory cf = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:61616");
       Connection connection = cf.createConnection();
@@ -72,7 +74,7 @@ public class AmqpFilterChangePageTest extends ActiveMQTestBase {
          producer.send(message);
          if (i % 100 == 0 && i > 0) {
             session.commit();
-            queue.getPagingStore().forceAnotherPage();
+            queue.getPagingStore().forceAnotherPage(true);
          }
       }
       session.commit();
@@ -112,12 +114,12 @@ public class AmqpFilterChangePageTest extends ActiveMQTestBase {
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          Message message = consumer.receive(5000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
       }
 
       session.commit();
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
 
       connection.close();
 

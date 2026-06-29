@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.openwire;
 
 import javax.jms.InvalidClientIDException;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -79,15 +81,14 @@ import org.apache.activemq.util.InetAddressUtil;
 import org.apache.activemq.util.LongSequenceGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil.SELECTOR_AWARE_OPTION;
 
-public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, OpenWireInterceptor, OpenWireConnection, OpenWireRoutingHandler> implements ClusterTopologyListener {
+public class OpenWireProtocolManager extends AbstractProtocolManager<Command, OpenWireInterceptor, OpenWireConnection, OpenWireRoutingHandler> implements ClusterTopologyListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final List<String> websocketRegistryNames = Collections.EMPTY_LIST;
+   private static final List<String> websocketRegistryNames = Collections.emptyList();
 
    private static final IdGenerator BROKER_ID_GENERATOR = new IdGenerator();
    private static final IdGenerator ID_GENERATOR = new IdGenerator();
@@ -107,9 +108,9 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    private BrokerId brokerId;
    protected final ProducerId advisoryProducerId = new ProducerId();
 
-   private final CopyOnWriteArrayList<OpenWireConnection> connections = new CopyOnWriteArrayList<>();
+   private final List<OpenWireConnection> connections = new CopyOnWriteArrayList<>();
 
-   private final Map<String, AMQConnectionContext> clientIdSet = new ConcurrentHashMap<>();
+   private final ConcurrentMap<String, OpenWireConnection> clientIdSet = new ConcurrentHashMap<>();
 
    private String brokerName;
 
@@ -145,9 +146,10 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
 
    private int openWireDestinationCacheSize = 16;
 
-   /** if defined, LargeMessages will be sent in chunks to the network.
-    * Notice that the system will still load the entire file in memory before sending on the stream.
-    * This should avoid just a big buffer allocated. */
+   /**
+    * If defined, LargeMessages will be sent in chunks to the network. Notice that the system will still load the entire
+    * file in memory before sending on the stream. This should avoid just a big buffer allocated.
+    */
    public int getOpenwireMaxPacketChunkSize() {
       return openwireMaxPacketChunkSize;
    }
@@ -171,7 +173,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       public boolean selectorAware;
 
       public VirtualTopicConfig(String[] configuration) {
-         filterPathTerminus = Integer.valueOf(configuration[1]);
+         filterPathTerminus = Integer.parseInt(configuration[1]);
          // optional config
          for (int i = 2; i < configuration.length; i++) {
             String[] optionPair = configuration[i].split("=");
@@ -182,7 +184,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       private void consumeOption(String[] optionPair) {
          if (optionPair.length == 2) {
             if (SELECTOR_AWARE_OPTION.equals(optionPair[0])) {
-               selectorAware = Boolean.valueOf(optionPair[1]);
+               selectorAware = Boolean.parseBoolean(optionPair[1]);
             }
          }
       }
@@ -219,12 +221,16 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       routingHandler = new OpenWireRoutingHandler(server, this);
    }
 
-   /** Is Duplicate detection enabled when used with failover clients. */
+   /**
+    * Is Duplicate detection enabled when used with failover clients.
+    */
    public boolean isOpenwireUseDuplicateDetectionOnFailover() {
       return openwireUseDuplicateDetectionOnFailover;
    }
 
-   /** should it use duplicate detection on failover clients. */
+   /**
+    * should it use duplicate detection on failover clients.
+    */
    public OpenWireProtocolManager setOpenwireUseDuplicateDetectionOnFailover(boolean openwireUseDuplicateDetectionOnFailover) {
       this.openwireUseDuplicateDetectionOnFailover = openwireUseDuplicateDetectionOnFailover;
       return this;
@@ -232,6 +238,13 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
 
    @Override
    public void nodeUP(TopologyMember member, boolean last) {
+      if (member.getPrimary() == null) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("{} ignoring nodeUP call due to null primary; topologyMember={}, last={}", this, member, last);
+         }
+         return;
+      }
+
       if (topologyMap.put(member.getNodeId(), member) == null) {
          updateClientClusterInfo();
       }
@@ -244,22 +257,15 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       }
    }
 
-   public void removeConnection(ConnectionInfo info, Throwable error) throws InvalidClientIDException {
-      String clientId = info.getClientId();
-      if (clientId != null) {
-         AMQConnectionContext context = this.clientIdSet.remove(clientId);
-         if (context != null) {
-            //connection is still there and need to close
-            context.getConnection().disconnect(error != null);
-            this.connections.remove(context.getConnection());
-         }
-      } else {
-         throw new InvalidClientIDException("No clientID specified for connection disconnect request");
-      }
+   public void removeConnection(String clientID, OpenWireConnection connection) {
+      clientIdSet.remove(clientID, connection);
+      connections.remove(connection);
    }
 
-   /*** if set, the OpenWire connection will bypass the tcpReadBuferSize and use this value instead.
-    *   This is by default -1, and it should not be used unless in extreme situations like on a slow storage. */
+   /**
+    * If set, the OpenWire connection will bypass the tcpReadBuferSize and use this value instead.
+    * This is by default -1, and it should not be used unless in extreme situations like on a slow storage.
+    */
    public int getActorThresholdBytes() {
       return actorThresholdBytes;
    }
@@ -329,8 +335,8 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    private int getActorThreadshold(Acceptor acceptorUsed) {
       int actorThreshold = TransportConstants.DEFAULT_TCP_RECEIVEBUFFER_SIZE;
 
-      if (acceptorUsed instanceof NettyAcceptor) {
-         actorThreshold = ((NettyAcceptor) acceptorUsed).getTcpReceiveBufferSize();
+      if (acceptorUsed instanceof NettyAcceptor acceptor) {
+         actorThreshold = acceptor.getTcpReceiveBufferSize();
       }
 
       if (this.actorThresholdBytes > 0) {
@@ -421,22 +427,16 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       }
 
       AMQConnectionContext context;
-      context = clientIdSet.get(clientId);
-      if (context != null) {
-         if (info.isFailoverReconnect()) {
-            OpenWireConnection oldConnection = context.getConnection();
-            oldConnection.disconnect(true);
-            connections.remove(oldConnection);
-            connection.reconnect(context, info);
-         } else {
-            throw new InvalidClientIDException("Broker: " + getBrokerName() + " - Client: " + clientId + " already connected from " + context.getConnection().getRemoteAddress());
+      OpenWireConnection oldConnection = clientIdSet.get(clientId);
+      if (oldConnection != null) {
+         if (!info.isFailoverReconnect()) {
+            throw new InvalidClientIDException("Broker: " + getBrokerName() + " - Client: " + clientId + " already connected from " + oldConnection.getRemoteAddress());
          }
-      } else {
-         //new connection
-         context = connection.initContext(info);
-         clientIdSet.put(clientId, context);
       }
 
+      context = connection.initContext(info);
+
+      clientIdSet.put(clientId, connection);
       connections.add(connection);
 
       ActiveMQTopic topic = AdvisorySupport.getConnectionAdvisoryTopic();
@@ -462,7 +462,8 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    }
 
    /*
-    * See AdvisoryBroker.fireAdvisory()
+    * See org.apache.activemq.advisory.AdvisoryBroker#fireAdvisory()
+    * (we don't actually depend on the artifact with this class so this can't be a JavaDoc using @see)
     */
    public void fireAdvisory(AMQConnectionContext context,
                             ActiveMQTopic topic,
@@ -497,7 +498,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       final CoreMessageObjectPools objectPools = context.getConnection().getCoreMessageObjectPools();
       final org.apache.activemq.artemis.api.core.Message coreMessage = OpenWireMessageConverter.inbound(advisoryMessage, wireFormat, objectPools);
 
-      final SimpleString address = SimpleString.toSimpleString(topic.getPhysicalName(), objectPools.getAddressStringSimpleStringPool());
+      final SimpleString address = SimpleString.of(topic.getPhysicalName(), objectPools.getAddressStringSimpleStringPool());
       coreMessage.setAddress(address);
       coreMessage.setRoutingType(RoutingType.MULTICAST);
       // follow pattern from management notification to route directly
@@ -527,11 +528,11 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
 
    private String generateMembersURI(boolean flip) {
       String uri;
-      StringBuffer connectedBrokers = new StringBuffer();
+      StringBuilder connectedBrokers = new StringBuilder();
       String separator = "";
 
       synchronized (members) {
-         if (members.size() > 0) {
+         if (!members.isEmpty()) {
             for (TopologyMember member : members) {
                connectedBrokers.append(separator).append(member.toURI());
                separator = ",";
@@ -674,14 +675,14 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    @Override
    public void setAnycastPrefix(String anycastPrefix) {
       for (String prefix : anycastPrefix.split(",")) {
-         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.ANYCAST);
+         prefixes.put(SimpleString.of(prefix), RoutingType.ANYCAST);
       }
    }
 
    @Override
    public void setMulticastPrefix(String multicastPrefix) {
       for (String prefix : multicastPrefix.split(",")) {
-         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.MULTICAST);
+         prefixes.put(SimpleString.of(prefix), RoutingType.MULTICAST);
       }
    }
 
@@ -788,7 +789,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
                }
                fqqn.append(paths[i]);
             }
-            mappedDestination = new ActiveMQQueue(fqqn.toString() + ( virtualTopicConfig.selectorAware ? "?" + SELECTOR_AWARE_OPTION + "=true" : "" ));
+            mappedDestination = new ActiveMQQueue(fqqn.toString() + (virtualTopicConfig.selectorAware ? "?" + SELECTOR_AWARE_OPTION + "=true" : ""));
             break;
          }
       }

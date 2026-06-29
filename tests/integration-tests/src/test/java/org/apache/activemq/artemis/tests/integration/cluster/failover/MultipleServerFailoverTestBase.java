@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,24 +30,24 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
+import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.jupiter.api.BeforeEach;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -54,14 +55,14 @@ import java.lang.invoke.MethodHandles;
 public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-   private DistributedPrimitiveManagerConfiguration pluggableQuorumConfiguration = null;
+   private DistributedLockManagerConfiguration pluggableQuorumConfiguration = null;
 
-   private DistributedPrimitiveManagerConfiguration getOrCreatePluggableQuorumConfiguration() {
+   private DistributedLockManagerConfiguration getOrCreatePluggableQuorumConfiguration() {
       if (pluggableQuorumConfiguration != null) {
          return pluggableQuorumConfiguration;
       }
       try {
-         pluggableQuorumConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
+         pluggableQuorumConfiguration = new DistributedLockManagerConfiguration(FileBasedLockManager.class.getName(), Collections.singletonMap("locks-folder", newFolder(temporaryFolder, "manager").toString()));
       } catch (IOException ioException) {
          return null;
       }
@@ -72,20 +73,20 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
    // TODO: find a better solution for this
    // this is necessary because the cluster connection is using "jms" as its match; see org.apache.activemq.artemis.tests.util.ActiveMQTestBase.basicClusterConnectionConfig()
-   protected static final SimpleString ADDRESS = new SimpleString("jms.FailoverTestAddress");
+   protected static final SimpleString ADDRESS = SimpleString.of("jms.FailoverTestAddress");
 
 
-   protected List<TestableServer> liveServers = new ArrayList<>();
+   protected List<TestableServer> primaryServers = new ArrayList<>();
 
    protected List<TestableServer> backupServers = new ArrayList<>();
 
    protected List<Configuration> backupConfigs = new ArrayList<>();
 
-   protected List<Configuration> liveConfigs = new ArrayList<>();
+   protected List<Configuration> primaryConfigs = new ArrayList<>();
 
    protected List<NodeManager> nodeManagers;
 
-   public abstract int getLiveServerCount();
+   public abstract int getPrimaryServerCount();
 
    public abstract int getBackupServerCount();
 
@@ -104,20 +105,20 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
    public abstract String getNodeGroupName();
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-      liveServers = new ArrayList<>();
+      primaryServers = new ArrayList<>();
       backupServers = new ArrayList<>();
       backupConfigs = new ArrayList<>();
-      liveConfigs = new ArrayList<>();
+      primaryConfigs = new ArrayList<>();
 
-      for (int i = 0; i < getLiveServerCount(); i++) {
+      for (int i = 0; i < getPrimaryServerCount(); i++) {
          HAPolicyConfiguration haPolicyConfiguration = null;
          switch (haType()) {
 
             case SharedStore:
-               haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
+               haPolicyConfiguration = new SharedStorePrimaryPolicyConfiguration();
                break;
             case SharedNothingReplication:
                haPolicyConfiguration = new ReplicatedPolicyConfiguration();
@@ -146,7 +147,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
          TransportConfiguration livetc = getConnectorTransportConfiguration(true, i);
          configuration.addConnectorConfiguration(livetc.getName(), livetc);
          List<String> connectors = new ArrayList<>();
-         for (int j = 0; j < getLiveServerCount(); j++) {
+         for (int j = 0; j < getPrimaryServerCount(); j++) {
             if (j != i) {
                TransportConfiguration staticTc = getConnectorTransportConfiguration(true, j);
                configuration.getConnectorConfigurations().put(staticTc.getName(), staticTc);
@@ -157,11 +158,11 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
          String[] input = new String[connectors.size()];
          connectors.toArray(input);
          configuration.addClusterConfiguration(basicClusterConnectionConfig(livetc.getName(), input));
-         liveConfigs.add(configuration);
+         primaryConfigs.add(configuration);
          ActiveMQServer server = createServer(true, configuration);
          TestableServer activeMQServer = new SameProcessActiveMQServer(server);
-         activeMQServer.setIdentity("Live-" + i);
-         liveServers.add(activeMQServer);
+         activeMQServer.setIdentity("Primary-" + i);
+         primaryServers.add(activeMQServer);
       }
       for (int i = 0; i < getBackupServerCount(); i++) {
          HAPolicyConfiguration haPolicyConfiguration = null;
@@ -169,7 +170,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
          switch (haType()) {
 
             case SharedStore:
-               haPolicyConfiguration = new SharedStoreSlavePolicyConfiguration();
+               haPolicyConfiguration = new SharedStoreBackupPolicyConfiguration();
                break;
             case SharedNothingReplication:
                haPolicyConfiguration = new ReplicaPolicyConfiguration();
@@ -282,5 +283,13 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
          return getMessageCount(q) >= messageCount;
       });
 
+   }
+
+   private static File newFolder(File root, String subFolder) throws IOException {
+      File result = new File(root, subFolder);
+      if (!result.mkdirs()) {
+         throw new IOException("Couldn't create folders " + root);
+      }
+      return result;
    }
 }

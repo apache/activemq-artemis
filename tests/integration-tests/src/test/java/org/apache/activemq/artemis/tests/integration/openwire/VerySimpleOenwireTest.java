@@ -25,25 +25,25 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-/** This is useful to debug connection ordering. There's only one connection being made from these tests */
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * This is useful to debug connection ordering. There's only one connection being made from these tests
+ */
 public class VerySimpleOenwireTest extends OpenWireTestBase {
 
    /**
     * This is the example shipped with the distribution
-    *
-    * @throws Exception
     */
    @Test
    public void testOpenWireExample() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of("exampleQueue").setRoutingType(RoutingType.ANYCAST));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -79,8 +79,7 @@ public class VerySimpleOenwireTest extends OpenWireTestBase {
    public void testMixedOpenWireExample() throws Exception {
       Connection openConn = null;
 
-      SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(QueueConfiguration.of("exampleQueue").setRoutingType(RoutingType.ANYCAST));
 
       ActiveMQConnectionFactory openCF = new ActiveMQConnectionFactory();
 

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
@@ -44,14 +47,13 @@ import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PageTest extends ActiveMQTestBase {
 
 
-   @Before
+   @BeforeEach
    public void registerProtocols() {
       MessagePersister.registerPersister(CoreMessagePersister.getInstance());
       MessagePersister.registerPersister(AMQPMessagePersister.getInstance());
@@ -122,15 +124,15 @@ public class PageTest extends ActiveMQTestBase {
 
       SequentialFile file = factory.createSequentialFile("00010.page");
 
-      Page page = new Page(new SimpleString("something"), storageManager, factory, file, 10);
+      Page page = new Page(SimpleString.of("something"), storageManager, factory, file, 10);
 
-      Assert.assertEquals(10, page.getPageId());
+      assertEquals(10, page.getPageId());
 
       page.open(true);
 
-      Assert.assertEquals(1, factory.listFiles("page").size());
+      assertEquals(1, factory.listFiles("page").size());
 
-      SimpleString simpleDestination = new SimpleString("Test");
+      SimpleString simpleDestination = SimpleString.of("Test");
 
       final long startMessageID = 1;
 
@@ -141,37 +143,37 @@ public class PageTest extends ActiveMQTestBase {
 
       file = factory.createSequentialFile("00010.page");
       file.open();
-      page = new Page(new SimpleString("something"), storageManager, factory, file, 10);
+      page = new Page(SimpleString.of("something"), storageManager, factory, file, 10);
 
       LinkedList<PagedMessage> msgs = page.read(storageManager, largeMessages);
 
-      Assert.assertEquals(numberOfElements, msgs.size());
+      assertEquals(numberOfElements, msgs.size());
 
-      Assert.assertEquals(numberOfElements, page.getNumberOfMessages());
+      assertEquals(numberOfElements, page.getNumberOfMessages());
 
       for (int i = 0; i < msgs.size(); i++) {
          final PagedMessage pagedMessage = msgs.get(i);
-         Assert.assertEquals(simpleDestination, pagedMessage.getMessage().getAddressSimpleString());
-         Assert.assertEquals(largeMessages, pagedMessage.getMessage().isLargeMessage());
-         Assert.assertEquals(startMessageID + i, pagedMessage.getMessage().getMessageID());
-         Assert.assertEquals(largeMessages ? 1 : 0, pagedMessage.getMessage().getUsage());
+         assertEquals(simpleDestination, pagedMessage.getMessage().getAddressSimpleString());
+         assertEquals(largeMessages, pagedMessage.getMessage().isLargeMessage());
+         assertEquals(startMessageID + i, pagedMessage.getMessage().getMessageID());
+         assertEquals(largeMessages ? 1 : 0, pagedMessage.getMessage().getUsage());
       }
 
       if (!largeMessages) {
-         Page tmpPage = new Page(new SimpleString("something"), storageManager, factory, file, 10);
-         Assert.assertEquals(0, tmpPage.read(storageManager, true).size());
-         Assert.assertEquals(numberOfElements, tmpPage.getNumberOfMessages());
+         Page tmpPage = new Page(SimpleString.of("something"), storageManager, factory, file, 10);
+         assertEquals(0, tmpPage.read(storageManager, true).size());
+         assertEquals(numberOfElements, tmpPage.getNumberOfMessages());
       }
 
-      Assert.assertTrue(page.delete(msgs));
+      assertTrue(page.delete(msgs));
 
       try (LinkedListIterator<PagedMessage> iter = msgs.iterator()) {
          while (iter.hasNext()) {
             PagedMessage pagedMessage = iter.next();
-            Assert.assertEquals(0, pagedMessage.getMessage().getUsage());
+            assertEquals(0, pagedMessage.getMessage().getUsage());
          }
       }
-      Assert.assertEquals(0, factory.listFiles(".page").size());
+      assertEquals(0, factory.listFiles(".page").size());
 
    }
 
@@ -179,15 +181,15 @@ public class PageTest extends ActiveMQTestBase {
 
       SequentialFile file = factory.createSequentialFile("00010.page");
 
-      Page page = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
+      Page page = new Page(SimpleString.of("something"), new NullStorageManager(), factory, file, 10);
 
-      Assert.assertEquals(10, page.getPageId());
+      assertEquals(10, page.getPageId());
 
       page.open(true);
 
-      Assert.assertEquals(1, factory.listFiles("page").size());
+      assertEquals(1, factory.listFiles("page").size());
 
-      SimpleString simpleDestination = new SimpleString("Test");
+      SimpleString simpleDestination = SimpleString.of("Test");
 
       addPageElements(simpleDestination, page, numberOfElements, 1);
 
@@ -220,24 +222,24 @@ public class PageTest extends ActiveMQTestBase {
 
       file = factory.createSequentialFile("00010.page");
       file.open();
-      Page page1 = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
+      Page page1 = new Page(SimpleString.of("something"), new NullStorageManager(), factory, file, 10);
 
       LinkedList<PagedMessage> msgs = page1.read(new NullStorageManager());
 
-      Assert.assertEquals(numberOfElements, msgs.size());
+      assertEquals(numberOfElements, msgs.size());
 
-      Assert.assertEquals(numberOfElements, page1.getNumberOfMessages());
+      assertEquals(numberOfElements, page1.getNumberOfMessages());
 
       for (int i = 0; i < msgs.size(); i++) {
-         Assert.assertEquals(simpleDestination, msgs.get(i).getMessage().getAddressSimpleString());
+         assertEquals(simpleDestination, msgs.get(i).getMessage().getAddressSimpleString());
       }
 
       page.close(false);
       page1.delete(null);
 
-      Assert.assertEquals(0, factory.listFiles("page").size());
+      assertEquals(0, factory.listFiles("page").size());
 
-      Assert.assertEquals(1, factory.listFiles("invalidPage").size());
+      assertEquals(1, factory.listFiles("invalidPage").size());
 
    }
 
@@ -262,15 +264,15 @@ public class PageTest extends ActiveMQTestBase {
 
       SequentialFile file = factory.createSequentialFile("00010.page");
 
-      Page page = new Page(new SimpleString("something"), storageManager, factory, file, 10);
+      Page page = new Page(SimpleString.of("something"), storageManager, factory, file, 10);
 
-      Assert.assertEquals(10, page.getPageId());
+      assertEquals(10, page.getPageId());
 
       page.open(true);
 
-      Assert.assertEquals(1, factory.listFiles("page").size());
+      assertEquals(1, factory.listFiles("page").size());
 
-      SimpleString simpleDestination = new SimpleString("Test");
+      SimpleString simpleDestination = SimpleString.of("Test");
 
       final long startMessageID = 1;
 
@@ -282,54 +284,47 @@ public class PageTest extends ActiveMQTestBase {
       page.close(false, false);
 
       file = factory.createSequentialFile("00010.page");
-      page = new Page(new SimpleString("something"), storageManager, factory, file, 10);
+      page = new Page(SimpleString.of("something"), storageManager, factory, file, 10);
 
       LinkedList<PagedMessage> msgs = page.getMessages();
 
-      Assert.assertEquals(numberOfElements, msgs.size());
+      assertEquals(numberOfElements, msgs.size());
 
-      Assert.assertEquals(numberOfElements, page.getNumberOfMessages());
+      assertEquals(numberOfElements, page.getNumberOfMessages());
 
       for (int i = 0; i < msgs.size(); i++) {
          final PagedMessage pagedMessage = msgs.get(i);
-         Assert.assertEquals(simpleDestination, pagedMessage.getMessage().getAddressSimpleString());
-         Assert.assertEquals(largeMessages, pagedMessage.getMessage().isLargeMessage());
-         Assert.assertEquals(startMessageID + i, pagedMessage.getMessage().getMessageID());
-         Assert.assertEquals(largeMessages ? 1 : 0, pagedMessage.getMessage().getUsage());
+         assertEquals(simpleDestination, pagedMessage.getMessage().getAddressSimpleString());
+         assertEquals(largeMessages, pagedMessage.getMessage().isLargeMessage());
+         assertEquals(startMessageID + i, pagedMessage.getMessage().getMessageID());
+         assertEquals(largeMessages ? 1 : 0, pagedMessage.getMessage().getUsage());
       }
 
 
       for (int i = 0; i < msgs.size(); i++) {
          final PagedMessage pagedMessage = msgsBefore.get(i);
-         Assert.assertEquals(simpleDestination, pagedMessage.getMessage().getAddressSimpleString());
-         Assert.assertEquals(largeMessages, pagedMessage.getMessage().isLargeMessage());
-         Assert.assertEquals(startMessageID + i, pagedMessage.getMessage().getMessageID());
-         Assert.assertEquals(largeMessages ? 1 : 0, pagedMessage.getMessage().getUsage());
+         assertEquals(simpleDestination, pagedMessage.getMessage().getAddressSimpleString());
+         assertEquals(largeMessages, pagedMessage.getMessage().isLargeMessage());
+         assertEquals(startMessageID + i, pagedMessage.getMessage().getMessageID());
+         assertEquals(largeMessages ? 1 : 0, pagedMessage.getMessage().getUsage());
       }
 
-      Assert.assertTrue(page.delete(msgs));
+      assertTrue(page.delete(msgs));
 
       try (LinkedListIterator<PagedMessage> iter = msgs.iterator()) {
          while (iter.hasNext()) {
             PagedMessage pagedMessage = iter.next();
-            Assert.assertEquals(0, pagedMessage.getMessage().getUsage());
+            assertEquals(0, pagedMessage.getMessage().getUsage());
          }
       }
 
-      Assert.assertEquals(0, factory.listFiles(".page").size());
+      assertEquals(0, factory.listFiles(".page").size());
 
    }
 
 
 
 
-   /**
-    * @param simpleDestination
-    * @param page
-    * @param numberOfElements
-    * @return
-    * @throws Exception
-    */
    protected void addPageElements(final StorageManager storageManager,
                                   final SimpleString simpleDestination,
                                   final Page page,
@@ -347,7 +342,7 @@ public class PageTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numberOfElements; i++) {
          writeMessage(storageManager, largeMessages, startMessageID + i, simpleDestination, content, page);
-         Assert.assertEquals(initialNumberOfMessages + i + 1, page.getNumberOfMessages());
+         assertEquals(initialNumberOfMessages + i + 1, page.getNumberOfMessages());
       }
    }
 
@@ -362,14 +357,14 @@ public class PageTest extends ActiveMQTestBase {
          msg.setMessageID(msgID);
          msg.addBytes(content);
          msg.setAddress(address);
-         page.write(new PagedMessageImpl(msg, new long[0]));
+         page.write(new PagedMessageImpl(msg, new long[0]), true, false);
          msg.releaseResources(false, false);
       } else {
          ICoreMessage msg = new CoreMessage().initBuffer(100);
          msg.setMessageID(msgID);
          msg.getBodyBuffer().writeBytes(content);
          msg.setAddress(address);
-         page.write(new PagedMessageImpl(msg, new long[0]));
+         page.write(new PagedMessageImpl(msg, new long[0]), true, false);
       }
    }
 }

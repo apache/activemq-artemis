@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -41,19 +47,19 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * This test covers the API for ClientSession although XA tests are tested separately.
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class SessionTest extends ActiveMQTestBase {
 
    private boolean legacyCreateQueue;
@@ -64,7 +70,7 @@ public class SessionTest extends ActiveMQTestBase {
    private ActiveMQServer server;
    private ClientSessionFactory cf;
 
-   @Parameterized.Parameters(name = "legacyCreateQueue={0}")
+   @Parameters(name = "legacyCreateQueue={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -74,7 +80,7 @@ public class SessionTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -84,7 +90,7 @@ public class SessionTest extends ActiveMQTestBase {
       waitForServerToStart(server);
    }
 
-   @Test
+   @TestTemplate
    public void testFailureListener() throws Exception {
 
       cf = createSessionFactory(locator);
@@ -93,10 +99,10 @@ public class SessionTest extends ActiveMQTestBase {
       clientSession.addFailureListener(listener);
       // Make sure failure listener is called if server is stopped without session being closed first
       server.stop();
-      Assert.assertTrue(listener.getLatch().await(5, TimeUnit.SECONDS));
+      assertTrue(listener.getLatch().await(5, TimeUnit.SECONDS));
    }
 
-   @Test
+   @TestTemplate
    public void testFailureListenerRemoved() throws Exception {
       cf = createSessionFactory(locator);
       try {
@@ -123,10 +129,10 @@ public class SessionTest extends ActiveMQTestBase {
          MyFailureListener listener = new MyFailureListener();
          clientSession.addFailureListener(listener);
 
-         Assert.assertTrue(clientSession.removeFailureListener(listener));
+         assertTrue(clientSession.removeFailureListener(listener));
          clientSession.close();
          server.stop();
-         Assert.assertFalse(listener.called);
+         assertFalse(listener.called);
       } finally {
          ((ClientSessionFactoryInternal) cf).causeExit();
          cf.close();
@@ -135,7 +141,7 @@ public class SessionTest extends ActiveMQTestBase {
 
    // Closing a session if the underlying remoting connection is dead should cleanly
    // release all resources
-   @Test
+   @TestTemplate
    public void testCloseSessionOnDestroyedConnection() throws Exception {
       // Make sure we have a short connection TTL so sessions will be quickly closed on the server
       server.stop();
@@ -147,15 +153,15 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
-      /** keep unused variables in order to maintain references to both objects */
+      // keep unused variables in order to maintain references to both objects
       @SuppressWarnings("unused")
       ClientProducer producer = clientSession.createProducer();
       @SuppressWarnings("unused")
       ClientConsumer consumer = clientSession.createConsumer(queueName);
 
-      Assert.assertEquals(1, server.getRemotingService().getConnections().size());
+      assertEquals(1, server.getRemotingService().getConnections().size());
 
       RemotingConnection rc = clientSession.getConnection();
 
@@ -182,7 +188,7 @@ public class SessionTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testBindingQuery() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
@@ -193,37 +199,37 @@ public class SessionTest extends ActiveMQTestBase {
          clientSession.createQueue("a2", "q4", false);
          clientSession.createQueue("a2", "q5", false);
       } else {
-         clientSession.createQueue(new QueueConfiguration("q1").setAddress("a1").setDurable(false));
-         clientSession.createQueue(new QueueConfiguration("q2").setAddress("a1").setDurable(false));
-         clientSession.createQueue(new QueueConfiguration("q3").setAddress("a2").setDurable(false));
-         clientSession.createQueue(new QueueConfiguration("q4").setAddress("a2").setDurable(false));
-         clientSession.createQueue(new QueueConfiguration("q5").setAddress("a2").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of("q1").setAddress("a1").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of("q2").setAddress("a1").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of("q3").setAddress("a2").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of("q4").setAddress("a2").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of("q5").setAddress("a2").setDurable(false));
       }
-      ClientSession.AddressQuery resp = clientSession.addressQuery(new SimpleString("a"));
+      ClientSession.AddressQuery resp = clientSession.addressQuery(SimpleString.of("a"));
       List<SimpleString> queues = resp.getQueueNames();
-      Assert.assertTrue(queues.isEmpty());
-      resp = clientSession.addressQuery(new SimpleString("a1"));
+      assertTrue(queues.isEmpty());
+      resp = clientSession.addressQuery(SimpleString.of("a1"));
       queues = resp.getQueueNames();
-      Assert.assertEquals(queues.size(), 2);
-      Assert.assertTrue(queues.contains(new SimpleString("q1")));
-      Assert.assertTrue(queues.contains(new SimpleString("q2")));
-      resp = clientSession.addressQuery(new SimpleString("a2"));
+      assertEquals(2, queues.size());
+      assertTrue(queues.contains(SimpleString.of("q1")));
+      assertTrue(queues.contains(SimpleString.of("q2")));
+      resp = clientSession.addressQuery(SimpleString.of("a2"));
       queues = resp.getQueueNames();
-      Assert.assertEquals(queues.size(), 3);
-      Assert.assertTrue(queues.contains(new SimpleString("q3")));
-      Assert.assertTrue(queues.contains(new SimpleString("q4")));
-      Assert.assertTrue(queues.contains(new SimpleString("q5")));
+      assertEquals(3, queues.size());
+      assertTrue(queues.contains(SimpleString.of("q3")));
+      assertTrue(queues.contains(SimpleString.of("q4")));
+      assertTrue(queues.contains(SimpleString.of("q5")));
       clientSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testQueueQuery() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       if (legacyCreateQueue) {
          clientSession.createQueue("a1", queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setAddress("a1").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setAddress("a1").setDurable(false));
       }
       // I'm holding a reference here on purpose to avoid GC and unexpected closes.. etc
       ClientConsumer consumer1 = clientSession.createConsumer(queueName);
@@ -236,184 +242,184 @@ public class SessionTest extends ActiveMQTestBase {
       Wait.assertEquals(2, queue::getMessageCount);
       Wait.assertEquals(2, queue::getConsumerCount);
 
-      QueueQuery resp = clientSession.queueQuery(new SimpleString(queueName));
-      Assert.assertEquals(new SimpleString("a1"), resp.getAddress());
-      Assert.assertEquals(2, resp.getConsumerCount());
-      Assert.assertEquals(2, resp.getMessageCount());
-      Assert.assertEquals(null, resp.getFilterString());
+      QueueQuery resp = clientSession.queueQuery(SimpleString.of(queueName));
+      assertEquals(SimpleString.of("a1"), resp.getAddress());
+      assertEquals(2, resp.getConsumerCount());
+      assertEquals(2, resp.getMessageCount());
+      assertNull(resp.getFilterString());
       consumer1.close();
       consumer2.close();
       clientSession.close();
    }
 
    private Queue flushQueue() throws Exception {
-      Queue queue = server.locateQueue(SimpleString.toSimpleString(queueName));
+      Queue queue = server.locateQueue(SimpleString.of(queueName));
       assertNotNull(queue);
       queue.flushExecutor();
       return queue;
    }
 
-   @Test
+   @TestTemplate
    public void testQueueQueryWithFilter() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       if (legacyCreateQueue) {
          clientSession.createQueue("a1", queueName, "foo=bar", false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setAddress("a1").setFilterString("foo=bar").setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setAddress("a1").setFilterString("foo=bar").setDurable(false));
       }
       clientSession.createConsumer(queueName);
       clientSession.createConsumer(queueName);
 
-      QueueQuery resp = clientSession.queueQuery(new SimpleString(queueName));
-      Assert.assertEquals(new SimpleString("a1"), resp.getAddress());
-      Assert.assertEquals(2, resp.getConsumerCount());
-      Assert.assertEquals(0, resp.getMessageCount());
-      Assert.assertEquals(new SimpleString("foo=bar"), resp.getFilterString());
+      QueueQuery resp = clientSession.queueQuery(SimpleString.of(queueName));
+      assertEquals(SimpleString.of("a1"), resp.getAddress());
+      assertEquals(2, resp.getConsumerCount());
+      assertEquals(0, resp.getMessageCount());
+      assertEquals(SimpleString.of("foo=bar"), resp.getFilterString());
       clientSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testQueueQueryNoQ() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateQueues(false));
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
-      QueueQuery resp = clientSession.queueQuery(new SimpleString(queueName));
-      Assert.assertFalse(resp.isExists());
-      Assert.assertFalse(resp.isAutoCreateQueues());
-      Assert.assertEquals(queueName, resp.getAddress().toString());
+      QueueQuery resp = clientSession.queueQuery(SimpleString.of(queueName));
+      assertFalse(resp.isExists());
+      assertFalse(resp.isAutoCreateQueues());
+      assertEquals(queueName, resp.getAddress().toString());
       clientSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testClose() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       ClientProducer p = clientSession.createProducer();
       ClientProducer p1 = clientSession.createProducer(queueName);
       ClientConsumer c = clientSession.createConsumer(queueName);
       ClientConsumer c1 = clientSession.createConsumer(queueName);
       clientSession.close();
-      Assert.assertTrue(clientSession.isClosed());
-      Assert.assertTrue(p.isClosed());
-      Assert.assertTrue(p1.isClosed());
-      Assert.assertTrue(c.isClosed());
-      Assert.assertTrue(c1.isClosed());
+      assertTrue(clientSession.isClosed());
+      assertTrue(p.isClosed());
+      assertTrue(p1.isClosed());
+      assertTrue(c.isClosed());
+      assertTrue(c1.isClosed());
    }
 
-   @Test
+   @TestTemplate
    public void testCreateMessageNonDurable() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       ClientMessage clientMessage = clientSession.createMessage(false);
-      Assert.assertFalse(clientMessage.isDurable());
+      assertFalse(clientMessage.isDurable());
       clientSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testCreateMessageDurable() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       ClientMessage clientMessage = clientSession.createMessage(true);
-      Assert.assertTrue(clientMessage.isDurable());
+      assertTrue(clientMessage.isDurable());
       clientSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testCreateMessageType() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       ClientMessage clientMessage = clientSession.createMessage((byte) 99, false);
-      Assert.assertEquals((byte) 99, clientMessage.getType());
+      assertEquals((byte) 99, clientMessage.getType());
       clientSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testCreateMessageOverrides() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       ClientMessage clientMessage = clientSession.createMessage((byte) 88, false, 100L, 300L, (byte) 33);
-      Assert.assertEquals((byte) 88, clientMessage.getType());
-      Assert.assertEquals(100L, clientMessage.getExpiration());
-      Assert.assertEquals(300L, clientMessage.getTimestamp());
-      Assert.assertEquals((byte) 33, clientMessage.getPriority());
+      assertEquals((byte) 88, clientMessage.getType());
+      assertEquals(100L, clientMessage.getExpiration());
+      assertEquals(300L, clientMessage.getTimestamp());
+      assertEquals((byte) 33, clientMessage.getPriority());
       clientSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testGetVersion() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
-      Assert.assertEquals(server.getVersion().getIncrementingVersion(), clientSession.getVersion());
+      assertEquals(server.getVersion().getIncrementingVersion(), clientSession.getVersion());
       clientSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testStart() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       clientSession.start();
       clientSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testStop() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       clientSession.start();
       clientSession.stop();
       clientSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testCommitWithSend() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, false, true);
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       ClientProducer cp = clientSession.createProducer(queueName);
       for (int i = 0; i < 10; i++) {
          cp.send(clientSession.createMessage(false));
       }
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.of(queueName)).getBindable();
       Wait.assertEquals(0, () -> getMessageCount(q));
       clientSession.commit();
-      Assert.assertTrue(Wait.waitFor(() -> getMessageCount(q) == 10, 2000, 100));
+      assertTrue(Wait.waitFor(() -> getMessageCount(q) == 10, 2000, 100));
       clientSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testRollbackWithSend() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, false, true);
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       ClientProducer cp = clientSession.createProducer(queueName);
       for (int i = 0; i < 10; i++) {
          cp.send(clientSession.createMessage(false));
       }
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.of(queueName)).getBindable();
       Wait.assertEquals(0, () -> getMessageCount(q));
       clientSession.rollback();
       cp.send(clientSession.createMessage(false));
@@ -423,7 +429,7 @@ public class SessionTest extends ActiveMQTestBase {
       clientSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testCommitWithReceive() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       cf = createSessionFactory(locator);
@@ -433,29 +439,29 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       for (int i = 0; i < 10; i++) {
          cp.send(clientSession.createMessage(false));
       }
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.of(queueName)).getBindable();
       Wait.assertEquals(10, () -> getMessageCount(q));
       ClientConsumer cc = clientSession.createConsumer(queueName);
       clientSession.start();
 
       for (int i = 0; i < 10; i++) {
          ClientMessage m = cc.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
       clientSession.commit();
-      Assert.assertNull(cc.receiveImmediate());
+      assertNull(cc.receiveImmediate());
       Wait.assertEquals(0, () -> getMessageCount(q));
       clientSession.close();
       sendSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testRollbackWithReceive() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       cf = createSessionFactory(locator);
@@ -465,18 +471,18 @@ public class SessionTest extends ActiveMQTestBase {
       if (legacyCreateQueue) {
          clientSession.createQueue(queueName, queueName, false);
       } else {
-         clientSession.createQueue(new QueueConfiguration(queueName).setDurable(false));
+         clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
       for (int i = 0; i < 10; i++) {
          cp.send(clientSession.createMessage(false));
       }
-      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
+      Queue q = (Queue) server.getPostOffice().getBinding(SimpleString.of(queueName)).getBindable();
       Wait.assertEquals(10, () -> getMessageCount(q));
       ClientConsumer cc = clientSession.createConsumer(queueName);
       clientSession.start();
       for (int i = 0; i < 10; i++) {
          ClientMessage m = cc.receive(5000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
       }
       Wait.assertEquals(10, () -> getMessageCount(q));
@@ -484,7 +490,7 @@ public class SessionTest extends ActiveMQTestBase {
       sendSession.close();
    }
 
-   @Test
+   @TestTemplate
    public void testGetNodeId() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = addClientSession(cf.createSession(false, true, true));
@@ -492,17 +498,17 @@ public class SessionTest extends ActiveMQTestBase {
       assertNotNull(nodeId);
    }
 
-   @Test
+   @TestTemplate
    public void testCreateQueue() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = addClientSession(cf.createSession(false, true, true));
-      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      SimpleString addressName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
+      SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
       {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -514,7 +520,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString());
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -526,7 +532,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -539,7 +545,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -550,9 +556,9 @@ public class SessionTest extends ActiveMQTestBase {
       }
       {
          if (legacyCreateQueue) {
-            clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.toSimpleString("filter"), true);
+            clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.of("filter"), true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter"));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter"));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -566,7 +572,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), "filter", true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter"));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter"));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -578,9 +584,9 @@ public class SessionTest extends ActiveMQTestBase {
       }
       {
          if (legacyCreateQueue) {
-            clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.toSimpleString("filter"), true, true);
+            clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.of("filter"), true, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -595,7 +601,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), "filter", true, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -608,9 +614,9 @@ public class SessionTest extends ActiveMQTestBase {
       }
       {
          if (legacyCreateQueue) {
-            clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.toSimpleString("filter"), true, true, 0, true);
+            clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.of("filter"), true, true, 0, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -627,7 +633,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), "filter", true, true, 0, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -642,9 +648,9 @@ public class SessionTest extends ActiveMQTestBase {
       }
       {
          if (legacyCreateQueue) {
-            clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.toSimpleString("filter"), true, true, 0, true, true, true);
+            clientSession.createQueue(addressName, RoutingType.ANYCAST, queueName, SimpleString.of("filter"), true, true, 0, true, true, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -663,7 +669,7 @@ public class SessionTest extends ActiveMQTestBase {
          if (legacyCreateQueue) {
             clientSession.createQueue(addressName.toString(), RoutingType.ANYCAST, queueName.toString(), "filter", true, true, 0, true, true, true);
          } else {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true));
          }
          Queue result = server.locateQueue(queueName);
          assertEquals(addressName, result.getAddress());
@@ -681,7 +687,7 @@ public class SessionTest extends ActiveMQTestBase {
       }
       {
          if (!legacyCreateQueue) {
-            clientSession.createQueue(new QueueConfiguration(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true).setEnabled(false));
+            clientSession.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setFilterString("filter").setAutoCreated(true).setMaxConsumers(0).setPurgeOnNoConsumers(true).setExclusive(true).setLastValue(true).setEnabled(false));
             Queue result = server.locateQueue(queueName);
             assertEquals(addressName, result.getAddress());
             assertEquals(queueName, result.getName());

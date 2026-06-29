@@ -40,7 +40,9 @@ public interface ClientProducerCredits {
 
    int decrementRefCount();
 
-   void releaseOutstanding();
-
    SimpleString getAddress();
+
+   int getBalance();
+
+   int getArriving();
 }

@@ -60,7 +60,7 @@ public class TcpTransportFactory extends TransportFactory {
          autoCreate = "true".equals(create);
       }
 
-      URI location1 = URISupport.createRemainingURI(location, Collections.EMPTY_MAP);
+      URI location1 = URISupport.createRemainingURI(location, Collections.emptyMap());
 
       LOG.info("deciding whether starting an internal broker: " + brokerService + " flag: " + BrokerService.disableWrapper);
       if (autoCreate && brokerService == null && !BrokerService.disableWrapper && BrokerService.checkPort(location1.getPort())) {

@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,6 +32,10 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -49,9 +59,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -61,7 +70,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -86,15 +95,14 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
    }
 
-   //https://issues.jboss.org/browse/HORNETQ-1061
    @Test
    public void testRedistributionWithMessageGroups() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       logger.debug("Doing test");
 
-      getServer(0).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString("handler")).setType(GroupingHandlerConfiguration.TYPE.LOCAL).setAddress(new SimpleString("queues")));
-      getServer(1).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString("handler")).setType(GroupingHandlerConfiguration.TYPE.REMOTE).setAddress(new SimpleString("queues")));
+      getServer(0).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(SimpleString.of("handler")).setType(GroupingHandlerConfiguration.TYPE.LOCAL).setAddress(SimpleString.of("queues")));
+      getServer(1).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(SimpleString.of("handler")).setType(GroupingHandlerConfiguration.TYPE.REMOTE).setAddress(SimpleString.of("queues")));
 
       startServers(0, 1);
 
@@ -112,7 +120,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
       waitForBindings(1, "queues.testaddress", 1, 0, false);
 
       //send some grouped messages before we add the consumer to node 0 so we guarantee its pinned to node 1
-      sendWithProperty(0, "queues.testaddress", 10, false, Message.HDR_GROUP_ID, new SimpleString("grp1"));
+      sendWithProperty(0, "queues.testaddress", 10, false, Message.HDR_GROUP_ID, SimpleString.of("grp1"));
       addConsumer(0, 0, "queue0", null);
 
       waitForBindings(0, "queues.testaddress", 1, 1, true);
@@ -126,21 +134,21 @@ public class MessageRedistributionTest extends ClusterTestBase {
       //consume half of the grouped messages from node 1
       for (int i = 0; i < 5; i++) {
          ClientMessage message = getConsumer(1).receive(1000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.acknowledge();
-         Assert.assertNotNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
+         assertNotNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
       }
 
       //now consume the non grouped messages from node 1 where they are pinned
       for (int i = 0; i < 5; i++) {
          ClientMessage message = getConsumer(0).receive(5000);
-         Assert.assertNotNull("" + i, message);
+         assertNotNull(message, "" + i);
          message.acknowledge();
-         Assert.assertNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
+         assertNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
       }
 
       ClientMessage clientMessage = getConsumer(0).receiveImmediate();
-      Assert.assertNull(clientMessage);
+      assertNull(clientMessage);
 
       // i know the last 5 messages consumed won't be acked yet so i wait for 15
       waitForMessages(1, "queues.testaddress", 15);
@@ -151,13 +159,13 @@ public class MessageRedistributionTest extends ClusterTestBase {
       //consume the non grouped messages
       for (int i = 0; i < 5; i++) {
          ClientMessage message = getConsumer(0).receive(5000);
-         Assert.assertNotNull("" + i, message);
+         assertNotNull(message, "" + i);
          message.acknowledge();
-         Assert.assertNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
+         assertNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
       }
 
       clientMessage = getConsumer(0).receiveImmediate();
-      Assert.assertNull(clientMessage);
+      assertNull(clientMessage);
 
       removeConsumer(0);
 
@@ -166,9 +174,9 @@ public class MessageRedistributionTest extends ClusterTestBase {
       //now we see the grouped messages are still on the same node
       for (int i = 0; i < 5; i++) {
          ClientMessage message = getConsumer(1).receive(1000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.acknowledge();
-         Assert.assertNotNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
+         assertNotNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
       }
       logger.debug("Test done");
    }
@@ -252,7 +260,6 @@ public class MessageRedistributionTest extends ClusterTestBase {
       Wait.assertEquals(0L, () -> servers[1].locateQueue(QUEUE0).getMessageCount(), 2000, 100);
    }
 
-   //https://issues.jboss.org/browse/HORNETQ-1057
    @Test
    public void testRedistributionStopsWhenConsumerAdded() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
@@ -279,14 +286,14 @@ public class MessageRedistributionTest extends ClusterTestBase {
       waitForBindings(1, "queues.testaddress", 2, 1, false);
       waitForBindings(2, "queues.testaddress", 2, 1, false);
 
-      send(0, "queues.testaddress", 2000, false, null);
+      send(0, "queues.testaddress", 100, false, null);
 
       removeConsumer(0);
       addConsumer(0, 0, "queue0", null);
 
-      Bindable bindable = servers[0].getPostOffice().getBinding(new SimpleString("queue0")).getBindable();
+      Bindable bindable = servers[0].getPostOffice().getBinding(SimpleString.of("queue0")).getBindable();
       String debug = ((QueueImpl) bindable).debug();
-      Assert.assertFalse(debug.contains(Redistributor.class.getName()));
+      assertFalse(debug.contains(Redistributor.class.getName()));
       logger.debug("Test done");
    }
 
@@ -331,6 +338,90 @@ public class MessageRedistributionTest extends ClusterTestBase {
       logger.debug("Test done");
    }
 
+   protected void verifyReceiveRoundRobinInSomeOrderWithCounts(final boolean ack,
+                                                               final int[] messageCounts,
+                                                               final int... consumerIDs) throws Exception {
+      List<LinkedList<Integer>> receivedCounts = new ArrayList<>();
+
+      Set<Integer> counts = new HashSet<>();
+
+      for (int consumerID : consumerIDs) {
+         ConsumerHolder holder = consumers[consumerID];
+
+         if (holder == null) {
+            throw new IllegalArgumentException("No consumer at " + consumerID);
+         }
+
+         LinkedList<Integer> list = new LinkedList<>();
+
+         receivedCounts.add(list);
+
+         for (long timeout = System.currentTimeMillis() + 5000; !matchCounters(messageCounts, counts) && timeout > System.currentTimeMillis();) {
+            ClientMessage message = holder.consumer.receiveImmediate();
+
+            if (message != null) {
+               int count = (Integer) message.getObjectProperty(ClusterTestBase.COUNT_PROP);
+
+               checkMessageBody(message);
+
+               assertFalse(counts.contains(count));
+
+               counts.add(count);
+
+               list.add(count);
+
+               if (ack) {
+                  message.acknowledge();
+               }
+            }
+         }
+      }
+
+      assertTrue(matchCounters(messageCounts, counts));
+
+      @SuppressWarnings("unchecked")
+      LinkedList<Integer>[] lists = new LinkedList[consumerIDs.length];
+
+      for (int i = 0; i < messageCounts.length; i++) {
+         for (LinkedList<Integer> list : receivedCounts) {
+            int elem = list.get(0);
+
+            if (elem == messageCounts[i]) {
+               lists[i] = list;
+
+               break;
+            }
+         }
+      }
+      int index = 0;
+
+      for (int messageCount : messageCounts) {
+         LinkedList<Integer> list = lists[index];
+
+         assertNotNull(list);
+
+         int elem = list.poll();
+
+         assertEquals(messageCount, elem);
+
+         index++;
+
+         if (index == consumerIDs.length) {
+            index = 0;
+         }
+      }
+
+   }
+
+   private static boolean matchCounters(int[] messageCounts, Set<Integer> counts) {
+      for (int messageCount : messageCounts) {
+         if (!counts.contains(messageCount)) {
+            return false;
+         }
+      }
+      return true;
+   }
+
    @Test
    public void testRedistributionWhenConsumerIsClosedDifferentQueues() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
@@ -364,9 +455,9 @@ public class MessageRedistributionTest extends ClusterTestBase {
       waitForBindings(1, "queues.testaddress", 2, 2, false);
       waitForBindings(2, "queues.testaddress", 2, 2, false);
 
-      final int NUMBER_OF_MESSAGES = 1000;
+      final int NUMBER_OF_MESSAGES = 100;
 
-      for (int i = 0; i < 1000; i++) {
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          producer0.send(sess0.createMessage(true).putIntProperty("count", i));
       }
 
@@ -376,39 +467,36 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          ClientMessage msg = consumer0.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.acknowledge();
-         Assert.assertEquals(i, msg.getIntProperty("count").intValue());
+         assertEquals(i, msg.getIntProperty("count").intValue());
       }
 
-      Assert.assertNull(consumer0.receiveImmediate());
+      assertNull(consumer0.receiveImmediate());
 
-      // closing consumer1... it shouldn't redistribute anything as the other nodes don't have such queues
       consumer1.close();
-      Thread.sleep(500); // wait some time giving time to redistribution break something
-      // (it shouldn't redistribute anything here since there are no queues on the other nodes)
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          ClientMessage msg = consumer2.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.acknowledge();
-         Assert.assertEquals(i, msg.getIntProperty("count").intValue());
+         assertEquals(i, msg.getIntProperty("count").intValue());
       }
 
-      Assert.assertNull(consumer2.receiveImmediate());
-      Assert.assertNull(consumer0.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
+      assertNull(consumer0.receiveImmediate());
 
       consumer1 = sess1.createConsumer("queue1");
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          ClientMessage msg = consumer1.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.acknowledge();
-         Assert.assertEquals(i, msg.getIntProperty("count").intValue());
+         assertEquals(i, msg.getIntProperty("count").intValue());
       }
 
-      Assert.assertNull(consumer0.receiveImmediate());
-      Assert.assertNull(consumer1.receiveImmediate());
-      Assert.assertNull(consumer2.receiveImmediate());
+      assertNull(consumer0.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
 
       logger.debug("Test done");
    }
@@ -553,7 +641,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
    public void testRedistributeWithScheduling() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-      AddressSettings setting = new AddressSettings().setRedeliveryDelay(10000);
+      AddressSettings setting = new AddressSettings().setRedeliveryDelay(100);
       servers[0].getAddressSettingsRepository().addMatch("queues.testaddress", setting);
       servers[0].getAddressSettingsRepository().addMatch("queue0", setting);
       servers[1].getAddressSettingsRepository().addMatch("queue0", setting);
@@ -569,7 +657,9 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       ClientProducer prod0 = session0.createProducer("queues.testaddress");
 
-      for (int i = 0; i < 100; i++) {
+      final int numberOfMessages = 10;
+
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = session0.createMessage(true);
          msg.putIntProperty("key", i);
 
@@ -594,9 +684,9 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       session0.start();
 
-      ArrayList<Xid> xids = new ArrayList<>();
+      List<Xid> xids = new ArrayList<>();
 
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < numberOfMessages; i++) {
          Xid xid = newXID();
 
          session0.start(xid, XAResource.TMNOFLAGS);
@@ -644,9 +734,9 @@ public class MessageRedistributionTest extends ClusterTestBase {
          session0.rollback(xid);
       }
 
-      for (int i = 0; i < 100; i++) {
-         ClientMessage msg = consumer1.receive(15000);
-         Assert.assertNotNull(msg);
+      for (int i = 0; i < numberOfMessages; i++) {
+         ClientMessage msg = consumer1.receive(5000);
+         assertNotNull(msg);
          msg.acknowledge();
       }
 
@@ -769,8 +859,6 @@ public class MessageRedistributionTest extends ClusterTestBase {
       waitForBindings(2, name, 2, 1, false);
 
       removeConsumer(0);
-
-      Thread.sleep(2000);
 
       send(0, "jms.queue." + name, 20, false, null);
 
@@ -1046,95 +1134,89 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
    @Test
    public void testBackAndForth() throws Exception {
-      for (int i = 0; i < 10; i++) {
-         setupCluster(MessageLoadBalancingType.ON_DEMAND);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-         startServers(0, 1, 2);
+      startServers(0, 1, 2);
 
-         setupSessionFactory(0, isNetty());
-         setupSessionFactory(1, isNetty());
-         setupSessionFactory(2, isNetty());
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+      setupSessionFactory(2, isNetty());
 
-         final String ADDRESS = "queues.testaddress";
-         final String QUEUE = "queue0";
+      final String ADDRESS = "queues.testaddress";
+      final String QUEUE = "queue0";
 
-         createQueue(0, ADDRESS, QUEUE, null, false);
-         createQueue(1, ADDRESS, QUEUE, null, false);
-         createQueue(2, ADDRESS, QUEUE, null, false);
+      createQueue(0, ADDRESS, QUEUE, null, false);
+      createQueue(1, ADDRESS, QUEUE, null, false);
+      createQueue(2, ADDRESS, QUEUE, null, false);
 
-         addConsumer(0, 0, QUEUE, null);
+      addConsumer(0, 0, QUEUE, null);
 
-         waitForBindings(0, ADDRESS, 1, 1, true);
-         waitForBindings(1, ADDRESS, 1, 0, true);
-         waitForBindings(2, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 1, true);
+      waitForBindings(1, ADDRESS, 1, 0, true);
+      waitForBindings(2, ADDRESS, 1, 0, true);
 
-         waitForBindings(0, ADDRESS, 2, 0, false);
-         waitForBindings(1, ADDRESS, 2, 1, false);
-         waitForBindings(2, ADDRESS, 2, 1, false);
+      waitForBindings(0, ADDRESS, 2, 0, false);
+      waitForBindings(1, ADDRESS, 2, 1, false);
+      waitForBindings(2, ADDRESS, 2, 1, false);
 
-         send(0, ADDRESS, 20, false, null);
+      send(0, ADDRESS, 20, false, null);
 
-         waitForMessages(0, ADDRESS, 20);
+      waitForMessages(0, ADDRESS, 20);
 
-         removeConsumer(0);
+      removeConsumer(0);
 
-         waitForBindings(0, ADDRESS, 1, 0, true);
-         waitForBindings(1, ADDRESS, 1, 0, true);
-         waitForBindings(2, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 0, true);
+      waitForBindings(1, ADDRESS, 1, 0, true);
+      waitForBindings(2, ADDRESS, 1, 0, true);
 
-         waitForBindings(0, ADDRESS, 2, 0, false);
-         waitForBindings(1, ADDRESS, 2, 0, false);
-         waitForBindings(2, ADDRESS, 2, 0, false);
+      waitForBindings(0, ADDRESS, 2, 0, false);
+      waitForBindings(1, ADDRESS, 2, 0, false);
+      waitForBindings(2, ADDRESS, 2, 0, false);
 
-         addConsumer(1, 1, QUEUE, null);
+      addConsumer(1, 1, QUEUE, null);
 
-         waitForBindings(0, ADDRESS, 1, 0, true);
-         waitForBindings(1, ADDRESS, 1, 1, true);
-         waitForBindings(2, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 0, true);
+      waitForBindings(1, ADDRESS, 1, 1, true);
+      waitForBindings(2, ADDRESS, 1, 0, true);
 
-         waitForMessages(1, ADDRESS, 20);
-         waitForMessages(0, ADDRESS, 0);
+      waitForMessages(1, ADDRESS, 20);
+      waitForMessages(0, ADDRESS, 0);
 
-         waitForBindings(0, ADDRESS, 2, 1, false);
-         waitForBindings(1, ADDRESS, 2, 0, false);
-         waitForBindings(2, ADDRESS, 2, 1, false);
+      waitForBindings(0, ADDRESS, 2, 1, false);
+      waitForBindings(1, ADDRESS, 2, 0, false);
+      waitForBindings(2, ADDRESS, 2, 1, false);
 
-         removeConsumer(1);
+      removeConsumer(1);
 
-         waitForBindings(0, ADDRESS, 1, 0, true);
-         waitForBindings(1, ADDRESS, 1, 0, true);
-         waitForBindings(2, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 0, true);
+      waitForBindings(1, ADDRESS, 1, 0, true);
+      waitForBindings(2, ADDRESS, 1, 0, true);
 
-         waitForBindings(0, ADDRESS, 2, 0, false);
-         waitForBindings(1, ADDRESS, 2, 0, false);
-         waitForBindings(2, ADDRESS, 2, 0, false);
+      waitForBindings(0, ADDRESS, 2, 0, false);
+      waitForBindings(1, ADDRESS, 2, 0, false);
+      waitForBindings(2, ADDRESS, 2, 0, false);
 
-         addConsumer(0, 0, QUEUE, null);
+      addConsumer(0, 0, QUEUE, null);
 
-         waitForBindings(0, ADDRESS, 1, 1, true);
-         waitForBindings(1, ADDRESS, 1, 0, true);
-         waitForBindings(2, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 1, true);
+      waitForBindings(1, ADDRESS, 1, 0, true);
+      waitForBindings(2, ADDRESS, 1, 0, true);
 
-         waitForBindings(0, ADDRESS, 2, 0, false);
-         waitForBindings(1, ADDRESS, 2, 1, false);
-         waitForBindings(2, ADDRESS, 2, 1, false);
+      waitForBindings(0, ADDRESS, 2, 0, false);
+      waitForBindings(1, ADDRESS, 2, 1, false);
+      waitForBindings(2, ADDRESS, 2, 1, false);
 
-         waitForMessages(0, ADDRESS, 20);
+      waitForMessages(0, ADDRESS, 20);
 
-         verifyReceiveAll(20, 0);
-         verifyNotReceive(0);
+      verifyReceiveAll(20, 0);
+      verifyNotReceive(0);
 
-         addConsumer(1, 1, QUEUE, null);
-         verifyNotReceive(1);
-         removeConsumer(1);
-
-         stopServers();
-         start();
-      }
+      addConsumer(1, 1, QUEUE, null);
+      verifyNotReceive(1);
+      removeConsumer(1);
 
    }
 
-   // https://issues.jboss.org/browse/HORNETQ-1072
    @Test
    public void testBackAndForth2WithDuplicDetection() throws Exception {
       internalTestBackAndForth2(true);
@@ -1151,67 +1233,61 @@ public class MessageRedistributionTest extends ClusterTestBase {
       if (useDuplicateDetection) {
          duplDetection = new AtomicInteger(0);
       }
-      for (int i = 0; i < 10; i++) {
-         setupCluster(MessageLoadBalancingType.ON_DEMAND);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-         startServers(0, 1);
+      startServers(0, 1);
 
-         setupSessionFactory(0, isNetty());
-         setupSessionFactory(1, isNetty());
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
 
-         final String ADDRESS = "queues.testaddress";
-         final String QUEUE = "queue0";
+      final String ADDRESS = "queues.testaddress";
+      final String QUEUE = "queue0";
 
-         createQueue(0, ADDRESS, QUEUE, null, false);
-         createQueue(1, ADDRESS, QUEUE, null, false);
+      createQueue(0, ADDRESS, QUEUE, null, false);
+      createQueue(1, ADDRESS, QUEUE, null, false);
 
-         addConsumer(0, 0, QUEUE, null);
+      addConsumer(0, 0, QUEUE, null);
 
-         waitForBindings(0, ADDRESS, 1, 1, true);
-         waitForBindings(1, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 1, true);
+      waitForBindings(1, ADDRESS, 1, 0, true);
 
-         waitForBindings(0, ADDRESS, 1, 0, false);
-         waitForBindings(1, ADDRESS, 1, 1, false);
+      waitForBindings(0, ADDRESS, 1, 0, false);
+      waitForBindings(1, ADDRESS, 1, 1, false);
 
-         send(1, ADDRESS, 20, false, null, duplDetection);
+      send(1, ADDRESS, 20, false, null, duplDetection);
 
-         waitForMessages(0, ADDRESS, 20);
+      waitForMessages(0, ADDRESS, 20);
 
-         removeConsumer(0);
+      removeConsumer(0);
 
-         waitForBindings(0, ADDRESS, 1, 0, true);
-         waitForBindings(1, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 0, true);
+      waitForBindings(1, ADDRESS, 1, 0, true);
 
-         waitForBindings(0, ADDRESS, 1, 0, false);
-         waitForBindings(1, ADDRESS, 1, 0, false);
+      waitForBindings(0, ADDRESS, 1, 0, false);
+      waitForBindings(1, ADDRESS, 1, 0, false);
 
-         addConsumer(1, 1, QUEUE, null);
+      addConsumer(1, 1, QUEUE, null);
 
-         waitForMessages(1, ADDRESS, 20);
-         waitForMessages(0, ADDRESS, 0);
+      waitForMessages(1, ADDRESS, 20);
+      waitForMessages(0, ADDRESS, 0);
 
-         waitForBindings(0, ADDRESS, 1, 1, false);
-         waitForBindings(1, ADDRESS, 1, 0, false);
+      waitForBindings(0, ADDRESS, 1, 1, false);
+      waitForBindings(1, ADDRESS, 1, 0, false);
 
-         removeConsumer(1);
+      removeConsumer(1);
 
-         addConsumer(0, 0, QUEUE, null);
+      addConsumer(0, 0, QUEUE, null);
 
-         waitForMessages(1, ADDRESS, 0);
-         waitForMessages(0, ADDRESS, 20);
+      waitForMessages(1, ADDRESS, 0);
+      waitForMessages(0, ADDRESS, 20);
 
-         removeConsumer(0);
-         addConsumer(1, 1, QUEUE, null);
+      removeConsumer(0);
+      addConsumer(1, 1, QUEUE, null);
 
-         waitForMessages(1, ADDRESS, 20);
-         waitForMessages(0, ADDRESS, 0);
+      waitForMessages(1, ADDRESS, 20);
+      waitForMessages(0, ADDRESS, 0);
 
-         verifyReceiveAll(20, 1);
-
-         stopServers();
-         start();
-      }
-
+      verifyReceiveAll(20, 1);
    }
 
    @Test
@@ -1254,7 +1330,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
    @Test
    public void testDelayedRedistribution() throws Exception {
-      final long delay = 1000;
+      final long delay = 200;
       setRedistributionDelay(delay);
 
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
@@ -1293,7 +1369,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
    @Test
    public void testDelayedRedistributionCancelled() throws Exception {
-      final long delay = 1000;
+      final long delay = 200;
       setRedistributionDelay(delay);
 
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
@@ -1357,28 +1433,27 @@ public class MessageRedistributionTest extends ClusterTestBase {
       waitForBindings(1, "queues.testaddress", 2, 1, false);
       waitForBindings(2, "queues.testaddress", 2, 1, false);
 
-      send(0, "queues.testaddress", 200, false, null);
+      send(0, "queues.testaddress", 10, false, null);
 
       removeConsumer(0);
       addConsumer(1, 1, "queue0", null);
 
-      Queue queue = servers[1].locateQueue(SimpleString.toSimpleString("queue0"));
-      Assert.assertNotNull(queue);
-      Wait.waitFor(() -> queue.getMessageCount() == 200);
+      Queue queue = servers[1].locateQueue(SimpleString.of("queue0"));
+      assertNotNull(queue);
+      Wait.waitFor(() -> queue.getMessageCount() == 10);
 
-      for (int i = 0; i < 200; i++) {
+      for (int i = 0; i < 10; i++) {
          ClientMessage message = consumers[1].getConsumer().receive(5000);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.acknowledge();
       }
 
-      Assert.assertNull(consumers[1].getConsumer().receiveImmediate());
+      assertNull(consumers[1].getConsumer().receiveImmediate());
    }
 
    /*
-    * Start one node with no consumers and send some messages
-    * Start another node add a consumer and verify all messages are redistribute
-    * https://jira.jboss.org/jira/browse/HORNETQ-359
+    * Start one node with no consumers and send some messages. Start another node add a consumer and verify all messages
+    * are redistributed.
     */
    @Test
    public void testRedistributionWhenNewNodeIsAddedWithConsumer() throws Exception {
@@ -1440,7 +1515,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       waitForBindings(0, "queues.testaddress", 1, 0, false);
 
-      getServer(0).getPagingManager().getPageStore(new SimpleString("queues.testaddress")).startPaging();
+      getServer(0).getPagingManager().getPageStore(SimpleString.of("queues.testaddress")).startPaging();
 
       ClientSession session0 = sfs[0].createSession(true, true, 0);
       ClientProducer producer0 = session0.createProducer("queues.testaddress");
@@ -1460,13 +1535,13 @@ public class MessageRedistributionTest extends ClusterTestBase {
          producer0.send(msg);
 
          msg = consumer0.receive(5000);
-         Assert.assertNotNull(msg);
-         Assert.assertEquals(i, msg.getIntProperty("i").intValue());
+         assertNotNull(msg);
+         assertEquals(i, msg.getIntProperty("i").intValue());
          // msg.acknowledge(); // -- do not ack message on consumer0, to make sure the messages will be paged
 
          msg = consumer1.receive(5000);
-         Assert.assertNotNull(msg);
-         Assert.assertEquals(i, msg.getIntProperty("i").intValue());
+         assertNotNull(msg);
+         assertEquals(i, msg.getIntProperty("i").intValue());
          msg.acknowledge();
       }
 

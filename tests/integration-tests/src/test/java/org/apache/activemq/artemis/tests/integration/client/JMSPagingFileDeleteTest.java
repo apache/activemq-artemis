@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -31,8 +36,8 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +76,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -82,11 +87,6 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
       server.getAddressSettingsRepository().addMatch("#", setting);
    }
 
-   /**
-    * Test replicating issue JBPAPP-9603
-    *
-    * @throws Exception
-    */
    @Test
    public void testTopicsWithNonDurableSubscription() throws Exception {
       connection = null;
@@ -111,7 +111,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
             }
             logger.debug("Sent {} messages.", JMSPagingFileDeleteTest.MESSAGE_NUM);
 
-            pagingStore = server.getPagingManager().getPageStore(new SimpleString("topic1"));
+            pagingStore = server.getPagingManager().getPageStore(SimpleString.of("topic1"));
             printPageStoreInfo(pagingStore);
 
             assertTrue(pagingStore.isPaging());
@@ -159,7 +159,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
          }
          logger.debug("Sent {} messages.", JMSPagingFileDeleteTest.MESSAGE_NUM);
 
-         pagingStore = server.getPagingManager().getPageStore(new SimpleString("topic1"));
+         pagingStore = server.getPagingManager().getPageStore(SimpleString.of("topic1"));
          printPageStoreInfo(pagingStore);
 
          assertTrue(pagingStore.isPaging());
@@ -178,7 +178,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
             assertNotNull(message2);
          }
 
-         pagingStore = server.getPagingManager().getPageStore(new SimpleString("topic1"));
+         pagingStore = server.getPagingManager().getPageStore(SimpleString.of("topic1"));
          long timeout = System.currentTimeMillis() + 5000;
          while (timeout > System.currentTimeMillis() && pagingStore.isPaging()) {
             Thread.sleep(100);

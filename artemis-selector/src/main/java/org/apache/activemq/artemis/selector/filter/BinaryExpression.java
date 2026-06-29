@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
+import java.util.Objects;
+
 /**
  * An expression which performs an operation on two expression values.
- *
- * @version $Revision: 1.2 $
  */
 public abstract class BinaryExpression implements Expression {
 
@@ -39,73 +39,39 @@ public abstract class BinaryExpression implements Expression {
       return right;
    }
 
-   /**
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "(" + left.toString() + " " + getExpressionSymbol() + " " + right.toString() + ")";
    }
 
-   /**
-    * @see java.lang.Object#hashCode()
-    */
    @Override
    public int hashCode() {
-      int result = left.hashCode();
-      result = 31 * result + right.hashCode();
-      result = 31 * result + getExpressionSymbol().hashCode();
-      return result;
+      return Objects.hash(left, right, getExpressionSymbol());
    }
 
-   /**
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof BinaryExpression other)) {
          return false;
       }
 
-      final BinaryExpression that = (BinaryExpression) o;
-
-      if (!this.getExpressionSymbol().equals(that.getExpressionSymbol())) {
-         return false;
-      }
-
-      if (left != null && !left.equals(that.left)) {
-         return false;
-      }
-
-      if (right != null && !right.equals(that.right)) {
-         return false;
-      }
-
-      return true;
+      return Objects.equals(this.getExpressionSymbol(), other.getExpressionSymbol()) &&
+             Objects.equals(left, other.left) &&
+             Objects.equals(right, other.right);
    }
 
    /**
-    * Returns the symbol that represents this binary expression.  For example, addition is
-    * represented by "+"
-    *
-    * @return
+    * {@return the symbol that represents this binary expression.  For example, addition is represented by {@code +}}
     */
    public abstract String getExpressionSymbol();
 
-   /**
-    * @param expression
-    */
    public void setRight(Expression expression) {
       right = expression;
    }
 
-   /**
-    * @param expression
-    */
    public void setLeft(Expression expression) {
       left = expression;
    }

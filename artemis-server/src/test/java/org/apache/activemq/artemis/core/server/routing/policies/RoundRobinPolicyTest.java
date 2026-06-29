@@ -16,15 +16,17 @@
  */
 package org.apache.activemq.artemis.core.server.routing.policies;
 
-import org.apache.activemq.artemis.core.server.routing.targets.MockTarget;
-import org.apache.activemq.artemis.core.server.routing.targets.Target;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.activemq.artemis.core.server.routing.targets.MockTarget;
+import org.apache.activemq.artemis.core.server.routing.targets.Target;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class RoundRobinPolicyTest extends PolicyTestBase {
 
@@ -40,7 +42,7 @@ public class RoundRobinPolicyTest extends PolicyTestBase {
       Set<Target> selectedTargets = new HashSet<>();
       List<Target> previousTargets = new ArrayList<>();
 
-      ArrayList<Target> targets = new ArrayList<>();
+      List<Target> targets = new ArrayList<>();
       for (int i = 0; i < MULTIPLE_TARGETS; i++) {
          targets.add(new MockTarget());
       }
@@ -49,9 +51,9 @@ public class RoundRobinPolicyTest extends PolicyTestBase {
       for (int i = 0; i < MULTIPLE_TARGETS; i++) {
          selectedTarget = policy.selectTarget(targets, "test");
          selectedTargets.add(selectedTarget);
-         Assert.assertTrue("Iteration failed: " + i, !previousTargets.contains(selectedTarget));
+         assertFalse(previousTargets.contains(selectedTarget), "Iteration failed: " + i);
          previousTargets.add(selectedTarget);
       }
-      Assert.assertEquals(MULTIPLE_TARGETS, selectedTargets.size());
+      assertEquals(MULTIPLE_TARGETS, selectedTargets.size());
    }
 }

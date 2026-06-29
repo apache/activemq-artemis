@@ -16,39 +16,45 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.mqtt.MqttProperties;
+import io.netty.handler.codec.mqtt.MqttQoS;
+import io.netty.handler.codec.mqtt.MqttSubscriptionOption;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
-import org.apache.activemq.artemis.core.settings.impl.Match;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.postoffice.Address;
+import org.apache.activemq.artemis.core.postoffice.impl.AddressImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class MQTTSessionState {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public static final MQTTSessionState DEFAULT = new MQTTSessionState(null);
+   public static final MQTTSessionState DEFAULT = new MQTTSessionState((String) null);
 
    private MQTTSession session;
 
-   private String clientId;
+   private final String clientId;
 
-   private final ConcurrentMap<String, Pair<MqttTopicSubscription, Integer>> subscriptions = new ConcurrentHashMap<>();
+   private final ConcurrentMap<String, SubscriptionItem> subscriptions = new ConcurrentHashMap<>();
 
    // Used to store Packet ID of Publish QoS1 and QoS2 message.  See spec: 4.3.3 QoS 2: Exactly once delivery.  Method B.
    private final Map<Integer, MQTTMessageInfo> messageRefStore = new ConcurrentHashMap<>();
@@ -95,6 +101,46 @@ public class MQTTSessionState {
       this.clientId = clientId;
    }
 
+   /**
+    * This constructor deserializes subscription data from a message. The format is as follows.
+    * <ul>
+    * <li>byte: version
+    * <li>int: subscription count
+    * </ul>
+    *  There may be 0 or more subscriptions. The subscription format is as follows.
+    * <ul>
+    * <li>String: topic name
+    * <li>int: QoS
+    * <li>boolean: no-local
+    * <li>boolean: retain as published
+    * <li>int: retain handling
+    * <li>int (nullable): subscription identifier
+    * </ul>
+    *
+    * @param message the message holding the MQTT session data
+    */
+   public MQTTSessionState(CoreMessage message) {
+      logger.debug("Deserializing MQTT subscriptions from {}", message);
+      this.clientId = message.getStringProperty(Message.HDR_LAST_VALUE_NAME);
+      ActiveMQBuffer buf = message.getDataBuffer();
+
+      // no need to use the version at this point
+      byte version = buf.readByte();
+
+      int subscriptionCount = buf.readInt();
+      logger.debug("Deserializing {} subscriptions", subscriptionCount);
+      for (int i = 0; i < subscriptionCount; i++) {
+         String topicName = buf.readString();
+         MqttQoS qos = MqttQoS.valueOf(buf.readInt());
+         boolean nolocal = buf.readBoolean();
+         boolean retainAsPublished = buf.readBoolean();
+         MqttSubscriptionOption.RetainedHandlingPolicy retainedHandlingPolicy = MqttSubscriptionOption.RetainedHandlingPolicy.valueOf(buf.readInt());
+         Integer subscriptionId = buf.readNullableInt();
+
+         subscriptions.put(topicName, new SubscriptionItem(new MqttTopicSubscription(topicName, new MqttSubscriptionOption(qos, nolocal, retainAsPublished, retainedHandlingPolicy)), subscriptionId));
+      }
+   }
+
    public MQTTSession getSession() {
       return session;
    }
@@ -103,7 +149,7 @@ public class MQTTSessionState {
       this.session = session;
    }
 
-   public synchronized void clear() {
+   public synchronized void clear() throws Exception {
       subscriptions.clear();
       messageRefStore.clear();
       addressMessageMap.clear();
@@ -142,37 +188,38 @@ public class MQTTSessionState {
 
    public Collection<MqttTopicSubscription> getSubscriptions() {
       Collection<MqttTopicSubscription> result = new HashSet<>();
-      for (Pair<MqttTopicSubscription, Integer> pair : subscriptions.values()) {
-         result.add(pair.getA());
+      for (SubscriptionItem item : subscriptions.values()) {
+         result.add(item.getSubscription());
       }
       return result;
    }
 
-   public boolean addSubscription(MqttTopicSubscription subscription, WildcardConfiguration wildcardConfiguration, Integer subscriptionIdentifier) {
+   public Map<String, SubscriptionItem> getSubscriptionsPlusID() {
+      return new HashMap<>(subscriptions);
+   }
+
+   public boolean addSubscription(MqttTopicSubscription subscription, WildcardConfiguration wildcardConfiguration, Integer subscriptionIdentifier) throws Exception {
       // synchronized to prevent race with removeSubscription
       synchronized (subscriptions) {
-         addressMessageMap.putIfAbsent(MQTTUtil.convertMqttTopicFilterToCoreAddress(subscription.topicName(), wildcardConfiguration), new ConcurrentHashMap<>());
+         addressMessageMap.putIfAbsent(MQTTUtil.getCoreAddressFromMqttTopic(subscription.topicFilter(), wildcardConfiguration), new ConcurrentHashMap<>());
 
-         Pair<MqttTopicSubscription, Integer> existingSubscription = subscriptions.get(subscription.topicName());
+         SubscriptionItem existingSubscription = subscriptions.get(subscription.topicFilter());
          if (existingSubscription != null) {
-            boolean updated = false;
-            if (subscription.qualityOfService().value() > existingSubscription.getA().qualityOfService().value()) {
-               existingSubscription.setA(subscription);
-               updated = true;
+            if (subscription.qualityOfService().value() > existingSubscription.getSubscription().qualityOfService().value()
+               || !Objects.equals(subscriptionIdentifier, existingSubscription.getId())) {
+               existingSubscription.update(subscription, subscriptionIdentifier);
+               return true;
+            } else {
+               return false;
             }
-            if (subscriptionIdentifier != null && !subscriptionIdentifier.equals(existingSubscription.getB())) {
-               existingSubscription.setB(subscriptionIdentifier);
-               updated = true;
-            }
-            return updated;
          } else {
-            subscriptions.put(subscription.topicName(), new Pair<>(subscription, subscriptionIdentifier));
+            subscriptions.put(subscription.topicFilter(), new SubscriptionItem(subscription, subscriptionIdentifier));
             return true;
          }
       }
    }
 
-   public void removeSubscription(String address) {
+   public void removeSubscription(String address) throws Exception {
       // synchronized to prevent race with addSubscription
       synchronized (subscriptions) {
          subscriptions.remove(address);
@@ -181,23 +228,23 @@ public class MQTTSessionState {
    }
 
    public MqttTopicSubscription getSubscription(String address) {
-      return subscriptions.get(address) != null ? subscriptions.get(address).getA() : null;
+      return subscriptions.get(address) != null ? subscriptions.get(address).getSubscription() : null;
+   }
+
+   public SubscriptionItem getSubscriptionPlusID(String address) {
+      return subscriptions.get(address);
    }
 
    public List<Integer> getMatchingSubscriptionIdentifiers(String address) {
-      address = MQTTUtil.convertCoreAddressToMqttTopicFilter(address, session.getServer().getConfiguration().getWildcardConfiguration());
+      String topic = MQTTUtil.getMqttTopicFromCoreAddress(address, session.getServer().getConfiguration().getWildcardConfiguration());
       List<Integer> result = null;
-      for (Pair<MqttTopicSubscription, Integer> pair : subscriptions.values()) {
-         Pattern pattern = Match.createPattern(pair.getA().topicName(), MQTTUtil.MQTT_WILDCARD, true);
-         boolean matches = pattern.matcher(address).matches();
-         logger.debug("Matching {} with {}: {}", address, pattern, matches);
-         if (matches) {
+      for (SubscriptionItem item : subscriptions.values()) {
+         Integer matchingId = item.getMatchingId(topic);
+         if (matchingId != null) {
             if (result == null) {
                result = new ArrayList<>();
             }
-            if (pair.getB() != null) {
-               result.add(pair.getB());
-            }
+            result.add(matchingId);
          }
       }
       return result;
@@ -205,10 +252,6 @@ public class MQTTSessionState {
 
    public String getClientId() {
       return clientId;
-   }
-
-   public void setClientId(String clientId) {
-      this.clientId = clientId;
    }
 
    public long getDisconnectedTime() {
@@ -372,15 +415,42 @@ public class MQTTSessionState {
       }
    }
 
-   public class OutboundStore {
+   @Override
+   public String toString() {
+      return "MQTTSessionState[session=" + session +
+         ", clientId=" + clientId +
+         ", subscriptions=" + subscriptions +
+         ", messageRefStore=" + messageRefStore +
+         ", addressMessageMap=" + addressMessageMap +
+         ", pubRec=" + pubRec +
+         ", attached=" + attached +
+         ", outboundStore=" + outboundStore +
+         ", disconnectedTime=" + disconnectedTime +
+         ", sessionExpiryInterval=" + clientSessionExpiryInterval +
+         ", isWill=" + isWill +
+         ", willMessage=" + willMessage +
+         ", willTopic=" + willTopic +
+         ", willQoSLevel=" + willQoSLevel +
+         ", willRetain=" + willRetain +
+         ", willDelayInterval=" + willDelayInterval +
+         ", failed=" + failed +
+         ", maxPacketSize=" + clientMaxPacketSize +
+         "]@" + System.identityHashCode(this);
+   }
 
-      private HashMap<Pair<Long, Long>, Integer> artemisToMqttMessageMap = new HashMap<>();
+   public static class OutboundStore {
+      private final Map<Pair<Long, Long>, Integer> artemisToMqttMessageMap = new HashMap<>();
 
-      private HashMap<Integer, Pair<Long, Long>> mqttToServerIds = new HashMap<>();
+      private final Map<Integer, Pair<Long, Long>> mqttToServerIds = new HashMap<>();
 
       private final Object dataStoreLock = new Object();
 
-      private final AtomicInteger ids = new AtomicInteger(0);
+      private static final int INITIAL_ID = 0;
+
+      private int currentId = INITIAL_ID;
+
+      // track send quota independently because it's reset when the client disconnects, but other state must remain in tact
+      private int sendQuota = 0;
 
       private Pair<Long, Long> generateKey(long messageId, long consumerID) {
          return new Pair<>(messageId, consumerID);
@@ -390,8 +460,23 @@ public class MQTTSessionState {
          synchronized (dataStoreLock) {
             Integer id = artemisToMqttMessageMap.get(generateKey(messageId, consumerId));
             if (id == null) {
-               ids.compareAndSet(Short.MAX_VALUE, 1);
-               id = ids.addAndGet(1);
+               final int start = currentId;
+               do {
+                  // wrap around to the start if we reach the max
+                  if (++currentId > MQTTUtil.TWO_BYTE_INT_MAX) {
+                     currentId = INITIAL_ID;
+                  }
+                  // check to see if we looped all the way back around to where we started
+                  if (start == currentId) {
+                     // this detects an edge case where the same ID is acked & then generated again
+                     if (currentId != INITIAL_ID && !mqttToServerIds.containsKey(currentId)) {
+                        break;
+                     }
+                     throw MQTTBundle.BUNDLE.unableToGenerateID();
+                  }
+               }
+               while (mqttToServerIds.containsKey(currentId) || currentId == INITIAL_ID);
+               id = currentId;
             }
             return id;
          }
@@ -402,14 +487,15 @@ public class MQTTSessionState {
             Pair<Long, Long> key = generateKey(messageId, consumerId);
             artemisToMqttMessageMap.put(key, mqtt);
             mqttToServerIds.put(mqtt, key);
+            sendQuota++;
          }
       }
 
       public Pair<Long, Long> publishAckd(int mqtt) {
          synchronized (dataStoreLock) {
-            Pair p = mqttToServerIds.remove(mqtt);
+            Pair<Long, Long> p = mqttToServerIds.remove(mqtt);
             if (p != null) {
-               mqttToServerIds.remove(p.getA());
+               sendQuota--;
                artemisToMqttMessageMap.remove(p);
             }
             return p;
@@ -423,6 +509,7 @@ public class MQTTSessionState {
       public void publishReleasedSent(int mqttId, long serverMessageId) {
          synchronized (dataStoreLock) {
             mqttToServerIds.put(mqttId, new Pair<>(serverMessageId, 0L));
+            sendQuota++;
          }
       }
 
@@ -430,53 +517,87 @@ public class MQTTSessionState {
          return publishAckd(mqtt);
       }
 
-      public int getPendingMessages() {
-         synchronized (dataStoreLock) {
-            return mqttToServerIds.size();
-         }
-      }
-
       public void clear() {
          synchronized (dataStoreLock) {
             artemisToMqttMessageMap.clear();
             mqttToServerIds.clear();
-            ids.set(0);
+            currentId = INITIAL_ID;
+            sendQuota = 0;
          }
       }
-   }
 
-   @Override
-   public String toString() {
-      return "MQTTSessionState[" + "session=" + session + ", clientId='" + clientId + "', subscriptions=" + subscriptions + ", messageRefStore=" + messageRefStore + ", addressMessageMap=" + addressMessageMap + ", pubRec=" + pubRec + ", attached=" + attached + ", outboundStore=" + outboundStore + ", disconnectedTime=" + disconnectedTime + ", sessionExpiryInterval=" + clientSessionExpiryInterval + ", isWill=" + isWill + ", willMessage=" + willMessage + ", willTopic='" + willTopic + "', willQoSLevel=" + willQoSLevel + ", willRetain=" + willRetain + ", willDelayInterval=" + willDelayInterval + ", failed=" + failed + ", maxPacketSize=" + clientMaxPacketSize + ']';
+      public int getSendQuota() {
+         synchronized (dataStoreLock) {
+            return sendQuota;
+         }
+      }
+
+      public void resetSendQuota() {
+         synchronized (dataStoreLock) {
+            sendQuota = 0;
+         }
+      }
    }
 
    public enum WillStatus {
       NOT_SENT, SENT, SENDING;
 
       public byte getStatus() {
-         switch (this) {
-            case NOT_SENT:
-               return 0;
-            case SENT:
-               return 1;
-            case SENDING:
-               return 2;
-            default:
-               return -1;
-         }
+         return switch (this) {
+            case NOT_SENT -> 0;
+            case SENT -> 1;
+            case SENDING -> 2;
+            default -> -1;
+         };
       }
 
       public static WillStatus getStatus(byte status) {
-         switch (status) {
-            case 0:
-               return NOT_SENT;
-            case 1:
-               return SENT;
-            case 2:
-               return SENDING;
-            default:
-               return null;
+         return switch (status) {
+            case 0 -> NOT_SENT;
+            case 1 -> SENT;
+            case 2 -> SENDING;
+            default -> null;
+         };
+      }
+   }
+
+   public static class SubscriptionItem {
+      private MqttTopicSubscription subscription;
+      private Integer id;
+      private Address address;
+
+      public SubscriptionItem(MqttTopicSubscription subscription, Integer id) {
+         update(subscription, id);
+      }
+
+      public MqttTopicSubscription getSubscription() {
+         return subscription;
+      }
+
+      public Integer getId() {
+         return id;
+      }
+
+      public Integer getMatchingId(String topic) {
+         if (id != null && new AddressImpl(SimpleString.of(topic), MQTTUtil.MQTT_WILDCARD).matches(address)) {
+            return id;
+         } else {
+            return null;
          }
+      }
+
+      private void update(MqttTopicSubscription newSub, Integer newId) {
+         if (newId != null && !newId.equals(id)) {
+            if (this.address == null || !subscription.topicFilter().equals(newSub.topicFilter())) {
+               String topicFilter = newSub.topicFilter();
+               if (MQTTUtil.isSharedSubscription(topicFilter)) {
+                  topicFilter = MQTTUtil.decomposeSharedSubscriptionTopicFilter(newSub.topicFilter()).getB();
+               }
+               address = new AddressImpl(SimpleString.of(topicFilter), MQTTUtil.MQTT_WILDCARD);
+            }
+         }
+         subscription = newSub;
+         id = newId;
       }
    }
 }

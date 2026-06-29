@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -30,23 +31,21 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * The delete queue was resetting some fields on the Queue what would eventually turn a NPE.
- * this test would eventually fail without the fix but it was a rare event as in most of the time
- * the NPE happened during depaging what let the server to recover itself on the next depage.
- * To verify a fix on this test against the previous version of QueueImpl look for NPEs on System.err
+ * The delete queue was resetting some fields on the Queue what would eventually turn a NPE. this test would eventually
+ * fail without the fix but it was a rare event as in most of the time the NPE happened during depaging what let the
+ * server to recover itself on the next depage. To verify a fix on this test against the previous version of QueueImpl
+ * look for NPEs on System.err
  */
 public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
 
    volatile boolean running = true;
 
-   private final SimpleString ADDRESS = new SimpleString("ADQUEUE");
+   private final SimpleString ADDRESS = SimpleString.of("ADQUEUE");
 
    AtomicInteger sequence = new AtomicInteger(0);
    private ActiveMQServer server;
@@ -57,13 +56,13 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
    private static final int PAGE_SIZE = 10 * 1024;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setJournalSyncTransactional(false);
 
-      server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+      server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<>());
       server.start();
       locator = createNonHALocator(false).setBlockOnDurableSend(false).setBlockOnAcknowledge(true);
    }
@@ -76,7 +75,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
       ClientProducer producer = session.createProducer(ADDRESS);
 
       // just to make it page forever
-      Queue serverQueue = server.createQueue(new QueueConfiguration("everPage").setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      Queue serverQueue = server.createQueue(QueueConfiguration.of("everPage").setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
       serverQueue.getPageSubscription().getPagingStore().startPaging();
 
       Consumer[] consumers = new Consumer[10];
@@ -121,13 +120,16 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
 
             for (int i = 0; i < 100 && running; i++) {
                SimpleString queueName = ADDRESS.concat("_" + sequence.incrementAndGet());
-               session.createQueue(new QueueConfiguration(queueName).setAddress(ADDRESS));
+               session.createQueue(QueueConfiguration.of(queueName).setAddress(ADDRESS));
                ClientConsumer consumer = session.createConsumer(queueName);
                while (running) {
                   ClientMessage msg = consumer.receive(500);
                   if (msg == null) {
-                     if (running) continue;
-                     else break;
+                     if (running) {
+                        continue;
+                     } else {
+                        break;
+                     }
                   }
                   if (msgcount++ == 500) {
                      msgcount = 0;

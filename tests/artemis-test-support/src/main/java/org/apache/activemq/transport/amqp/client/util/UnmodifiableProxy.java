@@ -16,12 +16,11 @@
  */
 package org.apache.activemq.transport.amqp.client.util;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.qpid.proton.engine.Connection;
@@ -34,33 +33,32 @@ import org.apache.qpid.proton.engine.Session;
 import org.apache.qpid.proton.engine.Transport;
 
 /**
- * Utility that creates proxy objects for the Proton objects which won't allow any mutating
- * operations to be applied so that the test code does not interact with the proton engine
- * outside the client serialization thread.
+ * Utility that creates proxy objects for the Proton objects which won't allow any mutating operations to be applied so
+ * that the test code does not interact with the proton engine outside the client serialization thread.
  */
 public final class UnmodifiableProxy {
 
-   private static ArrayList<String> blacklist = new ArrayList<>();
+   private static List<String> denylist = new ArrayList<>();
 
    // These methods are mutating but don't take an arguments so they
    // aren't automatically filtered out. We will have to keep an eye
    // on proton API in the future and modify this list as it evolves.
    static {
-      blacklist.add("close");
-      blacklist.add("free");
-      blacklist.add("open");
-      blacklist.add("sasl");
-      blacklist.add("session");
-      blacklist.add("close_head");
-      blacklist.add("close_tail");
-      blacklist.add("outputConsumed");
-      blacklist.add("process");
-      blacklist.add("processInput");
-      blacklist.add("unbind");
-      blacklist.add("settle");
-      blacklist.add("clear");
-      blacklist.add("detach");
-      blacklist.add("abort");
+      denylist.add("close");
+      denylist.add("free");
+      denylist.add("open");
+      denylist.add("sasl");
+      denylist.add("session");
+      denylist.add("close_head");
+      denylist.add("close_tail");
+      denylist.add("outputConsumed");
+      denylist.add("process");
+      denylist.add("processInput");
+      denylist.add("unbind");
+      denylist.add("settle");
+      denylist.add("clear");
+      denylist.add("detach");
+      denylist.add("abort");
    }
 
    private UnmodifiableProxy() {
@@ -110,57 +108,54 @@ public final class UnmodifiableProxy {
    }
 
    private static <T> T wrap(Class<T> type, final Object target) {
-      return type.cast(java.lang.reflect.Proxy.newProxyInstance(type.getClassLoader(), new Class[] {type}, new InvocationHandler() {
-         @Override
-         public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-            if ("toString".equals(method.getName()) && method.getParameterTypes().length == 0) {
-               return "Unmodifiable proxy -> (" + method.invoke(target, objects) + ")";
+      return type.cast(java.lang.reflect.Proxy.newProxyInstance(type.getClassLoader(), new Class[] {type}, (o, method, objects) -> {
+         if ("toString".equals(method.getName()) && method.getParameterTypes().length == 0) {
+            return "Unmodifiable proxy -> (" + method.invoke(target, objects) + ")";
+         }
+
+         // Don't let methods that mutate be invoked.
+         if (method.getParameterTypes().length > 0) {
+            throw new UnsupportedOperationException("Cannot mutate outside the Client work thread");
+         }
+
+         if (denylist.contains(method.getName())) {
+            throw new UnsupportedOperationException("Cannot mutate outside the Client work thread");
+         }
+
+         Class<?> returnType = method.getReturnType();
+
+         try {
+            Object result = method.invoke(target, objects);
+            if (result == null) {
+               return null;
             }
 
-            // Don't let methods that mutate be invoked.
-            if (method.getParameterTypes().length > 0) {
-               throw new UnsupportedOperationException("Cannot mutate outside the Client work thread");
-            }
+            if (returnType.isPrimitive() || returnType.isArray() || Object.class.equals(returnType)) {
+               // Skip any other checks
+            } else if (returnType.isAssignableFrom(ByteBuffer.class)) {
+               // Buffers are modifiable but we can just return null to indicate
+               // there's nothing there to access.
+               result = null;
+            } else if (returnType.isAssignableFrom(Map.class)) {
+               // Prevent return of modifiable maps
+               result = Collections.unmodifiableMap((Map<?, ?>) result);
+            } else if (isProtonType(returnType) && returnType.isInterface()) {
 
-            if (blacklist.contains(method.getName())) {
-               throw new UnsupportedOperationException("Cannot mutate outside the Client work thread");
-            }
+               // Can't handle the crazy Source / Target types yet as there's two
+               // different types for Source and Target the result can't be cast to
+               // the one people actually want to use.
+               if (!returnType.getName().equals("org.apache.qpid.proton.amqp.transport.Source")
+                  && !returnType.getName().equals("org.apache.qpid.proton.amqp.messaging.Source")
+                  && !returnType.getName().equals("org.apache.qpid.proton.amqp.transport.Target")
+                  && !returnType.getName().equals("org.apache.qpid.proton.amqp.messaging.Target")) {
 
-            Class<?> returnType = method.getReturnType();
-
-            try {
-               Object result = method.invoke(target, objects);
-               if (result == null) {
-                  return null;
+                  result = wrap(returnType, result);
                }
-
-               if (returnType.isPrimitive() || returnType.isArray() || Object.class.equals(returnType)) {
-                  // Skip any other checks
-               } else if (returnType.isAssignableFrom(ByteBuffer.class)) {
-                  // Buffers are modifiable but we can just return null to indicate
-                  // there's nothing there to access.
-                  result = null;
-               } else if (returnType.isAssignableFrom(Map.class)) {
-                  // Prevent return of modifiable maps
-                  result = Collections.unmodifiableMap((Map<?, ?>) result);
-               } else if (isProtonType(returnType) && returnType.isInterface()) {
-
-                  // Can't handle the crazy Source / Target types yet as there's two
-                  // different types for Source and Target the result can't be cast to
-                  // the one people actually want to use.
-                  if (!returnType.getName().equals("org.apache.qpid.proton.amqp.transport.Source")
-                     && !returnType.getName().equals("org.apache.qpid.proton.amqp.messaging.Source")
-                     && !returnType.getName().equals("org.apache.qpid.proton.amqp.transport.Target")
-                     && !returnType.getName().equals("org.apache.qpid.proton.amqp.messaging.Target")) {
-
-                     result = wrap(returnType, result);
-                  }
-               }
-
-               return result;
-            } catch (InvocationTargetException e) {
-               throw e.getTargetException();
             }
+
+            return result;
+         } catch (InvocationTargetException e) {
+            throw e.getTargetException();
          }
       }));
    }

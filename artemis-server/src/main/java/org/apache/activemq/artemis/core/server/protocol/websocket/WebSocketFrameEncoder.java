@@ -26,17 +26,14 @@ import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 /**
- * This class uses the maximum frame payload size to packetize/frame outbound websocket messages into
- * continuation frames.
+ * This class uses the maximum frame payload size to packetize/frame outbound websocket messages into continuation
+ * frames.
  */
 public class WebSocketFrameEncoder extends ChannelOutboundHandlerAdapter {
 
    private int maxFramePayloadLength;
    private WebSocketFrameEncoderType type;
 
-   /**
-    * @param maxFramePayloadLength
-    */
    public WebSocketFrameEncoder(int maxFramePayloadLength, WebSocketFrameEncoderType type) {
       this.maxFramePayloadLength = maxFramePayloadLength;
       this.type = type;
@@ -44,8 +41,8 @@ public class WebSocketFrameEncoder extends ChannelOutboundHandlerAdapter {
 
    @Override
    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-      if (msg instanceof ByteBuf) {
-         writeContinuationFrame(ctx, (ByteBuf) msg, promise);
+      if (msg instanceof ByteBuf buf) {
+         writeContinuationFrame(ctx, buf, promise);
       } else {
          super.write(ctx, msg, promise);
       }

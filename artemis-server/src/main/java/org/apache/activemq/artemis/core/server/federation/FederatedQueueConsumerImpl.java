@@ -277,7 +277,7 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
          if (message instanceof ClientLargeMessageInternal) {
 
             final StorageManager storageManager = server.getStorageManager();
-            LargeServerMessage lsm = storageManager.createLargeMessage(storageManager.generateID(), message);
+            LargeServerMessage lsm = storageManager.createCoreLargeMessage(storageManager.generateID(), message);
 
             LargeData largeData = null;
             do {
@@ -325,7 +325,10 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.federationDispatchError(clientMessage.toString(), e);
          try {
-            clientSession.rollback();
+            ClientSession localSession = clientSession;
+            if (localSession != null) {
+               localSession.rollback();
+            }
          } catch (ActiveMQException e1) {
          }
       }

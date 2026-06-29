@@ -38,6 +38,7 @@ import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 import java.util.Map;
+import java.util.Objects;
 
 public class ConnectionRouterControlImpl extends AbstractControl implements ConnectionRouterControl {
    private final ConnectionRouter connectionRouter;
@@ -68,7 +69,7 @@ public class ConnectionRouterControlImpl extends AbstractControl implements Conn
             TabularData paramsData = new TabularDataSupport(getParametersType());
             for (Map.Entry<String, Object> param : connector.getParams().entrySet()) {
                paramsData.put(new CompositeDataSupport(getParameterType(), new String[]{"key", "value"},
-                  new Object[]{param.getKey(), param.getValue() == null ? null : param.getValue().toString()}));
+                  new Object[]{param.getKey(), Objects.toString(param.getValue(), null)}));
             }
 
             connectorData = new CompositeDataSupport(getTransportConfigurationType(),

@@ -17,8 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import javax.jms.DeliveryMode;
-import javax.jms.Message;
-import javax.jms.MessageListener;
 import javax.jms.Session;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,19 +25,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQMessageConsumer;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JMSConsumer1Test extends BasicOpenWireTest {
 
-   @Parameterized.Parameters(name = "deliveryMode={0} destinationType={1}")
+   @Parameters(name = "deliveryMode={0} destinationType={1}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_TOPIC_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_TOPIC_TYPE}});
    }
@@ -56,7 +59,7 @@ public class JMSConsumer1Test extends BasicOpenWireTest {
       this.destinationType = destinationType;
    }
 
-   @Test
+   @TestTemplate
    public void testMessageListenerWithConsumerCanBeStopped() throws Exception {
       final AtomicInteger counter = new AtomicInteger(0);
       final CountDownLatch done1 = new CountDownLatch(1);
@@ -67,16 +70,13 @@ public class JMSConsumer1Test extends BasicOpenWireTest {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = createDestination(session, destinationType);
       ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(Message m) {
-            counter.incrementAndGet();
-            if (counter.get() == 1) {
-               done1.countDown();
-            }
-            if (counter.get() == 2) {
-               done2.countDown();
-            }
+      consumer.setMessageListener(m -> {
+         counter.incrementAndGet();
+         if (counter.get() == 1) {
+            done1.countDown();
+         }
+         if (counter.get() == 2) {
+            done2.countDown();
          }
       });
 

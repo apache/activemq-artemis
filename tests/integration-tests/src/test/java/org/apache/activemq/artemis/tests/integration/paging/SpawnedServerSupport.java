@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
@@ -60,10 +60,10 @@ public class SpawnedServerSupport {
       HAPolicyConfiguration haPolicyConfiguration = null;
 
       if (isBackup) {
-         haPolicyConfiguration = new SharedStoreSlavePolicyConfiguration();
-         ((SharedStoreSlavePolicyConfiguration) haPolicyConfiguration).setAllowFailBack(false);
+         haPolicyConfiguration = new SharedStoreBackupPolicyConfiguration();
+         ((SharedStoreBackupPolicyConfiguration) haPolicyConfiguration).setAllowFailBack(false);
       } else {
-         haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
+         haPolicyConfiguration = new SharedStorePrimaryPolicyConfiguration();
       }
 
       Configuration config = createConfig(folder).clearAcceptorConfigurations().setJournalFileSize(15 * 1024 * 1024).addAcceptorConfiguration(createTransportConfigiguration(true, thisport)).addConnectorConfiguration("thisServer", createTransportConfigiguration(false, thisport)).addConnectorConfiguration("otherServer", createTransportConfigiguration(false, otherport)).setMessageExpiryScanPeriod(500).addClusterConfiguration(isBackup ? setupClusterConn("thisServer", "otherServer") : setupClusterConn("thisServer")).setHAPolicyConfiguration(haPolicyConfiguration);

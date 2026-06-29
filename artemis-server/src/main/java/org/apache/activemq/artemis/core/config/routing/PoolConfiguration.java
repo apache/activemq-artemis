@@ -18,19 +18,21 @@ package org.apache.activemq.artemis.core.config.routing;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 public class PoolConfiguration implements Serializable {
+
    private String username;
 
    private String password;
 
-   private boolean localTargetEnabled = false;
+   private boolean localTargetEnabled;
 
-   private String clusterConnection = null;
+   private String clusterConnection;
 
-   private List<String> staticConnectors = null;
+   private List<String> staticConnectors;
 
-   private String discoveryGroupName = null;
+   private String discoveryGroupName;
 
    private int checkPeriod = 5000;
 
@@ -117,5 +119,32 @@ public class PoolConfiguration implements Serializable {
    public PoolConfiguration setDiscoveryGroupName(String discoveryGroupName) {
       this.discoveryGroupName = discoveryGroupName;
       return this;
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(checkPeriod, clusterConnection, discoveryGroupName, localTargetEnabled, password, quorumSize, quorumTimeout, staticConnectors,
+         username);
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+
+      if (obj instanceof PoolConfiguration other) {
+         return checkPeriod == other.checkPeriod &&
+                Objects.equals(clusterConnection, other.clusterConnection) &&
+                Objects.equals(discoveryGroupName, other.discoveryGroupName) &&
+                localTargetEnabled == other.localTargetEnabled &&
+                Objects.equals(password, other.password) &&
+                quorumSize == other.quorumSize &&
+                quorumTimeout == other.quorumTimeout &&
+                Objects.equals(staticConnectors, other.staticConnectors) &&
+                Objects.equals(username, other.username);
+      }
+
+      return false;
    }
 }

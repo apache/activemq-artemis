@@ -56,9 +56,14 @@ public class EmptyList<E> implements LinkedList<E> {
       return null;
    }
 
-   LinkedListIterator<E> emptyIterator = new LinkedListIterator<E>() {
+   LinkedListIterator<E> emptyIterator = new LinkedListIterator<>() {
       @Override
       public void repeat() {
+      }
+
+      @Override
+      public E removeLastElement() {
+         return null;
       }
 
       @Override

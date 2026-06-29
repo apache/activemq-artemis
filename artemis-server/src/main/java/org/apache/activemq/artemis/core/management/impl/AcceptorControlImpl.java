@@ -136,6 +136,7 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
       }
       clearIO();
       try {
+         acceptor.notifyStop();
          acceptor.stop();
       } finally {
          blockOnIO();

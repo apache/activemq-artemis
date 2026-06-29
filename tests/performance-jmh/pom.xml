@@ -17,32 +17,44 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <groupId>org.apache.activemq.tests</groupId>
+        <groupId>org.apache.artemis.tests</groupId>
         <artifactId>artemis-tests-pom</artifactId>
-        <version>2.31.0-SNAPSHOT</version>
+        <version>2.56.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>performance-jmh</artifactId>
     <packaging>jar</packaging>
 
-    <name>ActiveMQ Artemis JMH Performance Tests</name>
+    <name>Apache Artemis JMH Performance Tests</name>
 
     <properties>
         <activemq.basedir>${project.basedir}/../..</activemq.basedir>
-        <jmh.version>1.26</jmh.version>
+        <jmh.version>1.37</jmh.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.activemq</groupId>
+            <groupId>org.apache.artemis</groupId>
             <artifactId>artemis-core-client</artifactId>
-            <version>${project.version}</version>
+            <exclusions>
+                <!--
+                This dependency must be excluded otherwise the shaded jar will fail to run with:
+                java.lang.SecurityException: Invalid signature file digest for Manifest main attributes
+                -->
+                <exclusion>
+                    <groupId>de.dentrassi.crypto</groupId>
+                    <artifactId>pem-keystore</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.activemq</groupId>
+            <groupId>org.apache.artemis</groupId>
             <artifactId>artemis-server</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.artemis</groupId>
+            <artifactId>artemis-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
@@ -86,6 +98,19 @@
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
                     <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.openjdk.jmh</groupId>
+                            <artifactId>jmh-generator-annprocess</artifactId>
+                            <version>${jmh.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>

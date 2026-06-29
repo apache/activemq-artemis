@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.bridge;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -30,14 +32,15 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class BridgeRoutingTest extends ActiveMQTestBase {
 
    private ActiveMQServer server0;
@@ -45,7 +48,7 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
 
    private final boolean netty;
 
-   @Parameterized.Parameters(name = "isNetty={0}")
+   @Parameters(name = "isNetty={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
@@ -67,7 +70,7 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server0 = createServer(false, createBasicConfig());
@@ -79,47 +82,47 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
       server1.start();
    }
 
-   @Test
+   @TestTemplate
    public void testAnycastBridge() throws Exception {
       testBridgeInternal(RoutingType.MULTICAST, RoutingType.ANYCAST, ComponentConfigurationRoutingType.ANYCAST, 0, 1);
    }
 
-   @Test
+   @TestTemplate
    public void testAnycastBridgeNegative() throws Exception {
       testBridgeInternal(RoutingType.MULTICAST, RoutingType.ANYCAST, ComponentConfigurationRoutingType.PASS, 500, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testMulticastBridge() throws Exception {
       testBridgeInternal(RoutingType.ANYCAST, RoutingType.MULTICAST, ComponentConfigurationRoutingType.MULTICAST, 0, 1);
    }
 
-   @Test
+   @TestTemplate
    public void testMulticastBridgeNegative() throws Exception {
       testBridgeInternal(RoutingType.ANYCAST, RoutingType.MULTICAST, ComponentConfigurationRoutingType.PASS, 500, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testPassBridge() throws Exception {
       testBridgeInternal(RoutingType.MULTICAST, RoutingType.MULTICAST, ComponentConfigurationRoutingType.PASS, 0, 1);
    }
 
-   @Test
+   @TestTemplate
    public void testPassBridge2() throws Exception {
       testBridgeInternal(RoutingType.ANYCAST, RoutingType.ANYCAST, ComponentConfigurationRoutingType.PASS, 0, 1);
    }
 
-   @Test
+   @TestTemplate
    public void testPassBridgeNegative() throws Exception {
       testBridgeInternal(RoutingType.ANYCAST, RoutingType.MULTICAST, ComponentConfigurationRoutingType.PASS, 500, 0);
    }
 
-   @Test
+   @TestTemplate
    public void testStripBridge() throws Exception {
       testBridgeInternal(RoutingType.MULTICAST, RoutingType.ANYCAST, ComponentConfigurationRoutingType.STRIP, 0, 1);
    }
 
-   @Test
+   @TestTemplate
    public void testStripBridge2() throws Exception {
       testBridgeInternal(RoutingType.ANYCAST, RoutingType.MULTICAST, ComponentConfigurationRoutingType.STRIP, 0, 1);
    }
@@ -129,12 +132,12 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
                                    ComponentConfigurationRoutingType bridgeRoutingType,
                                    long sleepTime,
                                    int destinationMessageCount) throws Exception {
-      SimpleString source = SimpleString.toSimpleString("source");
-      SimpleString destination = SimpleString.toSimpleString("destination");
+      SimpleString source = SimpleString.of("source");
+      SimpleString destination = SimpleString.of("destination");
       int concurrency = 2;
 
-      server0.createQueue(new QueueConfiguration(source).setRoutingType(sourceRoutingType));
-      server1.createQueue(new QueueConfiguration(destination).setRoutingType(destinationRoutingType));
+      server0.createQueue(QueueConfiguration.of(source).setRoutingType(sourceRoutingType));
+      server1.createQueue(QueueConfiguration.of(destination).setRoutingType(destinationRoutingType));
 
       server0.deployBridge(new BridgeConfiguration()
                               .setRoutingType(bridgeRoutingType)
@@ -152,7 +155,7 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
          producer.send(session.createMessage(true).setRoutingType(sourceRoutingType));
       }
       Wait.waitFor(() -> server0.locateQueue(source).getMessageCount() == 0, 2000, 100);
-      Wait.waitFor(() -> server0.getClusterManager().getBridges().get("bridge-0").getMetrics().getMessagesAcknowledged() == 1,2000, 100);
+      Wait.waitFor(() -> server0.getClusterManager().getBridges().get("bridge-0").getMetrics().getMessagesAcknowledged() == 1, 2000, 100);
       Thread.sleep(sleepTime);
       assertTrue(Wait.waitFor(() -> server1.locateQueue(destination).getMessageCount() == destinationMessageCount, 2000, 100));
       assertTrue(Wait.waitFor(() -> server0.locateQueue(source).getConsumerCount() == concurrency, 2000, 100));

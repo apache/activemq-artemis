@@ -57,7 +57,9 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
 
    private final LargeBody largeBody;
 
-   /** This will check if a regular message needs to be converted as large message */
+   /**
+    * This will check if a regular message needs to be converted as large message
+    */
    public static Message checkLargeMessage(Message message, StorageManager storageManager) throws Exception {
       if (message.isLargeMessage()) {
          return message; // nothing to be done on this case
@@ -76,7 +78,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
       if (logger.isDebugEnabled()) {
          logger.debug("asLargeMessage create largeMessage with id={}", id);
       }
-      LargeServerMessage lsm = storageManager.createLargeMessage(id, coreMessage);
+      LargeServerMessage lsm = storageManager.createCoreLargeMessage(id, coreMessage);
       ActiveMQBuffer messageBodyBuffer = coreMessage.getReadOnlyBodyBuffer();
       final int readableBytes = messageBodyBuffer.readableBytes();
 
@@ -85,7 +87,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
       // that we would have no control. that's usually stored in a ThreadLocal within the native layer.
       // to avoid that buffer be kept in memory holding resources we will allocate our own buffer here from the NettyPool.
       // ./soakTest/OWLeakTest was written to validate this scenario here.
-      ByteBuf ioBuffer  = PooledByteBufAllocator.DEFAULT.ioBuffer(CHUNK_LM_SIZE, CHUNK_LM_SIZE);
+      ByteBuf ioBuffer = PooledByteBufAllocator.DEFAULT.ioBuffer(CHUNK_LM_SIZE, CHUNK_LM_SIZE);
       ActiveMQBuffer wrappedIOBuffer = new ChannelBufferWrapper(ioBuffer);
 
       try {
@@ -133,10 +135,6 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
 
    /**
     * Copy constructor
-    *
-    * @param properties
-    * @param copy
-    * @param fileCopy
     */
    public LargeServerMessageImpl(final LargeServerMessageImpl copy,
                                   TypedProperties properties,
@@ -176,6 +174,11 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    }
 
    @Override
+   public Message getMessage() {
+      return this;
+   }
+
+   @Override
    public StorageManager getStorageManager() {
       return storageManager;
    }
@@ -187,6 +190,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
 
    @Override
    public void setPaged() {
+      super.setPaged();
       largeBody.setPaged();
    }
 
@@ -293,12 +297,24 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    }
 
    @Override
+   public boolean isOpen() {
+      synchronized (largeBody) {
+         try {
+            return largeBody.getAppendFile().isOpen();
+         } catch (Throwable e) {
+            return false;
+         }
+      }
+   }
+
+
+   @Override
    public void referenceOriginalMessage(final Message original, final SimpleString originalQueue) {
 
       super.referenceOriginalMessage(original, originalQueue);
 
-      if (original instanceof LargeServerMessageImpl) {
-         this.largeBody.referenceOriginalMessage(((LargeServerMessageImpl) original).largeBody);
+      if (original instanceof LargeServerMessageImpl largeServerMessage) {
+         this.largeBody.referenceOriginalMessage(largeServerMessage.largeBody);
       }
    }
 
@@ -308,7 +324,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    }
 
    @Override
-   public Message copy() {
+   public ICoreMessage copy() {
       SequentialFile newfile = storageManager.createFileForLargeMessage(messageID, durable);
       LargeServerMessageImpl newMessage = new LargeServerMessageImpl(this, properties, newfile, messageID);
       newMessage.setParentRef(this);
@@ -326,7 +342,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
          if (logger.isDebugEnabled()) {
             logger.debug("Copy large message id={} as newID={}", this.getMessageID(), newID);
          }
-         LargeServerMessage newMessage = storageManager.createLargeMessage(newID, this);
+         LargeServerMessage newMessage = storageManager.createCoreLargeMessage(newID, this);
          largeBody.copyInto(newMessage);
          newMessage.releaseResources(true, true);
          return newMessage.toMessage();
@@ -360,17 +376,4 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
          return "LargeServerMessage[messageID=" + messageID + "]";
       }
    }
-
-   @Override
-   public void validateFile() throws ActiveMQException {
-      this.ensureFileExists(true);
-   }
-
-   public void ensureFileExists(boolean toOpen) throws ActiveMQException {
-      synchronized (largeBody) {
-         largeBody.ensureFileExists(toOpen);
-      }
-   }
-
-
 }

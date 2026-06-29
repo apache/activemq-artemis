@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +37,8 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class FailoverWithDivertTest extends FailoverTestBase {
 
@@ -44,7 +46,7 @@ public class FailoverWithDivertTest extends FailoverTestBase {
    private static final String DIVERT_FORWARD_ADDRESS = "jms.queue.divertedQueue";
    private ClientSessionFactoryInternal sf;
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -64,11 +66,11 @@ public class FailoverWithDivertTest extends FailoverTestBase {
    protected void createConfigs() throws Exception {
       createReplicatedConfigs();
 
-      liveConfig.setJournalFileSize(10240000);
+      primaryConfig.setJournalFileSize(10240000);
       backupConfig.setJournalFileSize(10240000);
-      addQueue(liveConfig, DIVERT_ADDRESS, DIVERT_ADDRESS);
-      addQueue(liveConfig, DIVERT_FORWARD_ADDRESS, DIVERT_FORWARD_ADDRESS);
-      addDivert(liveConfig, DIVERT_ADDRESS, DIVERT_FORWARD_ADDRESS, false);
+      addQueue(primaryConfig, DIVERT_ADDRESS, DIVERT_ADDRESS);
+      addQueue(primaryConfig, DIVERT_FORWARD_ADDRESS, DIVERT_FORWARD_ADDRESS);
+      addDivert(primaryConfig, DIVERT_ADDRESS, DIVERT_FORWARD_ADDRESS, false);
       addDivert(backupConfig, DIVERT_ADDRESS, DIVERT_FORWARD_ADDRESS, false);
    }
 
@@ -78,7 +80,7 @@ public class FailoverWithDivertTest extends FailoverTestBase {
       CoreAddressConfiguration addrCfg = new CoreAddressConfiguration();
       addrCfg.setName(address);
       addrCfg.addRoutingType(RoutingType.ANYCAST);
-      addrCfg.addQueueConfiguration(new QueueConfiguration(name).setAddress(address));
+      addrCfg.addQueueConfiguration(QueueConfiguration.of(name).setAddress(address));
       addrConfigs.add(addrCfg);
    }
 
@@ -114,7 +116,7 @@ public class FailoverWithDivertTest extends FailoverTestBase {
       session.commit();
 
       ClientConsumer consumer = session.createConsumer(DIVERT_ADDRESS);
-      for (int i = 0;  i < num; i++) {
+      for (int i = 0; i < num; i++) {
          ClientMessage receivedFromSourceQueue = consumer.receive(5000);
          assertNotNull(receivedFromSourceQueue);
          receivedFromSourceQueue.acknowledge();

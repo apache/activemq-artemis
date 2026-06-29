@@ -93,6 +93,11 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    // AddressControlMBean implementation ----------------------------
 
    @Override
+   public long getId() {
+      return addressInfo.getId();
+   }
+
+   @Override
    public String getAddress() {
       return addressInfo.getName().toString();
    }
@@ -112,7 +117,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
-   public String getRoutingTypesAsJSON() throws Exception {
+   public String getRoutingTypesAsJSON() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRoutingTypesAsJSON(this.addressInfo);
       }
@@ -214,19 +219,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
          int i = 0;
          for (Role role : roles) {
-            objRoles[i++] = new Object[]{
-               role.getName(),
-               CheckType.SEND.hasRole(role),
-               CheckType.CONSUME.hasRole(role),
-               CheckType.CREATE_DURABLE_QUEUE.hasRole(role),
-               CheckType.DELETE_DURABLE_QUEUE.hasRole(role),
-               CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role),
-               CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role),
-               CheckType.MANAGE.hasRole(role),
-               CheckType.BROWSE.hasRole(role),
-               CheckType.CREATE_ADDRESS.hasRole(role),
-               CheckType.DELETE_ADDRESS.hasRole(role)
-            };
+            objRoles[i++] = CheckType.asObjectArray(role);
          }
          return objRoles;
       } finally {
@@ -295,6 +288,87 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
+   public int getMaxPageReadBytes() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getMaxPageReadBytes(this.addressInfo);
+      }
+      clearIO();
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getMaxPageReadBytes();
+      } catch (Exception e) {
+         logger.debug("Failed to get attribute value", e);
+         return -1;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getMaxPageReadMessages() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getMaxPageReadMessages(this.addressInfo);
+      }
+      clearIO();
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getMaxPageReadMessages();
+      } catch (Exception e) {
+         logger.debug("Failed to get attribute value", e);
+         return -1;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getPrefetchPageBytes() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getPrefetchPageBytes(this.addressInfo);
+      }
+      clearIO();
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getPrefetchPageBytes();
+      } catch (Exception e) {
+         logger.debug("Failed to get attribute value", e);
+         return -1;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getPrefetchPageMessages() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getPrefetchPageMessages(this.addressInfo);
+      }
+      clearIO();
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getPrefetchPageMessages();
+      } catch (Exception e) {
+         logger.debug("Failed to get attribute value", e);
+         return -1;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+
+   @Override
    public void schedulePageCleanup() throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.schedulePageCleanup(this.addressInfo);
@@ -348,7 +422,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
-   public int getAddressLimitPercent() throws Exception {
+   public int getAddressLimitPercent() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getAddressLimitPercent(this.addressInfo);
       }
@@ -408,6 +482,26 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
+   public boolean isBlockedViaManagement() throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.isBlockedViaManagement(this.addressInfo);
+      }
+      clearIO();
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore != null) {
+            return pagingStore.isBlockedViaManagement();
+         } else {
+            return false;
+         }
+      } catch (Exception e) {
+         return false;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public long getNumberOfPages() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getNumberOfPages(this.addressInfo);
@@ -416,7 +510,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       try {
          final PagingStore pageStore = getPagingStore();
 
-         if (pageStore == null || !pageStore.isPaging()) {
+         if (pageStore == null || !pageStore.isStorePaging()) {
             return 0;
          } else {
             return pageStore.getNumberOfPages();
@@ -437,6 +531,19 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             AuditLogger.getMessageCount(this.addressInfo);
          }
          return getMessageCount(DurabilityType.ALL);
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
+      }
+   }
+
+   @Override
+   public long getQueueCount() {
+      // prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.getQueueCount(this.addressInfo);
+         }
+         return getQueueNames(SearchType.LOCAL).length;
       } catch (Exception e) {
          throw new RuntimeException(e.getMessage(), e);
       }
@@ -485,7 +592,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          try {
             return sendMessage(addressInfo.getName(), server, headers, type, body, durable, user, password, createMessageId);
          } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug("Failed to sendMessage", e);
             throw new IllegalStateException(e.getMessage());
          }
       }
@@ -651,8 +758,8 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
             if (bindings != null) {
                for (Binding binding : bindings.getBindings()) {
-                  if (binding instanceof QueueBinding) {
-                     totalMsgs += ((QueueBinding) binding).getQueue().deleteMatchingReferences(QueueImpl.DEFAULT_FLUSH_LIMIT, null, AckReason.KILLED);
+                  if (binding instanceof QueueBinding queueBinding) {
+                     totalMsgs += queueBinding.getQueue().deleteMatchingReferences(QueueImpl.DEFAULT_FLUSH_LIMIT, null, AckReason.KILLED);
                   }
                }
             }

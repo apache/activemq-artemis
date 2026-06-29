@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.Set;
@@ -46,8 +51,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUID;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,13 +59,13 @@ public class AcknowledgeTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public final SimpleString addressA = new SimpleString("addressA");
+   public final SimpleString addressA = SimpleString.of("addressA");
 
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString queueA = SimpleString.of("queueA");
 
-   public final SimpleString queueB = new SimpleString("queueB");
+   public final SimpleString queueB = SimpleString.of("queueB");
 
-   public final SimpleString queueC = new SimpleString("queueC");
+   public final SimpleString queueC = SimpleString.of("queueC");
 
    @Test
    public void testReceiveAckLastMessageOnly() throws Exception {
@@ -71,7 +75,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
@@ -82,12 +86,12 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       ClientMessage cm = null;
       for (int i = 0; i < numMessages; i++) {
          cm = cc.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
       }
       cm.acknowledge();
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
 
-      Assert.assertEquals(0, q.getDeliveringCount());
+      assertEquals(0, q.getDeliveringCount());
       session.close();
       sendSession.close();
    }
@@ -101,7 +105,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 3;
@@ -114,19 +118,10 @@ public class AcknowledgeTest extends ActiveMQTestBase {
 
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
-      cc.setMessageHandler(new MessageHandler() {
-         int c = 0;
-
-         @Override
-         public void onMessage(final ClientMessage message) {
-            int msgNum = c++;
-            logger.debug("Got message {}", msgNum);
-            latch.countDown();
-         }
-      });
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      cc.setMessageHandler(message -> latch.countDown());
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(numMessages, q.getDeliveringCount());
+      assertEquals(numMessages, q.getDeliveringCount());
       sendSession.close();
       session.close();
    }
@@ -139,7 +134,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
@@ -148,32 +143,29 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
-      cc.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(final ClientMessage message) {
+      cc.setMessageHandler(message -> {
+         try {
+            message.acknowledge();
+         } catch (ActiveMQException e) {
             try {
-               message.acknowledge();
-            } catch (ActiveMQException e) {
-               try {
-                  session.close();
-               } catch (ActiveMQException e1) {
-                  e1.printStackTrace();
-               }
+               session.close();
+            } catch (ActiveMQException e1) {
+               e1.printStackTrace();
             }
-            latch.countDown();
          }
+         latch.countDown();
       });
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(0, q.getDeliveringCount());
+      assertEquals(0, q.getDeliveringCount());
       sendSession.close();
       session.close();
    }
 
    /**
-    * This is validating a case where a consumer will try to ack a message right after failover, but the consumer at the target server didn't
-    * receive the message yet.
-    * on that case the system should rollback any acks done and redeliver any messages
+    * This is validating a case where a consumer will try to ack a message right after failover, but the consumer at the
+    * target server didn't receive the message yet. on that case the system should rollback any acks done and redeliver
+    * any messages
     */
    @Test
    public void testInvalidACK() throws Exception {
@@ -190,7 +182,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
 
       sessionConsumer.start();
 
-      sessionConsumer.createQueue(new QueueConfiguration(queueA).setAddress(addressA));
+      sessionConsumer.createQueue(QueueConfiguration.of(queueA).setAddress(addressA));
 
       ClientConsumer consumer = sessionConsumer.createConsumer(queueA);
 
@@ -253,7 +245,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
@@ -262,26 +254,23 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
-      cc.setMessageHandler(new MessageHandler() {
-         @Override
-         public void onMessage(final ClientMessage message) {
-            if (latch.getCount() == 1) {
+      cc.setMessageHandler(message -> {
+         if (latch.getCount() == 1) {
+            try {
+               message.acknowledge();
+            } catch (ActiveMQException e) {
                try {
-                  message.acknowledge();
-               } catch (ActiveMQException e) {
-                  try {
-                     session.close();
-                  } catch (ActiveMQException e1) {
-                     e1.printStackTrace();
-                  }
+                  session.close();
+               } catch (ActiveMQException e1) {
+                  e1.printStackTrace();
                }
             }
-            latch.countDown();
          }
+         latch.countDown();
       });
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(0, q.getDeliveringCount());
+      assertEquals(0, q.getDeliveringCount());
       sendSession.close();
       session.close();
    }
@@ -348,6 +337,16 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       public String getProtocolName() {
          // should normally not be visible in GUI
          return getClass().getName();
+      }
+
+      @Override
+      public void setPaged() {
+
+      }
+
+      @Override
+      public boolean isPaged() {
+         return false;
       }
 
       @Override

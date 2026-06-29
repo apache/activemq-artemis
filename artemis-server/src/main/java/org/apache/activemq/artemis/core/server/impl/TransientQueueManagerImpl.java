@@ -47,12 +47,13 @@ public class TransientQueueManagerImpl extends ReferenceCounterUtil implements T
             ActiveMQServerLogger.LOGGER.errorOnDeletingQueue(queueName.toString(), e);
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(queueName, e);
+         ActiveMQServerLogger.LOGGER.errorRemovingTempResource(queueName, e);
       }
    }
 
    public TransientQueueManagerImpl(ActiveMQServer server, SimpleString queueName) {
-      super(server.getExecutorFactory().getExecutor());
+      // We have to use the same executor between here and ServerSessionImpl::TempResourceCleanerUpper
+      super(server.getTransientQueueExecutor());
 
       this.server = server;
 

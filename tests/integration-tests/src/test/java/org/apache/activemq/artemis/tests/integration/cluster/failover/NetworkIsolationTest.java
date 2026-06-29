@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -27,9 +31,8 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -41,7 +44,7 @@ public class NetworkIsolationTest extends FailoverTestBase {
    // This address is guaranteed to fail... reserved for documentation https://tools.ietf.org/html/rfc5737
    private static final String badAddress = "203.0.113.1";
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       this.startBackupServer = false;
@@ -58,27 +61,20 @@ public class NetworkIsolationTest extends FailoverTestBase {
       return TransportConfigurationUtils.getNettyConnector(live, 1);
    }
 
-   protected ClientSession createSession(ClientSessionFactory sf1,
-                                         boolean xa,
-                                         boolean autoCommitSends,
-                                         boolean autoCommitAcks) throws Exception {
-      return addClientSession(sf1.createSession(xa, autoCommitSends, autoCommitAcks));
-   }
-
    @Test
    public void testReactivate() throws Exception {
-      liveServer.getServer().getConfiguration().setNetworkCheckPeriod(100).setNetworkCheckTimeout(200);
-      liveServer.start();
+      primaryServer.getServer().getConfiguration().setNetworkCheckPeriod(100).setNetworkCheckTimeout(200);
+      primaryServer.start();
 
-      Assert.assertTrue(Wait.waitFor(liveServer::isActive));
+      assertTrue(Wait.waitFor(primaryServer::isActive));
 
-      liveServer.getServer().getNetworkHealthCheck().addAddress(badAddress);
+      primaryServer.getServer().getNetworkHealthCheck().addAddress(badAddress);
 
-      Wait.assertFalse(liveServer::isStarted);
+      Wait.assertFalse(primaryServer::isStarted);
 
-      liveServer.getServer().getNetworkHealthCheck().clearAddresses();
+      primaryServer.getServer().getNetworkHealthCheck().clearAddresses();
 
-      Assert.assertTrue(Wait.waitFor(liveServer::isStarted));
+      assertTrue(Wait.waitFor(primaryServer::isStarted));
    }
 
    @Test
@@ -91,11 +87,11 @@ public class NetworkIsolationTest extends FailoverTestBase {
          {
             backupServer.getServer().getNetworkHealthCheck().addAddress("127.0.0.1");
 
-            Assert.assertTrue(loggerHandler.findText("AMQ202001"));
+            assertTrue(loggerHandler.findText("AMQ202001"));
 
             backupServer.getServer().getNetworkHealthCheck().setIgnoreLoopback(true).addAddress("127.0.0.1");
 
-            Assert.assertEquals(1, loggerHandler.countText("AMQ202001"));
+            assertEquals(1, loggerHandler.countText("AMQ202001"));
 
             backupServer.getServer().getNetworkHealthCheck().clearAddresses();
          }
@@ -107,9 +103,9 @@ public class NetworkIsolationTest extends FailoverTestBase {
 
          ClientSession session = createSession(sf, false, true, true);
 
-         session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
+         session.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS));
 
-         Assert.assertFalse(backupServer.getServer().getNetworkHealthCheck().check());
+         assertFalse(backupServer.getServer().getNetworkHealthCheck().check());
 
          crash(false, true, session);
 
@@ -117,10 +113,10 @@ public class NetworkIsolationTest extends FailoverTestBase {
             Thread.sleep(10);
          }
 
-         Assert.assertTrue(backupServer.isStarted());
-         Assert.assertFalse(backupServer.isActive());
+         assertTrue(backupServer.isStarted());
+         assertFalse(backupServer.isActive());
 
-         liveServer.start();
+         primaryServer.start();
 
          for (int i = 0; i < 1000 && getReplicationEndpoint(backupServer.getServer()) != null && !getReplicationEndpoint(backupServer.getServer()).isStarted(); i++) {
             Thread.sleep(10);
@@ -129,41 +125,41 @@ public class NetworkIsolationTest extends FailoverTestBase {
          backupServer.getServer().getNetworkHealthCheck().clearAddresses();
 
          // This will make sure the backup got synchronized after the network was activated again
-         Assert.assertTrue(getReplicationEndpoint(backupServer.getServer()).isStarted());
+         assertTrue(getReplicationEndpoint(backupServer.getServer()).isStarted());
       }
    }
 
    @Test
-   public void testLiveIsolated() throws Exception {
+   public void testPrimaryIsolated() throws Exception {
       backupServer.stop();
 
       FakeServiceComponent component = new FakeServiceComponent("Component for " + getName());
 
-      liveServer.getServer().addExternalComponent(component, true);
-      liveServer.getServer().getConfiguration().setNetworkCheckList(badAddress).
+      primaryServer.getServer().addExternalComponent(component, true);
+      primaryServer.getServer().getConfiguration().setNetworkCheckList(badAddress).
          setNetworkCheckPeriod(100).setNetworkCheckTimeout(100);
-      ((ActiveMQServerImpl)liveServer.getServer()).reloadNetworkHealthCheck();
+      ((ActiveMQServerImpl) primaryServer.getServer()).reloadNetworkHealthCheck();
 
       try {
 
-         Assert.assertEquals(100L, liveServer.getServer().getNetworkHealthCheck().getPeriod());
+         assertEquals(100L, primaryServer.getServer().getNetworkHealthCheck().getPeriod());
 
-         liveServer.getServer().getNetworkHealthCheck().setTimeUnit(TimeUnit.MILLISECONDS);
+         primaryServer.getServer().getNetworkHealthCheck().setTimeUnit(TimeUnit.MILLISECONDS);
 
-         Assert.assertFalse(liveServer.getServer().getNetworkHealthCheck().check());
+         assertFalse(primaryServer.getServer().getNetworkHealthCheck().check());
 
-         Wait.assertFalse(liveServer::isStarted);
+         Wait.assertFalse(primaryServer::isStarted);
 
-         liveServer.getServer().getNetworkHealthCheck().setIgnoreLoopback(true).addAddress("127.0.0.1");
+         primaryServer.getServer().getNetworkHealthCheck().setIgnoreLoopback(true).addAddress("127.0.0.1");
 
-         Wait.assertTrue(liveServer::isStarted);
+         Wait.assertTrue(primaryServer::isStarted);
 
-         Assert.assertTrue(component.isStarted());
+         assertTrue(component.isStarted());
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
          throw e;
       } finally {
-         liveServer.getServer().stop();
+         primaryServer.getServer().stop();
          backupServer.getServer().stop();
       }
 

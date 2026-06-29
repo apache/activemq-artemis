@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,7 +32,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 
 /**
- * This is a copy-on-write map of {@link Binding} along with the last index set.<br>
+ * This is a copy-on-write map of {@link Binding} along with the last index set.
  */
 final class CopyOnWriteBindings {
 
@@ -73,7 +74,7 @@ final class CopyOnWriteBindings {
       }
    }
 
-   private final ConcurrentHashMap<SimpleString, BindingsAndPosition> map;
+   private final ConcurrentMap<SimpleString, BindingsAndPosition> map;
 
    CopyOnWriteBindings() {
       map = new ConcurrentHashMap<>();
@@ -130,9 +131,10 @@ final class CopyOnWriteBindings {
    }
 
    /**
-    * Returns a snapshot of the bindings, if present and a "lazy" binding index, otherwise {@code null}.<br>
-    * There is no strong commitment on preserving the index value if the related bindings are concurrently modified
-    * or the index itself is concurrently modified.
+    * Returns a snapshot of the bindings, if present and a "lazy" binding index, otherwise {@code null}.
+    * <p>
+    * There is no strong commitment on preserving the index value if the related bindings are concurrently modified or
+    * the index itself is concurrently modified.
     */
    public Pair<Binding[], BindingIndex> getBindings(SimpleString routingName) {
       Objects.requireNonNull(routingName);
@@ -152,14 +154,13 @@ final class CopyOnWriteBindings {
    public interface BindingsConsumer<T extends Throwable> {
 
       /**
-       * {@code bindings} cannot be {@code null} or empty.
-       * {@code nextPosition} cannot be null.
+       * {@code bindings} cannot be {@code null} or empty. {@code nextPosition} cannot be null.
        */
       void accept(Binding[] bindings, BindingIndex nextPosition) throws T;
    }
 
    /**
-    * Iterates through the bindings and its related indexes.<br>
+    * Iterates through the bindings and its related indexes.
     */
    public <T extends Throwable> void forEachBindings(BindingsConsumer<T> bindingsConsumer) throws T {
       Objects.requireNonNull(bindingsConsumer);
@@ -180,15 +181,15 @@ final class CopyOnWriteBindings {
    public interface RoutingNameBindingsConsumer<T extends Throwable> {
 
       /**
-       * {@code routingName} cannot be {@code null}.
-       * {@code bindings} cannot be {@code null} or empty.
-       * {@code nextPosition} cannot be null.
+       * @param routingName  cannot be {@code null}
+       * @param bindings     cannot be {@code null} or empty
+       * @param nextPosition cannot be null
        */
       void accept(SimpleString routingName, Binding[] bindings, BindingIndex nextPosition) throws T;
    }
 
    /**
-    * Iterates through the bindings and its related indexes.<br>
+    * Iterates through the bindings and its related indexes.
     */
    public <T extends Throwable> void forEach(RoutingNameBindingsConsumer<T> bindingsConsumer) throws T {
       Objects.requireNonNull(bindingsConsumer);
@@ -271,8 +272,8 @@ final class CopyOnWriteBindings {
    }
 
    /**
-    * Returns {@code true} if the given binding has been added or already present,
-    * {@code false} if bindings are going to be garbage-collected.
+    * {@return {@code true} if the given binding has been added or already present, {@code false} if bindings are going
+    * to be garbage-collected}
     */
    private static boolean addBindingIfAbsent(final AtomicReference<Binding[]> bindings, final Binding newBinding) {
       Objects.requireNonNull(bindings);

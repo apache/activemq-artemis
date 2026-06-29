@@ -20,7 +20,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -30,18 +29,18 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ProducerTest extends ActiveMQTestBase {
 
@@ -49,10 +48,10 @@ public class ProducerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -64,14 +63,11 @@ public class ProducerTest extends ActiveMQTestBase {
    @Test
    public void testProducerWithSmallWindowSizeAndLargeMessage() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
-      server.getRemotingService().addIncomingInterceptor(new Interceptor() {
-         @Override
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
-            if (packet.getType() == PacketImpl.SESS_SEND) {
-               latch.countDown();
-            }
-            return true;
+      server.getRemotingService().addIncomingInterceptor((Interceptor) (packet, connection) -> {
+         if (packet.getType() == PacketImpl.SESS_SEND) {
+            latch.countDown();
          }
+         return true;
       });
       ServerLocator locator = createInVMNonHALocator().setConfirmationWindowSize(100);
       ClientSessionFactory cf = locator.createSessionFactory();
@@ -81,7 +77,7 @@ public class ProducerTest extends ActiveMQTestBase {
       byte[] body = new byte[1000];
       message.getBodyBuffer().writeBytes(body);
       producer.send(message);
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
       session.close();
       locator.close();
    }
@@ -95,7 +91,7 @@ public class ProducerTest extends ActiveMQTestBase {
       server.getConfiguration().getAddressSettings().put(QUEUE.toString(), setting);
       server.start();
 
-      server.createQueue(new QueueConfiguration(QUEUE));
+      server.createQueue(QueueConfiguration.of(QUEUE));
 
       for (int i = 0; i < 100; i++) {
          final CountDownLatch latch = new CountDownLatch(1);
@@ -103,26 +99,23 @@ public class ProducerTest extends ActiveMQTestBase {
          ClientSessionFactory cf = locator.createSessionFactory();
          final ClientSession session = cf.createSession(false, true, true);
 
-         Thread t = new Thread() {
-            @Override
-            public void run() {
-               try {
-                  ClientProducer producer = session.createProducer();
+         Thread t = new Thread(() -> {
+            try {
+               ClientProducer producer = session.createProducer();
 
-                  for (int i = 0; i < 62; i++) {
-                     if (i == 30) {
-                        // the point where the send would block
-                        latch.countDown();
-                     }
-                     ClientMessage msg = session.createMessage(false);
-                     msg.getBodyBuffer().writeBytes(new byte[2048]);
-                     producer.send(QUEUE, msg);
+               for (int i1 = 0; i1 < 62; i1++) {
+                  if (i1 == 30) {
+                     // the point where the send would block
+                     latch.countDown();
                   }
-               } catch (Exception e) {
-                  e.printStackTrace();
+                  ClientMessage msg = session.createMessage(false);
+                  msg.getBodyBuffer().writeBytes(new byte[2048]);
+                  producer.send(QUEUE, msg);
                }
+            } catch (Exception e) {
+               e.printStackTrace();
             }
-         };
+         });
 
          t.start();
          assertTrue(latch.await(10, TimeUnit.SECONDS));

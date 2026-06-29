@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -52,15 +56,17 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.jupiter.api.Test;
 
 /**
- * A PagingOrderTest. PagingTest has a lot of tests already. I decided to create a newer one more
- * specialized on Ordering and counters
+ * A PagingOrderTest. PagingTest has a lot of tests already. I decided to create a newer one more specialized on
+ * Ordering and counters
  */
 public class PagingOrderTest extends ActiveMQTestBase {
 
@@ -69,7 +75,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
    private static final int PAGE_SIZE = 10 * 1024;
 
 
-   static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+   static final SimpleString ADDRESS = SimpleString.of("TestQueue");
 
    private Connection conn;
 
@@ -79,7 +85,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<>());
 
       server.start();
 
@@ -94,9 +100,9 @@ public class PagingOrderTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false, false);
 
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] body = new byte[messageSize];
 
@@ -113,7 +119,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -169,7 +175,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<>());
 
       server.start();
 
@@ -184,11 +190,11 @@ public class PagingOrderTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false, false);
 
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      Queue q1 = server.createQueue(new QueueConfiguration(ADDRESS));
+      Queue q1 = server.createQueue(QueueConfiguration.of(ADDRESS));
 
-      Queue q2 = server.createQueue(new QueueConfiguration(new SimpleString("inactive")).setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
+      Queue q2 = server.createQueue(QueueConfiguration.of("inactive").setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] body = new byte[messageSize];
 
@@ -200,32 +206,29 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       final AtomicInteger errors = new AtomicInteger(0);
 
-      Thread t1 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               ServerLocator sl = createInVMNonHALocator();
-               ClientSessionFactory sf = sl.createSessionFactory();
-               ClientSession sess = sf.createSession(true, true, 0);
-               sess.start();
-               ClientConsumer cons = sess.createConsumer(ADDRESS);
-               for (int i = 0; i < numberOfMessages; i++) {
-                  ClientMessage msg = cons.receive(5000);
-                  assertNotNull(msg);
-                  assertEquals(i, msg.getIntProperty("id").intValue());
-                  msg.acknowledge();
-               }
-
-               assertNull(cons.receiveImmediate());
-               sess.close();
-               sl.close();
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
+      Thread t1 = new Thread(() -> {
+         try {
+            ServerLocator sl = createInVMNonHALocator();
+            ClientSessionFactory sf1 = sl.createSessionFactory();
+            ClientSession sess = sf1.createSession(true, true, 0);
+            sess.start();
+            ClientConsumer cons = sess.createConsumer(ADDRESS);
+            for (int i = 0; i < numberOfMessages; i++) {
+               ClientMessage msg = cons.receive(5000);
+               assertNotNull(msg);
+               assertEquals(i, msg.getIntProperty("id").intValue());
+               msg.acknowledge();
             }
 
+            assertNull(cons.receiveImmediate());
+            sess.close();
+            sl.close();
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+
+      });
 
       t1.start();
 
@@ -236,7 +239,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 20 == 0) {
@@ -269,14 +272,13 @@ public class PagingOrderTest extends ActiveMQTestBase {
       q2 = null;
 
       for (Binding bind : bindings.getBindings()) {
-         if (bind instanceof LocalQueueBinding) {
-            LocalQueueBinding qb = (LocalQueueBinding) bind;
-            if (qb.getQueue().getName().equals(ADDRESS)) {
-               q1 = qb.getQueue();
+         if (bind instanceof LocalQueueBinding localQueueBinding) {
+            if (localQueueBinding.getQueue().getName().equals(ADDRESS)) {
+               q1 = localQueueBinding.getQueue();
             }
 
-            if (qb.getQueue().getName().equals(new SimpleString("inactive"))) {
-               q2 = qb.getQueue();
+            if (localQueueBinding.getQueue().getName().equals(SimpleString.of("inactive"))) {
+               q2 = localQueueBinding.getQueue();
             }
          }
       }
@@ -285,11 +287,15 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       assertNotNull(q2);
 
-      assertEquals("q2 msg count", numberOfMessages, getMessageCount(q2));
-      assertEquals("q2 msgs added", numberOfMessages, getMessagesAdded(q2));
-      assertEquals("q1 msg count", 0, getMessageCount(q1));
-      // 0, since nothing was sent to the queue after the server was restarted
-      assertEquals("q1 msgs added", 0, getMessagesAdded(q1));
+      {
+         Queue finalQ2 = q2;
+         Queue finalQ1 = q1;
+         Wait.assertEquals(numberOfMessages, () -> getMessageCount(finalQ2), 5000);
+         Wait.assertEquals(numberOfMessages, () -> getMessagesAdded(finalQ2), 5000);
+         Wait.assertEquals(0, () -> getMessageCount(finalQ1));
+         // 0, since nothing was sent to the queue after the server was restarted
+         Wait.assertEquals(0, () -> getMessagesAdded(finalQ1));
+      }
 
    }
 
@@ -299,7 +305,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<>());
 
       server.start();
 
@@ -314,11 +320,11 @@ public class PagingOrderTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false, false);
 
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      Queue q1 = server.createQueue(new QueueConfiguration(ADDRESS));
+      Queue q1 = server.createQueue(QueueConfiguration.of(ADDRESS));
 
-      Queue q2 = server.createQueue(new QueueConfiguration(new SimpleString("inactive")).setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
+      Queue q2 = server.createQueue(QueueConfiguration.of("inactive").setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] body = new byte[messageSize];
 
@@ -330,30 +336,27 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       final AtomicInteger errors = new AtomicInteger(0);
 
-      Thread t1 = new Thread() {
-         @Override
-         public void run() {
-            try {
-               ServerLocator sl = createInVMNonHALocator();
-               ClientSessionFactory sf = sl.createSessionFactory();
-               ClientSession sess = sf.createSession(true, true, 0);
-               sess.start();
-               ClientConsumer cons = sess.createConsumer(ADDRESS);
-               for (int i = 0; i < 100; i++) {
-                  ClientMessage msg = cons.receive(5000);
-                  assertNotNull(msg);
-                  assertEquals(i, msg.getIntProperty("id").intValue());
-                  msg.acknowledge();
-               }
-               sess.close();
-               sl.close();
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
+      Thread t1 = new Thread(() -> {
+         try {
+            ServerLocator sl = createInVMNonHALocator();
+            ClientSessionFactory sf1 = sl.createSessionFactory();
+            ClientSession sess = sf1.createSession(true, true, 0);
+            sess.start();
+            ClientConsumer cons = sess.createConsumer(ADDRESS);
+            for (int i = 0; i < 100; i++) {
+               ClientMessage msg = cons.receive(5000);
+               assertNotNull(msg);
+               assertEquals(i, msg.getIntProperty("id").intValue());
+               msg.acknowledge();
             }
-
+            sess.close();
+            sl.close();
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+
+      });
 
       for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage message = session.createMessage(persistentMessages);
@@ -362,7 +365,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 20 == 0) {
@@ -393,7 +396,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<>());
 
       server.start();
 
@@ -408,9 +411,9 @@ public class PagingOrderTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false, false);
 
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] body = new byte[messageSize];
 
@@ -427,7 +430,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -478,7 +481,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<>());
 
       server.start();
 
@@ -493,9 +496,9 @@ public class PagingOrderTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false, false);
 
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
-      QueueImpl queue = (QueueImpl) server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      QueueImpl queue = (QueueImpl) server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] body = new byte[messageSize];
 
@@ -512,7 +515,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(SimpleString.of("id"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -601,7 +604,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, -1, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, -1, new HashMap<>());
 
       JMSServerManagerImpl jmsServer = new JMSServerManagerImpl(server);
       InVMNamingContext context = new InVMNamingContext();
@@ -610,7 +613,13 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       jmsServer.createTopic(true, "tt", "/topic/TT");
 
-      server.getActiveMQServerControl().addAddressSettings("TT", "DLQ", "DLQ", -1, false, 5, 1024 * 1024, 1024 * 10, 5, 5, 1, 1000, 0, false, "PAGE", -1, 10, "KILL", true, true, true, true);
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setDeadLetterAddress(SimpleString.of("DLQ")).setExpiryAddress(SimpleString.of("DLQ")).setExpiryDelay(-1L).setMaxDeliveryAttempts(5)
+                     .setMaxSizeBytes(1024 * 1024).setPageSizeBytes(1024 * 10).setPageCacheMaxSize(5).setRedeliveryDelay(5).setRedeliveryMultiplier(1L)
+                     .setMaxRedeliveryDelay(1000).setRedistributionDelay(0).setSendToDLAOnNoRoute(false).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setSlowConsumerThreshold(-1)
+                     .setSlowConsumerCheckPeriod(10L).setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
+
+      server.getActiveMQServerControl().addAddressSettings("TT", addressSettings.toJSON());
 
       ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
@@ -625,14 +634,14 @@ public class PagingOrderTest extends ActiveMQTestBase {
       TextMessage txt = sess.createTextMessage("TST");
       prod.send(txt);
 
-      PagingStore store = server.getPagingManager().getPageStore(new SimpleString("TT"));
+      PagingStore store = server.getPagingManager().getPageStore(SimpleString.of("TT"));
 
       assertEquals(1024 * 1024, store.getMaxSize());
       assertEquals(10 * 1024, store.getPageSizeBytes());
 
       jmsServer.stop();
 
-      server = createServer(true, config, PAGE_SIZE, -1, new HashMap<String, AddressSettings>());
+      server = createServer(true, config, PAGE_SIZE, -1, new HashMap<>());
 
       jmsServer = new JMSServerManagerImpl(server);
       context = new InVMNamingContext();
@@ -645,7 +654,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       assertEquals(10 * 1024, settings.getPageSizeBytes());
       assertEquals(AddressFullMessagePolicy.PAGE, settings.getAddressFullMessagePolicy());
 
-      store = server.getPagingManager().getPageStore(new SimpleString("TT"));
+      store = server.getPagingManager().getPageStore(SimpleString.of("TT"));
 
       conn.close();
 
@@ -658,7 +667,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, -1, -1, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, -1, -1, new HashMap<>());
       server.getAddressSettingsRepository().getMatch("#").setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
 
       JMSServerManagerImpl jmsServer = new JMSServerManagerImpl(server);
@@ -666,7 +675,13 @@ public class PagingOrderTest extends ActiveMQTestBase {
       jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
 
-      server.getActiveMQServerControl().addAddressSettings("Q1", "DLQ", "DLQ", -1, false, 5, 100 * 1024, 10 * 1024, 5, 5, 1, 1000, 0, false, "PAGE", -1, 10, "KILL", true, true, true, true);
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setDeadLetterAddress(SimpleString.of("DLQ")).setExpiryAddress(SimpleString.of("DLQ")).setExpiryDelay(-1L).setMaxDeliveryAttempts(5)
+                     .setMaxSizeBytes(100 * 1024).setPageSizeBytes(1024 * 10).setPageCacheMaxSize(5).setRedeliveryDelay(5).setRedeliveryMultiplier(1L)
+                     .setMaxRedeliveryDelay(1000).setRedistributionDelay(0).setSendToDLAOnNoRoute(false).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setSlowConsumerThreshold(-1)
+                     .setSlowConsumerCheckPeriod(10L).setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
+
+      server.getActiveMQServerControl().addAddressSettings("Q1", addressSettings.toJSON());
 
       jmsServer.createQueue(true, "Q1", null, true, "/queue/Q1");
 
@@ -687,7 +702,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
          prod.send(bmt);
       }
 
-      PagingStore store = server.getPagingManager().getPageStore(new SimpleString("Q1"));
+      PagingStore store = server.getPagingManager().getPageStore(SimpleString.of("Q1"));
 
       assertEquals(100 * 1024, store.getMaxSize());
       assertEquals(10 * 1024, store.getPageSizeBytes());
@@ -695,7 +710,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       jmsServer.stop();
 
-      server = createServer(true, config, -1, -1, new HashMap<String, AddressSettings>());
+      server = createServer(true, config, -1, -1, new HashMap<>());
       server.getAddressSettingsRepository().getMatch("#").setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
 
       jmsServer = new JMSServerManagerImpl(server);
@@ -709,7 +724,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       assertEquals(10 * 1024, settings.getPageSizeBytes());
       assertEquals(AddressFullMessagePolicy.PAGE, settings.getAddressFullMessagePolicy());
 
-      store = server.getPagingManager().getPageStore(new SimpleString("Q1"));
+      store = server.getPagingManager().getPageStore(SimpleString.of("Q1"));
       assertEquals(100 * 1024, store.getMaxSize());
       assertEquals(10 * 1024, store.getPageSizeBytes());
       assertEquals(AddressFullMessagePolicy.PAGE, store.getAddressFullMessagePolicy());

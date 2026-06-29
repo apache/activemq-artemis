@@ -25,12 +25,10 @@ import org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactory;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
 
 /**
- * {@link OpenSSLContextFactory} providing a cache of {@link SslContext}.
- * Since {@link SslContext} should be reused instead of recreated and are thread safe.
- * To activate it you need to allow this Service to be discovered by having a
- * <code>META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactory</code>
- * file with <code>org.apache.activemq.artemis.core.remoting.impl.ssl.CachingOpenSSLContextFactory</code>
- * as value.
+ * {@link OpenSSLContextFactory} providing a cache of {@link SslContext}. Since {@link SslContext} should be reused
+ * instead of recreated and are thread safe. To activate it you need to allow this Service to be discovered by having a
+ * {@code META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactory} file with
+ * {@code org.apache.activemq.artemis.core.remoting.impl.ssl.CachingOpenSSLContextFactory} as value.
  */
 public class CachingOpenSSLContextFactory extends DefaultOpenSSLContextFactory {
 

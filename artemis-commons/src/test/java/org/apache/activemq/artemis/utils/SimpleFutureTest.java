@@ -16,40 +16,29 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SimpleFutureTest {
+import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
+import org.junit.jupiter.api.Test;
 
-   @Rule
-   public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
+public class SimpleFutureTest extends ArtemisTestCase {
 
    @Test
    public void testFuture() throws Exception {
       final long randomStart = System.currentTimeMillis();
       final SimpleFuture<Long> simpleFuture = new SimpleFutureImpl<>();
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            simpleFuture.set(randomStart);
-         }
-      };
+      Thread t = new Thread(() -> simpleFuture.set(randomStart));
       t.start();
 
-      Assert.assertEquals(randomStart, simpleFuture.get().longValue());
+      assertEquals(randomStart, simpleFuture.get().longValue());
    }
 
 
    @Test
    public void testException() throws Exception {
       final SimpleFuture<Long> simpleFuture = new SimpleFutureImpl<>();
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            simpleFuture.fail(new Exception("hello"));
-         }
-      };
+      Thread t = new Thread(() -> simpleFuture.fail(new Exception("hello")));
       t.start();
 
       boolean failed = false;
@@ -60,7 +49,7 @@ public class SimpleFutureTest {
       }
 
 
-      Assert.assertTrue(failed);
+      assertTrue(failed);
    }
 
 

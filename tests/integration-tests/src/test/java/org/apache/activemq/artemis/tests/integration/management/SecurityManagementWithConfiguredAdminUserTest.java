@@ -25,48 +25,41 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.junit.Test;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+// Parameters set in parent class
+@ExtendWith(ParameterizedTestExtension.class)
 public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManagementTestBase {
 
-
-
    private final String validAdminUser = "validAdminUser";
-
    private final String validAdminPassword = "validAdminPassword";
-
    private final String invalidAdminUser = "invalidAdminUser";
-
    private final String invalidAdminPassword = "invalidAdminPassword";
 
-
-
-
    /**
-    * default CLUSTER_ADMIN_USER must work even when there are other
-    * configured admin users
+    * default CLUSTER_ADMIN_USER must work even when there are other configured admin users
     */
-   @Test
-   public void testSendManagementMessageWithClusterAdminUser() throws Exception {
-      doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), CLUSTER_PASSWORD, true);
+   @TestTemplate
+   public void testSendManagementMessageWithNonDefaultClusterAdminUser() throws Exception {
+      doSendBrokerManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), CLUSTER_PASSWORD, true);
    }
 
-   @Test
+   @TestTemplate
    public void testSendManagementMessageWithAdminRole() throws Exception {
-      doSendManagementMessage(validAdminUser, validAdminPassword, true);
+      doSendBrokerManagementMessage(validAdminUser, validAdminPassword, true);
    }
 
-   @Test
+   @TestTemplate
    public void testSendManagementMessageWithoutAdminRole() throws Exception {
-      doSendManagementMessage(invalidAdminUser, invalidAdminPassword, false);
+      doSendBrokerManagementMessage(invalidAdminUser, invalidAdminPassword, false);
    }
 
-   @Test
+   @TestTemplate
    public void testSendManagementMessageWithoutUserCredentials() throws Exception {
-      doSendManagementMessage(null, null, false);
+      doSendBrokerManagementMessage(null, null, false);
    }
-
-
 
    @Override
    protected ActiveMQServer setupAndStartActiveMQServer() throws Exception {
@@ -83,15 +76,12 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
       securityManager.getConfiguration().addRole(invalidAdminUser, "guest");
 
       Set<Role> adminRole = securityRepository.getMatch(ActiveMQDefaultConfiguration.getDefaultManagementAddress().toString());
-      adminRole.add(new Role("admin", true, true, true, true, true, true, true, true, true, true));
+      adminRole.add(new Role("admin", true, true, true, true, true, true, true, true, true, true, managementRbac, managementRbac));
       securityRepository.addMatch(ActiveMQDefaultConfiguration.getDefaultManagementAddress().toString(), adminRole);
       Set<Role> guestRole = securityRepository.getMatch("*");
-      guestRole.add(new Role("guest", true, true, true, true, true, true, false, true, true, true));
+      guestRole.add(new Role("guest", true, true, true, true, true, true, false, true, true, true, false, false));
       securityRepository.addMatch("*", guestRole);
 
       return server;
    }
-
-
-
 }

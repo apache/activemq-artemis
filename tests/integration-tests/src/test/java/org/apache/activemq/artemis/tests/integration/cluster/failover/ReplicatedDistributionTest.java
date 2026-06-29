@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -33,9 +38,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +47,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final SimpleString ADDRESS = new SimpleString("test.SomeAddress");
+   private static final SimpleString ADDRESS = SimpleString.of("test.SomeAddress");
    private ClientSession sessionOne;
    private ClientSession sessionThree;
    private ClientConsumer consThree;
@@ -56,13 +60,13 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
       for (int i = 0; i < 50; i++) {
          ClientMessage msg = consThree.receive(15000);
 
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
 
          // System.out.println(i + " msg = " + msg);
 
          int received = msg.getIntProperty("key");
 
-         Assert.assertEquals(i, received);
+         assertEquals(i, received);
 
          msg.acknowledge();
       }
@@ -90,18 +94,18 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
       for (int i = 50; i < 100; i++) {
          ClientMessage msg = consThree.receive(15000);
 
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
 
          // System.out.println(i + " msg = " + msg);
 
-         int received = (Integer) msg.getObjectProperty(new SimpleString("key"));
+         int received = (Integer) msg.getObjectProperty(SimpleString.of("key"));
 
-         Assert.assertEquals(i, received);
+         assertEquals(i, received);
 
          msg.acknowledge();
       }
 
-      Assert.assertNull(consThree.receiveImmediate());
+      assertNull(consThree.receiveImmediate());
 
       sessionThree.commit();
 
@@ -109,7 +113,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
 
       ClientConsumer consOne = sessionOne.createConsumer(ReplicatedDistributionTest.ADDRESS);
 
-      Assert.assertNull(consOne.receiveImmediate());
+      assertNull(consOne.receiveImmediate());
    }
 
    @Test
@@ -119,7 +123,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
       for (int i = 0; i < 100; i++) {
          ClientMessage msg = consThree.receive(15000);
 
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
 
          logger.trace("i msg = {}", i, msg);
 
@@ -138,7 +142,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
 
       ClientConsumer consOne = sessionOne.createConsumer(ReplicatedDistributionTest.ADDRESS);
 
-      Assert.assertNull(consOne.receiveImmediate());
+      assertNull(consOne.receiveImmediate());
    }
 
    private void commonTestCode() throws Exception {
@@ -149,17 +153,13 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
 
       for (int i = 0; i < 100; i++) {
          ClientMessage msg = sessionOne.createMessage(true);
-         msg.putIntProperty(new SimpleString("key"), i);
+         msg.putIntProperty(SimpleString.of("key"), i);
          producer.send(msg);
       }
       sessionOne.commit();
 
    }
 
-   /**
-    * @param session
-    * @throws InterruptedException
-    */
    private void fail(final ClientSession session) throws InterruptedException {
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -175,16 +175,16 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
 
       boolean ok = latch.await(1000, TimeUnit.MILLISECONDS);
 
-      Assert.assertTrue(ok);
+      assertTrue(ok);
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
-      setupLiveServer(1, true, haType(), true, false);
-      setupLiveServer(3, true, haType(), true, false);
+      setupPrimaryServer(1, true, haType(), true, false);
+      setupPrimaryServer(3, true, haType(), true, false);
       setupBackupServer(2, 3, true, haType(), true);
 
       final String address = ReplicatedDistributionTest.ADDRESS.toString();
@@ -206,8 +206,8 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
       sessionOne = sfs[1].createSession(true, true);
       sessionThree = sfs[3].createSession(false, false);
 
-      sessionOne.createQueue(new QueueConfiguration(ReplicatedDistributionTest.ADDRESS));
-      sessionThree.createQueue(new QueueConfiguration(ReplicatedDistributionTest.ADDRESS));
+      sessionOne.createQueue(QueueConfiguration.of(ReplicatedDistributionTest.ADDRESS));
+      sessionThree.createQueue(QueueConfiguration.of(ReplicatedDistributionTest.ADDRESS));
 
       consThree = sessionThree.createConsumer(ReplicatedDistributionTest.ADDRESS);
 

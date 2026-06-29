@@ -16,18 +16,19 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AdressInfoJSonTest {
 
 
    @Test
    public void testJSONparsing() {
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
 
       AddressInfo info = new AddressInfo(name);
       info.setAutoCreated(RandomUtil.randomBoolean());
@@ -37,13 +38,13 @@ public class AdressInfoJSonTest {
 
       AddressInfo newInfo = AddressInfo.fromJSON(info.toJSON());
 
-      Assert.assertEquals(info.toString(), newInfo.toString());
-      Assert.assertEquals(info.getRoutingType(), newInfo.getRoutingType());
+      assertEquals(info.toString(), newInfo.toString());
+      assertEquals(info.getRoutingType(), newInfo.getRoutingType());
 
       info.addRoutingType(RoutingType.ANYCAST);
 
       newInfo = AddressInfo.fromJSON(info.toJSON());
-      Assert.assertEquals(info.toString(), newInfo.toString());
-      Assert.assertEquals(info.getRoutingType(), newInfo.getRoutingType());
+      assertEquals(info.toString(), newInfo.toString());
+      assertEquals(info.getRoutingType(), newInfo.getRoutingType());
    }
 }

@@ -47,7 +47,7 @@ echo artemis instance is $ARTEMIS_HOME
 
 
 cd "$ARTEMIS_HOME/bin"
-./artemis create --silent --force --role "$ARTEMIS_ROLE" "$ARTEMIS_INSTANCE"
+./artemis create --silent --force --role "$ARTEMIS_ROLE" "$ARTEMIS_INSTANCE" --user admin --password admin
 
 cd "$ARTEMIS_INSTANCE/bin"
 pwd
@@ -76,7 +76,7 @@ sleep 5
 
 export HTTP_CODE=$(curl -H "Origin:http://localhost" -u admin:admin --write-out '%{http_code}' --silent --output /dev/null http://localhost:8161/console/jolokia/read/org.apache.activemq.artemis:broker=%220.0.0.0%22/Version)
 
-if [[ "$HTTP_CODE" -ne 200 ]]
+if [ "$HTTP_CODE" -ne 200 ]
   then
     echo "Artemis Jolokia REST API check failed: " $HTTP_CODE
   else

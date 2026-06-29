@@ -29,12 +29,12 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class StompAuditLoggingTest extends StompTestBase {
 
@@ -45,6 +45,10 @@ public class StompAuditLoggingTest extends StompTestBase {
    private final String user = "nopriv";
    private final String pass = user;
    private final String role = "nopriv";
+
+   public StompAuditLoggingTest() {
+      super("tcp+v10.stomp");
+   }
 
    @Override
    public boolean isSecurityEnabled() {
@@ -59,25 +63,25 @@ public class StompAuditLoggingTest extends StompTestBase {
 
       securityManager.getConfiguration().addUser(user, pass);
       securityManager.getConfiguration().addRole(user, role);
-      server.getConfiguration().getSecurityRoles().put("#", new HashSet<>(Set.of(new Role(role, false, false, false, false, false, false, false, false, false, false))));
+      server.getConfiguration().getSecurityRoles().put("#", new HashSet<>(Set.of(new Role(role, false, false, false, false, false, false, false, false, false, false, false, false))));
 
       return server;
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       conn = StompClientConnectionFactory.createClientConnection(uri);
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void prepareLogger() {
       previousLevel = AssertionLoggerHandler.setLevel(BASE_AUDIT_LOGGER_NAME, LogLevel.INFO);
       loggerHandler = new AssertionLoggerHandler();
    }
 
-   @AfterClass
+   @AfterAll
    public static void clearLogger() throws Exception {
       try {
          loggerHandler.close();
@@ -92,7 +96,7 @@ public class StompAuditLoggingTest extends StompTestBase {
 
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND);
       frame.addHeader(Stomp.Headers.Subscribe.DESTINATION, getQueuePrefix() + getQueueName());
-      frame.setBody(RandomUtil.randomString());
+      frame.setBody(RandomUtil.randomUUIDString());
 
       try {
          conn.sendFrame(frame);

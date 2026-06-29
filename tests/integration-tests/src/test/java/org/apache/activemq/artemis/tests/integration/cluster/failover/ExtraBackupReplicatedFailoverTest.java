@@ -22,26 +22,18 @@ import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.tests.extensions.TestMethodNameMatchExtension;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class ExtraBackupReplicatedFailoverTest extends FailoverTestBase {
 
-   boolean isExtraBackupGroupNameReplicates = false;
+   private static final String TEST_EXTRA_BACKUP_GROUP_NAME_REPLICATES = "testExtraBackupGroupNameReplicates";
 
-   @Rule
-   public TestRule watcher = new TestWatcher() {
-      @Override
-      protected void starting(Description description) {
-         isExtraBackupGroupNameReplicates = description.getMethodName().equals("testExtraBackupGroupNameReplicates");
-      }
-
-   };
+   @RegisterExtension
+   TestMethodNameMatchExtension testExtraBackupGroupNameReplicates = new TestMethodNameMatchExtension(TEST_EXTRA_BACKUP_GROUP_NAME_REPLICATES);
 
    @Test
    public void testExtraBackupReplicates() throws Exception {
@@ -66,7 +58,7 @@ public class ExtraBackupReplicatedFailoverTest extends FailoverTestBase {
       ReplicaPolicyConfiguration backupReplicaPolicyConfiguration = (ReplicaPolicyConfiguration) backupServer.getServer().getConfiguration().getHAPolicyConfiguration();
       backupReplicaPolicyConfiguration.setGroupName("foo");
 
-      ReplicatedPolicyConfiguration replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) liveServer.getServer().getConfiguration().getHAPolicyConfiguration();
+      ReplicatedPolicyConfiguration replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) primaryServer.getServer().getConfiguration().getHAPolicyConfiguration();
       replicatedPolicyConfiguration.setGroupName("foo");
 
       Configuration secondBackupConfig = backupConfig.copy();
@@ -92,8 +84,8 @@ public class ExtraBackupReplicatedFailoverTest extends FailoverTestBase {
 
    @Override
    protected void setupHAPolicyConfiguration() {
-      if (isExtraBackupGroupNameReplicates) {
-         ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setGroupName("foo");
+      if (testExtraBackupGroupNameReplicates.matches()) {
+         ((ReplicatedPolicyConfiguration) primaryConfig.getHAPolicyConfiguration()).setGroupName("foo");
          ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setGroupName("foo");
 
       }

@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 import org.jgroups.JChannel;
 
 /**
- * This class is the implementation of ActiveMQ Artemis members discovery that will use JGroups.
+ * This class is the implementation of Apache Artemis members discovery that will use JGroups.
  */
 public final class JGroupsFileBroadcastEndpoint extends JGroupsBroadcastEndpoint {
 

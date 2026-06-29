@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -38,8 +41,8 @@ import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AmqpBridgeApplicationPropertiesTest extends AmqpClientTestSupport {
 
@@ -95,7 +98,7 @@ public class AmqpBridgeApplicationPropertiesTest extends AmqpClientTestSupport {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server0 = createServer(false, createBasicConfig());
@@ -111,18 +114,18 @@ public class AmqpBridgeApplicationPropertiesTest extends AmqpClientTestSupport {
       server0.getConfiguration().addDivertConfiguration(customNotificationsDivert);
       server1.getConfiguration().addDivertConfiguration(frameworkNotificationsDivert);
 
-      customNotificationQueue = SimpleString.toSimpleString("*.Provider.*.Agent.*.CustomNotification");
-      frameworkNotificationsQueue = SimpleString.toSimpleString("FrameworkNotifications");
-      bridgeNotificationsQueue = SimpleString.toSimpleString("BridgeNotifications");
-      notificationsQueue = SimpleString.toSimpleString("Notifications");
+      customNotificationQueue = SimpleString.of("*.Provider.*.Agent.*.CustomNotification");
+      frameworkNotificationsQueue = SimpleString.of("FrameworkNotifications");
+      bridgeNotificationsQueue = SimpleString.of("BridgeNotifications");
+      notificationsQueue = SimpleString.of("Notifications");
 
       server0.start();
       server1.start();
 
-      server0.createQueue(new QueueConfiguration(customNotificationQueue).setRoutingType(RoutingType.ANYCAST));
-      server0.createQueue(new QueueConfiguration(frameworkNotificationsQueue).setRoutingType(RoutingType.ANYCAST));
-      server1.createQueue(new QueueConfiguration(bridgeNotificationsQueue).setRoutingType(RoutingType.ANYCAST));
-      server1.createQueue(new QueueConfiguration(notificationsQueue));
+      server0.createQueue(QueueConfiguration.of(customNotificationQueue).setRoutingType(RoutingType.ANYCAST));
+      server0.createQueue(QueueConfiguration.of(frameworkNotificationsQueue).setRoutingType(RoutingType.ANYCAST));
+      server1.createQueue(QueueConfiguration.of(bridgeNotificationsQueue).setRoutingType(RoutingType.ANYCAST));
+      server1.createQueue(QueueConfiguration.of(notificationsQueue));
 
       server0.deployBridge(new BridgeConfiguration().setName("notifications-bridge").setQueueName(frameworkNotificationsQueue.toString()).setForwardingAddress(bridgeNotificationsQueue.toString()).setConfirmationWindowSize(10).setStaticConnectors(Arrays.asList("notification-broker")).setTransformerConfiguration(new TransformerConfiguration(BridgeApplicationPropertiesTransformer.class.getName())));
    }

@@ -26,23 +26,18 @@ import org.apache.activemq.artemis.utils.DataConstants;
 
 public class PersistedBindings implements EncodingSupport {
 
-
    private long id;
 
    private PersistedType type;
 
    private String name;
 
-   private ArrayList<String> bindings = new ArrayList<>();
+   private List<String> bindings = new ArrayList<>();
 
 
    public PersistedBindings() {
    }
 
-   /**
-    * @param type
-    * @param name
-    */
    public PersistedBindings(PersistedType type, String name) {
       super();
       this.type = type;
@@ -88,37 +83,22 @@ public class PersistedBindings implements EncodingSupport {
       return size;
    }
 
-   /**
-    * @return the id
-    */
    public long getId() {
       return id;
    }
 
-   /**
-    * @param id the id to set
-    */
    public void setId(long id) {
       this.id = id;
    }
 
-   /**
-    * @return the type
-    */
    public PersistedType getType() {
       return type;
    }
 
-   /**
-    * @return the name
-    */
    public String getName() {
       return name;
    }
 
-   /**
-    * @return the bindings
-    */
    public List<String> getBindings() {
       return bindings;
    }

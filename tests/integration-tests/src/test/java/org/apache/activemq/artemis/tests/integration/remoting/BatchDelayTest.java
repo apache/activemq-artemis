@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,9 +35,8 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class BatchDelayTest extends ActiveMQTestBase {
 
@@ -44,7 +45,7 @@ public class BatchDelayTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -75,7 +76,7 @@ public class BatchDelayTest extends ActiveMQTestBase {
 
       final String foo = "foo";
 
-      session.createQueue(new QueueConfiguration(foo).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(foo).setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer(foo);
 
@@ -95,7 +96,7 @@ public class BatchDelayTest extends ActiveMQTestBase {
 
       final String foo = "foo";
 
-      session.createQueue(new QueueConfiguration(foo).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(foo).setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer(foo);
 
@@ -109,7 +110,7 @@ public class BatchDelayTest extends ActiveMQTestBase {
 
       msg = cons.receive(10000);
 
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
 
       msg.acknowledge();
    }

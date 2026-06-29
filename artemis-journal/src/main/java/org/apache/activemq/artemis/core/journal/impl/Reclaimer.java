@@ -21,18 +21,16 @@ import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 
 /**
- * <p>The journal consists of an ordered list of journal files Fn where {@code 0 <= n <= N}</p>
- *
- * <p>A journal file can contain either positives (pos) or negatives (neg)</p>
- *
- * <p>(Positives correspond either to adds or updates, and negatives correspond to deletes).</p>
- *
- * <p>A file Fn can be deleted if, and only if the following criteria are satisfied</p>
- *
- * <p>1) All pos in a file Fn, must have corresponding neg in any file Fm where {@code m >= n}.</p>
- *
- * <p>2) All pos that correspond to any neg in file Fn, must all live in any file Fm where {@code 0 <= m <= n}
- * which are also marked for deletion in the same pass of the algorithm.</p>
+ * The journal consists of an ordered list of journal files Fn where {@code 0 <= n <= N}. A journal file can contain
+ * either positives (pos) or negatives (neg) (Positives correspond either to adds or updates, and negatives correspond
+ * to deletes).
+ * <p>
+ * A file Fn can be deleted if and only if the following criteria are satisfied:
+ * <ol>
+ * <li>All pos in a file Fn must have corresponding neg in any file Fm where {@code m >= n}. *
+ * <li>All pos that correspond to any neg in file Fn, must all live in any file Fm where {@code 0 <= m <= n} which are
+ * also marked for deletion in the same pass of the algorithm.
+ * </ol>
  */
 public final class Reclaimer {
 

@@ -17,18 +17,20 @@
 
 package org.apache.activemq.artemis.tests.leak;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.TimeUnit;
 
 import io.github.checkleak.core.CheckLeak;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RefCountMessageAccessor;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class RefCountMessageLeakTest extends ActiveMQTestBase {
+public class RefCountMessageLeakTest extends AbstractLeakTest {
 
    static class DebugMessage extends RefCountMessage {
       final String string;
@@ -50,8 +52,8 @@ public class RefCountMessageLeakTest extends ActiveMQTestBase {
 
    @Test
    public void testLeakRefCount() throws Exception {
-      String strMessage = RandomUtil.randomString();
-      String strMessageFired = RandomUtil.randomString();
+      String strMessage = RandomUtil.randomUUIDString();
+      String strMessageFired = RandomUtil.randomUUIDString();
 
       ReusableLatch latchLeaked = new ReusableLatch(1);
       DebugMessage message = new DebugMessage(strMessage);
@@ -60,10 +62,10 @@ public class RefCountMessageLeakTest extends ActiveMQTestBase {
       RefCountMessageAccessor.setRunOnLeak(message, latchLeaked::countDown);
       message = null;
       // I know it's null, I'm just doing this to make sure there are no optimizations from the JVM delaying the GC cleanup
-      Assert.assertNull(message);
+      assertNull(message);
 
       MemoryAssertions.assertMemory(new CheckLeak(), 0, RefCountMessage.class.getName());
-      Assert.assertTrue(latchLeaked.await(1, TimeUnit.SECONDS));
+      assertTrue(latchLeaked.await(1, TimeUnit.SECONDS));
 
       DebugMessage message2 = new DebugMessage(strMessageFired);
       message2.refUp();
@@ -73,9 +75,9 @@ public class RefCountMessageLeakTest extends ActiveMQTestBase {
       message2.fired();
       message2 = null;
       // I know it's null, I'm just doing this to make sure there are no optimizations from the JVM delaying the GC cleanup
-      Assert.assertNull(message2);
+      assertNull(message2);
 
       MemoryAssertions.assertMemory(new CheckLeak(), 0, RefCountMessage.class.getName());
-      Assert.assertFalse(latchLeaked.await(100, TimeUnit.MILLISECONDS));
+      assertFalse(latchLeaked.await(100, TimeUnit.MILLISECONDS));
    }
 }

@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.soak.client;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -30,19 +32,19 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ClientSoakTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final SimpleString ADDRESS = new SimpleString("ADD");
+   private static final SimpleString ADDRESS = SimpleString.of("ADD");
 
    private static final SimpleString DIVERTED_AD1 = ClientSoakTest.ADDRESS.concat("-1");
 
@@ -61,20 +63,20 @@ public class ClientSoakTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       clearDataRecreateServerDirs();
 
       Configuration config = createDefaultConfig(isNetty()).setJournalFileSize(10 * 1024 * 1024);
 
-      server = createServer(IS_JOURNAL, config, -1, -1, new HashMap<String, AddressSettings>());
+      server = createServer(IS_JOURNAL, config, -1, -1, new HashMap<>());
 
       DivertConfiguration divert1 = new DivertConfiguration().setName("dv1").setRoutingName("nm1").setAddress(ClientSoakTest.ADDRESS.toString()).setForwardingAddress(ClientSoakTest.DIVERTED_AD1.toString()).setExclusive(true);
 
       DivertConfiguration divert2 = new DivertConfiguration().setName("dv2").setRoutingName("nm2").setAddress(ClientSoakTest.ADDRESS.toString()).setForwardingAddress(ClientSoakTest.DIVERTED_AD2.toString()).setExclusive(true);
 
-      ArrayList<DivertConfiguration> divertList = new ArrayList<>();
+      List<DivertConfiguration> divertList = new ArrayList<>();
       divertList.add(divert1);
       divertList.add(divert2);
 
@@ -88,11 +90,11 @@ public class ClientSoakTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession();
 
-      session.createQueue(new QueueConfiguration(ClientSoakTest.ADDRESS));
+      session.createQueue(QueueConfiguration.of(ClientSoakTest.ADDRESS));
 
-      session.createQueue(new QueueConfiguration(ClientSoakTest.DIVERTED_AD1));
+      session.createQueue(QueueConfiguration.of(ClientSoakTest.DIVERTED_AD1));
 
-      session.createQueue(new QueueConfiguration(ClientSoakTest.DIVERTED_AD2));
+      session.createQueue(QueueConfiguration.of(ClientSoakTest.DIVERTED_AD2));
 
       session.close();
 

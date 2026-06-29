@@ -16,7 +16,13 @@
  */
 package org.apache.activemq.artemis.core.security.jaas;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.security.auth.Subject;
+
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
@@ -30,25 +36,22 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.security.impl.SecurityStoreImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class JAASSecurityManagerClassLoadingTest {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "newLoader=({0})")
+   @Parameters(name = "newLoader=({0})")
    public static Collection<Object[]> data() {
       return Arrays.asList(new Object[][] {{true}, {false}});
    }
@@ -68,19 +71,20 @@ public class JAASSecurityManagerClassLoadingTest {
       }
    }
 
-   @Parameterized.Parameter
+   @Parameter(index = 0)
    public boolean usingNewLoader;
 
-   @Rule
-   public TemporaryFolder tmpDir = new TemporaryFolder();
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File tmpDir;
 
-   @Test
+   @TestTemplate
    public void testLoginClassloading() throws Exception {
       ClassLoader existingLoader = Thread.currentThread().getContextClassLoader();
       logger.debug("loader: {}", existingLoader);
       try {
          if (usingNewLoader) {
-            URLClassLoader simulatedLoader = new URLClassLoader(new URL[]{tmpDir.getRoot().toURI().toURL()}, null);
+            URLClassLoader simulatedLoader = new URLClassLoader(new URL[]{tmpDir.toURI().toURL()}, null);
             Thread.currentThread().setContextClassLoader(simulatedLoader);
          }
          ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
@@ -88,9 +92,9 @@ public class JAASSecurityManagerClassLoadingTest {
          Subject result = securityManager.authenticate("first", "secret", null, null);
 
          assertNotNull(result);
-         assertEquals("first", SecurityStoreImpl.getUserFromSubject(result));
+         assertEquals("first", securityManager.getUserFromSubject(result));
 
-         Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true);
+         Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true, false, false);
          Set<Role> roles = new HashSet<>();
          roles.add(role);
          boolean authorizationResult = securityManager.authorize(result, roles, CheckType.SEND, "someaddress");

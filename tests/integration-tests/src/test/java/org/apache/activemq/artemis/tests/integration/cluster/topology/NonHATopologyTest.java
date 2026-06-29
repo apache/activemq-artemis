@@ -16,7 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -30,13 +33,10 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * I have added this test to help validate if the connectors from Recovery will be
- * properly updated
- *
- * Created to verify HORNETQ-913 / AS7-4548
+ * I have added this test to help validate if the connectors from Recovery will be properly updated
  */
 public class NonHATopologyTest extends ActiveMQTestBase {
 
@@ -63,7 +63,7 @@ public class NonHATopologyTest extends ActiveMQTestBase {
             server.getConfiguration().getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
             server.getConfiguration().getConnectorConfigurations().put("netty", new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
 
-            ArrayList<String> list = new ArrayList<>();
+            List<String> list = new ArrayList<>();
             list.add("netty");
             Configuration config = server.getConfiguration();
             config.getClusterConfigurations().add(new ClusterConnectionConfiguration().setName("tst").setAddress("jms").setConnectorName("netty").setRetryInterval(1000).setConfirmationWindowSize(1000).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(list).setAllowDirectConnectionsOnly(true));
@@ -83,9 +83,9 @@ public class NonHATopologyTest extends ActiveMQTestBase {
 
          TopologyMemberImpl member = topology.getMembers().iterator().next();
          if (isNetty) {
-            assertEquals(NettyConnectorFactory.class.getName(), member.getLive().getFactoryClassName());
+            assertEquals(NettyConnectorFactory.class.getName(), member.getPrimary().getFactoryClassName());
          } else {
-            assertEquals(InVMConnectorFactory.class.getName(), member.getLive().getFactoryClassName());
+            assertEquals(InVMConnectorFactory.class.getName(), member.getPrimary().getFactoryClassName());
          }
 
       } finally {

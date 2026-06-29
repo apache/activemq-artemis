@@ -27,7 +27,8 @@ import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 
 public class InVMTransportConfigurationSchema extends AbstractTransportConfigurationSchema {
 
-   /* This is the same as org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.CONNECTIONS_ALLOWED,
+   /*
+    * This is the same as org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.CONNECTIONS_ALLOWED,
     * but this Maven module can't see that class.
     */
    public static final String CONNECTIONS_ALLOWED = "connectionsAllowed";

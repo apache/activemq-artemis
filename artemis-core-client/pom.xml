@@ -18,23 +18,20 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq</groupId>
+      <groupId>org.apache.artemis</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>2.31.0-SNAPSHOT</version>
+      <version>2.56.0-SNAPSHOT</version>
+      <relativePath>../artemis-pom/pom.xml</relativePath>
    </parent>
 
    <artifactId>artemis-core-client</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis Core Client</name>
-
-   <properties>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
-   </properties>
+   <name>Apache Artemis Core Client</name>
 
    <dependencies>
       <!-- logging -->
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-log-annotation-processor</artifactId>
          <version>${project.version}</version>
          <scope>provided</scope>
@@ -47,7 +44,7 @@
       </dependency>
       <dependency>
          <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-slf4j-impl</artifactId>
+         <artifactId>log4j-slf4j2-impl</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -55,19 +52,23 @@
          <artifactId>jgroups</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-api</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -124,6 +125,10 @@
          <groupId>io.netty</groupId>
          <artifactId>netty-resolver</artifactId>
       </dependency>
+      <dependency>
+         <groupId>de.dentrassi.crypto</groupId>
+         <artifactId>pem-keystore</artifactId>
+      </dependency>
 
       <!-- The johnzon-core and json-api contents are repackaged in -commons,
            However maven can still need them during tests, which run against
@@ -142,6 +147,11 @@
       <dependency>
          <groupId>org.mockito</groupId>
          <artifactId>mockito-core</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.commons</groupId>
+         <artifactId>commons-lang3</artifactId>
          <scope>test</scope>
       </dependency>
    </dependencies>

@@ -16,36 +16,34 @@
  */
 package org.apache.activemq.artemis.core.io.aio;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * This will emulate callbacks out of order from libaio
  */
 public class CallbackOrderTest {
 
-   @Rule
-   public TemporaryFolder temporaryFolder;
-
-   public CallbackOrderTest() {
-      File parent = new File("./target");
-      parent.mkdirs();
-      temporaryFolder = new TemporaryFolder(parent);
-   }
+   // Temp folder at ./target/tmp/<TestClassName>/<generated>
+   @TempDir(factory = TargetTempDirFactory.class)
+   public File temporaryFolder;
 
    /**
     * This method will make sure callbacks will come back in order even when out order from libaio
     */
    @Test
    public void testCallbackOutOfOrder() throws Exception {
-      AIOSequentialFileFactory factory = new AIOSequentialFileFactory(temporaryFolder.getRoot(), 100);
+      AIOSequentialFileFactory factory = new AIOSequentialFileFactory(temporaryFolder, 100);
       AIOSequentialFile file = (AIOSequentialFile) factory.createSequentialFile("test.bin");
 
       final AtomicInteger count = new AtomicInteger(0);
@@ -62,7 +60,7 @@ public class CallbackOrderTest {
          }
       };
 
-      ArrayList<AIOSequentialFileFactory.AIOSequentialCallback> list = new ArrayList<>();
+      List<AIOSequentialFileFactory.AIOSequentialCallback> list = new ArrayList<>();
 
       // We will repeat the test a few times, increasing N
       // to increase possibility of issues due to reuse of callbacks
@@ -78,9 +76,9 @@ public class CallbackOrderTest {
             list.get(i).done();
          }
 
-         Assert.assertEquals(N, count.get());
-         Assert.assertEquals(0, file.pendingCallbackList.size());
-         Assert.assertTrue(file.pendingCallbackList.isEmpty());
+         assertEquals(N, count.get());
+         assertEquals(0, file.pendingCallbackList.size());
+         assertTrue(file.pendingCallbackList.isEmpty());
       }
 
       factory.stop();

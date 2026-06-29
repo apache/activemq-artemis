@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
@@ -31,9 +35,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBase {
 
@@ -45,7 +48,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBa
    public void testSessionClosedOnRemotingConnectionFailure() throws Exception {
       ClientSession session = addClientSession(sf.createSession());
 
-      session.createQueue(new QueueConfiguration("fooqueue").setAddress("fooaddress").setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of("fooqueue").setAddress("fooaddress").setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer prod = session.createProducer("fooaddress");
 
@@ -55,7 +58,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBa
 
       prod.send(session.createMessage(false));
 
-      Assert.assertNotNull(cons.receive());
+      assertNotNull(cons.receive());
 
       // Now fail the underlying connection
 
@@ -63,18 +66,18 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBa
 
       connection.fail(new ActiveMQNotConnectedException());
 
-      Assert.assertTrue(session.isClosed());
+      assertTrue(session.isClosed());
 
-      Assert.assertTrue(prod.isClosed());
+      assertTrue(prod.isClosed());
 
-      Assert.assertTrue(cons.isClosed());
+      assertTrue(cons.isClosed());
 
       // Now try and use the producer
 
       try {
          prod.send(session.createMessage(false));
 
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (ActiveMQObjectClosedException oce) {
          //ok
       } catch (ActiveMQException e) {
@@ -84,7 +87,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBa
       try {
          cons.receive();
 
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (ActiveMQObjectClosedException oce) {
          //ok
       } catch (ActiveMQException e) {
@@ -95,7 +98,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBa
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Configuration config = createDefaultInVMConfig();

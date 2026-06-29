@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
@@ -137,8 +138,8 @@ public final class InVMAcceptor extends AbstractAcceptor {
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("factory"), new SimpleString(InVMAcceptorFactory.class.getName()));
-         props.putIntProperty(new SimpleString("id"), id);
+         props.putSimpleStringProperty(SimpleString.of("factory"), SimpleString.of(InVMAcceptorFactory.class.getName()));
+         props.putIntProperty(SimpleString.of("id"), id);
          Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STARTED, props);
          notificationService.sendNotification(notification);
       }
@@ -159,22 +160,10 @@ public final class InVMAcceptor extends AbstractAcceptor {
       }
 
       for (Connection connection : connections.values()) {
-         listener.connectionDestroyed(connection.getID());
+         listener.connectionDestroyed(connection.getID(), true);
       }
 
       connections.clear();
-
-      if (notificationService != null) {
-         TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("factory"), new SimpleString(InVMAcceptorFactory.class.getName()));
-         props.putIntProperty(new SimpleString("id"), id);
-         Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STOPPED, props);
-         try {
-            notificationService.sendNotification(notification);
-         } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.failedToSendNotification(e);
-         }
-      }
 
       started = false;
 
@@ -182,11 +171,26 @@ public final class InVMAcceptor extends AbstractAcceptor {
    }
 
    @Override
+   public void notifyStop() {
+      if (notificationService != null) {
+         TypedProperties props = new TypedProperties();
+         props.putSimpleStringProperty(SimpleString.of("factory"), SimpleString.of(InVMAcceptorFactory.class.getName()));
+         props.putIntProperty(SimpleString.of("id"), id);
+         Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STOPPED, props);
+         try {
+            notificationService.sendNotification(notification);
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.failedToSendNotification(e);
+         }
+      }
+   }
+
+   @Override
    public synchronized boolean isStarted() {
       return started;
    }
 
-   /*
+   /**
     * Stop accepting new connections
     */
    @Override
@@ -220,7 +224,7 @@ public final class InVMAcceptor extends AbstractAcceptor {
    public void connect(final String connectionID,
                        final BufferHandler remoteHandler,
                        final InVMConnector connector,
-                       final Executor clientExecutor) {
+                       final ArtemisExecutor clientExecutor) {
       if (!started) {
          throw new IllegalStateException("Acceptor is not started");
       }
@@ -242,7 +246,7 @@ public final class InVMAcceptor extends AbstractAcceptor {
       Connection conn = connections.get(connectionID);
 
       if (conn != null) {
-         conn.close();
+         conn.disconnect();
       }
    }
 
@@ -287,20 +291,17 @@ public final class InVMAcceptor extends AbstractAcceptor {
       }
 
       @Override
-      public void connectionDestroyed(final Object connectionID) {
+      public void connectionDestroyed(final Object connectionID, boolean failed) {
          InVMConnection connection = (InVMConnection) connections.remove(connectionID);
 
          if (connection != null) {
 
-            listener.connectionDestroyed(connectionID);
+            listener.connectionDestroyed(connectionID, failed);
 
             // Execute on different thread after all the packets are sent, to avoid deadlocks
-            connection.getExecutor().execute(new Runnable() {
-               @Override
-               public void run() {
-                  // Remove on the other side too
-                  connector.disconnect((String) connectionID);
-               }
+            connection.getExecutor().execute(() -> {
+               // Remove on the other side too
+               connector.disconnect((String) connectionID);
             });
          }
       }

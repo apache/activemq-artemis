@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -51,38 +53,33 @@ public class ReplicationLargeMessageBeginMessage extends PacketImpl {
       messageId = buffer.readLong();
    }
 
-   /**
-    * @return the messageId
-    */
    public long getMessageId() {
       return messageId;
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (messageId ^ (messageId >>> 32));
-      return result;
+      return super.hashCode() + Objects.hashCode(messageId);
    }
 
    @Override
    protected String getPacketString() {
-      return  super.getPacketString() +
+      return super.getPacketString() +
          "messageId=" + messageId;
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (getClass() != obj.getClass())
+      }
+      if (!(obj instanceof ReplicationLargeMessageBeginMessage other)) {
          return false;
-      ReplicationLargeMessageBeginMessage other = (ReplicationLargeMessageBeginMessage) obj;
-      if (messageId != other.messageId)
-         return false;
-      return true;
+      }
+
+      return messageId == other.messageId;
    }
 }

@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.leak;
 
+import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -30,24 +35,19 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.qpid.proton.engine.impl.ReceiverImpl;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
-
 // This test spawns the server as a separate VM
 // as we need to count exclusively client objects from qpid-proton
-public class ClientLeakTest extends ActiveMQTestBase {
+public class ClientLeakTest extends AbstractLeakTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -58,7 +58,7 @@ public class ClientLeakTest extends ActiveMQTestBase {
 
       try {
          ConfigurationImpl configuration = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(getDefaultJournalType()).setJournalDirectory("./data/journal").setBindingsDirectory("./data/binding").setPagingDirectory("./data/page").setLargeMessagesDirectory("./data/lm").setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(CLUSTER_PASSWORD).setJournalDatasync(false);
-         configuration.addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<String, Object>(), "netty", new HashMap<String, Object>()));
+         configuration.addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<String, Object>(), "netty", new HashMap<>()));
          ActiveMQServer server = ActiveMQServers.newActiveMQServer(configuration, false);
          server.start();
          System.out.println(LEAK_SERVER);
@@ -69,13 +69,13 @@ public class ClientLeakTest extends ActiveMQTestBase {
 
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void beforeClass() throws Exception {
-      Assume.assumeTrue(CheckLeak.isLoaded());
+      assumeTrue(CheckLeak.isLoaded());
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       serverProcess = SpawnedVMSupport.spawnVM(ClientLeakTest.class.getName());
       runAfter(serverProcess::destroyForcibly);
@@ -97,10 +97,10 @@ public class ClientLeakTest extends ActiveMQTestBase {
 
       }
       while (success == false && System.currentTimeMillis() < time);
-      Assert.assertTrue(success);
+      assertTrue(success);
    }
 
-   @After
+   @AfterEach
    public void stopServer() throws Exception {
       serverProcess.destroyForcibly();
    }
@@ -125,7 +125,7 @@ public class ClientLeakTest extends ActiveMQTestBase {
             MessageConsumer consumer = session.createConsumer(session.createQueue("test"));
             connection.start();
             Message message = consumer.receive(1000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             session.commit();
             // consumer.close(); // uncomment this and the test will pass.
             session.close();

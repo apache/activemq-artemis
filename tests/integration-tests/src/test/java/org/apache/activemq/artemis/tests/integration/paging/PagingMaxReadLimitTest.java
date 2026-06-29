@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -40,8 +43,7 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +70,7 @@ public class PagingMaxReadLimitTest extends ActiveMQTestBase {
       server.start();
 
       server.addAddressInfo(new AddressInfo(getName()).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server.locateQueue(getName()) != null);
 
@@ -86,7 +88,7 @@ public class PagingMaxReadLimitTest extends ActiveMQTestBase {
          }
          session.commit();
 
-         Assert.assertTrue(serverQueue.getPagingStore().isPaging());
+         assertTrue(serverQueue.getPagingStore().isPaging());
       }
 
       AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
@@ -119,9 +121,9 @@ public class PagingMaxReadLimitTest extends ActiveMQTestBase {
          }
       });
 
-      Assert.assertTrue(done.await(5, TimeUnit.SECONDS));
+      assertTrue(done.await(5, TimeUnit.SECONDS));
       Wait.assertTrue(() -> loggerHandler.findText("AMQ224127"), 2000, 10);
-      Assert.assertEquals(0, errorCounter.get());
+      assertEquals(0, errorCounter.get());
 
    }
 

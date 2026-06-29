@@ -27,7 +27,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Default implementation of a {@link ScheduledLeaseLock}: see {@link ScheduledLeaseLock#of(ScheduledExecutorService, ArtemisExecutor, String, LeaseLock, long, LockListener)}.
+ * Default implementation of a {@link ScheduledLeaseLock}: see
+ * {@link ScheduledLeaseLock#of(ScheduledExecutorService, ArtemisExecutor, String, LeaseLock, long, LockListener)}.
  */
 final class ActiveMQScheduledLeaseLock extends ActiveMQScheduledComponent implements ScheduledLeaseLock {
 
@@ -136,7 +137,7 @@ final class ActiveMQScheduledLeaseLock extends ActiveMQScheduledComponent implem
       final long measuredRenewPeriodNanos = renewStart - lastRenewStart;
       final long measuredRenewPeriodMillis = TimeUnit.NANOSECONDS.toMillis(measuredRenewPeriodNanos);
       if (measuredRenewPeriodMillis - expirationMillis > 100) {
-         logger.error("{} lock {} renew period lasted {} ms instead of {} ms", lockName, lostLock ? "failed" : "successful", measuredRenewPeriodMillis, expectedRenewPeriodMillis);
+         logger.error("{} lock {} renew period lasted {} ms instead of {} ms", lockName, lostLock ? "failed" : "successful", measuredRenewPeriodMillis, expirationMillis);
       } else if (measuredRenewPeriodMillis - expectedRenewPeriodMillis > 100) {
          logger.warn("{} lock {} renew period lasted {} ms instead of {} ms", lockName, lostLock ? "failed" : "successful", measuredRenewPeriodMillis, expectedRenewPeriodMillis);
       }

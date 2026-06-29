@@ -37,6 +37,7 @@ public enum QueueField {
    AUTO_CREATED("autoCreated"),
    DURABLE("durable"),
    PAUSED("paused"),
+   PERSISTEDPAUSE("persistedPause"),
    TEMPORARY("temporary"),
    PURGE_ON_NO_CONSUMERS("purgeOnNoConsumers"),
    MESSAGES_KILLED("messagesKilled"),
@@ -53,7 +54,8 @@ public enum QueueField {
    RING_SIZE("ringSize"),
    CONSUMERS_BEFORE_DISPATCH("consumersBeforeDispatch"),
    DELAY_BEFORE_DISPATCH("delayBeforeDispatch"),
-   AUTO_DELETE("autoDelete");
+   AUTO_DELETE("autoDelete"),
+   INTERNAL_QUEUE("internalQueue");
 
    private static final Map<String, QueueField> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 

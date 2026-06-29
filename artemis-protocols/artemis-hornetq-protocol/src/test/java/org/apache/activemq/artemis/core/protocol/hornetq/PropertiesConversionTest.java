@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.core.protocol.hornetq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,8 +33,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.MessagePac
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage_1X;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PropertiesConversionTest {
 
@@ -56,11 +58,11 @@ public class PropertiesConversionTest {
    public void testParallelHornetQConversions() throws Throwable {
       CoreMessage coreMessage = new CoreMessage(1, 1024);
       for (int i = 0; i < 10; i++) {
-         coreMessage.putBooleanProperty(SimpleString.toSimpleString("key1"), true);
+         coreMessage.putBooleanProperty(SimpleString.of("key1"), true);
       }
-      coreMessage.putStringProperty(new SimpleString("_HQ_ORIG_ADDRESS"), SimpleString.toSimpleString("hqOne"));
-      coreMessage.putStringProperty(new SimpleString("_AMQ_ORIG_QUEUE"), SimpleString.toSimpleString("amqOne"));
-      coreMessage.putStringProperty(new SimpleString("_AMQ_ORIG_MESSAGE_ID"), SimpleString.toSimpleString("asdfkhaksdjfhaskfdjhas"));
+      coreMessage.putStringProperty(SimpleString.of("_HQ_ORIG_ADDRESS"), SimpleString.of("hqOne"));
+      coreMessage.putStringProperty(SimpleString.of("_AMQ_ORIG_QUEUE"), SimpleString.of("amqOne"));
+      coreMessage.putStringProperty(SimpleString.of("_AMQ_ORIG_MESSAGE_ID"), SimpleString.of("asdfkhaksdjfhaskfdjhas"));
 
       int threads = 100;
       int conversions = 100;
@@ -72,49 +74,45 @@ public class PropertiesConversionTest {
       AtomicInteger counts = new AtomicInteger(0);
 
       for (int i = 0; i < threads; i++) {
-         t[i] = new Thread() {
-
-            @Override
-            public void run() {
-               try {
-                  for (int i = 0; i < conversions; i++) {
-                     counts.incrementAndGet();
-                     FakeMessagePacket packetSend = new FakeMessagePacket(coreMessage);
-                     if (i == 0) {
-                        barrier.await();
-                     }
-                     hq.intercept(packetSend, null);
-                     FakeMessagePacket packetRec = new FakeMessagePacket(coreMessage);
-                     amq.intercept(packetRec, null);
-
-                     // heads or tails here, I need part of the messages with a big header, part of the messages with a small header
-                     boolean heads = RandomUtil.randomBoolean();
-
-                     // this is playing with a scenario where the horentq interceptor will change the size of the message
-                     if (heads) {
-                        packetRec.getMessage().putStringProperty("propChanges", "looooooooooooooooooooong property text");
-                     } else {
-                        packetRec.getMessage().putStringProperty("propChanges", "short one");
-                     }
-
-                     SessionReceiveMessage_1X receiveMessage_1X = new SessionReceiveMessage_1X(coreMessage);
-                     ActiveMQBuffer buffer = receiveMessage_1X.encode(null);
-                     buffer.release();
-
-                     if (i > conversions / 2) {
-                        // I only validate half of the messages
-                        // to give it a chance of Races and Exceptions
-                        // that could happen from reusing the same message on these conversions
-                        Assert.assertNotSame(packetRec.getMessage(), coreMessage);
-                        Assert.assertNotSame(packetSend.getMessage(), coreMessage);
-                     }
+         t[i] = new Thread(() -> {
+            try {
+               for (int i1 = 0; i1 < conversions; i1++) {
+                  counts.incrementAndGet();
+                  FakeMessagePacket packetSend = new FakeMessagePacket(coreMessage);
+                  if (i1 == 0) {
+                     barrier.await();
                   }
-               } catch (Throwable e) {
-                  errors.incrementAndGet();
-                  e.printStackTrace();
+                  hq.intercept(packetSend, null);
+                  FakeMessagePacket packetRec = new FakeMessagePacket(coreMessage);
+                  amq.intercept(packetRec, null);
+
+                  // heads or tails here, I need part of the messages with a big header, part of the messages with a small header
+                  boolean heads = RandomUtil.randomBoolean();
+
+                  // this is playing with a scenario where the horentq interceptor will change the size of the message
+                  if (heads) {
+                     packetRec.getMessage().putStringProperty("propChanges", "looooooooooooooooooooong property text");
+                  } else {
+                     packetRec.getMessage().putStringProperty("propChanges", "short one");
+                  }
+
+                  SessionReceiveMessage_1X receiveMessage_1X = new SessionReceiveMessage_1X(coreMessage);
+                  ActiveMQBuffer buffer = receiveMessage_1X.encode(null);
+                  buffer.release();
+
+                  if (i1 > conversions / 2) {
+                     // I only validate half of the messages
+                     // to give it a chance of Races and Exceptions
+                     // that could happen from reusing the same message on these conversions
+                     assertNotSame(packetRec.getMessage(), coreMessage);
+                     assertNotSame(packetSend.getMessage(), coreMessage);
+                  }
                }
+            } catch (Throwable e) {
+               errors.incrementAndGet();
+               e.printStackTrace();
             }
-         };
+         });
          t[i].start();
       }
 
@@ -122,9 +120,9 @@ public class PropertiesConversionTest {
          thread.join();
       }
 
-      Assert.assertEquals(threads * conversions, counts.get());
+      assertEquals(threads * conversions, counts.get());
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
 
@@ -132,11 +130,11 @@ public class PropertiesConversionTest {
    public void testMultiThreadChanges() throws Throwable {
       CoreMessage coreMessage = new CoreMessage(1, 1024);
       for (int i = 0; i < 10; i++) {
-         coreMessage.putBooleanProperty(SimpleString.toSimpleString("key1"), true);
+         coreMessage.putBooleanProperty(SimpleString.of("key1"), true);
       }
-      coreMessage.putStringProperty(new SimpleString("_HQ_ORIG_ADDRESS"), SimpleString.toSimpleString("hqOne"));
-      coreMessage.putStringProperty(new SimpleString("_AMQ_ORIG_QUEUE"), SimpleString.toSimpleString("amqOne"));
-      coreMessage.putStringProperty(new SimpleString("_AMQ_ORIG_MESSAGE_ID"), SimpleString.toSimpleString("asdfkhaksdjfhaskfdjhas"));
+      coreMessage.putStringProperty(SimpleString.of("_HQ_ORIG_ADDRESS"), SimpleString.of("hqOne"));
+      coreMessage.putStringProperty(SimpleString.of("_AMQ_ORIG_QUEUE"), SimpleString.of("amqOne"));
+      coreMessage.putStringProperty(SimpleString.of("_AMQ_ORIG_MESSAGE_ID"), SimpleString.of("asdfkhaksdjfhaskfdjhas"));
 
       int threads = 100;
       int conversions = 100;
@@ -148,45 +146,41 @@ public class PropertiesConversionTest {
       AtomicBoolean running = new AtomicBoolean(true);
 
       for (int i = 0; i < threads; i++) {
-         t[i] = new Thread() {
-
-            @Override
-            public void run() {
-               try {
-                  for (int i = 0; i < conversions; i++) {
-                     counts.incrementAndGet();
-                     if (i == 0) {
-                        barrier.await();
-                     }
-
-                     // heads or tails here, I need part of the messages with a big header, part of the messages with a small header
-                     boolean heads = RandomUtil.randomBoolean();
-
-                     // this is playing with a scenario where the horentq interceptor will change the size of the message
-                     if (heads) {
-                        coreMessage.putStringProperty("propChanges", "looooooooooooooooooooong property text");
-                     } else {
-                        coreMessage.putStringProperty("propChanges", "short one");
-                     }
-
-                     heads = RandomUtil.randomBoolean();
-
-                     if (heads) {
-                        SessionReceiveMessage_1X receiveMessage_1X = new SessionReceiveMessage_1X(coreMessage);
-                        ActiveMQBuffer buffer = receiveMessage_1X.encode(null);
-                        buffer.release();
-                     } else {
-                        SessionReceiveMessage receiveMessage = new SessionReceiveMessage(coreMessage);
-                        ActiveMQBuffer buffer = receiveMessage.encode(null);
-                        buffer.release();
-                     }
+         t[i] = new Thread(() -> {
+            try {
+               for (int i1 = 0; i1 < conversions; i1++) {
+                  counts.incrementAndGet();
+                  if (i1 == 0) {
+                     barrier.await();
                   }
-               } catch (Throwable e) {
-                  errors.incrementAndGet();
-                  e.printStackTrace();
+
+                  // heads or tails here, I need part of the messages with a big header, part of the messages with a small header
+                  boolean heads = RandomUtil.randomBoolean();
+
+                  // this is playing with a scenario where the horentq interceptor will change the size of the message
+                  if (heads) {
+                     coreMessage.putStringProperty("propChanges", "looooooooooooooooooooong property text");
+                  } else {
+                     coreMessage.putStringProperty("propChanges", "short one");
+                  }
+
+                  heads = RandomUtil.randomBoolean();
+
+                  if (heads) {
+                     SessionReceiveMessage_1X receiveMessage_1X = new SessionReceiveMessage_1X(coreMessage);
+                     ActiveMQBuffer buffer = receiveMessage_1X.encode(null);
+                     buffer.release();
+                  } else {
+                     SessionReceiveMessage receiveMessage = new SessionReceiveMessage(coreMessage);
+                     ActiveMQBuffer buffer = receiveMessage.encode(null);
+                     buffer.release();
+                  }
                }
+            } catch (Throwable e) {
+               errors.incrementAndGet();
+               e.printStackTrace();
             }
-         };
+         });
          t[i].start();
       }
 
@@ -196,9 +190,9 @@ public class PropertiesConversionTest {
          thread.join();
       }
 
-      Assert.assertEquals(threads * conversions, counts.get());
+      assertEquals(threads * conversions, counts.get());
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
 

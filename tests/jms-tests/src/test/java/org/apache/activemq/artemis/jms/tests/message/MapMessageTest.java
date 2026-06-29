@@ -21,9 +21,9 @@ import javax.jms.MapMessage;
 import javax.jms.Message;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * A test that sends/receives map messages to the JMS provider and verifies their integrity.
@@ -32,7 +32,7 @@ public class MapMessageTest extends MessageTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -40,7 +40,7 @@ public class MapMessageTest extends MessageTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       message = null;
 
@@ -89,15 +89,15 @@ public class MapMessageTest extends MessageTestBase {
 
       MapMessage mm = (MapMessage) m;
 
-      ProxyAssertSupport.assertEquals(true, mm.getBoolean("boolean"));
+      ProxyAssertSupport.assertTrue(mm.getBoolean("boolean"));
       ProxyAssertSupport.assertEquals((byte) 3, mm.getByte("byte"));
       byte[] bytes = mm.getBytes("bytes");
       ProxyAssertSupport.assertEquals((byte) 3, bytes[0]);
       ProxyAssertSupport.assertEquals((byte) 4, bytes[1]);
       ProxyAssertSupport.assertEquals((byte) 5, bytes[2]);
       ProxyAssertSupport.assertEquals((char) 6, mm.getChar("char"));
-      ProxyAssertSupport.assertEquals(Double.valueOf(7.0), Double.valueOf(mm.getDouble("double")));
-      ProxyAssertSupport.assertEquals(Float.valueOf(8.0f), Float.valueOf(mm.getFloat("float")));
+      ProxyAssertSupport.assertEquals(7.0, mm.getDouble("double"));
+      ProxyAssertSupport.assertEquals(8.0f, mm.getFloat("float"));
       ProxyAssertSupport.assertEquals(9, mm.getInt("int"));
       ProxyAssertSupport.assertEquals(10L, mm.getLong("long"));
       ProxyAssertSupport.assertEquals("this is an object", mm.getObject("object"));

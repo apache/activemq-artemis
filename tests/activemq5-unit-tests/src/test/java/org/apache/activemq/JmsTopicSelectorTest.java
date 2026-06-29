@@ -30,9 +30,6 @@ import javax.jms.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class JmsTopicSelectorTest extends TestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSelectorTest.class);

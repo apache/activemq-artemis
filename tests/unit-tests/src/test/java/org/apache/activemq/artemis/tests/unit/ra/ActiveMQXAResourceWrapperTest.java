@@ -17,19 +17,23 @@
 
 package org.apache.activemq.artemis.tests.unit.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.transaction.xa.XAResource;
+
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQXAResourceWrapper;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
-
-import javax.transaction.xa.XAResource;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQXAResourceWrapperTest extends ActiveMQTestBase {
 
@@ -71,10 +75,12 @@ public class ActiveMQXAResourceWrapperTest extends ActiveMQTestBase {
          cs = (ClientSession) res;
          assertEquals(60000L, cs.getSessionFactory().getServerLocator().getConnectionTTL());
       } finally {
-         if (cs != null)
+         if (cs != null) {
             cs.close();
-         if (ra != null)
+         }
+         if (ra != null) {
             ra.stop();
+         }
          server.stop();
       }
    }

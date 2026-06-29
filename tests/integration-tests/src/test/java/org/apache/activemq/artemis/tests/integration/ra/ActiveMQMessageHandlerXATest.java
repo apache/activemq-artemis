@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Message;
 import javax.resource.ResourceException;
 import javax.resource.spi.ApplicationServerInternalException;
@@ -38,7 +43,7 @@ import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
 
@@ -71,7 +76,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+      assertEquals("teststring", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
       endpoint.prepare();
       endpoint.commit();
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
@@ -140,7 +145,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
 
       assertFalse(endpoint.interrupted);
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+      assertEquals("teststring", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       Binding binding = server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE);
       long messageCount = getMessageCount((Queue) binding.getBindable());
@@ -179,7 +184,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
       qResourceAdapter.stop();
       assertTrue(endpoint.interrupted);
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+      assertEquals("teststring", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
    }
 
    @Test
@@ -209,14 +214,14 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+      assertEquals("teststring", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
       latch = new CountDownLatch(1);
       endpoint.reset(latch);
       endpoint.rollback();
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+      assertEquals("teststring", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
    }
@@ -303,7 +308,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
       }
    }
 
-   class XADummyEndpointBegin extends  XADummyEndpoint {
+   class XADummyEndpointBegin extends XADummyEndpoint {
 
       private boolean afterDelivery = false;
 

@@ -36,11 +36,10 @@ public class SCRAMClientSASL implements ClientSASL {
    private final String password;
 
    /**
-    * @param scram the SCRAM mechanism to use
+    * @param scram    the SCRAM mechanism to use
     * @param username the username for authentication
     * @param password the password for authentication
     */
-
    public SCRAMClientSASL(SCRAM scram, String username, String password) {
       this(scram, username, password, UUID.randomUUID().toString());
    }
@@ -91,7 +90,7 @@ public class SCRAMClientSASL implements ClientSASL {
    }
 
    public static boolean isApplicable(String username, String password) {
-      return username != null && username.length() > 0 && password != null && password.length() > 0;
+      return username != null && !username.isEmpty() && password != null && !password.isEmpty();
    }
 
 }

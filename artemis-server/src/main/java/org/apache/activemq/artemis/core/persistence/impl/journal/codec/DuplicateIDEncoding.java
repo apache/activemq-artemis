@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.persistence.impl.journal.codec;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -25,8 +26,6 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UUID;
 
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
-
 public class DuplicateIDEncoding implements EncodingSupport {
 
    public SimpleString address;
@@ -34,12 +33,8 @@ public class DuplicateIDEncoding implements EncodingSupport {
    public byte[] duplID;
 
    public DuplicateIDEncoding(final SimpleString address, final byte[] duplID) {
-      checkNotNull(address);
-      checkNotNull(duplID);
-
-      this.address = address;
-
-      this.duplID = duplID;
+      this.address = Objects.requireNonNull(address);
+      this.duplID = Objects.requireNonNull(duplID);
    }
 
    public DuplicateIDEncoding() {
@@ -76,7 +71,7 @@ public class DuplicateIDEncoding implements EncodingSupport {
       // and this may be useful to validate the journal on those tests
       // You may uncomment these two lines on that case and replcate the toString for the PrintData
 
-      // SimpleString simpleStr = new SimpleString(duplID);
+      // SimpleString simpleStr = SimpleString.of(duplID);
       // return "DuplicateIDEncoding [address=" + address + ", duplID=" + simpleStr + "]";
 
       String bridgeRepresentation = null;

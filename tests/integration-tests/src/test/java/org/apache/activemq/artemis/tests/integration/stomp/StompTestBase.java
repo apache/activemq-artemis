@@ -26,11 +26,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +41,8 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManager;
+import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -50,38 +51,27 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.stomp.util.AbstractStompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
-@RunWith(Parameterized.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public abstract class StompTestBase extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameter
    public String scheme;
 
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
-
    protected URI uri;
-
-   @Parameterized.Parameters(name = "{0}")
-   public static Collection<Object[]> data() {
-      return Arrays.asList(new Object[][]{{"ws+v10.stomp"}, {"tcp+v10.stomp"}});
-   }
 
    protected String hostname = "127.0.0.1";
 
@@ -102,6 +92,14 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    protected String defUser = "brianm";
 
    protected String defPass = "wombats";
+
+   protected String onlySendCredential = "onlySend";
+
+   protected String onlyConsumeCredential = "onlyConsume";
+
+   public StompTestBase(String scheme) {
+      this.scheme = scheme;
+   }
 
    // Implementation methods
    // -------------------------------------------------------------------------
@@ -134,7 +132,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -161,25 +159,25 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
-      if (connection != null) {
-         connection.close();
+      try {
+         if (connection != null) {
+            connection.close();
+         }
+      } finally {
+         try {
+            tearDownConnections();
+         } finally {
+            super.tearDown();
+         }
       }
-      super.tearDown();
    }
 
-
-   @After
    public void tearDownConnections() {
       AbstractStompClientConnection.tearDownConnections();
    }
 
-
-   /**
-    * @return
-    * @throws Exception
-    */
    protected ActiveMQServer createServer() throws Exception {
       String stompAcceptorURI = "tcp://" + TransportConstants.DEFAULT_HOST + ":" + TransportConstants.DEFAULT_STOMP_PORT + "?" + TransportConstants.STOMP_CONSUMER_WINDOW_SIZE + "=-1";
       if (isEnableStompMessageId()) {
@@ -194,7 +192,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
                                                 .addAcceptorConfiguration("stomp", stompAcceptorURI)
                                                 .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
                                                 .setConnectionTtlCheckInterval(500)
-                                                .addQueueConfiguration(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST))
+                                                .addQueueConfiguration(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST))
                                                 .addAddressConfiguration(new CoreAddressConfiguration().setName(getTopicName()).addRoutingType(RoutingType.MULTICAST));
 
       if (getIncomingInterceptors() != null) {
@@ -208,13 +206,25 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       config.setPersistenceEnabled(true);
 
       ActiveMQServer activeMQServer = addServer(ActiveMQServers.newActiveMQServer(config, defUser, defPass));
+      // make sure Stomp is loaded
+      activeMQServer.addProtocolManagerFactory(new StompProtocolManagerFactory());
 
       if (isSecurityEnabled()) {
          ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) activeMQServer.getSecurityManager();
 
          final String role = "testRole";
          securityManager.getConfiguration().addRole(defUser, role);
-         config.getSecurityRoles().put("#", new HashSet<Role>(Set.of(new Role(role, true, true, true, true, true, true, true, true, true, true))));
+         config.getSecurityRoles().put("#", new HashSet<Role>(Set.of(new Role(role, true, true, true, true, true, true, true, true, true, true, false, false))));
+
+         final String onlySend = onlySendCredential;
+         securityManager.getConfiguration().addUser(onlySend, onlySend);
+         securityManager.getConfiguration().addRole(onlySend, onlySend);
+         config.getSecurityRoles().get("#").add(new Role(onlySend, true, false, false, false, false, false, false, false, false, false, false, false));
+
+         final String onlyConsume = onlyConsumeCredential;
+         securityManager.getConfiguration().addUser(onlyConsume, onlyConsume);
+         securityManager.getConfiguration().addRole(onlyConsume, onlyConsume);
+         config.getSecurityRoles().get("#").add(new Role(onlyConsume, false, true, false, false, false, false, false, false, false, false, false, false));
       }
 
       return activeMQServer;
@@ -308,7 +318,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       String messageID = messageIdFrame.getHeader(Stomp.Headers.Message.MESSAGE_ID);
 
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.ACK)
-                                      .addHeader(Stomp.Headers.Message.MESSAGE_ID, messageID);
+                                      .addHeader(Stomp.Headers.Ack.MESSAGE_ID, messageID);
 
       if (subscriptionId != null) {
          frame.addHeader(Stomp.Headers.Ack.SUBSCRIPTION, subscriptionId);
@@ -337,7 +347,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    public static void nack(StompClientConnection conn, String subscriptionId, String messageId) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.NACK)
                                       .addHeader(Stomp.Headers.Ack.SUBSCRIPTION, subscriptionId)
-                                      .addHeader(Stomp.Headers.Message.MESSAGE_ID, messageId);
+                                      .addHeader(Stomp.Headers.Ack.MESSAGE_ID, messageId);
 
       conn.sendFrame(frame);
    }
@@ -474,12 +484,22 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    public static ClientStompFrame subscribeTopic(StompClientConnection conn,
-         String subscriptionId,
-         String ack,
-         String durableId,
-         boolean receipt,
-         boolean noLocal) throws IOException, InterruptedException {
-      return subscribeTopic(conn, subscriptionId, ack, durableId, Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME, receipt, noLocal);
+                                                 String subscriptionId,
+                                                 String ack,
+                                                 String durableId,
+                                                 boolean receipt,
+                                                 boolean noLocal) throws IOException, InterruptedException {
+      return subscribeTopic(conn, subscriptionId, ack, durableId, Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME, receipt, noLocal, null);
+   }
+
+   public static ClientStompFrame subscribeTopic(StompClientConnection conn,
+                                                 String subscriptionId,
+                                                 String ack,
+                                                 String durableId,
+                                                 boolean receipt,
+                                                 boolean noLocal,
+                                                 String selector) throws IOException, InterruptedException {
+      return subscribeTopic(conn, subscriptionId, ack, durableId, Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME, receipt, noLocal, selector);
    }
 
    public static ClientStompFrame subscribeTopicLegacyActiveMQ(StompClientConnection conn,
@@ -488,16 +508,17 @@ public abstract class StompTestBase extends ActiveMQTestBase {
          String durableId,
          boolean receipt,
          boolean noLocal) throws IOException, InterruptedException {
-      return subscribeTopic(conn, subscriptionId, ack, durableId, Stomp.Headers.Subscribe.ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME, receipt, noLocal);
+      return subscribeTopic(conn, subscriptionId, ack, durableId, Stomp.Headers.Subscribe.ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME, receipt, noLocal, null);
    }
 
    public static ClientStompFrame subscribeTopic(StompClientConnection conn,
-                                          String subscriptionId,
-                                          String ack,
-                                          String durableId,
-                                          String durableIdHeader,
-                                          boolean receipt,
-                                          boolean noLocal) throws IOException, InterruptedException {
+                                                 String subscriptionId,
+                                                 String ack,
+                                                 String durableId,
+                                                 String durableIdHeader,
+                                                 boolean receipt,
+                                                 boolean noLocal,
+                                                 String selector) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
                                    .addHeader(Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE, RoutingType.MULTICAST.toString())
                                    .addHeader(Stomp.Headers.Subscribe.DESTINATION, getTopicPrefix() + getTopicName());
@@ -517,6 +538,9 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       if (noLocal) {
          frame.addHeader(Stomp.Headers.Subscribe.NO_LOCAL, "true");
       }
+      if (selector != null) {
+         frame.addHeader(Stomp.Headers.Subscribe.SELECTOR, selector);
+      }
 
       frame = conn.sendFrame(frame);
 
@@ -525,8 +549,8 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       }
 
       if (receipt) {
-         assertNotNull("Requested receipt, but response is null", frame);
-         assertTrue(frame.getHeader(Stomp.Headers.Response.RECEIPT_ID).equals(uuid));
+         assertNotNull(frame, "Requested receipt, but response is null");
+         assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
       }
 
       return frame;
@@ -643,5 +667,12 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
    public static URI createStompClientUri(String scheme, String hostname, int port) throws URISyntaxException {
       return new URI(scheme + "://" + hostname + ":" + port);
+   }
+
+   protected StompProtocolManager getStompProtocolManager() {
+      Acceptor stompAcceptor = server.getRemotingService().getAcceptors().get("stomp");
+      StompProtocolManager stompProtocolManager = (StompProtocolManager) stompAcceptor.getProtocolHandler().getProtocolMap().get("STOMP");
+      assertNotNull(stompProtocolManager);
+      return stompProtocolManager;
    }
 }

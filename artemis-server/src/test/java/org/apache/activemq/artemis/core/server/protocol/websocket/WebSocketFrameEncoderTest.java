@@ -16,6 +16,16 @@
  */
 package org.apache.activemq.artemis.core.server.protocol.websocket;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -28,26 +38,14 @@ import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-/**
- * WebSocketContinuationFrameEncoderTest
- */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WebSocketFrameEncoderTest {
 
    private int maxFramePayloadLength = 100;
@@ -59,7 +57,7 @@ public class WebSocketFrameEncoderTest {
    @Mock
    private ChannelPromise promise;
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       binarySpy = spy(new WebSocketFrameEncoder(maxFramePayloadLength, WebSocketFrameEncoderType.BINARY));
       textSpy = spy(new WebSocketFrameEncoder(maxFramePayloadLength, WebSocketFrameEncoderType.TEXT));
@@ -184,14 +182,14 @@ public class WebSocketFrameEncoderTest {
 
       offset += maxFramePayloadLength;
       WebSocketFrame second = frames.get(1);
-      assertTrue(second instanceof ContinuationWebSocketFrame);
+      assertInstanceOf(ContinuationWebSocketFrame.class, second);
       assertFalse(second.isFinalFragment());
       assertEquals(content.substring(offset, offset + maxFramePayloadLength),
                    second.content().toString(StandardCharsets.UTF_8));
 
       offset += maxFramePayloadLength;
       WebSocketFrame last = frames.get(2);
-      assertTrue(last instanceof ContinuationWebSocketFrame);
+      assertInstanceOf(ContinuationWebSocketFrame.class, last);
       assertTrue(last.isFinalFragment());
       assertEquals(content.substring(offset), last.content().toString(StandardCharsets.UTF_8));
 

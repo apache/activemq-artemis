@@ -18,19 +18,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
-      <groupId>org.apache.activemq.tests</groupId>
+      <groupId>org.apache.artemis.tests</groupId>
       <artifactId>artemis-tests-pom</artifactId>
-      <version>2.31.0-SNAPSHOT</version>
+      <version>2.56.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>e2e-tests</artifactId>
    <packaging>jar</packaging>
-   <name>End-to-End Tests</name>
+   <name>Apache Artemis End-to-End Tests</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
       <e2e-tests.surefire-extra-args />
-      <e2e-tests.dockerfile>Dockerfile-centos7-11</e2e-tests.dockerfile>
+      <e2e-tests.dockerfile>Dockerfile-alpine-21</e2e-tests.dockerfile>
       <distributionDir>${activemq.basedir}/artemis-distribution/target/apache-artemis-${project.version}-bin/apache-artemis-${project.version}</distributionDir>
       <container-service-argline>-DContainerService.artemis-image.version=${project.version} -DContainerService.artemis-image.userid="1000"</container-service-argline>
    </properties>
@@ -41,22 +41,32 @@
               after the distribution is created.
               Otherwise it will get here before the build eventually.
               e.g if you use mvn install -T 20 -->
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>apache-artemis</artifactId>
          <version>${project.version}</version>
          <scope>compile</scope>
          <type>pom</type>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq.tests</groupId>
+         <groupId>org.apache.artemis.tests</groupId>
          <artifactId>artemis-test-support</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-api</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -68,9 +78,8 @@
          <artifactId>testcontainers</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-jms-client</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.qpid</groupId>
@@ -125,7 +134,7 @@
             </executions>
          </plugin>
          <plugin>
-            <groupId>org.apache.activemq</groupId>
+            <groupId>org.apache.artemis</groupId>
             <artifactId>artemis-maven-plugin</artifactId>
             <executions>
                <execution>

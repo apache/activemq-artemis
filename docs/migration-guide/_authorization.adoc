@@ -22,7 +22,7 @@ In ActiveMQ, authorization is specified using the appropriate broker plugin in `
 </authorizationPlugin>
 ----
 
-The equivalent Artemis configuration is specified in `etc/broker.xml` and should look like this
+The equivalent {project-name-short} configuration is specified in `etc/broker.xml` and should look like this
 
 [,xml]
 ----
@@ -60,24 +60,24 @@ The equivalent Artemis configuration is specified in `etc/broker.xml` and should
 ----
 
 As you can see, things are pretty comparable with some minor differences.
-The most important one is that policies in ActiveMQ are defined on destination names, while in Artemis they are applied to _core queues_ (refresh your knowledge about relation between queues and addresses in previous sections and Artemis user manual).
+The most important one is that policies in ActiveMQ are defined on destination names, while in {project-name-short} they are applied to _core queues_ (refresh your knowledge about relation between queues and addresses in previous sections and {project-name-short} user manual).
 
-The other notable difference is that policies are more fine-grained in Artemis.
-The following paragraphs and tables show Artemis policies that corresponds to ActiveMQ ones.
+The other notable difference is that policies are more fine-grained in {project-name-short}.
+The following paragraphs and tables show {project-name-short} policies that corresponds to ActiveMQ ones.
 
 If you wish to allow users to send messages, you need to define the following policies in the respective brokers.
 
 |===
-| ActiveMQ | Artemis
+| ActiveMQ | {project-name-short}
 
 | write
 | send
 |===
 
-In Artemis, policies for consuming and browsing are separated and you need to define them both in order to control `read` access to the destination.
+In {project-name-short}, policies for consuming and browsing are separated and you need to define them both in order to control `read` access to the destination.
 
 |===
-| ActiveMQ | Artemis
+| ActiveMQ | {project-name-short}
 
 | read
 | consume
@@ -90,7 +90,7 @@ It's the same story with `admin` privileges.
 You need to define separate create and delete policies for durable and non-durable core queues.
 
 |===
-| ActiveMQ | Artemis
+| ActiveMQ | {project-name-short}
 
 | admin
 | createNonDurableQueue
@@ -109,7 +109,7 @@ Finally, there's a topic of using wildcards to define policies.
 The following table shows the wildcard syntax difference.
 
 |===
-| Wildcard | Description | ActiveMQ | Artemis
+| Wildcard | Description | ActiveMQ | {project-name-short}
 
 | Delimiter
 | Separates words in the path
@@ -127,6 +127,6 @@ The following table shows the wildcard syntax difference.
 | #
 |===
 
-Basically, by default only the _any word_ character is different, so that's why we used `GUESTS.#` in Artemis example instead of ActiveMQ's `GUESTS.>` syntax.
+Basically, by default only the _any word_ character is different, so that's why we used `GUESTS.#` in {project-name-short} example instead of ActiveMQ's `GUESTS.>` syntax.
 
-Powered with this knowledge, you should be able to transform your current ActiveMQ authorization policies to Artemis.
+Powered with this knowledge, you should be able to transform your current ActiveMQ authorization policies to {project-name-short}.

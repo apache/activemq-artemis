@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -84,23 +86,14 @@ public class ReplicationPageEventMessage extends PacketImpl {
       isDelete = buffer.readBoolean();
    }
 
-   /**
-    * @return the pageNumber
-    */
    public long getPageNumber() {
       return pageNumber;
    }
 
-   /**
-    * @return the storeName
-    */
    public SimpleString getStoreName() {
       return storeName;
    }
 
-   /**
-    * @return the isDelete
-    */
    public boolean isDelete() {
       return isDelete;
    }
@@ -114,32 +107,23 @@ public class ReplicationPageEventMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (isDelete ? 1231 : 1237);
-      result = prime * result + (int)pageNumber;
-      result = prime * result + ((storeName == null) ? 0 : storeName.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), isDelete, pageNumber, storeName);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (getClass() != obj.getClass())
+      }
+      if (!(obj instanceof ReplicationPageEventMessage other)) {
          return false;
-      ReplicationPageEventMessage other = (ReplicationPageEventMessage) obj;
-      if (isDelete != other.isDelete)
-         return false;
-      if (pageNumber != other.pageNumber)
-         return false;
-      if (storeName == null) {
-         if (other.storeName != null)
-            return false;
-      } else if (!storeName.equals(other.storeName))
-         return false;
-      return true;
+      }
+
+      return isDelete == other.isDelete &&
+             pageNumber == other.pageNumber &&
+             Objects.equals(storeName, other.storeName);
    }
 }

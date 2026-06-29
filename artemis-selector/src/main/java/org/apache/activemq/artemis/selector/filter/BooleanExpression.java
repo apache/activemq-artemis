@@ -17,17 +17,12 @@
 package org.apache.activemq.artemis.selector.filter;
 
 /**
- * A BooleanExpression is an expression that always
- * produces a Boolean result.
- *
- * @version $Revision: 1.2 $
+ * An expression that always produces a {@code Boolean} result.
  */
 public interface BooleanExpression extends Expression {
 
    /**
-    * @param message
-    * @return true if the expression evaluates to Boolean.TRUE.
-    * @throws FilterException
+    * {@return {@code true} if the expression evaluates to {@code Boolean.TRUE}}
     */
    boolean matches(Filterable message) throws FilterException;
 

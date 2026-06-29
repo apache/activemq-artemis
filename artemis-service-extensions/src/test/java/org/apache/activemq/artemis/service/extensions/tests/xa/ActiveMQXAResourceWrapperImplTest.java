@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.service.extensions.tests.xa;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.transaction.xa.XAResource;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperImpl;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQXAResourceWrapperImplTest {
 

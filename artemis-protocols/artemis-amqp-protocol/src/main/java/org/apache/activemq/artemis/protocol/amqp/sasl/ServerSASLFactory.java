@@ -29,31 +29,26 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 public interface ServerSASLFactory {
 
    /**
-    * @return the name of the scheme to offer
+    * {@return the name of the scheme to offer}
     */
    String getMechanism();
 
    /**
     * creates a new {@link ServerSASL} for the provided context
-    * @param server
-    * @param manager
-    * @param connection
-    * @param remotingConnection
+    *
     * @return a new instance of {@link ServerSASL} that implements the provided mechanism
     */
    ServerSASL create(ActiveMQServer server, ProtocolManager<AmqpInterceptor, AMQPRoutingHandler> manager, Connection connection,
                      RemotingConnection remotingConnection);
 
    /**
-    * returns the precedence of the given SASL mechanism, the default precedence is zero, where
-    * higher means better
-    * @return the precedence of this mechanism
+    * {@return the precedence of the given SASL mechanism, the default precedence is zero, where higher means better}
     */
    int getPrecedence();
 
    /**
-    * @return <code>true</code> if this mechanism should be part of the servers default permitted
-    *         protocols or <code>false</code> if it must be explicitly configured
+    * {@return {@code true} if this mechanism should be part of the servers default permitted protocols or {@code false}
+    * if it must be explicitly configured}
     */
    boolean isDefaultPermitted();
 }

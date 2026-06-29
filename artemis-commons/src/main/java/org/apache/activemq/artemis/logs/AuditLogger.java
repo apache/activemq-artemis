@@ -19,19 +19,23 @@ package org.apache.activemq.artemis.logs;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.GetLogger;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
-import java.security.AccessController;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
- * Logger Code 60
+ * Logger Codes 600000 - 609999
  */
-@LogBundle(projectCode = "AMQ", regexID = "60[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "60[0-9]{4}", retiredIDs = {601268, 601503, 601504, 601505, 601506, 601507, 601508})
 public interface AuditLogger {
 
    AuditLogger BASE_LOGGER = BundleFactory.newBundle(AuditLogger.class, "org.apache.activemq.audit.base");
@@ -62,10 +66,11 @@ public interface AuditLogger {
    }
 
    /**
-    * @return a String representing the "caller" in the format "user(role)@remoteAddress" using ThreadLocal values (if set)
+    * {@return a String representing the "caller" in the format "user(role)@remoteAddress" using ThreadLocal values (if
+    * set)}
     */
    static String getCaller() {
-      Subject subject = Subject.getSubject(AccessController.getContext());
+      Subject subject = SecurityManagerShim.currentSubject();
       if (subject == null) {
          subject = currentCaller.get();
       }
@@ -73,23 +78,29 @@ public interface AuditLogger {
    }
 
    /**
-    * @param  subject       the Subject to be used instead of the corresponding ThreadLocal Subject
-    * @param  remoteAddress the remote address to use; if null use the corresponding ThreadLocal remote address (if set)
-    * @return               a String representing the "caller" in the format "user(role)@remoteAddress"
+    * {@return a {@code String} representing the "caller" in the format "user(role)@remoteAddress"}
+    *
+    * @param subject       the Subject to be used instead of the corresponding ThreadLocal Subject
+    * @param remoteAddress the remote address to use; if null use the corresponding ThreadLocal remote address (if set)
     */
    static String getCaller(Subject subject, String remoteAddress) {
       String user = "anonymous";
       String roles = "";
-      String url = remoteAddress == null ? (AuditLogger.remoteAddress.get() == null ? "@unknown" : AuditLogger.remoteAddress.get()) : formatRemoteAddress(remoteAddress);
+      List<String> principalRoles = new ArrayList<>();
+      String url = remoteAddress == null ? Objects.requireNonNullElse(AuditLogger.remoteAddress.get(), "@unknown") : formatRemoteAddress(remoteAddress);
       if (subject != null) {
          Set<Principal> principals = subject.getPrincipals();
          for (Principal principal : principals) {
             if (principal.getClass().getName().endsWith("UserPrincipal")) {
                user = principal.getName();
             } else if (principal.getClass().getName().endsWith("RolePrincipal")) {
-               roles = "(" + principal.getName() + ")";
+               principalRoles.add(principal.getName());
             }
          }
+      }
+      if (!principalRoles.isEmpty()) {
+         Collections.sort(principalRoles);
+         roles = "(" + String.join(",", principalRoles) + ")";
       }
       return user + roles + url;
    }
@@ -117,28 +128,30 @@ public interface AuditLogger {
    }
 
    static String parametersList(Object value) {
-      if (value == null) return "";
+      if (value == null) {
+         return "";
+      }
 
       final String prefix = "with parameters: ";
 
-      if (value instanceof long[]) {
-         return prefix + Arrays.toString((long[])value);
-      } else if (value instanceof int[]) {
-         return prefix + Arrays.toString((int[])value);
-      } else if (value instanceof char[]) {
-         return prefix + Arrays.toString((char[])value);
-      } else if (value instanceof byte[]) {
-         return prefix + Arrays.toString((byte[])value);
-      } else if (value instanceof float[]) {
-         return prefix + Arrays.toString((float[])value);
-      } else if (value instanceof short[]) {
-         return prefix + Arrays.toString((short[])value);
-      } else if (value instanceof double[]) {
-         return prefix + Arrays.toString((double[])value);
-      } else if (value instanceof boolean[]) {
-         return prefix + Arrays.toString((boolean[])value);
-      } else if (value instanceof Object[]) {
-         return prefix + Arrays.toString((Object[])value);
+      if (value instanceof long[] longs) {
+         return prefix + Arrays.toString(longs);
+      } else if (value instanceof int[] ints) {
+         return prefix + Arrays.toString(ints);
+      } else if (value instanceof char[] chars) {
+         return prefix + Arrays.toString(chars);
+      } else if (value instanceof byte[] bytes) {
+         return prefix + Arrays.toString(bytes);
+      } else if (value instanceof float[] floats) {
+         return prefix + Arrays.toString(floats);
+      } else if (value instanceof short[] shorts) {
+         return prefix + Arrays.toString(shorts);
+      } else if (value instanceof double[] doubles) {
+         return prefix + Arrays.toString(doubles);
+      } else if (value instanceof boolean[] booleans) {
+         return prefix + Arrays.toString(booleans);
+      } else if (value instanceof Object[] objects) {
+         return prefix + Arrays.toString(objects);
       } else {
          return prefix + value.toString();
       }
@@ -2123,11 +2136,7 @@ public interface AuditLogger {
    @LogMessage(id = 601514, value = "User {} is getting preparedTransactionMessageCount property on target resource: {}", level = LogMessage.Level.INFO)
    void getPreparedTransactionMessageCount(String user, Object source);
 
-   /*
-    * This logger is for message production and consumption and is on the hot path so enabled independently
-    *
-    * */
-   //hot path log using a different logger
+   // This logger is for message production and consumption and is on the hot path so enabled independently
    static void coreSendMessage(Subject user, String remoteAddress, String messageToString, Object context, String tx) {
       MESSAGE_LOGGER.coreSendMessage(getCaller(user, remoteAddress), messageToString, context, tx);
    }
@@ -2151,10 +2160,7 @@ public interface AuditLogger {
    @LogMessage(id = 601502, value = "User {} acknowledged message from {}: {}, transaction: {}", level = LogMessage.Level.INFO)
    void coreAcknowledgeMessage(String user, String queue, String message, String tx);
 
-   /*
-    * This logger is focused on user interaction from the console or thru resource specific functions in the management layer/JMX
-    * */
-
+   // This logger is focused on user interaction from the console or thru resource specific functions in the management layer/JMX
    static void createAddressSuccess(String name, String routingTypes) {
       RESOURCE_LOGGER.createAddressSuccess(getCaller(), name, routingTypes);
    }
@@ -2641,11 +2647,11 @@ public interface AuditLogger {
    void isAutoDelete(String user, Object source);
 
    static void createdConnection(String protocol, Object connectionID, String remoteAddress) {
-      RESOURCE_LOGGER.createdConnection(protocol, String.valueOf(connectionID), String.format("unknown%s", formatRemoteAddress(remoteAddress)));
+      RESOURCE_LOGGER.createdConnection(protocol, String.valueOf(connectionID), remoteAddress);
    }
 
-   @LogMessage(id = 601767, value = "{} connection {} for user {} created", level = LogMessage.Level.INFO)
-   void createdConnection(String protocol, String connectionID, String user);
+   @LogMessage(id = 601767, value = "{} connection {} from {} created", level = LogMessage.Level.INFO)
+   void createdConnection(String protocol, String connectionID, String remoteAddress);
 
    static void destroyedConnection(String protocol, Object connectionID, Subject subject, String remoteAddress) {
       RESOURCE_LOGGER.destroyedConnection(protocol, String.valueOf(connectionID), getCaller(subject, remoteAddress));
@@ -2668,11 +2674,242 @@ public interface AuditLogger {
    @LogMessage(id = 601770, value = "User {} is clearing authorization cache on target resource: {}", level = LogMessage.Level.INFO)
    void clearAuthorizationCache(String user, Object source);
 
-   static void getCurrentTimeMillis() {
-      BASE_LOGGER.getCurrentTimeMillis(getCaller());
+   static void getCurrentTimeMillis(Object source) {
+      BASE_LOGGER.getCurrentTimeMillis(getCaller(), source);
    }
 
    @LogMessage(id = 601771, value = "User {} is getting name on target resource: {}", level = LogMessage.Level.INFO)
-   void getCurrentTimeMillis(Object source);
+   void getCurrentTimeMillis(String user, Object source);
+
+   static void getProducerWindowSize(Object source) {
+      BASE_LOGGER.getProducerWindowSize(getCaller(), source);
+   }
+
+   @LogMessage(id = 601772, value = "User {} is getting producerWindowSize on target resource: {}", level = LogMessage.Level.INFO)
+   void getProducerWindowSize(String user, Object source);
+
+   static void peekFirstScheduledMessage(Object source) {
+      BASE_LOGGER.peekFirstScheduledMessage(getCaller(), source);
+   }
+
+   @LogMessage(id = 601773, value = "User {} is getting first scheduled message on target resource: {}", level = LogMessage.Level.INFO)
+   void peekFirstScheduledMessage(String user, Object source);
+
+   static void peekFirstScheduledMessageAsJSON(Object source) {
+      BASE_LOGGER.peekFirstScheduledMessageAsJSON(getCaller(), source);
+   }
+
+   @LogMessage(id = 601774, value = "User {} is getting first scheduled message as json on target resource: {}", level = LogMessage.Level.INFO)
+   void peekFirstScheduledMessageAsJSON(String user, Object source);
+
+   static void peekFirstMessage(Object source) {
+      BASE_LOGGER.peekFirstMessage(getCaller(), source);
+   }
+
+   @LogMessage(id = 601775, value = "User {} is getting first message on target resource: {}", level = LogMessage.Level.INFO)
+   void peekFirstMessage(String user, Object source);
+
+   static void peekFirstMessageAsJSON(Object source) {
+      BASE_LOGGER.peekFirstMessageAsJSON(getCaller(), source);
+   }
+
+   @LogMessage(id = 601776, value = "User {} is getting first message as json on target resource: {}", level = LogMessage.Level.INFO)
+   void peekFirstMessageAsJSON(String user, Object source);
+
+   static void getBrokerPluginClassNames(Object source) {
+      BASE_LOGGER.getBrokerPluginClassNames(getCaller(), source);
+   }
+
+   @LogMessage(id = 601777, value = "User {} is getting broker plugin class names on target resource: {}", level = LogMessage.Level.INFO)
+   void getBrokerPluginClassNames(String user, Object source);
+
+   static void getAuthenticationSuccessCount(Object source) {
+      BASE_LOGGER.getAuthenticationSuccessCount(getCaller(), source);
+   }
+
+   @LogMessage(id = 601778, value = "User {} is getting authentication success count on target resource: {}", level = LogMessage.Level.INFO)
+   void getAuthenticationSuccessCount(String user, Object source);
+
+   static void getAuthenticationFailureCount(Object source) {
+      BASE_LOGGER.getAuthenticationFailureCount(getCaller(), source);
+   }
+
+   @LogMessage(id = 601779, value = "User {} is getting authentication failure count on target resource: {}", level = LogMessage.Level.INFO)
+   void getAuthenticationFailureCount(String user, Object source);
+
+   static void getAuthorizationSuccessCount(Object source) {
+      BASE_LOGGER.getAuthorizationSuccessCount(getCaller(), source);
+   }
+
+   @LogMessage(id = 601780, value = "User {} is getting authorization success count on target resource: {}", level = LogMessage.Level.INFO)
+   void getAuthorizationSuccessCount(String user, Object source);
+
+   static void getAuthorizationFailureCount(Object source) {
+      BASE_LOGGER.getAuthorizationFailureCount(getCaller(), source);
+   }
+
+   @LogMessage(id = 601781, value = "User {} is getting authorization failure count on target resource: {}", level = LogMessage.Level.INFO)
+   void getAuthorizationFailureCount(String user, Object source);
+
+   static void isConnected(Object source) {
+      BASE_LOGGER.isConnected(getCaller(), source);
+   }
+
+   @LogMessage(id = 601782, value = "User {} is getting connected state on target resource: {}", level = LogMessage.Level.INFO)
+   void isConnected(String user, Object source);
+
+   static void getUri(Object source) {
+      BASE_LOGGER.getUri(getCaller(), source);
+   }
+
+   @LogMessage(id = 601783, value = "User {} is getting URI on target resource: {}", level = LogMessage.Level.INFO)
+   void getUri(String user, Object source);
+
+   static void getProtocol(Object source) {
+      BASE_LOGGER.getProtocol(getCaller(), source);
+   }
+
+   @LogMessage(id = 601784, value = "User {} is getting the protocol on target resource: {}", level = LogMessage.Level.INFO)
+   void getProtocol(String user, Object source);
+
+   static void getType(Object source) {
+      BASE_LOGGER.getType(getCaller(), source);
+   }
+
+   @LogMessage(id = 601785, value = "User {} is getting the type on target resource: {}", level = LogMessage.Level.INFO)
+   void getType(String user, Object source);
+
+   static void getRole(Object source) {
+      BASE_LOGGER.getRole(getCaller(), source);
+   }
+
+   @LogMessage(id = 601786, value = "User {} is getting the role on target resource: {}", level = LogMessage.Level.INFO)
+   void getRole(String user, Object source);
+
+   static void getFqqn(Object source) {
+      BASE_LOGGER.getFqqn(getCaller(), source);
+   }
+
+   @LogMessage(id = 601787, value = "User {} is getting the FQQN on target resource: {}", level = LogMessage.Level.INFO)
+   void getFqqn(String user, Object source);
+
+   static void getPriority(Object source) {
+      BASE_LOGGER.getPriority(getCaller(), source);
+   }
+
+   @LogMessage(id = 601788, value = "User {} is getting the priority on target resource: {}", level = LogMessage.Level.INFO)
+   void getPriority(String user, Object source);
+
+   static void getMessagesReceived(Object source) {
+      BASE_LOGGER.getMessagesReceived(getCaller(), source);
+   }
+
+   @LogMessage(id = 601789, value = "User {} is getting the number of messages received on target resource: {}", level = LogMessage.Level.INFO)
+   void getMessagesReceived(String user, Object source);
+
+   static void copyMessage(Object source, Object... args) {
+      BASE_LOGGER.copyMessage(getCaller(), source, parametersList(args));
+   }
+
+   @LogMessage(id = 601790, value = "User {} is copying a message to another queue on target resource: {} {}", level = LogMessage.Level.INFO)
+   void copyMessage(String user, Object source, String args);
+
+   static void getMessagesSent(Object source) {
+      BASE_LOGGER.getMessagesSent(getCaller(), source);
+   }
+
+   @LogMessage(id = 601791, value = "User {} is getting the number of messages sent on target resource: {}", level = LogMessage.Level.INFO)
+   void getMessagesSent(String user, Object source);
+
+   static void getMaxPageReadBytes(Object source) {
+      BASE_LOGGER.getMaxPageReadBytes(getCaller(), source);
+   }
+
+   @LogMessage(id = 601792, value = "User {} is getting maxPageReadBytes on target resource: {}", level = LogMessage.Level.INFO)
+   void getMaxPageReadBytes(String user, Object source);
+
+   static void getMaxPageReadMessages(Object source) {
+      BASE_LOGGER.getMaxPageReadMessages(getCaller(), source);
+   }
+
+   @LogMessage(id = 601793, value = "User {} is getting maxPageReadMessages on target resource: {}", level = LogMessage.Level.INFO)
+   void getMaxPageReadMessages(String user, Object source);
+
+   static void getPrefetchPageMessages(Object source) {
+      BASE_LOGGER.getPrefetchPageMessages(getCaller(), source);
+   }
+
+   @LogMessage(id = 601794, value = "User {} is getting prefetchPageMessages on target resource: {}", level = LogMessage.Level.INFO)
+   void getPrefetchPageMessages(String user, Object source);
+
+   static void getPrefetchPageBytes(Object source) {
+      BASE_LOGGER.getPrefetchPageBytes(getCaller(), source);
+   }
+
+   @LogMessage(id = 601795, value = "User {} is getting prefetchPageBytes on target resource: {}", level = LogMessage.Level.INFO)
+   void getPrefetchPageBytes(String user, Object source);
+
+   static void getSessionCount(Object source, Object... args) {
+      BASE_LOGGER.getSessionCount(getCaller(), source, parametersList(args));
+   }
+
+   @LogMessage(id = 601796, value = "User {} is getting session count on target resource: {} {}", level = LogMessage.Level.INFO)
+   void getSessionCount(String user, Object source, String args);
+
+   static void getTotalSessionCount(Object source) {
+      BASE_LOGGER.getTotalSessionCount(getCaller(), source);
+   }
+
+   @LogMessage(id = 601797, value = "User {} is getting total session count on target resource: {}", level = LogMessage.Level.INFO)
+   void getTotalSessionCount(String user, Object source);
+
+   static void exportConfigAsProperties(Object source) {
+      BASE_LOGGER.exportConfigAsProperties(getCaller(), source);
+   }
+
+   @LogMessage(id = 601798, value = "User {} is exporting configuration as properties on target resource: {}", level = LogMessage.Level.INFO)
+   void exportConfigAsProperties(String user, Object source);
+
+   static void getPendingMirrorAcks(Object source) {
+      BASE_LOGGER.getPendingMirrorAcks(getCaller(), source);
+   }
+
+   @LogMessage(id = 601799, value = "User {} is getting PendingMirrorAcks on target resource: {}", level = LogMessage.Level.INFO)
+   void getPendingMirrorAcks(String user, Object source);
+
+   static void isPersistedPause(Object source) {
+      BASE_LOGGER.isPaused(getCaller(), source);
+   }
+
+   @LogMessage(id = 601800, value = "User {} is getting persisted pause property on target resource: {}", level = LogMessage.Level.INFO)
+   void isPersistedPause(String user, Object source);
+
+   static void destroyAddress(Object source, Subject user, String remoteAddress, Object... args) {
+      BASE_LOGGER.destroyAddress(getCaller(user, remoteAddress), source, parametersList(args));
+   }
+
+   @LogMessage(id = 601801, value = "User {} is deleting a address on target resource: {} {}", level = LogMessage.Level.INFO)
+   void destroyAddress(String user, Object source, Object... args);
+
+   static void retryMessages(Object source, Object... args) {
+      BASE_LOGGER.retryMessages(getCaller(), source, parametersList(args));
+   }
+
+   @LogMessage(id = 601802, value = "User {} is retry sending messages on target resource: {} {}", level = LogMessage.Level.INFO)
+   void retryMessages(String user, Object source, String args);
+
+   static void isBlockedViaManagement(Object source) {
+      BASE_LOGGER.isBlockedViaManagement(getCaller(), source);
+   }
+
+   @LogMessage(id = 601803, value = "User {} is getting BlockedViaManagement on target resource: {}", level = LogMessage.Level.INFO)
+   void isBlockedViaManagement(String user, Object source);
+
+   static void listLockCoordinatorsAsJSON(Object source) {
+      BASE_LOGGER.listLockCoordinatorsAsJSON(getCaller(), source);
+   }
+
+   @LogMessage(id = 601804, value = "User {} is listing lock coordinators as json on target resource: {}", level = LogMessage.Level.INFO)
+   void listLockCoordinatorsAsJSON(String user, Object source);
 
 }

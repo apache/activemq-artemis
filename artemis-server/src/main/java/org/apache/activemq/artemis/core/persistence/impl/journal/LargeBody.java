@@ -47,8 +47,6 @@ public class LargeBody {
 
    long NO_PENDING_ID = -1;
 
-   private long pendingRecordID = NO_PENDING_ID;
-
    StorageManager storageManager;
 
    private long messageID = -1;
@@ -158,7 +156,7 @@ public class LargeBody {
       bodySize += readableBytes;
    }
 
-   public synchronized void validateFile() throws ActiveMQException {
+   private void validateFile() throws ActiveMQException {
       this.ensureFileExists(true);
    }
 
@@ -225,9 +223,9 @@ public class LargeBody {
       return file.cloneFile();
    }
 
-   /** Meant for test-ability, be careful if you decide to use it.
-    *  and in case you use it for a real reason, please change the documentation here.
-    * @param file
+   /**
+    * Meant for test-ability, be careful if you decide to use it. and in case you use it for a real reason, please
+    * change the documentation here.
     */
    public void replaceFile(SequentialFile file) {
       this.file = file;
@@ -308,8 +306,8 @@ public class LargeBody {
    }
 
    /**
-    * sendEvent means it's a close happening from end of write largemessage.
-    * While reading the largemessage we don't need (and shouldn't inform the backup
+    * sendEvent means it's a close happening from end of write largemessage. While reading the largemessage we don't
+    * need (and shouldn't inform the backup
     */
    public synchronized void releaseResources(boolean sync, boolean sendEvent) {
       if (file != null && file.isOpen()) {
@@ -358,7 +356,8 @@ public class LargeBody {
             byte[] bufferToWrite;
             if (bytesRead <= 0) {
                break;
-            } else if (bytesRead == bufferBytes.length && this.storageManager instanceof JournalStorageManager && !((JournalStorageManager) this.storageManager).isReplicated()) {
+            } else if ((bytesRead == bufferBytes.length && this.storageManager instanceof JournalStorageManager manager && !manager.isReplicated() &&
+                        !(this.storageManager instanceof JDBCJournalStorageManager))) {
                // ARTEMIS-1220: We cannot reuse the same buffer if it's replicated
                // otherwise there could be another thread still using the buffer on a
                // replication.
@@ -374,6 +373,7 @@ public class LargeBody {
                break;
             }
          }
+         newMessage.releaseResources(true, false);
       } finally {
          cloneFile.close();
       }
@@ -443,9 +443,6 @@ public class LargeBody {
          }
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.message.LargeBodyEncoder#getSize()
-       */
       @Override
       public long getSize() throws ActiveMQException {
          return getBodySize();

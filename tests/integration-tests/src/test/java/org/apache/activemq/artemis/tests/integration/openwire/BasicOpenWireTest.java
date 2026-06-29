@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -23,6 +26,7 @@ import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -35,15 +39,11 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class BasicOpenWireTest extends OpenWireTestBase {
 
-   @Rule
-   public TestName name = new TestName();
    protected ActiveMQConnectionFactory factory;
    protected ActiveMQConnectionFactory looseFactory;
    protected ActiveMQXAConnectionFactory xaFactory;
@@ -61,21 +61,21 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    protected Map<String, SimpleString> testQueues = new HashMap<>();
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       System.setProperty("org.apache.activemq.transport.AbstractInactivityMonitor.keepAliveTime", "5");
       createFactories();
-      SimpleString coreQueue = new SimpleString(queueName);
-      this.server.createQueue(new QueueConfiguration(coreQueue).setRoutingType(RoutingType.ANYCAST));
+      SimpleString coreQueue = SimpleString.of(queueName);
+      this.server.createQueue(QueueConfiguration.of(coreQueue).setRoutingType(RoutingType.ANYCAST));
       testQueues.put(queueName, coreQueue);
 
-      SimpleString coreQueue2 = new SimpleString(queueName2);
-      this.server.createQueue(new QueueConfiguration(coreQueue2).setRoutingType(RoutingType.ANYCAST));
+      SimpleString coreQueue2 = SimpleString.of(queueName2);
+      this.server.createQueue(QueueConfiguration.of(coreQueue2).setRoutingType(RoutingType.ANYCAST));
       testQueues.put(queueName2, coreQueue2);
 
-      SimpleString durableQueue = new SimpleString(durableQueueName);
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      SimpleString durableQueue = SimpleString.of(durableQueueName);
+      this.server.createQueue(QueueConfiguration.of(durableQueue).setRoutingType(RoutingType.ANYCAST));
       testQueues.put(durableQueueName, durableQueue);
 
       if (!enableSecurity) {
@@ -94,7 +94,7 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       System.clearProperty("org.apache.activemq.transport.AbstractInactivityMonitor.keepAliveTime");
       try {
@@ -127,58 +127,45 @@ public class BasicOpenWireTest extends OpenWireTestBase {
          return createDestination(session, type);
       }
 
-      switch (type) {
-         case ActiveMQDestination.QUEUE_TYPE:
+      return switch (type) {
+         case ActiveMQDestination.QUEUE_TYPE -> {
             makeSureCoreQueueExist(name);
-            return (ActiveMQDestination) session.createQueue(name);
-         case ActiveMQDestination.TOPIC_TYPE:
-            return (ActiveMQDestination) session.createTopic(name);
-         case ActiveMQDestination.TEMP_QUEUE_TYPE:
-            return (ActiveMQDestination) session.createTemporaryQueue();
-         case ActiveMQDestination.TEMP_TOPIC_TYPE:
-            return (ActiveMQDestination) session.createTemporaryTopic();
-         default:
-            throw new IllegalArgumentException("type: " + type);
-      }
+            yield (ActiveMQDestination) session.createQueue(name);
+         }
+         case ActiveMQDestination.TOPIC_TYPE -> (ActiveMQDestination) session.createTopic(name);
+         case ActiveMQDestination.TEMP_QUEUE_TYPE -> (ActiveMQDestination) session.createTemporaryQueue();
+         case ActiveMQDestination.TEMP_TOPIC_TYPE -> (ActiveMQDestination) session.createTemporaryTopic();
+         default -> throw new IllegalArgumentException("type: " + type);
+      };
    }
 
    public void makeSureCoreQueueExist(String qname) throws Exception {
       SimpleString coreQ = testQueues.get(qname);
       if (coreQ == null) {
-         coreQ = new SimpleString(qname);
-         this.server.createQueue(new QueueConfiguration(coreQ).setRoutingType(RoutingType.ANYCAST));
+         coreQ = SimpleString.of(qname);
+         this.server.createQueue(QueueConfiguration.of(coreQ).setRoutingType(RoutingType.ANYCAST));
          testQueues.put(qname, coreQ);
       }
    }
 
    public ActiveMQDestination createDestination(Session session, byte type) throws JMSException {
-      switch (type) {
-         case ActiveMQDestination.QUEUE_TYPE:
-            return (ActiveMQDestination) session.createQueue(queueName);
-         case ActiveMQDestination.TOPIC_TYPE:
-            return (ActiveMQDestination) session.createTopic(topicName);
-         case ActiveMQDestination.TEMP_QUEUE_TYPE:
-            return (ActiveMQDestination) session.createTemporaryQueue();
-         case ActiveMQDestination.TEMP_TOPIC_TYPE:
-            return (ActiveMQDestination) session.createTemporaryTopic();
-         default:
-            throw new IllegalArgumentException("type: " + type);
-      }
+      return switch (type) {
+         case ActiveMQDestination.QUEUE_TYPE -> (ActiveMQDestination) session.createQueue(queueName);
+         case ActiveMQDestination.TOPIC_TYPE -> (ActiveMQDestination) session.createTopic(topicName);
+         case ActiveMQDestination.TEMP_QUEUE_TYPE -> (ActiveMQDestination) session.createTemporaryQueue();
+         case ActiveMQDestination.TEMP_TOPIC_TYPE -> (ActiveMQDestination) session.createTemporaryTopic();
+         default -> throw new IllegalArgumentException("type: " + type);
+      };
    }
 
    protected ActiveMQDestination createDestination2(Session session, byte type) throws JMSException {
-      switch (type) {
-         case ActiveMQDestination.QUEUE_TYPE:
-            return (ActiveMQDestination) session.createQueue(queueName2);
-         case ActiveMQDestination.TOPIC_TYPE:
-            return (ActiveMQDestination) session.createTopic(topicName2);
-         case ActiveMQDestination.TEMP_QUEUE_TYPE:
-            return (ActiveMQDestination) session.createTemporaryQueue();
-         case ActiveMQDestination.TEMP_TOPIC_TYPE:
-            return (ActiveMQDestination) session.createTemporaryTopic();
-         default:
-            throw new IllegalArgumentException("type: " + type);
-      }
+      return switch (type) {
+         case ActiveMQDestination.QUEUE_TYPE -> (ActiveMQDestination) session.createQueue(queueName2);
+         case ActiveMQDestination.TOPIC_TYPE -> (ActiveMQDestination) session.createTopic(topicName2);
+         case ActiveMQDestination.TEMP_QUEUE_TYPE -> (ActiveMQDestination) session.createTemporaryQueue();
+         case ActiveMQDestination.TEMP_TOPIC_TYPE -> (ActiveMQDestination) session.createTemporaryTopic();
+         default -> throw new IllegalArgumentException("type: " + type);
+      };
    }
 
    protected void sendMessages(Session session, Destination destination, int count) throws JMSException {
@@ -199,20 +186,15 @@ public class BasicOpenWireTest extends OpenWireTestBase {
       session.close();
    }
 
-   /**
-    * @param messsage
-    * @param firstSet
-    * @param secondSet
-    */
    protected void assertTextMessagesEqual(String messsage,
                                           Message[] firstSet,
                                           Message[] secondSet) throws JMSException {
-      assertEquals("Message count does not match: " + messsage, firstSet.length, secondSet.length);
+      assertEquals(firstSet.length, secondSet.length, "Message count does not match: " + messsage);
       for (int i = 0; i < secondSet.length; i++) {
          TextMessage m1 = (TextMessage) firstSet[i];
          TextMessage m2 = (TextMessage) secondSet[i];
-         assertFalse("Message " + (i + 1) + " did not match : " + messsage + ": expected {" + m1 + "}, but was {" + m2 + "}", m1 == null ^ m2 == null);
-         assertEquals("Message " + (i + 1) + " did not match: " + messsage + ": expected {" + m1 + "}, but was {" + m2 + "}", m1.getText(), m2.getText());
+         assertFalse(m1 == null ^ m2 == null, "Message " + (i + 1) + " did not match : " + messsage + ": expected {" + m1 + "}, but was {" + m2 + "}");
+         assertEquals(m1.getText(), m2.getText(), "Message " + (i + 1) + " did not match: " + messsage + ": expected {" + m1 + "}, but was {" + m2 + "}");
       }
    }
 

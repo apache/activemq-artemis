@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -31,14 +36,16 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Test for scheduled message support using AMQP message annotations.
  */
 public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendWithDeliveryTimeIsScheduled() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -71,7 +78,8 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendRecvWithDeliveryTime() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -85,7 +93,7 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
          final Queue queueView = getProxyToQueue(getQueueName());
          assertNotNull(queueView);
 
-         final SimpleString queueNameSS = SimpleString.toSimpleString(getQueueName());
+         final SimpleString queueNameSS = SimpleString.of(getQueueName());
          PagingStore targetPagingStore = server.getPagingManager().getPageStore(queueNameSS);
          assertNotNull(targetPagingStore);
 
@@ -123,7 +131,8 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testScheduleWithDelay() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -162,7 +171,8 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendWithDeliveryTimeHoldsMessage() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -190,7 +200,8 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendWithDeliveryTimeDeliversMessageAfterDelay() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);

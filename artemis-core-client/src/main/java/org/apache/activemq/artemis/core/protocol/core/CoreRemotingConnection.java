@@ -21,59 +21,59 @@ import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
- * Extension of RemotingConnection for the ActiveMQ Artemis core protocol
+ * Extension of RemotingConnection for the Apache Artemis core protocol
  */
 public interface CoreRemotingConnection extends RemotingConnection {
 
    /**
-    * The client protocol used  on the communication.
-    * This will determine if the client has support for certain packet types
+    * The client protocol used  on the communication. This will determine if the client has support for certain packet
+    * types
     */
    int getChannelVersion();
 
    default boolean isVersionBeforeAddressChange() {
       int version = getChannelVersion();
-      return  (version > 0 && version < PacketImpl.ADDRESSING_CHANGE_VERSION);
+      return (version > 0 && version < PacketImpl.ADDRESSING_CHANGE_VERSION);
    }
 
    default boolean isVersionBeforeAsyncResponseChange() {
       int version = getChannelVersion();
-      return  (version > 0 && version < PacketImpl.ASYNC_RESPONSE_CHANGE_VERSION);
+      return (version > 0 && version < PacketImpl.ASYNC_RESPONSE_CHANGE_VERSION);
    }
 
    default boolean isVersionSupportConsumerPriority() {
       int version = getChannelVersion();
-      return  version >= PacketImpl.CONSUMER_PRIORITY_CHANGE_VERSION;
+      return version >= PacketImpl.CONSUMER_PRIORITY_CHANGE_VERSION;
    }
 
    default boolean isVersionNewFQQN() {
       int version = getChannelVersion();
-      return  version >= PacketImpl.ARTEMIS_2_7_0_VERSION;
+      return version >= PacketImpl.ARTEMIS_2_7_0_VERSION;
    }
 
    default boolean isVersionSupportClientID() {
       int version = getChannelVersion();
-      return  version >= PacketImpl.ARTEMIS_2_18_0_VERSION;
+      return version >= PacketImpl.ARTEMIS_2_18_0_VERSION;
    }
 
    default boolean isVersionSupportRouting() {
       int version = getChannelVersion();
-      return  version >= PacketImpl.ARTEMIS_2_18_0_VERSION;
+      return version >= PacketImpl.ARTEMIS_2_18_0_VERSION;
    }
 
    default boolean isVersionSupportCommitV2() {
       int version = getChannelVersion();
-      return  version >= PacketImpl.ARTEMIS_2_21_0_VERSION;
+      return version >= PacketImpl.ARTEMIS_2_21_0_VERSION;
    }
 
    default boolean isVersionUsingLongOnPageReplication() {
       int version = getChannelVersion();
-      return  version >= PacketImpl.ARTEMIS_2_24_0_VERSION;
+      return version >= PacketImpl.ARTEMIS_2_24_0_VERSION;
    }
 
    default boolean isBeforeTwoEighteen() {
       int version = getChannelVersion();
-      return  version < PacketImpl.ARTEMIS_2_18_0_VERSION;
+      return version < PacketImpl.ARTEMIS_2_18_0_VERSION;
    }
 
    default boolean isBeforeProducerMetricsChanged() {
@@ -82,8 +82,8 @@ public interface CoreRemotingConnection extends RemotingConnection {
    }
 
    /**
-    * Sets the client protocol used on the communication. This will determine if the client has
-    * support for certain packet types
+    * Sets the client protocol used on the communication. This will determine if the client has support for certain
+    * packet types
     */
    void setChannelVersion(int clientVersion);
 
@@ -129,45 +129,33 @@ public interface CoreRemotingConnection extends RemotingConnection {
    void syncIDGeneratorSequence(long id);
 
    /**
-    * Returns the next id to be chosen.
-    *
-    * @return the id
+    * {@return the next id to be chosen}
     */
    long getIDGeneratorSequence();
 
    /**
-    * Returns the current timeout for blocking calls
-    *
-    * @return the timeout in milliseconds
+    * {@return the current timeout for blocking calls)}
     */
    long getBlockingCallTimeout();
 
    /**
-    * Returns the current timeout for blocking calls
-    *
-    * @return the timeout in milliseconds
+    * {@return the current timeout for blocking calls}
     */
    long getBlockingCallFailoverTimeout();
 
    /**
-    * Returns the transfer lock used when transferring connections.
-    *
-    * @return the lock
+    * {@return the transfer lock used when transferring connections}
     */
    Object getTransferLock();
 
    /**
-    * Returns the default security principal
-    *
-    * @return the principal
+    * {@return the default security principal}
     */
    ActiveMQPrincipal getDefaultActiveMQPrincipal();
 
    /**
-    *
-    * @param timeout
-    * @return
-    * @throws IllegalStateException if the connection is closed
+    * {@see org.apache.activemq.artemis.spi.core.remoting.Connection#blockUntilWritable(long,
+    * java.util.concurrent.TimeUnit)}
     */
    boolean blockUntilWritable(long timeout);
 }

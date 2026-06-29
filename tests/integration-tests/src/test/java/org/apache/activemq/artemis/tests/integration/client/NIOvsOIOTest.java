@@ -41,7 +41,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -239,7 +239,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
 
          queueName = UUIDGenerator.getInstance().generateStringUUID();
 
-         session.createQueue(new QueueConfiguration(queueName).setAddress(dest).setRoutingType(RoutingType.ANYCAST));
+         session.createQueue(QueueConfiguration.of(queueName).setAddress(dest).setRoutingType(RoutingType.ANYCAST));
 
          consumer = session.createConsumer(queueName);
 

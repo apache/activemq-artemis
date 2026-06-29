@@ -60,11 +60,11 @@ public class LocalTarget extends AbstractTarget {
 
    @Override
    public <T> T getAttribute(String resourceName, String attributeName, Class<T> attributeClass, int timeout) throws Exception {
-      return (T)managementService.getAttribute(resourceName, attributeName);
+      return (T)managementService.getAttribute(resourceName, attributeName, null);
    }
 
    @Override
    public <T> T invokeOperation(String resourceName, String operationName, Object[] operationParams, Class<T> operationClass, int timeout) throws Exception {
-      return (T)managementService.invokeOperation(resourceName, operationName, operationParams);
+      return (T)managementService.invokeOperation(resourceName, operationName, operationParams, null);
    }
 }

@@ -20,8 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Base class for SASL Authentication Mechanism that implements the basic
- * methods of a Mechanism class.
+ * Base class for SASL Authentication Mechanism that implements the basic methods of a Mechanism class.
  */
 public abstract class AbstractMechanism implements Mechanism {
 

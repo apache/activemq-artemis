@@ -51,8 +51,8 @@ import static org.apache.activemq.artemis.utils.DestinationUtil.TEMP_TOPIC_QUALI
 import static org.apache.activemq.artemis.utils.DestinationUtil.TOPIC_QUALIFIED_PREFIX;
 
 /**
- * Support class containing constant values and static methods that are used to map to / from
- * AMQP Message types being sent or received.
+ * Support class containing constant values and static methods that are used to map to / from AMQP Message types being
+ * sent or received.
  */
 public final class AMQPMessageSupport {
    public static final int NON_PERSISTENT = 1;
@@ -63,7 +63,7 @@ public final class AMQPMessageSupport {
 
    public static final int MESSAGE_DEFAULT_PRIORITY = 4;
 
-   public static SimpleString HDR_ORIGINAL_ADDRESS_ANNOTATION = SimpleString.toSimpleString("x-opt-ORIG-ADDRESS");
+   public static SimpleString HDR_ORIGINAL_ADDRESS_ANNOTATION = SimpleString.of("x-opt-ORIG-ADDRESS");
 
    public static final String JMS_REPLY_TO_TYPE_MSG_ANNOTATION_SYMBOL_NAME = "x-opt-jms-reply-to";
    public static final String X_OPT_DELIVERY_TIME = "x-opt-delivery-time";
@@ -71,8 +71,8 @@ public final class AMQPMessageSupport {
 
    // Message Properties used to map AMQP to JMS and back
    /**
-    * Attribute used to mark the class type of JMS message that a particular message
-    * instance represents, used internally by the client.
+    * Attribute used to mark the class type of JMS message that a particular message instance represents, used
+    * internally by the client.
     */
    public static final Symbol JMS_MSG_TYPE = Symbol.getSymbol("x-opt-jms-msg-type");
 
@@ -100,26 +100,25 @@ public final class AMQPMessageSupport {
    public static final Symbol ROUTING_TYPE = Symbol.getSymbol("x-opt-routing-type");
 
    /**
-    * Value mapping for JMS_MSG_TYPE which indicates the message is a generic JMS Message
-    * which has no body.
+    * Value mapping for JMS_MSG_TYPE which indicates the message is a generic JMS Message which has no body.
     */
    public static final byte JMS_MESSAGE = 0;
 
    /**
-    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS ObjectMessage
-    * which has an Object value serialized in its message body.
+    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS ObjectMessage which has an Object value
+    * serialized in its message body.
     */
    public static final byte JMS_OBJECT_MESSAGE = 1;
 
    /**
-    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS MapMessage
-    * which has an Map instance serialized in its message body.
+    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS MapMessage which has an Map instance
+    * serialized in its message body.
     */
    public static final byte JMS_MAP_MESSAGE = 2;
 
    /**
-    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS BytesMessage
-    * which has a body that consists of raw bytes.
+    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS BytesMessage which has a body that consists of
+    * raw bytes.
     */
    public static final byte JMS_BYTES_MESSAGE = 3;
 
@@ -130,11 +129,10 @@ public final class AMQPMessageSupport {
    public static final byte JMS_STREAM_MESSAGE = 4;
 
    /**
-    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS TextMessage
-    * which has a body that contains a UTF-8 encoded String.
+    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS TextMessage which has a body that contains a
+    * UTF-8 encoded String.
     */
    public static final byte JMS_TEXT_MESSAGE = 5;
-
 
    /**
     * Content type used to mark Data sections as containing a serialized java object.
@@ -216,26 +214,20 @@ public final class AMQPMessageSupport {
    /**
     * Lookup and return the correct Proton Symbol instance based on the given key.
     *
-    * @param key
-    *        the String value name of the Symbol to locate.
-    *
-    * @return the Symbol value that matches the given key.
+    * @param key the String value name of the Symbol to locate.
+    * @return the Symbol value that matches the given key
     */
    public static Symbol getSymbol(String key) {
       return Symbol.valueOf(key);
    }
 
    /**
-    * Safe way to access message annotations which will check internal structure and either
-    * return the annotation if it exists or null if the annotation or any annotations are
-    * present.
+    * Safe way to access message annotations which will check internal structure and either return the annotation if it
+    * exists or null if the annotation or any annotations are present.
     *
-    * @param key
-    *        the String key to use to lookup an annotation.
-    * @param message
-    *        the AMQP message object that is being examined.
-    *
-    * @return the given annotation value or null if not present in the message.
+    * @param key     the String key to use to lookup an annotation.
+    * @param message the AMQP message object that is being examined.
+    * @return the given annotation value or null if not present in the message
     */
    public static Object getMessageAnnotation(String key, Message message) {
       if (message != null && message.getMessageAnnotations() != null) {
@@ -247,16 +239,12 @@ public final class AMQPMessageSupport {
    }
 
    /**
-    * Check whether the content-type field of the properties section (if present) in the given
-    * message matches the provided string (where null matches if there is no content type
-    * present.
+    * Check whether the content-type field of the properties section (if present) in the given message matches the
+    * provided string (where null matches if there is no content type present.
     *
-    * @param contentType
-    *        content type string to compare against, or null if none
-    * @param message
-    *        the AMQP message object that is being examined.
-    *
-    * @return true if content type matches
+    * @param contentType content type string to compare against, or null if none
+    * @param message     the AMQP message object that is being examined.
+    * @return {@code true} if content type matches
     */
    public static boolean isContentType(String contentType, Message message) {
       if (contentType == null) {
@@ -269,12 +257,9 @@ public final class AMQPMessageSupport {
    /**
     * Check whether the content-type given matches the expect value.
     *
-    * @param expected
-    *        content type string to compare against or null if not expected to be set
-    * @param actual
-    *        the AMQP content type symbol from the Properties section
-    *
-    * @return true if content type matches
+    * @param expected content type string to compare against or null if not expected to be set
+    * @param actual   the AMQP content type symbol from the Properties section
+    * @return {@code true} if content type matches
     */
    public static boolean isContentType(String expected, Symbol actual) {
       if (expected == null) {
@@ -285,9 +270,9 @@ public final class AMQPMessageSupport {
    }
 
    /**
-    * @param contentType
-    *        the contentType of the received message
-    * @return the character set to use, or null if not to treat the message as text
+    * {@return the character set to use, or null if not to treat the message as text}
+    *
+    * @param contentType the contentType of the received message
     */
    public static Charset getCharsetForTextualContent(String contentType) {
       try {
@@ -298,14 +283,14 @@ public final class AMQPMessageSupport {
    }
 
    public static String toAnnotationName(String key) {
-      if (!key.startsWith(X_OPT_PREFIX.toString())) {
+      if (!key.startsWith(X_OPT_PREFIX)) {
          if (key.startsWith(AMQ_PROPERTY_PREFIX)) {
             return X_OPT_PREFIX.concat(key.substring(AMQ_PROPERTY_PREFIX.length()).replace('_', '-'));
          }
 
          return key;
       }
-      return  key;
+      return key;
    }
 
    public static CoreBytesMessageWrapper createBytesMessage(long id, CoreMessageObjectPools coreMessageObjectPools) {
@@ -361,8 +346,7 @@ public final class AMQPMessageSupport {
       final Set<Map.Entry<String, Object>> set = content.entrySet();
       for (Map.Entry<String, Object> entry : set) {
          Object value = entry.getValue();
-         if (value instanceof Binary) {
-            Binary binary = (Binary) value;
+         if (value instanceof Binary binary) {
             value = Arrays.copyOfRange(binary.getArray(), binary.getArrayOffset(), binary.getLength());
          }
          message.setObject(entry.getKey(), value);
@@ -410,17 +394,15 @@ public final class AMQPMessageSupport {
    }
 
    public static String destination(RoutingType destinationType, String address) {
-      String prefix;
-
       if (destinationType == null) {
          destinationType = RoutingType.ANYCAST;
       }
 
-      switch (destinationType) {
-         case ANYCAST: prefix = QUEUE_QUALIFIED_PREFIX; break;
-         case MULTICAST: prefix = TOPIC_QUALIFIED_PREFIX; break;
-         default: prefix = QUEUE_QUALIFIED_PREFIX; break;
-      }
+      String prefix = switch (destinationType) {
+         case ANYCAST -> QUEUE_QUALIFIED_PREFIX;
+         case MULTICAST -> TOPIC_QUALIFIED_PREFIX;
+         default -> QUEUE_QUALIFIED_PREFIX;
+      };
 
       if (!address.startsWith(prefix)) {
          return prefix + address;

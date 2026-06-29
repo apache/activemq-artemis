@@ -18,9 +18,9 @@ package org.apache.activemq.artemis.core.io.aio;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.util.PriorityQueue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -31,12 +31,13 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/** This class is implementing Runnable to reuse a callback to close it. */
-public class AIOSequentialFile extends AbstractSequentialFile  {
+/**
+ * This class is implementing Runnable to reuse a callback to close it.
+ */
+public class AIOSequentialFile extends AbstractSequentialFile {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -53,14 +54,13 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
 
    /**
     * AIO can't guarantee ordering over callbacks.
-    * <br>
+    * <p>
     * We use this {@link PriorityQueue} to hold values until they are in order
     */
    final PriorityQueue<AIOSequentialFileFactory.AIOSequentialCallback> pendingCallbackList = new PriorityQueue<>();
 
    /**
-    * Used to determine the next writing sequence.
-    * This is accessed from a single thread (the Poller Thread)
+    * Used to determine the next writing sequence. This is accessed from a single thread (the Poller Thread)
     */
    private long nextReadSequence = 0;
 
@@ -68,9 +68,8 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
                             final int bufferSize,
                             final long bufferTimeoutMilliseconds,
                             final File directory,
-                            final String fileName,
-                            final Executor writerExecutor) {
-      super(directory, fileName, factory, writerExecutor);
+                            final String fileName) {
+      super(directory, fileName, factory);
       this.aioFactory = factory;
    }
 
@@ -91,7 +90,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
 
    @Override
    public SequentialFile cloneFile() {
-      return new AIOSequentialFile(aioFactory, -1, -1, getFile().getParentFile(), getFile().getName(), null);
+      return new AIOSequentialFile(aioFactory, -1, -1, getFile().getParentFile(), getFile().getName());
    }
 
 
@@ -214,7 +213,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
    }
 
    @Override
-   public void blockingWriteDirect(ByteBuffer bytes,boolean sync, boolean releaseBuffer) throws Exception {
+   public void blockingWriteDirect(ByteBuffer bytes, boolean sync, boolean releaseBuffer) throws Exception {
       logger.trace("Write Direct, Sync: true File: {}", getFileName());
 
       final SimpleWaitIOCallback completion = new SimpleWaitIOCallback();
@@ -223,7 +222,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
          checkOpened();
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
-         completion.onError(-1, e.getMessage());
+         completion.onError(-1, e.getClass() + " during blocking write direct: " + e.getMessage());
          return;
       }
 
@@ -247,7 +246,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
          checkOpened();
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
-         callback.onError(-1, e.getMessage());
+         callback.onError(-1, e.getClass() + " during write direct: " + e.getMessage());
          return;
       }
 

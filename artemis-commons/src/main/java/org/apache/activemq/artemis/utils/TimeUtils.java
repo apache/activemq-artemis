@@ -22,9 +22,6 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-/**
- * Time utils.
- */
 public final class TimeUtils {
 
    private TimeUtils() {

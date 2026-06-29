@@ -36,9 +36,9 @@ public class MirrorAddressFilter {
          for (String part : parts) {
             if (!"".equals(part) && !"!".equals(part)) {
                if (part.startsWith("!")) {
-                  denyList.add(new SimpleString(part.substring(1)));
+                  denyList.add(SimpleString.of(part.substring(1)));
                } else {
-                  allowList.add(new SimpleString(part));
+                  allowList.add(SimpleString.of(part));
                }
             }
          }

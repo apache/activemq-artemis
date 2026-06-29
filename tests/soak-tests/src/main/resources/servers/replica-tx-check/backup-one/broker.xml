@@ -38,11 +38,11 @@ under the License.
 
       <ha-policy>
          <replication>
-            <slave>
+            <backup>
                <group-name>test-pair-one</group-name>
                <allow-failback>false</allow-failback>
                <quorum-size>2</quorum-size>
-            </slave>
+            </backup>
          </replication>
       </ha-policy>
 
@@ -95,7 +95,7 @@ under the License.
       </security-settings>
       <address-settings>
          <!-- if you define auto-create on certain queues, management has to be auto-create -->
-         <address-setting match="activemq.management#">
+         <address-setting match="activemq.management.#">
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>

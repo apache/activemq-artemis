@@ -30,14 +30,13 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 
 /**
  * Test queue sessions
- * <br />
+ * <p>
  * See JMS specifications, sec. 4.4 Session
  */
 public class QueueSessionTest extends PTPTestCase {
 
    /**
-    * Test that if we rollback a transaction which has consumed a message,
-    * the message is effectively redelivered.
+    * Test that if we rollback a transaction which has consumed a message, the message is effectively redelivered.
     */
    @Test
    public void testRollbackRececeivedMessage() {
@@ -46,7 +45,7 @@ public class QueueSessionTest extends PTPTestCase {
          // senderSession has been created as non transacted
          // we create it again but as a transacted session
          senderSession = senderConnection.createQueueSession(true, 0);
-         Assert.assertEquals(true, senderSession.getTransacted());
+         Assert.assertTrue(senderSession.getTransacted());
          // we create again the sender
          sender = senderSession.createSender(senderQueue);
          senderConnection.start();
@@ -55,7 +54,7 @@ public class QueueSessionTest extends PTPTestCase {
          // receiverSession has been created as non transacted
          // we create it again but as a transacted session
          receiverSession = receiverConnection.createQueueSession(true, 0);
-         Assert.assertEquals(true, receiverSession.getTransacted());
+         Assert.assertTrue(receiverSession.getTransacted());
 
          if (receiver != null) {
             receiver.close();
@@ -73,26 +72,26 @@ public class QueueSessionTest extends PTPTestCase {
 
          // we receive a message...
          Message m = receiver.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue(m != null);
+         Assert.assertNotNull(m);
          Assert.assertTrue(m instanceof TextMessage);
          TextMessage msg = (TextMessage) m;
          // ... which is the one which was sent...
          Assert.assertEquals("testRollbackRececeivedMessage", msg.getText());
          // ...and has not been redelivered
-         Assert.assertEquals(false, msg.getJMSRedelivered());
+         Assert.assertFalse(msg.getJMSRedelivered());
 
          // we rollback the *consumer* transaction
          receiverSession.rollback();
 
          // we receive again a message
          m = receiver.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue(m != null);
+         Assert.assertNotNull(m);
          Assert.assertTrue(m instanceof TextMessage);
          msg = (TextMessage) m;
          // ... which is still the one which was sent...
          Assert.assertEquals("testRollbackRececeivedMessage", msg.getText());
          // .. but this time, it has been redelivered
-         Assert.assertEquals(true, msg.getJMSRedelivered());
+         Assert.assertTrue(msg.getJMSRedelivered());
 
       } catch (Exception e) {
          fail(e);
@@ -100,8 +99,8 @@ public class QueueSessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that a call to the <code>createBrowser()</code> method with an invalid
-    * messaeg session throws a <code>javax.jms.InvalidSelectorException</code>.
+    * Test that a call to the {@code createBrowser()} method with an invalid messaeg session throws a
+    * {@code javax.jms.InvalidSelectorException}.
     */
    @Test
    public void testCreateBrowser_2() {
@@ -115,8 +114,8 @@ public class QueueSessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that a call to the <code>createBrowser()</code> method with an invalid
-    * <code>Queue</code> throws a <code>javax.jms.InvalidDestinationException</code>.
+    * Test that a call to the {@code createBrowser()} method with an invalid {@code Queue} throws a
+    * {@code javax.jms.InvalidDestinationException}.
     */
    @Test
    public void testCreateBrowser_1() {
@@ -130,8 +129,8 @@ public class QueueSessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that a call to the <code>createReceiver()</code> method with an invalid
-    * message selector throws a <code>javax.jms.InvalidSelectorException</code>.
+    * Test that a call to the {@code createReceiver()} method with an invalid message selector throws a
+    * {@code javax.jms.InvalidSelectorException}.
     */
    @Test
    public void testCreateReceiver_2() {
@@ -145,8 +144,8 @@ public class QueueSessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that a call to the <code>createReceiver()</code> method with an invalid
-    * <code>Queue</code> throws a <code>javax.jms.InvalidDestinationException</code>>
+    * Test that a call to the {@code createReceiver()} method with an invalid {@code Queue} throws a
+    * {@code javax.jms.InvalidDestinationException}>
     */
    @Test
    public void testCreateReceiver_1() {

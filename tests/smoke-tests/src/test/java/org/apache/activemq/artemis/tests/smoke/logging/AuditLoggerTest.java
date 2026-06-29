@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.smoke.logging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -32,19 +38,21 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AuditLoggerTest extends AuditLoggerTestBase {
 
@@ -52,7 +60,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
    private ServerLocator locator;
    private ClientSessionFactory sf;
 
-   @Before
+   @BeforeEach
    @Override
    public void before() throws Exception {
       super.before();
@@ -75,31 +83,31 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
       String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
       ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       final AddressControl addressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(address), AddressControl.class, false);
 
-      Assert.assertEquals(0, addressControl.getQueueNames().length);
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
-      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      assertEquals(0, addressControl.getQueueNames().length);
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
+      assertEquals(1, addressControl.getQueueNames().length);
       String uniqueStr = Base64.encodeBytes(UUID.randomUUID().toString().getBytes());
       addressControl.sendMessage(null, Message.BYTES_TYPE, uniqueStr, false, null, null);
 
       Wait.waitFor(() -> addressControl.getMessageCount() == 1);
-      Assert.assertEquals(1, addressControl.getMessageCount());
+      assertEquals(1, addressControl.getMessageCount());
 
-      checkAuditLogRecord(true, "sending a message", uniqueStr);
+      assertTrue(findLogRecord(getAuditLog(), "sending a message", uniqueStr));
 
       //failure log
-      address = RandomUtil.randomSimpleString();
+      address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       final AddressControl addressControl2 = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(address), AddressControl.class, false);
 
-      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      assertEquals(1, addressControl.getQueueNames().length);
 
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       Wait.waitFor(() -> addressControl2.getQueueNames().length == 1);
 
       ClientProducer producer = session.createProducer(address);
@@ -107,14 +115,14 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       Wait.waitFor(() -> addressControl.getMessageCount() == 1);
       try {
          session.deleteQueue(address);
-         Assert.fail("Deleting queue should get exception");
+         fail("Deleting queue should get exception");
       } catch (Exception e) {
          //ignore
       }
 
-      checkAuditLogRecord(true, "AMQ601264: User guest", "gets security check failure, reason = AMQ229213: User: guest does not have permission='DELETE_NON_DURABLE_QUEUE'");
+      assertTrue(findLogRecord(getAuditLog(), "AMQ601264: User guest", "gets security check failure, reason = AMQ229213: User: guest does not have permission='DELETE_NON_DURABLE_QUEUE'"));
       //hot patch not in log
-      checkAuditLogRecord(true, "is sending a message");
+      assertTrue(findLogRecord(getAuditLog(), "is sending a message"));
    }
 
    @Test
@@ -142,15 +150,15 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
       String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
       ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       final AddressControl addressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(address), AddressControl.class, false);
 
-      Assert.assertEquals(0, addressControl.getQueueNames().length);
-      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
-      Assert.assertEquals(1, addressControl.getQueueNames().length);
-      String uniqueStr = RandomUtil.randomString();
+      assertEquals(0, addressControl.getQueueNames().length);
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
+      assertEquals(1, addressControl.getQueueNames().length);
+      String uniqueStr = RandomUtil.randomUUIDString();
 
       session.close();
 
@@ -175,23 +183,51 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
         // addressControl.sendMessage(null, Message.BYTES_TYPE, uniqueStr, false, null, null);
 
          Wait.waitFor(() -> addressControl.getMessageCount() == 2);
-         Assert.assertEquals(2, addressControl.getMessageCount());
+         assertEquals(2, addressControl.getMessageCount());
 
-         checkAuditLogRecord(false, "messageID=0");
-         checkAuditLogRecord(true, "sent a message");
-         checkAuditLogRecord(true, uniqueStr);
-         checkAuditLogRecord(true, "Hello2");
+         assertFalse(findLogRecord(getAuditLog(), "messageID=0"));
+         assertTrue(findLogRecord(getAuditLog(), "sent a message"));
+         assertTrue(findLogRecord(getAuditLog(), uniqueStr));
+         assertTrue(findLogRecord(getAuditLog(), "Hello2"));
 
          connection.start();
          MessageConsumer consumer = session.createConsumer(session.createQueue(address.toString()));
          javax.jms.Message clientMessage = consumer.receive(5000);
-         Assert.assertNotNull(clientMessage);
+         assertNotNull(clientMessage);
          clientMessage = consumer.receive(5000);
-         Assert.assertNotNull(clientMessage);
+         assertNotNull(clientMessage);
       } finally {
          connection.close();
       }
-      checkAuditLogRecord(true, "is consuming a message from");
-      checkAuditLogRecord(true, "acknowledged message from");
+      Wait.assertTrue(() -> findLogRecord(getAuditLog(), "is consuming a message from"), 5000);
+      Wait.assertTrue(() -> findLogRecord(getAuditLog(), "acknowledged message from"), 5000);
+   }
+
+   @Test
+   public void testExpiration() throws Exception {
+      final int EXPIRATION = 1000;
+      final SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      final SimpleString expiryQueue = RandomUtil.randomUUIDSimpleString();
+
+      JMXConnector jmxConnector = getJmxConnector();
+      MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
+      String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
+      ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
+
+      final ActiveMQServerControl serverControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
+
+      serverControl.addAddressSettings(queue.toString(), new AddressSettings().setExpiryAddress(expiryQueue).toJSON());
+
+      session.createQueue(QueueConfiguration.of(queue).setAddress(queue).setDurable(false));
+      session.createQueue(QueueConfiguration.of(expiryQueue).setAddress(expiryQueue).setDurable(false));
+
+      ClientProducer producer = session.createProducer(queue);
+      ClientMessage message = session.createMessage(false);
+      message.setExpiration(System.currentTimeMillis() + EXPIRATION);
+      producer.send(message);
+
+      Thread.sleep(EXPIRATION);
+
+      Wait.assertTrue(() -> findLogRecord(getAuditLog(), "User system@internal acknowledged message from"), EXPIRATION * 2, 100);
    }
 }

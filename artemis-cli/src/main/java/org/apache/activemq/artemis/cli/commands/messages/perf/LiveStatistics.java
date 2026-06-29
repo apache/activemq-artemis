@@ -249,7 +249,7 @@ public final class LiveStatistics {
       jsonBuilder.add("sampleType", "interval");
       jsonBuilder.add("warmup", warmup);
       jsonBuilder.add("time", sampleTime);
-      addRate(jsonBuilder,"sent", sentMsg, interval);
+      addRate(jsonBuilder, "sent", sentMsg, interval);
       addRate(jsonBuilder, "delayed", blockedMsg, interval);
       addRate(jsonBuilder, "completed", completedMsg, interval);
       addRate(jsonBuilder, "received", receivedMsg, interval);

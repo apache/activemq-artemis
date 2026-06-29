@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -58,9 +60,6 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
       super(CLUSTER_TOPOLOGY);
    }
 
-   /**
-    * @param clusterTopologyV2
-    */
    public ClusterTopologyChangeMessage(byte clusterTopologyV2) {
       super(clusterTopologyV2);
    }
@@ -107,9 +106,9 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
       exit = buffer.readBoolean();
       nodeID = buffer.readString();
       if (!exit) {
-         boolean hasLive = buffer.readBoolean();
+         boolean hasPrimary = buffer.readBoolean();
          TransportConfiguration a;
-         if (hasLive) {
+         if (hasPrimary) {
             a = new TransportConfiguration();
             a.decode(buffer);
          } else {
@@ -130,23 +129,17 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (exit ? 1231 : 1237);
-      result = prime * result + (last ? 1231 : 1237);
-      result = prime * result + ((nodeID == null) ? 0 : nodeID.hashCode());
-      result = prime * result + ((pair == null) ? 0 : pair.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), exit, last, nodeID, pair);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", exit=" + exit);
-      buff.append(", last=" + last);
-      buff.append(", nodeID=" + nodeID);
-      buff.append(", pair=" + pair);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", exit=" + exit);
+      sb.append(", last=" + last);
+      sb.append(", nodeID=" + nodeID);
+      sb.append(", pair=" + pair);
+      return sb.toString();
    }
 
    @Override
@@ -157,30 +150,13 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ClusterTopologyChangeMessage)) {
+      if (!(obj instanceof ClusterTopologyChangeMessage other)) {
          return false;
       }
-      ClusterTopologyChangeMessage other = (ClusterTopologyChangeMessage) obj;
-      if (exit != other.exit) {
-         return false;
-      }
-      if (last != other.last) {
-         return false;
-      }
-      if (nodeID == null) {
-         if (other.nodeID != null) {
-            return false;
-         }
-      } else if (!nodeID.equals(other.nodeID)) {
-         return false;
-      }
-      if (pair == null) {
-         if (other.pair != null) {
-            return false;
-         }
-      } else if (!pair.equals(other.pair)) {
-         return false;
-      }
-      return true;
+
+      return exit == other.exit &&
+             last == other.last &&
+             Objects.equals(nodeID, other.nodeID) &&
+             Objects.equals(pair, other.pair);
    }
 }

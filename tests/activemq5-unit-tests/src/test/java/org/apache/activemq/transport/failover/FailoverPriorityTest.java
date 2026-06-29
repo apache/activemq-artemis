@@ -46,7 +46,7 @@ public class FailoverPriorityTest extends OpenwireArtemisBaseTest {
    private static final String BROKER_A_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61616";
    private static final String BROKER_B_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61617";
    private static final String BROKER_C_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61618";
-   private final HashMap<Integer, String> urls = new HashMap<>();
+   private final Map<Integer, String> urls = new HashMap<>();
 
    private final List<ActiveMQConnection> connections = new ArrayList<>();
    private final EmbeddedJMS[] servers = new EmbeddedJMS[3];

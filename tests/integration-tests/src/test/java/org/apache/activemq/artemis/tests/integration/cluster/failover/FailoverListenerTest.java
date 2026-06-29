@@ -16,13 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.QueueConfiguration;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -34,13 +37,12 @@ import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
-import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,17 +54,15 @@ public class FailoverListenerTest extends FailoverTestBase {
    private ClientSessionFactoryInternal sf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = getServerLocator();
    }
 
    /**
-    * Test if two servers are running and one of them is failing, that we trigger the expected
-    * events for {@link FailoverEventListener}
-    *
-    * @throws Exception
+    * Test if two servers are running and one of them is failing, that we trigger the expected events for
+    * {@link FailoverEventListener}
     */
    @Test
    public void testFailoverListenerCall() throws Exception {
@@ -73,11 +73,11 @@ public class FailoverListenerTest extends FailoverTestBase {
       sf.addFailoverListener(listener);
       ClientSession session = sendAndConsume(sf, true);
 
-      liveServer.crash();
+      primaryServer.crash();
       assertTrue(failureLatch.await(5, TimeUnit.SECONDS));
       assertEquals(FailoverEventType.FAILURE_DETECTED, listener.getFailoverEventType().get(0));
 
-      logger.debug("backup (nowLive) topology = {}", backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
+      logger.debug("backup (now primary) topology = {}", backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
 
       logger.debug("Server Crash!!!");
 
@@ -95,10 +95,10 @@ public class FailoverListenerTest extends FailoverTestBase {
 
       verifyMessageOnServer(1, 1);
 
-      logger.debug("******* starting live server back");
-      liveServer.start();
+      logger.debug("******* starting primary server back");
+      primaryServer.start();
       Thread.sleep(1000);
-      //starting the live server trigger a failover event
+      //starting the primary server trigger a failover event
       assertEquals(FailoverEventType.FAILURE_DETECTED, listener.getFailoverEventType().get(2));
 
       //the life server should be online by now
@@ -117,12 +117,9 @@ public class FailoverListenerTest extends FailoverTestBase {
       verifyMessageOnServer(0, 1);
 
       wrapUpSessionFactory();
-      assertEquals("Expected 4 FailoverEvents to be triggered", 4, listener.getFailoverEventType().size());
+      assertEquals(4, listener.getFailoverEventType().size(), "Expected 4 FailoverEvents to be triggered");
    }
 
-   /**
-    * @throws Exception
-    */
    private void verifyMessageOnServer(final int server, final int numberOfMessages) throws Exception {
       ServerLocator backupLocator = createInVMLocator(server);
       ClientSessionFactory factorybkp = addSessionFactory(createSessionFactory(backupLocator));
@@ -141,10 +138,8 @@ public class FailoverListenerTest extends FailoverTestBase {
    }
 
    /**
-    * Test that if the only server is running and failing we trigger
-    * the event FailoverEventType.FAILOVER_FAILED in the end
-    *
-    * @throws Exception
+    * Test that if the only server is running and failing we trigger the event FailoverEventType.FAILOVER_FAILED in the
+    * end
     */
    @Test
    public void testFailoverFailed() throws Exception {
@@ -160,14 +155,14 @@ public class FailoverListenerTest extends FailoverTestBase {
       sf.addFailoverListener(listener);
       ClientSession session = sendAndConsume(sf, true);
 
-      liveServer.crash(session);
+      primaryServer.crash(session);
       assertTrue(failureLatch.await(5, TimeUnit.SECONDS));
       assertEquals(FailoverEventType.FAILURE_DETECTED, listener.getFailoverEventType().get(0));
 
       assertTrue(failureDoneLatch.await(5, TimeUnit.SECONDS));
       assertEquals(FailoverEventType.FAILOVER_FAILED, listener.getFailoverEventType().get(1));
 
-      assertEquals("Expected 2 FailoverEvents to be triggered", 2, listener.getFailoverEventType().size());
+      assertEquals(2, listener.getFailoverEventType().size(), "Expected 2 FailoverEvents to be triggered");
       session.close();
 
       wrapUpSessionFactory();
@@ -181,79 +176,38 @@ public class FailoverListenerTest extends FailoverTestBase {
 
    private void wrapUpSessionFactory() {
       sf.close();
-      assertEquals("Expecting 0 sessions", 0, sf.numSessions());
-      assertEquals("Expecting 0 connections", 0, sf.numConnections());
+      assertEquals(0, sf.numSessions(), "Expecting 0 sessions");
+      assertEquals(0, sf.numConnections(), "Expecting 0 connections");
    }
 
    @Override
    protected void createConfigs() throws Exception {
       nodeManager = new InVMNodeManager(false);
-      TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration()).addConnectorConfiguration(primaryConnector.getName(), primaryConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), primaryConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), backupConnector.getName())).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector);
+      primaryConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(primaryConnector.getName(), backupConnector.getName())).addConnectorConfiguration(primaryConnector.getName(), primaryConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector);
 
-      liveServer = createTestableServer(liveConfig);
+      primaryServer = createTestableServer(primaryConfig);
    }
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
-      return TransportConfigurationUtils.getInVMAcceptor(live);
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean primary) {
+      return TransportConfigurationUtils.getInVMAcceptor(primary);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
-      return TransportConfigurationUtils.getInVMConnector(live);
-   }
-
-   private ClientSession sendAndConsume(final ClientSessionFactory sf, final boolean createQueue) throws Exception {
-      ClientSession session = sf.createSession(false, true, true);
-
-      if (createQueue) {
-         session.createQueue(new QueueConfiguration(ADDRESS));
-      }
-
-      ClientProducer producer = session.createProducer(ADDRESS);
-
-      final int numMessages = 1000;
-
-      for (int i = 0; i < numMessages; i++) {
-         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(new SimpleString("count"), i);
-         message.getBodyBuffer().writeString("aardvarks");
-         producer.send(message);
-      }
-
-      ClientConsumer consumer = session.createConsumer(ADDRESS);
-
-      session.start();
-
-      for (int i = 0; i < numMessages; i++) {
-         ClientMessage message2 = consumer.receive();
-
-         assertEquals("aardvarks", message2.getBodyBuffer().readString());
-
-         assertEquals(i, message2.getObjectProperty(new SimpleString("count")));
-
-         message2.acknowledge();
-      }
-
-      ClientMessage message3 = consumer.receiveImmediate();
-
-      consumer.close();
-
-      assertNull(message3);
-
-      return session;
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean primary) {
+      return TransportConfigurationUtils.getInVMConnector(primary);
    }
 
    public class SessionFactoryFailoverListener implements FailoverEventListener {
 
-      private final ArrayList<FailoverEventType> failoverTypeEvent = new ArrayList<>();
+      private final List<FailoverEventType> failoverTypeEvent = new ArrayList<>();
 
       private final CountDownLatch failureLatch;
 
@@ -264,7 +218,7 @@ public class FailoverListenerTest extends FailoverTestBase {
          this.failureDoneLatch = failureDoneLatch;
       }
 
-      public ArrayList<FailoverEventType> getFailoverEventType() {
+      public List<FailoverEventType> getFailoverEventType() {
          return this.failoverTypeEvent;
       }
 

@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.core.security.jaas;
 
+import static org.apache.activemq.artemis.core.server.impl.ServerStatus.JAAS_COMPONENT;
+import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader.LOGIN_CONFIG_SYS_PROP_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.security.auth.Subject;
 import java.io.File;
 import java.util.HashMap;
@@ -24,25 +29,23 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.apache.activemq.artemis.core.server.impl.ServerStatus.JAAS_COMPONENT;
-import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader.LOGIN_CONFIG_SYS_PROP_NAME;
-
-public class StatusTest extends ActiveMQTestBase {
+public class StatusTest extends ServerTestBase {
 
    private String existingPath = null;
 
-   @Before
-   public void trackSystemProp() throws Exception {
+   @BeforeEach
+   public void prepareTest() throws Exception {
       existingPath = System.getProperty(LOGIN_CONFIG_SYS_PROP_NAME);
+      ServerStatus.clear();
    }
 
-   @After
+   @AfterEach
    public void revertExisting() throws Exception {
       setOrClearLoginConfigSystemProperty(existingPath);
    }
@@ -50,7 +53,7 @@ public class StatusTest extends ActiveMQTestBase {
    @Test
    public void testStatusOfLoginConfigSystemProperty() throws Exception {
 
-      File parentDir = new File(temporaryFolder.getRoot(), "sub");
+      File parentDir = new File(temporaryFolder, "sub");
       parentDir.mkdirs();
 
       File fileToReferenceViaLoginSystemPropAndFromPropertiesLoginModule = new File(parentDir, "someFileInTempDir.txt");
@@ -69,7 +72,7 @@ public class StatusTest extends ActiveMQTestBase {
       options.put(PropertiesLoginModule.ROLE_FILE_PROP_NAME, fileToReferenceViaLoginSystemPropAndFromPropertiesLoginModule.getName());
 
       propertiesLoginModule.initialize(new Subject(), null, null, options);
-      assertTrue("contains", ServerStatus.getInstance().asJson().contains(fileToReferenceViaLoginSystemPropAndFromPropertiesLoginModule.getName()));
+      assertTrue(ServerStatus.getInstance().asJson().contains(fileToReferenceViaLoginSystemPropAndFromPropertiesLoginModule.getName()), "contains");
 
       // reset current status reloadTime time, to verify reload
       final String UNKNOWN = "UNKNOWN";
@@ -78,7 +81,7 @@ public class StatusTest extends ActiveMQTestBase {
       // updating referenced file won't kick in till login
       fileToReferenceViaLoginSystemPropAndFromPropertiesLoginModule.setLastModified(System.currentTimeMillis());
 
-      assertTrue("contains", ServerStatus.getInstance().asJson().contains(UNKNOWN));
+      assertTrue(ServerStatus.getInstance().asJson().contains(UNKNOWN), "contains");
 
       // mod of login.config dir - trigger a reload
       parentDir.setLastModified(System.currentTimeMillis());
@@ -92,15 +95,15 @@ public class StatusTest extends ActiveMQTestBase {
       final String BIRD = "later";
 
       ActiveMQServerImpl server = new ActiveMQServerImpl();
-      ServerStatus.getInstanceFor(server);
+      assertEquals(server, ServerStatus.getServer());
 
-      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + EARLY_BIRD,  "{\"reloadTime\":\"2\"}");
-      assertTrue("contains", ServerStatus.getInstance().asJson().contains(EARLY_BIRD));
+      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + EARLY_BIRD, "{\"reloadTime\":\"2\"}");
+      assertTrue(ServerStatus.getInstance().asJson().contains(EARLY_BIRD), "contains");
 
-      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + BIRD,  "{\"reloadTime\":\"2\"}");
+      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + BIRD, "{\"reloadTime\":\"2\"}");
 
-      assertTrue("contains", ServerStatus.getInstance().asJson().contains(EARLY_BIRD));
-      assertTrue("contains", ServerStatus.getInstance().asJson().contains(BIRD));
+      assertTrue(ServerStatus.getInstance().asJson().contains(EARLY_BIRD), "contains");
+      assertTrue(ServerStatus.getInstance().asJson().contains(BIRD), "contains");
    }
 
    @Test
@@ -108,17 +111,17 @@ public class StatusTest extends ActiveMQTestBase {
       final String EARLY_BIRD = "early";
       final String BIRD = "later";
 
-      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + EARLY_BIRD,  "{\"reloadTime\":\"2\"}");
-      assertTrue("contains", ServerStatus.getInstance().asJson().contains(EARLY_BIRD));
+      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + EARLY_BIRD, "{\"reloadTime\":\"2\"}");
+      assertTrue(ServerStatus.getInstance().asJson().contains(EARLY_BIRD), "contains");
 
-      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + BIRD,  "{\"reloadTime\":\"2\"}");
+      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + BIRD, "{\"reloadTime\":\"2\"}");
 
       ActiveMQServerImpl server = new ActiveMQServerImpl();
-      ServerStatus.getInstanceFor(server);
+      assertEquals(server, ServerStatus.getServer());
 
-      assertTrue("contains", ServerStatus.getInstance().asJson().contains(EARLY_BIRD));
-      assertTrue("contains", ServerStatus.getInstance().asJson().contains(BIRD));
-      assertTrue("contains", ServerStatus.getInstance().asJson().contains("nodeId"));
+      assertTrue(ServerStatus.getInstance().asJson().contains(EARLY_BIRD), "contains");
+      assertTrue(ServerStatus.getInstance().asJson().contains(BIRD), "contains");
+      assertTrue(ServerStatus.getInstance().asJson().contains("nodeId"), "contains");
    }
 
    private static void setOrClearLoginConfigSystemProperty(String path) throws Exception {

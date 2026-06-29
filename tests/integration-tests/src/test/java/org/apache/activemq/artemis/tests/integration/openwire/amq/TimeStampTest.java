@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -24,7 +27,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.TimeStampTest
@@ -66,10 +69,10 @@ public class TimeStampTest extends BasicOpenWireTest {
       assertEquals(sentMessage.getJMSMessageID(), receivedMessage.getJMSMessageID());
 
       // assert message timestamp is in window
-      assertTrue("JMS Message Timestamp should be set during the send method: \n" + "        beforeSend = " + beforeSend + "\n" + "   getJMSTimestamp = " + receivedMessage.getJMSTimestamp() + "\n" + "         afterSend = " + afterSend + "\n", beforeSend <= receivedMessage.getJMSTimestamp() && receivedMessage.getJMSTimestamp() <= afterSend);
+      assertTrue(beforeSend <= receivedMessage.getJMSTimestamp() && receivedMessage.getJMSTimestamp() <= afterSend, "JMS Message Timestamp should be set during the send method: \n" + "        beforeSend = " + beforeSend + "\n" + "   getJMSTimestamp = " + receivedMessage.getJMSTimestamp() + "\n" + "         afterSend = " + afterSend + "\n");
 
       // assert message timestamp is unchanged
-      assertEquals("JMS Message Timestamp of received message should be the same as the sent message\n        ", sentMessage.getJMSTimestamp(), receivedMessage.getJMSTimestamp());
+      assertEquals(sentMessage.getJMSTimestamp(), receivedMessage.getJMSTimestamp(), "JMS Message Timestamp of received message should be the same as the sent message\n        ");
 
       // Clean up
       producer.close();

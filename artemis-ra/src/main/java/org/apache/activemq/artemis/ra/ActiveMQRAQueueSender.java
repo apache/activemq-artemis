@@ -26,18 +26,12 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * ActiveMQQueueSender.
+ * A wrapper for a {@link QueueSender}.
  */
 public class ActiveMQRAQueueSender extends ActiveMQRAMessageProducer implements QueueSender {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Create a new wrapper
-    *
-    * @param producer the producer
-    * @param session  the session
-    */
    public ActiveMQRAQueueSender(final QueueSender producer, final ActiveMQRASession session) {
       super(producer, session);
 
@@ -47,10 +41,7 @@ public class ActiveMQRAQueueSender extends ActiveMQRAMessageProducer implements 
    }
 
    /**
-    * Get queue
-    *
-    * @return The queue
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Queue getQueue() throws JMSException {
@@ -60,14 +51,7 @@ public class ActiveMQRAQueueSender extends ActiveMQRAMessageProducer implements 
    }
 
    /**
-    * Send message
-    *
-    * @param destination  The destination
-    * @param message      The message
-    * @param deliveryMode The delivery mode
-    * @param priority     The priority
-    * @param timeToLive   The time to live
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void send(final Queue destination,
@@ -92,11 +76,7 @@ public class ActiveMQRAQueueSender extends ActiveMQRAMessageProducer implements 
    }
 
    /**
-    * Send message
-    *
-    * @param destination The destination
-    * @param message     The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void send(final Queue destination, final Message message) throws JMSException {

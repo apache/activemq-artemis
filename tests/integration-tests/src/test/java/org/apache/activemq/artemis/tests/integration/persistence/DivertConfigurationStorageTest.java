@@ -16,105 +16,97 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.List;
-import java.util.Map;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class DivertConfigurationStorageTest  extends StorageManagerTestBase {
+@ExtendWith(ParameterizedTestExtension.class)
+public class DivertConfigurationStorageTest extends StorageManagerTestBase {
+
+   @Parameters(name = "storeType={0}")
+   public static Collection<Object[]> data() {
+      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      return Arrays.asList(params);
+   }
 
    public DivertConfigurationStorageTest(StoreConfiguration.StoreType storeType) {
       super(storeType);
    }
 
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      super.setUp();
-   }
-
-   @Test
+   @TestTemplate
    public void testStoreDivertConfiguration() throws Exception {
-      createStorage();
-
-      DivertConfiguration configuration = new DivertConfiguration();
-      configuration.setName("name");
-      configuration.setAddress("address");
-      configuration.setExclusive(true);
-      configuration.setForwardingAddress("forward");
-      configuration.setRoutingName("routiingName");
       TransformerConfiguration mytransformer = new TransformerConfiguration("mytransformer");
       mytransformer.getProperties().put("key1", "prop1");
       mytransformer.getProperties().put("key2", "prop2");
       mytransformer.getProperties().put("key3", "prop3");
-      configuration.setTransformerConfiguration(mytransformer);
+      DivertConfiguration configuration = new DivertConfiguration()
+         .setName("name")
+         .setAddress("address")
+         .setExclusive(true)
+         .setForwardingAddress("forward")
+         .setRoutingName("routiingName")
+         .setTransformerConfiguration(mytransformer);
 
       journal.storeDivertConfiguration(new PersistedDivertConfiguration(configuration));
 
-      journal.stop();
-
-      journal.start();
+      rebootStorage();
 
       List<PersistedDivertConfiguration> divertConfigurations = journal.recoverDivertConfigurations();
 
-      Assert.assertEquals(1, divertConfigurations.size());
+      assertEquals(1, divertConfigurations.size());
 
       PersistedDivertConfiguration persistedDivertConfiguration = divertConfigurations.get(0);
-      Assert.assertEquals(configuration.getName(), persistedDivertConfiguration.getDivertConfiguration().getName());
-      Assert.assertEquals(configuration.getAddress(), persistedDivertConfiguration.getDivertConfiguration().getAddress());
-      Assert.assertEquals(configuration.isExclusive(), persistedDivertConfiguration.getDivertConfiguration().isExclusive());
-      Assert.assertEquals(configuration.getForwardingAddress(), persistedDivertConfiguration.getDivertConfiguration().getForwardingAddress());
-      Assert.assertEquals(configuration.getRoutingName(), persistedDivertConfiguration.getDivertConfiguration().getRoutingName());
-      Assert.assertNotNull(persistedDivertConfiguration.getDivertConfiguration().getTransformerConfiguration());
-      Assert.assertEquals("mytransformer", persistedDivertConfiguration.getDivertConfiguration().getTransformerConfiguration().getClassName());
+      assertEquals(configuration.getName(), persistedDivertConfiguration.getDivertConfiguration().getName());
+      assertEquals(configuration.getAddress(), persistedDivertConfiguration.getDivertConfiguration().getAddress());
+      assertEquals(configuration.isExclusive(), persistedDivertConfiguration.getDivertConfiguration().isExclusive());
+      assertEquals(configuration.getForwardingAddress(), persistedDivertConfiguration.getDivertConfiguration().getForwardingAddress());
+      assertEquals(configuration.getRoutingName(), persistedDivertConfiguration.getDivertConfiguration().getRoutingName());
+      assertNotNull(persistedDivertConfiguration.getDivertConfiguration().getTransformerConfiguration());
+      assertEquals("mytransformer", persistedDivertConfiguration.getDivertConfiguration().getTransformerConfiguration().getClassName());
       Map<String, String> properties = persistedDivertConfiguration.getDivertConfiguration().getTransformerConfiguration().getProperties();
-      Assert.assertEquals(3, properties.size());
-      Assert.assertEquals("prop1", properties.get("key1"));
-      Assert.assertEquals("prop2", properties.get("key2"));
-      Assert.assertEquals("prop3", properties.get("key3"));
-      journal.stop();
-
-      journal = null;
-
+      assertEquals(3, properties.size());
+      assertEquals("prop1", properties.get("key1"));
+      assertEquals("prop2", properties.get("key2"));
+      assertEquals("prop3", properties.get("key3"));
    }
 
-   @Test
+   @TestTemplate
    public void testStoreDivertConfigurationNoTransformer() throws Exception {
-      createStorage();
-
-      DivertConfiguration configuration = new DivertConfiguration();
-      configuration.setName("name");
-      configuration.setAddress("address");
-      configuration.setExclusive(true);
-      configuration.setForwardingAddress("forward");
-      configuration.setRoutingName("routiingName");
+      DivertConfiguration configuration = new DivertConfiguration()
+         .setName("name")
+         .setAddress("address")
+         .setExclusive(true)
+         .setForwardingAddress("forward")
+         .setRoutingName("routiingName");
 
       journal.storeDivertConfiguration(new PersistedDivertConfiguration(configuration));
 
-      journal.stop();
-
-      journal.start();
+      rebootStorage();
 
       List<PersistedDivertConfiguration> divertConfigurations = journal.recoverDivertConfigurations();
 
-      Assert.assertEquals(1, divertConfigurations.size());
+      assertEquals(1, divertConfigurations.size());
 
       PersistedDivertConfiguration persistedDivertConfiguration = divertConfigurations.get(0);
-      Assert.assertEquals(configuration.getName(), persistedDivertConfiguration.getDivertConfiguration().getName());
-      Assert.assertEquals(configuration.getAddress(), persistedDivertConfiguration.getDivertConfiguration().getAddress());
-      Assert.assertEquals(configuration.isExclusive(), persistedDivertConfiguration.getDivertConfiguration().isExclusive());
-      Assert.assertEquals(configuration.getForwardingAddress(), persistedDivertConfiguration.getDivertConfiguration().getForwardingAddress());
-      Assert.assertEquals(configuration.getRoutingName(), persistedDivertConfiguration.getDivertConfiguration().getRoutingName());
-      Assert.assertNull(persistedDivertConfiguration.getDivertConfiguration().getTransformerConfiguration());
-      journal.stop();
-
-      journal = null;
-
+      assertEquals(configuration.getName(), persistedDivertConfiguration.getDivertConfiguration().getName());
+      assertEquals(configuration.getAddress(), persistedDivertConfiguration.getDivertConfiguration().getAddress());
+      assertEquals(configuration.isExclusive(), persistedDivertConfiguration.getDivertConfiguration().isExclusive());
+      assertEquals(configuration.getForwardingAddress(), persistedDivertConfiguration.getDivertConfiguration().getForwardingAddress());
+      assertEquals(configuration.getRoutingName(), persistedDivertConfiguration.getDivertConfiguration().getRoutingName());
+      assertNull(persistedDivertConfiguration.getDivertConfiguration().getTransformerConfiguration());
    }
 }

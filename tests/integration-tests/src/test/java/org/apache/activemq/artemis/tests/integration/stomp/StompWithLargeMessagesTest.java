@@ -24,33 +24,40 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(Parameterized.class)
-@Ignore
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@Disabled
+@ExtendWith(ParameterizedTestExtension.class)
 public class StompWithLargeMessagesTest extends StompTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // Web Socket has max frame size of 64kb.  Large message tests only available over TCP.
-   @Parameterized.Parameters(name = "{0}")
+   @Parameters(name = "{0}")
    public static Collection<Object[]> data() {
       return Arrays.asList(new Object[][]{{"tcp+v10.stomp"}, {"tcp+v12.stomp"}});
    }
 
+   public StompWithLargeMessagesTest(String scheme) {
+      super(scheme);
+   }
+
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
@@ -70,21 +77,16 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       return 2048;
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceiveLargeMessage() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
 
       try {
          String address = "testLargeMessageAddress";
-         server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
 
          // STOMP default is UTF-8 == 1 byte per char.
-         int largeMessageStringSize = 10 * 1024 * 1024; // 10MB
-         StringBuilder b = new StringBuilder(largeMessageStringSize);
-         for (int i = 0; i < largeMessageStringSize; i++) {
-            b.append('t');
-         }
-         String payload = b.toString();
+         String payload = "t".repeat(10 * 1024 * 1024); // 10MB
 
          // Set up STOMP subscription
          conn.connect(defUser, defPass);
@@ -95,14 +97,14 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 
          // Receive STOMP Message
          ClientStompFrame frame = conn.receiveFrame();
-         assertTrue(frame.getBody().equals(payload));
+         assertEquals(payload, frame.getBody());
       } finally {
          conn.disconnect();
       }
    }
 
    //stomp sender -> large -> stomp receiver
-   @Test
+   @TestTemplate
    public void testSendReceiveLargePersistentMessages() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
@@ -131,9 +133,9 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 
       for (int i = 0; i < count; i++) {
          ClientStompFrame frame = conn.receiveFrame(60000);
-         Assert.assertNotNull(frame);
-         Assert.assertTrue(frame.getCommand().equals("MESSAGE"));
-         Assert.assertTrue(frame.getHeader("destination").equals(getQueuePrefix() + getQueueName()));
+         assertNotNull(frame);
+         assertEquals("MESSAGE", frame.getCommand());
+         assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader("destination"));
          int index = frame.getBody().indexOf("AAAA");
          assertEquals(msgSize, (frame.getBody().length() - index));
       }
@@ -143,13 +145,13 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       unsubFrame.addHeader("receipt", "567");
       ClientStompFrame response = conn.sendFrame(unsubFrame);
       assertNotNull(response);
-      assertNotNull(response.getCommand().equals("RECEIPT"));
+      assertEquals("RECEIPT", response.getCommand());
 
       conn.disconnect();
    }
 
    //core sender -> large -> stomp receiver
-   @Test
+   @TestTemplate
    public void testReceiveLargePersistentMessagesFromCore() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
@@ -174,9 +176,9 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 
       for (int i = 0; i < count; i++) {
          ClientStompFrame frame = conn.receiveFrame(60000);
-         Assert.assertNotNull(frame);
-         Assert.assertTrue(frame.getCommand().equals("MESSAGE"));
-         Assert.assertTrue(frame.getHeader("destination").equals(getQueuePrefix() + getQueueName()));
+         assertNotNull(frame);
+         assertEquals("MESSAGE", frame.getCommand());
+         assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader("destination"));
          int index = frame.getBody().indexOf("BBB");
          assertEquals(msgSize, (frame.getBody().length() - index));
       }
@@ -186,13 +188,13 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       unsubFrame.addHeader("receipt", "567");
       ClientStompFrame response = conn.sendFrame(unsubFrame);
       assertNotNull(response);
-      assertNotNull(response.getCommand().equals("RECEIPT"));
+      assertEquals("RECEIPT", response.getCommand());
 
       conn.disconnect();
    }
 
 //   //stomp v12 sender -> large -> stomp v12 receiver
-//   @Test
+//   @TestTemplate
 //   public void testSendReceiveLargePersistentMessagesV12() throws Exception {
 //      StompClientConnection connV12 = StompClientConnectionFactory.createClientConnection("1.2", "localhost", port);
 //      connV12.connect(defUser, defPass);
@@ -242,7 +244,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 //   }
 //
 //   //core sender -> large -> stomp v12 receiver
-//   @Test
+//   @TestTemplate
 //   public void testReceiveLargePersistentMessagesFromCoreV12() throws Exception {
 //      int msgSize = 3 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
 //      char[] contents = new char[msgSize];
@@ -285,7 +287,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 //   }
 
    //core sender -> large (compressed regular) -> stomp v10 receiver
-   @Test
+   @TestTemplate
    public void testReceiveLargeCompressedToRegularPersistentMessagesFromCore() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
@@ -311,9 +313,9 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 
       for (int i = 0; i < count; i++) {
          ClientStompFrame receiveFrame = conn.receiveFrame(30000);
-         Assert.assertNotNull(receiveFrame);
-         Assert.assertTrue(receiveFrame.getCommand().equals("MESSAGE"));
-         Assert.assertEquals(receiveFrame.getHeader("destination"), getQueuePrefix() + getQueueName());
+         assertNotNull(receiveFrame);
+         assertEquals("MESSAGE", receiveFrame.getCommand());
+         assertEquals(receiveFrame.getHeader("destination"), getQueuePrefix() + getQueueName());
          int index = receiveFrame.getBody().indexOf(leadingPart);
          assertEquals(msg.length(), (receiveFrame.getBody().length() - index));
       }
@@ -324,13 +326,13 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       unsubFrame.addHeader("receipt", "567");
       ClientStompFrame response = conn.sendFrame(unsubFrame);
       assertNotNull(response);
-      assertNotNull(response.getCommand().equals("RECEIPT"));
+      assertEquals("RECEIPT", response.getCommand());
 
       conn.disconnect();
    }
 
 //   //core sender -> large (compressed regular) -> stomp v12 receiver
-//   @Test
+//   @TestTemplate
 //   public void testReceiveLargeCompressedToRegularPersistentMessagesFromCoreV12() throws Exception {
 //      LargeMessageTestBase.TestLargeMessageInputStream input = new LargeMessageTestBase.TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
 //      LargeMessageTestBase.adjustLargeCompression(true, input, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
@@ -373,7 +375,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 //   }
 //
 //   //core sender -> large (compressed large) -> stomp v12 receiver
-//   @Test
+//   @TestTemplate
 //   public void testReceiveLargeCompressedToLargePersistentMessagesFromCoreV12() throws Exception {
 //      LargeMessageTestBase.TestLargeMessageInputStream input = new LargeMessageTestBase.TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
 //      input.setSize(10 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
@@ -387,7 +389,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 //         this.sendJmsMessage(msg);
 //      }
 //
-//      IntegrationTestLogger.LOGGER.info("Message count for {}: {}", getQueueName(), server.getActiveMQServer().locateQueue(SimpleString.toSimpleString(getQueueName())).getMessageCount());
+//      IntegrationTestLogger.LOGGER.info("Message count for {}: {}", getQueueName(), server.getActiveMQServer().locateQueue(SimpleString.of(getQueueName())).getMessageCount());
 //
 //      StompClientConnection connV12 = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
 //      connV12.connect(defUser, defPass);
@@ -419,7 +421,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 //   }
 
    //core sender -> large (compressed large) -> stomp v10 receiver
-   @Test
+   @TestTemplate
    public void testReceiveLargeCompressedToLargePersistentMessagesFromCore() throws Exception {
 
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
@@ -448,13 +450,13 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 
          for (int i = 0; i < count; i++) {
             ClientStompFrame frame = conn.receiveFrame(60000);
-            Assert.assertNotNull(frame);
+            assertNotNull(frame);
             logger.debug(frame.toString());
             logger.debug("part of frame: {}", frame.getBody().substring(0, 250));
-            Assert.assertTrue(frame.getCommand().equals("MESSAGE"));
-            Assert.assertTrue(frame.getHeader("destination").equals(getQueuePrefix() + getQueueName()));
-            int index = frame.getBody().toString().indexOf(leadingPart);
-            assertEquals(msg.length(), (frame.getBody().toString().length() - index));
+            assertEquals("MESSAGE", frame.getCommand());
+            assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader("destination"));
+            int index = frame.getBody().indexOf(leadingPart);
+            assertEquals(msg.length(), (frame.getBody().length() - index));
          }
 
          ClientStompFrame unsubFrame = conn.createFrame("UNSUBSCRIBE");

@@ -28,6 +28,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -66,6 +67,8 @@ public final class BridgeConfiguration implements Serializable {
    public static String ROUTING_TYPE = "routing-type";
    public static String CONCURRENCY = "concurrency";
    public static String CONFIGURATION_MANAGED = "configuration-managed";
+   public static String PENDING_ACK_TIMEOUT = "pending-ack-timeout";
+   public static String CLIENT_ID = "client-id";
 
    private String name = null;
 
@@ -120,9 +123,13 @@ public final class BridgeConfiguration implements Serializable {
 
    private int concurrency = ActiveMQDefaultConfiguration.getDefaultBridgeConcurrency();
 
+   private long pendingAckTimeout = ActiveMQDefaultConfiguration.getDefaultBridgePendingAckTimeout();
+
    private String parentName = null;
 
    private boolean configurationManaged = true;
+
+   private String clientId = null;
 
    public BridgeConfiguration() {
    }
@@ -155,6 +162,8 @@ public final class BridgeConfiguration implements Serializable {
       routingType = other.routingType;
       concurrency = other.concurrency;
       configurationManaged = other.configurationManaged;
+      pendingAckTimeout = other.pendingAckTimeout;
+      clientId = other.clientId;
    }
 
    public BridgeConfiguration(String name) {
@@ -164,7 +173,7 @@ public final class BridgeConfiguration implements Serializable {
    /**
     * Set the value of a parameter based on its "key" {@code String}. Valid key names and corresponding {@code static}
     * {@code final} are:
-    * <p><ul>
+    * <ul>
     * <li>name: {@link #NAME}
     * <li>queue-name: {@link #QUEUE_NAME}
     * <li>forwarding-address: {@link #FORWARDING_ADDRESS}
@@ -190,12 +199,13 @@ public final class BridgeConfiguration implements Serializable {
     * <li>call-timeout: {@link #CALL_TIMEOUT}
     * <li>routing-type: {@link #ROUTING_TYPE}
     * <li>concurrency: {@link #CONCURRENCY}
-    * </ul><p>
+    * <li>client-id: {@link #CLIENT_ID}
+    * </ul>
     * The {@code String}-based values will be converted to the proper value types based on the underlying property. For
     * example, if you pass the value "TRUE" for the key "auto-created" the {@code String} "TRUE" will be converted to
     * the {@code Boolean} {@code true}.
     *
-    * @param key the key to set to the value
+    * @param key   the key to set to the value
     * @param value the value to set for the key
     * @return this {@code BridgeConfiguration}
     */
@@ -261,6 +271,10 @@ public final class BridgeConfiguration implements Serializable {
             setRoutingType(ComponentConfigurationRoutingType.valueOf(value));
          } else if (key.equals(CONCURRENCY)) {
             setConcurrency(Integer.parseInt(value));
+         } else if (key.equals(PENDING_ACK_TIMEOUT)) {
+            setPendingAckTimeout(Long.parseLong(value));
+         } else if (key.equals(CLIENT_ID)) {
+            setClientId(value);
          }
       }
       return this;
@@ -271,7 +285,10 @@ public final class BridgeConfiguration implements Serializable {
    }
 
    /**
-    * @param name the name to set
+    * Sets the name of this {@code BridgeConfiguration}. If the {@code parentName} is {@code null} then it is also set.
+    *
+    * @param name the name to use
+    * @return this {@code BridgeConfiguration}
     */
    public BridgeConfiguration setName(final String name) {
       this.name = name;
@@ -294,17 +311,11 @@ public final class BridgeConfiguration implements Serializable {
       return queueName;
    }
 
-   /**
-    * @param queueName the queueName to set
-    */
    public BridgeConfiguration setQueueName(final String queueName) {
       this.queueName = queueName;
       return this;
    }
 
-   /**
-    * @return the connectionTTL
-    */
    public long getConnectionTTL() {
       return connectionTTL;
    }
@@ -314,9 +325,6 @@ public final class BridgeConfiguration implements Serializable {
       return this;
    }
 
-   /**
-    * @return the maxRetryInterval
-    */
    public long getMaxRetryInterval() {
       return maxRetryInterval;
    }
@@ -330,9 +338,6 @@ public final class BridgeConfiguration implements Serializable {
       return forwardingAddress;
    }
 
-   /**
-    * @param forwardingAddress the forwardingAddress to set
-    */
    public BridgeConfiguration setForwardingAddress(final String forwardingAddress) {
       this.forwardingAddress = forwardingAddress;
       return this;
@@ -342,9 +347,6 @@ public final class BridgeConfiguration implements Serializable {
       return filterString;
    }
 
-   /**
-    * @param filterString the filterString to set
-    */
    public BridgeConfiguration setFilterString(final String filterString) {
       this.filterString = filterString;
       return this;
@@ -354,9 +356,6 @@ public final class BridgeConfiguration implements Serializable {
       return transformerConfiguration;
    }
 
-   /**
-    * @param transformerConfiguration the transformerConfiguration to set
-    */
    public BridgeConfiguration setTransformerConfiguration(final TransformerConfiguration transformerConfiguration) {
       this.transformerConfiguration = transformerConfiguration;
       return this;
@@ -366,9 +365,6 @@ public final class BridgeConfiguration implements Serializable {
       return staticConnectors;
    }
 
-   /**
-    * @param staticConnectors the staticConnectors to set
-    */
    public BridgeConfiguration setStaticConnectors(final List<String> staticConnectors) {
       this.staticConnectors = staticConnectors;
       return this;
@@ -378,9 +374,6 @@ public final class BridgeConfiguration implements Serializable {
       return discoveryGroupName;
    }
 
-   /**
-    * @param discoveryGroupName the discoveryGroupName to set
-    */
    public BridgeConfiguration setDiscoveryGroupName(final String discoveryGroupName) {
       this.discoveryGroupName = discoveryGroupName;
       return this;
@@ -390,9 +383,6 @@ public final class BridgeConfiguration implements Serializable {
       return ha;
    }
 
-   /**
-    * @param ha is the bridge supporting HA?
-    */
    public BridgeConfiguration setHA(final boolean ha) {
       this.ha = ha;
       return this;
@@ -402,9 +392,6 @@ public final class BridgeConfiguration implements Serializable {
       return retryInterval;
    }
 
-   /**
-    * @param retryInterval the retryInterval to set
-    */
    public BridgeConfiguration setRetryInterval(final long retryInterval) {
       this.retryInterval = retryInterval;
       return this;
@@ -414,9 +401,6 @@ public final class BridgeConfiguration implements Serializable {
       return retryIntervalMultiplier;
    }
 
-   /**
-    * @param retryIntervalMultiplier the retryIntervalMultiplier to set
-    */
    public BridgeConfiguration setRetryIntervalMultiplier(final double retryIntervalMultiplier) {
       this.retryIntervalMultiplier = retryIntervalMultiplier;
       return this;
@@ -426,9 +410,6 @@ public final class BridgeConfiguration implements Serializable {
       return initialConnectAttempts;
    }
 
-   /**
-    * @param initialConnectAttempts the initialConnectAttempts to set
-    */
    public BridgeConfiguration setInitialConnectAttempts(final int initialConnectAttempts) {
       this.initialConnectAttempts = initialConnectAttempts;
       return this;
@@ -438,9 +419,6 @@ public final class BridgeConfiguration implements Serializable {
       return reconnectAttempts;
    }
 
-   /**
-    * @param reconnectAttempts the reconnectAttempts to set
-    */
    public BridgeConfiguration setReconnectAttempts(final int reconnectAttempts) {
       this.reconnectAttempts = reconnectAttempts;
       return this;
@@ -450,9 +428,6 @@ public final class BridgeConfiguration implements Serializable {
       return useDuplicateDetection;
    }
 
-   /**
-    * @param useDuplicateDetection the useDuplicateDetection to set
-    */
    public BridgeConfiguration setUseDuplicateDetection(final boolean useDuplicateDetection) {
       this.useDuplicateDetection = useDuplicateDetection;
       return this;
@@ -462,9 +437,6 @@ public final class BridgeConfiguration implements Serializable {
       return confirmationWindowSize;
    }
 
-   /**
-    * @param confirmationWindowSize the confirmationWindowSize to set
-    */
    public BridgeConfiguration setConfirmationWindowSize(final int confirmationWindowSize) {
       this.confirmationWindowSize = confirmationWindowSize;
       return this;
@@ -474,9 +446,6 @@ public final class BridgeConfiguration implements Serializable {
       return producerWindowSize;
    }
 
-   /**
-    * @param producerWindowSize the producerWindowSize to set
-    */
    public BridgeConfiguration setProducerWindowSize(final int producerWindowSize) {
       this.producerWindowSize = producerWindowSize;
       return this;
@@ -491,9 +460,6 @@ public final class BridgeConfiguration implements Serializable {
       return this;
    }
 
-   /**
-    * @return the minLargeMessageSize
-    */
    public int getMinLargeMessageSize() {
       return minLargeMessageSize;
    }
@@ -521,9 +487,6 @@ public final class BridgeConfiguration implements Serializable {
       return this;
    }
 
-   /**
-    * @return the callTimeout
-    */
    public long getCallTimeout() {
       return callTimeout;
    }
@@ -555,24 +518,35 @@ public final class BridgeConfiguration implements Serializable {
       return this;
    }
 
-   /**
-    * @return the bridge concurrency
-    */
    public int getConcurrency() {
       return concurrency;
    }
 
-   /**
-    * @param concurrency the bridge concurrency to set
-    */
    public BridgeConfiguration setConcurrency(int concurrency) {
       this.concurrency = concurrency;
       return this;
    }
 
+   public long getPendingAckTimeout() {
+      return pendingAckTimeout;
+   }
+
+   public BridgeConfiguration setPendingAckTimeout(long pendingAckTimeout) {
+      this.pendingAckTimeout = pendingAckTimeout;
+      return this;
+   }
+
+   public String getClientId() {
+      return clientId;
+   }
+
+   public BridgeConfiguration setClientId(String clientId) {
+      this.clientId = clientId;
+      return this;
+   }
+
    /**
-    * At this point this is only changed on testcases
-    * The bridge shouldn't be sending blocking anyways
+    * At this point this is only changed on testcases The bridge shouldn't be sending blocking anyways
     *
     * @param callTimeout the callTimeout to set
     */
@@ -631,6 +605,10 @@ public final class BridgeConfiguration implements Serializable {
       builder.add(CALL_TIMEOUT, getCallTimeout());
       builder.add(CONCURRENCY, getConcurrency());
       builder.add(CONFIGURATION_MANAGED, isConfigurationManaged());
+      builder.add(PENDING_ACK_TIMEOUT, getPendingAckTimeout());
+      if (getClientId() != null) {
+         builder.add(CLIENT_ID, getClientId());
+      }
 
       // complex fields (only serialize if value is not null)
 
@@ -647,13 +625,7 @@ public final class BridgeConfiguration implements Serializable {
 
       TransformerConfiguration tc = getTransformerConfiguration();
       if (tc != null) {
-         JsonObjectBuilder tcBuilder = JsonLoader.createObjectBuilder().add(TransformerConfiguration.CLASS_NAME, tc.getClassName());
-         if (tc.getProperties() != null && tc.getProperties().size() > 0) {
-            JsonObjectBuilder propBuilder = JsonLoader.createObjectBuilder();
-            tc.getProperties().forEach(propBuilder::add);
-            tcBuilder.add(TransformerConfiguration.PROPERTIES, propBuilder);
-         }
-         builder.add(TRANSFORMER_CONFIGURATION, tcBuilder);
+         builder.add(TRANSFORMER_CONFIGURATION, tc.createJsonObjectBuilder());
       }
 
       return builder.build().toString();
@@ -698,143 +670,69 @@ public final class BridgeConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + (int) (callTimeout ^ (callTimeout >>> 32));
-      result = prime * result + (int) (clientFailureCheckPeriod ^ (clientFailureCheckPeriod >>> 32));
-      result = prime * result + confirmationWindowSize;
-      result = prime * result + producerWindowSize;
-      result = prime * result + (int) (connectionTTL ^ (connectionTTL >>> 32));
-      result = prime * result + ((discoveryGroupName == null) ? 0 : discoveryGroupName.hashCode());
-      result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
-      result = prime * result + ((forwardingAddress == null) ? 0 : forwardingAddress.hashCode());
-      result = prime * result + (ha ? 1231 : 1237);
-      result = prime * result + (int) (maxRetryInterval ^ (maxRetryInterval >>> 32));
-      result = prime * result + minLargeMessageSize;
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + ((password == null) ? 0 : password.hashCode());
-      result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
-      result = prime * result + initialConnectAttempts;
-      result = prime * result + reconnectAttempts;
-      result = prime * result + (int) (retryInterval ^ (retryInterval >>> 32));
-      long temp;
-      temp = Double.doubleToLongBits(retryIntervalMultiplier);
-      result = prime * result + (int) (temp ^ (temp >>> 32));
-      result = prime * result + ((staticConnectors == null) ? 0 : staticConnectors.hashCode());
-      result = prime * result + ((transformerConfiguration == null) ? 0 : transformerConfiguration.hashCode());
-      result = prime * result + (useDuplicateDetection ? 1231 : 1237);
-      result = prime * result + ((user == null) ? 0 : user.hashCode());
-      result = prime * result + concurrency;
-      result = prime * result + (configurationManaged ? 1231 : 1237);
-      return result;
+      return Objects.hash(callTimeout, clientFailureCheckPeriod, confirmationWindowSize, producerWindowSize,
+                          connectionTTL, discoveryGroupName, filterString, forwardingAddress, ha, maxRetryInterval,
+                          minLargeMessageSize, name, password, queueName, initialConnectAttempts, reconnectAttempts,
+                          retryInterval, retryIntervalMultiplier, staticConnectors, transformerConfiguration,
+                          useDuplicateDetection, user, concurrency, pendingAckTimeout, configurationManaged, clientId);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof BridgeConfiguration other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      BridgeConfiguration other = (BridgeConfiguration) obj;
-      if (callTimeout != other.callTimeout)
-         return false;
-      if (clientFailureCheckPeriod != other.clientFailureCheckPeriod)
-         return false;
-      if (confirmationWindowSize != other.confirmationWindowSize)
-         return false;
-      if (producerWindowSize != other.producerWindowSize)
-         return false;
-      if (connectionTTL != other.connectionTTL)
-         return false;
-      if (discoveryGroupName == null) {
-         if (other.discoveryGroupName != null)
-            return false;
-      } else if (!discoveryGroupName.equals(other.discoveryGroupName))
-         return false;
-      if (filterString == null) {
-         if (other.filterString != null)
-            return false;
-      } else if (!filterString.equals(other.filterString))
-         return false;
-      if (forwardingAddress == null) {
-         if (other.forwardingAddress != null)
-            return false;
-      } else if (!forwardingAddress.equals(other.forwardingAddress))
-         return false;
-      if (ha != other.ha)
-         return false;
-      if (maxRetryInterval != other.maxRetryInterval)
-         return false;
-      if (minLargeMessageSize != other.minLargeMessageSize)
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!parentName.equals(other.parentName))
-         return false;
-      if (password == null) {
-         if (other.password != null)
-            return false;
-      } else if (!password.equals(other.password))
-         return false;
-      if (queueName == null) {
-         if (other.queueName != null)
-            return false;
-      } else if (!queueName.equals(other.queueName))
-         return false;
-      if (initialConnectAttempts != other.initialConnectAttempts)
-         return false;
-      if (reconnectAttempts != other.reconnectAttempts)
-         return false;
-      if (retryInterval != other.retryInterval)
-         return false;
-      if (Double.doubleToLongBits(retryIntervalMultiplier) != Double.doubleToLongBits(other.retryIntervalMultiplier))
-         return false;
-      if (staticConnectors == null) {
-         if (other.staticConnectors != null)
-            return false;
-      } else if (!staticConnectors.equals(other.staticConnectors))
-         return false;
-      if (transformerConfiguration == null) {
-         if (other.transformerConfiguration != null)
-            return false;
-      } else if (!transformerConfiguration.equals(other.transformerConfiguration))
-         return false;
-      if (useDuplicateDetection != other.useDuplicateDetection)
-         return false;
-      if (user == null) {
-         if (other.user != null)
-            return false;
-      } else if (!user.equals(other.user))
-         return false;
-      if (concurrency != other.concurrency)
-         return false;
-      if (configurationManaged != other.configurationManaged)
-         return false;
-      return true;
+      }
+      return callTimeout == other.callTimeout &&
+             clientFailureCheckPeriod == other.clientFailureCheckPeriod &&
+             confirmationWindowSize == other.confirmationWindowSize &&
+             producerWindowSize == other.producerWindowSize &&
+             connectionTTL == other.connectionTTL &&
+             ha == other.ha &&
+             maxRetryInterval == other.maxRetryInterval &&
+             minLargeMessageSize == other.minLargeMessageSize &&
+             initialConnectAttempts == other.initialConnectAttempts &&
+             reconnectAttempts == other.reconnectAttempts &&
+             retryInterval == other.retryInterval &&
+             Double.doubleToLongBits(retryIntervalMultiplier) == Double.doubleToLongBits(other.retryIntervalMultiplier) &&
+             useDuplicateDetection == other.useDuplicateDetection &&
+             concurrency == other.concurrency &&
+             pendingAckTimeout == other.pendingAckTimeout &&
+             configurationManaged == other.configurationManaged &&
+             Objects.equals(discoveryGroupName, other.discoveryGroupName) &&
+             Objects.equals(filterString, other.filterString) &&
+             Objects.equals(forwardingAddress, other.forwardingAddress) &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(parentName, other.parentName) &&
+             Objects.equals(password, other.password) &&
+             Objects.equals(queueName, other.queueName) &&
+             Objects.equals(staticConnectors, other.staticConnectors) &&
+             Objects.equals(transformerConfiguration, other.transformerConfiguration) &&
+             Objects.equals(user, other.user) &&
+             Objects.equals(clientId, other.clientId);
    }
 
    public int getEncodeSize() {
-      int transformerSize = 0;
+      int transformerSize;
       if (transformerConfiguration != null) {
-         transformerSize += BufferHelper.sizeOfNullableString(transformerConfiguration.getClassName());
-         transformerSize += DataConstants.INT;
-         Map<String, String> properties = transformerConfiguration.getProperties();
-         for (Map.Entry<String, String> entry : properties.entrySet()) {
+         transformerSize = BufferHelper.sizeOfNullableString(transformerConfiguration.getClassName());
+         transformerSize += DataConstants.SIZE_INT;
+         for (Map.Entry<String, String> entry : transformerConfiguration.getProperties().entrySet()) {
             transformerSize += BufferHelper.sizeOfNullableString(entry.getKey());
             transformerSize += BufferHelper.sizeOfNullableString(entry.getValue());
          }
+      } else {
+         transformerSize = DataConstants.SIZE_NULL;
       }
-      int staticConnectorSize = 0;
+      int staticConnectorSize = DataConstants.SIZE_INT;
       if (staticConnectors != null) {
-         staticConnectorSize += BufferHelper.sizeOfNullableInteger(staticConnectors.size());
          for (String connector : staticConnectors) {
             staticConnectorSize += BufferHelper.sizeOfNullableString(connector);
          }
       }
-      int size =  BufferHelper.sizeOfNullableString(name) +
+      int size = BufferHelper.sizeOfNullableString(name) +
          BufferHelper.sizeOfNullableString(parentName) +
          BufferHelper.sizeOfNullableString(queueName) +
          BufferHelper.sizeOfNullableString(forwardingAddress) +
@@ -858,9 +756,11 @@ public final class BridgeConfiguration implements Serializable {
          BufferHelper.sizeOfNullableLong(callTimeout) +
          BufferHelper.sizeOfNullableInteger(concurrency) +
          BufferHelper.sizeOfNullableBoolean(configurationManaged) +
-         DataConstants.SIZE_BYTE +
+         DataConstants.SIZE_BYTE + // routingType
          transformerSize +
-         staticConnectorSize;
+         staticConnectorSize +
+         BufferHelper.sizeOfNullableLong(pendingAckTimeout) +
+         BufferHelper.sizeOfNullableString(clientId);
       return size;
    }
 
@@ -891,7 +791,7 @@ public final class BridgeConfiguration implements Serializable {
       buffer.writeNullableBoolean(configurationManaged);
       buffer.writeByte(routingType != null ? routingType.getType() : ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType()).getType());
       if (transformerConfiguration != null) {
-         buffer.writeString(transformerConfiguration.getClassName());
+         buffer.writeNullableString(transformerConfiguration.getClassName());
          Map<String, String> properties = transformerConfiguration.getProperties();
          buffer.writeInt(properties.size());
          for (Map.Entry<String, String> entry : properties.entrySet()) {
@@ -909,6 +809,8 @@ public final class BridgeConfiguration implements Serializable {
       } else {
          buffer.writeInt(0);
       }
+      buffer.writeNullableLong(pendingAckTimeout);
+      buffer.writeNullableString(clientId);
    }
 
    public void decode(ActiveMQBuffer buffer) {
@@ -952,6 +854,11 @@ public final class BridgeConfiguration implements Serializable {
             staticConnectors.add(buffer.readNullableString());
          }
       }
+      if (buffer.readable()) {
+         pendingAckTimeout = buffer.readNullableLong();
+      }
+      if (buffer.readable()) {
+         clientId = buffer.readNullableString();
+      }
    }
-
 }

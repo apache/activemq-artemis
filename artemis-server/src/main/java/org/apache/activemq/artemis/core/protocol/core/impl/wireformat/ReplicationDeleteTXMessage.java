@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -82,9 +83,6 @@ public class ReplicationDeleteTXMessage extends PacketImpl {
       buffer.readBytes(recordData);
    }
 
-   /**
-    * @return the id
-    */
    public long getId() {
       return id;
    }
@@ -93,54 +91,35 @@ public class ReplicationDeleteTXMessage extends PacketImpl {
       return txId;
    }
 
-   /**
-    * @return the journalID
-    */
    public byte getJournalID() {
       return journalID;
    }
 
-   /**
-    * @return the recordData
-    */
    public byte[] getRecordData() {
       return recordData;
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((encodingData == null) ? 0 : encodingData.hashCode());
-      result = prime * result + (int) (id ^ (id >>> 32));
-      result = prime * result + journalID;
-      result = prime * result + Arrays.hashCode(recordData);
-      result = prime * result + (int) (txId ^ (txId >>> 32));
-      return result;
+      return Objects.hash(super.hashCode(), encodingData, id, journalID, Arrays.hashCode(recordData), txId);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (getClass() != obj.getClass())
+      }
+      if (!(obj instanceof ReplicationDeleteTXMessage other)) {
          return false;
-      ReplicationDeleteTXMessage other = (ReplicationDeleteTXMessage) obj;
-      if (encodingData == null) {
-         if (other.encodingData != null)
-            return false;
-      } else if (!encodingData.equals(other.encodingData))
-         return false;
-      if (id != other.id)
-         return false;
-      if (journalID != other.journalID)
-         return false;
-      if (!Arrays.equals(recordData, other.recordData))
-         return false;
-      if (txId != other.txId)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(encodingData, other.encodingData) &&
+             id == other.id &&
+             journalID == other.journalID &&
+             Arrays.equals(recordData, other.recordData) &&
+             txId == other.txId;
    }
 }

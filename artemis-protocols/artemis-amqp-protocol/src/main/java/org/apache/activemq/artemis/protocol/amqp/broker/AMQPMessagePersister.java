@@ -51,7 +51,9 @@ public class AMQPMessagePersister extends MessagePersister {
          SimpleString.sizeofNullableString(record.getAddressSimpleString()) + DataConstants.SIZE_LONG + DataConstants.SIZE_LONG;
    }
 
-   /** Sub classes must add the first short as the protocol-id */
+   /**
+    * Sub classes must add the first short as the protocol-id
+    */
    @Override
    public void encode(ActiveMQBuffer buffer, Message record) {
       super.encode(buffer, record);
@@ -63,7 +65,7 @@ public class AMQPMessagePersister extends MessagePersister {
    }
 
    @Override
-   public Message decode(ActiveMQBuffer buffer, Message record,  CoreMessageObjectPools pool) {
+   public Message decode(ActiveMQBuffer buffer, Message record, CoreMessageObjectPools pool) {
       long id = buffer.readLong();
       long format = buffer.readLong();
       final SimpleString address;

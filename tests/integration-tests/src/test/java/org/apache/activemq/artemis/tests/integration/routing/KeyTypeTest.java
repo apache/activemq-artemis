@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.routing;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
@@ -24,45 +28,53 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.routing.policies.FirstElementPolicy;
-import org.apache.activemq.artemis.core.server.routing.policies.Policy;
-import org.apache.activemq.artemis.core.server.routing.policies.PolicyFactory;
 import org.apache.activemq.artemis.core.server.routing.policies.PolicyFactoryResolver;
 import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class KeyTypeTest extends RoutingTestBase {
 
    private static final String MOCK_POLICY_NAME = "MOCK_POLICY";
 
-   @Parameterized.Parameters(name = "protocol: {0}")
+   @Parameters(name = "protocol: {0}")
    public static Collection<Object[]> data() {
       Collection<Object[]> data = new ArrayList<>();
 
-      for (String protocol : Arrays.asList(new String[] {AMQP_PROTOCOL, CORE_PROTOCOL, OPENWIRE_PROTOCOL})) {
+      for (String protocol : Arrays.asList(AMQP_PROTOCOL, CORE_PROTOCOL, MQTT_PROTOCOL, OPENWIRE_PROTOCOL)) {
          data.add(new Object[] {protocol});
       }
 
@@ -85,45 +97,32 @@ public class KeyTypeTest extends RoutingTestBase {
 
    private final List<String> keys = new ArrayList<>();
 
-
    public KeyTypeTest(String protocol) {
       this.protocol = protocol;
    }
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
-      PolicyFactoryResolver.getInstance().registerPolicyFactory(MOCK_POLICY_NAME,
-         new PolicyFactory() {
-            @Override
-            public Policy create() {
-               return new FirstElementPolicy(MOCK_POLICY_NAME) {
-                  @Override
-                  public Target selectTarget(List<Target> targets, String key) {
-                     keys.add(key);
-                     return super.selectTarget(targets, key);
-                  }
-               };
-            }
-         });
+      PolicyFactoryResolver.getInstance().registerPolicyFactory(MOCK_POLICY_NAME, () -> new FirstElementPolicy(MOCK_POLICY_NAME) {
+         @Override
+         public Target selectTarget(List<Target> targets, String key) {
+            keys.add(key);
+            return super.selectTarget(targets, key);
+         }
+      });
    }
 
-   @Test
+   @TestTemplate
    public void testClientIDKey() throws Exception {
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupRouterServerWithDiscovery(0, KeyType.CLIENT_ID, MOCK_POLICY_NAME, null, true, null, 1);
       startServers(0);
 
-      ConnectionFactory connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
-         TransportConstants.DEFAULT_PORT + 0, "test", null, null);
+      testConnection(TransportConstants.DEFAULT_HOST, TransportConstants.DEFAULT_PORT + 0,
+              "test", null, null, false, false, -1);
 
-      keys.clear();
-
-      try (Connection connection = connectionFactory.createConnection()) {
-         connection.start();
-      }
-
-      Assert.assertEquals(1, keys.size());
-      Assert.assertEquals("test", keys.get(0));
+      assertEquals(1, keys.size());
+      assertEquals("test", keys.get(0));
    }
 
    @Override
@@ -131,9 +130,9 @@ public class KeyTypeTest extends RoutingTestBase {
       return false;
    }
 
-   @Test
+   @TestTemplate
    public void testClientIDKeyOnBackup() throws Exception {
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", MessageLoadBalancingType.OFF, 1, true);
       setupRouterServerWithCluster(0, KeyType.CLIENT_ID, FirstElementPolicy.NAME, null, true, null, 1, "cluster0");
       setupBackupServer(1, 0, false, HAType.SharedNothingReplication, true);
@@ -152,20 +151,14 @@ public class KeyTypeTest extends RoutingTestBase {
 
       waitForFailoverTopology(1);
 
-      ConnectionFactory connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
-                                                          TransportConstants.DEFAULT_PORT + 1, "test", null, null);
+      testConnection(TransportConstants.DEFAULT_HOST, TransportConstants.DEFAULT_PORT + 1,
+              "test", null, null, false, false, -1);
 
-      keys.clear();
-
-      try (Connection connection = connectionFactory.createConnection()) {
-         connection.start();
-      }
-
-      Assert.assertEquals(1, keys.size());
-      Assert.assertEquals("test", keys.get(0));
+      assertEquals(1, keys.size());
+      assertEquals("test", keys.get(0));
    }
 
-   @Test
+   @TestTemplate
    public void testSNIHostKey() throws Exception {
       String localHostname = "localhost.localdomain";
 
@@ -175,11 +168,11 @@ public class KeyTypeTest extends RoutingTestBase {
          if (!checkLocalHostname(localHostname)) {
             localHostname = "localhost";
 
-            Assume.assumeTrue(CORE_PROTOCOL.equals(protocol) && checkLocalHostname(localHostname));
+            assumeTrue(CORE_PROTOCOL.equals(protocol) && checkLocalHostname(localHostname));
          }
       }
 
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       getDefaultServerAcceptor(0).getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       getDefaultServerAcceptor(0).getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-keystore.jks");
       getDefaultServerAcceptor(0).getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
@@ -187,84 +180,158 @@ public class KeyTypeTest extends RoutingTestBase {
       setupRouterServerWithDiscovery(0, KeyType.SNI_HOST, MOCK_POLICY_NAME, null, true, null, 1);
       startServers(0);
 
-      ConnectionFactory connectionFactory = createFactory(protocol, true, localHostname,
-         TransportConstants.DEFAULT_PORT + 0, null, null, null);
+      testConnection(localHostname, TransportConstants.DEFAULT_PORT + 0,
+              null, null, null, true, false, -1);
 
-      try (Connection connection = connectionFactory.createConnection()) {
-         connection.start();
-      }
-
-      Assert.assertEquals(1, keys.size());
-      Assert.assertEquals(localHostname, keys.get(0));
+      assertEquals(1, keys.size());
+      assertEquals(localHostname, keys.get(0));
    }
 
-   @Test
+   @TestTemplate
    public void testSourceIPKey() throws Exception {
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupRouterServerWithDiscovery(0, KeyType.SOURCE_IP, MOCK_POLICY_NAME, null, true, null, 1);
       startServers(0);
 
-      ConnectionFactory connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
-         TransportConstants.DEFAULT_PORT + 0, null, null, null);
+      testConnection(TransportConstants.DEFAULT_HOST, TransportConstants.DEFAULT_PORT + 0,
+              null, null, null, false, false, -1);
 
-      try (Connection connection = connectionFactory.createConnection()) {
-         connection.start();
-      }
-
-      Assert.assertEquals(1, keys.size());
-      Assert.assertEquals(InetAddress.getLoopbackAddress().getHostAddress(), keys.get(0));
+      assertEquals(1, keys.size());
+      assertEquals(InetAddress.getLoopbackAddress().getHostAddress(), keys.get(0));
    }
 
-   @Test
+   @TestTemplate
    public void testUserNameKey() throws Exception {
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupRouterServerWithDiscovery(0, KeyType.USER_NAME, MOCK_POLICY_NAME, null, true, null, 1);
       startServers(0);
 
-      ConnectionFactory connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
-         TransportConstants.DEFAULT_PORT + 0, null, "admin", "admin");
+      testConnection(TransportConstants.DEFAULT_HOST, TransportConstants.DEFAULT_PORT + 0,
+              null, "admin", "admin", false, false, -1);
 
-      try (Connection connection = connectionFactory.createConnection()) {
-         connection.start();
-      }
-
-      Assert.assertEquals(1, keys.size());
-      Assert.assertEquals("admin", keys.get(0));
+      assertEquals(1, keys.size());
+      assertEquals("admin", keys.get(0));
    }
 
-   @Test
-   public void testRoleNameKeyLocalTarget() throws Exception {
+   @TestTemplate
+   public void testUserNameKeyFromCertificate() throws Exception {
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      getDefaultServerAcceptor(0).getParams().put("securityDomain", "CertLogin");
+      getDefaultServerAcceptor(0).getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      getDefaultServerAcceptor(0).getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-keystore.jks");
+      getDefaultServerAcceptor(0).getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      getDefaultServerAcceptor(0).getParams().put(TransportConstants.WANT_CLIENT_AUTH_PROP_NAME, "true");
+      getDefaultServerAcceptor(0).getParams().put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, "true");
+      getDefaultServerAcceptor(0).getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-ca-truststore.jks");
+      getDefaultServerAcceptor(0).getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
 
+      getServer(0).getConfiguration().setSecurityEnabled(true);
+      getServer(0).getSecurityRepository().addMatch("#", Collections.singleton(
+              new Role("programmers", true, true, true, true, true, true, true, true, true, true, false, false)));
+
+      setupRouterServerWithDiscovery(0, KeyType.USER_NAME, MOCK_POLICY_NAME, null, true, null, 1);
+
+      startServers(0);
+
+      testConnection(TransportConstants.DEFAULT_HOST, TransportConstants.DEFAULT_PORT + 0,
+              null, null, null, true, true, -1);
+
+      assertEquals(1, keys.size());
+      assertEquals("first", keys.get(0));
+   }
+
+   @TestTemplate
+   public void testRoleNameKeyLocalTarget() throws Exception {
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       servers[0] = addServer(ActiveMQServers.newActiveMQServer(createDefaultConfig(true).setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       setupRouterServerWithLocalTarget(0, KeyType.ROLE_NAME, "b", "b");
 
       // ensure advisory permission is present for openwire connection creation by 'b'
       HierarchicalRepository<Set<Role>> securityRepository = servers[0].getSecurityRepository();
-      Role role = new Role("b", true, true, true, true, true, true, false, false, true, true);
+      Role role = new Role("b", true, true, true, true, true, true, false, false, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch("ActiveMQ.Advisory.#", roles);
 
       startServers(0);
 
-      final int noRetriesSuchThatWeGetAnErrorOnRejection = 0;
-      ConnectionFactory connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
-                                                          TransportConstants.DEFAULT_PORT + 0, null, "a", "a", noRetriesSuchThatWeGetAnErrorOnRejection);
-
       // expect disconnect/reject as not role b
-      try (Connection connection = connectionFactory.createConnection()) {
-         connection.start();
+      try {
+         final int noRetriesSuchThatWeGetAnErrorOnRejection = 0;
+         testConnection(TransportConstants.DEFAULT_HOST, TransportConstants.DEFAULT_PORT + 0,
+                 null, "a", "a", false, false, noRetriesSuchThatWeGetAnErrorOnRejection);
          fail("Expect to be rejected as not in role b");
       } catch (Exception expectedButNotSpecificDueToDifferentProtocolsInPlay) {
       }
 
-      connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
-                                        TransportConstants.DEFAULT_PORT + 0, null, "b", "b");
+      testConnection(TransportConstants.DEFAULT_HOST, TransportConstants.DEFAULT_PORT + 0,
+              null, "b", "b", false, false, -1);
+   }
 
-      // expect to be accepted, b has role b
-      try (Connection connection = connectionFactory.createConnection()) {
-         connection.start();
+   private void testConnection(String host, int port, String clientID, String user, String password, boolean sslEnabled, boolean needClientAuth, int retries) throws Exception {
+      if (MQTT_PROTOCOL.equals(protocol)) {
+         for (int i = 0; retries == -1 || i <= retries; i++) {
+            try {
+               testMQTTConnection(host, port, clientID, user, password, sslEnabled, needClientAuth);
+               break;
+            } catch (Throwable t) {
+               if (i == retries) {
+                  throw t;
+               }
+            }
+         }
+      } else {
+         ConnectionFactory connectionFactory = createFactory(protocol, sslEnabled, host,
+                 port, clientID, user, password, needClientAuth, retries);
+
+         try (Connection connection = connectionFactory.createConnection()) {
+            connection.start();
+         }
+      }
+   }
+
+   private void testMQTTConnection(String host, int port, String clientID, String user, String password, boolean sslEnabled, boolean needClientAuth) throws Exception {
+      MqttConnectOptions connOpts = new MqttConnectOptions();
+      connOpts.setCleanSession(true);
+      connOpts.setUserName(user);
+      if (password != null) {
+         connOpts.setPassword(password.toCharArray());
+      }
+
+      String serverURIScheme = "tcp";
+
+      if (sslEnabled) {
+         serverURIScheme = "ssl";
+
+         SSLContext sslContext = SSLContext.getInstance("TLS");
+
+         KeyManager[] kms = null;
+         if (needClientAuth) {
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(getClass().getClassLoader().getResourceAsStream("client-keystore.jks"), "securepass".toCharArray());
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(keyStore, "securepass".toCharArray());
+            kms = kmf.getKeyManagers();
+         }
+
+         KeyStore trustStore = KeyStore.getInstance("JKS");
+         trustStore.load(getClass().getClassLoader().getResourceAsStream("server-ca-truststore.jks"), "securepass".toCharArray());
+         TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+         tmf.init(trustStore);
+
+         sslContext.init(kms, tmf.getTrustManagers(), null); // null KeyManagers, null TrustManagers, null SecureRandom
+
+         SSLSocketFactory socketFactory = sslContext.getSocketFactory();
+         connOpts.setSocketFactory(socketFactory);
+      }
+
+      if (clientID == null) {
+         clientID = UUID.randomUUID().toString();
+      }
+
+      try (MqttClient mqttClient = new MqttClient(serverURIScheme + "://" + host + ":" + port, clientID, new MemoryPersistence())) {
+         mqttClient.connect(connOpts);
+         mqttClient.disconnect();
       }
    }
 

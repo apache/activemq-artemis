@@ -19,19 +19,16 @@ package org.apache.activemq.artemis.api.core.client;
 import org.apache.activemq.artemis.api.core.Message;
 
 /**
- * A SendAcknowledgementHandler notifies a client when a message sent asynchronously has been
- * received by the server.
+ * A SendAcknowledgementHandler notifies a client when a message sent asynchronously has been received by the server.
  * <p>
- * If the session is not blocking when sending durable or non-durable messages, the session can set
- * a SendAcknowledgementHandler to be notified later when the messages has been received by the
- * server. The method {@link #sendAcknowledged(Message)} will be called with the message that was
- * sent asynchronously.
+ * If the session is not blocking when sending durable or non-durable messages, the session can set a
+ * SendAcknowledgementHandler to be notified later when the messages has been received by the server. The method
+ * {@link #sendAcknowledged(Message)} will be called with the message that was sent asynchronously.
  * <p>
- * The rate of notification can be controlled through
+ * The rate of notification can be controlled through {@link ServerLocator#setConfirmationWindowSize(int)}.
+ * <p>
+ * Notice that this notification will only take place if {@code ConfirmationWindowSize} is set to a positive value at
  * {@link ServerLocator#setConfirmationWindowSize(int)}.
- * <p>
- * Notice that this notification will only take place if {@code ConfirmationWindowSize} is set to a
- * positive value at {@link ServerLocator#setConfirmationWindowSize(int)}.
  */
 public interface SendAcknowledgementHandler {
 
@@ -43,10 +40,9 @@ public interface SendAcknowledgementHandler {
    void sendAcknowledged(Message message);
 
    default void sendFailed(Message message, Exception e) {
-      /**
-       * By default ignore failures to preserve compatibility with existing implementations.
-       * If the message makes it to the broker and a failure occurs sendAcknowledge() will
-       * still be invoked just like it always was.
+      /*
+       * By default ignore failures to preserve compatibility with existing implementations. If the message makes it to
+       * the broker and a failure occurs sendAcknowledge() will still be invoked just like it always was.
        */
    }
 

@@ -17,16 +17,15 @@
 package org.apache.activemq.artemis.core.persistence.impl.journal.codec;
 
 import java.util.EnumSet;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.utils.DataConstants;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 public class PersistentAddressBindingEncoding implements EncodingSupport, AddressBindingInfo {
 
@@ -67,11 +66,8 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
                                            final EnumSet<RoutingType> routingTypes,
                                            final boolean autoCreated,
                                            final boolean internal) {
-      checkNotNull(name);
-      checkNotNull(routingTypes);
-
-      this.name = name;
-      this.routingTypes = routingTypes;
+      this.name = Objects.requireNonNull(name);
+      this.routingTypes = Objects.requireNonNull(routingTypes);
       this.autoCreated = autoCreated;
       this.internal = internal;
    }

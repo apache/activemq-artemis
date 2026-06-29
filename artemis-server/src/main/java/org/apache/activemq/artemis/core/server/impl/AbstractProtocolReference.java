@@ -18,16 +18,19 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 
-/** I need to store protocol specific data on the references. The same need exists in both PagedReference and MessageReferenceImpl.
- *  This class will serve the purpose to keep the specific protocol data for either reference.
- *  */
+/**
+ * I need to store protocol specific data on the references. The same need exists in both PagedReference and
+ * MessageReferenceImpl. This class will serve the purpose to keep the specific protocol data for either reference.
+ */
 public abstract class AbstractProtocolReference extends LinkedListImpl.Node<MessageReferenceImpl> implements MessageReference {
 
-   private HashMap<Class, Object> protocolDataMap;
+   private Map<Class, Object> protocolDataMap;
+   protected volatile long sequence = 0;
 
    @Override
    public <T> T getProtocolData(Class<T> classType) {
@@ -45,5 +48,16 @@ public abstract class AbstractProtocolReference extends LinkedListImpl.Node<Mess
       }
       protocolDataMap.put(classType, protocolData);
    }
+
+   @Override
+   public long getSequence() {
+      return sequence;
+   }
+
+   @Override
+   public void setSequence(long nextSequence) {
+      this.sequence = nextSequence;
+   }
+
 
 }

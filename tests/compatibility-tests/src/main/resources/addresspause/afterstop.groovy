@@ -36,14 +36,11 @@ Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
 Topic topic = session.createTopic("topic");
 Queue queue = session.createQueue("queue");
 MessageConsumer consumer;
-Destination destination;
 
 if (address.equals("topic")) {
-   destination = topic;
    TopicSubscriber subscriber1 = session.createDurableSubscriber(topic, "my-subscription1");
    consumer = subscriber1;
 } else {
-   destination = queue;
    consumer = session.createConsumer(queue);
 }
 

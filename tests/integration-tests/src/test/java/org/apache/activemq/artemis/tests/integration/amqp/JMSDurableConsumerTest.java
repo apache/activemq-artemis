@@ -16,6 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,40 +33,36 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+@ExtendWith(ParameterizedTestExtension.class)
 public class JMSDurableConsumerTest extends JMSClientTestSupport {
 
-   @Parameterized.Parameters(name = "{index}: amqpUseCoreSubscriptionNaming={0}")
+   @Parameters(name = "{index}: amqpUseCoreSubscriptionNaming={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
          {true}, {false}
       });
    }
 
-   /* NOT private @see https://github.com/junit-team/junit4/wiki/parameterized-tests */
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public boolean amqpUseCoreSubscriptionNaming;
 
    @Override
@@ -64,7 +70,8 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
       server.getConfiguration().setAmqpUseCoreSubscriptionNaming(amqpUseCoreSubscriptionNaming);
    }
 
-   @Test(timeout = 30000)
+   @TestTemplate
+   @Timeout(30)
    public void testDurableConsumerAsync() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
       final AtomicReference<Message> received = new AtomicReference<>();
@@ -76,13 +83,9 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer consumer = session.createDurableSubscriber(topic, "DurbaleTopic");
-         consumer.setMessageListener(new MessageListener() {
-
-            @Override
-            public void onMessage(Message message) {
-               received.set(message);
-               latch.countDown();
-            }
+         consumer.setMessageListener(message -> {
+            received.set(message);
+            latch.countDown();
          });
 
          MessageProducer producer = session.createProducer(topic);
@@ -94,14 +97,15 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          producer.send(message);
 
          assertTrue(latch.await(10, TimeUnit.SECONDS));
-         assertNotNull("Should have received a message by now.", received.get());
-         assertTrue("Should be an instance of TextMessage", received.get() instanceof TextMessage);
+         assertNotNull(received.get(), "Should have received a message by now.");
+         assertInstanceOf(TextMessage.class, received.get(), "Should be an instance of TextMessage");
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 30000)
+   @TestTemplate
+   @Timeout(30)
    public void testDurableConsumerSync() throws Exception {
       String durableClientId = getTopicName() + "-ClientId";
 
@@ -119,23 +123,20 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          producer.send(message);
 
          final AtomicReference<Message> msg = new AtomicReference<>();
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               msg.set(consumer.receiveNoWait());
-               return msg.get() != null;
-            }
+         assertTrue(Wait.waitFor(() -> {
+            msg.set(consumer.receiveNoWait());
+            return msg.get() != null;
          }, TimeUnit.SECONDS.toMillis(25), TimeUnit.MILLISECONDS.toMillis(200)));
 
-         assertNotNull("Should have received a message by now.", msg.get());
-         assertTrue("Should be an instance of TextMessage", msg.get() instanceof TextMessage);
+         assertNotNull(msg.get(), "Should have received a message by now.");
+         assertInstanceOf(TextMessage.class, msg.get(), "Should be an instance of TextMessage");
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 30000)
+   @TestTemplate
+   @Timeout(30)
    public void testDurableConsumerUnsubscribe() throws Exception {
       String durableClientId = getTopicName() + "-ClientId";
 
@@ -145,38 +146,21 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer consumer = session.createDurableSubscriber(topic, "DurbaleTopic");
 
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return server.getTotalConsumerCount() == 1;
-            }
-         }, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
+         assertTrue(Wait.waitFor(() -> server.getTotalConsumerCount() == 1, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
 
          consumer.close();
 
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return server.getTotalConsumerCount() == 0;
-            }
-         }, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
+         assertTrue(Wait.waitFor(() -> server.getTotalConsumerCount() == 0, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
 
          session.unsubscribe("DurbaleTopic");
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return server.getTotalConsumerCount() == 0;
-            }
-         }, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
+         assertTrue(Wait.waitFor(() -> server.getTotalConsumerCount() == 0, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 30000)
+   @TestTemplate
+   @Timeout(30)
    public void testDurableConsumerUnsubscribeWhileNoSubscription() throws Exception {
       Connection connection = createConnection();
 
@@ -185,13 +169,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
 
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         assertTrue(Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return server.getTotalConsumerCount() == 0;
-            }
-         }, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
+         assertTrue(Wait.waitFor(() -> server.getTotalConsumerCount() == 0, TimeUnit.SECONDS.toMillis(20), TimeUnit.MILLISECONDS.toMillis(250)));
 
          try {
             session.unsubscribe("DurbaleTopic");
@@ -203,7 +181,8 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @TestTemplate
+   @Timeout(30)
    public void testDurableConsumerUnsubscribeWhileActive() throws Exception {
       String durableClientId = getTopicName() + "-ClientId";
 
@@ -228,7 +207,8 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @TestTemplate
+   @Timeout(30)
    public void testDurableConsumerLarge() throws Exception {
       String durableClientId = getTopicName() + "-ClientId";
 
@@ -248,12 +228,12 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          producer.send(objMessage);
 
          ObjectMessage msg1 = (ObjectMessage)consumer1.receive(5000);
-         Assert.assertNotNull(msg1);
-         assertTrue("Should be an instance of TextMessage", msg1 instanceof ObjectMessage);
+         assertNotNull(msg1);
+         assertInstanceOf(ObjectMessage.class, msg1, "Should be an instance of TextMessage");
 
          ObjectMessage msg2 = (ObjectMessage)consumer2.receive(5000);
-         assertNotNull("Should have received a message by now.", msg2);
-         assertTrue("Should be an instance of TextMessage", msg2 instanceof ObjectMessage);
+         assertNotNull(msg2, "Should have received a message by now.");
+         assertInstanceOf(ObjectMessage.class, msg2, "Should be an instance of TextMessage");
       } finally {
          connection.close();
       }
@@ -271,9 +251,10 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @TestTemplate
+   @Timeout(30)
    public void testDurableConsumerWithSelectorChange() throws Exception {
-      SimpleString qName = new SimpleString("foo.SharedConsumer");
+      SimpleString qName = SimpleString.of("foo.SharedConsumer");
       Connection connection = createConnection("foo", true);
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -306,7 +287,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
 
          connection.start();
 
-         Assert.assertNotNull(consumer2.receive(5000));
+         assertNotNull(consumer2.receive(5000));
       } finally {
          connection.close();
       }

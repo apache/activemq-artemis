@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.buffer.Unpooled;
@@ -26,17 +28,15 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.ResponseHandler;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.assertEquals;
 
 public class ChannelImplTest {
 
    ChannelImpl channel;
 
-   @Before
+   @BeforeEach
    public void setUp() {
       CoreRemotingConnection coreRC = Mockito.mock(CoreRemotingConnection.class);
       Mockito.when(coreRC.createTransportBuffer(Packet.INITIAL_PACKET_SIZE)).thenReturn(new ChannelBufferWrapper(Unpooled.buffer(Packet.INITIAL_PACKET_SIZE)));
@@ -75,12 +75,7 @@ public class ChannelImplTest {
    }
 
    private CommandConfirmationHandler wrapAsPerActiveMQSessionContext(ResponseHandler responseHandler) {
-      return new CommandConfirmationHandler() {
-         @Override
-         public void commandConfirmed(Packet packet) {
-            responseHandler.handleResponse(packet, null);
-         }
-      };
+      return packet -> responseHandler.handleResponse(packet, null);
    }
 
    @Test

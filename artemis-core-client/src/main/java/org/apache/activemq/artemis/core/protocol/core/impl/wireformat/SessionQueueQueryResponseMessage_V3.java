@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -73,7 +75,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
    }
 
    public SessionQueueQueryResponseMessage_V3() {
-      this(null, null, false, false, null, 0, 0, false, false, false, false, RoutingType.MULTICAST, -1, null, null,null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+      this(null, null, false, false, null, 0, 0, false, false, false, false, RoutingType.MULTICAST, -1, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
    }
 
    private SessionQueueQueryResponseMessage_V3(final SimpleString name,
@@ -396,57 +398,38 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (autoCreated ? 1231 : 1237);
-      result = prime * result + (purgeOnNoConsumers ? 1231 : 1237);
-      result = prime * result + routingType.hashCode();
-      result = prime * result + maxConsumers;
-      result = prime * result + (exclusive == null ? 0 : exclusive ? 1231 : 1237);
-      result = prime * result + (groupRebalance == null ? 0 : groupRebalance ? 1231 : 1237);
-      result = prime * result + (groupRebalancePauseDispatch == null ? 0 : groupRebalancePauseDispatch ? 1231 : 1237);
-      result = prime * result + (groupBuckets == null ? 0 : groupBuckets.hashCode());
-      result = prime * result + (groupFirstKey == null ? 0 : groupFirstKey.hashCode());
-      result = prime * result + (lastValue == null ? 0 : lastValue ? 1231 : 1237);
-      result = prime * result + (lastValueKey == null ? 0 : lastValueKey.hashCode());
-      result = prime * result + (nonDestructive == null ? 0 : nonDestructive ? 1231 : 1237);
-      result = prime * result + (consumersBeforeDispatch == null ? 0 : consumersBeforeDispatch.hashCode());
-      result = prime * result + (delayBeforeDispatch == null ? 0 : delayBeforeDispatch.hashCode());
-      result = prime * result + (autoDelete == null ? 0 : autoDelete.hashCode());
-      result = prime * result + (autoDeleteDelay == null ? 0 : autoDeleteDelay.hashCode());
-      result = prime * result + (autoDeleteMessageCount == null ? 0 : autoDeleteMessageCount.hashCode());
-      result = prime * result + ((defaultConsumerWindowSize == null) ? 0 : defaultConsumerWindowSize.hashCode());
-      result = prime * result + (ringSize == null ? 0 : ringSize.hashCode());
-      result = prime * result + (enabled == null ? 0 : enabled ? 1231 : 1237);
-      result = prime * result + (configurationManaged == null ? 0 : configurationManaged ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), autoCreated, purgeOnNoConsumers, routingType, maxConsumers, exclusive,
+                          groupRebalance, groupRebalancePauseDispatch, groupBuckets, groupFirstKey, lastValue,
+                          lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete,
+                          autoDeleteDelay, autoDeleteMessageCount, defaultConsumerWindowSize, ringSize, enabled,
+                          configurationManaged);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", autoCreated=" + autoCreated);
-      buff.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
-      buff.append(", routingType=" + routingType);
-      buff.append(", maxConsumers=" + maxConsumers);
-      buff.append(", exclusive=" + exclusive);
-      buff.append(", groupRebalance=" + groupRebalance);
-      buff.append(", groupRebalancePauseDispatch=" + groupRebalancePauseDispatch);
-      buff.append(", groupBuckets=" + groupBuckets);
-      buff.append(", groupFirstKey=" + groupFirstKey);
-      buff.append(", lastValue=" + lastValue);
-      buff.append(", lastValueKey=" + lastValueKey);
-      buff.append(", nonDestructive=" + nonDestructive);
-      buff.append(", consumersBeforeDispatch=" + consumersBeforeDispatch);
-      buff.append(", delayBeforeDispatch=" + delayBeforeDispatch);
-      buff.append(", autoDelete=" + autoDelete);
-      buff.append(", autoDeleteDelay=" + autoDeleteDelay);
-      buff.append(", autoDeleteMessageCount=" + autoDeleteMessageCount);
-      buff.append(", defaultConsumerWindowSize=" + defaultConsumerWindowSize);
-      buff.append(", ringSize=" + ringSize);
-      buff.append(", enabled=" + enabled);
-      buff.append(", configurationManaged=" + configurationManaged);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", autoCreated=" + autoCreated);
+      sb.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
+      sb.append(", routingType=" + routingType);
+      sb.append(", maxConsumers=" + maxConsumers);
+      sb.append(", exclusive=" + exclusive);
+      sb.append(", groupRebalance=" + groupRebalance);
+      sb.append(", groupRebalancePauseDispatch=" + groupRebalancePauseDispatch);
+      sb.append(", groupBuckets=" + groupBuckets);
+      sb.append(", groupFirstKey=" + groupFirstKey);
+      sb.append(", lastValue=" + lastValue);
+      sb.append(", lastValueKey=" + lastValueKey);
+      sb.append(", nonDestructive=" + nonDestructive);
+      sb.append(", consumersBeforeDispatch=" + consumersBeforeDispatch);
+      sb.append(", delayBeforeDispatch=" + delayBeforeDispatch);
+      sb.append(", autoDelete=" + autoDelete);
+      sb.append(", autoDeleteDelay=" + autoDeleteDelay);
+      sb.append(", autoDeleteMessageCount=" + autoDeleteMessageCount);
+      sb.append(", defaultConsumerWindowSize=" + defaultConsumerWindowSize);
+      sb.append(", ringSize=" + ringSize);
+      sb.append(", enabled=" + enabled);
+      sb.append(", configurationManaged=" + configurationManaged);
+      return sb.toString();
    }
 
    @Override
@@ -456,109 +439,36 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionQueueQueryResponseMessage_V3))
+      }
+      if (!(obj instanceof SessionQueueQueryResponseMessage_V3 other)) {
          return false;
-      SessionQueueQueryResponseMessage_V3 other = (SessionQueueQueryResponseMessage_V3) obj;
-      if (autoCreated != other.autoCreated)
-         return false;
-      if (purgeOnNoConsumers != other.purgeOnNoConsumers)
-         return false;
-      if (exclusive == null) {
-         if (other.exclusive != null)
-            return false;
-      } else if (!exclusive.equals(other.exclusive))
-         return false;
-      if (groupRebalance == null) {
-         if (other.groupRebalance != null)
-            return false;
-      } else if (!groupRebalance.equals(other.groupRebalance))
-         return false;
-      if (groupRebalancePauseDispatch == null) {
-         if (other.groupRebalancePauseDispatch != null)
-            return false;
-      } else if (!groupRebalancePauseDispatch.equals(other.groupRebalancePauseDispatch))
-         return false;
-      if (groupBuckets == null) {
-         if (other.groupBuckets != null)
-            return false;
-      } else if (!groupBuckets.equals(other.groupBuckets))
-         return false;
-      if (groupFirstKey == null) {
-         if (other.groupFirstKey != null)
-            return false;
-      } else if (!groupFirstKey.equals(other.groupFirstKey))
-         return false;
-      if (lastValue == null) {
-         if (other.lastValue != null)
-            return false;
-      } else if (!lastValue.equals(other.lastValue))
-         return false;
-      if (lastValueKey == null) {
-         if (other.lastValueKey != null)
-            return false;
-      } else if (!lastValueKey.equals(other.lastValueKey))
-         return false;
-      if (nonDestructive == null) {
-         if (other.nonDestructive != null)
-            return false;
-      } else if (!nonDestructive.equals(other.nonDestructive))
-         return false;
-      if (consumersBeforeDispatch == null) {
-         if (other.consumersBeforeDispatch != null)
-            return false;
-      } else if (!consumersBeforeDispatch.equals(other.consumersBeforeDispatch))
-         return false;
-      if (delayBeforeDispatch == null) {
-         if (other.delayBeforeDispatch != null)
-            return false;
-      } else if (!delayBeforeDispatch.equals(other.delayBeforeDispatch))
-         return false;
-      if (autoDelete == null) {
-         if (other.autoDelete != null)
-            return false;
-      } else if (!autoDelete.equals(other.autoDelete))
-         return false;
-      if (autoDeleteDelay == null) {
-         if (other.autoDeleteDelay != null)
-            return false;
-      } else if (!autoDeleteDelay.equals(other.autoDeleteDelay))
-         return false;
-      if (autoDeleteMessageCount == null) {
-         if (other.autoDeleteMessageCount != null)
-            return false;
-      } else if (!autoDeleteMessageCount.equals(other.autoDeleteMessageCount))
-         return false;
-      if (ringSize == null) {
-         if (other.ringSize != null)
-            return false;
-      } else if (!ringSize.equals(other.ringSize))
-         return false;
-      if (enabled == null) {
-         if (other.enabled != null)
-            return false;
-      } else if (!enabled.equals(other.enabled))
-         return false;
-      if (defaultConsumerWindowSize == null) {
-         if (other.defaultConsumerWindowSize != null)
-            return false;
-      } else if (!defaultConsumerWindowSize.equals(other.defaultConsumerWindowSize))
-         return false;
-      if (routingType == null) {
-         if (other.routingType != null)
-            return false;
-      } else if (!routingType.equals(other.routingType))
-         return false;
-      if (maxConsumers != other.maxConsumers)
-         return false;
-      if (configurationManaged == null) {
-         if (other.configurationManaged != null)
-            return false;
-      } else if (!configurationManaged.equals(other.configurationManaged))
-         return false;
-      return true;
+      }
+
+      return autoCreated == other.autoCreated &&
+             purgeOnNoConsumers == other.purgeOnNoConsumers &&
+             maxConsumers == other.maxConsumers &&
+             Objects.equals(exclusive, other.exclusive) &&
+             Objects.equals(groupRebalance, other.groupRebalance) &&
+             Objects.equals(groupRebalancePauseDispatch, other.groupRebalancePauseDispatch) &&
+             Objects.equals(groupBuckets, other.groupBuckets) &&
+             Objects.equals(groupFirstKey, other.groupFirstKey) &&
+             Objects.equals(lastValue, other.lastValue) &&
+             Objects.equals(lastValueKey, other.lastValueKey) &&
+             Objects.equals(nonDestructive, other.nonDestructive) &&
+             Objects.equals(consumersBeforeDispatch, other.consumersBeforeDispatch) &&
+             Objects.equals(delayBeforeDispatch, other.delayBeforeDispatch) &&
+             Objects.equals(autoDelete, other.autoDelete) &&
+             Objects.equals(autoDeleteDelay, other.autoDeleteDelay) &&
+             Objects.equals(autoDeleteMessageCount, other.autoDeleteMessageCount) &&
+             Objects.equals(ringSize, other.ringSize) &&
+             Objects.equals(enabled, other.enabled) &&
+             Objects.equals(defaultConsumerWindowSize, other.defaultConsumerWindowSize) &&
+             Objects.equals(routingType, other.routingType) &&
+             Objects.equals(configurationManaged, other.configurationManaged);
    }
 }

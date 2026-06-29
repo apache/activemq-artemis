@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.MessageConsumer;
@@ -39,13 +44,14 @@ import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class BindingsClusterTest extends JMSClusteredTestBase {
 
    // TODO: find a solution to this
@@ -58,13 +64,13 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
       this.crash = crash;
    }
 
-   @Parameterized.Parameters(name = "crash={0}")
+   @Parameters(name = "crash={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       //todo fix if needed
       super.setUp();
@@ -77,7 +83,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
       return true;
    }
 
-   @Test
+   @TestTemplate
    public void testSendToSingleDisconnectedBinding() throws Exception {
       Connection conn1 = cf1.createConnection();
 
@@ -175,7 +181,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
       jmsServer2.destroyTopic(TOPIC);
    }
 
-   @Test
+   @TestTemplate
    public void testSendToSingleDisconnectedBindingWhenLocalAvailable() throws Exception {
       Connection conn1 = cf1.createConnection();
 
@@ -295,7 +301,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
       jmsServer2.destroyTopic(TOPIC);
    }
 
-   @Test
+   @TestTemplate
    public void testRemoteBindingRemovedOnReconnectLocalAvailable() throws Exception {
       Connection conn1 = cf1.createConnection();
 

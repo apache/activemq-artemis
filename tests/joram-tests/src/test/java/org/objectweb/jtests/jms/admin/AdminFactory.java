@@ -34,8 +34,7 @@ public class AdminFactory {
          throw new RuntimeException("Property " + AdminFactory.PROP_NAME + " has not been found in input props");
       }
       try {
-         Class adminClass = Class.forName(adminClassName);
-         admin = (Admin) adminClass.newInstance();
+         admin = (Admin) Class.forName(adminClassName).getDeclaredConstructor().newInstance();
       } catch (ClassNotFoundException e) {
          throw new RuntimeException("Class " + adminClassName + " not found.", e);
       } catch (Exception e) {

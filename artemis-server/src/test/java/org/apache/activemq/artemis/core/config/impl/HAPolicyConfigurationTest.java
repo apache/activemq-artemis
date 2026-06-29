@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -25,39 +33,40 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.PrimaryOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicaPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationBackupPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationPrimaryPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStorePrimaryPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreBackupPolicy;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ColocatedActivation;
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
-import org.apache.activemq.artemis.core.server.impl.LiveOnlyActivation;
+import org.apache.activemq.artemis.core.server.impl.PrimaryOnlyActivation;
 import org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation;
 import org.apache.activemq.artemis.core.server.impl.ReplicationPrimaryActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
-import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingPrimaryActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedStoreBackupActivation;
-import org.apache.activemq.artemis.core.server.impl.SharedStoreLiveActivation;
-import org.apache.activemq.artemis.quorum.DistributedLock;
-import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
-import org.apache.activemq.artemis.quorum.MutableLong;
-import org.apache.activemq.artemis.quorum.UnavailableStateException;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Test;
+import org.apache.activemq.artemis.core.server.impl.SharedStorePrimaryActivation;
+import org.apache.activemq.artemis.lockmanager.DistributedLock;
+import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
+import org.apache.activemq.artemis.lockmanager.MutableLong;
+import org.apache.activemq.artemis.lockmanager.UnavailableStateException;
+import org.apache.activemq.artemis.tests.util.ServerTestBase;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-public class HAPolicyConfigurationTest extends ActiveMQTestBase {
+public class HAPolicyConfigurationTest extends ServerTestBase {
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       super.tearDown();
 
@@ -69,57 +78,57 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       Configuration configuration = createConfiguration("database-store-no-hapolicy-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       assertEquals(StoreConfiguration.StoreType.DATABASE, server.getConfiguration().getStoreConfiguration().getStoreType());
-      assertEquals(HAPolicyConfiguration.TYPE.LIVE_ONLY, server.getConfiguration().getHAPolicyConfiguration().getType());
+      assertEquals(HAPolicyConfiguration.TYPE.PRIMARY_ONLY, server.getConfiguration().getHAPolicyConfiguration().getType());
       try {
          server.start();
-         assertTrue(server.getNodeManager() + " is not an instance of FileLockNodeManager", server.getNodeManager() instanceof FileLockNodeManager);
+         assertInstanceOf(FileLockNodeManager.class, server.getNodeManager(), server.getNodeManager() + " is not an instance of FileLockNodeManager");
       } finally {
          server.stop();
       }
    }
 
    @Test
-   public void liveOnlyTest() throws Exception {
-      Configuration configuration = createConfiguration("live-only-hapolicy-config.xml");
+   public void primaryOnlyTest() throws Exception {
+      Configuration configuration = createConfiguration("primary-only-hapolicy-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof LiveOnlyActivation);
+         assertInstanceOf(PrimaryOnlyActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof LiveOnlyPolicy);
-         LiveOnlyPolicy liveOnlyPolicy = (LiveOnlyPolicy) haPolicy;
-         ScaleDownPolicy scaleDownPolicy = liveOnlyPolicy.getScaleDownPolicy();
+         assertInstanceOf(PrimaryOnlyPolicy.class, haPolicy);
+         PrimaryOnlyPolicy primaryOnlyPolicy = (PrimaryOnlyPolicy) haPolicy;
+         ScaleDownPolicy scaleDownPolicy = primaryOnlyPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
-         assertEquals(scaleDownPolicy.getGroupName(), "boo!");
-         assertEquals(scaleDownPolicy.getDiscoveryGroup(), "wahey");
+         assertEquals("boo!", scaleDownPolicy.getGroupName());
+         assertEquals("wahey", scaleDownPolicy.getDiscoveryGroup());
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
-         assertEquals(connectors.size(), 0);
+         assertEquals(0, connectors.size());
       } finally {
          server.stop();
       }
    }
 
    @Test
-   public void liveOnlyTest2() throws Exception {
-      Configuration configuration = createConfiguration("live-only-hapolicy-config2.xml");
+   public void primaryOnlyTest2() throws Exception {
+      Configuration configuration = createConfiguration("primary-only-hapolicy-config2.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof LiveOnlyActivation);
+         assertInstanceOf(PrimaryOnlyActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof LiveOnlyPolicy);
-         LiveOnlyPolicy liveOnlyPolicy = (LiveOnlyPolicy) haPolicy;
-         ScaleDownPolicy scaleDownPolicy = liveOnlyPolicy.getScaleDownPolicy();
+         assertInstanceOf(PrimaryOnlyPolicy.class, haPolicy);
+         PrimaryOnlyPolicy primaryOnlyPolicy = (PrimaryOnlyPolicy) haPolicy;
+         ScaleDownPolicy scaleDownPolicy = primaryOnlyPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
          assertFalse(scaleDownPolicy.isEnabled());
-         assertEquals(scaleDownPolicy.getGroupName(), "boo!");
-         assertEquals(scaleDownPolicy.getDiscoveryGroup(), null);
+         assertEquals("boo!", scaleDownPolicy.getGroupName());
+         assertNull(scaleDownPolicy.getDiscoveryGroup());
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
-         assertEquals(connectors.size(), 2);
+         assertEquals(2, connectors.size());
          assertTrue(connectors.contains("sd-connector1"));
          assertTrue(connectors.contains("sd-connector2"));
       } finally {
@@ -128,27 +137,42 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void liveOnlyTest3() throws Exception {
-      liveOnlyTest("live-only-hapolicy-config3.xml");
+   public void primaryOnlyTest3() throws Exception {
+      primaryOnlyTest("primary-only-hapolicy-config3.xml");
    }
 
    @Test
-   public void liveOnlyTest4() throws Exception {
-      liveOnlyTest("live-only-hapolicy-config4.xml");
+   public void primaryOnlyTest4() throws Exception {
+      primaryOnlyTest("primary-only-hapolicy-config4.xml");
    }
 
    @Test
-   public void liveOnlyTest5() throws Exception {
-      liveOnlyTest("live-only-hapolicy-config5.xml");
+   public void primaryOnlyTest5() throws Exception {
+      primaryOnlyTest("primary-only-hapolicy-config5.xml");
    }
 
-   public static class FakeDistributedPrimitiveManager implements DistributedPrimitiveManager {
+   @Test
+   public void liveOnlyTest() throws Exception {
+      ActiveMQServerImpl server = new ActiveMQServerImpl(createDefaultConfig(0, true));
+      server.getConfiguration().setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration());
+      try {
+         server.start();
+         Activation activation = server.getActivation();
+         assertInstanceOf(PrimaryOnlyActivation.class, activation);
+         HAPolicy haPolicy = server.getHAPolicy();
+         assertInstanceOf(PrimaryOnlyPolicy.class, haPolicy);
+      } finally {
+         server.stop();
+      }
+   }
+
+   public static class FakeDistributedLockManager implements DistributedLockManager {
 
       private final Map<String, String> config;
       private boolean started;
       private DistributedLock lock;
 
-      public FakeDistributedPrimitiveManager(Map<String, String> config) {
+      public FakeDistributedLockManager(Map<String, String> config) {
          this.config = config;
          this.started = false;
       }
@@ -300,9 +324,9 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof ReplicationPrimaryActivation);
+         assertInstanceOf(ReplicationPrimaryActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ReplicationPrimaryPolicy);
+         assertInstanceOf(ReplicationPrimaryPolicy.class, haPolicy);
          ReplicationPrimaryPolicy policy = (ReplicationPrimaryPolicy) haPolicy;
          assertFalse(policy.isAllowAutoFailBack());
          assertEquals(9876, policy.getInitialReplicationSyncTimeout());
@@ -317,7 +341,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          // check failback companion backup policy
          ReplicationBackupPolicy failbackPolicy = policy.getBackupPolicy();
          assertNotNull(failbackPolicy);
-         assertSame(policy, failbackPolicy.getLivePolicy());
+         assertSame(policy, failbackPolicy.getPrimaryPolicy());
          assertEquals(policy.getGroupName(), failbackPolicy.getGroupName());
          assertEquals(policy.getBackupGroupName(), failbackPolicy.getBackupGroupName());
          assertEquals(policy.getClusterName(), failbackPolicy.getClusterName());
@@ -333,11 +357,11 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertNull(failbackPolicy.getScaleDownClustername());
          assertNull(failbackPolicy.getScaleDownGroupName());
          // validate manager
-         DistributedPrimitiveManager manager = ((ReplicationPrimaryActivation) activation).getDistributedManager();
+         DistributedLockManager manager = ((ReplicationPrimaryActivation) activation).getDistributedManager();
          assertNotNull(manager);
-         assertEquals(FakeDistributedPrimitiveManager.class.getName(), manager.getClass().getName());
-         assertTrue(manager + " is not an instance of FakeDistributedPrimitiveManager", manager instanceof FakeDistributedPrimitiveManager);
-         FakeDistributedPrimitiveManager forwardingManager = (FakeDistributedPrimitiveManager) manager;
+         assertEquals(FakeDistributedLockManager.class.getName(), manager.getClass().getName());
+         assertInstanceOf(FakeDistributedLockManager.class, manager, manager + " is not an instance of FakeDistributedLockManager");
+         FakeDistributedLockManager forwardingManager = (FakeDistributedLockManager) manager;
          // validate manager config
          validateManagerConfig(forwardingManager.getConfig());
       } finally {
@@ -352,9 +376,9 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof ReplicationBackupActivation);
+         assertInstanceOf(ReplicationBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ReplicationBackupPolicy);
+         assertInstanceOf(ReplicationBackupPolicy.class, haPolicy);
          ReplicationBackupPolicy policy = (ReplicationBackupPolicy) haPolicy;
          assertEquals("tiddles", policy.getGroupName());
          assertEquals("tiddles", policy.getBackupGroupName());
@@ -370,30 +394,30 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertFalse(policy.canScaleDown());
          assertNull(policy.getScaleDownClustername());
          assertNull(policy.getScaleDownGroupName());
-         // check failover companion live policy
-         ReplicationPrimaryPolicy failoverLivePolicy = policy.getLivePolicy();
-         assertNotNull(failoverLivePolicy);
-         assertSame(policy, failoverLivePolicy.getBackupPolicy());
-         assertFalse(failoverLivePolicy.isAllowAutoFailBack());
-         assertEquals(9876, failoverLivePolicy.getInitialReplicationSyncTimeout());
-         assertFalse(failoverLivePolicy.canScaleDown());
-         assertFalse(failoverLivePolicy.isBackup());
-         assertFalse(failoverLivePolicy.isSharedStore());
-         assertTrue(failoverLivePolicy.isWaitForActivation());
-         assertEquals(policy.getGroupName(), failoverLivePolicy.getGroupName());
-         assertEquals(policy.getClusterName(), failoverLivePolicy.getClusterName());
-         assertEquals(policy.getBackupGroupName(), failoverLivePolicy.getBackupGroupName());
-         assertFalse(failoverLivePolicy.useQuorumManager());
+         // check failover companion primary policy
+         ReplicationPrimaryPolicy failoverPrimaryPolicy = policy.getPrimaryPolicy();
+         assertNotNull(failoverPrimaryPolicy);
+         assertSame(policy, failoverPrimaryPolicy.getBackupPolicy());
+         assertFalse(failoverPrimaryPolicy.isAllowAutoFailBack());
+         assertEquals(9876, failoverPrimaryPolicy.getInitialReplicationSyncTimeout());
+         assertFalse(failoverPrimaryPolicy.canScaleDown());
+         assertFalse(failoverPrimaryPolicy.isBackup());
+         assertFalse(failoverPrimaryPolicy.isSharedStore());
+         assertTrue(failoverPrimaryPolicy.isWaitForActivation());
+         assertEquals(policy.getGroupName(), failoverPrimaryPolicy.getGroupName());
+         assertEquals(policy.getClusterName(), failoverPrimaryPolicy.getClusterName());
+         assertEquals(policy.getBackupGroupName(), failoverPrimaryPolicy.getBackupGroupName());
+         assertFalse(failoverPrimaryPolicy.useQuorumManager());
          // check scale-down properties
-         assertFalse(failoverLivePolicy.canScaleDown());
-         assertNull(failoverLivePolicy.getScaleDownClustername());
-         assertNull(failoverLivePolicy.getScaleDownGroupName());
+         assertFalse(failoverPrimaryPolicy.canScaleDown());
+         assertNull(failoverPrimaryPolicy.getScaleDownClustername());
+         assertNull(failoverPrimaryPolicy.getScaleDownGroupName());
          // validate manager
-         DistributedPrimitiveManager manager = ((ReplicationBackupActivation) activation).getDistributedManager();
+         DistributedLockManager manager = ((ReplicationBackupActivation) activation).getDistributedManager();
          assertNotNull(manager);
-         assertEquals(FakeDistributedPrimitiveManager.class.getName(), manager.getClass().getName());
-         assertTrue(manager instanceof FakeDistributedPrimitiveManager);
-         FakeDistributedPrimitiveManager forwardingManager = (FakeDistributedPrimitiveManager) manager;
+         assertEquals(FakeDistributedLockManager.class.getName(), manager.getClass().getName());
+         assertInstanceOf(FakeDistributedLockManager.class, manager);
+         FakeDistributedLockManager forwardingManager = (FakeDistributedLockManager) manager;
          // validate manager config
          validateManagerConfig(forwardingManager.getConfig());
       } finally {
@@ -408,16 +432,16 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedNothingLiveActivation);
+         assertInstanceOf(SharedNothingPrimaryActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ReplicatedPolicy);
+         assertInstanceOf(ReplicatedPolicy.class, haPolicy);
          ReplicatedPolicy replicatedPolicy = (ReplicatedPolicy) haPolicy;
-         assertEquals(replicatedPolicy.getGroupName(), "purple");
-         assertTrue(replicatedPolicy.isCheckForLiveServer());
-         assertEquals(replicatedPolicy.getClusterName(), "abcdefg");
-         assertEquals(replicatedPolicy.getInitialReplicationSyncTimeout(), 9876);
-         assertEquals(replicatedPolicy.getRetryReplicationWait(), 12345);
-         assertEquals(replicatedPolicy.getMaxSavedReplicatedJournalsSize(), 73);
+         assertEquals("purple", replicatedPolicy.getGroupName());
+         assertTrue(replicatedPolicy.isCheckForPrimaryServer());
+         assertEquals("abcdefg", replicatedPolicy.getClusterName());
+         assertEquals(9876, replicatedPolicy.getInitialReplicationSyncTimeout());
+         assertEquals(12345, replicatedPolicy.getRetryReplicationWait());
+         assertEquals(73, replicatedPolicy.getMaxSavedReplicatedJournalsSize());
       } finally {
          server.stop();
       }
@@ -430,24 +454,24 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedNothingBackupActivation);
+         assertInstanceOf(SharedNothingBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ReplicaPolicy);
+         assertInstanceOf(ReplicaPolicy.class, haPolicy);
          ReplicaPolicy replicaPolicy = (ReplicaPolicy) haPolicy;
-         assertEquals(replicaPolicy.getGroupName(), "tiddles");
-         assertEquals(replicaPolicy.getMaxSavedReplicatedJournalsSize(), 22);
-         assertEquals(replicaPolicy.getClusterName(), "33rrrrr");
+         assertEquals("tiddles", replicaPolicy.getGroupName());
+         assertEquals(22, replicaPolicy.getMaxSavedReplicatedJournalsSize());
+         assertEquals("33rrrrr", replicaPolicy.getClusterName());
          assertFalse(replicaPolicy.isRestartBackup());
          assertTrue(replicaPolicy.isAllowFailback());
-         assertEquals(replicaPolicy.getInitialReplicationSyncTimeout(), 9876);
-         assertEquals(replicaPolicy.getRetryReplicationWait(), 12345);
+         assertEquals(9876, replicaPolicy.getInitialReplicationSyncTimeout());
+         assertEquals(12345, replicaPolicy.getRetryReplicationWait());
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
-         assertEquals(scaleDownPolicy.getGroupName(), "boo!");
-         assertEquals(scaleDownPolicy.getDiscoveryGroup(), "wahey");
+         assertEquals("boo!", scaleDownPolicy.getGroupName());
+         assertEquals("wahey", scaleDownPolicy.getDiscoveryGroup());
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
-         assertEquals(connectors.size(), 0);
+         assertEquals(0, connectors.size());
       } finally {
          server.stop();
       }
@@ -460,21 +484,21 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedNothingBackupActivation);
+         assertInstanceOf(SharedNothingBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ReplicaPolicy);
+         assertInstanceOf(ReplicaPolicy.class, haPolicy);
          ReplicaPolicy replicaPolicy = (ReplicaPolicy) haPolicy;
-         assertEquals(replicaPolicy.getGroupName(), "tiddles");
-         assertEquals(replicaPolicy.getMaxSavedReplicatedJournalsSize(), 22);
-         assertEquals(replicaPolicy.getClusterName(), "33rrrrr");
+         assertEquals("tiddles", replicaPolicy.getGroupName());
+         assertEquals(22, replicaPolicy.getMaxSavedReplicatedJournalsSize());
+         assertEquals("33rrrrr", replicaPolicy.getClusterName());
          assertFalse(replicaPolicy.isRestartBackup());
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
-         assertEquals(scaleDownPolicy.getGroupName(), "boo!");
-         assertEquals(scaleDownPolicy.getDiscoveryGroup(), null);
+         assertEquals("boo!", scaleDownPolicy.getGroupName());
+         assertNull(scaleDownPolicy.getDiscoveryGroup());
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
-         assertEquals(connectors.size(), 2);
+         assertEquals(2, connectors.size());
          assertTrue(connectors.contains("sd-connector1"));
          assertTrue(connectors.contains("sd-connector2"));
       } finally {
@@ -489,13 +513,13 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedNothingBackupActivation);
+         assertInstanceOf(SharedNothingBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ReplicaPolicy);
+         assertInstanceOf(ReplicaPolicy.class, haPolicy);
          ReplicaPolicy replicaPolicy = (ReplicaPolicy) haPolicy;
-         assertEquals(replicaPolicy.getGroupName(), "tiddles");
-         assertEquals(replicaPolicy.getMaxSavedReplicatedJournalsSize(), 22);
-         assertEquals(replicaPolicy.getClusterName(), "33rrrrr");
+         assertEquals("tiddles", replicaPolicy.getGroupName());
+         assertEquals(22, replicaPolicy.getMaxSavedReplicatedJournalsSize());
+         assertEquals("33rrrrr", replicaPolicy.getClusterName());
          assertFalse(replicaPolicy.isRestartBackup());
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);
@@ -505,67 +529,67 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void SharedStoreMasterTest() throws Exception {
-      Configuration configuration = createConfiguration("shared-store-master-hapolicy-config.xml");
+   public void SharedStorePrimaryTest() throws Exception {
+      Configuration configuration = createConfiguration("shared-store-primary-hapolicy-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedStoreLiveActivation);
+         assertInstanceOf(SharedStorePrimaryActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof SharedStoreMasterPolicy);
-         SharedStoreMasterPolicy masterPolicy = (SharedStoreMasterPolicy) haPolicy;
-         assertFalse(masterPolicy.isFailoverOnServerShutdown());
+         assertInstanceOf(SharedStorePrimaryPolicy.class, haPolicy);
+         SharedStorePrimaryPolicy primaryPolicy = (SharedStorePrimaryPolicy) haPolicy;
+         assertFalse(primaryPolicy.isFailoverOnServerShutdown());
       } finally {
          server.stop();
       }
    }
 
    @Test
-   public void SharedStoreSlaveTest() throws Exception {
-      Configuration configuration = createConfiguration("shared-store-slave-hapolicy-config.xml");
+   public void SharedStoreBackupTest() throws Exception {
+      Configuration configuration = createConfiguration("shared-store-backup-hapolicy-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedStoreBackupActivation);
+         assertInstanceOf(SharedStoreBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof SharedStoreSlavePolicy);
-         SharedStoreSlavePolicy sharedStoreSlavePolicy = (SharedStoreSlavePolicy) haPolicy;
-         assertFalse(sharedStoreSlavePolicy.isFailoverOnServerShutdown());
-         assertFalse(sharedStoreSlavePolicy.isRestartBackup());
-         ScaleDownPolicy scaleDownPolicy = sharedStoreSlavePolicy.getScaleDownPolicy();
+         assertInstanceOf(SharedStoreBackupPolicy.class, haPolicy);
+         SharedStoreBackupPolicy sharedStoreBackupPolicy = (SharedStoreBackupPolicy) haPolicy;
+         assertFalse(sharedStoreBackupPolicy.isFailoverOnServerShutdown());
+         assertFalse(sharedStoreBackupPolicy.isRestartBackup());
+         ScaleDownPolicy scaleDownPolicy = sharedStoreBackupPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
-         assertEquals(scaleDownPolicy.getGroupName(), "boo!");
-         assertEquals(scaleDownPolicy.getDiscoveryGroup(), "wahey");
+         assertEquals("boo!", scaleDownPolicy.getGroupName());
+         assertEquals("wahey", scaleDownPolicy.getDiscoveryGroup());
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
-         assertEquals(connectors.size(), 0);
+         assertEquals(0, connectors.size());
       } finally {
          server.stop();
       }
    }
 
    @Test
-   public void SharedStoreSlaveTest2() throws Exception {
-      Configuration configuration = createConfiguration("shared-store-slave-hapolicy-config2.xml");
+   public void SharedStoreBackupTest2() throws Exception {
+      Configuration configuration = createConfiguration("shared-store-backup-hapolicy-config2.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedStoreBackupActivation);
+         assertInstanceOf(SharedStoreBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof SharedStoreSlavePolicy);
-         SharedStoreSlavePolicy sharedStoreSlavePolicy = (SharedStoreSlavePolicy) haPolicy;
-         assertTrue(sharedStoreSlavePolicy.isFailoverOnServerShutdown());
-         assertTrue(sharedStoreSlavePolicy.isRestartBackup());
-         ScaleDownPolicy scaleDownPolicy = sharedStoreSlavePolicy.getScaleDownPolicy();
+         assertInstanceOf(SharedStoreBackupPolicy.class, haPolicy);
+         SharedStoreBackupPolicy sharedStoreBackupPolicy = (SharedStoreBackupPolicy) haPolicy;
+         assertTrue(sharedStoreBackupPolicy.isFailoverOnServerShutdown());
+         assertTrue(sharedStoreBackupPolicy.isRestartBackup());
+         ScaleDownPolicy scaleDownPolicy = sharedStoreBackupPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
-         assertEquals(scaleDownPolicy.getGroupName(), "boo!");
-         assertEquals(scaleDownPolicy.getDiscoveryGroup(), null);
+         assertEquals("boo!", scaleDownPolicy.getGroupName());
+         assertNull(scaleDownPolicy.getDiscoveryGroup());
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
-         assertEquals(connectors.size(), 2);
+         assertEquals(2, connectors.size());
          assertTrue(connectors.contains("sd-connector1"));
          assertTrue(connectors.contains("sd-connector2"));
       } finally {
@@ -574,19 +598,19 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void SharedStoreSlaveTest3() throws Exception {
-      Configuration configuration = createConfiguration("shared-store-slave-hapolicy-config3.xml");
+   public void SharedStoreBackupTest3() throws Exception {
+      Configuration configuration = createConfiguration("shared-store-backup-hapolicy-config3.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedStoreBackupActivation);
+         assertInstanceOf(SharedStoreBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof SharedStoreSlavePolicy);
-         SharedStoreSlavePolicy sharedStoreSlavePolicy = (SharedStoreSlavePolicy) haPolicy;
-         assertTrue(sharedStoreSlavePolicy.isFailoverOnServerShutdown());
-         assertTrue(sharedStoreSlavePolicy.isRestartBackup());
-         ScaleDownPolicy scaleDownPolicy = sharedStoreSlavePolicy.getScaleDownPolicy();
+         assertInstanceOf(SharedStoreBackupPolicy.class, haPolicy);
+         SharedStoreBackupPolicy sharedStoreBackupPolicy = (SharedStoreBackupPolicy) haPolicy;
+         assertTrue(sharedStoreBackupPolicy.isFailoverOnServerShutdown());
+         assertTrue(sharedStoreBackupPolicy.isRestartBackup());
+         ScaleDownPolicy scaleDownPolicy = sharedStoreBackupPolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);
       } finally {
          server.stop();
@@ -600,21 +624,21 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof ColocatedActivation);
+         assertInstanceOf(ColocatedActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ColocatedPolicy);
+         assertInstanceOf(ColocatedPolicy.class, haPolicy);
          ColocatedPolicy colocatedPolicy = (ColocatedPolicy) haPolicy;
-         ReplicatedPolicy livePolicy = (ReplicatedPolicy) colocatedPolicy.getLivePolicy();
-         assertNotNull(livePolicy);
+         ReplicatedPolicy primaryPolicy = (ReplicatedPolicy) colocatedPolicy.getPrimaryPolicy();
+         assertNotNull(primaryPolicy);
 
-         assertEquals(livePolicy.getGroupName(), "purple");
-         assertTrue(livePolicy.isCheckForLiveServer());
-         assertEquals(livePolicy.getClusterName(), "abcdefg");
+         assertEquals("purple", primaryPolicy.getGroupName());
+         assertTrue(primaryPolicy.isCheckForPrimaryServer());
+         assertEquals("abcdefg", primaryPolicy.getClusterName());
          ReplicaPolicy backupPolicy = (ReplicaPolicy) colocatedPolicy.getBackupPolicy();
          assertNotNull(backupPolicy);
-         assertEquals(backupPolicy.getGroupName(), "tiddles");
-         assertEquals(backupPolicy.getMaxSavedReplicatedJournalsSize(), 22);
-         assertEquals(backupPolicy.getClusterName(), "33rrrrr");
+         assertEquals("tiddles", backupPolicy.getGroupName());
+         assertEquals(22, backupPolicy.getMaxSavedReplicatedJournalsSize());
+         assertEquals("33rrrrr", backupPolicy.getClusterName());
          assertFalse(backupPolicy.isRestartBackup());
       } finally {
          server.stop();
@@ -628,18 +652,18 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof ColocatedActivation);
+         assertInstanceOf(ColocatedActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ColocatedPolicy);
+         assertInstanceOf(ColocatedPolicy.class, haPolicy);
          ColocatedPolicy colocatedPolicy = (ColocatedPolicy) haPolicy;
-         ReplicatedPolicy livePolicy = (ReplicatedPolicy) colocatedPolicy.getLivePolicy();
-         assertNotNull(livePolicy);
+         ReplicatedPolicy primaryPolicy = (ReplicatedPolicy) colocatedPolicy.getPrimaryPolicy();
+         assertNotNull(primaryPolicy);
 
-         assertEquals(livePolicy.getGroupName(), "purple");
-         assertEquals(livePolicy.getGroupName(), livePolicy.getBackupGroupName());
-         assertEquals(livePolicy.getBackupGroupName(), haPolicy.getBackupGroupName());
-         assertTrue(livePolicy.isCheckForLiveServer());
-         assertEquals(livePolicy.getClusterName(), "abcdefg");
+         assertEquals("purple", primaryPolicy.getGroupName());
+         assertEquals(primaryPolicy.getGroupName(), primaryPolicy.getBackupGroupName());
+         assertEquals(primaryPolicy.getBackupGroupName(), haPolicy.getBackupGroupName());
+         assertTrue(primaryPolicy.isCheckForPrimaryServer());
+         assertEquals("abcdefg", primaryPolicy.getClusterName());
          ReplicaPolicy backupPolicy = (ReplicaPolicy) colocatedPolicy.getBackupPolicy();
          assertNotNull(backupPolicy);
       } finally {
@@ -654,15 +678,15 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof ColocatedActivation);
+         assertInstanceOf(ColocatedActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ColocatedPolicy);
+         assertInstanceOf(ColocatedPolicy.class, haPolicy);
          ColocatedPolicy colocatedPolicy = (ColocatedPolicy) haPolicy;
-         SharedStoreMasterPolicy livePolicy = (SharedStoreMasterPolicy) colocatedPolicy.getLivePolicy();
-         assertNotNull(livePolicy);
+         SharedStorePrimaryPolicy primaryPolicy = (SharedStorePrimaryPolicy) colocatedPolicy.getPrimaryPolicy();
+         assertNotNull(primaryPolicy);
 
-         assertFalse(livePolicy.isFailoverOnServerShutdown());
-         SharedStoreSlavePolicy backupPolicy = (SharedStoreSlavePolicy) colocatedPolicy.getBackupPolicy();
+         assertFalse(primaryPolicy.isFailoverOnServerShutdown());
+         SharedStoreBackupPolicy backupPolicy = (SharedStoreBackupPolicy) colocatedPolicy.getBackupPolicy();
          assertNotNull(backupPolicy);
          assertFalse(backupPolicy.isFailoverOnServerShutdown());
          assertFalse(backupPolicy.isRestartBackup());
@@ -678,32 +702,32 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof ColocatedActivation);
+         assertInstanceOf(ColocatedActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ColocatedPolicy);
+         assertInstanceOf(ColocatedPolicy.class, haPolicy);
          ColocatedPolicy colocatedPolicy = (ColocatedPolicy) haPolicy;
-         SharedStoreMasterPolicy livePolicy = (SharedStoreMasterPolicy) colocatedPolicy.getLivePolicy();
-         assertNotNull(livePolicy);
+         SharedStorePrimaryPolicy primaryPolicy = (SharedStorePrimaryPolicy) colocatedPolicy.getPrimaryPolicy();
+         assertNotNull(primaryPolicy);
 
-         assertFalse(livePolicy.isFailoverOnServerShutdown());
-         SharedStoreSlavePolicy backupPolicy = (SharedStoreSlavePolicy) colocatedPolicy.getBackupPolicy();
+         assertFalse(primaryPolicy.isFailoverOnServerShutdown());
+         SharedStoreBackupPolicy backupPolicy = (SharedStoreBackupPolicy) colocatedPolicy.getBackupPolicy();
          assertNotNull(backupPolicy);
       } finally {
          server.stop();
       }
    }
 
-   private void liveOnlyTest(String file) throws Exception {
+   private void primaryOnlyTest(String file) throws Exception {
       Configuration configuration = createConfiguration(file);
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof LiveOnlyActivation);
+         assertInstanceOf(PrimaryOnlyActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof LiveOnlyPolicy);
-         LiveOnlyPolicy liveOnlyPolicy = (LiveOnlyPolicy) haPolicy;
-         ScaleDownPolicy scaleDownPolicy = liveOnlyPolicy.getScaleDownPolicy();
+         assertInstanceOf(PrimaryOnlyPolicy.class, haPolicy);
+         PrimaryOnlyPolicy primaryOnlyPolicy = (PrimaryOnlyPolicy) haPolicy;
+         ScaleDownPolicy scaleDownPolicy = primaryOnlyPolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);
       } finally {
          server.stop();

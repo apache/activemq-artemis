@@ -73,8 +73,7 @@ public class FederationConfiguration implements Serializable {
       return federationPolicyMap;
    }
 
-   // strange spelling!, it allows a type match for singular of correct plural Policies from properties
-   public FederationConfiguration addQueuePolicie(FederationQueuePolicyConfiguration federationPolicy) {
+   public FederationConfiguration addQueuePolicy(FederationQueuePolicyConfiguration federationPolicy) {
       federationPolicyMap.put(federationPolicy.getName(), federationPolicy);
       return this;
    }
@@ -83,7 +82,7 @@ public class FederationConfiguration implements Serializable {
       return federationPolicyMap;
    }
 
-   public FederationConfiguration addAddressPolicie(FederationAddressPolicyConfiguration federationPolicy) {
+   public FederationConfiguration addAddressPolicy(FederationAddressPolicyConfiguration federationPolicy) {
       federationPolicyMap.put(federationPolicy.getName(), federationPolicy);
       return this;
    }
@@ -165,12 +164,16 @@ public class FederationConfiguration implements Serializable {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) return true;
-         if (!(o instanceof Credentials)) return false;
-         Credentials that = (Credentials) o;
-         return Objects.equals(user, that.user) &&
-               Objects.equals(password, that.password);
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (!(obj instanceof Credentials other)) {
+            return false;
+         }
+
+         return Objects.equals(user, other.user) &&
+                Objects.equals(password, other.password);
       }
 
       @Override
@@ -190,15 +193,19 @@ public class FederationConfiguration implements Serializable {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof FederationConfiguration)) return false;
-      FederationConfiguration that = (FederationConfiguration) o;
-      return Objects.equals(name, that.name) &&
-           Objects.equals(credentials, that.credentials) &&
-           Objects.equals(upstreamConfigurations, that.upstreamConfigurations) &&
-           Objects.equals(federationPolicyMap, that.federationPolicyMap) &&
-           Objects.equals(transformerConfigurationMap, that.transformerConfigurationMap);
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof FederationConfiguration other)) {
+         return false;
+      }
+
+      return Objects.equals(name, other.name) &&
+             Objects.equals(credentials, other.credentials) &&
+             Objects.equals(upstreamConfigurations, other.upstreamConfigurations) &&
+             Objects.equals(federationPolicyMap, other.federationPolicyMap) &&
+             Objects.equals(transformerConfigurationMap, other.transformerConfigurationMap);
    }
 
    @Override

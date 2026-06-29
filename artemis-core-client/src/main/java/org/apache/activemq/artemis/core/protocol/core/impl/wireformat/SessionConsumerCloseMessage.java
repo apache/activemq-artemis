@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -54,23 +56,21 @@ public class SessionConsumerCloseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
-      return result;
+      return super.hashCode() + Objects.hashCode(consumerID);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionConsumerCloseMessage))
+      }
+      if (!(obj instanceof SessionConsumerCloseMessage other)) {
          return false;
-      SessionConsumerCloseMessage other = (SessionConsumerCloseMessage) obj;
-      if (consumerID != other.consumerID)
-         return false;
-      return true;
+      }
+
+      return consumerID == other.consumerID;
    }
 }

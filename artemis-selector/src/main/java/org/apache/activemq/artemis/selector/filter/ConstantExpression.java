@@ -17,11 +17,10 @@
 package org.apache.activemq.artemis.selector.filter;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * Represents a constant expression
- *
- * @version $Revision: 1.2 $
  */
 public class ConstantExpression implements Expression {
 
@@ -65,25 +64,25 @@ public class ConstantExpression implements Expression {
 
       long l = value.longValue();
       if (Integer.MIN_VALUE <= l && l <= Integer.MAX_VALUE) {
-         value = Integer.valueOf(value.intValue());
+         value = value.intValue();
       }
       return new ConstantExpression(value);
    }
 
    public static ConstantExpression createFromHex(String text) {
-      Number value = Long.valueOf(Long.parseLong(text.substring(2), 16));
+      Number value = Long.parseLong(text.substring(2), 16);
       long l = value.longValue();
       if (Integer.MIN_VALUE <= l && l <= Integer.MAX_VALUE) {
-         value = Integer.valueOf(value.intValue());
+         value = value.intValue();
       }
       return new ConstantExpression(value);
    }
 
    public static ConstantExpression createFromOctal(String text) {
-      Number value = Long.valueOf(Long.parseLong(text, 8));
+      Number value = Long.parseLong(text, 8);
       long l = value.longValue();
       if (Integer.MIN_VALUE <= l && l <= Integer.MAX_VALUE) {
-         value = Integer.valueOf(value.intValue());
+         value = value.intValue();
       }
       return new ConstantExpression(value);
    }
@@ -102,58 +101,42 @@ public class ConstantExpression implements Expression {
       return value;
    }
 
-   /**
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       if (value == null) {
          return "NULL";
       }
-      if (value instanceof Boolean) {
-         return ((Boolean) value).booleanValue() ? "TRUE" : "FALSE";
+      if (value instanceof Boolean booleanValue) {
+         return booleanValue ? "TRUE" : "FALSE";
       }
-      if (value instanceof String) {
-         return encodeString((String) value);
+      if (value instanceof String string) {
+         return encodeString(string);
       }
       return value.toString();
    }
 
-   /**
-    * @see java.lang.Object#hashCode()
-    */
    @Override
    public int hashCode() {
       return value != null ? value.hashCode() : 0;
    }
 
-   /**
-    * @see java.lang.Object#equals(Object)
-    */
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof ConstantExpression other)) {
          return false;
       }
-      final ConstantExpression that = (ConstantExpression) o;
-      if (value != null && !value.equals(that.value)) {
-         return false;
-      }
-      return true;
+
+      return Objects.equals(value, other.value);
    }
 
    /**
-    * Encodes the value of string so that it looks like it would look like when
-    * it was provided in a selector.
-    *
-    * @param s
-    * @return
+    * Encodes the value of string so that it looks like it would look like when it was provided in a selector.
     */
    public static String encodeString(String s) {
-      StringBuffer b = new StringBuffer();
+      StringBuilder b = new StringBuilder();
       b.append('\'');
       for (int i = 0; i < s.length(); i++) {
          char c = s.charAt(i);

@@ -16,29 +16,30 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class URITest {
 
    @Test
    public void testParseURIs() throws Throwable {
       ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactory("(tcp://localhost:61616,tcp://localhost:61617)?blockOnDurableSend=false", "some name");
-      Assert.assertEquals(2, ((ServerLocatorImpl) factory.getServerLocator()).getInitialConnectors().length);
+      assertEquals(2, ((ServerLocatorImpl) factory.getServerLocator()).getInitialConnectors().length);
 
       ActiveMQConnectionFactory factory2 = new ActiveMQConnectionFactory("(tcp://localhost:61614,tcp://localhost:61616)?blockOnDurableSend=false");
-      Assert.assertEquals(2, ((ServerLocatorImpl) factory2.getServerLocator()).getInitialConnectors().length);
+      assertEquals(2, ((ServerLocatorImpl) factory2.getServerLocator()).getInitialConnectors().length);
 
       ServerLocator locator = ServerLocatorImpl.newLocator("(tcp://localhost:61616,tcp://localhost:61617)?blockOnDurableSend=false");
-      Assert.assertEquals(2, ((ServerLocatorImpl) locator).getInitialConnectors().length);
+      assertEquals(2, ((ServerLocatorImpl) locator).getInitialConnectors().length);
 
       ServerLocator locator2 = ActiveMQClient.createServerLocator("(tcp://localhost:61616,tcp://localhost:61617)?blockOnDurableSend=false");
-      Assert.assertEquals(2, ((ServerLocatorImpl) locator2).getInitialConnectors().length);
+      assertEquals(2, ((ServerLocatorImpl) locator2).getInitialConnectors().length);
 
    }
 

@@ -23,7 +23,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -39,10 +38,12 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddressFullLoggingTest extends ActiveMQTestBase {
 
@@ -50,12 +51,12 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
 
    private static LogLevel previousLevel;
 
-   @BeforeClass
+   @BeforeAll
    public static void prepareLogger() {
       previousLevel = AssertionLoggerHandler.setLevel(SERVER_LOGGER_NAME, LogLevel.INFO);
    }
 
-   @AfterClass
+   @AfterAll
    public static void clearLogger() throws Exception {
       AssertionLoggerHandler.setLevel(SERVER_LOGGER_NAME, previousLevel);
    }
@@ -102,7 +103,7 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(MY_QUEUE).setAddress(MY_ADDRESS));
+      session.createQueue(QueueConfiguration.of(MY_QUEUE).setAddress(MY_ADDRESS));
 
       final ClientProducer producer = session.createProducer(MY_ADDRESS);
 
@@ -110,12 +111,9 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
       message.getBodyBuffer().writeBytes(new byte[1024]);
 
       ExecutorService executor = Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
-      Callable<Object> sendMessageTask = new Callable<Object>() {
-         @Override
-         public Object call() throws ActiveMQException {
-            producer.send(message);
-            return null;
-         }
+      Callable<Object> sendMessageTask = () -> {
+         producer.send(message);
+         return null;
       };
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
@@ -141,8 +139,9 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
          ClientConsumer consumer = session.createConsumer(MY_QUEUE);
          for (int i = 0; i < sendCount; i++) {
             ClientMessage msg = consumer.receive(250);
-            if (msg == null)
+            if (msg == null) {
                break;
+            }
             msg.acknowledge();
          }
 
@@ -153,9 +152,9 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
          server.stop();
 
          // Using the code only so the test doesn't fail just because someone edits the log text
-         Assert.assertTrue("Expected to find AMQ222183", loggerHandler.findText("AMQ222183", MY_ADDRESS));
-         Assert.assertTrue("Expected to find AMQ221046", loggerHandler.findText("AMQ221046", MY_ADDRESS));
-         Assert.assertFalse("Expected to not find AMQ222211", loggerHandler.findText("AMQ222211"));
+         assertTrue(loggerHandler.findText("AMQ222183", MY_ADDRESS), "Expected to find AMQ222183");
+         assertTrue(loggerHandler.findText("AMQ221046", MY_ADDRESS), "Expected to find AMQ221046");
+         assertFalse(loggerHandler.findText("AMQ222211"), "Expected to not find AMQ222211");
       }
    }
 

@@ -16,21 +16,22 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ValidatorsTest extends Assert {
+public class ValidatorsTest {
 
    private static void success(final Validators.Validator validator, final Object value) {
-      validator.validate(RandomUtil.randomString(), value);
+      validator.validate(RandomUtil.randomUUIDString(), value);
    }
 
    private static void failure(final Validators.Validator validator, final Object value) {
       try {
-         validator.validate(RandomUtil.randomString(), value);
-         Assert.fail(validator + " must not validate " + value);
+         validator.validate(RandomUtil.randomUUIDString(), value);
+         fail(validator + " must not validate '" + value + "'");
       } catch (IllegalArgumentException e) {
 
       }
@@ -85,7 +86,7 @@ public class ValidatorsTest extends Assert {
    public void testNOT_NULL_OR_EMPTY() throws Exception {
       ValidatorsTest.failure(Validators.NOT_NULL_OR_EMPTY, null);
       ValidatorsTest.failure(Validators.NOT_NULL_OR_EMPTY, "");
-      ValidatorsTest.success(Validators.NOT_NULL_OR_EMPTY, RandomUtil.randomString());
+      ValidatorsTest.success(Validators.NOT_NULL_OR_EMPTY, RandomUtil.randomUUIDString());
    }
 
    @Test
@@ -95,7 +96,7 @@ public class ValidatorsTest extends Assert {
       }
       ValidatorsTest.failure(Validators.JOURNAL_TYPE, null);
       ValidatorsTest.failure(Validators.JOURNAL_TYPE, "");
-      ValidatorsTest.failure(Validators.JOURNAL_TYPE, RandomUtil.randomString());
+      ValidatorsTest.failure(Validators.JOURNAL_TYPE, RandomUtil.randomUUIDString());
    }
 
    @Test
@@ -139,6 +140,28 @@ public class ValidatorsTest extends Assert {
 
       ValidatorsTest.success(Validators.MINUS_ONE_OR_POSITIVE_INT, Integer.MAX_VALUE);
       ValidatorsTest.failure(Validators.MINUS_ONE_OR_POSITIVE_INT, Integer.MAX_VALUE + 1);
+   }
+
+   @Test
+   public void testTWO_CHARACTERS() {
+      ValidatorsTest.failure(Validators.NULL_OR_TWO_CHARACTERS, "1234");
+      ValidatorsTest.failure(Validators.NULL_OR_TWO_CHARACTERS, "123");
+      ValidatorsTest.failure(Validators.NULL_OR_TWO_CHARACTERS, "1");
+
+      ValidatorsTest.success(Validators.NULL_OR_TWO_CHARACTERS, "12");
+      ValidatorsTest.success(Validators.NULL_OR_TWO_CHARACTERS, null);
+   }
+
+   @Test
+   public void testPOSITIVE_POWER_OF_TWO() {
+      ValidatorsTest.failure(Validators.POSITIVE_POWER_OF_TWO, 0);
+      ValidatorsTest.failure(Validators.POSITIVE_POWER_OF_TWO, -10);
+      ValidatorsTest.failure(Validators.POSITIVE_POWER_OF_TWO, 127);
+
+      ValidatorsTest.success(Validators.POSITIVE_POWER_OF_TWO, 2);
+      ValidatorsTest.success(Validators.POSITIVE_POWER_OF_TWO, 64);
+      ValidatorsTest.success(Validators.POSITIVE_POWER_OF_TWO, 1024);
+      ValidatorsTest.success(Validators.POSITIVE_POWER_OF_TWO, 16777216);
    }
 
 }

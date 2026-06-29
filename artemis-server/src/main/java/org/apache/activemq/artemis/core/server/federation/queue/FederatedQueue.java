@@ -45,10 +45,9 @@ import org.apache.activemq.artemis.core.settings.impl.Match;
 
 /**
  * Federated Queue, connect to upstream queues routing them to the local queue when a local consumer exist.
- *
- * By default we connect to -1 the current consumer priority on the remote broker, so that if consumers also exist on the remote broker they a dispatched to first.
- * This though is configurable to change this behaviour.
- *
+ * <p>
+ * By default we connect to -1 the current consumer priority on the remote broker, so that if consumers also exist on
+ * the remote broker they a dispatched to first. This though is configurable to change this behaviour.
  */
 public class FederatedQueue extends FederatedAbstract implements ActiveMQServerConsumerPlugin, Serializable {
 
@@ -63,8 +62,8 @@ public class FederatedQueue extends FederatedAbstract implements ActiveMQServerC
       super(federation, server, federationUpstream);
       Objects.requireNonNull(config.getName());
       this.config = config;
-      this.priorityAdjustment = federationUpstream.getPriorityAdjustment() + (config.getPriorityAdjustment() == null ? -1 : config.getPriorityAdjustment());
-      String metaDataFilterString = config.isIncludeFederated() ? null : "hyphenated_props:" + FederatedQueueConsumer.FEDERATION_NAME +  " IS NOT NULL";
+      this.priorityAdjustment = federationUpstream.getPriorityAdjustment() + Objects.requireNonNullElse(config.getPriorityAdjustment(), -1);
+      String metaDataFilterString = config.isIncludeFederated() ? null : "hyphenated_props:" + FederatedQueueConsumer.FEDERATION_NAME + " IS NOT NULL";
       metaDataFilter = FilterImpl.createFilter(metaDataFilterString);
       if (config.getIncludes().isEmpty()) {
          includes = Collections.emptySet();
@@ -109,7 +108,7 @@ public class FederatedQueue extends FederatedAbstract implements ActiveMQServerC
       return config;
    }
 
-   private void conditionalCreateRemoteConsumer(ServerConsumer  consumer) {
+   private void conditionalCreateRemoteConsumer(ServerConsumer consumer) {
       if (server.hasBrokerFederationPlugins()) {
          final AtomicBoolean conditionalCreate = new AtomicBoolean(true);
          try {
@@ -171,9 +170,6 @@ public class FederatedQueue extends FederatedAbstract implements ActiveMQServerC
 
    /**
     * Before a consumer is closed
-    *
-    * @param consumer
-    * @param failed
     */
    @Override
    public synchronized void beforeCloseConsumer(ServerConsumer consumer, boolean failed) {

@@ -16,16 +16,19 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ReferenceCounterTest extends Assert {
+public class ReferenceCounterTest {
 
    class LatchRunner implements Runnable {
 
@@ -91,12 +94,7 @@ public class ReferenceCounterTest extends Assert {
       Thread[] t = new Thread[100];
 
       for (int i = 0; i < t.length; i++) {
-         t[i] = new Thread() {
-            @Override
-            public void run() {
-               ref.increment();
-            }
-         };
+         t[i] = new Thread(() -> ref.increment());
          t[i].start();
       }
 
@@ -105,12 +103,7 @@ public class ReferenceCounterTest extends Assert {
       }
 
       for (int i = 0; i < t.length; i++) {
-         t[i] = new Thread() {
-            @Override
-            public void run() {
-               ref.decrement();
-            }
-         };
+         t[i] = new Thread(() -> ref.decrement());
          t[i].start();
       }
 

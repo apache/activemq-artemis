@@ -17,63 +17,53 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_1_4_0;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_2_4_0;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ConnectionFactoryConfigurationSerializationTest extends VersionedBase {
 
-   // this will ensure that all tests in this class are run twice,
-   // once with "true" passed to the class' constructor and once with "false"
-   @Parameterized.Parameters(name = "server={0}, producer={1}, consumer={2}")
+   @Parameters(name = "producer={0}, consumer={1}")
    public static Collection getParameters() {
-      // we don't need every single version ever released..
-      // if we keep testing current one against 2.4 and 1.4.. we are sure the wire and API won't change over time
       List<Object[]> combinations = new ArrayList<>();
 
-      /*
-      // during development sometimes is useful to comment out the combinations
-      // and add the ones you are interested.. example:
-       */
-      //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
-      //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
-
-      combinations.addAll(combinatory(new Object[]{null}, new Object[]{ONE_FIVE, SNAPSHOT, TWO_FOUR}, new Object[]{ONE_FIVE, SNAPSHOT, TWO_FOUR}));
+      combinations.addAll(combinatory2(SNAPSHOT, new Object[]{ARTEMIS_1_4_0, SNAPSHOT, ARTEMIS_2_4_0}, new Object[]{ARTEMIS_1_4_0, SNAPSHOT, ARTEMIS_2_4_0}));
       return combinations;
    }
 
-   public ConnectionFactoryConfigurationSerializationTest(String server, String sender, String receiver) throws Exception {
-      super(server, sender, receiver);
+   public ConnectionFactoryConfigurationSerializationTest(String sender, String receiver) throws Exception {
+      super(sender, receiver);
    }
 
-   @Before
+   @BeforeEach
    public void beforeTest() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
-      serverFolder.getRoot().mkdirs();
+      FileUtil.deleteDirectory(serverFolder);
+      serverFolder.mkdirs();
       setVariable(senderClassloader, "persistent", false);
    }
 
-   @After
+   @AfterEach
    public void afterTest() {
    }
 
-   @Test
+   @TestTemplate
    public void testSerializeFactory() throws Throwable {
-      File file = serverFolder.newFile("objects.ser");
+      File file = File.createTempFile("objects.ser", null, serverFolder);
       evaluate(senderClassloader, "serial/cfserial.groovy", file.getAbsolutePath(), "write", sender);
       evaluate(receiverClassloader, "serial/cfserial.groovy", file.getAbsolutePath(), "read", receiver);
    }

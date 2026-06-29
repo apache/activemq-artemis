@@ -24,10 +24,18 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 public interface TimedBufferObserver {
 
    /**
-    * It flushes {@link ByteBuf#readableBytes()} of {@code buffer} without changing its reader/writer indexes.<br>
+    * It flushes {@link ByteBuf#readableBytes()} of {@code buffer} without changing its reader/writer indexes.
+    * <p>
     * It just use {@code buffer} temporary: it can be reused by the caller right after this call.
     */
    void flushBuffer(ByteBuf buffer, boolean syncRequested, List<IOCallback> callbacks);
+
+   default void checkSync(boolean syncRequested, List<IOCallback> callbacks) {
+   }
+
+   default boolean supportSync() {
+      return false;
+   }
 
    /**
     * Return the number of remaining bytes that still fit on the observer (file)

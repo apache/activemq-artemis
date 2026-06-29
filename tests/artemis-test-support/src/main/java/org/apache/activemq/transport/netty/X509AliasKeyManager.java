@@ -26,9 +26,8 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
 /**
- * An X509ExtendedKeyManager wrapper which always chooses and only
- * returns the given alias, and defers retrieval to the delegate
- * key manager.
+ * An X509ExtendedKeyManager wrapper which always chooses and only returns the given alias, and defers retrieval to the
+ * delegate key manager.
  */
 public class X509AliasKeyManager extends X509ExtendedKeyManager {
 

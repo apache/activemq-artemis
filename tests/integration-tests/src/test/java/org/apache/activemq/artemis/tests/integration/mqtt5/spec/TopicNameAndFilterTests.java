@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -29,9 +31,10 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-4.7.0-1] The wildcard characters can be used in Topic Filters, but MUST NOT be used within a Topic Name.
@@ -49,15 +52,12 @@ import org.junit.Test;
 
 public class TopicNameAndFilterTests extends MQTT5TestSupport {
 
-   public TopicNameAndFilterTests(String protocol) {
-      super(protocol);
-   }
-
    /*
     * [MQTT-4.7.2-1] The Server MUST NOT match Topic Filters starting with a wildcard character (# or +) with Topic
     * Names beginning with a $ character.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMatchingHash() throws Exception {
       testMatchingWildcard("#");
    }
@@ -66,7 +66,8 @@ public class TopicNameAndFilterTests extends MQTT5TestSupport {
     * [MQTT-4.7.2-1] The Server MUST NOT match Topic Filters starting with a wildcard character (# or +) with Topic
     * Names beginning with a $ character.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMatchingPlus() throws Exception {
       testMatchingWildcard("+");
    }
@@ -84,7 +85,7 @@ public class TopicNameAndFilterTests extends MQTT5TestSupport {
       });
       consumer.subscribe(wildcard, 0);
 
-      final SimpleString DOLLAR_TOPIC = SimpleString.toSimpleString("$foo");
+      final SimpleString DOLLAR_TOPIC = SimpleString.of("$foo");
       ServerLocator locator = ActiveMQClient.createServerLocator("vm://0");
       ClientSessionFactory csf = locator.createSessionFactory();
       ClientSession s = csf.createSession();

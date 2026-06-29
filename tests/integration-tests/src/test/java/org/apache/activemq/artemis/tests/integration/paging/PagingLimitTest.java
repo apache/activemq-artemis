@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -37,8 +44,7 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,9 +100,9 @@ public class PagingLimitTest extends ActiveMQTestBase {
       server.start();
 
       server.addAddressInfo(new AddressInfo(queueNameTX).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueNameTX).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueNameTX).setRoutingType(RoutingType.ANYCAST));
       server.addAddressInfo(new AddressInfo(queueNameNonTX).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueNameNonTX).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueNameNonTX).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server.locateQueue(queueNameNonTX) != null);
       Wait.assertTrue(() -> server.locateQueue(queueNameTX) != null);
@@ -111,7 +117,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
                                                  boolean transacted,
                                                  boolean drop) throws Exception {
       org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(queueName);
-      Assert.assertNotNull(serverQueue);
+      assertNotNull(serverQueue);
 
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {
@@ -127,7 +133,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
          }
          if (transacted) {
             session.commit();
-            Assert.assertTrue(serverQueue.getPagingStore().isPaging());
+            assertTrue(serverQueue.getPagingStore().isPaging());
          }
 
          for (int i = 0; i < 300; i++) {
@@ -136,7 +142,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
                try (MessageConsumer consumer = session.createConsumer(queue)) {
                   for (int initI = 0; initI < 100; initI++) {
                      TextMessage recMessage = (TextMessage) consumer.receive(1000);
-                     Assert.assertEquals("initial " + initI, recMessage.getText());
+                     assertEquals("initial " + initI, recMessage.getText());
                   }
                }
                if (transacted) {
@@ -159,7 +165,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
                }
             } catch (Exception e) {
                logger.warn(e.getMessage(), e);
-               Assert.fail("Exception happened at " + i);
+               fail("Exception happened at " + i);
             }
          }
          if (transacted) {
@@ -172,22 +178,22 @@ public class PagingLimitTest extends ActiveMQTestBase {
                session.commit();
             }
             if (!drop) {
-               Assert.fail("an Exception was expected");
+               fail("an Exception was expected");
             }
-            Assert.assertTrue(loggerHandler.findText("AMQ224120"));
+            assertTrue(loggerHandler.findText("AMQ224120"));
          } catch (JMSException e) {
             logger.debug("Expected exception, ok!", e);
          }
 
 
-         Assert.assertTrue(serverQueue.getPagingStore().isPaging());
+         assertTrue(serverQueue.getPagingStore().isPaging());
 
          MessageConsumer consumer = session.createConsumer(queue);
          for (int i = 0; i < 150; i++) { // we will consume half of the messages
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("hello world " + i, message.getText());
-            Assert.assertEquals(i, message.getIntProperty("i"));
+            assertNotNull(message);
+            assertEquals("hello world " + i, message.getText());
+            assertEquals(i, message.getIntProperty("i"));
             if (transacted) {
                if (i % 100 == 0 && i > 0) {
                   session.commit();
@@ -199,7 +205,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
          }
          Future<Boolean> cleanupDone = serverQueue.getPagingStore().getCursorProvider().scheduleCleanup();
 
-         Assert.assertTrue(cleanupDone.get(30, TimeUnit.SECONDS));
+         assertTrue(cleanupDone.get(30, TimeUnit.SECONDS));
 
 
 
@@ -218,7 +224,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
                }
             } catch (Exception e) {
                logger.warn(e.getMessage(), e);
-               Assert.fail("Exception happened at " + i);
+               fail("Exception happened at " + i);
             }
          }
          if (transacted) {
@@ -232,9 +238,9 @@ public class PagingLimitTest extends ActiveMQTestBase {
                session.commit();
             }
             if (!drop) {
-               Assert.fail("an Exception was expected");
+               fail("an Exception was expected");
             } else {
-               Assert.assertFalse(loggerHandler.findText("AMQ224120"));
+               assertFalse(loggerHandler.findText("AMQ224120"));
             }
          } catch (JMSException e) {
             logger.debug("Expected exception, ok!", e);
@@ -242,9 +248,9 @@ public class PagingLimitTest extends ActiveMQTestBase {
 
          for (int i = 150; i < 450; i++) { // we will consume half of the messages
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("hello world " + i, message.getText());
-            Assert.assertEquals(i, message.getIntProperty("i"));
+            assertNotNull(message);
+            assertEquals("hello world " + i, message.getText());
+            assertEquals(i, message.getIntProperty("i"));
             if (transacted) {
                if (i % 100 == 0 && i > 0) {
                   session.commit();
@@ -252,7 +258,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
             }
          }
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
    }
@@ -289,9 +295,9 @@ public class PagingLimitTest extends ActiveMQTestBase {
       server.start();
 
       server.addAddressInfo(new AddressInfo(queueNameTX).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueNameTX).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueNameTX).setRoutingType(RoutingType.ANYCAST));
       server.addAddressInfo(new AddressInfo(queueNameNonTX).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueNameNonTX).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queueNameNonTX).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server.locateQueue(queueNameNonTX) != null);
       Wait.assertTrue(() -> server.locateQueue(queueNameTX) != null);
@@ -307,7 +313,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
                                                  String protocol,
                                                  boolean transacted) throws Exception {
       org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(queueName);
-      Assert.assertNotNull(serverQueue);
+      assertNotNull(serverQueue);
 
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {
@@ -336,7 +342,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
          }
 
          Wait.assertEquals(successfullSends, serverQueue::getMessageCount);
-         Assert.assertTrue(failed);
+         assertTrue(failed);
 
          int reads = successfullSends / 2;
 
@@ -344,9 +350,9 @@ public class PagingLimitTest extends ActiveMQTestBase {
          try (MessageConsumer consumer = session.createConsumer(queue)) {
             for (int i = 0; i < reads; i++) { // we will consume half of the messages
                TextMessage message = (TextMessage) consumer.receive(5000);
-               Assert.assertNotNull(message);
-               Assert.assertEquals("hello world " + i, message.getText());
-               Assert.assertEquals(i, message.getIntProperty("i"));
+               assertNotNull(message);
+               assertEquals("hello world " + i, message.getText());
+               assertEquals(i, message.getIntProperty("i"));
                if (transacted) {
                   if (i % 100 == 0 && i > 0) {
                      session.commit();
@@ -363,7 +369,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
          int originalSuccess = successfullSends;
 
          Future<Boolean> result = serverQueue.getPagingStore().getCursorProvider().scheduleCleanup();
-         Assert.assertTrue(result.get(10, TimeUnit.SECONDS));
+         assertTrue(result.get(10, TimeUnit.SECONDS));
 
          for (int i = successfullSends; i < 1000; i++) {
             try {
@@ -381,15 +387,15 @@ public class PagingLimitTest extends ActiveMQTestBase {
             successfullSends++;
          }
 
-         Assert.assertTrue(failed);
-         Assert.assertTrue(successfullSends > originalSuccess);
+         assertTrue(failed);
+         assertTrue(successfullSends > originalSuccess);
 
          try (MessageConsumer consumer = session.createConsumer(queue)) {
             for (int i = reads; i < successfullSends; i++) {
                TextMessage message = (TextMessage) consumer.receive(5000);
-               Assert.assertNotNull(message);
-               Assert.assertEquals("hello world " + i, message.getText());
-               Assert.assertEquals(i, message.getIntProperty("i"));
+               assertNotNull(message);
+               assertEquals("hello world " + i, message.getText());
+               assertEquals(i, message.getIntProperty("i"));
                if (transacted) {
                   if (i % 100 == 0 && i > 0) {
                      session.commit();
@@ -399,7 +405,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
             if (transacted) {
                session.commit();
             }
-            Assert.assertNull(consumer.receiveNoWait());
+            assertNull(consumer.receiveNoWait());
          }
 
 

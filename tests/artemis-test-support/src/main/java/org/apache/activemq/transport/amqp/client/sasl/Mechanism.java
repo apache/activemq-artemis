@@ -25,9 +25,8 @@ import java.util.Map;
 public interface Mechanism extends Comparable<Mechanism> {
 
    /**
-    * Relative priority values used to arrange the found SASL
-    * mechanisms in a preferred order where the level of security
-    * generally defines the preference.
+    * Relative priority values used to arrange the found SASL mechanisms in a preferred order where the level of
+    * security generally defines the preference.
     */
    enum PRIORITY {
       LOWEST(0),
@@ -48,17 +47,17 @@ public interface Mechanism extends Comparable<Mechanism> {
    }
 
    /**
-    * @return return the relative priority of this SASL mechanism.
+    * {@return return the relative priority of this SASL mechanism}
     */
    int getPriority();
 
    /**
-    * @return the well known name of this SASL mechanism.
+    * {@return the well known name of this SASL mechanism}
     */
    String getName();
 
    /**
-    * @return the response buffer used to answer the initial SASL cycle.
+    * {@return the response buffer used to answer the initial SASL cycle}
     * @throws SaslException if an error occurs computing the response.
     */
    byte[] getInitialResponse() throws SaslException;
@@ -67,38 +66,34 @@ public interface Mechanism extends Comparable<Mechanism> {
     * Create a response based on a given challenge from the remote peer.
     *
     * @param challenge the challenge that this Mechanism should response to.
-    * @return the response that answers the given challenge.
+    * @return the response that answers the given challenge
     * @throws SaslException if an error occurs computing the response.
     */
    byte[] getChallengeResponse(byte[] challenge) throws SaslException;
 
    /**
-    * Sets the user name value for this Mechanism.  The Mechanism can ignore this
-    * value if it does not utilize user name in it's authentication processing.
+    * Sets the user name value for this Mechanism.  The Mechanism can ignore this value if it does not utilize user name
+    * in it's authentication processing.
     *
     * @param username The user name given.
     */
    void setUsername(String username);
 
    /**
-    * Returns the configured user name value for this Mechanism.
-    *
-    * @return the currently set user name value for this Mechanism.
+    * {@return the currently set user name value for this Mechanism}
     */
    String getUsername();
 
    /**
-    * Sets the password value for this Mechanism.  The Mechanism can ignore this
-    * value if it does not utilize a password in it's authentication processing.
+    * Sets the password value for this Mechanism.  The Mechanism can ignore this value if it does not utilize a password
+    * in it's authentication processing.
     *
     * @param password The password given.
     */
    void setPassword(String password);
 
    /**
-    * Returns the configured password value for this Mechanism.
-    *
-    * @return the currently set password value for this Mechanism.
+    * {@return the currently set password value for this Mechanism}
     */
    String getPassword();
 
@@ -110,9 +105,7 @@ public interface Mechanism extends Comparable<Mechanism> {
    void setProperties(Map<String, Object> options);
 
    /**
-    * The currently set Properties for this Mechanism.
-    *
-    * @return the current set of configuration Properties for this Mechanism.
+    * {@return the current set of configuration Properties for this Mechanism}
     */
    Map<String, Object> getProperties();
 
@@ -121,20 +114,17 @@ public interface Mechanism extends Comparable<Mechanism> {
     *
     * @param username The user name that will be used with this mechanism
     * @param password The password that will be used with this mechanism
-    * @return true if the mechanism works with the provided credentials or not.
+    * @return true if the mechanism works with the provided credentials or not
     */
    boolean isApplicable(String username, String password);
 
    /**
-    * Get the currently configured Authentication ID.
-    *
-    * @return the currently set Authentication ID.
+    * {@return the currently set Authentication ID}
     */
    String getAuthzid();
 
    /**
-    * Sets an Authentication ID that some mechanism can use during the
-    * challenge response phase.
+    * Sets an Authentication ID that some mechanism can use during the challenge response phase.
     *
     * @param authzid The Authentication ID to use.
     */

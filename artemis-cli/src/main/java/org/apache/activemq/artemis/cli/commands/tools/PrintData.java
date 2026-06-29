@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -116,13 +117,13 @@ public class PrintData extends DBOption {
 
       printBanner(out, BINDINGS_BANNER);
 
-      DescribeJournal.printSurvivingRecords(storageManager.getBindingsJournal(), out, safe);
+      DescribeJournal bindings = DescribeJournal.printSurvivingRecords(storageManager.getBindingsJournal(), out, safe);
 
       printBanner(out, MESSAGES_BANNER);
 
       DescribeJournal describeJournal = DescribeJournal.printSurvivingRecords(storageManager.getMessageJournal(), out, safe);
 
-      printPages(describeJournal, storageManager, pagingmanager, out, safe, maxPages, null);
+      printPages(describeJournal, storageManager, pagingmanager, out, safe, maxPages, bindings);
 
       cleanup();
 
@@ -229,16 +230,11 @@ public class PrintData extends DBOption {
       ActiveMQThreadFactory daemonFactory = new ActiveMQThreadFactory("cli", true, PrintData.class.getClassLoader());
       final ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, daemonFactory);
       final ExecutorService executor = Executors.newFixedThreadPool(10, daemonFactory);
-      ExecutorFactory execfactory = new ExecutorFactory() {
-         @Override
-         public ArtemisExecutor getExecutor() {
-            return ArtemisExecutor.delegate(executor);
-         }
-      };
+      ExecutorFactory execfactory = () -> ArtemisExecutor.delegate(executor);
       try {
 
          final StorageManager sm = new NullStorageManager();
-         PagingStoreFactory pageStoreFactory = new PagingStoreFactoryNIO(sm, pageDirectory, 1000L, scheduled, execfactory, execfactory, false, null);
+         PagingStoreFactory pageStoreFactory = new PagingStoreFactoryNIO(sm, pageDirectory, 1000L, scheduled, execfactory, false, null);
          HierarchicalRepository<AddressSettings> addressSettingsRepository = new HierarchicalObjectRepository<>();
          addressSettingsRepository.setDefault(new AddressSettings());
          PagingManager manager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository);
@@ -260,9 +256,9 @@ public class PrintData extends DBOption {
                                   DescribeJournal bindingsDescribe) throws Exception {
       PageCursorsInfo cursorACKs = calculateCursorsInfo(describeJournal.getRecords());
 
-      HashSet<Long> existingQueues = new HashSet<>();
+      Set<Long> existingQueues = new HashSet<>();
       if (bindingsDescribe != null && bindingsDescribe.getBindingEncodings() != null) {
-         bindingsDescribe.getBindingEncodings().forEach(e -> existingQueues.add(e.getId()));
+         bindingsDescribe.getBindingEncodings().forEach(e -> existingQueues.add(e.getQueueConfiguration().getId()));
       }
 
       Set<Long> pgTXs = cursorACKs.getPgTXs();
@@ -310,7 +306,7 @@ public class PrintData extends DBOption {
                            out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ", msg=" + msg.getMessage().getClass().getSimpleName() + "(safe data)");
                         }
                      } else {
-                        out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ",userMessageID=" + (msg.getMessage().getUserID() != null ? msg.getMessage().getUserID() : "") + ", msg=" + msg.getMessage());
+                        out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ",userMessageID=" + Objects.requireNonNullElse(msg.getMessage().getUserID(), "") + ", msg=" + msg.getMessage());
                      }
                      out.print(",Queues = ");
                      long[] q = msg.getQueueIDs();
@@ -331,7 +327,7 @@ public class PrintData extends DBOption {
                            out.print(" (ACK)");
                         }
 
-                        if (cursorACKs.getCompletePages(q[i]).contains(Long.valueOf(pgid))) {
+                        if (cursorACKs.getCompletePages(q[i]).contains(pgid)) {
                            acked = true;
                            out.print(" (PG-COMPLETE)");
                         }
@@ -398,8 +394,8 @@ public class PrintData extends DBOption {
             CursorAckRecordEncoding encoding = new CursorAckRecordEncoding();
             encoding.decode(buff);
 
-            Long queueID = Long.valueOf(encoding.queueID);
-            Long pageNR = Long.valueOf(encoding.position.getPageNr());
+            Long queueID = encoding.queueID;
+            Long pageNR = encoding.position.getPageNr();
 
             if (!cursorInfo.getCompletePages(queueID).add(pageNR)) {
                System.err.println("Page " + pageNR + " has been already set as complete on queue " + queueID);
@@ -435,16 +431,10 @@ public class PrintData extends DBOption {
       private PageCursorsInfo() {
       }
 
-      /**
-       * @return the pgTXs
-       */
       Set<Long> getPgTXs() {
          return pgTXs;
       }
 
-      /**
-       * @return the cursorRecords
-       */
       Map<Long, Set<PagePosition>> getCursorRecords() {
          return cursorRecords;
       }

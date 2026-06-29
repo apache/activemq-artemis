@@ -25,8 +25,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 /**
  * A Paged message.
  * <p>
- * We can't just record the ServerMessage as we need other information (such as the TransactionID
- * used during paging)
+ * We can't just record the ServerMessage as we need other information (such as the TransactionID used during paging)
  */
 public interface PagedMessage extends EncodingSupport {
 
@@ -44,19 +43,16 @@ public interface PagedMessage extends EncodingSupport {
    long getTransactionID();
 
    /**
-    * This is the size of the message when persisted on disk and is used for metrics tracking
-    * If a normal message it will be the encoded message size
-    * If a large message it will be encoded message size + large message body size
-    * @return
-    * @throws ActiveMQException
+    * This is the size of the message when persisted on disk and is used for metrics tracking If a normal message it
+    * will be the encoded message size If a large message it will be encoded message size + large message body size
     */
    long getPersistentSize() throws ActiveMQException;
 
-   /** This returns how much the PagedMessage used, or it's going to use
-    *  from storage.
-    *  We can't calculate the encodeSize as some persisters don't guarantee to re-store the data
-    *  at the same amount of bytes it used. In some cases it may need to add headers in AMQP
-    *  or extra data that may affect the outcome of getEncodeSize() */
+   /**
+    * This returns how much the PagedMessage used, or it's going to use from storage. We can't calculate the encodeSize
+    * as some persisters don't guarantee to re-store the data at the same amount of bytes it used. In some cases it may
+    * need to add headers in AMQP or extra data that may affect the outcome of getEncodeSize()
+    */
    int getStoredSize();
 
    long getPageNumber();

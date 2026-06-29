@@ -16,106 +16,75 @@
  */
 package org.apache.activemq.artemis.tests.smoke.console;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.smoke.console.pages.LoginPage;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.smoke.console.pages.StatusPage;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
-import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.NoSuchElementException;
 
-@RunWith(Parameterized.class)
-public class TabsTest extends ConsoleTest {
+import java.util.Collections;
+import java.util.Set;
 
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
+//Parameters set in super class
+@ExtendWith(ParameterizedTestExtension.class)
+public class TabsTest extends ArtemisTest {
 
-   public TabsTest(MutableCapabilities browserOptions) {
-      super(browserOptions);
+   private final String TAB_CONNECTIONS = "Connections";
+
+   private final String TAB_SESSIONS = "Sessions";
+
+   private final String TAB_CONSUMERS = "Consumers";
+
+   private final String TAB_PRODUCERS = "Producers";
+
+   private final String TAB_ADDRESSES = "Addresses";
+
+   private final String TAB_QUEUES = "Queues";
+
+   private final String[] TABS = new String[]{TAB_CONNECTIONS, TAB_SESSIONS, TAB_CONSUMERS, TAB_PRODUCERS, TAB_ADDRESSES, TAB_QUEUES};
+
+   public TabsTest(String browser, String serverName) {
+      super(browser, serverName);
    }
 
-   @Test
-   public void testConnectionsTab() {
-      testTab("connections", "Connections");
+   @TestTemplate
+   public void testVisibleTabs() {
+      testTabs(SERVER_ADMIN_USERNAME, false, Set.of(TABS));
+      testTabs("connections", true, Collections.singleton(TAB_CONNECTIONS));
+      testTabs("sessions", true, Collections.singleton(TAB_SESSIONS));
+      testTabs("consumers", true, Collections.singleton(TAB_CONSUMERS));
+      testTabs("producers", true, Collections.singleton(TAB_PRODUCERS));
+      testTabs("addresses", true, Collections.singleton(TAB_ADDRESSES));
+      testTabs("queues", true, Collections.singleton(TAB_QUEUES));
    }
 
-   @Test
-   public void testSessionsTab() {
-      testTab("sessions", "Sessions");
-   }
+   private void testTabs(String userpass, boolean isAlertExpected, Set<String> visibleTabs) {
+      loadLandingPage();
 
-   @Test
-   public void testConsumersTab() {
-      testTab("consumers", "Consumers");
-   }
+      StatusPage statusPage = new LoginPage(driver).loginValidUser(userpass, userpass, DEFAULT_TIMEOUT);
 
-   @Test
-   public void testProducersTab() {
-      testTab("producers", "Producers");
-   }
+      assertEquals(isAlertExpected, statusPage.countAlerts() > 0);
+      statusPage.closeAlerts();
 
-   @Test
-   public void testAddressesTab() {
-      testTab("addresses", "Addresses");
-   }
-
-   @Test
-   public void testQueuesTab() {
-      testTab("queues", "Queues");
-   }
-
-   private void testTab(String userpass, String tab) {
-      driver.get(webServerUrl + "/console");
-      new LoginPage(driver).loginValidUser(userpass, userpass, DEFAULT_TIMEOUT);
-      driver.findElement(By.xpath("//a[contains(text(),'" + tab + "')]"));
-   }
-
-   @Test
-   public void testConnectionsTabNegative() {
-      // use credentials for a valid user who cannot see the tab
-      testTabNegative("queues", "Connections");
-   }
-
-   @Test
-   public void testSessionsTabNegative() {
-      // use credentials for a valid user who cannot see the tab
-      testTabNegative("connections", "Sessions");
-   }
-
-   @Test
-   public void testConsumersTabNegative() {
-      // use credentials for a valid user who cannot see the tab
-      testTabNegative("connections", "Consumers");
-   }
-
-   @Test
-   public void testProducersTabNegative() {
-      // use credentials for a valid user who cannot see the tab
-      testTabNegative("connections", "roducers");
-   }
-
-   @Test
-   public void testAddressesTabNegative() {
-      // use credentials for a valid user who cannot see the tab
-      testTabNegative("connections", "Addresses");
-   }
-
-   @Test
-   public void testQueuesTabNegative() {
-      // use credentials for a valid user who cannot see the tab
-      testTabNegative("connections", "Queues");
-   }
-
-   private void testTabNegative(String userpass, String tab) {
-      driver.get(webServerUrl + "/console");
-      new LoginPage(driver).loginValidUser(userpass, userpass, DEFAULT_TIMEOUT);
-      try {
-         driver.findElement(By.xpath("//a[contains(text(),'" + tab + "')]"));
-         fail("User " + userpass + " should not have been able to see the " + tab + " tab.");
-      } catch (NoSuchElementException e) {
-         // expected
+      for (String tab : TABS) {
+         By tabLocator = By.xpath("//button/span[contains(text(),'" + tab + "')]");
+         if (visibleTabs.contains(tab)) {
+            driver.findElement(tabLocator);
+         } else {
+            try {
+               driver.findElement(tabLocator);
+               fail("User " + userpass + " should not have been able to see the " + tab + " tab.");
+            } catch (Exception e) {
+               assertEquals(NoSuchElementException.class, e.getClass());
+            }
+         }
       }
+
+      statusPage.logout(DEFAULT_TIMEOUT);
    }
 }

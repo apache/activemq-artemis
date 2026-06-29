@@ -29,8 +29,6 @@ import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS
 String folder = arg[0];
 String id = arg[1];
 String type = arg[2];
-String producer = arg[3];
-String consumer = arg[4];
 String globalMaxSize = arg[5];
 
 configuration = new ConfigurationImpl();

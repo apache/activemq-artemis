@@ -30,15 +30,18 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ConnectionLimitTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -63,7 +66,7 @@ public class ConnectionLimitTest extends ActiveMQTestBase {
          ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
          fail("creating a session factory here should fail");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQNotConnectedException);
+         assertInstanceOf(ActiveMQNotConnectedException.class, e);
       }
    }
 
@@ -78,7 +81,7 @@ public class ConnectionLimitTest extends ActiveMQTestBase {
          ClientSession extraClientSession = addClientSession(extraClientSessionFactory.createSession());
          fail("creating a session here should fail");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQConnectionTimedOutException);
+         assertInstanceOf(ActiveMQConnectionTimedOutException.class, e);
       }
    }
 }

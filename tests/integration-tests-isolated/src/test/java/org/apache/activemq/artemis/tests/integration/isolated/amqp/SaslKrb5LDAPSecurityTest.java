@@ -26,7 +26,6 @@ import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,8 +38,6 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +46,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionException;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -60,6 +59,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -173,11 +173,11 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
 
    private void createArtemisServer(String securityConfigScope) {
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(securityConfigScope);
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, String.valueOf(5672));
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, "AMQP");
 
-      HashMap<String, Object> amqpParams = new HashMap<>();
+      Map<String, Object> amqpParams = new HashMap<>();
       amqpParams.put("saslMechanisms", "GSSAPI");
       amqpParams.put("saslLoginConfigScope", "amqp-sasl-gssapi");
 
@@ -203,7 +203,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
          (InetSocketAddress)kdcServer.getTransports()[0].getAcceptor().getLocalAddress();
       int port = addr.getPort();
       File krb5conf = new File(testDir, "krb5.conf").getAbsoluteFile();
-      String krb5confBody = MessageFormat.format(sb.toString(), getRealm(), "localhost", Integer.toString(port), System.getProperty("line.separator"));
+      String krb5confBody = MessageFormat.format(sb.toString(), getRealm(), "localhost", Integer.toString(port), System.lineSeparator());
       FileUtils.writeStringToFile(krb5conf, krb5confBody, StandardCharsets.UTF_8);
       System.setProperty("java.security.krb5.conf", krb5conf.getAbsolutePath());
 
@@ -319,7 +319,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
       env.put(Context.SECURITY_CREDENTIALS, CREDENTIALS);
       DirContext ctx = new InitialDirContext(env);
 
-      HashSet<String> set = new HashSet<>();
+      Set<String> set = new HashSet<>();
 
       NamingEnumeration<NameClassPair> list = ctx.list("ou=system");
 
@@ -338,7 +338,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
    }
 
    @Test
-   public void testSaslGssapiLdapAuth() throws Exception {
+   public void testSaslGssapiLdapAuth() throws Throwable {
 
       final Hashtable<String, String> env = new Hashtable<>();
       env.put(Context.PROVIDER_URL, "ldap://localhost:1024");
@@ -348,9 +348,9 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
       LoginContext loginContext = new LoginContext("broker-sasl-gssapi");
       loginContext.login();
       try {
-         Subject.doAs(loginContext.getSubject(), (PrivilegedExceptionAction<Object>) () -> {
+         SecurityManagerShim.callAs(loginContext.getSubject(), (Callable<Object>) () -> {
 
-            HashSet<String> set = new HashSet<>();
+            Set<String> set = new HashSet<>();
 
             DirContext ctx = new InitialDirContext(env);
             NamingEnumeration<NameClassPair> list = ctx.list("ou=system");
@@ -369,8 +369,8 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
             return null;
 
          });
-      } catch (PrivilegedActionException e) {
-         throw e.getException();
+      } catch (CompletionException ce) {
+         throw ce.getCause();
       }
    }
 
@@ -400,7 +400,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
       createArtemisServer(jaasConfigScope);
 
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role(artemisRoleName, true, true, true, true, true, true, true, true, true, true));
+      roles.add(new Role(artemisRoleName, true, true, true, true, true, true, true, true, true, true, false, false));
       server.getConfiguration().putSecurityRoles(QUEUE_NAME, roles);
       server.start();
 
@@ -415,7 +415,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
          javax.jms.Queue queue = session.createQueue(QUEUE_NAME);
 
          // PRODUCE
-         final String text = RandomUtil.randomString();
+         final String text = RandomUtil.randomUUIDString();
 
          try {
             MessageProducer producer = session.createProducer(queue);

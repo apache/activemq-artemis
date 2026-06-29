@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.bridge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -25,6 +31,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -39,9 +46,8 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class BridgeRetryFullFailureTest extends ActiveMQTestBase {
 
@@ -57,7 +63,7 @@ public class BridgeRetryFullFailureTest extends ActiveMQTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server0 = createServer(false, createBasicConfig());
@@ -73,11 +79,11 @@ public class BridgeRetryFullFailureTest extends ActiveMQTestBase {
 
    @Test
    public void testFullServer() throws Exception {
-      SimpleString source = SimpleString.toSimpleString("source");
-      SimpleString destination = SimpleString.toSimpleString("destination");
+      SimpleString source = SimpleString.of("source");
+      SimpleString destination = SimpleString.of("destination");
 
-      server0.createQueue(new QueueConfiguration(source).setRoutingType(RoutingType.ANYCAST));
-      Queue queueServer1 = server1.createQueue(new QueueConfiguration(destination).setRoutingType(RoutingType.ANYCAST));
+      server0.createQueue(QueueConfiguration.of(source).setRoutingType(RoutingType.ANYCAST));
+      Queue queueServer1 = server1.createQueue(QueueConfiguration.of(destination).setRoutingType(RoutingType.ANYCAST));
 
       server0.deployBridge(new BridgeConfiguration().setRoutingType(ComponentConfigurationRoutingType.ANYCAST).setName("bridge").setForwardingAddress(destination.toString()).setQueueName(source.toString()).setConfirmationWindowSize(10).setStaticConnectors(Arrays.asList("connector")).setRetryInterval(100).setReconnectAttempts(-1));
 
@@ -103,7 +109,7 @@ public class BridgeRetryFullFailureTest extends ActiveMQTestBase {
       Wait.assertTrue(() -> loggerHandler.findText("AMQ229102"));
 
       // the reconnects and failure may introduce out of order issues. so we just check if they were all received
-      HashSet<Integer> receivedIntegers = new HashSet<>();
+      Set<Integer> receivedIntegers = new HashSet<>();
 
       try (Connection connection = factory1.createConnection()) {
          connection.start();
@@ -111,20 +117,20 @@ public class BridgeRetryFullFailureTest extends ActiveMQTestBase {
          MessageConsumer consumer = session.createConsumer(session.createQueue(destination.toString()));
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             Message message = consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertFalse(receivedIntegers.contains(message.getIntProperty("i")));
+            assertNotNull(message);
+            assertFalse(receivedIntegers.contains(message.getIntProperty("i")));
             receivedIntegers.add(message.getIntProperty("i"));
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
-         Assert.assertTrue(receivedIntegers.contains(i));
+         assertTrue(receivedIntegers.contains(i));
       }
       // please bear with my OCD here
       // this is a moot check as I checked for all the elements
       // but I still wanted the extra validation here
-      Assert.assertEquals(NUMBER_OF_MESSAGES, receivedIntegers.size());
+      assertEquals(NUMBER_OF_MESSAGES, receivedIntegers.size());
 
    }
 }

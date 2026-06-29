@@ -22,14 +22,16 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
-
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * adapted from: org.apache.activemq.JmsClientAckTest
@@ -38,8 +40,6 @@ public class JmsClientAckTest extends BasicOpenWireTest {
 
    /**
     * Tests if acknowledged messages are being consumed.
-    *
-    * @throws JMSException
     */
    @Test
    public void testAckedMessageAreConsumed() throws JMSException {
@@ -69,8 +69,6 @@ public class JmsClientAckTest extends BasicOpenWireTest {
 
    /**
     * Tests if acknowledged messages are being consumed.
-    *
-    * @throws JMSException
     */
    @Test
    public void testLastMessageAcked() throws JMSException {
@@ -106,8 +104,6 @@ public class JmsClientAckTest extends BasicOpenWireTest {
 
    /**
     * Tests if unacknowledged messages are being re-delivered when the consumer connects again.
-    *
-    * @throws JMSException
     */
    @Test
    public void testUnAckedMessageAreNotConsumedOnSessionClose() throws JMSException {
@@ -139,8 +135,6 @@ public class JmsClientAckTest extends BasicOpenWireTest {
 
    /**
     * Tests if acknowledged messages are being consumed.
-    *
-    * @throws JMSException
     */
    @Test
    public void testAckedMessageDeliveringWithPrefetch() throws Exception {
@@ -150,8 +144,7 @@ public class JmsClientAckTest extends BasicOpenWireTest {
       connection.start();
       Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       Queue queue = session.createQueue(getQueueName());
-      QueueControl queueControl = (QueueControl)server.getManagementService().
-         getResource(ResourceNames.QUEUE + queueName);
+      QueueControl queueControl = server.getManagementService().getQueueControl(queueName);
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < messageCount; i++) {
          producer.send(session.createTextMessage("MSG" + i));
@@ -164,7 +157,7 @@ public class JmsClientAckTest extends BasicOpenWireTest {
       Wait.assertEquals(0L, () -> queueControl.getMessagesAcknowledged(), 3000, 100);
       Wait.assertEquals(prefetchSize, () -> queueControl.getDeliveringCount(), 3000, 100);
 
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       for (int i = 0; i < prefetchSize; i++) {
          msg = consumer.receive(1000);
          assertNotNull(msg);

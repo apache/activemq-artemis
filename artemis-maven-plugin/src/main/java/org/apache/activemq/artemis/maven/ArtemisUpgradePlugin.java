@@ -25,22 +25,16 @@ import java.util.Set;
 import org.apache.activemq.artemis.boot.Artemis;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-@Mojo(name = "upgrade", defaultPhase = LifecyclePhase.TEST_COMPILE)
+@Mojo(name = "upgrade", defaultPhase = LifecyclePhase.TEST_COMPILE, threadSafe = true)
 public class ArtemisUpgradePlugin extends ArtemisAbstractPlugin {
 
    @Parameter
    String name;
-
-   /**
-    * The plugin descriptor
-    */
-   private PluginDescriptor descriptor;
 
    @Parameter(defaultValue = "${activemq.basedir}", required = true)
    private File home;
@@ -73,18 +67,7 @@ public class ArtemisUpgradePlugin extends ArtemisAbstractPlugin {
       getLog().debug("Local " + localRepository);
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
-      if (!isArtemisHome(home.toPath())) {
-         if (isArtemisHome(alternateHome.toPath())) {
-            home = alternateHome;
-         } else {
-            getLog().error("********************************************************************************************");
-            getLog().error("Could not locate suitable Artemis.home on either " + home + " or " + alternateHome);
-            getLog().error("Use the binary distribution or build the distribution before running the examples");
-            getLog().error("********************************************************************************************");
-
-            throw new MojoExecutionException("Couldn't find artemis.home");
-         }
-      }
+      home = findArtemisHome(home, alternateHome);
 
       Map properties = getPluginContext();
 
@@ -97,7 +80,7 @@ public class ArtemisUpgradePlugin extends ArtemisAbstractPlugin {
          }
       }
 
-      ArrayList<String> listCommands = new ArrayList<>();
+      List<String> listCommands = new ArrayList<>();
 
       add(listCommands, "upgrade");
 
@@ -111,7 +94,7 @@ public class ArtemisUpgradePlugin extends ArtemisAbstractPlugin {
       getLog().debug("***** Server upgrading at " + instance + " with home=" + home + " *****");
 
       try {
-         Artemis.execute(home, null, null, useSystemOutput, listCommands);
+         Artemis.execute(home, null, null, useSystemOutput, false, listCommands);
       } catch (Throwable e) {
          getLog().error(e);
          throw new MojoFailureException(e.getMessage());

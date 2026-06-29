@@ -19,6 +19,11 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import static org.apache.activemq.transport.amqp.AmqpSupport.JMS_SELECTOR_FILTER_IDS;
 import static org.apache.activemq.transport.amqp.AmqpSupport.NO_LOCAL_FILTER_IDS;
 import static org.apache.activemq.transport.amqp.AmqpSupport.findFilter;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,14 +52,16 @@ import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Session;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Test various behaviors of AMQP receivers with the broker.
  */
 public class AmqpReceiverTest extends AmqpClientTestSupport {
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreateQueueReceiver() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -69,7 +76,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreateTopicReceiver() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -85,7 +93,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreateQueueReceiverWithNoLocalSet() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -118,7 +127,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreateQueueReceiverWithJMSSelector() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -150,7 +160,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testInvalidFilter() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -161,23 +172,26 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
          session.createReceiver(getQueueName(), "null = 'f''", true);
          fail("should throw exception");
       } catch (Exception e) {
-         assertTrue(e.getCause() instanceof JMSException);
+         assertInstanceOf(JMSException.class, e.getCause());
       }
 
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSenderSettlementModeSettledIsHonored() throws Exception {
       doTestSenderSettlementModeIsHonored(SenderSettleMode.SETTLED);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSenderSettlementModeUnsettledIsHonored() throws Exception {
       doTestSenderSettlementModeIsHonored(SenderSettleMode.UNSETTLED);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSenderSettlementModeMixedIsHonored() throws Exception {
       doTestSenderSettlementModeIsHonored(SenderSettleMode.MIXED);
    }
@@ -201,12 +215,14 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testReceiverSettlementModeSetToFirst() throws Exception {
       doTestReceiverSettlementModeForcedToFirst(ReceiverSettleMode.FIRST);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testReceiverSettlementModeSetToSecond() throws Exception {
       doTestReceiverSettlementModeForcedToFirst(ReceiverSettleMode.SECOND);
    }
@@ -234,9 +250,10 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testClientIdIsSetInSubscriptionList() throws Exception {
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("mytopic"), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of("mytopic"), RoutingType.ANYCAST));
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -252,7 +269,7 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
          source.setAddress("mytopic");
          session.createReceiver(source, "testSub");
 
-         SimpleString fo = new SimpleString("testClient.testSub:mytopic");
+         SimpleString fo = SimpleString.of("testClient.testSub:mytopic");
          assertNotNull(server.locateQueue(fo));
 
       } catch (Exception e) {
@@ -262,7 +279,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testLinkDetachSentWhenQueueDeleted() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -271,7 +289,7 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
          AmqpSession session = connection.createSession();
          AmqpReceiver receiver = session.createReceiver(getQueueName());
 
-         server.destroyQueue(new SimpleString(getQueueName()), null, false, true);
+         server.destroyQueue(SimpleString.of(getQueueName()), null, false, true);
 
          Wait.assertTrue("Receiver should have closed", receiver::isClosed);
       } finally {
@@ -279,7 +297,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testLinkDetatchErrorIsCorrectWhenQueueDoesNotExists() throws Exception {
       AddressSettings value = new AddressSettings();
       value.setAutoCreateQueues(false);
@@ -308,7 +327,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testUnsupportedFiltersAreNotListedAsSupported() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -353,7 +373,8 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testReceiverCloseSendsRemoteClose() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -386,7 +407,7 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
 
       receiver.close();
 
-      assertTrue("Did not process remote close as expected", closed.get());
+      assertTrue(closed.get(), "Did not process remote close as expected");
       connection.getStateInspector().assertValid();
 
       connection.close();

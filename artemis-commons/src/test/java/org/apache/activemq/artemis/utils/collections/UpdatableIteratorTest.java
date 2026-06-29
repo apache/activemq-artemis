@@ -16,20 +16,21 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
 
 public class UpdatableIteratorTest {
 
    @Test
    public void testUnderlyingIterator() {
 
-      ArrayList<Integer> arrayList = new ArrayList<>();
+      List<Integer> arrayList = new ArrayList<>();
       for (int i = 0; i < 1000; i++) {
          arrayList.add(i);
       }
@@ -53,12 +54,12 @@ public class UpdatableIteratorTest {
    @Test
    public void testUpdateIterator() {
 
-      ArrayList<Integer> arrayList = new ArrayList<>();
+      List<Integer> arrayList = new ArrayList<>();
       for (int i = 0; i < 1000; i++) {
          arrayList.add(i);
       }
 
-      ArrayList<Integer> arrayList2 = new ArrayList<>();
+      List<Integer> arrayList2 = new ArrayList<>();
       for (int i = 4000; i < 5000; i++) {
          arrayList2.add(i);
       }

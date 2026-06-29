@@ -40,14 +40,10 @@ public class ReplicaPolicy extends BackupPolicy {
 
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
 
-   /*
-   * what quorum size to use for voting
-   * */
+   // what quorum size to use for voting
    private int quorumSize;
 
-   /*
-   * whether or not this live broker should vote to remain live
-   * */
+   // whether this broker should vote to remain active
    private boolean voteOnReplicationFailure;
 
    private ReplicatedPolicy replicatedPolicy;
@@ -147,9 +143,6 @@ public class ReplicaPolicy extends BackupPolicy {
       this.replicatedPolicy = replicatedPolicy;
    }
 
-   /*
-   * these 2 methods are the same, leaving both as the second is correct but the first is needed until more refactoring is done
-   * */
    @Override
    public String getBackupGroupName() {
       return groupName;
@@ -210,10 +203,10 @@ public class ReplicaPolicy extends BackupPolicy {
 
    @Override
    public Activation createActivation(ActiveMQServerImpl server,
-                                      boolean wasLive,
+                                      boolean wasPrimary,
                                       Map<String, Object> activationParams,
                                       IOCriticalErrorListener ioCriticalErrorListener) throws Exception {
-      SharedNothingBackupActivation backupActivation = new SharedNothingBackupActivation(server, wasLive, activationParams, ioCriticalErrorListener, this, networkHealthCheck);
+      SharedNothingBackupActivation backupActivation = new SharedNothingBackupActivation(server, wasPrimary, activationParams, ioCriticalErrorListener, this, networkHealthCheck);
       backupActivation.init();
       return backupActivation;
    }

@@ -19,77 +19,78 @@
 
 package org.apache.activemq.artemis.api.core.management;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.junit.jupiter.api.Test;
 
 public class AddressSettingsInfoTest {
 
    @Test
    public void shouldLoadFromJSON() {
-      String json = "{\n" +
-         "\"addressFullMessagePolicy\":\"fullPolicy\",\n" +
-         "\"maxSizeBytes\":500,\n" +
-         "\"pageSizeBytes\":200,\n" +
-         "\"pageCacheMaxSize\":3,\n" +
-         "\"maxDeliveryAttempts\":3,\n" +
-         "\"redeliveryDelay\":70000,\n" +
-         "\"redeliveryMultiplier\":1.5,\n" +
-         "\"maxRedeliveryDelay\":100000,\n" +
-         "\"DLA\":\"deadLettersGoHere\",\n" +
-         "\"expiryAddress\":\"\",\n" +
-         "\"lastValueQueue\":true,\n" +
-         "\"redistributionDelay\":10004,\n" +
-         "\"sendToDLAOnNoRoute\":true,\n" +
-         "\"slowConsumerThreshold\":200,\n" +
-         "\"slowConsumerCheckPeriod\":300,\n" +
-         "\"slowConsumerPolicy\":\"retire\",\n" +
-         "\"autoCreateJmsQueues\":true,\n" +
-         "\"autoDeleteJmsQueues\":false,\n" +
-         "\"autoCreateJmsTopics\":true,\n" +
-         "\"autoDeleteJmsTopics\":false,\n" +
-         "\"autoCreateQueues\":false,\n" +
-         "\"autoDeleteQueues\":false,\n" +
-         "\"autoCreateAddresses\":false,\n" +
-         "\"autoDeleteAddresses\":false,\n" +
-         "\"configDeleteQueues\":\"OFF\",\n" +
-         "\"configDeleteAddresses\":\"FORCE\",\n" +
-         "\"maxSizeBytesRejectThreshold\":1023,\n" +
-         "\"defaultLastValueKey\":\"yyy\",\n" +
-         "\"defaultNonDestructive\":false,\n" +
-         "\"defaultExclusiveQueue\":false,\n" +
-         "\"defaultGroupRebalance\":false,\n" +
-         "\"defaultGroupBuckets\":1026,\n" +
-         "\"defaultGroupFirstKey\":\"xxx\",\n" +
-         "\"defaultMaxConsumers\":1001,\n" +
-         "\"defaultPurgeOnNoConsumers\":false,\n" +
-         "\"defaultConsumersBeforeDispatch\":1005,\n" +
-         "\"defaultDelayBeforeDispatch\":1003,\n" +
-         "\"defaultQueueRoutingType\":\"MULTICAST\",\n" +
-         "\"defaultAddressRoutingType\":\"ANYCAST\",\n" +
-         "\"defaultConsumerWindowSize\":2001,\n" +
-         "\"defaultRingSize\":999,\n" +
-         "\"autoDeleteCreatedQueues\":false,\n" +
-         "\"autoDeleteQueuesDelay\":4,\n" +
-         "\"autoDeleteQueuesMessageCount\":8,\n" +
-         "\"autoDeleteAddressesDelay\":3003,\n" +
-         "\"redeliveryCollisionAvoidanceFactor\":1.1,\n" +
-         "\"retroactiveMessageCount\":101,\n" +
-         "\"autoCreateDeadLetterResources\":true,\n" +
-         "\"deadLetterQueuePrefix\":\"FOO.\",\n" +
-         "\"deadLetterQueueSuffix\":\".FOO\",\n" +
-         "\"autoCreateExpiryResources\":true,\n" +
-         "\"expiryQueuePrefix\":\"BAR.\",\n" +
-         "\"expiryQueueSuffix\":\".BAR\",\n" +
-         "\"expiryDelay\":404,\n" +
-         "\"minExpiryDelay\":40,\n" +
-         "\"maxExpiryDelay\":4004,\n" +
-         "\"enableMetrics\":false\n" +
-         "}";
-      AddressSettingsInfo addressSettingsInfo = AddressSettingsInfo.from(json);
+      String json = """
+         {
+         "addressFullMessagePolicy":"fullPolicy",
+         "maxSizeBytes":500,
+         "pageSizeBytes":200,
+         "pageCacheMaxSize":3,
+         "maxDeliveryAttempts":3,
+         "redeliveryDelay":70000,
+         "redeliveryMultiplier":1.5,
+         "maxRedeliveryDelay":100000,
+         "deadLetterAddress":"deadLettersGoHere",
+         "expiryAddress":"",
+         "defaultLastValueQueue":true,
+         "redistributionDelay":10004,
+         "sendToDLAOnNoRoute":true,
+         "slowConsumerThreshold":200,
+         "slowConsumerCheckPeriod":300,
+         "slowConsumerPolicy":"retire",
+         "autoCreateJmsQueues":true,
+         "autoDeleteJmsQueues":false,
+         "autoCreateJmsTopics":true,
+         "autoDeleteJmsTopics":false,
+         "autoCreateQueues":false,
+         "autoDeleteQueues":false,
+         "autoCreateAddresses":false,
+         "autoDeleteAddresses":false,
+         "configDeleteQueues":"OFF",
+         "configDeleteAddresses":"FORCE",
+         "maxSizeBytesRejectThreshold":1023,
+         "defaultLastValueKey":"yyy",
+         "defaultNonDestructive":false,
+         "defaultExclusiveQueue":false,
+         "defaultGroupRebalance":false,
+         "defaultGroupBuckets":1026,
+         "defaultGroupFirstKey":"xxx",
+         "defaultMaxConsumers":1001,
+         "defaultPurgeOnNoConsumers":false,
+         "defaultConsumersBeforeDispatch":1005,
+         "defaultDelayBeforeDispatch":1003,
+         "defaultQueueRoutingType":"MULTICAST",
+         "defaultAddressRoutingType":"ANYCAST",
+         "defaultConsumerWindowSize":2001,
+         "defaultRingSize":999,
+         "autoDeleteCreatedQueues":false,
+         "autoDeleteQueuesDelay":4,
+         "autoDeleteQueuesMessageCount":8,
+         "autoDeleteAddressesDelay":3003,
+         "redeliveryCollisionAvoidanceFactor":1.1,
+         "retroactiveMessageCount":101,
+         "autoCreateDeadLetterResources":true,
+         "deadLetterQueuePrefix":"FOO.",
+         "deadLetterQueueSuffix":".FOO",
+         "autoCreateExpiryResources":true,
+         "expiryQueuePrefix":"BAR.",
+         "expiryQueueSuffix":".BAR",
+         "expiryDelay":404,
+         "minExpiryDelay":40,
+         "maxExpiryDelay":4004,
+         "enableMetrics":false
+         }""";
+      AddressSettingsInfo addressSettingsInfo = AddressSettingsInfo.fromJSON(json);
       assertEquals("fullPolicy", addressSettingsInfo.getAddressFullMessagePolicy());
       assertEquals(500L, addressSettingsInfo.getMaxSizeBytes());
       assertEquals(200L, addressSettingsInfo.getPageSizeBytes());
@@ -100,7 +101,7 @@ public class AddressSettingsInfoTest {
       assertEquals(100000, addressSettingsInfo.getMaxRedeliveryDelay());
       assertEquals("deadLettersGoHere", addressSettingsInfo.getDeadLetterAddress());
       assertEquals("", addressSettingsInfo.getExpiryAddress());
-      assertTrue(addressSettingsInfo.isLastValueQueue());
+      assertTrue(addressSettingsInfo.isDefaultLastValueQueue());
       assertEquals(10004L, addressSettingsInfo.getRedistributionDelay());
       assertTrue(addressSettingsInfo.isSendToDLAOnNoRoute());
       assertEquals(200L, addressSettingsInfo.getSlowConsumerThreshold());
@@ -146,7 +147,7 @@ public class AddressSettingsInfoTest {
       assertEquals(404, addressSettingsInfo.getExpiryDelay());
       assertEquals(40, addressSettingsInfo.getMinExpiryDelay());
       assertEquals(4004, addressSettingsInfo.getMaxExpiryDelay());
-      assertEquals(false, addressSettingsInfo.isEnableMetrics());
+      assertFalse(addressSettingsInfo.isEnableMetrics());
    }
 
 }

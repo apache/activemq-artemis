@@ -16,10 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
+import javax.jms.Destination;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -28,8 +34,10 @@ import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +45,8 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreateTemporaryQueue() throws Throwable {
       Connection connection = createConnection();
 
@@ -62,7 +71,8 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testDeleteTemporaryQueue() throws Exception {
       Connection connection = createConnection();
 
@@ -70,7 +80,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          final javax.jms.Queue queue = session.createTemporaryQueue();
          assertNotNull(queue);
-         assertTrue(queue instanceof TemporaryQueue);
+         assertInstanceOf(TemporaryQueue.class, queue);
 
          Queue queueView = getProxyToQueue(queue.getQueueName());
          assertNotNull(queueView);
@@ -78,19 +88,14 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
          TemporaryQueue tempQueue = (TemporaryQueue) queue;
          tempQueue.delete();
 
-         assertTrue("Temp Queue should be deleted.", Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return getProxyToQueue(queue.getQueueName()) == null;
-            }
-         }, TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50)));
+         assertTrue(Wait.waitFor(() -> getProxyToQueue(queue.getQueueName()) == null, TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50)), "Temp Queue should be deleted.");
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreateTemporaryTopic() throws Throwable {
       Connection connection = createConnection();
 
@@ -112,7 +117,8 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
       assertNotNull(message);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testDeleteTemporaryTopic() throws Exception {
       Connection connection = createConnection();
 
@@ -120,23 +126,82 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          final javax.jms.Topic topic = session.createTemporaryTopic();
          assertNotNull(topic);
-         assertTrue(topic instanceof TemporaryTopic);
+         assertInstanceOf(TemporaryTopic.class, topic);
 
-         Queue queueView = getProxyToQueue(topic.getTopicName());
-         assertNotNull(queueView);
+         AddressInfo addressView = getProxyToAddress(topic.getTopicName());
+         assertNotNull(addressView);
 
          TemporaryTopic tempTopic = (TemporaryTopic) topic;
          tempTopic.delete();
 
-         assertTrue("Temp Queue should be deleted.", Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return getProxyToQueue(topic.getTopicName()) == null;
-            }
-         }, TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50)));
+         Wait.assertNull(() -> getProxyToAddress(topic.getTopicName()), TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50));
       } finally {
          connection.close();
       }
    }
+
+   @Test
+   @Timeout(20)
+   public void testTemporaryTopicDeletedOnConnectionClosed() throws Exception {
+      doTestTemporaryDestinationIsDeletedOnConnectionClosed(true, true);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testTemporaryQueueDeletedOnConnectionClosed() throws Exception {
+      doTestTemporaryDestinationIsDeletedOnConnectionClosed(false, true);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testTemporaryTopicDeletedOnConnectionClosedWithoutExplicitConsumerClose() throws Exception {
+      doTestTemporaryDestinationIsDeletedOnConnectionClosed(true, false);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testTemporaryQueueDeletedOnConnectionClosedWithoutExplicitConsumerClose() throws Exception {
+      doTestTemporaryDestinationIsDeletedOnConnectionClosed(false, false);
+   }
+
+   private void doTestTemporaryDestinationIsDeletedOnConnectionClosed(boolean topic, boolean closeConsumer) throws Exception {
+      final String addressName;
+      try (Connection connection = createConnection()) {
+         final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         final Destination destination;
+
+         if (topic) {
+            destination = session.createTemporaryTopic();
+
+            assertNotNull(destination);
+            assertTrue(destination instanceof TemporaryTopic);
+
+            addressName = ((TemporaryTopic) destination).getTopicName();
+         } else {
+            destination = session.createTemporaryQueue();
+
+            assertNotNull(destination);
+            assertTrue(destination instanceof TemporaryQueue);
+
+            addressName = ((TemporaryQueue) destination).getQueueName();
+         }
+
+         logger.debug("Address being used is {}", addressName);
+
+         final MessageConsumer consumer = session.createConsumer(destination);
+
+         final AddressInfo addressView = getProxyToAddress(addressName);
+         assertNotNull(addressView);
+
+         assertEquals(1, server.bindingQuery(addressView.getName()).getQueueNames().size());
+
+         if (closeConsumer) {
+            consumer.close();
+         }
+
+      }
+      Wait.assertNull(() -> getProxyToAddress(addressName), TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50));
+   }
+
+
 }

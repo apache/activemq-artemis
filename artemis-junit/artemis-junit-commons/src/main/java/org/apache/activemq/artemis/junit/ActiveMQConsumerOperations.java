@@ -23,8 +23,8 @@ public interface ActiveMQConsumerOperations {
    long getDefaultReceiveTimeout();
 
    /**
-    * Sets the default timeout in milliseconds used when receiving messages. Defaults to 50
-    * milliseconds
+    * Sets the default timeout in milliseconds used when receiving messages. Defaults to 50 milliseconds
+    *
     * @param defaultReceiveTimeout received timeout in milliseconds
     */
    void setDefaultReceiveTimeout(long defaultReceiveTimeout);
@@ -32,9 +32,8 @@ public interface ActiveMQConsumerOperations {
    boolean isAutoCreateQueue();
 
    /**
-    * Enable/Disable the automatic creation of non-existent queues. The default is to automatically
-    * create non-existent queues
-    * @param autoCreateQueue
+    * Enable/Disable the automatic creation of non-existent queues. The default is to automatically create non-existent
+    * queues
     */
    void setAutoCreateQueue(boolean autoCreateQueue);
 

@@ -16,6 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,6 +37,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.BytesMessage;
@@ -41,6 +55,7 @@ import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -50,8 +65,11 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPLargeMessage;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -69,36 +87,33 @@ import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicInteger;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final Random rand = new Random(System.currentTimeMillis());
 
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public int frameSize = 32767;
-
-   @Parameterized.Parameter(1)
+   @Parameter(index = 1)
    public int payload = 110 * 1024;
-
-   @Parameterized.Parameter(2)
+   @Parameter(index = 2)
    public int amqpMinLargeMessageSize = 100 * 1024;
-
-   @Parameterized.Parameter(3)
+   @Parameter(index = 3)
    public boolean jdbc = false;
 
-   @Parameterized.Parameters(name = "frameSize={0}, payload={1}, amqpMinLargeMessageSize={2}, jdbc={3}")
+   @Parameters(name = "frameSize={0}, payload={1}, amqpMinLargeMessageSize={2}, jdbc={3}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
          {32767, 110 * 1024, 100 * 1024, false},
@@ -130,7 +145,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       server.getConfiguration().addAcceptorConfiguration("tcp", "tcp://localhost:61616");
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendAMQPReceiveCore() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -151,7 +167,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendAndGetData() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -162,17 +179,16 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       try {
          sendMessages(nMsgs, connection);
 
-         int count = getMessageCount(server.getPostOffice(), testQueueName);
-         assertEquals(nMsgs, count);
+         Wait.assertEquals(nMsgs, () -> getMessageCount(server.getPostOffice(), testQueueName), 5000, 100);
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(testQueueName);
          serverQueue.forEach(ref -> {
             try {
                AMQPLargeMessage message = (AMQPLargeMessage) ref.getMessage();
-               Assert.assertFalse(message.hasScheduledDeliveryTime());
+               assertFalse(message.hasScheduledDeliveryTime());
                ReadableBuffer dataBuffer = message.getData();
                LargeBodyReader reader = message.getLargeBodyReader();
                try {
-                  Assert.assertEquals(reader.getSize(), dataBuffer.remaining());
+                  assertEquals(reader.getSize(), dataBuffer.remaining());
                   reader.open();
                   ByteBuffer buffer = ByteBuffer.allocate(dataBuffer.remaining());
                   reader.readInto(buffer);
@@ -192,7 +208,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendAMQPMessageWithComplexAnnotationsReceiveCore() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -211,7 +228,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          AmqpSender sender = session.createSender(testQueueName);
          AmqpMessage message = createAmqpMessage((byte) 'A', payload);
 
-         message.setApplicationProperty("IntProperty", (Integer) 42);
+         message.setApplicationProperty("IntProperty", 42);
          message.setDurable(true);
          message.setMessageAnnotation(annotation, embeddedMap);
          sender.send(message);
@@ -228,8 +245,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
             MessageConsumer consumer = session2.createConsumer(session2.createQueue(testQueueName));
 
             Message received = consumer.receive(5000);
-            Assert.assertNotNull(received);
-            Assert.assertEquals(42, received.getIntProperty("IntProperty"));
+            assertNotNull(received);
+            assertEquals(42, received.getIntProperty("IntProperty"));
 
             connection2.close();
          }
@@ -238,7 +255,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendAMQPReceiveOpenWire() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -267,7 +285,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
       for (int i = 0; i < nMsgs; ++i) {
          AmqpMessage message = createAmqpMessage((byte) 'A', payload);
-         message.setApplicationProperty("i", (Integer) i);
+         message.setApplicationProperty("i", i);
          message.setDurable(true);
          sender.send(message);
       }
@@ -283,14 +301,15 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
       for (int i = 0; i < nMsgs; i++) {
          Message message = consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getIntProperty("i"));
+         assertNotNull(message);
+         assertEquals(i, message.getIntProperty("i"));
       }
 
       connection2.close();
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendAMQPReceiveAMQP() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -311,11 +330,10 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
          for (int i = 0; i < nMsgs; ++i) {
             AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
-            assertNotNull("failed at " + i, message);
+            assertNotNull(message, "failed at " + i);
             MessageImpl wrapped = (MessageImpl) message.getWrappedMessage();
-            if (wrapped.getBody() instanceof Data) {
+            if (wrapped.getBody() instanceof Data data) {
                // converters can change this to AmqValue
-               Data data = (Data) wrapped.getBody();
                logger.debug("received : message: {}", data.getValue().getLength());
                assertEquals(payload, data.getValue().getLength());
             }
@@ -328,7 +346,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendAMQPMessageWithComplexAnnotationsReceiveAMQP() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -349,7 +368,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          AmqpSender sender = session.createSender(testQueueName);
          AmqpMessage message = createAmqpMessage((byte) 'A', payload);
 
-         message.setApplicationProperty("IntProperty", (Integer) 42);
+         message.setApplicationProperty("IntProperty", 42);
          message.setDurable(true);
          message.setMessageAnnotation(annotation.toString(), embeddedMap);
          sender.send(message);
@@ -366,10 +385,9 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          receiver.flow(nMsgs);
 
          AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
-         assertNotNull("Failed to read message with embedded map in annotations", message);
+         assertNotNull(message, "Failed to read message with embedded map in annotations");
          MessageImpl wrapped = (MessageImpl) message.getWrappedMessage();
-         if (wrapped.getBody() instanceof Data) {
-            Data data = (Data) wrapped.getBody();
+         if (wrapped.getBody() instanceof Data data) {
             logger.debug("received : message: {}", data.getValue().getLength());
             assertEquals(payload, data.getValue().getLength());
          }
@@ -384,7 +402,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testHugeString() throws Exception {
       ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:5672");
       Connection connection = factory.createConnection();
@@ -410,13 +429,14 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
       MessageConsumer consumer = session.createConsumer(queue);
       TextMessage message = (TextMessage)consumer.receive(50_000);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       session.commit();
 
-      Assert.assertEquals(builder.toString(), message.getText());
+      assertEquals(builder.toString(), message.getText());
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendAMQPReceiveAMQPViaJMSObjectMessage() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -433,7 +453,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       receiveJMS(nMsgs, factory);
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendAMQPReceiveAMQPViaJMSText() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -450,7 +471,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       receiveJMS(nMsgs, factory);
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendAMQPReceiveAMQPViaJMSBytes() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -477,15 +499,17 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       return payload;
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendHugeHeader() throws Exception {
-      Assume.assumeFalse(jdbc); // the checked rule with the property size will not be applied to JDBC, hence we skip the test
+      assumeFalse(jdbc); // the checked rule with the property size will not be applied to JDBC, hence we skip the test
       doTestSendHugeHeader(payload);
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendLargeMessageWithHugeHeader() throws Exception {
-      Assume.assumeFalse(jdbc); // the checked rule with the property size will not be applied to JDBC, hence we skip the test
+      assumeFalse(jdbc); // the checked rule with the property size will not be applied to JDBC, hence we skip the test
       doTestSendHugeHeader(1024 * 1024);
    }
 
@@ -503,19 +527,15 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          AmqpSender sender = session.createSender(testQueueName);
 
          AmqpMessage message = createAmqpMessage((byte) 'A', expectedSize);
-         StringBuffer buffer = new StringBuffer();
-         for (int i = 0; i < strLength; i++) {
-            buffer.append(" ");
-         }
-         message.setApplicationProperty("str", buffer.toString());
+         message.setApplicationProperty("str", " ".repeat(strLength));
          message.setDurable(true);
 
          try {
             sender.send(message);
             fail();
          } catch (IOException e) {
-            Assert.assertTrue(e.getCause() instanceof JMSException);
-            Assert.assertTrue(e.getMessage().contains("AMQ149005"));
+            assertInstanceOf(JMSException.class, e.getCause());
+            assertTrue(e.getMessage().contains("AMQ149005"));
          }
 
          session.close();
@@ -524,32 +544,24 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testLargeHeaderTXLargeBody() throws Exception {
-      Assume.assumeFalse(jdbc); // the checked rule with the property size will not be applied to JDBC, hence we skip the test
+      assumeFalse(jdbc); // the checked rule with the property size will not be applied to JDBC, hence we skip the test
       testLargeHeaderTX(true);
    }
 
-   @Test
+   @TestTemplate
    public void testLargeHeaderTXSmallBody() throws Exception {
-      Assume.assumeFalse(jdbc); // the checked rule with the property size will not be applied to JDBC, hence we skip the test
+      assumeFalse(jdbc); // the checked rule with the property size will not be applied to JDBC, hence we skip the test
       testLargeHeaderTX(false);
    }
 
    private void testLargeHeaderTX(boolean largeBody) throws Exception {
-      String testQueueName = RandomUtil.randomString();
-      server.createQueue(new QueueConfiguration(testQueueName).setRoutingType(RoutingType.ANYCAST));
+      String testQueueName = RandomUtil.randomUUIDString();
+      server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST));
       ConnectionFactory cf = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:5672");
 
-      String largeString;
-      {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < 1024 * 1024) {
-            buffer.append("This is a large string ");
-         }
-         largeString = buffer.toString();
-      }
-
+      String largeString = RandomUtil.randomAlphaNumericString(1024 * 1024);
       String smallString = "small string";
 
       String body = largeBody ? largeString : smallString;
@@ -567,7 +579,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          } catch (Exception expected) {
             failed = true;
          }
-         Assert.assertTrue(failed);
+         assertTrue(failed);
       }
 
       try (Connection connection = cf.createConnection()) {
@@ -582,12 +594,12 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          connection.start();
 
          MessageConsumer consumer = session.createConsumer(session.createQueue(testQueueName));
-         TextMessage recMessage =  (TextMessage) consumer.receive(5000);
-         Assert.assertEquals(smallString, recMessage.getStringProperty("test"));
-         Assert.assertEquals(body, recMessage.getText());
+         TextMessage recMessage = (TextMessage) consumer.receive(5000);
+         assertEquals(smallString, recMessage.getStringProperty("test"));
+         assertEquals(body, recMessage.getText());
          session.commit();
 
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
       }
 
       org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(testQueueName);
@@ -595,37 +607,42 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
       File largeMessageFolder = server.getConfiguration().getLargeMessagesLocation();
       File[] files = largeMessageFolder.listFiles();
-      Assert.assertTrue(files == null ? "Null Files" : "There are " + files.length + " files in the large message folder", files == null || files.length == 0);
+      assertTrue(files == null || files.length == 0, files == null ? "Null Files" : "There are " + files.length + " files in the large message folder");
    }
 
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testSendSmallerMessages() throws Exception {
       for (int i = 512; i <= (8 * 1024); i += 512) {
          doTestSendLargeMessage(i);
       }
    }
 
-   @Test(timeout = 120000)
+   @TestTemplate
+   @Timeout(120)
    public void testSendFixedSizedMessages() throws Exception {
       doTestSendLargeMessage(65536);
       doTestSendLargeMessage(65536 * 2);
       doTestSendLargeMessage(65536 * 4);
    }
 
-   @Test(timeout = 120000)
+   @TestTemplate
+   @Timeout(120)
    public void testSend1MBMessage() throws Exception {
       doTestSendLargeMessage(1024 * 1024);
    }
 
-   @Ignore("Useful for performance testing")
-   @Test(timeout = 120000)
+   @Disabled("Useful for performance testing")
+   @TestTemplate
+   @Timeout(120)
    public void testSend10MBMessage() throws Exception {
       doTestSendLargeMessage(1024 * 1024 * 10);
    }
 
-   @Ignore("Useful for performance testing")
-   @Test(timeout = 120000)
+   @Disabled("Useful for performance testing")
+   @TestTemplate
+   @Timeout(120)
    public void testSend100MBMessage() throws Exception {
       doTestSendLargeMessage(1024 * 1024 * 100);
    }
@@ -640,7 +657,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
          long startTime = System.currentTimeMillis();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Queue queue = session.createQueue(name.getMethodName());
+         Queue queue = session.createQueue(name);
          MessageProducer producer = session.createProducer(queue);
          BytesMessage message = session.createBytesMessage();
          message.writeBytes(payload);
@@ -659,7 +676,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          logger.debug("Calling receive");
          Message received = consumer.receive();
          assertNotNull(received);
-         assertTrue(received instanceof BytesMessage);
+         assertInstanceOf(BytesMessage.class, received);
          BytesMessage bytesMessage = (BytesMessage) received;
          assertNotNull(bytesMessage);
          endTime = System.currentTimeMillis();
@@ -667,12 +684,13 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          logger.debug("Returned from receive after {} ms", endTime - startTime);
          byte[] bytesReceived = new byte[expectedSize];
          assertEquals(expectedSize, bytesMessage.readBytes(bytesReceived, expectedSize));
-         assertTrue(Arrays.equals(payload, bytesReceived));
+         assertArrayEquals(payload, bytesReceived);
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testReceiveRedeliveredLargeMessagesWithSessionFlowControl() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -709,10 +727,10 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          AmqpReceiver receiver = session.createReceiver(testQueueName);
          receiver.flow(numMsgs);
 
-         ArrayList<AmqpMessage> messages = new ArrayList<>();
+         List<AmqpMessage> messages = new ArrayList<>();
          for (int i = 0; i < numMsgs; ++i) {
             AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
-            assertNotNull("failed at " + i, message);
+            assertNotNull(message, "failed at " + i);
             messages.add(message);
          }
 
@@ -739,7 +757,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testReceiveLargeMessagesMultiplexedOnSameSession() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -798,8 +817,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          receiverA.flow(numMsgs / 2, true);
          receiverB.flow(numMsgs / 2);
 
-         ArrayList<AmqpMessage> messagesA = new ArrayList<>();
-         ArrayList<AmqpMessage> messagesB = new ArrayList<>();
+         List<AmqpMessage> messagesA = new ArrayList<>();
+         List<AmqpMessage> messagesB = new ArrayList<>();
 
          long timeout = 6000;
          long start = System.nanoTime();
@@ -835,11 +854,11 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
             timeRemaining = System.nanoTime() - start < TimeUnit.MILLISECONDS.toNanos(timeout);
          }
 
-         assertTrue("Failed to receive all messages in expected time: A=" + messagesA.size() + ", B=" + messagesB.size(), timeRemaining);
+         assertTrue(timeRemaining, "Failed to receive all messages in expected time: A=" + messagesA.size() + ", B=" + messagesB.size());
 
          // Validate there aren't any extras
-         assertNull("Unexpected additional message present for A", receiverA.receiveNoWait());
-         assertNull("Unexpected additional message present for B", receiverB.receiveNoWait());
+         assertNull(receiverA.receiveNoWait(), "Unexpected additional message present for A");
+         assertNull(receiverB.receiveNoWait(), "Unexpected additional message present for B");
 
          // Validate the transfers were reconstituted to give the expected delivery payload.
          for (int i = 0; i < numMsgs; ++i) {
@@ -860,16 +879,17 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    private void validateMessage(byte[] expectedPayload, int msgNum, AmqpMessage message) {
-      assertNotNull("failed at " + msgNum, message);
+      assertNotNull(message, "failed at " + msgNum);
 
       Section body = message.getWrappedMessage().getBody();
-      assertNotNull("No message body for msg " + msgNum, body);
+      assertNotNull(body, "No message body for msg " + msgNum);
 
-      assertTrue("Unexpected message body type for msg " + body.getClass(), body instanceof Data);
-      assertEquals("Unexpected body content for msg", new Binary(expectedPayload, 0, expectedPayload.length), ((Data) body).getValue());
+      assertInstanceOf(Data.class, body, "Unexpected message body type for msg " + body.getClass());
+      assertEquals(new Binary(expectedPayload, 0, expectedPayload.length), ((Data) body).getValue(), "Unexpected body content for msg");
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testMessageWithAmqpValueAndEmptyBinaryPreservesBody() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -890,12 +910,12 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          receiver.flow(1);
 
          AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
-         assertNotNull("failed to read large AMQP message", received);
+         assertNotNull(received, "failed to read large AMQP message");
          MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
 
-         assertTrue(wrapped.getBody() instanceof AmqpValue);
+         assertInstanceOf(AmqpValue.class, wrapped.getBody());
          AmqpValue body = (AmqpValue) wrapped.getBody();
-         assertTrue(body.getValue() instanceof Binary);
+         assertInstanceOf(Binary.class, body.getValue());
          Binary payload = (Binary) body.getValue();
          assertEquals(0, payload.getLength());
 
@@ -906,7 +926,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testMessageWithDataAndEmptyBinaryPreservesBody() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -927,13 +948,13 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          receiver.flow(1);
 
          AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
-         assertNotNull("failed to read large AMQP message", received);
+         assertNotNull(received, "failed to read large AMQP message");
          MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
 
-         assertTrue(wrapped.getBody() instanceof Data);
+         assertInstanceOf(Data.class, wrapped.getBody());
          Data body = (Data) wrapped.getBody();
-         assertTrue(body.getValue() instanceof Binary);
-         Binary payload = (Binary) body.getValue();
+         assertInstanceOf(Binary.class, body.getValue());
+         Binary payload = body.getValue();
          assertEquals(0, payload.getLength());
 
          received.accept();
@@ -943,7 +964,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testMessageWithDataAndContentTypeOfTextPreservesBodyType() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -968,13 +990,13 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          receiver.flow(1);
 
          AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
-         assertNotNull("failed to read large AMQP message", received);
+         assertNotNull(received, "failed to read large AMQP message");
          MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
 
-         assertTrue(wrapped.getBody() instanceof Data);
+         assertInstanceOf(Data.class, wrapped.getBody());
          Data body = (Data) wrapped.getBody();
-         assertTrue(body.getValue() instanceof Binary);
-         Binary payload = (Binary) body.getValue();
+         assertInstanceOf(Binary.class, body.getValue());
+         Binary payload = body.getValue();
          String reconstitutedString = new String(
             payload.getArray(), payload.getArrayOffset(), payload.getLength(), StandardCharsets.UTF_8);
 
@@ -988,7 +1010,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @SuppressWarnings({ "unchecked", "rawtypes" })
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testMessageWithAmqpValueListPreservesBodyType() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -1014,12 +1037,12 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          receiver.flow(1);
 
          AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
-         assertNotNull("failed to read large AMQP message", received);
+         assertNotNull(received, "failed to read large AMQP message");
          MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
 
-         assertTrue(wrapped.getBody() instanceof AmqpValue);
+         assertInstanceOf(AmqpValue.class, wrapped.getBody());
          AmqpValue body = (AmqpValue) wrapped.getBody();
-         assertTrue(body.getValue() instanceof List);
+         assertInstanceOf(List.class, body.getValue());
          List<String> payload = (List) body.getValue();
          assertEquals(3, payload.size());
 
@@ -1031,7 +1054,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    @SuppressWarnings({ "unchecked", "rawtypes" })
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testMessageWithAmqpSequencePreservesBodyType() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -1057,12 +1081,12 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          receiver.flow(1);
 
          AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
-         assertNotNull("failed to read large AMQP message", received);
+         assertNotNull(received, "failed to read large AMQP message");
          MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
 
-         assertTrue(wrapped.getBody() instanceof AmqpSequence);
+         assertInstanceOf(AmqpSequence.class, wrapped.getBody());
          AmqpSequence body = (AmqpSequence) wrapped.getBody();
-         assertTrue(body.getValue() instanceof List);
+         assertInstanceOf(List.class, body.getValue());
          List<String> payload = (List) body.getValue();
          assertEquals(3, payload.size());
 
@@ -1074,7 +1098,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
 
-   @Test
+   @TestTemplate
    public void testDeleteUnreferencedMessage() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -1105,16 +1129,16 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
       server.stop();
 
-      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler())  {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          server.start();
-         Assert.assertTrue(loggerHandler.findText("AMQ221019"));
+         assertTrue(loggerHandler.findText("AMQ221019"));
       }
 
       validateNoFilesOnLargeDir();
       runAfter(server::stop);
    }
 
-   @Test
+   @TestTemplate
    public void testSimpleLargeMessageRestart() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
@@ -1137,8 +1161,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          server.start();
 
          // These two should not happen as the consumer will receive them
-         Assert.assertFalse(loggerHandler.findText("AMQ221019")); // unferenced record
-         Assert.assertFalse(loggerHandler.findText("AMQ221018")); // unferenced large message
+         assertFalse(loggerHandler.findText("AMQ221019")); // unferenced record
+         assertFalse(loggerHandler.findText("AMQ221018")); // unferenced large message
       }
 
       connection = addConnection(client.connect());
@@ -1147,7 +1171,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          AmqpReceiver receiver = session.createReceiver(getTestName());
          receiver.flow(1);
          AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
-         Assert.assertNotNull(message);
+         assertNotNull(message);
          message.accept();
          receiver.close();
          session.close();
@@ -1159,6 +1183,138 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       runAfter(server::stop);
    }
 
+   @Test
+   public void testInterruptStreaming() throws Exception {
+      ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:61616");
+
+      final int MESSAGE_COUNT = 20;
+      final int MESSAGE_SIZE = 200 * 1024;
+      final int THREADS = 10;
+      byte[] payload = createLargePayload(MESSAGE_SIZE);
+
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
+
+         final CyclicBarrier consumersReady = new CyclicBarrier(THREADS + 1);
+         final CountDownLatch consumersDone = new CountDownLatch(THREADS);
+         final CountDownLatch producersDone = new CountDownLatch(THREADS);
+         final AtomicInteger countError = new AtomicInteger(0);
+
+         ExecutorService executorService = Executors.newFixedThreadPool(THREADS * 2);
+         runAfter(executorService::shutdownNow);
+
+         for (int i = 0; i < THREADS; i++) {
+            final int threadId = i;
+            executorService.execute(() -> {
+               try {
+                  consumeForInterruptedStreaming(factory, threadId, consumersReady, MESSAGE_COUNT, payload);
+               } catch (Throwable error) {
+                  countError.incrementAndGet();
+                  logger.warn(error.getMessage(), error);
+               } finally {
+                  consumersDone.countDown();
+               }
+            });
+         }
+
+         consumersReady.await(30, TimeUnit.SECONDS);
+
+         for (int i = 0; i < THREADS; i++) {
+            executorService.execute(() -> {
+               try {
+                  produceForInterruptedStreaming(factory, MESSAGE_COUNT, payload);
+               } catch (Throwable e) {
+                  countError.incrementAndGet();
+                  logger.warn(e.getMessage(), e);
+               } finally {
+                  producersDone.countDown();
+               }
+            });
+         }
+
+         assertTrue(consumersDone.await(5, TimeUnit.MINUTES));
+         assertTrue(producersDone.await(5, TimeUnit.MINUTES));
+
+         assertEquals(0, countError.get(), "There are exceptions on the producers or consumers");
+
+         assertFalse(loggerHandler.findTrace("IllegalArgumentException"), "Server log contains IllegalArgumentException");
+      }
+   }
+
+   private static void produceForInterruptedStreaming(ConnectionFactory factory, int messageCount, byte[] payload) throws Throwable {
+      Connection connection = null;
+      try {
+         connection = factory.createConnection();
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         Topic topic = session.createTopic("testTopic");
+         MessageProducer producer = session.createProducer(topic);
+
+         for (int j = 0; j < messageCount; j++) {
+            BytesMessage message = session.createBytesMessage();
+            message.writeBytes(payload);
+            producer.send(message);
+
+            if ((j + 1) % 10 == 0) {
+               session.commit();
+            }
+         }
+         session.commit();
+      } finally {
+         if (connection != null) {
+            try {
+               connection.close();
+            } catch (Exception e) {
+               logger.error("Error closing producer connection", e);
+            }
+         }
+      }
+   }
+
+   private static void consumeForInterruptedStreaming(ConnectionFactory factory,
+                                                      int threadId,
+                                                      CyclicBarrier startFlag, int messageCount, byte[] expectedPayload) throws Exception {
+      Connection connection = null;
+      try {
+         connection = factory.createConnection();
+         connection.setClientID("consumer-" + threadId);
+
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         Topic topic = session.createTopic("testTopic");
+
+         // Create durable subscriber
+         MessageConsumer consumer = session.createDurableSubscriber(topic, "sub-" + threadId);
+
+         startFlag.await(10, TimeUnit.SECONDS);
+         connection.start();
+
+         for (int i = 0; i < messageCount; i++) {
+            BytesMessage msg = (BytesMessage) consumer.receive(TimeUnit.SECONDS.toMillis(30));
+            assertNotNull(msg);
+
+            int bodySize = (int)msg.getBodyLength();
+
+            assertEquals(bodySize, expectedPayload.length);
+
+            byte[] receivedPayLoad = new byte[bodySize];
+            msg.readBytes(receivedPayLoad);
+
+            assertArrayEquals(expectedPayload, receivedPayLoad);
+
+            if (i % 10 == 0) {
+               session.commit();
+            }
+         }
+         session.commit();
+
+      } finally {
+         if (connection != null) {
+            try {
+               connection.close();
+            } catch (Exception e) {
+               logger.error("Error closing consumer connection", e);
+            }
+         }
+      }
+   }
 
    private void sendObjectMessages(int nMsgs, ConnectionFactory factory) throws Exception {
       try (Connection connection = factory.createConnection()) {
@@ -1166,14 +1322,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          Queue queue = session.createQueue(testQueueName);
          MessageProducer producer = session.createProducer(queue);
          ObjectMessage msg = session.createObjectMessage();
-
-         StringBuilder builder = new StringBuilder();
-         for (int i = 0; i < payload; ++i) {
-            builder.append("A");
-         }
-
-         msg.setObject(builder.toString());
-
+         msg.setObject("A".repeat(payload));
          for (int i = 0; i < nMsgs; ++i) {
             msg.setIntProperty("i", (Integer) i);
             producer.send(msg);
@@ -1187,14 +1336,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          Queue queue = session.createQueue(testQueueName);
          MessageProducer producer = session.createProducer(queue);
          TextMessage msg = session.createTextMessage();
-
-         StringBuilder builder = new StringBuilder();
-         for (int i = 0; i < payload; ++i) {
-            builder.append("A");
-         }
-
-         msg.setText(builder.toString());
-
+         msg.setText("A".repeat(payload));
          for (int i = 0; i < nMsgs; ++i) {
             msg.setIntProperty("i", (Integer) i);
             producer.send(msg);
@@ -1208,14 +1350,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          Queue queue = session.createQueue(testQueueName);
          MessageProducer producer = session.createProducer(queue);
          BytesMessage msg = session.createBytesMessage();
-
-         StringBuilder builder = new StringBuilder();
-         for (int i = 0; i < payload; ++i) {
-            builder.append("A");
-         }
-
-         msg.writeBytes(builder.toString().getBytes(StandardCharsets.UTF_8));
-
+         msg.writeBytes("A".repeat(payload).getBytes(StandardCharsets.UTF_8));
          for (int i = 0; i < nMsgs; ++i) {
             msg.setIntProperty("i", (Integer) i);
             producer.send(msg);

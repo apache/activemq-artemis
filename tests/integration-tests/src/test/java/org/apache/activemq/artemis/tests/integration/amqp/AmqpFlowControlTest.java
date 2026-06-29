@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
@@ -42,8 +48,9 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpFlowControlTest extends JMSClientTestSupport {
 
@@ -53,6 +60,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
    private String singleCreditAcceptorURI = new String("tcp://localhost:" + (AMQP_PORT + 8));
    private int messagesSent;
 
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -75,7 +83,8 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreditsAreAllocatedOnceOnLinkCreated() throws Exception {
       AmqpClient client = createAmqpClient(new URI(singleCreditAcceptorURI));
       AmqpConnection connection = addConnection(client.connect());
@@ -83,46 +92,38 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       try {
          AmqpSession session = connection.createSession();
          AmqpSender sender = session.createSender(getQueueName());
-         assertEquals("Should only be issued one credit", 1, sender.getSender().getCredit());
+         assertEquals(1, sender.getSender().getCredit(), "Should only be issued one credit");
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreditIsNotGivenOnLinkCreationWhileBlockedAndIsGivenOnceThenUnblocked() throws Exception {
       AmqpClient client = createAmqpClient(new URI(singleCreditAcceptorURI));
       AmqpConnection connection = addConnection(client.connect());
 
       try {
-         AddressControl addressControl = ManagementControlHelper.createAddressControl(SimpleString.toSimpleString(getQueueName()), mBeanServer);
+         AddressControl addressControl = ManagementControlHelper.createAddressControl(SimpleString.of(getQueueName()), mBeanServer);
          addressControl.block();
          AmqpSession session = connection.createSession();
          final AmqpSender sender = session.createSender(getQueueName());
-         assertTrue("Should get 0 credit", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return 0 == sender.getSender().getCredit();
-            }
-         }, 5000, 20));
+         assertTrue(Wait.waitFor(() -> 0 == sender.getSender().getCredit(), 5000, 20), "Should get 0 credit");
 
          addressControl.unblock();
-         assertTrue("Should now get issued one credit", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return 1 == sender.getSender().getCredit();
-            }
-         }, 5000, 20));
+         assertTrue(Wait.waitFor(() -> 1 == sender.getSender().getCredit(), 5000, 20), "Should now get issued one credit");
          sender.close();
 
          AmqpSender sender2 = session.createSender(getQueueName());
-         assertEquals("Should only be issued one credit", 1, sender2.getSender().getCredit());
+         assertEquals(1, sender2.getSender().getCredit(), "Should only be issued one credit");
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreditsAreNotAllocatedWhenAddressIsFull() throws Exception {
       AmqpClient client = createAmqpClient(new URI(singleCreditAcceptorURI));
       AmqpConnection connection = addConnection(client.connect());
@@ -136,16 +137,17 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
          sendUntilFull(sender);
 
          // This should be -1. A single message is buffered in the client, and 0 credit has been allocated.
-         assertTrue(sender.getSender().getCredit() == -1);
+         assertEquals(-1, sender.getSender().getCredit());
 
-         long addressSize = server.getPagingManager().getPageStore(new SimpleString(getQueueName())).getAddressSize();
+         long addressSize = server.getPagingManager().getPageStore(SimpleString.of(getQueueName())).getAddressSize();
          assertTrue(addressSize >= MAX_SIZE_BYTES && addressSize <= MAX_SIZE_BYTES_REJECT_THRESHOLD);
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testAddressIsBlockedForOtherProducersWhenFull() throws Exception {
       Connection connection = createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -160,14 +162,15 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       } catch (ResourceAllocationException rae) {
          e = rae;
       }
-      assertTrue(e instanceof ResourceAllocationException);
+      assertInstanceOf(ResourceAllocationException.class, e);
       assertTrue(e.getMessage().contains("resource-limit-exceeded"));
 
-      long addressSize = server.getPagingManager().getPageStore(new SimpleString(getQueueName())).getAddressSize();
+      long addressSize = server.getPagingManager().getPageStore(SimpleString.of(getQueueName())).getAddressSize();
       assertTrue(addressSize >= MAX_SIZE_BYTES_REJECT_THRESHOLD);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendBlocksWhenAddressBlockedAndCompletesAfterUnblocked() throws Exception {
       Connection connection = createConnection(new URI(singleCreditAcceptorURI.replace("tcp", "amqp")), null, null, null, true);
       final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -177,24 +180,21 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       final CountDownLatch running = new CountDownLatch(1);
       final CountDownLatch done = new CountDownLatch(1);
 
-      AddressControl addressControl = ManagementControlHelper.createAddressControl(SimpleString.toSimpleString(getQueueName()), mBeanServer);
+      AddressControl addressControl = ManagementControlHelper.createAddressControl(SimpleString.of(getQueueName()), mBeanServer);
 
-      assertTrue("blocked ok", addressControl.block());
+      assertTrue(addressControl.block(), "blocked ok");
 
       // one credit
       p.send(session.createBytesMessage());
 
       // this send will block, no credit
-      new Thread(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               running.countDown();
-               p.send(session.createBytesMessage());
-            } catch (JMSException ignored) {
-            } finally {
-               done.countDown();
-            }
+      new Thread(() -> {
+         try {
+            running.countDown();
+            p.send(session.createBytesMessage());
+         } catch (JMSException ignored) {
+         } finally {
+            done.countDown();
          }
       }).start();
 
@@ -212,7 +212,8 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       assertEquals(3, addressControl.getMessageCount());
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCreditsAreRefreshedWhenAddressIsUnblocked() throws Exception {
       fillAddress(getQueueName());
 
@@ -246,7 +247,8 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testNewLinkAttachAreNotAllocatedCreditsWhenAddressIsBlocked() throws Exception {
       fillAddress(getQueueName());
 
@@ -265,7 +267,8 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testTxIsRolledBackOnRejectedPreSettledMessage() throws Throwable {
 
       // Create the link attach before filling the address to ensure the link is allocated credit.
@@ -298,9 +301,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       assertTrue(expectedException.getMessage().contains("Address is full: " + getQueueName()));
    }
 
-   /*
-    * Fills an address.  Careful when using this method.  Only use when rejected messages are switched on.
-    */
+   // Fills an address.  Careful when using this method.  Only use when rejected messages are switched on.
    private void fillAddress(String address) throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -330,18 +331,15 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       final Exception[] errors = new Exception[1];
       final CountDownLatch timeout = new CountDownLatch(1);
 
-      Runnable sendMessages = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               for (int i = 0; i < maxMessages; i++) {
-                  sender.send(message);
-                  sentMessages.getAndIncrement();
-               }
-               timeout.countDown();
-            } catch (IOException e) {
-               errors[0] = e;
+      Runnable sendMessages = () -> {
+         try {
+            for (int i = 0; i < maxMessages; i++) {
+               sender.send(message);
+               sentMessages.getAndIncrement();
             }
+            timeout.countDown();
+         } catch (IOException e) {
+            errors[0] = e;
          }
       };
 
@@ -359,7 +357,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       } finally {
          t.interrupt();
          t.join(1000);
-         Assert.assertFalse(t.isAlive());
+         assertFalse(t.isAlive());
       }
    }
 }

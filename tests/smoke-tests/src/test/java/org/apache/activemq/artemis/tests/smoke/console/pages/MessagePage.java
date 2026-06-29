@@ -16,17 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.smoke.console.pages;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.MESSAGE_VIEW_BODY;
+
 public class MessagePage extends ArtemisPage {
-   private By messageTextLocator = By.cssSelector("span[role='presentation']");
 
    public MessagePage(WebDriver driver) {
       super(driver);
    }
 
    public String getMessageText() {
-      return driver.findElement(messageTextLocator).getText();
+      return driver.findElement(MESSAGE_VIEW_BODY).getText();
    }
 }

@@ -31,14 +31,13 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 
 /**
  * Test topic sessions
- * <br />
+ * <p>
  * See JMS specifications, sec. 4.4 Session
  */
 public class TopicSessionTest extends PubSubTestCase {
 
    /**
-    * Test that if we rollback a transaction which has consumed a message,
-    * the message is effectively redelivered.
+    * Test that if we rollback a transaction which has consumed a message, the message is effectively redelivered.
     */
    @Test
    public void testRollbackReceivedMessage() {
@@ -47,7 +46,7 @@ public class TopicSessionTest extends PubSubTestCase {
          // publisherSession has been declared has non transacted
          // we recreate it as a transacted session
          publisherSession = publisherConnection.createTopicSession(true, 0);
-         Assert.assertEquals(true, publisherSession.getTransacted());
+         Assert.assertTrue(publisherSession.getTransacted());
          // we also recreate the publisher
          publisher = publisherSession.createPublisher(publisherTopic);
          publisherConnection.start();
@@ -56,7 +55,7 @@ public class TopicSessionTest extends PubSubTestCase {
          // subscriberSession has been declared has non transacted
          // we recreate it as a transacted session
          subscriberSession = subscriberConnection.createTopicSession(true, 0);
-         Assert.assertEquals(true, subscriberSession.getTransacted());
+         Assert.assertTrue(subscriberSession.getTransacted());
          // we also recreate the subscriber
          subscriber = subscriberSession.createSubscriber(subscriberTopic);
          subscriberConnection.start();
@@ -71,7 +70,7 @@ public class TopicSessionTest extends PubSubTestCase {
 
          // we receive it
          Message msg1 = subscriber.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue("no message received", msg1 != null);
+         Assert.assertNotNull("no message received", msg1);
          Assert.assertTrue(msg1 instanceof TextMessage);
          Assert.assertEquals("testRollbackReceivedMessage", ((TextMessage) msg1).getText());
 
@@ -80,7 +79,7 @@ public class TopicSessionTest extends PubSubTestCase {
 
          // we expect to receive a second time the message
          Message msg2 = subscriber.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue("no message received after rollbacking subscriber session.", msg2 != null);
+         Assert.assertNotNull("no message received after rollbacking subscriber session.", msg2);
          Assert.assertTrue(msg2 instanceof TextMessage);
          Assert.assertEquals("testRollbackReceivedMessage", ((TextMessage) msg2).getText());
 
@@ -92,8 +91,7 @@ public class TopicSessionTest extends PubSubTestCase {
    }
 
    /**
-    * Test that a durable subscriber effectively receives the messages sent to its
-    * topic while it was inactive.
+    * Test that a durable subscriber effectively receives the messages sent to its topic while it was inactive.
     */
    @Test
    public void testDurableSubscriber() {
@@ -113,7 +111,7 @@ public class TopicSessionTest extends PubSubTestCase {
          subscriberConnection.start();
 
          TextMessage m = (TextMessage) subscriber.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue(m != null);
+         Assert.assertNotNull(m);
          Assert.assertEquals("test", m.getText());
          subscriber.close();
          subscriberSession.unsubscribe("testTopic");
@@ -138,8 +136,8 @@ public class TopicSessionTest extends PubSubTestCase {
    }
 
    /**
-    * Test that a call to the <code>createDurableSubscriber()</code> method with an invalid
-    * message selector throws a <code>javax.jms.InvalidSelectorException</code>.
+    * Test that a call to the {@code createDurableSubscriber()} method with an invalid message selector throws a
+    * {@code javax.jms.InvalidSelectorException}.
     */
    @Test
    public void testCreateDurableSubscriber_2() {
@@ -153,8 +151,8 @@ public class TopicSessionTest extends PubSubTestCase {
    }
 
    /**
-    * Test that a call to the <code>createDurableSubscriber()</code> method with an invalid
-    * <code>Topic</code> throws a <code>javax.jms.InvalidDestinationException</code>.
+    * Test that a call to the {@code createDurableSubscriber()} method with an invalid {@code Topic} throws a
+    * {@code javax.jms.InvalidDestinationException}.
     */
    @Test
    public void testCreateDurableSubscriber_1() {
@@ -168,8 +166,8 @@ public class TopicSessionTest extends PubSubTestCase {
    }
 
    /**
-    * Test that a call to the <code>createSubscriber()</code> method with an invalid
-    * message selector throws a <code>javax.jms.InvalidSelectorException</code>.
+    * Test that a call to the {@code createSubscriber()} method with an invalid message selector throws a
+    * {@code javax.jms.InvalidSelectorException}.
     */
    @Test
    public void testCreateSubscriber_2() {
@@ -183,8 +181,8 @@ public class TopicSessionTest extends PubSubTestCase {
    }
 
    /**
-    * Test that a call to the <code>createSubscriber()</code> method with an invalid
-    * <code>Topic</code> throws a <code>javax.jms.InvalidDestinationException</code>.
+    * Test that a call to the {@code createSubscriber()} method with an invalid {@code Topic} throws a
+    * {@code javax.jms.InvalidDestinationException}.
     */
    @Test
    public void testCreateSubscriber_1() {

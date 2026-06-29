@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.smoke.jms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.ConnectionMetaData;
 import java.io.File;
 import java.util.ArrayList;
@@ -31,8 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionMetaData;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ManifestTest extends SmokeTestBase {
 
@@ -53,7 +55,7 @@ public class ManifestTest extends SmokeTestBase {
       for (String jarFile : jarFiles) {
          // The jar must be there
          File file = new File(distributionLibDir, jarFile + serverFullVersion + ".jar");
-         Assert.assertTrue(file.exists());
+         assertTrue(file.exists());
 
          // Open the jar and load MANIFEST.MF
          JarFile jar = new JarFile(file);
@@ -61,7 +63,7 @@ public class ManifestTest extends SmokeTestBase {
 
          // Compare the value from ConnectionMetaData and MANIFEST.MF
          Attributes attrs = manifest.getMainAttributes();
-         Assert.assertEquals(meta.getProviderVersion(), attrs.getValue("Implementation-Version"));
+         assertEquals(meta.getProviderVersion(), attrs.getValue("Implementation-Version"));
       }
    }
 

@@ -23,11 +23,13 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
+import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -36,9 +38,9 @@ import static java.lang.String.format;
 
 /**
  * Property-based implementation of a {@link SQLProvider}'s factory.
- *
+ * <p>
  * Properties are stored in a journal-sql.properties.
- *
+ * <p>
  * Dialects specific to a database can be customized by suffixing the property keys with the name of the dialect.
  */
 public class PropertySQLProvider implements SQLProvider {
@@ -67,7 +69,7 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    private static final int STATE_ROW_ID = 0;
-   private static final int LIVE_LOCK_ROW_ID = 1;
+   private static final int PRIMARY_LOCK_ROW_ID = 1;
    private static final int BACKUP_LOCK_ROW_ID = 2;
    private static final int NODE_ID_ROW_ID = 3;
 
@@ -78,13 +80,13 @@ public class PropertySQLProvider implements SQLProvider {
    protected PropertySQLProvider(Factory.SQLDialect dialect, String tableName, Properties sqlProperties) {
       this.dialect = dialect;
       this.sql = sqlProperties;
-      final LetterCase tableNamesCase = LetterCase.parse(sql("table-names-case", dialect, sqlProperties));
+      final LetterCase tableNamesCase = LetterCase.parse(sql("table-names-case", dialect, sqlProperties, true));
       this.tableName = tableNamesCase.apply(tableName);
    }
 
    @Override
    public long getMaxBlobSize() {
-      return Long.valueOf(sql("max-blob-size"));
+      return Long.parseLong(sql("max-blob-size"));
    }
 
    @Override
@@ -210,8 +212,8 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
-   public String createLiveLockSQL() {
-      return format(sql("create-state"), tableName, LIVE_LOCK_ROW_ID);
+   public String createPrimaryLockSQL() {
+      return format(sql("create-state"), tableName, PRIMARY_LOCK_ROW_ID);
    }
 
    @Override
@@ -220,8 +222,8 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
-   public String tryAcquireLiveLockSQL() {
-      return format(sql("try-acquire-lock"), tableName, LIVE_LOCK_ROW_ID);
+   public String tryAcquirePrimaryLockSQL() {
+      return format(sql("try-acquire-lock"), tableName, PRIMARY_LOCK_ROW_ID);
    }
 
    @Override
@@ -230,8 +232,8 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
-   public String tryReleaseLiveLockSQL() {
-      return format(sql("try-release-lock"), tableName, LIVE_LOCK_ROW_ID);
+   public String tryReleasePrimaryLockSQL() {
+      return format(sql("try-release-lock"), tableName, PRIMARY_LOCK_ROW_ID);
    }
 
    @Override
@@ -240,8 +242,8 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
-   public String isLiveLockedSQL() {
-      return format(sql("is-locked"), tableName, LIVE_LOCK_ROW_ID);
+   public String isPrimaryLockedSQL() {
+      return format(sql("is-locked"), tableName, PRIMARY_LOCK_ROW_ID);
    }
 
    @Override
@@ -250,8 +252,8 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
-   public String renewLiveLockSQL() {
-      return format(sql("renew-lock"), tableName, LIVE_LOCK_ROW_ID);
+   public String renewPrimaryLockSQL() {
+      return format(sql("renew-lock"), tableName, PRIMARY_LOCK_ROW_ID);
    }
 
    @Override
@@ -266,7 +268,7 @@ public class PropertySQLProvider implements SQLProvider {
 
    @Override
    public String currentTimestampTimeZoneId() {
-      return sql("current-timestamp-timezone-id");
+      return sql("current-timestamp-timezone-id", false);
    }
 
    @Override
@@ -294,11 +296,15 @@ public class PropertySQLProvider implements SQLProvider {
       return format(sql("initialize-nodeId"), tableName, NODE_ID_ROW_ID);
    }
 
-   private String sql(final String key) {
-      return sql(key, dialect, sql);
+   protected String sql(final String key) {
+      return sql(key, true);
    }
 
-   private static String sql(final String key, final Factory.SQLDialect dialect, final Properties sql) {
+   protected String sql(final String key, final boolean checkNull) {
+      return sql(key, dialect, sql, checkNull);
+   }
+
+   private static String sql(final String key, final Factory.SQLDialect dialect, final Properties sql, final boolean checkNull) {
       if (dialect != null) {
          String result = sql.getProperty(key + "." + dialect.getKey());
          if (result != null) {
@@ -306,6 +312,9 @@ public class PropertySQLProvider implements SQLProvider {
          }
       }
       String result = sql.getProperty(key);
+      if (checkNull && result == null) {
+         throw ActiveMQJournalBundle.BUNDLE.propertyNotFound(key, Objects.toString(dialect, null));
+      }
       return result;
    }
 
@@ -411,8 +420,8 @@ public class PropertySQLProvider implements SQLProvider {
       public static SQLDialect investigateDialect(Map<String, Object> dataSourceProperties) {
          SQLDialect dialect = null;
          for (Object entry : dataSourceProperties.values()) {
-            if (entry instanceof String) {
-               dialect = identifyDialect((String) entry);
+            if (entry instanceof String string) {
+               dialect = identifyDialect(string);
                if (dialect != null) {
                   return dialect;
                }

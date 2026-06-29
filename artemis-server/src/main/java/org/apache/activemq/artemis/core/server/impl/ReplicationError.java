@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.core.server.NodeLocator;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,17 +32,18 @@ import java.lang.invoke.MethodHandles;
 /**
  * Stops the backup in case of an error at the start of Replication.
  * <p>
- * Using an interceptor for the task to avoid a server reference inside of the 'basic' channel-0
- * handler at {@link org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager.Channel0Handler}. As {@link org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager}
- * is also shipped in the activemq-core-client JAR (which does not include {@link org.apache.activemq.artemis.core.server.ActiveMQServer}).
+ * Using an interceptor for the task to avoid a server reference inside of the 'basic' channel-0 handler at
+ * {@link org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager.Channel0Handler}. As
+ * {@link org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager} is also shipped in the
+ * activemq-core-client JAR (which does not include {@link org.apache.activemq.artemis.core.server.ActiveMQServer}).
  */
 final class ReplicationError implements Interceptor {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private LiveNodeLocator nodeLocator;
+   private NodeLocator nodeLocator;
 
-   ReplicationError(LiveNodeLocator nodeLocator) {
+   ReplicationError(NodeLocator nodeLocator) {
       this.nodeLocator = nodeLocator;
    }
 

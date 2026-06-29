@@ -34,5 +34,5 @@ public interface TopologyResponseHandler {
                      boolean isLast);
 
    // This is sent when any node on the cluster topology is going down
-   void notifyNodeDown(long eventTime, String nodeID);
+   void notifyNodeDown(long eventTime, String nodeID, boolean disconnect);
 }

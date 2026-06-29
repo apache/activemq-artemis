@@ -31,46 +31,72 @@ public class GroovyRun {
 
    public static final String SNAPSHOT = "ARTEMIS-SNAPSHOT";
    public static final String JAKARTAEE = "ARTEMIS-JAKARTAEE";
-   public static final String ONE_FIVE = "ARTEMIS-155";
-   public static final String ONE_FOUR = "ARTEMIS-140";
-   public static final String TWO_ZERO = "ARTEMIS-200";
-   public static final String TWO_ONE = "ARTEMIS-210";
-   public static final String TWO_FOUR = "ARTEMIS-240";
-   public static final String TWO_SIX_THREE = "ARTEMIS-263";
-   public static final String TWO_SEVEN_ZERO = "ARTEMIS-270";
-   public static final String TWO_TEN_ZERO = "ARTEMIS-2_10_0";
-   public static final String TWO_SEVENTEEN_ZERO = "ARTEMIS-2_17_0";
-   public static final String TWO_EIGHTEEN_ZERO = "ARTEMIS-2_18_0";
-   public static final String TWO_TWENTYTWO_ZERO = "ARTEMIS-2_22_0";
-   public static final String TWO_TWENTYEIGHT_ZERO = "ARTEMIS-2_28_0";
-   public static final String HORNETQ_235 = "HORNETQ-235";
-   public static final String HORNETQ_247 = "HORNETQ-247";
+   public static final String ARTEMIS_1_4_0 = "ARTEMIS-1_4_0";
+   public static final String ARTEMIS_2_1_0 = "ARTEMIS-2_1_0";
+   public static final String ARTEMIS_2_4_0 = "ARTEMIS-2_4_0";
+   public static final String ARTEMIS_2_6_3 = "ARTEMIS-2_6_3";
+   public static final String ARTEMIS_2_7_0 = "ARTEMIS-2_7_0";
+   public static final String ARTEMIS_2_10_0 = "ARTEMIS-2_10_0";
+   public static final String ARTEMIS_2_17_0 = "ARTEMIS-2_17_0";
+   public static final String ARTEMIS_2_44_0 = "ARTEMIS-2_44_0";
+   public static final String ARTEMIS_2_22_0 = "ARTEMIS-2_22_0";
+   public static final String ARTEMIS_2_28_0 = "ARTEMIS-2_28_0";
+   public static final String ARTEMIS_2_33_0 = "ARTEMIS-2_33_0";
+   public static final String HORNETQ_2_3_5 = "HORNETQ-2_3_5";
+   public static final String HORNETQ_2_4_7 = "HORNETQ-2_4_7";
    public static final String AMQ_5_11 = "AMQ_5_11";
 
-   public static Binding binding = new Binding();
-   public static GroovyShell shell = new GroovyShell(binding);
+   private static Binding theBinding;
+   private static GroovyShell theShell;
+
 
    public static void clear() {
-      List<String> variablesToRemove = new ArrayList<>();
-      variablesToRemove.addAll(binding.getVariables().keySet());
-      variablesToRemove.forEach(v -> binding.removeVariable(v));
+      try {
+         if (theBinding != null) {
+            List<String> variablesToRemove = new ArrayList<>(theBinding.getVariables().keySet());
+            variablesToRemove.forEach(theBinding::removeVariable);
+            theBinding.setMetaClass(null);
+         }
+      } finally {
+         theBinding = null;
+         theShell = null;
+      }
+   }
+
+   private static GroovyShell getShell() {
+      initShell();
+
+      return theShell;
+
+   }
+
+   private static Binding getBinding() {
+      initShell();
+
+      return theBinding;
+
+   }
+
+   private static void initShell() {
+      if (theShell == null || theBinding == null) {
+         theBinding = new Binding();
+         theShell = new GroovyShell(theBinding);
+      }
    }
 
    /**
-    * This can be called from the scripts as well.
-    *  The scripts will use this method instead of its own groovy method.
-    *  As a classloader operation needs to be done here.
+    * This can be called from the scripts as well. The scripts will use this method instead of its own groovy method. As
+    * a classloader operation needs to be done here.
     */
    public static Object evaluate(String script,
                                  String[] arg) throws URISyntaxException, IOException {
       return evaluate(script, "arg", arg);
    }
 
-      /**
-       * This can be called from the scripts as well.
-       *  The scripts will use this method instead of its own groovy method.
-       *  As a classloader operation needs to be done here.
-       */
+   /**
+    * This can be called from the scripts as well. The scripts will use this method instead of its own groovy method. As
+    * a classloader operation needs to be done here.
+    */
    public static Object evaluate(String script,
                                String argVariableName,
                                String[] arg) throws URISyntaxException, IOException {
@@ -82,21 +108,21 @@ public class GroovyRun {
 
       setVariable(argVariableName, arg);
 
-      return shell.evaluate(scriptURI);
+      return getShell().evaluate(scriptURI);
    }
 
 
    public static void setVariable(String name, Object arg) {
-      binding.setVariable(name, arg);
+      getBinding().setVariable(name, arg);
    }
 
    public static Object getVariable(String name) {
-      return binding.getVariable(name);
+      return getBinding().getVariable(name);
    }
 
    // Called with reflection
    public static Object execute(String script) throws Throwable {
-      return shell.evaluate(script);
+      return getShell().evaluate(script);
    }
 
    public static void assertNotNull(Object value) {
@@ -111,14 +137,14 @@ public class GroovyRun {
       }
    }
 
-   public static void assertTrue(boolean  value) {
+   public static void assertTrue(boolean value) {
       if (!value) {
          throw new RuntimeException("Expected true");
       }
    }
 
 
-   public static void assertFalse(boolean  value) {
+   public static void assertFalse(boolean value) {
       if (value) {
          throw new RuntimeException("Expected false");
       }

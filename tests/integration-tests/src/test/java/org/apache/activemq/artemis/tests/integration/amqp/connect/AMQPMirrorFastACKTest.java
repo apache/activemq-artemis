@@ -19,9 +19,7 @@ package org.apache.activemq.artemis.tests.integration.amqp.connect;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.util.concurrent.CountDownLatch;
@@ -55,10 +53,11 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
 
@@ -70,14 +69,19 @@ public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
    private ActiveMQServer slowServer;
 
    @Override
-   @Before
+   protected String getConfiguredProtocols() {
+      return "AMQP,CORE,OPENWIRE";
+   }
+
+   @Override
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       slowServer = createSlowServer();
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       try {
          if (slowServer != null) {
@@ -89,7 +93,17 @@ public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
    }
 
    @Test
-   public void testMirrorTargetFastACK() throws Exception {
+   public void testMirrorTargetFastACKCore() throws Exception {
+      doTestMirrorTargetFastACK("CORE");
+   }
+
+   @Test
+   public void testMirrorTargetFastACKAMQP() throws Exception {
+      doTestMirrorTargetFastACK("AMQP");
+   }
+
+   private void doTestMirrorTargetFastACK(String protocol) throws Exception {
+
       final int NUMBER_OF_MESSAGES = 10;
       CountDownLatch done = new CountDownLatch(NUMBER_OF_MESSAGES);
 
@@ -102,36 +116,34 @@ public class AMQPMirrorFastACKTest extends AmqpClientTestSupport {
       waitForServerToStart(server);
 
       server.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
-      server.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
+      server.createQueue(QueueConfiguration.of(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
-      ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+      ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + AMQP_PORT);
 
       try (Connection connection = factory.createConnection()) {
-         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-         MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
-         MessageProducer producer = session.createProducer(session.createQueue(getQueueName()));
+         Session consumerSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+         MessageConsumer consumer = consumerSession.createConsumer(consumerSession.createQueue(getQueueName()));
+         Session producerSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+         MessageProducer producer = producerSession.createProducer(producerSession.createQueue(getQueueName()));
 
          connection.start();
 
-         consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-               try {
-                  message.acknowledge();
-                  done.countDown();
-               } catch (Exception ignore) {
-                  // Ignore
-               }
+         consumer.setMessageListener(message -> {
+            try {
+               message.acknowledge();
+               done.countDown();
+            } catch (Exception ignore) {
+               // Ignore
             }
          });
 
          producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
-            producer.send(session.createTextMessage("i=" + i));
+            producer.send(producerSession.createTextMessage("i=" + i));
          }
 
-         Assert.assertTrue(done.await(5000, TimeUnit.MILLISECONDS));
+         assertTrue(done.await(5000, TimeUnit.MILLISECONDS));
       }
 
       Queue snf = server.locateQueue(replication.getMirrorSNF());

@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.protocol.stomp.v12;
 
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompException;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.protocol.stomp.StompSubscription;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameV11;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
@@ -50,21 +51,20 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
 
    @Override
    public StompFrame createMessageFrame(ICoreMessage serverMessage,
-                                        ActiveMQBuffer bodyBuffer,
                                         StompSubscription subscription,
-                                        int deliveryCount) throws Exception {
-      StompFrame frame = super.createMessageFrame(serverMessage, bodyBuffer, subscription, deliveryCount);
+                                        ServerConsumer consumer,
+                                        int deliveryCount) throws ActiveMQException {
+      StompFrame frame = super.createMessageFrame(serverMessage, subscription, consumer, deliveryCount);
 
       if (!subscription.getAck().equals(Stomp.Headers.Subscribe.AckModeValues.AUTO)) {
-         frame.addHeader(Stomp.Headers.Message.ACK, String.valueOf(serverMessage.getMessageID()));
+         frame.addHeader(Stomp.Headers.Message.ACK, frame.getHeader(Stomp.Headers.Message.MESSAGE_ID));
       }
 
       return frame;
    }
 
    /**
-    * Version 1.2's ACK frame only requires 'id' header
-    * here we use id = messageID
+    * Version 1.2's ACK frame only requires 'id' header here we use id = messageID
     */
    @Override
    public StompFrame onAck(StompFrame request) {
@@ -291,12 +291,14 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
 
          if (content != null) {
             if (data > pos) {
-               if (workingBuffer[pos] == NEW_LINE)
+               if (workingBuffer[pos] == NEW_LINE) {
                   pos++;
+               }
 
-               if (data > pos)
+               if (data > pos) {
                   // More data still in the buffer from the next packet
                   System.arraycopy(workingBuffer, pos, workingBuffer, 0, data - pos);
+               }
             }
 
             data = data - pos;

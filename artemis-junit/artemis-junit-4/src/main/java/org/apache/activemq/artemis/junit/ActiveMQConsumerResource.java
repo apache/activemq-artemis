@@ -24,25 +24,22 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.junit.rules.ExternalResource;
 
 /**
- * A JUnit Rule that embeds an ActiveMQ Artemis ClientConsumer into a test. This JUnit Rule is
- * designed to simplify using ActiveMQ Artemis clients in unit tests. Adding the rule to a test will
- * startup a ClientConsumer, which can then be used to consume messages from an ActiveMQ Artemis
- * server.
+ * A JUnit Rule that embeds an Apache Artemis ClientConsumer into a test. This JUnit Rule is designed to simplify
+ * using Apache Artemis clients in unit tests. Adding the rule to a test will startup a ClientConsumer, which can then
+ * be used to consume messages from an Apache Artemis server.
  *
- * <pre>
- * <code>
+ * <pre>{@code
  * public class SimpleTest {
- *     &#64;Rule
+ *     @Rule
  *     public ActiveMQConsumerResource client = new ActiveMQProducerResource( "vm://0", "test.queue" );
  *
- *     &#64;Test
+ *     @Test
  *     public void testSomething() throws Exception {
  *         // Use the embedded client here
  *         ClientMessage message = client.receiveMessage();
  *     }
  * }
- * </code>
- * </pre>
+ * }</pre>
  */
 public class ActiveMQConsumerResource extends ExternalResource implements ActiveMQConsumerOperations {
 
@@ -54,7 +51,7 @@ public class ActiveMQConsumerResource extends ExternalResource implements Active
 
    public ActiveMQConsumerResource(String url, String queueName, String username, String password) {
       this.activeMQConsumer =
-               new ActiveMQConsumerDelegate(url, SimpleString.toSimpleString(queueName), username, password);
+               new ActiveMQConsumerDelegate(url, SimpleString.of(queueName), username, password);
    }
 
    public ActiveMQConsumerResource(String url, SimpleString queueName, String username, String password) {
@@ -66,11 +63,11 @@ public class ActiveMQConsumerResource extends ExternalResource implements Active
    }
 
    public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName, String username, String password) {
-      this(serverLocator, SimpleString.toSimpleString(queueName), username, password);
+      this(serverLocator, SimpleString.of(queueName), username, password);
    }
 
    public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName) {
-      this(serverLocator, SimpleString.toSimpleString(queueName), null, null);
+      this(serverLocator, SimpleString.of(queueName), null, null);
    }
 
    public ActiveMQConsumerResource(ServerLocator serverLocator, SimpleString queueName, String username,

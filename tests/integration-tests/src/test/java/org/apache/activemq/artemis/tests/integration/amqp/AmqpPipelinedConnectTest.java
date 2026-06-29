@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,7 +39,8 @@ import org.apache.qpid.proton.amqp.transport.FrameBody;
 import org.apache.qpid.proton.codec.AMQPDefinedTypes;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +53,8 @@ public class AmqpPipelinedConnectTest extends AmqpClientTestSupport {
       return true;
    }
 
-   @Test(timeout = 30_000)
+   @Test
+   @Timeout(30)
    public void testPipelinedOpenWhenAnonymousWillFail() throws Exception {
 
       // Frame data for: SaslInit
@@ -104,8 +109,7 @@ public class AmqpPipelinedConnectTest extends AmqpClientTestSupport {
             public void onSaslFrame(SaslFrameBody saslType) {
                saslPerformatives.incrementAndGet();
 
-               if (saslType instanceof SaslOutcome) {
-                  final SaslOutcome outcome = (SaslOutcome) saslType;
+               if (saslType instanceof SaslOutcome outcome) {
                   if (outcome.getCode() != SaslCode.OK) {
                      // We are expecting SASL outcome to be OK which it isn't then the
                      // broker behavior has changed and this should fail the test.
@@ -122,10 +126,8 @@ public class AmqpPipelinedConnectTest extends AmqpClientTestSupport {
             @Override
             public void onAMQPFrame(FrameBody amqpType) {
                performatives.incrementAndGet();
-               if (amqpType instanceof Close) {
+               if (amqpType instanceof Close close) {
                   closedReceived.set(true);
-
-                  final Close close = (Close) amqpType;
 
                   if (close.getError() == null || !AmqpError.UNAUTHORIZED_ACCESS.equals(close.getError().getCondition())) {
                      failure.compareAndSet(null, new AssertionError("Connection should indicate access was unauthorized"));

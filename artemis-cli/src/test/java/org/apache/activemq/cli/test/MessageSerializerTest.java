@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.cli.test;
 
+import static org.apache.activemq.cli.test.ArtemisTest.getOutputLines;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.MapMessage;
@@ -44,14 +49,9 @@ import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.apache.activemq.cli.test.ArtemisTest.getOutputLines;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test to validate that the CLI doesn't throw improper exceptions when invoked.
@@ -62,7 +62,7 @@ public class MessageSerializerTest extends CliTestBase {
    private ActiveMQConnectionFactory cf;
    private static final int TEST_MESSAGE_COUNT = 10;
 
-   @Before
+   @BeforeEach
    @Override
    public void setup() throws Exception {
       setupAuth();
@@ -72,7 +72,7 @@ public class MessageSerializerTest extends CliTestBase {
       connection = cf.createConnection("admin", "admin");
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       closeConnection(cf, connection);
@@ -80,13 +80,13 @@ public class MessageSerializerTest extends CliTestBase {
    }
 
    private File createMessageFile() throws IOException {
-      return temporaryFolder.newFile("messages.xml");
+      return File.createTempFile("messages.xml", null, temporaryFolder);
    }
 
    private List<Message> generateTextMessages(Session session, Destination destination) throws Exception {
       List<Message> messages = new ArrayList<>(TEST_MESSAGE_COUNT);
       for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
-         messages.add(session.createTextMessage(RandomUtil.randomString()));
+         messages.add(session.createTextMessage(RandomUtil.randomUUIDString()));
       }
 
       sendMessages(session, destination, messages);
@@ -113,12 +113,12 @@ public class MessageSerializerTest extends CliTestBase {
       List<Message> received = consumeMessages(session, address, TEST_MESSAGE_COUNT, CompositeAddress.isFullyQualified(address));
       for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
          Message m = messages.get(i);
-         if (m instanceof TextMessage) {
-            assertEquals(((TextMessage) m).getText(), ((TextMessage) received.get(i)).getText());
-         } else if (m instanceof ObjectMessage) {
-            assertEquals(((ObjectMessage) m).getObject(), ((ObjectMessage) received.get(i)).getObject());
-         } else if (m instanceof MapMessage) {
-            assertEquals(((MapMessage) m).getString(key), ((MapMessage) received.get(i)).getString(key));
+         if (m instanceof TextMessage textMessage) {
+            assertEquals(textMessage.getText(), ((TextMessage) received.get(i)).getText());
+         } else if (m instanceof ObjectMessage objectMessage) {
+            assertEquals(objectMessage.getObject(), ((ObjectMessage) received.get(i)).getObject());
+         } else if (m instanceof MapMessage mapMessage) {
+            assertEquals(mapMessage.getString(key), ((MapMessage) received.get(i)).getString(key));
          }
       }
    }
@@ -133,7 +133,7 @@ public class MessageSerializerTest extends CliTestBase {
       int currentMessageCount;
       try {
          // parse the value for MESSAGE_COUNT from the output
-         currentMessageCount = Integer.parseInt(getOutputLines(context, false).get(1).split("\\|")[4].trim());
+         currentMessageCount = Integer.parseInt(getOutputLines(context, false).get(2).split("\\|")[4].trim());
       } catch (Exception e) {
          currentMessageCount = 0;
       }
@@ -157,9 +157,9 @@ public class MessageSerializerTest extends CliTestBase {
          .setDurable(durable)
          .setDestination(address)
          .setMessageCount(messageCount)
+         .setClientID(clientId)
          .setUser("admin")
          .setPassword("admin")
-         .setClientID(clientId)
          .execute(new TestActionContext());
    }
 
@@ -248,7 +248,7 @@ public class MessageSerializerTest extends CliTestBase {
       List<Message> sent = new ArrayList<>(TEST_MESSAGE_COUNT);
       for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
          MapMessage m = session.createMapMessage();
-         m.setString(key, RandomUtil.randomString());
+         m.setString(key, RandomUtil.randomUUIDString());
          sent.add(m);
       }
 

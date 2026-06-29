@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.timing.util;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ReusableLatchTest extends ActiveMQTestBase {
 
@@ -30,9 +32,9 @@ public class ReusableLatchTest extends ActiveMQTestBase {
       latch.countUp();
 
       long start = System.currentTimeMillis();
-      Assert.assertFalse(latch.await(1000));
+      assertFalse(latch.await(1000));
       long end = System.currentTimeMillis();
 
-      Assert.assertTrue("Timeout didn't work correctly", end - start >= 1000 && end - start < 2000);
+      assertTrue(end - start >= 1000 && end - start < 2000, "Timeout didn't work correctly");
    }
 }

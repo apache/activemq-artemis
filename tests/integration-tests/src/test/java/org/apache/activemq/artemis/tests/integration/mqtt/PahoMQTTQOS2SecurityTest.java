@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -27,8 +31,8 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -39,6 +43,10 @@ public class PahoMQTTQOS2SecurityTest extends MQTTTestSupport {
    String user1 = "user1";
    String password1 = "password1";
 
+   final String noSendUser = "noSendUser";
+   final String noSendPassword = "noSendPassword";
+   final String noSendRole = "noSendRole";
+
    @Override
    protected void configureBrokerSecurity(ActiveMQServer server) {
       super.configureBrokerSecurity(server);
@@ -48,12 +56,16 @@ public class PahoMQTTQOS2SecurityTest extends MQTTTestSupport {
       securityManager.getConfiguration().addUser(user1, password1);
       securityManager.getConfiguration().addRole(user1, "addressOnly");
 
+      securityManager.getConfiguration().addUser(noSendUser, noSendPassword);
+      securityManager.getConfiguration().addRole(noSendUser, noSendRole);
+
       // Configure roles
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HashSet<Role> value = new HashSet<>();
-      value.add(new Role("addressOnly", true, true, true, true, false, false, false, false, true, true));
+      Set<Role> value = new HashSet<>();
+      value.add(new Role("addressOnly", true, true, true, true, false, false, false, false, true, true, false, false));
+      value.add(new Role(noSendRole, false, true, true, true, true, true, true, true, true, true, true, true));
 
-      securityRepository.addMatch(getQueueName(), value);
+      securityRepository.addMatch(MQTTUtil.getCoreAddressFromMqttTopic(getQueueName(), server.getConfiguration().getWildcardConfiguration()), value);
    }
 
    @Override
@@ -61,7 +73,8 @@ public class PahoMQTTQOS2SecurityTest extends MQTTTestSupport {
       return true;
    }
 
-   @Test(timeout = 300000)
+   @Test
+   @Timeout(60)
    public void testSendAndReceiveMQTT() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -101,7 +114,28 @@ public class PahoMQTTQOS2SecurityTest extends MQTTTestSupport {
       waitForLatch(latch);
       producer.disconnect();
       producer.close();
-      Assert.assertFalse(failed[0]);
+      assertFalse(failed[0]);
+   }
+
+   @Test
+   @Timeout(60)
+   public void testSendQoS2UnauthorizedNotStorePublish() throws Exception {
+      final String clientID = "clientID";
+
+      MqttClient producer = createPahoClient(clientID);
+      MqttConnectOptions conOpt = new MqttConnectOptions();
+      conOpt.setCleanSession(false);
+      conOpt.setUserName(noSendUser);
+      conOpt.setPassword(noSendPassword.toCharArray());
+
+      producer.connect(conOpt);
+      try {
+         producer.publish(getQueueName(), "hello".getBytes(), 2, false);
+      } catch (MqttException e) {
+         // ignore
+      }
+      assertEquals(0, getSessions().get(clientID).getPubRec().size());
+      producer.close();
    }
 
    private MqttClient createPahoClient(String clientId) throws MqttException {

@@ -24,6 +24,9 @@ import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.INVAL
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PRODUCT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.VERSION;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.contains;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +43,8 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Connection;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -51,11 +55,10 @@ import java.lang.invoke.MethodHandles;
 public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   private static final String BROKER_NAME = "localhost";
    private static final String PRODUCT_NAME = "apache-activemq-artemis";
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCloseIsSentOnConnectionClose() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection amqpConnection = client.connect();
@@ -73,8 +76,11 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testBrokerContainerId() throws Exception {
+      final String containerId = server.getNodeID().toString();
+
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
 
@@ -82,7 +88,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectOpenedResource(Connection connection) {
-            if (!BROKER_NAME.equals(connection.getRemoteContainer())) {
+            if (!containerId.equals(connection.getRemoteContainer())) {
                markAsInvalid("Broker did not send the expected container ID");
             }
          }
@@ -97,7 +103,8 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDefaultMaxFrameSize() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -122,7 +129,8 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testBrokerConnectionProperties() throws Exception {
       AmqpClient client = createAmqpClient();
 
@@ -164,7 +172,8 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testConnectionCarriesExpectedCapabilities() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -197,7 +206,8 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCanConnectWithDifferentContainerIds() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -221,7 +231,8 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
       Wait.assertEquals(0, server::getConnectionCount);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCannotConnectWithSameContainerId() throws Exception {
       AmqpClient client = createAmqpClient();
 

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.InvalidClientIDException;
 import javax.jms.JMSException;
@@ -23,8 +25,8 @@ import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * adapted from: org.apache.activemq.ReconnectWithSameClientIDTest
@@ -67,7 +69,7 @@ public class ReconnectWithSameClientIDTest extends BasicOpenWireTest {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (sameIdConnection != null) {
          sameIdConnection.close();

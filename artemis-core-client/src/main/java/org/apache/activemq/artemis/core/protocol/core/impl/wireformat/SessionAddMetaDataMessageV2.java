@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 /**
  * A SessionAddMetaDataMessage
- *
+ * <p>
  * This packet replaces {@link SessionAddMetaDataMessage}
  */
 public class SessionAddMetaDataMessageV2 extends PacketImpl {
@@ -86,49 +88,36 @@ public class SessionAddMetaDataMessageV2 extends PacketImpl {
    public String getData() {
       return data;
    }
-
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((data == null) ? 0 : data.hashCode());
-      result = prime * result + ((key == null) ? 0 : key.hashCode());
-      result = prime * result + (requiresConfirmation ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), data, key, requiresConfirmation);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", key=" + key);
-      buff.append(", data=" + data);
-      buff.append(", requiresConfirmation=" + requiresConfirmation);
-      buff.append("]");
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", key=" + key);
+      sb.append(", data=" + data);
+      sb.append(", requiresConfirmation=" + requiresConfirmation);
+      sb.append("]");
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionAddMetaDataMessageV2))
+      }
+      if (!(obj instanceof SessionAddMetaDataMessageV2 other)) {
          return false;
-      SessionAddMetaDataMessageV2 other = (SessionAddMetaDataMessageV2) obj;
-      if (data == null) {
-         if (other.data != null)
-            return false;
-      } else if (!data.equals(other.data))
-         return false;
-      if (key == null) {
-         if (other.key != null)
-            return false;
-      } else if (!key.equals(other.key))
-         return false;
-      if (requiresConfirmation != other.requiresConfirmation)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(data, other.data) &&
+             Objects.equals(key, other.key) &&
+             requiresConfirmation == other.requiresConfirmation;
    }
 
 }

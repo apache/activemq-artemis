@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.utils.critical;
 
 /**
- * This is not abstract as it could be used through aggregations or extensions.
- * This is only good for cases where you call leave within the same thread as you called enter.
+ * This is not abstract as it could be used through aggregations or extensions. This is only good for cases where you
+ * call leave within the same thread as you called enter.
  */
 public class CriticalComponentImpl implements CriticalComponent {
 
@@ -55,6 +55,19 @@ public class CriticalComponentImpl implements CriticalComponent {
       }
    }
 
+   protected void enterCritical(int path) {
+      if (analyzer.isMeasuring()) {
+         measures[path].enterCritical();
+      }
+   }
+
+   protected void leaveCritical(int path) {
+      if (analyzer.isMeasuring()) {
+         measures[path].leaveCritical();
+      }
+   }
+
+
    @Override
    public boolean checkExpiration(long timeout, boolean reset) {
       for (int i = 0; i < measures.length; i++) {
@@ -64,4 +77,5 @@ public class CriticalComponentImpl implements CriticalComponent {
       }
       return false;
    }
+
 }

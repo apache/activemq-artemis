@@ -28,24 +28,23 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 
 /**
  * Test sessions
- * <br />
+ * <p>
  * See JMS specifications, sec. 4.4 Session
  */
 public class SessionTest extends PTPTestCase {
 
    /**
-    * Test that an attempt to call the <code>recover()</code> method on a
-    * <strong>transacted </strong> <code>Session</code> throws a
-    * <code>javax.jms.IllegalStateException</code>.
+    * Test that an attempt to call the {@code recover()} method on a <strong>transacted </strong> {@code Session} throws
+    * a {@code javax.jms.IllegalStateException}.
     */
    @Test
    public void testRecoverTransactedSession() {
       try {
          // senderSession has been created as non transacted
-         Assert.assertEquals(false, senderSession.getTransacted());
+         Assert.assertFalse(senderSession.getTransacted());
          // we create it again but as a transacted session
          senderSession = senderConnection.createQueueSession(true, 0);
-         Assert.assertEquals(true, senderSession.getTransacted());
+         Assert.assertTrue(senderSession.getTransacted());
          senderSession.recover();
          Assert.fail("Should raise an IllegalStateException, the session is not transacted.\n");
       } catch (javax.jms.IllegalStateException e) {
@@ -57,8 +56,7 @@ public class SessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that a call to the <code>rollback()</code> method on a
-    * <strong>transacted</strong> <code>Session</code> rollbacks all
+    * Test that a call to the {@code rollback()} method on a <strong>transacted</strong> {@code Session} rollbacks all
     * the messages sent in the transaction.
     */
    @Test
@@ -67,7 +65,7 @@ public class SessionTest extends PTPTestCase {
          // re-create senderSession as a transacted session
          senderSession = senderConnection.createQueueSession(true, 0);
          sender = senderSession.createSender(senderQueue);
-         Assert.assertEquals(true, senderSession.getTransacted());
+         Assert.assertTrue(senderSession.getTransacted());
 
          TextMessage message = senderSession.createTextMessage();
          message.setText("testRollbackTransactedSession");
@@ -79,15 +77,14 @@ public class SessionTest extends PTPTestCase {
 
          TextMessage m = (TextMessage) receiver.receiveNoWait();
          // test that no message has been received
-         Assert.assertEquals(null, m);
+         Assert.assertNull(m);
       } catch (Exception e) {
          fail(e);
       }
    }
 
    /**
-    * Test that a call to the <code>rollback()</code> method on a
-    * <strong>transacted</strong> <code>Session</code> rollbacks all
+    * Test that a call to the {@code rollback()} method on a <strong>transacted</strong> {@code Session} rollbacks all
     * the messages sent in the transaction.
     */
    @Test
@@ -96,7 +93,7 @@ public class SessionTest extends PTPTestCase {
          // re-create senderSession as a transacted session
          senderSession = senderConnection.createQueueSession(true, 0);
          sender = senderSession.createSender(senderQueue);
-         Assert.assertEquals(true, senderSession.getTransacted());
+         Assert.assertTrue(senderSession.getTransacted());
 
          TextMessage message = senderSession.createTextMessage();
          message.setText("testCommitTransactedSession");
@@ -105,13 +102,13 @@ public class SessionTest extends PTPTestCase {
 
          TextMessage m = (TextMessage) receiver.receiveNoWait();
          // test that no message has been received (the transaction has not been committed yet)
-         Assert.assertEquals(null, m);
+         Assert.assertNull(m);
 
          // commit the transaction -> the sent message should be received
          senderSession.commit();
 
          m = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue(m != null);
+         Assert.assertNotNull(m);
          Assert.assertEquals("testCommitTransactedSession", m.getText());
       } catch (Exception e) {
          fail(e);
@@ -119,15 +116,14 @@ public class SessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that an attempt to call the <code>roolback()</code> method on a
-    * <strong>non transacted</strong> <code>Session</code> throws a
-    * <code>javax.jms.IllegalStateException</code>.
+    * Test that an attempt to call the {@code roolback()} method on a <strong>non transacted</strong> {@code Session}
+    * throws a {@code javax.jms.IllegalStateException}.
     */
    @Test
    public void testRollbackNonTransactedSession() {
       try {
          // senderSession has been created as non transacted in the setUp() method
-         Assert.assertEquals(false, senderSession.getTransacted());
+         Assert.assertFalse(senderSession.getTransacted());
          senderSession.rollback();
          Assert.fail("Should raise an IllegalStateException, the session is not transacted.\n");
       } catch (javax.jms.IllegalStateException e) {
@@ -139,15 +135,14 @@ public class SessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that an attempt to call the <code>commit()</code> method on a
-    * <strong>non transacted</strong> <code>Session</code> throws a
-    * <code>javax.jms.IllegalStateException</code>.
+    * Test that an attempt to call the {@code commit()} method on a <strong>non transacted</strong> {@code Session}
+    * throws a {@code javax.jms.IllegalStateException}.
     */
    @Test
    public void testCommitNonTransactedSession() {
       try {
          // senderSession has been created as non transacted in the setUp() method
-         Assert.assertEquals(false, senderSession.getTransacted());
+         Assert.assertFalse(senderSession.getTransacted());
          senderSession.commit();
          Assert.fail("Should raise an IllegalStateException, the session is not transacted.\n");
       } catch (javax.jms.IllegalStateException e) {
@@ -159,25 +154,25 @@ public class SessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that the <code>getTransacted()</code> method of a <code>Session</code> returns <code>true</code>
-    * if the session is transacted, <code>false</code> else.
+    * Test that the {@code getTransacted()} method of a {@code Session} returns {@code true} if the session is
+    * transacted, {@code false} else.
     */
    @Test
    public void testGetTransacted() {
       try {
          // senderSession has been created as non transacted
-         Assert.assertEquals(false, senderSession.getTransacted());
+         Assert.assertFalse(senderSession.getTransacted());
          // we re-create senderSession as a transacted session
          senderSession = senderConnection.createQueueSession(true, Session.AUTO_ACKNOWLEDGE);
-         Assert.assertEquals(true, senderSession.getTransacted());
+         Assert.assertTrue(senderSession.getTransacted());
       } catch (Exception e) {
          fail(e);
       }
    }
 
    /**
-    * Test that invoking the <code>acknowledge()</code> method of a received message
-    * from a closed session must throw an <code>IllegalStateException</code>.
+    * Test that invoking the {@code acknowledge()} method of a received message from a closed session must throw an
+    * {@code IllegalStateException}.
     */
    @Test
    public void testAcknowledge() {
@@ -204,8 +199,8 @@ public class SessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that it is valid to use message objects created or received via the [closed] session with the
-    * exception of a received message <code>acknowledge()</code> method.
+    * Test that it is valid to use message objects created or received via the [closed] session with the exception of a
+    * received message {@code acknowledge()} method.
     */
    @Test
    public void testUseMessage() {
@@ -223,8 +218,8 @@ public class SessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that an attempt to use a <code>Session</code> which has been closed
-    * throws a <code>javax.jms.IllegalStateException</code>.
+    * Test that an attempt to use a {@code Session} which has been closed throws a
+    * {@code javax.jms.IllegalStateException}.
     */
    @Test
    public void testUsedClosedSession() {
@@ -241,8 +236,7 @@ public class SessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that closing a closed session does <strong>not</strong> throw
-    * an exception.
+    * Test that closing a closed session does <strong>not</strong> throw an exception.
     */
    @Test
    public void testCloseClosedSession() {

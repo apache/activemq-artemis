@@ -51,20 +51,21 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
    private WebSocketServerHandshaker handshaker;
    private List<String> supportedProtocols;
    private int maxFramePayloadLength;
+   private boolean allowExtensions;
    private WebSocketFrameEncoderType encoderType;
 
-   public WebSocketServerHandler(List<String> supportedProtocols, int maxFramePayloadLength, WebSocketFrameEncoderType encoderType) {
+   public WebSocketServerHandler(List<String> supportedProtocols, int maxFramePayloadLength, WebSocketFrameEncoderType encoderType, boolean allowExtensions) {
       this.supportedProtocols = supportedProtocols;
       this.maxFramePayloadLength = maxFramePayloadLength;
       this.encoderType = encoderType;
+      this.allowExtensions = allowExtensions;
    }
 
    @Override
    public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-      if (msg instanceof FullHttpRequest) {
-         handleHttpRequest(ctx, (FullHttpRequest) msg);
-      } else if (msg instanceof WebSocketFrame) {
-         WebSocketFrame frame = (WebSocketFrame) msg;
+      if (msg instanceof FullHttpRequest request) {
+         handleHttpRequest(ctx, request);
+      } else if (msg instanceof WebSocketFrame frame) {
          boolean handle = handleWebSocketFrame(ctx, frame);
          if (handle) {
             ctx.fireChannelRead(frame.content().retain());
@@ -81,7 +82,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
       // Handshake
       String supportedProtocolsCSV = StringUtil.joinStringList(supportedProtocols, ",");
-      WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(this.getWebSocketLocation(req), supportedProtocolsCSV, false, maxFramePayloadLength);
+      WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(this.getWebSocketLocation(req), supportedProtocolsCSV, allowExtensions, maxFramePayloadLength);
       this.httpRequest = req;
       this.handshaker = wsFactory.newHandshaker(req);
       if (this.handshaker == null) {
@@ -92,7 +93,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             if (future.isSuccess()) {
                // we need to insert an encoder that takes the underlying ChannelBuffer of a StompFrame.toActiveMQBuffer and
                // wrap it in a web socket frame before letting the wsencoder send it on the wire
-               WebSocketFrameEncoder  encoder = new WebSocketFrameEncoder(maxFramePayloadLength, encoderType);
+               WebSocketFrameEncoder encoder = new WebSocketFrameEncoder(maxFramePayloadLength, encoderType);
                future.channel().pipeline().addAfter("wsencoder", "websocket-frame-encoder", encoder);
             } else {
                // Handshake failed, fire an exceptionCaught event
@@ -105,11 +106,13 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
    private boolean handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
 
       // Check for closing frame
-      if (frame instanceof CloseWebSocketFrame) {
-         this.handshaker.close(ctx.channel(), ((CloseWebSocketFrame) frame).retain());
+      if (frame instanceof CloseWebSocketFrame socketFrame) {
+         this.handshaker.close(ctx.channel(), socketFrame.retain());
          return false;
       } else if (frame instanceof PingWebSocketFrame) {
          ctx.writeAndFlush(new PongWebSocketFrame(frame.content().retain()));
+         return false;
+      } else if (frame instanceof PongWebSocketFrame) {
          return false;
       } else if (!(frame instanceof TextWebSocketFrame) && !(frame instanceof BinaryWebSocketFrame) && !(frame instanceof ContinuationWebSocketFrame)) {
          throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass().getName()));

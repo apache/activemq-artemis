@@ -28,9 +28,6 @@ import org.hornetq.jms.server.embedded.EmbeddedJMS
 
 String folder = arg[0];
 String id = arg[1];
-String type = arg[2];
-String producer = arg[3];
-String consumer = arg[4];
 
 configuration = new ConfigurationImpl();
 configuration.setSecurityEnabled(false);

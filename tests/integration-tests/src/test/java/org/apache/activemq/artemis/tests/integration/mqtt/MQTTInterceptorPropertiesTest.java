@@ -16,18 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.netty.handler.codec.mqtt.MqttFixedHeader;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageType;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ErrorCollector;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
 
@@ -35,6 +39,7 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
    private static final String MESSAGE_TEXT = "messageText";
    private static final String RETAINED = "retained";
 
+   private final AtomicReference<Throwable> interceptorError = new AtomicReference<>(null);
 
    private boolean checkMessageProperties(MqttMessage message, Map<String, Object> expectedProperties) {
       try {
@@ -45,17 +50,15 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
          assertEquals(AT_MOST_ONCE, header.qosLevel().value());
          assertEquals(expectedProperties.get(RETAINED), header.isRetain());
       } catch (Throwable t) {
-         collector.addError(t);
+         interceptorError.compareAndSet(null, t);
       }
       return true;
    }
 
-   @Rule
-   public ErrorCollector collector = new ErrorCollector();
-
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testCheckInterceptedMQTTMessageProperties() throws Exception {
-      final String addressQueue = name.getMethodName();
+      final String addressQueue = name;
       final String msgText = "Test intercepted message";
       final boolean retained = true;
 
@@ -94,7 +97,7 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
       Thread thread = new Thread(() -> {
          try {
             byte[] payload = subscribeProvider.receive(10000);
-            assertNotNull("Should get a message", payload);
+            assertNotNull(payload, "Should get a message");
             latch.countDown();
          } catch (Exception e) {
             e.printStackTrace();
@@ -105,5 +108,7 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
       latch.await(10, TimeUnit.SECONDS);
       subscribeProvider.disconnect();
       publishProvider.disconnect();
+
+      assertNull(interceptorError.get());
    }
 }

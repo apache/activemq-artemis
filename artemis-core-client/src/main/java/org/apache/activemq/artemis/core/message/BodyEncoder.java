@@ -25,27 +25,27 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 public interface BodyEncoder {
 
    /**
-    * This method must not be called directly by ActiveMQ Artemis clients.
+    * This method must not be called directly by Apache Artemis clients.
     */
    void open() throws ActiveMQException;
 
    /**
-    * This method must not be called directly by ActiveMQ Artemis clients.
+    * This method must not be called directly by Apache Artemis clients.
     */
    void close() throws ActiveMQException;
 
    /**
-    * This method must not be called directly by ActiveMQ Artemis clients.
+    * This method must not be called directly by Apache Artemis clients.
     */
    int encode(ByteBuffer bufferRead) throws ActiveMQException;
 
    /**
-    * This method must not be called directly by ActiveMQ Artemis clients.
+    * This method must not be called directly by Apache Artemis clients.
     */
    int encode(ActiveMQBuffer bufferOut, int size) throws ActiveMQException;
 
    /**
-    * This method must not be called directly by ActiveMQ Artemis clients.
+    * This method must not be called directly by Apache Artemis clients.
     */
    long getLargeBodySize();
 }

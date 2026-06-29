@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.critical;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
@@ -37,8 +39,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CriticalCrashTest extends SpawnedTestBase {
 
@@ -46,15 +47,17 @@ public class CriticalCrashTest extends SpawnedTestBase {
    public void testCrash() throws Exception {
 
       // Passing these arguments should change the criticalAnalyzer parameters
-      Process process = SpawnedVMSupport.spawnVM(CriticalCrashTest.class.getName(), new String[]{"-Dbrokerconfig.criticalAnalyzer=true", "-Dbrokerconfig.criticalAnalyzerCheckPeriod=100", "-Dbrokerconfig.criticalAnalyzerTimeout=500", "-Dbrokerconfig.criticalAnalyzerPolicy=HALT"}, new String[]{});
+      Process process = SpawnedVMSupport.spawnVM(CriticalCrashTest.class.getName(), new String[]{"-Dbrokerconfig.criticalAnalyzer=true", "-Dbrokerconfig.criticalAnalyzerCheckPeriod=100", "-Dbrokerconfig.criticalAnalyzerTimeout=500", "-Dbrokerconfig.criticalAnalyzerPolicy=HALT"}, getTestDir());
 
-      Assert.assertEquals(70, process.waitFor());
+      assertEquals(70, process.waitFor());
       deleteDirectory(new File("./target/server"));
    }
 
    public static void main(String[] arg) {
       try {
          CriticalCrashTest test = new CriticalCrashTest();
+         test.setTestDir(arg[0]);
+
          test.runSimple();
       } catch (Exception e) {
          e.printStackTrace();

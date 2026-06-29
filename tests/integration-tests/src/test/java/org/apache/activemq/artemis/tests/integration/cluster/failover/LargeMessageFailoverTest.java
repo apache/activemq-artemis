@@ -18,29 +18,9 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
-import org.junit.Ignore;
-import org.junit.Test;
 
 public class LargeMessageFailoverTest extends FailoverTest {
 
-   @Override
-   @Test
-   @Ignore
-   public void testLiveAndBackupLiveComesBackNewFactory() throws Exception {
-      // skip test because it triggers OutOfMemoryError.
-   }
-
-   @Override
-   @Test
-   @Ignore
-   public void testLiveAndBackupBackupComesBackNewFactory() throws Exception {
-      // skip test because it triggers OutOfMemoryError.
-   }
-
-   /**
-    * @param i
-    * @param message
-    */
    @Override
    protected void assertMessageBody(final int i, final ClientMessage message) {
       assertLargeMessageBody(i, message);
@@ -51,10 +31,6 @@ public class LargeMessageFailoverTest extends FailoverTest {
       return (ServerLocatorInternal) super.getServerLocator().setMinLargeMessageSize(MIN_LARGE_MESSAGE);
    }
 
-   /**
-    * @param i
-    * @param message
-    */
    @Override
    protected void setBody(final int i, final ClientMessage message) {
       setLargeMessageBody(i, message);

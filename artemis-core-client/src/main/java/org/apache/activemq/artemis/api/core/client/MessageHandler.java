@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.api.core.client;
 /**
  * A MessageHandler is used to receive message <em>asynchronously</em>.
  * <p>
- * To receive messages asynchronously, a MessageHandler is set on a ClientConsumer. Every time the
- * consumer will receive a message, it will call the handler's {@code onMessage()} method.
+ * To receive messages asynchronously, a MessageHandler is set on a ClientConsumer. Every time the consumer will receive
+ * a message, it will call the handler's {@code onMessage()} method.
  *
  * @see ClientConsumer#setMessageHandler(MessageHandler)
  */
@@ -32,4 +32,13 @@ public interface MessageHandler {
     * @param message a message
     */
    void onMessage(ClientMessage message);
+
+   /**
+    * Notifies the MessageHandler that an expired message has been received.
+    *
+    * @param message a message
+    */
+   default void onMessageExpired(ClientMessage message) {
+      // Do nothing by default
+   }
 }

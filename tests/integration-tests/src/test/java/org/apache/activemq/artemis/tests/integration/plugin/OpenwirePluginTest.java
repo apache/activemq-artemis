@@ -48,6 +48,8 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_SESSION_METADATA_ADDED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_ACKED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_EXPIRED;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -67,7 +69,8 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class OpenwirePluginTest extends BasicOpenWireTest {
 
@@ -101,7 +104,8 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
             .setAutoDeleteQueues(true).setAutoCreateQueues(true).setAutoCreateAddresses(true).setMaxReadPageMessages(-1).setMaxReadPageBytes(-1));
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void testAckedMessageAreConsumed() throws JMSException {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -137,7 +141,8 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
 
    }
 
-   @Test(timeout = 10000)
+   @Test
+   @Timeout(10)
    public void testAutoCreatedQueue() throws JMSException {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

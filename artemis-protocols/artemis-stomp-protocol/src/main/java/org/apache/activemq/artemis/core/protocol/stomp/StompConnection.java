@@ -16,26 +16,27 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.AutoCreateResult;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameHandlerV10;
@@ -43,20 +44,18 @@ import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.ServerSession;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.selector.filter.FilterException;
+import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
-import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 import static org.apache.activemq.artemis.reader.MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING;
@@ -77,11 +76,10 @@ public final class StompConnection extends AbstractRemotingConnection {
    //this means login is valid. (stomp connection ok)
    private boolean valid;
 
-   private boolean destroyed = false;
+   private static final AtomicIntegerFieldUpdater<StompConnection> DESTROYED_UPDATER = AtomicIntegerFieldUpdater.newUpdater(StompConnection.class, "destroyed");
+   private volatile int destroyed;
 
    private final Acceptor acceptorUsed;
-
-   private final Object failLock = new Object();
 
    private final boolean enableMessageID;
 
@@ -114,8 +112,9 @@ public final class StompConnection extends AbstractRemotingConnection {
       } catch (ActiveMQStompException e) {
          switch (e.getCode()) {
             case ActiveMQStompException.INVALID_EOL_V10:
-               if (version != null)
+               if (version != null) {
                   throw e;
+               }
                frameHandler = new StompFrameHandlerV12(this, scheduledExecutorService, executorFactory);
                buffer.resetReaderIndex();
                frame = decode(buffer);
@@ -161,74 +160,11 @@ public final class StompConnection extends AbstractRemotingConnection {
       this.minLargeMessageSize = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE, ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE_DEPRECATED, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, acceptorUsed.getConfiguration()), acceptorUsed.getConfiguration());
    }
 
-   // TODO this should take a type - send or receive so it knows whether to check the address or the queue
-   public void checkDestination(String destination) throws ActiveMQStompException {
-      if (!manager.destinationExists(destination)) {
-         throw BUNDLE.destinationNotExist(destination).setHandler(frameHandler);
-      }
-   }
-
-   public void autoCreateDestinationIfPossible(String destination, RoutingType routingType) throws ActiveMQStompException {
-      try {
-         SimpleString simpleDestination = SimpleString.toSimpleString(destination);
-         AddressInfo addressInfo = manager.getServer().getAddressInfo(simpleDestination);
-         AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(destination);
-         RoutingType effectiveAddressRoutingType = routingType == null ? addressSettings.getDefaultAddressRoutingType() : routingType;
-         ServerSession session = getSession().getCoreSession();
-         /**
-          * If the address doesn't exist then it is created if possible.
-          * If the address does exist but doesn't support the routing-type then the address is updated if possible.
-          */
-         if (addressInfo == null) {
-            if (addressSettings.isAutoCreateAddresses()) {
-               session.createAddress(simpleDestination, effectiveAddressRoutingType, true);
-            }
-         } else if (!addressInfo.getRoutingTypes().contains(effectiveAddressRoutingType)) {
-            if (addressSettings.isAutoCreateAddresses()) {
-               EnumSet<RoutingType> routingTypes = EnumSet.noneOf(RoutingType.class);
-               for (RoutingType existingRoutingType : addressInfo.getRoutingTypes()) {
-                  routingTypes.add(existingRoutingType);
-               }
-               routingTypes.add(effectiveAddressRoutingType);
-               manager.getServer().updateAddressInfo(simpleDestination, routingTypes);
-            }
-         }
-
-         // auto create the queue if the address is ANYCAST or FQQN
-         if ((CompositeAddress.isFullyQualified(destination) || effectiveAddressRoutingType == RoutingType.ANYCAST) && addressSettings.isAutoCreateQueues() && manager.getServer().locateQueue(simpleDestination) == null) {
-            session.createQueue(new QueueConfiguration(destination).setRoutingType(effectiveAddressRoutingType).setAutoCreated(true));
-         }
-      } catch (ActiveMQQueueExistsException e) {
-         // ignore
-      } catch (Exception e) {
-         logger.debug("Exception while auto-creating destination", e);
-         throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
-      }
-   }
-
-   public void checkRoutingSemantics(String destination, RoutingType routingType) throws ActiveMQStompException {
-      AddressInfo addressInfo = manager.getServer().getAddressInfo(SimpleString.toSimpleString(destination));
-
-      // may be null here if, for example, the management address is being checked
-      if (addressInfo != null) {
-         Set<RoutingType> actualDeliveryModesOfAddress = addressInfo.getRoutingTypes();
-         if (routingType != null && !actualDeliveryModesOfAddress.contains(routingType)) {
-            throw BUNDLE.illegalSemantics(routingType.toString(), actualDeliveryModesOfAddress.toString());
-         }
-      }
-   }
-
    @Override
    public void destroy() {
-      synchronized (failLock) {
-         if (destroyed) {
-            return;
-         }
-
-         destroyed = true;
+      if (DESTROYED_UPDATER.compareAndSet(this, 0, 1)) {
+         internalClose();
       }
-
-      internalClose();
    }
 
    public Acceptor getAcceptorUsed() {
@@ -251,24 +187,17 @@ public final class StompConnection extends AbstractRemotingConnection {
 
    @Override
    public void fail(final ActiveMQException me) {
-      synchronized (failLock) {
-         if (destroyed) {
-            return;
-         }
-
+      if (DESTROYED_UPDATER.compareAndSet(this, 0, 1)) {
          StompFrame frame = frameHandler.createStompFrame(Stomp.Responses.ERROR);
          frame.addHeader(Stomp.Headers.Error.MESSAGE, me.getMessage());
          sendFrame(frame, null);
+         ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
 
-         destroyed = true;
+         // Then call the listeners
+         callFailureListeners(me);
+
+         internalClose();
       }
-
-      ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
-
-      // Then call the listeners
-      callFailureListeners(me);
-
-      internalClose();
    }
 
    @Override
@@ -495,7 +424,8 @@ public final class StompConnection extends AbstractRemotingConnection {
       try {
          StompSession stompSession = getSession(txID);
 
-         if (stompSession.isNoLocal()) {
+         // only set the connection ID property if we have a noLocal subscription
+         if (stompSession.getNoLocalSubscriptionCount() > 0) {
             message.putStringProperty(CONNECTION_ID_PROPERTY_NAME_STRING, getID().toString());
          }
          if (isEnableMessageID()) {
@@ -557,22 +487,61 @@ public final class StompConnection extends AbstractRemotingConnection {
                                       boolean noLocal,
                                       RoutingType subscriptionType,
                                       Integer consumerWindowSize) throws ActiveMQStompException {
-      autoCreateDestinationIfPossible(destination, subscriptionType);
-      checkDestination(destination);
-      checkRoutingSemantics(destination, subscriptionType);
+      validateSelector(selector);
+      checkAutoCreate(destination, subscriptionType);
+      String subscriptionID = getSubscriptionID(destination, id);
+
+      try {
+         return manager.subscribe(this,
+                                  subscriptionID,
+                                  durableSubscriptionName,
+                                  destination,
+                                  getSelector(selector, noLocal),
+                                  Objects.requireNonNullElse(ack, Stomp.Headers.Subscribe.AckModeValues.AUTO),
+                                  noLocal,
+                                  consumerWindowSize);
+      } catch (ActiveMQStompException e) {
+         throw e;
+      } catch (Exception e) {
+         throw BUNDLE.errorCreatingSubscription(subscriptionID, e).setHandler(frameHandler);
+      }
+   }
+
+   protected void checkAutoCreate(String destination, RoutingType subscriptionType) throws ActiveMQStompException {
+      AutoCreateResult autoCreateResult;
+      try {
+         RoutingType routingType = getSubscriptionRoutingType(destination, subscriptionType);
+         autoCreateResult = getSession().getCoreSession().checkAutoCreate(QueueConfiguration.of(destination).setRoutingType(routingType));
+      } catch (Exception e) {
+         logger.debug("Exception while auto-creating destination", e);
+         throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
+      }
+      if (autoCreateResult == AutoCreateResult.NOT_FOUND) {
+         throw BUNDLE.destinationNotExist(destination).setHandler(frameHandler);
+      }
+   }
+
+   private RoutingType getSubscriptionRoutingType(String destination, RoutingType subscriptionType) {
+      if (subscriptionType == null) {
+         return getManager().getServer().getAddressSettingsRepository().getMatch(destination).getDefaultAddressRoutingType();
+      } else {
+         return subscriptionType;
+      }
+   }
+
+   private String getSelector(String selector, boolean noLocal) {
       if (noLocal) {
-         String noLocalFilter = CONNECTION_ID_PROPERTY_NAME_STRING + " <> '" + getID().toString() + "'";
+         String noLocalFilter = "(" + CONNECTION_ID_PROPERTY_NAME_STRING + " <> '" + getID().toString() + "' OR " + CONNECTION_ID_PROPERTY_NAME_STRING + " IS NULL)";
          if (selector == null) {
             selector = noLocalFilter;
          } else {
-            selector += " AND " + noLocalFilter;
+            selector = "(" + selector + ") AND " + noLocalFilter;
          }
       }
+      return selector;
+   }
 
-      if (ack == null) {
-         ack = Stomp.Headers.Subscribe.AckModeValues.AUTO;
-      }
-
+   private String getSubscriptionID(String destination, String id) throws ActiveMQStompException {
       String subscriptionID = null;
       if (id != null) {
          subscriptionID = id;
@@ -582,13 +551,21 @@ public final class StompConnection extends AbstractRemotingConnection {
          }
          subscriptionID = "subscription/" + destination;
       }
+      return subscriptionID;
+   }
 
+   private void validateSelector(String selector) throws ActiveMQStompException {
+      // user may not specify a selector; that's ok
+      if (selector == null) {
+         return;
+      }
+      if (selector.isEmpty()) {
+         throw new ActiveMQStompException("Selector cannot be empty").setHandler(frameHandler);
+      }
       try {
-         return manager.subscribe(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal, consumerWindowSize);
-      } catch (ActiveMQStompException e) {
-         throw e;
-      } catch (Exception e) {
-         throw BUNDLE.errorCreatingSubscription(subscriptionID, e).setHandler(frameHandler);
+         SelectorParser.parse(selector);
+      } catch (FilterException e) {
+         throw new ActiveMQStompException("Invalid selector \"" + selector + "\"", e).setHandler(frameHandler);
       }
    }
 
@@ -622,11 +599,11 @@ public final class StompConnection extends AbstractRemotingConnection {
       return SERVER_NAME;
    }
 
-   public StompFrame createStompMessage(ICoreMessage serverMessage,
-                                        ActiveMQBuffer bodyBuffer,
+   public StompFrame createStompMessage(ICoreMessage message,
                                         StompSubscription subscription,
-                                        int deliveryCount) throws Exception {
-      return frameHandler.createMessageFrame(serverMessage, bodyBuffer, subscription, deliveryCount);
+                                        ServerConsumer consumer,
+                                        int deliveryCount) throws ActiveMQException {
+      return frameHandler.createMessageFrame(message, subscription, consumer, deliveryCount);
    }
 
    public void addStompEventListener(FrameEventListener listener) {
@@ -673,11 +650,6 @@ public final class StompConnection extends AbstractRemotingConnection {
       return manager;
    }
 
-   /**
-    * Returns the name of the protocol for this Remoting Connection
-    *
-    * @return
-    */
    @Override
    public String getProtocolName() {
       return StompProtocolManagerFactory.STOMP_PROTOCOL_NAME;

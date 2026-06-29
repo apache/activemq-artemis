@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.utils.DataConstants;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BufferSplitterTest {
 
@@ -38,12 +41,12 @@ public class BufferSplitterTest {
       final int readableBytes = buffer.readableBytes();
 
       BufferSplitter.split(buffer, 77, (c) -> {
-         Assert.assertTrue(c.getEncodeSize() <= 77);
+         assertTrue(c.getEncodeSize() <= 77);
          c.encode(outputBuffer);
       });
 
-      Assert.assertEquals(rdx, buffer.readerIndex());
-      Assert.assertEquals(readableBytes, buffer.readableBytes());
+      assertEquals(rdx, buffer.readerIndex());
+      assertEquals(readableBytes, buffer.readableBytes());
 
       outputBuffer.resetReaderIndex();
       buffer.resetReaderIndex();
@@ -53,7 +56,7 @@ public class BufferSplitterTest {
       byte[] targetBytes = new byte[1000 * DataConstants.SIZE_INT];
       outputBuffer.readBytes(targetBytes);
 
-      Assert.assertArrayEquals(sourceBytes, targetBytes);
+      assertArrayEquals(sourceBytes, targetBytes);
    }
 
 }

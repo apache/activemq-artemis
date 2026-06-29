@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
+import static org.apache.activemq.artemis.core.journal.impl.Reclaimer.scan;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,18 +28,15 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.core.journal.impl.Reclaimer.scan;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ReclaimerTest extends ActiveMQTestBase {
 
    private JournalFile[] files;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
    }
@@ -702,13 +704,13 @@ public class ReclaimerTest extends ActiveMQTestBase {
 
    private void assertCanDelete(final int... fileNumber) {
       for (int num : fileNumber) {
-         Assert.assertTrue(files[num].isCanReclaim());
+         assertTrue(files[num].isCanReclaim());
       }
    }
 
    private void assertCantDelete(final int... fileNumber) {
       for (int num : fileNumber) {
-         Assert.assertFalse(files[num].isCanReclaim());
+         assertFalse(files[num].isCanReclaim());
       }
    }
 

@@ -16,21 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.LinkedList;
-
-import javax.jms.Connection;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
 
@@ -38,13 +36,13 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
 
    protected LinkedList<Connection> jmsConnections = new LinkedList<>();
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
    }
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       try {
@@ -157,12 +155,7 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
 
       Connection connection = trackJMSConnection(factory.createConnection(username, password));
 
-      connection.setExceptionListener(new ExceptionListener() {
-         @Override
-         public void onException(JMSException exception) {
-            exception.printStackTrace();
-         }
-      });
+      connection.setExceptionListener(exception -> exception.printStackTrace());
 
       if (clientId != null && !clientId.isEmpty()) {
          connection.setClientID(clientId);
@@ -184,7 +177,7 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
          String uri = null;
 
          if (isUseSSL()) {
-            uri = "tcp://127.0.0.1:" + port;
+            throw new UnsupportedOperationException("SSL not supported here");
          } else {
             uri = "tcp://127.0.0.1:" + port;
          }
@@ -207,17 +200,16 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
       return createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, null, start);
    }
 
+   protected Connection createCoreConnection(String username, String password) throws JMSException {
+      return createCoreConnection(getBrokerCoreJMSConnectionString(), username, password, null, true);
+   }
+
    private Connection createCoreConnection(String connectionString, String username, String password, String clientId, boolean start) throws JMSException {
       ActiveMQJMSConnectionFactory factory = new ActiveMQJMSConnectionFactory(connectionString);
 
       Connection connection = trackJMSConnection(factory.createConnection(username, password));
 
-      connection.setExceptionListener(new ExceptionListener() {
-         @Override
-         public void onException(JMSException exception) {
-            exception.printStackTrace();
-         }
-      });
+      connection.setExceptionListener(exception -> exception.printStackTrace());
 
       if (clientId != null && !clientId.isEmpty()) {
          connection.setClientID(clientId);
@@ -238,7 +230,7 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
          String uri = null;
 
          if (isUseSSL()) {
-            uri = "tcp://127.0.0.1:" + port;
+            throw new UnsupportedOperationException("SSL not supported here");
          } else {
             uri = "tcp://127.0.0.1:" + port;
          }
@@ -260,20 +252,27 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
    }
 
    protected Connection createOpenWireConnection(boolean start) throws JMSException {
-      return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, false);
+      return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, start);
    }
 
-   private Connection createOpenWireConnection(String connectionString, String username, String password, String clientId, boolean start) throws JMSException {
+   protected Connection createOpenWireConnection(String username, String password) throws JMSException {
+      return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), username, password, null, true);
+   }
+
+   protected Connection createOpenWireConnection(String connectionString, String username, String password, String clientId, boolean start) throws JMSException {
+      return createOpenWireConnection(connectionString, username, password, clientId, start, true);
+   }
+
+   protected Connection createOpenWireConnection(String connectionString, String username, String password, String clientId, boolean start, boolean watchAdvisories) throws JMSException {
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(connectionString);
+
+      if (!watchAdvisories) {
+         factory.setWatchTopicAdvisories(false);
+      }
 
       Connection connection = trackJMSConnection(factory.createConnection(username, password));
 
-      connection.setExceptionListener(new ExceptionListener() {
-         @Override
-         public void onException(JMSException exception) {
-            exception.printStackTrace();
-         }
-      });
+      connection.setExceptionListener(exception -> exception.printStackTrace());
 
       if (clientId != null && !clientId.isEmpty()) {
          connection.setClientID(clientId);
@@ -288,5 +287,9 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
 
    interface ConnectionSupplier {
       Connection createConnection() throws JMSException;
+   }
+
+   interface SecureConnectionSupplier {
+      Connection createConnection(String username, String Password) throws JMSException;
    }
 }

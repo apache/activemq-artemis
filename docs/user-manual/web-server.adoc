@@ -1,8 +1,9 @@
 = Embedded Web Server
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
-Apache ActiveMQ Artemis embeds the https://www.eclipse.org/jetty/[Jetty web server].
+{project-name-full} embeds the https://www.eclipse.org/jetty/[Jetty web server].
 Its main purpose is to host the xref:management-console.adoc#management-console[Management Console].
 However, it can also host other web applications.
 
@@ -12,11 +13,9 @@ The embedded Jetty instance is configured in `etc/bootstrap.xml` via the `web` e
 
 [,xml]
 ----
-<web path="web">
-   <binding uri="http://localhost:8161">
-      <app url="activemq-branding" war="activemq-branding.war"/>
-      <app url="artemis-plugin" war="artemis-plugin.war"/>
-      <app url="console" war="console.war"/>
+<web path="web" rootRedirectLocation="console">
+   <binding name="artemis" uri="http://localhost:8161">
+      <app name="console" url="console" war="console.war"/>
    </binding>
 </web>
 ----
@@ -35,6 +34,33 @@ The location to redirect the requests with the root target.
 webContentEnabled::
 Whether or not the content included in the web folder of the home and the instance directories is accessible.
 Default is `false`.
+compressionEnabled::
+Whether to compress HTTP responses.
+Uses `gzip` encoding for maximum compatibility.
+This will impact any client communicating with the embedded web server including the web console and consumers of xref:metrics.adoc#metrics[metrics] (e.g. Prometheus) assuming they set the `Accept-Encoding` header to `gzip` in their HTTP requests.
+Default is `false`.
+compressionLevel::
+The level of compression for HTTP responses.
+Only valid if `compressionEnabled` is `true`.
+Default is `6`. Must be between `0` and `9` inclusive.
+maxThreads::
+The maximum number of threads the embedded web server can create to service HTTP requests.
+Default is `200`.
+minThreads::
+The minimum number of threads the embedded web server will hold to service HTTP requests.
+Default is `8` or the value of `maxThreads` if it is lower.
+idleThreadTimeout::
+The time to wait before terminating an idle thread from the embedded web server. Measured in milliseconds. Default is `60000`.
+scanPeriod::
+How often to scan for changes of the key and trust store files related to a binding when the `sslAutoReload` attribute value of the `binding` element is `true`, for further details see <<Binding>>. Measured in seconds. Default is `5`.
+maxRequestHeaderSize::
+The maximum allowed size for the HTTP request line and HTTP request headers.
+Measured in bytes.
+Default is `8192`.
+maxResponseHeaderSize::
+The maximum allowed size for the HTTP response headers.
+Measured in bytes.
+Default is `8192`.
 
 === Binding
 
@@ -98,6 +124,15 @@ Whether or not the client request must include an SNI Host name.
 Default is `false`.
 Only applicable when using `https`.
 
+sslAutoReload::
+Whether or not the key and trust store files must be watched for changes and automatically reloaded.
+The watch period is controlled by the `scanPeriod` attribute of the `web` element, for further details see <<Web>>.
+Default is `false`.
+
+http2::
+Whether or not the HTTP/2 protocol is enabled.
+Default is `true`.
+
 === App
 
 Each web application should be defined in an `app` element inside an `binding` element.
@@ -153,11 +188,9 @@ Here is an example configuration:
 
 [,xml]
 ----
-<web path="web">
-   <binding uri="http://localhost:8161">
-      <app url="activemq-branding" war="activemq-branding.war"/>
-      <app url="artemis-plugin" war="artemis-plugin.war"/>
-      <app url="console" war="console.war"/>
+<web path="web" rootRedirectLocation="console">
+   <binding name="artemis" uri="http://localhost:8161">
+      <app name="console" url="console" war="console.war"/>
    </binding>
    <request-log filename="${artemis.instance}/log/http-access-yyyy_MM_dd.log" append="true" extended="true"/>
 </web>
@@ -183,9 +216,9 @@ java -Dwebconfig.bindings.my-binding.apps.my-app.war=my-app.war
 To update a binding without a name use its uri and to update an app without a name use its url , i.e.
 [,xml]
 ----
-<web path="web">
-  <binding uri="http://localhost:8161">
-    <app url="activemq-branding" war="activemq-branding.war"/>
+<web path="web" rootRedirectLocation="console">
+   <binding uri="http://localhost:8161">
+      <app url="console" war="console.war"/>
 ...
 ----
 
@@ -194,7 +227,7 @@ java -Dwebconfig.bindings."http://localhost:8161".clientAuth=true
 ----
 
 ----
-java -Dwebconfig.bindings."http://localhost:8161".apps."activemq-branding".war=my-branding.war
+java -Dwebconfig.bindings."http://localhost:8161".apps."console".war=my-console.war
 ----
 
 == Proxy Forwarding
@@ -205,11 +238,9 @@ Set the `customizer` attribute via the `web` element to enable the https://www.e
 
 [,xml]
 ----
-<web path="web" customizer="org.eclipse.jetty.server.ForwardedRequestCustomizer">
-   <binding uri="http://localhost:8161">
-      <app url="activemq-branding" war="activemq-branding.war"/>
-      <app url="artemis-plugin" war="artemis-plugin.war"/>
-      <app url="console" war="console.war"/>
+<web path="web" rootRedirectLocation="console" customizer="org.eclipse.jetty.server.ForwardedRequestCustomizer">
+   <binding name="artemis" uri="http://localhost:8161">
+      <app name="console" url="console" war="console.war"/>
    </binding>
 </web>
 ----

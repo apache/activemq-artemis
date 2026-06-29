@@ -18,25 +18,14 @@ package org.apache.activemq.artemis.spi.core.security.jaas;
 
 import javax.security.auth.callback.Callback;
 
-/**
- * A Callback for getting the Client ID.
- */
 public class ClientIDCallback implements Callback {
 
    private String clientID;
 
-   /**
-    * Setter for Client ID.
-    * @param cid The Client ID to be returned.
-    */
    public void setClientID(String cid) {
       clientID = cid;
    }
 
-   /**
-    * Getter for peer Client ID.
-    * @return The Client ID being carried.
-    */
    public String getClientID() {
       return clientID;
    }

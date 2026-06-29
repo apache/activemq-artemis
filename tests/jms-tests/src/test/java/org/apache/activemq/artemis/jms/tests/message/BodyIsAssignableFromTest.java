@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -27,8 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BodyIsAssignableFromTest extends MessageBodyTestCase {
 
@@ -67,33 +73,27 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
       bodyAssignableFrom(type, true, clazz);
    }
 
-   /**
-    * @param type
-    * @param clazz
-    * @param bool
-    * @throws JMSException
-    */
    private void bodyAssignableFrom(final JmsMessageType type, final boolean bool, Class... clazz) throws JMSException {
-      Assert.assertNotNull("clazz!=null", clazz);
-      Assert.assertTrue("clazz[] not empty", clazz.length > 0);
+      assertNotNull(clazz, "clazz!=null");
+      assertTrue(clazz.length > 0, "clazz[] not empty");
       Object body = createBodySendAndReceive(type);
       Message msg = queueConsumer.receive(500);
-      Assert.assertNotNull("must have a msg", msg);
-      Assert.assertEquals(type.toString(), msg.getStringProperty("type"));
+      assertNotNull(msg, "must have a msg");
+      assertEquals(type.toString(), msg.getStringProperty("type"));
       for (Class<?> c : clazz) {
-         Assert.assertEquals(msg + " " + type + " & " + c + ": " + bool, bool, msg.isBodyAssignableTo(c));
+         assertEquals(bool, msg.isBodyAssignableTo(c), msg + " " + type + " & " + c + ": " + bool);
          if (bool) {
             Object receivedBody = msg.getBody(c);
-            Assert.assertTrue("correct type " + c, c.isInstance(receivedBody));
+            assertTrue(c.isInstance(receivedBody), "correct type " + c);
             if (body.getClass().isAssignableFrom(byte[].class)) {
-               Assert.assertArrayEquals(byte[].class.cast(body), (byte[]) receivedBody);
+               assertArrayEquals(byte[].class.cast(body), (byte[]) receivedBody);
             } else {
-               Assert.assertEquals("clazz=" + c + ", bodies must match.. " + body.equals(receivedBody), body, receivedBody);
+               assertEquals(body, receivedBody, "clazz=" + c + ", bodies must match.. " + body.equals(receivedBody));
             }
          } else {
             try {
                Object foo = msg.getBody(c);
-               Assert.assertNull("body should be null", foo);
+               assertNull(foo, "body should be null");
             } catch (MessageFormatException e) {
                // expected
             }
@@ -101,10 +101,6 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
       }
    }
 
-   /**
-    * @param type
-    * @throws JMSException
-    */
    private Object createBodySendAndReceive(JmsMessageType type) throws JMSException {
       Object res = null;
       Message msg = null;
@@ -128,8 +124,8 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
             msg = queueProducerSession.createStreamMessage();
             break;
          case OBJECT:
-            res = Double.valueOf(37.6);
-            msg = queueProducerSession.createObjectMessage(Double.valueOf(37.6));
+            res = 37.6;
+            msg = queueProducerSession.createObjectMessage(37.6);
             break;
          case MAP:
             MapMessage msg1 = queueProducerSession.createMapMessage();
@@ -138,15 +134,15 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
             msg1.setString("string", "crocodile");
             msg = msg1;
             Map<String, Object> map = new HashMap<>();
-            map.put("int", Integer.valueOf(13));
-            map.put("long", Long.valueOf(37L));
+            map.put("int", 13);
+            map.put("long", 37L);
             map.put("string", "crocodile");
             res = map;
             break;
          default:
-            Assert.fail("no default...");
+            fail("no default...");
       }
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
       msg.setStringProperty("type", type.toString());
       queueProducer.send(msg);
       return res;

@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import javax.transaction.xa.Xid;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
@@ -52,34 +54,29 @@ public class SessionXAForgetMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((xid == null) ? 0 : xid.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(xid);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append("]");
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append("]");
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionXAForgetMessage))
+      }
+      if (!(obj instanceof SessionXAForgetMessage other)) {
          return false;
-      SessionXAForgetMessage other = (SessionXAForgetMessage) obj;
-      if (xid == null) {
-         if (other.xid != null)
-            return false;
-      } else if (!xid.equals(other.xid))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(xid, other.xid);
    }
 
 }

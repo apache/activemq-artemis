@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,13 +32,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.ServiceComponent;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class EmbeddedServerTest {
 
@@ -44,7 +44,7 @@ public class EmbeddedServerTest {
    private ActiveMQServer server;
    private Configuration configuration;
 
-   @Before
+   @BeforeEach
    public void setup() {
       configuration = new ConfigurationImpl().setJournalDirectory(SERVER_JOURNAL_DIR).setPersistenceEnabled(false).setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
@@ -52,11 +52,11 @@ public class EmbeddedServerTest {
       try {
          server.start();
       } catch (Exception e) {
-         Assert.fail();
+         fail();
       }
    }
 
-   @After
+   @AfterEach
    public void teardown() {
       try {
          server.stop();

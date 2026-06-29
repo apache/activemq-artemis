@@ -16,6 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONNECTION_CREATED;
+import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONSUMER_CREATED;
+import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.HashMap;
@@ -46,13 +55,8 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONNECTION_CREATED;
-import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONSUMER_CREATED;
-import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
@@ -95,26 +99,26 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       long start = System.currentTimeMillis();
       try {
          sf.createSession();
-         Assert.fail("authentication must fail and a notification of security violation must be sent");
+         fail("authentication must fail and a notification of security violation must be sent");
       } catch (Exception e) {
       }
 
       ClientMessage[] notifications = SSLSecurityNotificationTest.consumeMessages(1, notifConsumer);
-      Assert.assertEquals(SECURITY_AUTHENTICATION_VIOLATION.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
-      Assert.assertEquals(null, notifications[0].getObjectProperty(ManagementHelper.HDR_USER));
-      Assert.assertEquals("CN=ActiveMQ Artemis Unknown Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
-      Assert.assertTrue(notifications[0].getObjectProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("/127.0.0.1"));
-      Assert.assertTrue(notifications[0].getTimestamp() >= start);
-      Assert.assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
-      Assert.assertEquals(notifications[0].getTimestamp(), (long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
+      assertEquals(SECURITY_AUTHENTICATION_VIOLATION.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+      assertNull(notifications[0].getObjectProperty(ManagementHelper.HDR_USER));
+      assertEquals("CN=ActiveMQ Artemis Unknown Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
+      assertTrue(notifications[0].getObjectProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("127.0.0.1"));
+      assertTrue(notifications[0].getTimestamp() >= start);
+      assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
+      assertEquals(notifications[0].getTimestamp(), (long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
    }
 
    @Test
    public void testCONSUMER_CREATED() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
-      Role role = new Role("notif", true, true, true, true, false, true, true, true, true, true);
+      Role role = new Role("notif", true, true, true, true, false, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
 
@@ -132,28 +136,28 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
       ClientSession guestSession = sf.createSession("guest", "guest", false, true, true, false, 1);
 
-      guestSession.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+      guestSession.createQueue(QueueConfiguration.of(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       SSLSecurityNotificationTest.flush(notifConsumer);
 
       long start = System.currentTimeMillis();
       guestSession.createConsumer(queue);
 
       ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);
-      Assert.assertEquals(CONSUMER_CREATED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
-      Assert.assertEquals("guest", notifications[0].getObjectProperty(ManagementHelper.HDR_USER).toString());
-      Assert.assertEquals("first", notifications[0].getObjectProperty(ManagementHelper.HDR_VALIDATED_USER).toString());
-      Assert.assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
-      Assert.assertEquals("CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
-      Assert.assertTrue(notifications[0].getTimestamp() >= start);
-      Assert.assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
-      Assert.assertEquals(notifications[0].getTimestamp(), (long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
+      assertEquals(CONSUMER_CREATED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+      assertEquals("guest", notifications[0].getObjectProperty(ManagementHelper.HDR_USER).toString());
+      assertEquals("first", notifications[0].getObjectProperty(ManagementHelper.HDR_VALIDATED_USER).toString());
+      assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
+      assertEquals("CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notifications[0].getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
+      assertTrue(notifications[0].getTimestamp() >= start);
+      assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
+      assertEquals(notifications[0].getTimestamp(), (long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
 
       guestSession.close();
    }
 
    @Test
    public void testCONNECTION_CREATED() throws Exception {
-      Role role = new Role("notif", true, true, true, true, false, true, true, true, true, true);
+      Role role = new Role("notif", true, true, true, true, false, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch("#", roles);
@@ -172,17 +176,17 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
       ClientMessage notification = SecurityNotificationTest.consumeMessages(1, notifConsumer)[0];
-      Assert.assertEquals(CONNECTION_CREATED.toString(), notification.getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
-      Assert.assertNotNull(notification.getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN));
-      Assert.assertEquals("CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notification.getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
-      Assert.assertTrue(notification.getObjectProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("/127.0.0.1"));
-      Assert.assertTrue(notification.getTimestamp() >= start);
-      Assert.assertTrue((long) notification.getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
-      Assert.assertEquals(notification.getTimestamp(), (long) notification.getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
+      assertEquals(CONNECTION_CREATED.toString(), notification.getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+      assertNotNull(notification.getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN));
+      assertEquals("CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notification.getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
+      assertTrue(notification.getObjectProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("127.0.0.1"));
+      assertTrue(notification.getTimestamp() >= start);
+      assertTrue((long) notification.getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
+      assertEquals(notification.getTimestamp(), (long) notification.getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
@@ -206,9 +210,9 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
       server.start();
 
-      notifQueue = RandomUtil.randomSimpleString();
+      notifQueue = RandomUtil.randomUUIDSimpleString();
 
-      Role role = new Role("notif", true, true, true, true, true, true, true, true, true, true);
+      Role role = new Role("notif", true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress().toString(), roles);
@@ -225,7 +229,7 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       adminSession = sf.createSession(true, true, 1);
       adminSession.start();
 
-      adminSession.createQueue(new QueueConfiguration(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false).setTemporary(true));
+      adminSession.createQueue(QueueConfiguration.of(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false).setTemporary(true));
 
       notifConsumer = adminSession.createConsumer(notifQueue);
    }
@@ -246,12 +250,12 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       ClientMessage m = null;
       for (int i = 0; i < expected; i++) {
          m = consumer.receive(500);
-         Assert.assertNotNull("expected to received " + expected + " messages, got only " + i, m);
+         assertNotNull(m, "expected to received " + expected + " messages, got only " + i);
          messages[i] = m;
          m.acknowledge();
       }
       m = consumer.receiveImmediate();
-      Assert.assertNull("received one more message than expected (" + expected + ")", m);
+      assertNull(m, "received one more message than expected (" + expected + ")");
 
       return messages;
    }

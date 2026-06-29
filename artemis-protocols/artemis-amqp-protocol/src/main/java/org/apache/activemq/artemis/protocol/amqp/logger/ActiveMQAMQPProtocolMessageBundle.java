@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.protocol.amqp.logger;
 
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.Message;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.logs.BundleFactory;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
@@ -26,24 +27,22 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFound
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
 
 /**
- * Logger Code 11
+ * Logger Codes 119000 - 119999
+ * <p>
+ * (Though IDs 119030 - 119299 are to be avoided due to use by other classes historically, ActiveMQClientMessageBundle
+ * and ActiveMQMessageBundle, prior to their codes being changed in commit b3529dcea428fa697aacbceacc6641e47cfb74ba for
+ * ARTEMIS-1018)
  */
-@LogBundle(projectCode = "AMQ", regexID = "11[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "119[3-9][0-9]{2}|1190[0-2][0-9]", retiredIDs = {119000, 119003, 119004, 119009, 119012, 119013})
 public interface ActiveMQAMQPProtocolMessageBundle {
 
    ActiveMQAMQPProtocolMessageBundle BUNDLE = BundleFactory.newBundle(ActiveMQAMQPProtocolMessageBundle.class);
-
-   @Message(id = 119000, value = "target address not set")
-   ActiveMQAMQPInvalidFieldException targetAddressNotSet();
 
    @Message(id = 119001, value = "error creating temporary queue, {}")
    ActiveMQAMQPInternalErrorException errorCreatingTemporaryQueue(String message);
 
    @Message(id = 119002, value = "target address {} does not exist")
    ActiveMQAMQPNotFoundException addressDoesntExist(String address);
-
-   @Message(id = 119003, value = "error finding temporary queue, {}")
-   ActiveMQAMQPNotFoundException errorFindingTemporaryQueue(String message);
 
    @Message(id = 119005, value = "error creating consumer, {}")
    ActiveMQAMQPInternalErrorException errorCreatingConsumer(String message);
@@ -62,12 +61,6 @@ public interface ActiveMQAMQPProtocolMessageBundle {
 
    @Message(id = 119011, value = "source address not set")
    ActiveMQAMQPInvalidFieldException sourceAddressNotSet();
-
-   @Message(id = 119012, value = "error rolling back coordinator: {}")
-   ActiveMQAMQPIllegalStateException errorRollingbackCoordinator(String message);
-
-   @Message(id = 119013, value = "error committing coordinator: {}")
-   ActiveMQAMQPIllegalStateException errorCommittingCoordinator(String message);
 
    @Message(id = 119014, value = "Transaction not found: xid={}")
    ActiveMQAMQPIllegalStateException txNotFound(String xidToString);
@@ -96,9 +89,29 @@ public interface ActiveMQAMQPProtocolMessageBundle {
    @Message(id = 119022, value = "The broker connection is trying to connect to itself. Check your configuration.")
    ActiveMQAMQPIllegalStateException brokerConnectionMirrorItself();
 
-   @Message(id = 119023, value =  "Sender link refused for address {}")
+   @Message(id = 119023, value = "Sender link refused for address {}")
    ActiveMQAMQPIllegalStateException senderLinkRefused(String address);
 
    @Message(id = 119024, value = "link is missing a desired capability declaration {}")
    ActiveMQAMQPIllegalStateException missingDesiredCapability(String capability);
+
+   @Message(id = 119025, value = "Federation control link refused: address = {}")
+   ActiveMQAMQPIllegalStateException federationControlLinkRefused(String address);
+
+   @Message(id = 119026, value = "Malformed Federation control message: {}")
+   ActiveMQException malformedFederationControlMessage(String address);
+
+   @Message(id = 119027, value = "Invalid AMQPConnection Remote State: {}")
+   ActiveMQException invalidAMQPConnectionState(Object state);
+
+   @Message(id = 119028, value = "Malformed Federation event message: {}")
+   ActiveMQException malformedFederationEventMessage(String message);
+
+   @Message(id = 119029, value = "Receiver link refused for address {}")
+   ActiveMQAMQPIllegalStateException receiverLinkRefused(String address);
+
+   @Message(id = 119300, value = "not authorized to delete temporary destination, {}")
+   ActiveMQAMQPSecurityException securityErrorDeletingTempDestination(String message);
+
+   // IDs 119030-119299 are reserved due to historic use by ActiveMQClientMessageBundle and ActiveMQMessageBundle
 }

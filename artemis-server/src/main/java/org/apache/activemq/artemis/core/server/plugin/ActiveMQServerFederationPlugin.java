@@ -30,9 +30,6 @@ public interface ActiveMQServerFederationPlugin extends ActiveMQServerBasePlugin
 
    /**
     * After a federation stream has been started
-    *
-    * @param stream
-    * @throws ActiveMQException
     */
    default void federationStreamStarted(final FederationStream stream) throws ActiveMQException {
 
@@ -40,9 +37,6 @@ public interface ActiveMQServerFederationPlugin extends ActiveMQServerBasePlugin
 
    /**
     * After a federation stream has been stopped
-    *
-    * @param stream
-    * @throws ActiveMQException
     */
    default void federationStreamStopped(final FederationStream stream) throws ActiveMQException {
 
@@ -50,9 +44,6 @@ public interface ActiveMQServerFederationPlugin extends ActiveMQServerBasePlugin
 
    /**
     * Before a federated queue consumer is created
-    *
-    * @param key
-    * @throws ActiveMQException
     */
    default void beforeCreateFederatedQueueConsumer(final FederatedConsumerKey key) throws ActiveMQException {
 
@@ -60,9 +51,6 @@ public interface ActiveMQServerFederationPlugin extends ActiveMQServerBasePlugin
 
    /**
     * After a federated queue consumer is created
-    *
-    * @param consumer
-    * @throws ActiveMQException
     */
    default void afterCreateFederatedQueueConsumer(final FederatedQueueConsumer consumer) throws ActiveMQException {
 
@@ -70,9 +58,6 @@ public interface ActiveMQServerFederationPlugin extends ActiveMQServerBasePlugin
 
    /**
     * Before a federated queue consumer is closed
-    *
-    * @param consumer
-    * @throws ActiveMQException
     */
    default void beforeCloseFederatedQueueConsumer(final FederatedQueueConsumer consumer) throws ActiveMQException {
 
@@ -80,9 +65,6 @@ public interface ActiveMQServerFederationPlugin extends ActiveMQServerBasePlugin
 
    /**
     * After a federated queue consumer is closed
-    *
-    * @param consumer
-    * @throws ActiveMQException
     */
    default void afterCloseFederatedQueueConsumer(final FederatedQueueConsumer consumer) throws ActiveMQException {
 
@@ -90,10 +72,6 @@ public interface ActiveMQServerFederationPlugin extends ActiveMQServerBasePlugin
 
    /**
     * Before a federated queue consumer handles a message
-    *
-    * @param consumer
-    * @param message
-    * @throws ActiveMQException
     */
    default void beforeFederatedQueueConsumerMessageHandled(final FederatedQueueConsumer consumer, Message message) throws ActiveMQException {
 
@@ -101,10 +79,6 @@ public interface ActiveMQServerFederationPlugin extends ActiveMQServerBasePlugin
 
    /**
     * After a federated queue consumer handles a message
-    *
-    * @param consumer
-    * @param message
-    * @throws ActiveMQException
     */
    default void afterFederatedQueueConsumerMessageHandled(final FederatedQueueConsumer consumer, Message message) throws ActiveMQException {
 
@@ -114,9 +88,7 @@ public interface ActiveMQServerFederationPlugin extends ActiveMQServerBasePlugin
     * Conditionally create a federated queue consumer for a federated address. This allows custom
     * logic to be inserted to decide when to create federated queue consumers
     *
-    * @param queue
-    * @return if true, create the consumer, else if false don't create
-    * @throws ActiveMQException
+    * @return if {@code true}, create the consumer, else if false don't create
     */
    default boolean federatedAddressConditionalCreateConsumer(final Queue queue) throws ActiveMQException {
       return true;
@@ -130,9 +102,7 @@ public interface ActiveMQServerFederationPlugin extends ActiveMQServerBasePlugin
     * Conditionally create a federated queue consumer for a federated queue. This allows custom
     * logic to be inserted to decide when to create federated queue consumers
     *
-    * @param consumer
-    * @return true, create the consumer, else if false don't create
-    * @throws ActiveMQException
+    * @return {@code true}, create the consumer, else if false don't create
     */
    default boolean federatedQueueConditionalCreateConsumer(final ServerConsumer consumer) throws ActiveMQException {
       return true;

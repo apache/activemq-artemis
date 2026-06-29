@@ -16,26 +16,24 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
-import java.util.Set;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Address;
+
+import static org.apache.activemq.artemis.core.config.WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION;
 
 /**
  * Splits an address string into its hierarchical parts using {@link WildcardConfiguration#getDelimiter()} as delimiter.
  */
 public class AddressImpl implements Address {
 
-   private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
-
    private final SimpleString address;
 
    private final SimpleString[] addressParts;
 
    private final boolean containsWildCard;
-
-   private Set<Address> linkedAddresses = null;
 
    private final WildcardConfiguration wildcardConfiguration;
 
@@ -47,7 +45,7 @@ public class AddressImpl implements Address {
       this.address = address;
       this.wildcardConfiguration = wildcardConfiguration;
       addressParts = address.split(wildcardConfiguration.getDelimiter());
-      containsWildCard = address.containsEitherOf(wildcardConfiguration.getSingleWord(), wildcardConfiguration.getAnyWords());
+      containsWildCard = wildcardConfiguration.isWild(address);
    }
 
    @Override
@@ -68,15 +66,17 @@ public class AddressImpl implements Address {
    /**
     * This method should actually be called `isMatchedBy`.
     *
-    * @return `true` if this equals otherAddr or this address is matched by a pattern represented by otherAddr
+    * @return {@code true} if this equals otherAddr or this address is matched by a pattern represented by otherAddr
     */
    @Override
    public boolean matches(final Address otherAddr) {
-      if (otherAddr == null)
+      if (otherAddr == null) {
          return false;
+      }
 
-      if (address.equals(otherAddr.getAddress()))
+      if (address.equals(otherAddr.getAddress())) {
          return true;
+      }
 
       final char sepAnyWords = wildcardConfiguration.getAnyWords();
       final char sepSingleWord = wildcardConfiguration.getSingleWord();
@@ -99,7 +99,7 @@ public class AddressImpl implements Address {
             // check if last part of otherAddr is the any-words wildcard and report a match if so
             if (otherIdx == otherAddrPartsLastIdx) {
                final SimpleString otherAddrLastPart = otherAddrParts[otherAddrPartsLastIdx];
-               return otherAddrLastPart.length() > 0 && otherAddrLastPart.charAt(0) == sepAnyWords;
+               return !otherAddrLastPart.isEmpty() && otherAddrLastPart.charAt(0) == sepAnyWords;
             }
             return false;
          }
@@ -119,8 +119,9 @@ public class AddressImpl implements Address {
          if (otherCurrPartIsSingleChar && otherCurr.charAt(0) == sepAnyWords) {
 
             // if last part of otherAddr is any-words wildcard report a match
-            if (otherIdx == otherAddrPartsLastIdx)
+            if (otherIdx == otherAddrPartsLastIdx) {
                return true;
+            }
 
             SimpleString thisNext;
             // check if this address has more parts to check
@@ -142,15 +143,17 @@ public class AddressImpl implements Address {
                thisNext = thisAddrPartsLastIdx > thisIdx ? addressParts[thisIdx + 1] : null;
             }
             // if no further part in this address matched the next part in otherAddr report a mismatch
-            if (thisCurr == null)
+            if (thisCurr == null) {
                return false;
+            }
             otherIdx++;
             continue;
          }
 
          // compare current parts of bothaddresses and report mismatch if they differ
-         if (!thisCurr.equals(otherCurr))
+         if (!thisCurr.equals(otherCurr)) {
             return false;
+         }
 
          thisIdx++;
          otherIdx++;
@@ -161,17 +164,15 @@ public class AddressImpl implements Address {
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o)
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
-
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof AddressImpl other)) {
          return false;
+      }
 
-      if (address.equals(((AddressImpl) o).address))
-         return true;
-
-      return false;
+      return Objects.equals(address, other.address);
    }
 
    @Override

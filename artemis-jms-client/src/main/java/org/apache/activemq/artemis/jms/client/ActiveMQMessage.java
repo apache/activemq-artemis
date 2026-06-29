@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.IllegalStateException;
@@ -35,17 +30,24 @@ import javax.management.openmbean.CompositeDataSupport;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.UUID;
@@ -54,22 +56,20 @@ import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_Q
 import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX;
 import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX;
 import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 /**
- * ActiveMQ Artemis implementation of a JMS Message.
- * <br>
- * JMS Messages only live on the client side - the server only deals with MessageImpl
- * instances
+ * Apache Artemis implementation of a JMS Message.
+ * <p>
+ * JMS Messages only live on the client side - the server only deals with MessageImpl instances
  */
 public class ActiveMQMessage implements javax.jms.Message {
 
    public static final byte TYPE = org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
 
-   public static final SimpleString OLD_QUEUE_QUALIFIED_PREFIX = SimpleString.toSimpleString(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + PacketImpl.OLD_QUEUE_PREFIX);
-   public static final SimpleString OLD_TEMP_QUEUE_QUALIFED_PREFIX = SimpleString.toSimpleString(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX + PacketImpl.OLD_TEMP_QUEUE_PREFIX);
-   public static final SimpleString OLD_TOPIC_QUALIFIED_PREFIX = SimpleString.toSimpleString(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + PacketImpl.OLD_TOPIC_PREFIX);
-   public static final SimpleString OLD_TEMP_TOPIC_QUALIFED_PREFIX = SimpleString.toSimpleString(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX + PacketImpl.OLD_TEMP_TOPIC_PREFIX);
+   public static final SimpleString OLD_QUEUE_QUALIFIED_PREFIX = SimpleString.of(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + PacketImpl.OLD_QUEUE_PREFIX);
+   public static final SimpleString OLD_TEMP_QUEUE_QUALIFED_PREFIX = SimpleString.of(ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX + PacketImpl.OLD_TEMP_QUEUE_PREFIX);
+   public static final SimpleString OLD_TOPIC_QUALIFIED_PREFIX = SimpleString.of(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + PacketImpl.OLD_TOPIC_PREFIX);
+   public static final SimpleString OLD_TEMP_TOPIC_QUALIFED_PREFIX = SimpleString.of(ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX + PacketImpl.OLD_TEMP_TOPIC_PREFIX);
 
    public static Map<String, Object> coreMaptoJMSMap(final Map<String, Object> coreMessage) {
       Map<String, Object> jmsMessage = new HashMap<>();
@@ -106,12 +106,12 @@ public class ActiveMQMessage implements javax.jms.Message {
    }
 
    public static CompositeData coreCompositeTypeToJMSCompositeType(CompositeDataSupport data) throws Exception {
-      CompositeData jmsdata = new CompositeDataSupport(data.getCompositeType(), new HashMap<String, Object>());
+      CompositeData jmsdata = new CompositeDataSupport(data.getCompositeType(), new HashMap<>());
       return jmsdata;
    }
 
 
-   private static final HashSet<String> reservedIdentifiers = new HashSet<>();
+   private static final Set<String> reservedIdentifiers = new HashSet<>();
 
    static {
       ActiveMQMessage.reservedIdentifiers.add("NULL");
@@ -202,10 +202,9 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    private boolean clientAck;
 
-   private long jmsDeliveryTime;
 
 
-   /*
+   /**
     * Create a new message prior to sending
     */
    protected ActiveMQMessage(final byte type, final ClientSession session) {
@@ -220,9 +219,7 @@ public class ActiveMQMessage implements javax.jms.Message {
     * Constructor for when receiving a message from the server
     */
    public ActiveMQMessage(final ClientMessage message, final ClientSession session) {
-      checkNotNull(message);
-
-      this.message = message;
+      this.message = Objects.requireNonNull(message);
 
       readOnly = true;
 
@@ -231,7 +228,7 @@ public class ActiveMQMessage implements javax.jms.Message {
       this.session = session;
    }
 
-   /*
+   /**
     * A constructor that takes a foreign message
     */
    public ActiveMQMessage(final Message foreign, final ClientSession session) throws JMSException {
@@ -262,12 +259,9 @@ public class ActiveMQMessage implements javax.jms.Message {
             }
          }
       } else {
-         // Some providers, like WSMQ do automatic conversions between native byte[] correlation id
-         // and String correlation id. This makes it impossible for ActiveMQ Artemis to guarantee to return the correct
-         // type as set by the user
-         // So we allow the behaviour to be overridden by a system property
-         // https://jira.jboss.org/jira/browse/HORNETQ-356
-         // https://jira.jboss.org/jira/browse/HORNETQ-332
+         // Some providers like WSMQ do automatic conversions between native byte[] correlation id and String
+         // correlation id. This makes it impossible for Apache Artemis to guarantee to return the correct type as set
+         // by the user. Therefore, we allow the behaviour to be overridden by a system property.
          String corrIDString = foreign.getJMSCorrelationID();
          if (corrIDString != null) {
             setJMSCorrelationID(corrIDString);
@@ -735,7 +729,6 @@ public class ActiveMQMessage implements javax.jms.Message {
       } else if (hasNoBody()) {
          return null;
       }
-      // XXX HORNETQ-1209 Do we need translations here?
       throw new MessageFormatException("Body not assignable to " + c);
    }
 
@@ -750,21 +743,21 @@ public class ActiveMQMessage implements javax.jms.Message {
       }
    }
 
+   /**
+    * From the specs:
+    * <p>
+    * If the message is a {@code Message} (but not one of its subtypes) then this method will return {@code true}
+    * irrespective of the value of this parameter.
+    */
    @Override
    public boolean isBodyAssignableTo(Class c) {
-      /**
-       * From the specs:
-       * <p>
-       * If the message is a {@code Message} (but not one of its subtypes) then this method will
-       * return true irrespective of the value of this parameter.
-       */
       return true;
    }
 
    /**
     * Helper method for {@link #isBodyAssignableTo(Class)}.
     *
-    * @return true if the message has no body.
+    * @return {@code true} if the message has no body
     */
    protected boolean hasNoBody() {
       return message.getBodySize() == 0;
@@ -855,7 +848,7 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    @Override
    public String toString() {
-      StringBuffer sb = new StringBuffer("ActiveMQMessage[");
+      StringBuilder sb = new StringBuilder("ActiveMQMessage[");
       if (message != null) {
          sb.append(getJMSMessageID());
          sb.append("]:");
@@ -903,7 +896,7 @@ public class ActiveMQMessage implements javax.jms.Message {
          throw ActiveMQJMSClientBundle.BUNDLE.nullArgumentNotAllowed("property");
       }
 
-      if (name.equals("")) {
+      if (name.isEmpty()) {
          throw new IllegalArgumentException("The name of a property must not be an empty String.");
       }
 
@@ -921,7 +914,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    }
 
    private boolean isValidJavaIdentifier(final String s) {
-      if (s == null || s.length() == 0) {
+      if (s == null || s.isEmpty()) {
          return false;
       }
 

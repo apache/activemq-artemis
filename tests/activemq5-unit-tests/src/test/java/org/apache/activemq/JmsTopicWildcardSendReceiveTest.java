@@ -28,9 +28,6 @@ import javax.jms.TextMessage;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
 
-/**
- *
- */
 public class JmsTopicWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
 
    private String destination1String = "TEST.ONE.ONE";

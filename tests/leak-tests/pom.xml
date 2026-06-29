@@ -18,77 +18,62 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq.tests</groupId>
+      <groupId>org.apache.artemis.tests</groupId>
       <artifactId>artemis-tests-pom</artifactId>
-      <version>2.31.0-SNAPSHOT</version>
+      <version>2.56.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>leak-tests</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis Leak Tests</name>
+   <name>Apache Artemis Leak Tests</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
-      <check-leak-version>0.8</check-leak-version>
+      <check-leak-version>0.11</check-leak-version>
       <!-- whatever name you choose it has to match between the check-leak-maven-plugin install call and the JVM argument -->
       <check-leak-deploy-name>checkleak.lib</check-leak-deploy-name>
    </properties>
 
    <dependencies>
-      <!-- this is needed for ActivemqTestBase.
-           TODO: We should eventually move ActiveMQTestBase into artemis-unit-test-support -->
+      <!-- Test support modules -->
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-         <type>test-jar</type>
-      </dependency>
-
-      <!-- this is needed for Wait -->
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
 
-      <!-- this is needed for CFUtil -->
       <dependency>
-         <groupId>org.apache.activemq.tests</groupId>
+         <groupId>org.apache.artemis.tests</groupId>
          <artifactId>artemis-test-support</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
 
-      <!-- Dependencies for the ActiveMQ Artemis Server and its protocols -->
+      <!-- Dependencies for the Apache Artemis Server and its protocols -->
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-journal</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-amqp-protocol</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-stomp-protocol</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-openwire-protocol</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -98,9 +83,8 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-mqtt-protocol</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
 
@@ -131,9 +115,8 @@
 
       <!-- Core Client -->
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-jms-client</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
 
@@ -152,7 +135,7 @@
       </dependency>
       <dependency>
          <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-slf4j-impl</artifactId>
+         <artifactId>log4j-slf4j2-impl</artifactId>
          <scope>test</scope>
       </dependency>
 
@@ -182,8 +165,13 @@
 
       <!-- junit -->
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-api</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
          <scope>test</scope>
       </dependency>
    </dependencies>

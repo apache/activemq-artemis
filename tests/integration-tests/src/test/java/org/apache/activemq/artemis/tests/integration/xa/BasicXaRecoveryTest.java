@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.xa;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.management.MBeanServer;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -40,19 +45,19 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -71,7 +76,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
    private Configuration configuration;
 
-   private final SimpleString atestq = new SimpleString("atestq");
+   private final SimpleString atestq = SimpleString.of("atestq");
 
    private ServerLocator locator;
 
@@ -83,20 +88,20 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       this.storeType = storeType;
    }
 
-   @Parameterized.Parameters(name = "storeType={0}")
+   @Parameters(name = "storeType={0}")
    public static Collection<Object[]> data() {
       Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
       return Arrays.asList(params);
    }
 
    @Override
-   @Before
+   @BeforeEach
    @SuppressWarnings("unused")
    public void setUp() throws Exception {
       super.setUp();
 
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
-         Object unused = Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
+         Object unused = Class.forName("org.apache.derby.jdbc.EmbeddedDriver").getDeclaredConstructor().newInstance();
       }
 
       addressSettings.clear();
@@ -119,137 +124,140 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       createClients(true, false);
    }
 
-   @Test
+   @TestTemplate
    public void testBasicSendWithCommit() throws Exception {
 
       testBasicSendWithCommit(false);
    }
 
-   @Test
+   @TestTemplate
    public void testBasicSendWithCommitWithServerStopped() throws Exception {
       testBasicSendWithCommit(true);
    }
 
-   @Test
+   @TestTemplate
    public void testBasicSendWithRollback() throws Exception {
       testBasicSendWithRollback(false);
    }
 
-   @Test
+   @TestTemplate
    public void testBasicSendWithRollbackWithServerStopped() throws Exception {
       testBasicSendWithRollback(true);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleBeforeSendWithCommit() throws Exception {
       testMultipleBeforeSendWithCommit(false);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleBeforeSendWithCommitWithServerStopped() throws Exception {
       testMultipleBeforeSendWithCommit(true);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleTxSendWithCommit() throws Exception {
       testMultipleTxSendWithCommit(false);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleTxSendWithCommitWithServerStopped() throws Exception {
       testMultipleTxSendWithCommit(true);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleTxSendWithRollback() throws Exception {
       testMultipleTxSendWithRollback(false);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleTxSendWithRollbackWithServerStopped() throws Exception {
       testMultipleTxSendWithRollback(true);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleTxSendWithCommitAndRollback() throws Exception {
       testMultipleTxSendWithCommitAndRollback(false);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleTxSendWithCommitAndRollbackWithServerStopped() throws Exception {
       testMultipleTxSendWithCommitAndRollback(true);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleTxSameXidSendWithCommit() throws Exception {
       testMultipleTxSameXidSendWithCommit(false);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleTxSameXidSendWithCommitWithServerStopped() throws Exception {
       testMultipleTxSameXidSendWithCommit(true);
    }
 
-   @Test
+   @TestTemplate
    public void testBasicReceiveWithCommit() throws Exception {
       testBasicReceiveWithCommit(false);
    }
 
-   @Test
+   @TestTemplate
    public void testBasicReceiveWithCommitWithServerStopped() throws Exception {
       testBasicReceiveWithCommit(true);
    }
 
-   @Test
+   @TestTemplate
    public void testBasicReceiveWithRollback() throws Exception {
       testBasicReceiveWithRollback(false);
    }
 
-   @Test
+   @TestTemplate
    public void testBasicReceiveWithRollbackWithServerStopped() throws Exception {
       testBasicReceiveWithRollback(true);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleTxReceiveWithCommit() throws Exception {
       testMultipleTxReceiveWithCommit(false);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleTxReceiveWithCommitWithServerStopped() throws Exception {
       testMultipleTxReceiveWithCommit(true);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleTxReceiveWithRollback() throws Exception {
       testMultipleTxReceiveWithRollback(false);
    }
 
-   @Test
+   @TestTemplate
    public void testMultipleTxReceiveWithRollbackWithServerStopped() throws Exception {
       testMultipleTxReceiveWithRollback(true);
    }
 
-   @Test
+   @TestTemplate
    public void testPagingServerRestarted() throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE)
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
          return;
+      }
       verifyPaging(true);
    }
 
-   @Test
+   @TestTemplate
    public void testPaging() throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE)
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
          return;
+      }
       verifyPaging(false);
    }
 
    public void verifyPaging(final boolean restartServer) throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE)
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
          return;
+      }
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
-      SimpleString pageQueue = new SimpleString("pagequeue");
+      SimpleString pageQueue = SimpleString.of("pagequeue");
 
       AddressSettings pageAddressSettings = new AddressSettings().setMaxSizeBytes(100 * 1024).setPageSizeBytes(10 * 1024);
 
@@ -257,7 +265,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       addSettings();
 
-      clientSession.createQueue(new QueueConfiguration(pageQueue));
+      clientSession.createQueue(QueueConfiguration.of(pageQueue));
 
       clientSession.start(xid, XAResource.TMNOFLAGS);
 
@@ -282,8 +290,8 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       }
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
-      Assert.assertEquals(xids.length, 1);
-      Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
+      assertEquals(1, xids.length);
+      assertEquals(xids[0].getFormatId(), xid.getFormatId());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
 
@@ -300,33 +308,35 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       for (int i = 0; i < 1000; i++) {
          ClientMessage m = pageConsumer.receive(10000);
 
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
          clientSession.commit();
       }
 
-      Assert.assertNull(pageConsumer.receiveImmediate());
+      assertNull(pageConsumer.receiveImmediate());
 
    }
 
-   @Test
+   @TestTemplate
    public void testRollbackPaging() throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE)
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
          return;
+      }
       testRollbackPaging(false);
    }
 
-   @Test
+   @TestTemplate
    public void testRollbackPagingServerRestarted() throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE)
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
          return;
+      }
       testRollbackPaging(true);
    }
 
    public void testRollbackPaging(final boolean restartServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
-      SimpleString pageQueue = new SimpleString("pagequeue");
+      SimpleString pageQueue = SimpleString.of("pagequeue");
 
       AddressSettings pageAddressSettings = new AddressSettings().setMaxSizeBytes(100 * 1024).setPageSizeBytes(10 * 1024);
 
@@ -334,7 +344,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       addSettings();
 
-      clientSession.createQueue(new QueueConfiguration(pageQueue));
+      clientSession.createQueue(QueueConfiguration.of(pageQueue));
 
       clientSession.start(xid, XAResource.TMNOFLAGS);
 
@@ -355,8 +365,8 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       }
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
-      Assert.assertEquals(1, xids.length);
-      Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
+      assertEquals(1, xids.length);
+      assertEquals(xids[0].getFormatId(), xid.getFormatId());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
 
@@ -366,13 +376,13 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       ClientConsumer pageConsumer = clientSession.createConsumer(pageQueue);
 
-      Assert.assertNull(pageConsumer.receiveImmediate());
+      assertNull(pageConsumer.receiveImmediate());
 
       // Management message (from createQueue) will not be taken into account again as it is nonPersistent
 
    }
 
-   @Test
+   @TestTemplate
    public void testNonPersistent() throws Exception {
       testNonPersistent(true);
       testNonPersistent(false);
@@ -398,12 +408,12 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 
-      Assert.assertEquals(xids.length, 1);
-      Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
+      assertEquals(1, xids.length);
+      assertEquals(xids[0].getFormatId(), xid.getFormatId());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
       if (commit) {
          clientSession.commit(xid, false);
       } else {
@@ -411,10 +421,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       }
 
       xids = clientSession.recover(XAResource.TMSTARTRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
    }
 
-   @Test
+   @TestTemplate
    public void testNonPersistentMultipleIDs() throws Exception {
       for (int i = 0; i < 10; i++) {
          Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
@@ -444,7 +454,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 
-      Assert.assertEquals(9, xids.length);
+      assertEquals(9, xids.length);
    }
 
    public void testBasicSendWithCommit(final boolean stopServer) throws Exception {
@@ -470,28 +480,28 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       }
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
-      Assert.assertEquals(xids.length, 1);
-      Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
+      assertEquals(1, xids.length);
+      assertEquals(xids[0].getFormatId(), xid.getFormatId());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
 
       xids = clientSession.recover(XAResource.TMENDRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
 
       clientSession.commit(xid, false);
       clientSession.start();
       ClientMessage m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
    }
 
    public void testBasicSendWithRollback(final boolean stopServer) throws Exception {
@@ -522,16 +532,16 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 
-      Assert.assertEquals(xids.length, 1);
-      Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
+      assertEquals(1, xids.length);
+      assertEquals(xids[0].getFormatId(), xid.getFormatId());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
       clientSession.rollback(xid);
       clientSession.start();
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    public void testMultipleBeforeSendWithCommit(final boolean stopServer) throws Exception {
@@ -567,26 +577,26 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 
-      Assert.assertEquals(xids.length, 1);
-      Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
+      assertEquals(1, xids.length);
+      assertEquals(xids[0].getFormatId(), xid.getFormatId());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
       clientSession.commit(xid, false);
       clientSession.start();
       ClientMessage m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertNotNull(m);
+      assertEquals("m5", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertNotNull(m);
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m7");
+      assertNotNull(m);
+      assertEquals("m7", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m8");
+      assertNotNull(m);
+      assertEquals("m8", m.getBodyBuffer().readString());
    }
 
    public void testMultipleTxSendWithCommit(final boolean stopServer) throws Exception {
@@ -626,37 +636,37 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 
-      Assert.assertEquals(xids.length, 2);
+      assertEquals(2, xids.length);
       assertEqualXids(xids, xid, xid2);
       xids = clientSession.recover(XAResource.TMENDRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
       clientSession.commit(xid, false);
       clientSession.commit(xid2, false);
       clientSession.start();
       ClientMessage m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertNotNull(m);
+      assertEquals("m5", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertNotNull(m);
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m7");
+      assertNotNull(m);
+      assertEquals("m7", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m8");
+      assertNotNull(m);
+      assertEquals("m8", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
    }
 
    public void testMultipleTxSendWithRollback(final boolean stopServer) throws Exception {
@@ -696,15 +706,15 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 
-      Assert.assertEquals(xids.length, 2);
+      assertEquals(2, xids.length);
       assertEqualXids(xids, xid, xid2);
       xids = clientSession.recover(XAResource.TMENDRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
       clientSession.rollback(xid);
       clientSession.rollback(xid2);
       clientSession.start();
       ClientMessage m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    public void testMultipleTxSendWithCommitAndRollback(final boolean stopServer) throws Exception {
@@ -744,27 +754,27 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 
-      Assert.assertEquals(xids.length, 2);
+      assertEquals(2, xids.length);
       assertEqualXids(xids, xid, xid2);
       xids = clientSession.recover(XAResource.TMENDRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
       clientSession.rollback(xid);
       clientSession.commit(xid2, false);
       clientSession.start();
       ClientMessage m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    public void testMultipleTxSameXidSendWithCommit(final boolean stopServer) throws Exception {
@@ -802,38 +812,38 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 
-      Assert.assertEquals(xids.length, 1);
-      Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
+      assertEquals(1, xids.length);
+      assertEquals(xids[0].getFormatId(), xid.getFormatId());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
       clientSession.commit(xid, false);
       clientSession.start();
       ClientMessage m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertNotNull(m);
+      assertEquals("m5", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertNotNull(m);
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m7");
+      assertNotNull(m);
+      assertEquals("m7", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m8");
+      assertNotNull(m);
+      assertEquals("m8", m.getBodyBuffer().readString());
    }
 
    public void testBasicReceiveWithCommit(final boolean stopServer) throws Exception {
@@ -853,22 +863,22 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       clientSession.start();
       ClientMessage m = clientConsumer.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
-      m = clientConsumer.receive(1000);
-      m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
+      m = clientConsumer.receive(1000);
+      m.acknowledge();
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSession.end(xid, XAResource.TMSUCCESS);
-      Assert.assertEquals("Expected XA_OK", XAResource.XA_OK, clientSession.prepare(xid));
+      assertEquals(XAResource.XA_OK, clientSession.prepare(xid), "Expected XA_OK");
 
       if (stopServer) {
          stopAndRestartServer();
@@ -878,16 +888,16 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 
-      Assert.assertEquals(xids.length, 1);
-      Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
+      assertEquals(1, xids.length);
+      assertEquals(xids[0].getFormatId(), xid.getFormatId());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
       clientSession.commit(xid, false);
       clientSession.start();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
 
       //check deliveringCount Zero
       checkQueueDeliveryCount(atestq, 0);
@@ -918,20 +928,20 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       clientSession.start();
       ClientMessage m = clientConsumer.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
-      m = clientConsumer.receive(1000);
-      m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
+      m = clientConsumer.receive(1000);
+      m.acknowledge();
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
@@ -947,26 +957,26 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 
-      Assert.assertEquals(1, xids.length);
-      Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
+      assertEquals(1, xids.length);
+      assertEquals(xids[0].getFormatId(), xid.getFormatId());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
       clientSession.rollback(xid);
       clientSession.start();
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
    }
 
    public void testMultipleTxReceiveWithCommit(final boolean stopServer) throws Exception {
@@ -982,8 +992,8 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       ClientMessage m8 = createTextMessage("m8");
       ClientSession clientSession2 = sessionFactory.createSession(false, true, true);
       ClientProducer clientProducer2 = clientSession2.createProducer(atestq);
-      SimpleString anewtestq = new SimpleString("anewtestq");
-      clientSession.createQueue(new QueueConfiguration(anewtestq));
+      SimpleString anewtestq = SimpleString.of("anewtestq");
+      clientSession.createQueue(QueueConfiguration.of(anewtestq));
       ClientProducer clientProducer3 = clientSession2.createProducer(anewtestq);
       clientProducer2.send(m1);
       clientProducer2.send(m2);
@@ -1000,20 +1010,20 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       clientSession2.start();
       ClientMessage m = clientConsumer2.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertNotNull(m);
+      assertEquals("m5", m.getBodyBuffer().readString());
       m = clientConsumer2.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
-      m = clientConsumer2.receive(1000);
-      m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m7");
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = clientConsumer2.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m8");
+      assertNotNull(m);
+      assertEquals("m7", m.getBodyBuffer().readString());
+      m = clientConsumer2.receive(1000);
+      m.acknowledge();
+      assertNotNull(m);
+      assertEquals("m8", m.getBodyBuffer().readString());
       clientSession2.end(xid2, XAResource.TMSUCCESS);
       clientSession2.prepare(xid2);
       clientSession2.close();
@@ -1022,20 +1032,20 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       clientSession.start();
       m = clientConsumer.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
-      m = clientConsumer.receive(1000);
-      m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
+      m = clientConsumer.receive(1000);
+      m.acknowledge();
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
@@ -1048,11 +1058,11 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
       assertEqualXids(xids, xid, xid2);
       xids = clientSession.recover(XAResource.TMENDRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
       clientSession.commit(xid, false);
       clientSession.start();
       m = clientConsumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    public void testMultipleTxReceiveWithRollback(final boolean stopServer) throws Exception {
@@ -1068,8 +1078,8 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       ClientMessage m8 = createTextMessage("m8");
       ClientSession clientSession2 = sessionFactory.createSession(false, true, true);
       ClientProducer clientProducer2 = clientSession2.createProducer(atestq);
-      SimpleString anewtestq = new SimpleString("anewtestq");
-      clientSession.createQueue(new QueueConfiguration(anewtestq));
+      SimpleString anewtestq = SimpleString.of("anewtestq");
+      clientSession.createQueue(QueueConfiguration.of(anewtestq));
       ClientProducer clientProducer3 = clientSession2.createProducer(anewtestq);
       clientProducer2.send(m1);
       clientProducer2.send(m2);
@@ -1086,20 +1096,20 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       clientSession2.start();
       ClientMessage m = clientConsumer2.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertNotNull(m);
+      assertEquals("m5", m.getBodyBuffer().readString());
       m = clientConsumer2.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
-      m = clientConsumer2.receive(1000);
-      m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m7");
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = clientConsumer2.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m8");
+      assertNotNull(m);
+      assertEquals("m7", m.getBodyBuffer().readString());
+      m = clientConsumer2.receive(1000);
+      m.acknowledge();
+      assertNotNull(m);
+      assertEquals("m8", m.getBodyBuffer().readString());
       clientSession2.end(xid2, XAResource.TMSUCCESS);
       clientSession2.prepare(xid2);
       clientSession2.close();
@@ -1108,20 +1118,20 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       clientSession.start();
       m = clientConsumer.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
-      m = clientConsumer.receive(1000);
-      m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
+      m = clientConsumer.receive(1000);
+      m.acknowledge();
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
@@ -1134,25 +1144,25 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
       assertEqualXids(xids, xid, xid2);
       xids = clientSession.recover(XAResource.TMENDRSCAN);
-      Assert.assertEquals(xids.length, 0);
+      assertEquals(0, xids.length);
       clientSession.rollback(xid);
       clientSession.start();
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
-      m = clientConsumer.receive(1000);
-      m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       m.acknowledge();
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
+      m = clientConsumer.receive(1000);
+      m.acknowledge();
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
    }
 
    protected void stopAndRestartServer() throws Exception {
@@ -1205,27 +1215,27 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(true, false, commitACKs);
       if (createQueue) {
-         clientSession.createQueue(new QueueConfiguration(atestq));
+         clientSession.createQueue(QueueConfiguration.of(atestq));
       }
       clientProducer = clientSession.createProducer(atestq);
       clientConsumer = clientSession.createConsumer(atestq);
    }
 
    private void assertEqualXids(final Xid[] xids, final Xid... origXids) {
-      Assert.assertEquals(xids.length, origXids.length);
+      assertEquals(xids.length, origXids.length);
       for (Xid xid : xids) {
          boolean found = false;
          for (Xid origXid : origXids) {
             found = Arrays.equals(origXid.getBranchQualifier(), xid.getBranchQualifier());
             if (found) {
-               Assert.assertEquals(xid.getFormatId(), origXid.getFormatId());
+               assertEquals(xid.getFormatId(), origXid.getFormatId());
                ActiveMQTestBase.assertEqualsByteArrays(xid.getBranchQualifier(), origXid.getBranchQualifier());
                ActiveMQTestBase.assertEqualsByteArrays(xid.getGlobalTransactionId(), origXid.getGlobalTransactionId());
                break;
             }
          }
          if (!found) {
-            Assert.fail("correct xid not found: " + xid);
+            fail("correct xid not found: " + xid);
          }
       }
    }

@@ -20,24 +20,20 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <parent>
+      <groupId>org.apache.artemis</groupId>
       <artifactId>artemis-pom</artifactId>
-      <groupId>org.apache.activemq</groupId>
-      <version>2.31.0-SNAPSHOT</version>
-      <relativePath>..</relativePath>
+      <version>2.56.0-SNAPSHOT</version>
+      <relativePath>../artemis-pom/pom.xml</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
-   <properties>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
-   </properties>
-
    <artifactId>artemis-cdi-client</artifactId>
-   <name>ActiveMQ Artemis CDI Integration</name>
+   <name>Apache Artemis CDI Integration</name>
 
    <dependencies>
       <!-- logging -->
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-log-annotation-processor</artifactId>
          <version>${project.version}</version>
          <scope>provided</scope>
@@ -48,28 +44,24 @@
       </dependency>
       <dependency>
          <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-slf4j-impl</artifactId>
+         <artifactId>log4j-slf4j2-impl</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-jms-client</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>jakarta.inject</groupId>
@@ -86,10 +78,12 @@
       <dependency>
          <groupId>org.jboss.arquillian.junit</groupId>
          <artifactId>arquillian-junit-core</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
+         <groupId>org.junit.vintage</groupId>
+         <artifactId>junit-vintage-engine</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.jms</groupId>
@@ -98,21 +92,20 @@
       <dependency>
          <groupId>org.jboss.shrinkwrap</groupId>
          <artifactId>shrinkwrap-api</artifactId>
-         <version>1.2.6</version>
          <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.arquillian.junit</groupId>
          <artifactId>arquillian-junit-container</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.arquillian.container</groupId>
          <artifactId>arquillian-container-test-api</artifactId>
-         <version>${arquillian.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
@@ -133,6 +126,21 @@
          <scope>test</scope>
       </dependency>
    </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+               <forkCount>1</forkCount>
+               <reuseForks>false</reuseForks>
+               <argLine>--add-opens java.base/java.lang=ALL-UNNAMED ${activemq-surefire-argline}</argLine>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
    <profiles>
       <profile>
          <id>Weld</id>
@@ -142,7 +150,7 @@
          <dependencies>
             <dependency>
                <groupId>org.jboss.weld.se</groupId>
-               <artifactId>weld-se</artifactId>
+               <artifactId>weld-se-core</artifactId>
             </dependency>
             <dependency>
                <groupId>org.jboss.arquillian.container</groupId>
@@ -174,24 +182,6 @@
                <artifactId>jakarta.annotation-api</artifactId>
             </dependency>
          </dependencies>
-      </profile>
-      <profile>
-         <!-- TODO: Changes so these tests can work? -->
-         <id>jdk16on</id>
-         <activation>
-            <jdk>[16,)</jdk>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-surefire-plugin</artifactId>
-                  <configuration>
-                     <skip>true</skip>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
       </profile>
    </profiles>
 </project>

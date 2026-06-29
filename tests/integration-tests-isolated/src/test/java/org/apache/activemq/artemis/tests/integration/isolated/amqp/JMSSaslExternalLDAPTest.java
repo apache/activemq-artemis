@@ -115,6 +115,7 @@ public class JMSSaslExternalLDAPTest extends AbstractLdapTestUnit {
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("SaslExternalPlusLdap");
       Configuration configuration = new ConfigurationImpl().setSecurityEnabled(true).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName())).setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false)).setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false)).setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false)).setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false));
+      configuration.setConfigurationFileRefreshPeriod(-1); // such that config reload does not whack programmatic config
       server = ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
 
 
@@ -133,7 +134,7 @@ public class JMSSaslExternalLDAPTest extends AbstractLdapTestUnit {
 
       // role mapping via CertLogin - TextFileCertificateLoginModule
       final String roleName = "widgets";
-      Role role = new Role(roleName, true, true, true, true, true, true, true, true, true, true);
+      Role role = new Role(roleName, true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch("TEST", roles);
@@ -169,7 +170,7 @@ public class JMSSaslExternalLDAPTest extends AbstractLdapTestUnit {
          MessageConsumer consumer = session.createConsumer(queue);
          MessageProducer producer = session.createProducer(queue);
 
-         final String text = RandomUtil.randomString();
+         final String text = RandomUtil.randomUUIDString();
          producer.send(session.createTextMessage(text));
 
          TextMessage m = (TextMessage) consumer.receive(1000);

@@ -16,14 +16,16 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
 
 import org.apache.activemq.artemis.utils.JsonLoader;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JsonUtilTest {
 
@@ -36,9 +38,9 @@ public class JsonUtilTest {
 
       JsonObject jsonObject = jsonObjectBuilder.build();
 
-      Assert.assertTrue(jsonObject.containsKey("not-null"));
-      Assert.assertTrue(jsonObject.containsKey("null"));
-      Assert.assertEquals(2, jsonObject.size());
+      assertTrue(jsonObject.containsKey("not-null"));
+      assertTrue(jsonObject.containsKey("null"));
+      assertEquals(2, jsonObject.size());
    }
 
    @Test
@@ -50,7 +52,7 @@ public class JsonUtilTest {
 
       JsonArray jsonArray = jsonArrayBuilder.build();
 
-      Assert.assertEquals(2, jsonArray.size());
+      assertEquals(2, jsonArray.size());
    }
 
    @Test
@@ -64,8 +66,8 @@ public class JsonUtilTest {
 
       JsonObject jsonObject = jsonObjectBuilder.build();
 
-      Assert.assertTrue(jsonObject.containsKey("byteArray"));
-      Assert.assertEquals(6, jsonObject.getJsonArray("byteArray").size());
+      assertTrue(jsonObject.containsKey("byteArray"));
+      assertEquals(6, jsonObject.getJsonArray("byteArray").size());
    }
 
    @Test
@@ -77,7 +79,7 @@ public class JsonUtilTest {
 
       JsonArray jsonArray = jsonArrayBuilder.build();
 
-      Assert.assertEquals(1, jsonArray.size());
+      assertEquals(1, jsonArray.size());
    }
 
    @Test
@@ -89,7 +91,7 @@ public class JsonUtilTest {
       String truncated = (String) JsonUtil.truncate(prefix + remaining, valueSizeLimit);
 
       String expected = prefix + ", + " + String.valueOf(remaining.length()) + " more";
-      Assert.assertEquals(expected, truncated);
+      assertEquals(expected, truncated);
    }
 
    @Test
@@ -97,14 +99,14 @@ public class JsonUtilTest {
       String input = "testTruncateUsingStringWithoutValueSizeLimit";
       String notTruncated = (String) JsonUtil.truncate(input, -1);
 
-      Assert.assertEquals(input, notTruncated);
+      assertEquals(input, notTruncated);
    }
 
    @Test
    public void testTruncateWithoutNullValue() {
       Object result = JsonUtil.truncate(null, -1);
 
-      Assert.assertEquals("", result);
+      assertEquals("", result);
    }
 
    @Test
@@ -116,7 +118,7 @@ public class JsonUtilTest {
       String truncated = JsonUtil.truncateString(prefix + remaining, valueSizeLimit);
 
       String expected = prefix + ", + " + String.valueOf(remaining.length()) + " more";
-      Assert.assertEquals(expected, truncated);
+      assertEquals(expected, truncated);
    }
 
    @Test
@@ -124,7 +126,7 @@ public class JsonUtilTest {
       String input = "testTruncateStringWithoutValueSizeLimit";
       String notTruncated = JsonUtil.truncateString(input, -1);
 
-      Assert.assertEquals(input, notTruncated);
+      assertEquals(input, notTruncated);
    }
 
    @Test
@@ -132,7 +134,6 @@ public class JsonUtilTest {
 
       final byte[] bytesA = {0x0a, 0x0b};
       final byte[] bytesB = {0x1a, 0x1b};
-      final byte[] bytesAB = {0x0a, 0x0b, 0x1a, 0x1b};
 
       JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
       JsonUtil.addToObject("a", "a", jsonObjectBuilder);
@@ -156,7 +157,7 @@ public class JsonUtilTest {
 
       JsonObject mergedExpected = jsonMergedObjectBuilder.build();
 
-      Assert.assertEquals(mergedExpected, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
+      assertEquals(mergedExpected, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
    }
 
    @Test
@@ -164,8 +165,6 @@ public class JsonUtilTest {
 
       final byte[] bytesA = {0x0a, 0x0b};
       JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
-
-      jsonObjectBuilder = JsonLoader.createObjectBuilder();
       JsonUtil.addToObject("byteArray", bytesA, jsonObjectBuilder);
 
       JsonObject sourceOne = jsonObjectBuilder.build();
@@ -180,7 +179,7 @@ public class JsonUtilTest {
 
       JsonObject mergedExpected = jsonMergedObjectBuilder.build();
 
-      Assert.assertEquals(mergedExpected, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
+      assertEquals(mergedExpected, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
 
    }
 
@@ -196,7 +195,7 @@ public class JsonUtilTest {
       JsonUtil.addToObject("dup", "b", jsonTargetObjectBuilder);
       JsonObject sourceTwo = jsonTargetObjectBuilder.build();
 
-      Assert.assertEquals(sourceTwo, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
+      assertEquals(sourceTwo, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
    }
 
    @Test
@@ -209,7 +208,7 @@ public class JsonUtilTest {
       JsonUtil.addToObject("dup", "b", jsonTargetObjectBuilder);
       JsonObject sourceTwo = jsonTargetObjectBuilder.build();
 
-      Assert.assertEquals(sourceTwo, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
+      assertEquals(sourceTwo, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
    }
 
    @Test
@@ -221,13 +220,32 @@ public class JsonUtilTest {
 
       JsonObjectBuilder nested = JsonUtil.objectBuilderWithValueAtPath("a/b/c", target);
       JsonObject inserted = nested.build();
-      Assert.assertTrue(inserted.containsKey("a"));
+      assertTrue(inserted.containsKey("a"));
 
-      Assert.assertEquals(target, inserted.getJsonObject("a").getJsonObject("b").getJsonObject("c"));
+      assertEquals(target, inserted.getJsonObject("a").getJsonObject("b").getJsonObject("c"));
 
       nested = JsonUtil.objectBuilderWithValueAtPath("c", target);
       inserted = nested.build();
-      Assert.assertTrue(inserted.containsKey("c"));
-      Assert.assertEquals(target, inserted.getJsonObject("c"));
+      assertTrue(inserted.containsKey("c"));
+      assertEquals(target, inserted.getJsonObject("c"));
+   }
+
+   @Test
+   public void testArrayToString() {
+      final String keyName = "test";
+
+      // test wrong type (i.e. not an array)
+      assertTrue(JsonUtil.arrayToString(JsonLoader.createObjectBuilder().add(keyName, 0L).build(), keyName).isEmpty());
+
+      // test empty array
+      assertTrue(JsonUtil.arrayToString(JsonLoader.createObjectBuilder().build(), keyName).isEmpty());
+
+      // test array with 2 elements
+      assertEquals("a, b", JsonUtil.arrayToString(JsonLoader.createObjectBuilder()
+                                                     .add(keyName, JsonLoader.createArrayBuilder()
+                                                        .add("a")
+                                                        .add("b")
+                                                        .build())
+                                                     .build(), keyName));
    }
 }

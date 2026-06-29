@@ -16,11 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -35,7 +40,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class OpenWireGroupingTest extends BasicOpenWireTest {
 
    //whether to use core send grouping messages
@@ -43,7 +48,7 @@ public class OpenWireGroupingTest extends BasicOpenWireTest {
    //whether to use core receive grouping messages
    private boolean coreReceive;
 
-   @Parameterized.Parameters(name = "core-send={0} core-receive={1}")
+   @Parameters(name = "core-send={0} core-receive={1}")
    public static Collection<Object[]> params() {
       return Arrays.asList(new Object[][]{{true, true},
                                           {true, false},
@@ -56,7 +61,7 @@ public class OpenWireGroupingTest extends BasicOpenWireTest {
       this.coreReceive = coreReceive;
    }
 
-   @Test
+   @TestTemplate
    public void testGrouping() throws Exception {
 
       String jmsxgroupID = null;
@@ -141,7 +146,7 @@ public class OpenWireGroupingTest extends BasicOpenWireTest {
 
    protected void setProperty(Message message) {
       if (coreSend) {
-         ((ActiveMQMessage) message).getCoreMessage().putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, new SimpleString("foo"));
+         ((ActiveMQMessage) message).getCoreMessage().putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, SimpleString.of("foo"));
       } else {
          org.apache.activemq.command.ActiveMQMessage m = (org.apache.activemq.command.ActiveMQMessage) message;
          m.setGroupID("foo");

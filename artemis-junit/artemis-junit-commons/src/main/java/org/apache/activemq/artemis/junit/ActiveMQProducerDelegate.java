@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 
 /**
- * Base class to embed an ActiveMQ Artemis ClientProducer bound to a specific address into a test.
+ * Base class to embed an Apache Artemis ClientProducer bound to a specific address into a test.
  */
 public class ActiveMQProducerDelegate extends AbstractActiveMQClientDelegate implements ActiveMQProducerOperations {
 
@@ -51,7 +51,7 @@ public class ActiveMQProducerDelegate extends AbstractActiveMQClientDelegate imp
    }
 
    protected ActiveMQProducerDelegate(String url, String address, String username, String password) {
-      this(url, SimpleString.toSimpleString(address), username, password);
+      this(url, SimpleString.of(address), username, password);
    }
 
    protected ActiveMQProducerDelegate(String url, String address) {
@@ -72,11 +72,11 @@ public class ActiveMQProducerDelegate extends AbstractActiveMQClientDelegate imp
    }
 
    protected ActiveMQProducerDelegate(ServerLocator serverLocator, String address, String username, String password) {
-      this(serverLocator, SimpleString.toSimpleString(address), username, password);
+      this(serverLocator, SimpleString.of(address), username, password);
    }
 
    protected ActiveMQProducerDelegate(ServerLocator serverLocator, String address) {
-      this(serverLocator, SimpleString.toSimpleString(address));
+      this(serverLocator, SimpleString.of(address));
    }
 
    protected ActiveMQProducerDelegate(ServerLocator serverLocator, SimpleString address, String username,
@@ -109,7 +109,7 @@ public class ActiveMQProducerDelegate extends AbstractActiveMQClientDelegate imp
          if (!session.addressQuery(address).isExists() && autoCreateQueue) {
             log.warn("{}: queue does not exist - creating queue: address = {}, name = {}",
                      this.getClass().getSimpleName(), address.toString(), address.toString());
-            session.createQueue(new QueueConfiguration(address));
+            session.createQueue(QueueConfiguration.of(address));
          }
          producer = session.createProducer(address);
       } catch (ActiveMQException amqEx) {

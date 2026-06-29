@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.utils.DataConstants;
 
@@ -32,12 +34,6 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
       super(SESS_RECEIVE_CONTINUATION);
    }
 
-   /**
-    * @param consumerID
-    * @param body
-    * @param continues
-    * @param requiresResponse
-    */
    public SessionReceiveContinuationMessage(final long consumerID,
                                             final byte[] body,
                                             final boolean continues,
@@ -55,9 +51,6 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
       this.size = packetSize;
    }
 
-   /**
-    * @return the consumerID
-    */
    public long getConsumerID() {
       return consumerID;
    }
@@ -91,31 +84,28 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
-      return result;
+      return super.hashCode() + Objects.hashCode(consumerID);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", consumerID=" + consumerID);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", consumerID=" + consumerID);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionReceiveContinuationMessage))
+      }
+      if (!(obj instanceof SessionReceiveContinuationMessage other)) {
          return false;
-      SessionReceiveContinuationMessage other = (SessionReceiveContinuationMessage) obj;
-      if (consumerID != other.consumerID)
-         return false;
-      return true;
-   }
+      }
 
+      return consumerID == other.consumerID;
+   }
 }

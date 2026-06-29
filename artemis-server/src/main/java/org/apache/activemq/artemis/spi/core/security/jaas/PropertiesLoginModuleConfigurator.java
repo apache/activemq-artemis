@@ -40,30 +40,31 @@ import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLogin
 
 public class PropertiesLoginModuleConfigurator implements UserManagement {
 
-   private static final String LICENSE_HEADER =
-           "## ---------------------------------------------------------------------------\n" +
-           "## Licensed to the Apache Software Foundation (ASF) under one or more\n" +
-           "## contributor license agreements.  See the NOTICE file distributed with\n" +
-           "## this work for additional information regarding copyright ownership.\n" +
-           "## The ASF licenses this file to You under the Apache License, Version 2.0\n" +
-           "## (the \"License\"); you may not use this file except in compliance with\n" +
-           "## the License.  You may obtain a copy of the License at\n" +
-           "##\n" +
-           "## http://www.apache.org/licenses/LICENSE-2.0\n" +
-           "##\n" +
-           "## Unless required by applicable law or agreed to in writing, software\n" +
-           "## distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
-           "## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
-           "## See the License for the specific language governing permissions and\n" +
-           "## limitations under the License.\n" +
-           "## ---------------------------------------------------------------------------\n";
+   private static final String LICENSE_HEADER = """
+      ## ---------------------------------------------------------------------------
+      ## Licensed to the Apache Software Foundation (ASF) under one or more
+      ## contributor license agreements.  See the NOTICE file distributed with
+      ## this work for additional information regarding copyright ownership.
+      ## The ASF licenses this file to You under the Apache License, Version 2.0
+      ## (the "License"); you may not use this file except in compliance with
+      ## the License.  You may obtain a copy of the License at
+      ##
+      ## http://www.apache.org/licenses/LICENSE-2.0
+      ##
+      ## Unless required by applicable law or agreed to in writing, software
+      ## distributed under the License is distributed on an "AS IS" BASIS,
+      ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      ## See the License for the specific language governing permissions and
+      ## limitations under the License.
+      ## ---------------------------------------------------------------------------
+      """;
    private FileBasedConfigurationBuilder<PropertiesConfiguration> userBuilder;
    private FileBasedConfigurationBuilder<PropertiesConfiguration> roleBuilder;
    private PropertiesConfiguration userConfig;
    private PropertiesConfiguration roleConfig;
 
    public PropertiesLoginModuleConfigurator(String entryName, String brokerEtc) throws Exception {
-      if (entryName == null || entryName.length() == 0) {
+      if (entryName == null || entryName.isEmpty()) {
          entryName = "activemq";
       }
 
@@ -158,7 +159,7 @@ public class PropertiesLoginModuleConfigurator implements UserManagement {
    public Map<String, Set<String>> listUser(String username) {
       Map<String, Set<String>> result = new HashMap<>();
 
-      if (username != null && username.length() > 0) {
+      if (username != null && !username.isEmpty()) {
          result.put(username, findRoles(username));
       } else {
          Iterator<String> iter = userConfig.getKeys();
@@ -245,7 +246,7 @@ public class PropertiesLoginModuleConfigurator implements UserManagement {
                }
             }
             if (found) {
-               if (update.size() > 0) {
+               if (!update.isEmpty()) {
                   newList.add(StringUtil.joinStringList(update, ","));
                }
             }
@@ -259,7 +260,7 @@ public class PropertiesLoginModuleConfigurator implements UserManagement {
       while (iterUpdate.hasNext()) {
          Pair<String, List<String>> entry = iterUpdate.next();
          roleConfig.clearProperty(entry.getA());
-         if (entry.getB().size() > 0) {
+         if (!entry.getB().isEmpty()) {
             roleConfig.addProperty(entry.getA(), entry.getB());
          }
       }

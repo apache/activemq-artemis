@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -117,7 +118,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    }
 
    private void parseURI(URI uri) {
-      scheme = uri.getScheme() == null ? "tcp" : uri.getScheme();
+      scheme = Objects.requireNonNullElse(uri.getScheme(), "tcp");
       host = uri.getHost();
       port = uri.getPort();
       this.version = StompClientConnectionFactory.getStompVersionFromURI(uri);
@@ -129,7 +130,13 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       if (wicked) {
          buffer = frame.toByteBufferWithExtra("\n");
       } else {
-         buffer = frame.toByteBuffer();
+         if (frame.isPing()) {
+            buffer = ByteBuffer.allocateDirect(1);
+            buffer.put((byte) 10);
+            buffer.rewind();
+         } else {
+            buffer = frame.toByteBuffer();
+         }
       }
 
       ByteBuf buf = Unpooled.copiedBuffer(buffer);
@@ -204,7 +211,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
                }
             }
          } else {
-            if (b == 10 && receiveList.size() == 0) {
+            if (b == 10 && receiveList.isEmpty()) {
                //may be a ping
                incrementServerPing();
             } else {
@@ -223,7 +230,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    private boolean validateFrame(ClientStompFrame f) {
       String h = f.getHeader(Stomp.Headers.CONTENT_LENGTH);
       if (h != null) {
-         int len = Integer.valueOf(h);
+         int len = Integer.parseInt(h);
          if (f.getBody().getBytes(StandardCharsets.UTF_8).length < len) {
             return false;
          }
@@ -341,7 +348,9 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
 
    @Override
    public void closeTransport() throws IOException {
-      transport.close();
+      if (transport != null) {
+         transport.close();
+      }
    }
 
    @Override
@@ -358,7 +367,6 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       Pinger(long interval) {
          this.pingInterval = interval;
          pingFrame = createFrame(Stomp.Commands.STOMP);
-         pingFrame.setBody("\n");
          pingFrame.setForceOneway();
          pingFrame.setPing(true);
       }

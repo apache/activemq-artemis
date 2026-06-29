@@ -24,7 +24,7 @@
       </discovery-groups>
       <ha-policy>
          <replication>
-            <slave>
+            <backup>
                <group-name>tiddles</group-name>
                <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
                <cluster-name>33rrrrr</cluster-name>
@@ -38,7 +38,7 @@
                   <!--either a discovery group-->
                   <discovery-group-ref discovery-group-name="wahey"/>
                </scale-down>
-            </slave>
+            </backup>
          </replication>
       </ha-policy>
    </core>

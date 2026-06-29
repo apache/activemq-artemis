@@ -21,6 +21,7 @@ import static org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVER
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -57,15 +58,15 @@ public class StompUtils {
       }
       String groupID = headers.remove(MessageUtil.JMSXGROUPID);
       if (groupID != null) {
-         msg.putStringProperty(Message.HDR_GROUP_ID, SimpleString.toSimpleString(groupID));
+         msg.putStringProperty(Message.HDR_GROUP_ID, SimpleString.of(groupID));
       }
       String contentType = headers.remove(Stomp.Headers.CONTENT_TYPE);
       if (contentType != null) {
-         msg.putStringProperty(Message.HDR_CONTENT_TYPE, SimpleString.toSimpleString(contentType));
+         msg.putStringProperty(Message.HDR_CONTENT_TYPE, SimpleString.of(contentType));
       }
       Object replyTo = headers.remove(Stomp.Headers.Send.REPLY_TO);
       if (replyTo != null) {
-         msg.putStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME, SimpleString.toSimpleString((String) replyTo));
+         msg.putStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME, SimpleString.of((String) replyTo));
       }
       String expiration = headers.remove(Stomp.Headers.Send.EXPIRATION_TIME);
       if (expiration != null) {
@@ -104,9 +105,8 @@ public class StompUtils {
    public static void copyStandardHeadersFromMessageToFrame(Message message,
                                                             StompFrame command,
                                                             int deliveryCount) {
-      command.addHeader(Stomp.Headers.Message.MESSAGE_ID, String.valueOf(message.getMessageID()));
       SimpleString prefix = message.getSimpleStringProperty(Message.HDR_PREFIX);
-      command.addHeader(Stomp.Headers.Message.DESTINATION,  (prefix == null ? "" : prefix) + message.getAddress());
+      command.addHeader(Stomp.Headers.Message.DESTINATION, Objects.requireNonNullElse(prefix, "") + message.getAddress());
 
       if (message.getObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME) != null) {
          command.addHeader(Stomp.Headers.Message.CORRELATION_ID, message.getObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME).toString());

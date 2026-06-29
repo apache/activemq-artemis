@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.cli.commands.tools.xml;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/** This is an Utility class that will import the outputs in XML format. */
+/**
+ * This is an Utility class that will import the outputs in XML format.
+ */
 public class XMLMessageImporter {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -63,7 +64,9 @@ public class XMLMessageImporter {
    }
 
    public MessageInfo readMessage(boolean decodeUTF8) throws Exception {
-      if (!reader.hasNext()) return null;
+      if (!reader.hasNext()) {
+         return null;
+      }
 
       Byte type = 0;
       Byte priority = 0;
@@ -71,7 +74,7 @@ public class XMLMessageImporter {
       long timestamp = 0L;
       long id = 0L;
       org.apache.activemq.artemis.utils.UUID userId = null;
-      ArrayList<String> queues = new ArrayList<>();
+      List<String> queues = new ArrayList<>();
 
       // get message's attributes
       for (int i = 0; i < reader.getAttributeCount(); i++) {
@@ -103,8 +106,6 @@ public class XMLMessageImporter {
       message.setUserID(userId);
 
       boolean endLoop = false;
-
-      File largeMessageTemporaryFile = null;
       // loop through the XML and gather up all the message's data (i.e. body, properties, queues, etc.)
       while (reader.hasNext()) {
          int eventType = reader.getEventType();
@@ -133,31 +134,18 @@ public class XMLMessageImporter {
    }
 
    private Byte getMessageType(String value) {
-      Byte type = Message.DEFAULT_TYPE;
-      switch (value) {
-         case XmlDataConstants.DEFAULT_TYPE_PRETTY:
-            type = Message.DEFAULT_TYPE;
-            break;
-         case XmlDataConstants.BYTES_TYPE_PRETTY:
-            type = Message.BYTES_TYPE;
-            break;
-         case XmlDataConstants.MAP_TYPE_PRETTY:
-            type = Message.MAP_TYPE;
-            break;
-         case XmlDataConstants.OBJECT_TYPE_PRETTY:
-            type = Message.OBJECT_TYPE;
-            break;
-         case XmlDataConstants.STREAM_TYPE_PRETTY:
-            type = Message.STREAM_TYPE;
-            break;
-         case XmlDataConstants.TEXT_TYPE_PRETTY:
-            type = Message.TEXT_TYPE;
-            break;
-      }
-      return type;
+      return switch (value) {
+         case XmlDataConstants.DEFAULT_TYPE_PRETTY -> Message.DEFAULT_TYPE;
+         case XmlDataConstants.BYTES_TYPE_PRETTY -> Message.BYTES_TYPE;
+         case XmlDataConstants.MAP_TYPE_PRETTY -> Message.MAP_TYPE;
+         case XmlDataConstants.OBJECT_TYPE_PRETTY -> Message.OBJECT_TYPE;
+         case XmlDataConstants.STREAM_TYPE_PRETTY -> Message.STREAM_TYPE;
+         case XmlDataConstants.TEXT_TYPE_PRETTY -> Message.TEXT_TYPE;
+         default -> Message.DEFAULT_TYPE;
+      };
    }
 
-   private void processMessageQueues(ArrayList<String> queues) {
+   private void processMessageQueues(List<String> queues) {
       for (int i = 0; i < reader.getAttributeCount(); i++) {
          if (XmlDataConstants.QUEUE_NAME.equals(reader.getAttributeLocalName(i))) {
             String queueName = reader.getAttributeValue(i);
@@ -225,7 +213,7 @@ public class XMLMessageImporter {
             message.putLongProperty(key, Long.parseLong(value));
             break;
          case XmlDataConstants.PROPERTY_TYPE_SIMPLE_STRING:
-            message.putStringProperty(new SimpleString(key), value == null ? null : SimpleString.toSimpleString(value));
+            message.putStringProperty(SimpleString.of(key), value == null ? null : SimpleString.of(value));
             break;
          case XmlDataConstants.PROPERTY_TYPE_STRING:
             message.putStringProperty(key, value);
@@ -234,13 +222,10 @@ public class XMLMessageImporter {
    }
 
    private void processMessageBody(final ICoreMessage message, boolean decodeTextMessage) throws XMLStreamException, IOException {
-      File tempFileName = null;
-      boolean isLarge = false;
 
       for (int i = 0; i < reader.getAttributeCount(); i++) {
          String attributeName = reader.getAttributeLocalName(i);
          if (XmlDataConstants.MESSAGE_IS_LARGE.equals(attributeName)) {
-            isLarge = Boolean.parseBoolean(reader.getAttributeValue(i));
          }
       }
       reader.next();
@@ -255,7 +240,7 @@ public class XMLMessageImporter {
     * to be combined to reconstruct the Base64 encoded string.  You can't decode bits and pieces of each CDATA.  Each
     * CDATA has to be decoded in its entirety.
     *
-    * @param processor used to deal with the decoded CDATA elements
+    * @param processor         used to deal with the decoded CDATA elements
     * @param decodeTextMessage If this a text message we decode UTF8 and encode as a simple string
     */
    private void getMessageBodyBytes(MessageBodyBytesProcessor processor, boolean decodeTextMessage) throws IOException, XMLStreamException {
@@ -265,12 +250,13 @@ public class XMLMessageImporter {
          currentEventType = reader.getEventType();
          if (currentEventType == XMLStreamConstants.END_ELEMENT) {
             break;
-         } else if (currentEventType == XMLStreamConstants.CHARACTERS && reader.isWhiteSpace() && cdata.length() > 0) {
-            /* when we hit a whitespace CHARACTERS event we know that the entire CDATA is complete so decode, pass back to
+         } else if (currentEventType == XMLStreamConstants.CHARACTERS && reader.isWhiteSpace() && !cdata.isEmpty()) {
+            /*
+             * when we hit a whitespace CHARACTERS event we know that the entire CDATA is complete so decode, pass back to
              * the processor, and reset the cdata for the next event(s)
              */
             if (decodeTextMessage) {
-               SimpleString text = new SimpleString(cdata.toString());
+               SimpleString text = SimpleString.of(cdata.toString());
                ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer(SimpleString.sizeofNullableString(text));
                SimpleString.writeNullableSimpleString(byteBuf, text);
                byte[] bytes = new byte[SimpleString.sizeofNullableString(text)];
@@ -288,7 +274,7 @@ public class XMLMessageImporter {
    }
 
    private static byte[] decode(String data) {
-      return Base64.decode(data, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
+      return Base64.decode(data, true);
    }
 
    private interface MessageBodyBytesProcessor {

@@ -22,9 +22,9 @@ import org.apache.activemq.artemis.logs.annotation.Message;
 import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
- * Logger Code 14
+ * Logger Code 149000 - 149999
  */
-@LogBundle(projectCode = "AMQ", regexID = "14[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "149[0-9]{3}", retiredIDs = {149004})
 public interface ActiveMQJournalBundle {
 
    ActiveMQJournalBundle BUNDLE = BundleFactory.newBundle(ActiveMQJournalBundle.class);
@@ -41,9 +41,6 @@ public interface ActiveMQJournalBundle {
    @Message(id = 149003, value = "File not opened")
    ActiveMQIOErrorException fileNotOpened();
 
-   @Message(id = 149004, value = "unable to open file")
-   String unableToOpenFile();
-
    @Message(id = 149005, value = "Message of {} bytes is bigger than the max record size of {} bytes. You should try to move large application properties to the message body.")
    ActiveMQIOErrorException recordLargerThanStoreMax(long recordSize, long maxRecordSize);
 
@@ -52,5 +49,8 @@ public interface ActiveMQJournalBundle {
 
    @Message(id = 149007, value = "Thread dump being generated as the asynchronous file.open is not responding fast enough.")
    String threadDumpAfterFileOpenTimeout();
+
+   @Message(id = 149008, value = "Property '{}' not found for dialect '{}'")
+   IllegalStateException propertyNotFound(String property, String dialect);
 
 }

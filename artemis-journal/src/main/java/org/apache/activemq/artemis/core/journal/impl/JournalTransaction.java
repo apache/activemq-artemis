@@ -17,22 +17,20 @@
 package org.apache.activemq.artemis.core.journal.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
 import org.slf4j.Logger;
 
-public class JournalTransaction {
+public class JournalTransaction implements IOCallback {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -48,17 +46,25 @@ public class JournalTransaction {
    // We can't have those files being reclaimed if there is a pending transaction
    private Set<JournalFile> pendingFiles;
 
-   private TransactionCallback currentCallback;
-
    private boolean compacting = false;
-
-   private final Map<JournalFile, TransactionCallback> callbackList = Collections.synchronizedMap(new HashMap<JournalFile, TransactionCallback>());
 
    private JournalFile lastFile = null;
 
-   private final AtomicInteger counter = new AtomicInteger();
+   private volatile int counter;
 
-   private CountDownLatch firstCallbackLatch;
+   private static final AtomicIntegerFieldUpdater<JournalTransaction> counterUpdater = AtomicIntegerFieldUpdater.newUpdater(JournalTransaction.class, "counter");
+
+   private volatile String errorMessage = null;
+
+   private volatile int errorCode = 0;
+
+   private static final AtomicIntegerFieldUpdater<JournalTransaction> upUpdater = AtomicIntegerFieldUpdater.newUpdater(JournalTransaction.class, "up");
+   private static final AtomicIntegerFieldUpdater<JournalTransaction> doneUpdater = AtomicIntegerFieldUpdater.newUpdater(JournalTransaction.class, "done");
+   private volatile int up;
+
+   private volatile int done = 0;
+
+   private volatile IOCallback delegateCompletion;
 
    public JournalTransaction(final long id, final JournalRecordProvider journal) {
       this.id = id;
@@ -69,19 +75,24 @@ public class JournalTransaction {
       journal = provider;
    }
 
-   /**
-    * @return the id
-    */
    public long getId() {
       return id;
    }
 
    public int getCounter(final JournalFile file) {
-      return internalgetCounter(file).intValue();
+      if (lastFile != file) {
+         lastFile = file;
+         counterUpdater.set(this, 0);
+      }
+      return counterUpdater.get(this);
    }
 
    public void incCounter(final JournalFile file) {
-      internalgetCounter(file).incrementAndGet();
+      if (lastFile != file) {
+         lastFile = file;
+         counterUpdater.set(this, 0);
+      }
+      counterUpdater.incrementAndGet(this);
    }
 
    public long[] getPositiveArray() {
@@ -136,9 +147,6 @@ public class JournalTransaction {
       compacting = false;
    }
 
-   /**
-    *
-    */
    public void clear() {
       // / Compacting is recreating all the previous files and everything
       // / so we just clear the list of previous files, previous pos and previous adds
@@ -148,8 +156,6 @@ public class JournalTransaction {
          pendingFiles.clear();
       }
 
-      callbackList.clear();
-
       if (pos != null) {
          pos.clear();
       }
@@ -158,49 +164,19 @@ public class JournalTransaction {
          neg.clear();
       }
 
-      counter.set(0);
+      counterUpdater.set(this, 0);
 
       lastFile = null;
 
-      currentCallback = null;
-
-      firstCallbackLatch = null;
    }
 
-   /**
-    * @param currentFile
-    * @param data
-    */
    public void fillNumberOfRecords(final JournalFile currentFile, final JournalInternalRecord data) {
       data.setNumberOfRecords(getCounter(currentFile));
    }
 
-   public TransactionCallback getCurrentCallback() {
-      return currentCallback;
-   }
-
-   public TransactionCallback getCallback(final JournalFile file) throws Exception {
-      if (firstCallbackLatch != null && callbackList.isEmpty()) {
-         firstCallbackLatch.countDown();
-      }
-
-      currentCallback = callbackList.get(file);
-
-      if (currentCallback == null) {
-         currentCallback = new TransactionCallback();
-         callbackList.put(file, currentCallback);
-      }
-
-      currentCallback.countUp();
-
-      return currentCallback;
-   }
-
    public void checkErrorCondition() throws Exception {
-      if (currentCallback != null) {
-         if (currentCallback.getErrorMessage() != null) {
-            throw ActiveMQExceptionType.createException(currentCallback.getErrorCode(), currentCallback.getErrorMessage());
-         }
+      if (getErrorMessage() != null) {
+         throw ActiveMQExceptionType.createException(getErrorCode(), getErrorMessage());
       }
    }
 
@@ -229,7 +205,8 @@ public class JournalTransaction {
    }
 
    /**
-    * The caller of this method needs to guarantee appendLock.lock at the journal. (unless this is being called from load what is a single thread process).
+    * The caller of this method needs to guarantee appendLock.lock at the journal. (unless this is being called from
+    * load what is a single thread process).
     */
    public void commit(final JournalFile file) {
       JournalCompactor compactor = journal.getCompactor();
@@ -291,34 +268,9 @@ public class JournalTransaction {
       }
    }
 
-   public void waitCallbacks() throws InterruptedException {
-      waitFirstCallback();
-      synchronized (callbackList) {
-         for (TransactionCallback callback : callbackList.values()) {
-            callback.waitCompletion();
-         }
-      }
-   }
-
    /**
-    * Wait completion at the latest file only
-    */
-   public void waitCompletion() throws Exception {
-      waitFirstCallback();
-      currentCallback.waitCompletion();
-   }
-
-   private void waitFirstCallback() throws InterruptedException {
-      if (currentCallback == null) {
-         firstCallbackLatch = new CountDownLatch(1);
-         firstCallbackLatch.await();
-         firstCallbackLatch = null;
-      }
-   }
-
-   /**
-    * The caller of this method needs to guarantee appendLock.lock before calling this method if being used outside of the lock context.
-    * or else potFilesMap could be affected
+    * The caller of this method needs to guarantee appendLock.lock before calling this method if being used outside of
+    * the lock context. or else potFilesMap could be affected
     */
    public void rollback(final JournalFile file) {
       JournalCompactor compactor = journal.getCompactor();
@@ -343,8 +295,8 @@ public class JournalTransaction {
    }
 
    /**
-    * The caller of this method needs to guarantee appendLock.lock before calling this method if being used outside of the lock context.
-    * or else potFilesMap could be affected
+    * The caller of this method needs to guarantee appendLock.lock before calling this method if being used outside of
+    * the lock context. or else potFilesMap could be affected
     */
    public void prepare(final JournalFile file) {
       // We don't want the prepare record getting deleted before time
@@ -368,14 +320,6 @@ public class JournalTransaction {
    @Override
    public String toString() {
       return "JournalTransaction(" + id + ")";
-   }
-
-   private AtomicInteger internalgetCounter(final JournalFile file) {
-      if (lastFile != file) {
-         lastFile = file;
-         counter.set(0);
-      }
-      return counter;
    }
 
    private void addFile(final JournalFile file) {
@@ -403,11 +347,6 @@ public class JournalTransaction {
 
       final boolean replaceableUpdate;
 
-      /**
-       * @param file
-       * @param id
-       * @param size
-       */
       private JournalUpdate(final JournalFile file, final long id, final int size, final boolean replaceableUpdate) {
          super();
          this.file = file;
@@ -416,11 +355,50 @@ public class JournalTransaction {
          this.replaceableUpdate = replaceableUpdate;
       }
 
-      /**
-       * @return the id
-       */
       public long getId() {
          return id;
       }
+   }
+
+   public void countUp() {
+      upUpdater.incrementAndGet(this);
+   }
+
+   @Override
+   public void done() {
+      if (doneUpdater.incrementAndGet(this) == upUpdater.get(this) && delegateCompletion != null) {
+         final IOCallback delegateToCall = delegateCompletion;
+         // We need to set the delegateCompletion to null first or blocking commits could miss a callback
+         // What would affect mainly tests
+         delegateCompletion = null;
+         delegateToCall.done();
+      }
+   }
+
+   @Override
+   public void onError(final int errorCode, final String errorMessage) {
+      this.errorMessage = errorMessage;
+
+      this.errorCode = errorCode;
+
+      if (delegateCompletion != null) {
+         delegateCompletion.onError(errorCode, errorMessage);
+      }
+   }
+
+   public IOCallback getDelegateCompletion() {
+      return delegateCompletion;
+   }
+
+   public void setDelegateCompletion(final IOCallback delegateCompletion) {
+      this.delegateCompletion = delegateCompletion;
+   }
+
+   public String getErrorMessage() {
+      return errorMessage;
+   }
+
+   public int getErrorCode() {
+      return errorCode;
    }
 }

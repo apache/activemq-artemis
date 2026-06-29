@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.artemis.json.impl;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Objects;
+
 import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.json.JsonValue;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 public class JsonObjectBuilderImpl implements JsonObjectBuilder {
 
@@ -35,8 +34,7 @@ public class JsonObjectBuilderImpl implements JsonObjectBuilder {
    }
 
    public JsonObjectBuilderImpl(javax.json.JsonObjectBuilder rawObjectBuilder) {
-      checkNotNull(rawObjectBuilder);
-      this.rawObjectBuilder = rawObjectBuilder;
+      this.rawObjectBuilder = Objects.requireNonNull(rawObjectBuilder);
    }
 
    @Override

@@ -17,19 +17,38 @@
 
 package org.apache.activemq.artemis.tests.smoke.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.File;
+
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.Consumer;
 import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SmokePagingTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_0 = "paging";
 
-   @Before
+   @BeforeAll
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/paging");
+         cliCreateServer.createServer();
+      }
+   }
+
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       startServer(SERVER_NAME_0, 0, 30000);
@@ -70,7 +89,7 @@ public class SmokePagingTest extends SmokeTestBase {
       consumer.setBreakOnNull(true);
       long consumed = (long)consumer.execute(new ActionContext());
 
-      Assert.assertEquals(NUMBER_OF_MESSAGES, consumed);
+      assertEquals(NUMBER_OF_MESSAGES, consumed);
    }
 
 }

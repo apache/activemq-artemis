@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.scheduling;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -27,9 +31,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DelayedMessageTest extends ActiveMQTestBase {
 
@@ -42,15 +45,12 @@ public class DelayedMessageTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       initServer();
    }
 
-   /**
-    * @throws Exception
-    */
    protected void initServer() throws Exception {
       server = createServer(true, createDefaultInVMConfig());
       server.start();
@@ -67,15 +67,13 @@ public class DelayedMessageTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(qName));
+      session.createQueue(QueueConfiguration.of(qName));
       session.close();
 
       ClientSession session1 = sessionFactory.createSession(false, true, true);
       ClientProducer producer = session1.createProducer(qName);
 
       final int NUM_MESSAGES = 5;
-
-      ActiveMQTestBase.forceGC();
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = createDurableMessage(session1, "message" + i);
@@ -94,9 +92,9 @@ public class DelayedMessageTest extends ActiveMQTestBase {
 
          tm.acknowledge();
 
-         Assert.assertNotNull(tm);
+         assertNotNull(tm);
 
-         Assert.assertEquals("message" + i, tm.getBodyBuffer().readString());
+         assertEquals("message" + i, tm.getBodyBuffer().readString());
       }
 
       // Now close the session
@@ -113,14 +111,14 @@ public class DelayedMessageTest extends ActiveMQTestBase {
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = consumer3.receive(DelayedMessageTest.DELAY + 1000);
 
-         Assert.assertNotNull(tm);
+         assertNotNull(tm);
 
          long time = System.currentTimeMillis();
 
-         Assert.assertTrue(time - now >= DelayedMessageTest.DELAY);
+         assertTrue(time - now >= DelayedMessageTest.DELAY);
 
          // Hudson can introduce a large degree of indeterminism
-         Assert.assertTrue(time - now + ">" + (DelayedMessageTest.DELAY + 1000), time - now < DelayedMessageTest.DELAY + 1000);
+         assertTrue(time - now < DelayedMessageTest.DELAY + 1000, time - now + ">" + (DelayedMessageTest.DELAY + 1000));
       }
 
       session3.commit();
@@ -133,7 +131,7 @@ public class DelayedMessageTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(qName));
+      session.createQueue(QueueConfiguration.of(qName));
       session.close();
 
       ClientSession session1 = sessionFactory.createSession(false, true, true);
@@ -154,8 +152,8 @@ public class DelayedMessageTest extends ActiveMQTestBase {
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = consumer2.receive(500);
-         Assert.assertNotNull(tm);
-         Assert.assertEquals("message" + i, tm.getBodyBuffer().readString());
+         assertNotNull(tm);
+         assertEquals("message" + i, tm.getBodyBuffer().readString());
       }
 
       // Now rollback
@@ -167,14 +165,14 @@ public class DelayedMessageTest extends ActiveMQTestBase {
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = consumer2.receive(DelayedMessageTest.DELAY + 1000);
-         Assert.assertNotNull(tm);
+         assertNotNull(tm);
 
          long time = System.currentTimeMillis();
 
-         Assert.assertTrue(time - now >= DelayedMessageTest.DELAY);
+         assertTrue(time - now >= DelayedMessageTest.DELAY);
 
          // Hudson can introduce a large degree of indeterminism
-         Assert.assertTrue(time - now + ">" + (DelayedMessageTest.DELAY + 1000), time - now < DelayedMessageTest.DELAY + 1000);
+         assertTrue(time - now < DelayedMessageTest.DELAY + 1000, time - now + ">" + (DelayedMessageTest.DELAY + 1000));
       }
 
       session2.commit();
@@ -187,7 +185,7 @@ public class DelayedMessageTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(qName));
+      session.createQueue(QueueConfiguration.of(qName));
       session.close();
 
       ClientSession session1 = sessionFactory.createSession(false, true, true);
@@ -208,8 +206,8 @@ public class DelayedMessageTest extends ActiveMQTestBase {
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = consumer2.receive(500);
-         Assert.assertNotNull(tm);
-         Assert.assertEquals("message" + i, tm.getBodyBuffer().readString());
+         assertNotNull(tm);
+         assertEquals("message" + i, tm.getBodyBuffer().readString());
       }
 
       // Now rollback
@@ -241,11 +239,11 @@ public class DelayedMessageTest extends ActiveMQTestBase {
 
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = consumer2.receive(DelayedMessageTest.DELAY + 1000);
-         Assert.assertNotNull(tm);
+         assertNotNull(tm);
 
          long time = System.currentTimeMillis();
 
-         Assert.assertTrue(time - now >= DelayedMessageTest.DELAY);
+         assertTrue(time - now >= DelayedMessageTest.DELAY);
 
          // Hudson can introduce a large degree of indeterminism
       }

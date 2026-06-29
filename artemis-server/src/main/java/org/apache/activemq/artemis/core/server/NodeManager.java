@@ -51,17 +51,17 @@ public abstract class NodeManager implements ActiveMQComponent {
 
    // --------------------------------------------------------------------
 
-   public abstract void awaitLiveNode() throws NodeManagerException, InterruptedException;
+   public abstract void awaitPrimaryNode() throws NodeManagerException, InterruptedException;
 
-   public abstract void awaitLiveStatus() throws NodeManagerException, InterruptedException;
+   public abstract void awaitActiveStatus() throws NodeManagerException, InterruptedException;
 
    public abstract void startBackup() throws NodeManagerException, InterruptedException;
 
-   public abstract ActivateCallback startLiveNode() throws NodeManagerException, InterruptedException;
+   public abstract ActivateCallback startPrimaryNode() throws NodeManagerException, InterruptedException;
 
-   public abstract void pauseLiveServer() throws NodeManagerException;
+   public abstract void pausePrimaryServer() throws NodeManagerException;
 
-   public abstract void crashLiveServer() throws NodeManagerException;
+   public abstract void crashPrimaryServer() throws NodeManagerException;
 
    public abstract void releaseBackup() throws NodeManagerException;
 
@@ -120,29 +120,24 @@ public abstract class NodeManager implements ActiveMQComponent {
     * Sets the nodeID.
     * <p>
     * Only used by replicating backups.
-    *
-    * @param nodeID
     */
    public void setNodeID(String nodeID) {
       synchronized (nodeIDGuard) {
-         this.nodeID = new SimpleString(nodeID);
+         this.nodeID = SimpleString.of(nodeID);
          this.uuid = new UUID(UUID.TYPE_TIME_BASED, UUID.stringToBytes(nodeID));
       }
    }
 
-   /**
-    * @param generateUUID
-    */
    protected void setUUID(UUID generateUUID) {
       synchronized (nodeIDGuard) {
          uuid = generateUUID;
-         nodeID = new SimpleString(uuid.toString());
+         nodeID = SimpleString.of(uuid.toString());
       }
    }
 
    public abstract boolean isAwaitingFailback() throws NodeManagerException;
 
-   public abstract boolean isBackupLive() throws NodeManagerException;
+   public abstract boolean isBackupActive() throws NodeManagerException;
 
    public abstract void interrupt();
 

@@ -45,8 +45,12 @@ public class AddressMap<T> {
       return address.getPaths(DELIMITER);
    }
 
+   public AddressPartNode<T> getRootNode() {
+      return rootNode;
+   }
+
    /**
-    * @param address - a non wildcard to match against wildcards in the map
+    * @param address a non wildcard to match against wildcards in the map
     */
    public void visitMatchingWildcards(SimpleString address,
                                       AddressMapVisitor<T> collector) throws Exception {
@@ -56,8 +60,8 @@ public class AddressMap<T> {
    }
 
    /**
-   * @param wildcardAddress - a wildcard address to match against non wildcards in the map
-   */
+    * @param wildcardAddress a wildcard address to match against non wildcards in the map
+    */
    public void visitMatching(SimpleString wildcardAddress,
                              AddressMapVisitor<T> collector) throws Exception {
       final String[] paths = getPaths(wildcardAddress);

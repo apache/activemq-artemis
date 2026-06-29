@@ -24,8 +24,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
-
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -45,9 +44,12 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RemoveSubscriptionRaceTest extends ActiveMQTestBase {
 
@@ -56,7 +58,7 @@ public class RemoveSubscriptionRaceTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
-   @Before
+   @BeforeEach
    public void setServer() throws Exception {
    }
 
@@ -93,7 +95,7 @@ public class RemoveSubscriptionRaceTest extends ActiveMQTestBase {
    public void internalTest(String protocol, boolean realFiles, int threads, int numberOfMessages, boolean durableSub) throws Exception {
       server = createServer(realFiles, true);
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(SUB_NAME).addRoutingType(RoutingType.MULTICAST));
-      server.getConfiguration().addQueueConfiguration(new QueueConfiguration().setName("Sub_1").setAddress(SUB_NAME).setRoutingType(RoutingType.MULTICAST));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("Sub_1").setAddress(SUB_NAME).setRoutingType(RoutingType.MULTICAST));
       server.start();
 
       CountDownLatch runningLatch = new CountDownLatch(threads);
@@ -151,7 +153,7 @@ public class RemoveSubscriptionRaceTest extends ActiveMQTestBase {
       connection.start();
 
       Queue queue = server.locateQueue("Sub_1");
-      Assert.assertNotNull(queue);
+      assertNotNull(queue);
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Topic topic = session.createTopic(SUB_NAME);
@@ -162,32 +164,31 @@ public class RemoveSubscriptionRaceTest extends ActiveMQTestBase {
       try {
          for (int i = 0; i < numberOfMessages; i++) {
             producer.send(session.createTextMessage("a"));
-            Assert.assertNotNull(consumer.receive(5000));
+            assertNotNull(consumer.receive(5000));
          }
          connection.close();
       } finally {
          running.set(false);
-         Assert.assertTrue(runningLatch.await(10, TimeUnit.SECONDS));
+         assertTrue(runningLatch.await(10, TimeUnit.SECONDS));
       }
 
       Wait.assertEquals(0, this::countAddMessage, 5000, 100);
 
       Wait.assertEquals(0L, queue.getPagingStore()::getAddressSize, 2000, 100);
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
    int countAddMessage() throws Exception {
       StorageManager manager = server.getStorageManager();
 
-      if (manager instanceof JournalStorageManager) {
-         JournalStorageManager journalStorageManager = (JournalStorageManager) manager;
+      if (manager instanceof JournalStorageManager journalStorageManager) {
          journalStorageManager.getMessageJournal().scheduleCompactAndBlock(5_000);
       } else {
          return 0;
       }
 
-      HashMap<Integer, AtomicInteger> journalCounts = countJournal(server.getConfiguration());
+      Map<Integer, AtomicInteger> journalCounts = countJournal(server.getConfiguration());
       AtomicInteger value = journalCounts.get((int) JournalRecordIds.ADD_MESSAGE_PROTOCOL);
       if (value == null) {
          return 0;

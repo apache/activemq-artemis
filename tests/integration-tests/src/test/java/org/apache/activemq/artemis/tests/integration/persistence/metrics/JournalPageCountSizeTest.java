@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence.metrics;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,16 +32,15 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageCount
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageCountRecordInc;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JournalPageCountSizeTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   @Before
+   @BeforeEach
    public void init() throws Exception {
       server = createServer(true);
 
@@ -51,7 +52,7 @@ public class JournalPageCountSizeTest extends ActiveMQTestBase {
       return super.createBasicConfig(serverID);
    }
 
-   @After
+   @AfterEach
    public void destroy() throws Exception {
       server.stop();
    }
@@ -76,7 +77,7 @@ public class JournalPageCountSizeTest extends ActiveMQTestBase {
          PageCountRecord encoding = new PageCountRecord();
          encoding.decode(buff);
 
-         Assert.assertEquals(100, encoding.getPersistentSize());
+         assertEquals(100, encoding.getPersistentSize());
       } finally {
          journalStorageManager.getMessageJournal().stop();
       }
@@ -101,7 +102,7 @@ public class JournalPageCountSizeTest extends ActiveMQTestBase {
          PageCountRecordInc encoding = new PageCountRecordInc();
          encoding.decode(buff);
 
-         Assert.assertEquals(1000, encoding.getPersistentSize());
+         assertEquals(1000, encoding.getPersistentSize());
       } finally {
          journalStorageManager.getMessageJournal().stop();
       }
@@ -128,17 +129,12 @@ public class JournalPageCountSizeTest extends ActiveMQTestBase {
          PageCountRecordInc encoding = new PageCountRecordInc();
          encoding.decode(buff);
 
-         Assert.assertEquals(1000, encoding.getPersistentSize());
+         assertEquals(1000, encoding.getPersistentSize());
       } finally {
          journalStorageManager.getMessageJournal().stop();
       }
 
    }
 
-   private TransactionFailureCallback transactionFailure = new TransactionFailureCallback() {
-      @Override
-      public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
-
-      }
-   };
+   private TransactionFailureCallback transactionFailure = (transactionID, records, recordsToDelete) -> { };
 }

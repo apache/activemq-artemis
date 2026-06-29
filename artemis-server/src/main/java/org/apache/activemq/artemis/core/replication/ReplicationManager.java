@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -66,8 +67,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Replicatio
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageBeginMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageEndMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageWriteMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrimaryIsStoppingMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrimaryIsStoppingMessage.PrimaryStopping;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageEventMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageWriteMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrepareMessage;
@@ -80,7 +81,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
@@ -88,11 +89,11 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.lang.invoke.MethodHandles;
 
 /**
- * Manages replication tasks on the live server (that is the live server side of a "remote backup"
- * use case).
+ * Manages replication tasks on the primary server (i.e. the active server side of a "remote backup" use case).
  * <p>
  * Its equivalent in the backup server is {@link ReplicationEndpoint}.
  *
@@ -123,15 +124,12 @@ public final class ReplicationManager implements ActiveMQComponent {
       public abstract byte toRecord();
 
       public static ADD_OPERATION_TYPE toOperation(byte recordType) {
-         switch (recordType) {
-            case 0: // 0: it used to be false, we need to use 0 for compatibility reasons with writeBoolean on the channel
-               return UPDATE;
-            case 1: // 1: it used to be true, we need to use 1 for compatibility reasons with writeBoolean
-               return ADD;
-            case 2: // 2: this represents the new value
-               return EVENT;
-         }
-         return ADD;
+         return switch (recordType) {
+            case 0 -> UPDATE; // 0: it used to be false, we need to use 0 for compatibility reasons with writeBoolean on the channel
+            case 1 -> ADD; // 1: it used to be true, we need to use 1 for compatibility reasons with writeBoolean
+            case 2 -> EVENT; // 2: this represents the new value
+            default -> ADD;
+         };
       }
    }
 
@@ -141,9 +139,7 @@ public final class ReplicationManager implements ActiveMQComponent {
 
    private final Channel replicatingChannel;
 
-   private boolean started;
-
-   private volatile boolean enabled;
+   private volatile boolean started;
 
    private final Queue<OperationContext> pendingTokens = new ConcurrentLinkedQueue<>();
 
@@ -187,9 +183,6 @@ public final class ReplicationManager implements ActiveMQComponent {
    private boolean isFlushing;
    private boolean awaitingResume;
 
-   /**
-    * @param remotingConnection
-    */
    public ReplicationManager(ActiveMQServer server,
                              CoreRemotingConnection remotingConnection,
                              final long timeout,
@@ -201,8 +194,8 @@ public final class ReplicationManager implements ActiveMQComponent {
       this.replicatingChannel = remotingConnection.getChannel(CHANNEL_ID.REPLICATION.id, -1);
       this.remotingConnection = remotingConnection;
       final Connection transportConnection = this.remotingConnection.getTransportConnection();
-      if (transportConnection instanceof NettyConnection) {
-         final EventLoop eventLoop = ((NettyConnection) transportConnection).getNettyChannel().eventLoop();
+      if (transportConnection instanceof NettyConnection nettyConnection) {
+         final EventLoop eventLoop = nettyConnection.getNettyChannel().eventLoop();
          this.replicationStream = eventLoop;
          this.scheduledExecutorService = eventLoop;
       } else {
@@ -225,13 +218,13 @@ public final class ReplicationManager implements ActiveMQComponent {
                                   final byte recordType,
                                   final Persister persister,
                                   final Object record) throws Exception {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationAddMessage(remotingConnection.isBeforeTwoEighteen(), journalID, operation, id, recordType, persister, record));
       }
    }
 
    public void appendDeleteRecord(final byte journalID, final long id) throws Exception {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationDeleteMessage(journalID, id));
       }
    }
@@ -243,7 +236,7 @@ public final class ReplicationManager implements ActiveMQComponent {
                                             final byte recordType,
                                             final Persister persister,
                                             final Object record) throws Exception {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationAddTXMessage(remotingConnection.isBeforeTwoEighteen(), journalID, operation, txID, id, recordType, persister, record));
       }
    }
@@ -252,7 +245,7 @@ public final class ReplicationManager implements ActiveMQComponent {
                                   final long txID,
                                   boolean sync,
                                   final boolean lineUp) throws Exception {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationCommitMessage(journalID, false, txID), lineUp);
       }
    }
@@ -261,13 +254,13 @@ public final class ReplicationManager implements ActiveMQComponent {
                                                final long txID,
                                                final long id,
                                                final EncodingSupport record) throws Exception {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationDeleteTXMessage(journalID, txID, id, record));
       }
    }
 
    public void appendDeleteRecordTransactional(final byte journalID, final long txID, final long id) throws Exception {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationDeleteTXMessage(journalID, txID, id, NullEncoding.instance));
       }
    }
@@ -275,61 +268,57 @@ public final class ReplicationManager implements ActiveMQComponent {
    public void appendPrepareRecord(final byte journalID,
                                    final long txID,
                                    final EncodingSupport transactionData) throws Exception {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationPrepareMessage(journalID, txID, transactionData));
       }
    }
 
    public void appendRollbackRecord(final byte journalID, final long txID) throws Exception {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationCommitMessage(journalID, true, txID));
       }
    }
 
-   /**
-    * @param storeName
-    * @param pageNumber
-    */
    public void pageClosed(final SimpleString storeName, final long pageNumber) {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationPageEventMessage(storeName, pageNumber, false, remotingConnection.isVersionUsingLongOnPageReplication()));
       }
    }
 
    public void pageDeleted(final SimpleString storeName, final long pageNumber) {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationPageEventMessage(storeName, pageNumber, true, remotingConnection.isVersionUsingLongOnPageReplication()));
       }
    }
 
-   public void pageWrite(final PagedMessage message, final long pageNumber) {
-      if (enabled) {
-         sendReplicatePacket(new ReplicationPageWriteMessage(message, pageNumber, remotingConnection.isVersionUsingLongOnPageReplication()));
+   public void pageWrite(final SimpleString address, final PagedMessage message, final long pageNumber, boolean lineup) {
+      if (started) {
+         sendReplicatePacket(new ReplicationPageWriteMessage(message, pageNumber, remotingConnection.isVersionUsingLongOnPageReplication(), address), lineup);
       }
    }
 
    public void largeMessageBegin(final long messageId) {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationLargeMessageBeginMessage(messageId));
       }
    }
 
    //we pass in storageManager to generate ID only if enabled
    public void largeMessageDelete(final Long messageId, JournalStorageManager storageManager) {
-      if (enabled) {
+      if (started) {
          long pendingRecordID = storageManager.generateID();
          sendReplicatePacket(new ReplicationLargeMessageEndMessage(messageId, pendingRecordID, true));
       }
    }
 
    public void largeMessageClosed(final Long messageId, JournalStorageManager storageManager) {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationLargeMessageEndMessage(messageId, -1, false));
       }
    }
 
    public void largeMessageWrite(final long messageId, final byte[] body) {
-      if (enabled) {
+      if (started) {
          sendReplicatePacket(new ReplicationLargeMessageWriteMessage(messageId, body));
       }
    }
@@ -355,7 +344,7 @@ public final class ReplicationManager implements ActiveMQComponent {
             periodNanos = TimeUnit.SECONDS.toNanos(1);
          } else if (periodNanos < TimeUnit.MILLISECONDS.toNanos(100)) {
             logger.warn("The cluster call timeout is too low ie {} ms: consider raising it to save CPU",
-                         TimeUnit.NANOSECONDS.toMillis(maxAllowedSlownessNanos));
+                        TimeUnit.NANOSECONDS.toMillis(maxAllowedSlownessNanos));
             periodNanos = TimeUnit.MILLISECONDS.toNanos(100);
          }
          logger.debug("Slow replication checker is running with a period of {} ms", TimeUnit.NANOSECONDS.toMillis(periodNanos));
@@ -364,13 +353,11 @@ public final class ReplicationManager implements ActiveMQComponent {
          // - getting temporarily an un-writable channel is rather common under load and scheduling/cancelling a
          //   timed task is a CPU and GC intensive operation
          // - choosing a period of 100-1000 ms lead to a reasonable and constant CPU utilization while idle too
-         slowReplicationChecker = scheduledExecutorService.scheduleAtFixedRate(this::checkSlowReplication,
-                                                                               periodNanos, periodNanos, TimeUnit.NANOSECONDS);
+         slowReplicationChecker = scheduledExecutorService.scheduleAtFixedRate(this::checkSlowReplication, periodNanos,
+                                                                               periodNanos, TimeUnit.NANOSECONDS);
       }
 
       started = true;
-
-      enabled = true;
    }
 
    @Override
@@ -403,8 +390,6 @@ public final class ReplicationManager implements ActiveMQComponent {
          slowReplicationChecker = null;
       }
 
-      enabled = false;
-
       if (clearTokens) {
          clearReplicationTokens();
       }
@@ -420,8 +405,8 @@ public final class ReplicationManager implements ActiveMQComponent {
    /**
     * Completes any pending operations.
     * <p>
-    * This can be necessary in case the live loses connection to the backup (network failure, or
-    * backup crashing).
+    * This can be necessary in case the primary loses the connection to the backup (network failure, or backup
+    * crashing).
     */
    public void clearReplicationTokens() {
       logger.trace("clearReplicationTokens initiating");
@@ -442,7 +427,7 @@ public final class ReplicationManager implements ActiveMQComponent {
     */
    public Set<OperationContext> getActiveTokens() {
 
-      LinkedHashSet<OperationContext> activeContexts = new LinkedHashSet<>();
+      Set<OperationContext> activeContexts = new LinkedHashSet<>();
 
       // The same context will be replicated on the pending tokens...
       // as the multiple operations will be replicated on the same context
@@ -464,19 +449,22 @@ public final class ReplicationManager implements ActiveMQComponent {
    }
 
    private OperationContext sendReplicatePacket(final Packet packet, boolean lineUp, ReusableLatch done) {
-      if (!enabled) {
+      if (!started) {
          packet.release();
          return null;
       }
 
       final OperationContext repliToken = OperationContextImpl.getContext(ioExecutorFactory);
+      if (repliToken == null) {
+         throw ActiveMQMessageBundle.BUNDLE.replicationFailureRepliTokenNull(packet.toString(), ioExecutorFactory.toString());
+      }
       if (lineUp) {
          repliToken.replicationLineUp();
       }
       final ReplicatePacketRequest request = new ReplicatePacketRequest(packet, repliToken, done);
       replicatePacketRequests.add(request);
       replicationStream.execute(() -> {
-         if (enabled) {
+         if (started) {
             sendReplicatedPackets(false);
          } else {
             releaseReplicatedPackets(replicatePacketRequests);
@@ -499,7 +487,7 @@ public final class ReplicationManager implements ActiveMQComponent {
    }
 
    private void checkSlowReplication() {
-      if (!enabled) {
+      if (!started) {
          return;
       }
       assert checkEventLoop();
@@ -536,7 +524,7 @@ public final class ReplicationManager implements ActiveMQComponent {
       // We try to:
       // - save recursive calls of resume due to flushConnection
       // - saving flush pending writes *if* the OS hasn't notified that's writable again
-      if (awaitingResume || isFlushing || !enabled) {
+      if (awaitingResume || isFlushing || !started) {
          return;
       }
       if (replicatePacketRequests.isEmpty()) {
@@ -595,17 +583,16 @@ public final class ReplicationManager implements ActiveMQComponent {
    }
 
    private boolean checkEventLoop() {
-      if (!(replicationStream instanceof SingleThreadEventLoop)) {
+      if (!(replicationStream instanceof SingleThreadEventLoop eventLoop)) {
          return true;
       }
-      final SingleThreadEventLoop eventLoop = (SingleThreadEventLoop) replicationStream;
       return eventLoop.inEventLoop();
    }
 
    /**
-    * @throws IllegalStateException By default, all replicated packets generate a replicated
-    *                               response. If your packets are triggering this exception, it may be because the
-    *                               packets were not sent with {@link #sendReplicatePacket(Packet)}.
+    * @throws IllegalStateException By default, all replicated packets generate a replicated response. If your packets
+    *                               are triggering this exception, it may be because the packets were not sent with
+    *                               {@link #sendReplicatePacket(Packet)}.
     */
    private void replicated() {
       assert checkEventLoop();
@@ -684,33 +671,32 @@ public final class ReplicationManager implements ActiveMQComponent {
 
    /**
     * Sends the whole content of the file to be duplicated.
-    *
-    * @throws ActiveMQException
-    * @throws Exception
     */
    public void syncJournalFile(JournalFile jf, AbstractJournalStorageManager.JournalContent content) throws Exception {
-      if (!enabled) {
+      if (!started) {
          return;
       }
       SequentialFile file = jf.getFile().cloneFile();
       try {
-         ActiveMQServerLogger.LOGGER.replicaSyncFile(file, file.size());
+         ActiveMQServerLogger.LOGGER.replicaSyncFile(file, file.size(), "journal");
          sendLargeFile(content, null, jf.getFileID(), file, Long.MAX_VALUE);
       } finally {
-         if (file.isOpen())
+         if (file.isOpen()) {
             file.close();
+         }
       }
    }
 
    public void syncLargeMessageFile(SequentialFile file, long size, long id) throws Exception {
-      if (enabled) {
+      if (started) {
          sendLargeFile(null, null, id, file, size);
       }
    }
 
    public void syncPages(SequentialFile file, long id, SimpleString queueName) throws Exception {
-      if (enabled)
+      if (started) {
          sendLargeFile(null, queueName, id, file, Long.MAX_VALUE);
+      }
    }
 
    /**
@@ -719,17 +705,16 @@ public final class ReplicationManager implements ActiveMQComponent {
     * @param content        journal type or {@code null} for large-messages and pages
     * @param pageStore      page store name for pages, or {@code null} otherwise
     * @param id             journal file id or (large) message id
-    * @param file
     * @param maxBytesToSend maximum number of bytes to read and send from the file
-    * @throws Exception
     */
    private void sendLargeFile(AbstractJournalStorageManager.JournalContent content,
                               SimpleString pageStore,
                               final long id,
                               SequentialFile file,
                               long maxBytesToSend) throws Exception {
-      if (!enabled)
+      if (!started) {
          return;
+      }
       if (!file.isOpen()) {
          file.open();
       }
@@ -776,13 +761,18 @@ public final class ReplicationManager implements ActiveMQComponent {
                }
                packetsSent++;
 
-               if (lastPacket)
+               if (lastPacket) {
                   break;
+               }
             }
          }
       } finally {
-         if (file.isOpen())
+         if (file.isOpen()) {
             file.close();
+         }
+         if (pageStore != null) {
+            sendReplicatePacket(new ReplicationPageEventMessage(pageStore, id, false, remotingConnection.isVersionUsingLongOnPageReplication()));
+         }
       }
    }
 
@@ -794,36 +784,31 @@ public final class ReplicationManager implements ActiveMQComponent {
 
    /**
     * Reserve the following fileIDs in the backup server.
-    *
-    * @param datafiles
-    * @param contentType
-    * @throws ActiveMQException
     */
    public void sendStartSyncMessage(JournalFile[] datafiles,
                                     AbstractJournalStorageManager.JournalContent contentType,
                                     String nodeID,
                                     boolean allowsAutoFailBack) throws ActiveMQException {
-      if (enabled)
-         sendReplicatePacket(new ReplicationStartSyncMessage(remotingConnection.isBeforeTwoEighteen(), datafiles, contentType, nodeID, allowsAutoFailBack));
+      if (started) {
+         sendReplicatePacket(new ReplicationStartSyncMessage(datafiles, contentType, nodeID, allowsAutoFailBack));
+      }
    }
 
    /**
     * Informs backup that data synchronization is done.
     * <p>
-    * So if 'live' fails, the (up-to-date) backup now may take over its duties. To do so, it must
-    * know which is the live's {@code nodeID}.
-    *
-    * @param nodeID
+    * So if 'live' fails, the (up-to-date) backup now may take over its duties. To do so, it must know which is the
+    * live's {@code nodeID}.
     */
    public void sendSynchronizationDone(String nodeID, long initialReplicationSyncTimeout, IOCriticalErrorListener criticalErrorListener) throws ActiveMQReplicationTimeooutException {
-      if (enabled) {
+      if (started) {
 
          if (logger.isTraceEnabled()) {
             logger.trace("sendSynchronizationDone ::{}, {}", nodeID, initialReplicationSyncTimeout);
          }
 
          synchronizationIsFinishedAcknowledgement.countUp();
-         sendReplicatePacket(new ReplicationStartSyncMessage(remotingConnection.isBeforeTwoEighteen(), nodeID, server.getNodeManager().getNodeActivationSequence()));
+         sendReplicatePacket(new ReplicationStartSyncMessage(nodeID, server.getNodeManager().getNodeActivationSequence()));
          try {
             if (!synchronizationIsFinishedAcknowledgement.await(initialReplicationSyncTimeout)) {
                ActiveMQReplicationTimeooutException exception = ActiveMQMessageBundle.BUNDLE.replicationSynchronizationTimeout(initialReplicationSyncTimeout);
@@ -858,32 +843,28 @@ public final class ReplicationManager implements ActiveMQComponent {
    /**
     * Reserves several LargeMessage IDs in the backup.
     * <p>
-    * Doing this before hand removes the need of synchronizing large-message deletes with the
-    * largeMessageSyncList.
-    *
-    * @param largeMessages
+    * Doing this before hand removes the need of synchronizing large-message deletes with the largeMessageSyncList.
     */
    public void sendLargeMessageIdListMessage(Map<Long, Pair<String, Long>> largeMessages) {
-      ArrayList<Long> idsToSend;
+      List<Long> idsToSend;
       idsToSend = new ArrayList<>(largeMessages.keySet());
 
-      if (enabled)
-         sendReplicatePacket(new ReplicationStartSyncMessage(remotingConnection.isBeforeTwoEighteen(), idsToSend));
+      if (started) {
+         sendReplicatePacket(new ReplicationStartSyncMessage(idsToSend));
+      }
    }
 
    /**
-    * Notifies the backup that the live server is stopping.
+    * Notifies the backup that the primary server is stopping.
     * <p>
-    * This notification allows the backup to skip quorum voting (or any other measure to avoid
-    * 'split-brain') and do a faster fail-over.
-    *
-    * @return
+    * This notification allows the backup to skip quorum voting (or any other measure to avoid 'split-brain') and do a
+    * faster fail-over.
     */
-   public OperationContext sendLiveIsStopping(final LiveStopping finalMessage) {
-      logger.debug("LIVE IS STOPPING?!? message={} enabled={}", finalMessage, enabled);
-      if (enabled) {
-         logger.debug("LIVE IS STOPPING?!? message={} {}", finalMessage, enabled);
-         return sendReplicatePacket(new ReplicationLiveIsStoppingMessage(finalMessage));
+   public OperationContext sendPrimaryIsStopping(final PrimaryStopping finalMessage) {
+      logger.debug("PRIMARY IS STOPPING?!? message={} enabled={}", finalMessage, started);
+      if (started) {
+         logger.debug("PRIMARY IS STOPPING?!? message={} {}", finalMessage, started);
+         return sendReplicatePacket(new ReplicationPrimaryIsStoppingMessage(finalMessage));
       }
       return null;
    }
@@ -897,9 +878,6 @@ public final class ReplicationManager implements ActiveMQComponent {
       return remotingConnection;
    }
 
-   /**
-    * @return
-    */
    public boolean isSynchronizing() {
       return inSync;
    }

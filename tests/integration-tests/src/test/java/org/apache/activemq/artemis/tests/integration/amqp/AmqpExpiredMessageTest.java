@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -25,6 +30,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -39,7 +45,7 @@ import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -48,8 +54,9 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +64,8 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageThatIsAlreadyExpiredUsingAbsoluteTime() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -87,7 +95,8 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testExpiryThroughTTL() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -137,7 +146,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       receiverDLQ.flow(1);
       received = receiverDLQ.receive(5, TimeUnit.SECONDS);
 
-      assertNotNull("Should have read message from DLQ", received);
+      assertNotNull(received, "Should have read message from DLQ");
       assertEquals(0, received.getTimeToLive());
       assertNotNull(received);
       assertEquals("Value1", received.getApplicationProperty("key1"));
@@ -145,7 +154,8 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testRetryExpiry() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -173,7 +183,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       final Queue dlqView = getProxyToQueue(getDeadLetterAddress());
 
       Wait.assertEquals(2, dlqView::getMessageCount);
-      Assert.assertEquals(2, dlqView.retryMessages(null));
+      assertEquals(2, dlqView.retryMessages(null));
       Wait.assertEquals(0, dlqView::getMessageCount);
       Wait.assertEquals(2, queueView::getMessageCount);
 
@@ -191,9 +201,12 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       Wait.assertEquals(0, dlqView::getMessageCount);
    }
 
-   /** This test is validating a broker feature where the message copy through the DLQ will receive an annotation.
-    *  It is also testing filter on that annotation. */
-   @Test(timeout = 60000)
+   /**
+    * This test is validating a broker feature where the message copy through the DLQ will receive an annotation. It is
+    * also testing filter on that annotation.
+    */
+   @Test
+   @Timeout(60)
    public void testExpiryThroughTTLValidateAnnotation() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -242,8 +255,8 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpReceiver receiverDLQ = session.createReceiver(getDeadLetterAddress(), "\"m.x-opt-ORIG-ADDRESS\"='" + getQueueName() + "'");
       receiverDLQ.flow(1);
       received = receiverDLQ.receive(5, TimeUnit.SECONDS);
-      Assert.assertNotNull(received);
-      Assert.assertEquals(getQueueName(), received.getMessageAnnotation("x-opt-ORIG-ADDRESS"));
+      assertNotNull(received);
+      assertEquals(getQueueName(), received.getMessageAnnotation("x-opt-ORIG-ADDRESS"));
       // close without accepting on purpose, it will issue a redelivery on the second filter
       receiverDLQ.close();
 
@@ -251,11 +264,11 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       receiverDLQ = session.createReceiver(getDeadLetterAddress(), "_AMQ_ORIG_ADDRESS='" + getQueueName() + "'");
       receiverDLQ.flow(1);
       received = receiverDLQ.receive(5, TimeUnit.SECONDS);
-      Assert.assertEquals(getQueueName(), received.getMessageAnnotation("x-opt-ORIG-ADDRESS"));
-      Assert.assertNotNull(received);
+      assertEquals(getQueueName(), received.getMessageAnnotation("x-opt-ORIG-ADDRESS"));
+      assertNotNull(received);
       received.accept();
 
-      assertNotNull("Should have read message from DLQ", received);
+      assertNotNull(received, "Should have read message from DLQ");
       assertEquals(0, received.getTimeToLive());
       assertNotNull(received);
       assertEquals("Value1", received.getApplicationProperty("key1"));
@@ -263,9 +276,12 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   /** This test is validating a broker feature where the message copy through the DLQ will receive an annotation.
-    *  It is also testing filter on that annotation. */
-   @Test(timeout = 60000)
+   /**
+    * This test is validating a broker feature where the message copy through the DLQ will receive an annotation. It is
+    * also testing filter on that annotation.
+    */
+   @Test
+   @Timeout(60)
    public void testExpiryQpidJMS() throws Exception {
       ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", getBrokerAmqpConnectionURI().toString());
       Connection connection = factory.createConnection();
@@ -293,7 +309,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          javax.jms.Queue queueDLQ = session.createQueue(getDeadLetterAddress());
          MessageConsumer receiverDLQ = session.createConsumer(queueDLQ, "\"m.x-opt-ORIG-ADDRESS\"='" + getQueueName() + "'");
          Message received = receiverDLQ.receive(5000);
-         Assert.assertNotNull(received);
+         assertNotNull(received);
          receiverDLQ.close();
       } finally {
          connection.close();
@@ -301,7 +317,8 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
 
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageThatIsNotExpiredUsingAbsoluteTime() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -332,8 +349,9 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
-   public void testSendMessageThatIsExiredUsingAbsoluteTimeWithLongTTL() throws Exception {
+   @Test
+   @Timeout(60)
+   public void testSendMessageThatIsExpiredUsingAbsoluteTimeWithLongTTL() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
@@ -365,7 +383,8 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageThatIsExpiredUsingTTLWhenAbsoluteIsZero() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -398,8 +417,9 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
-   public void testSendMessageThatIsNotExpiredUsingAbsoluteTimeWithElspsedTTL() throws Exception {
+   @Test
+   @Timeout(60)
+   public void testSendMessageThatIsNotExpiredUsingAbsoluteTimeWithElapsedTTL() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
@@ -431,7 +451,8 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendMessageThatIsNotExpiredUsingTimeToLive() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -462,7 +483,57 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
+   public void testSendMessageThatIsNotExpiredUsingTimeToLiveOfMaxUInt() throws Exception {
+      doTestSendMessageThatIsNotExpiredUsingTimeToLive(UnsignedInteger.MAX_VALUE);
+   }
+
+   @Test
+   @Timeout(60)
+   public void testSendMessageThatIsNotExpiredUsingTimeToLiveOfMaxIntValue() throws Exception {
+      doTestSendMessageThatIsNotExpiredUsingTimeToLive(UnsignedInteger.valueOf(Integer.MAX_VALUE));
+   }
+
+   @Test
+   @Timeout(60)
+   public void testSendMessageThatIsNotExpiredUsingTimeToLiveOfMinusOne() throws Exception {
+      doTestSendMessageThatIsNotExpiredUsingTimeToLive(UnsignedInteger.valueOf(-1));
+   }
+
+   private void doTestSendMessageThatIsNotExpiredUsingTimeToLive(UnsignedInteger ttl) throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getQueueName());
+
+      // Get the Queue View early to avoid racing the delivery.
+      final Queue queueView = getProxyToQueue(getQueueName());
+      assertNotNull(queueView);
+
+      AmqpMessage message = new AmqpMessage();
+      message.setTimeToLive(ttl.longValue());
+      message.setText("Test-Message");
+      sender.send(message);
+      sender.close();
+
+      Wait.assertEquals(1, queueView::getMessageCount);
+
+      // Now try and get the message
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
+      receiver.flow(1);
+      AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull(received, "Should have read message but it seems to have timed out.");
+      assertEquals(ttl.longValue(), received.getTimeToLive());
+
+      Wait.assertEquals(0, queueView::getMessagesExpired);
+
+      connection.close();
+   }
+
+   @Test
+   @Timeout(60)
    public void testSendMessageThenAllowToExpiredUsingTimeToLive() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -495,12 +566,14 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testExpiredMessageLandsInDLQ() throws Throwable {
       internalSendExpiry(false);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testExpiredMessageLandsInDLQAndExistsAfterRestart() throws Throwable {
       internalSendExpiry(true);
    }
@@ -523,7 +596,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          sender.send(message);
 
          Queue dlq = getProxyToQueue(getDeadLetterAddress());
-         assertTrue("Message not movied to DLQ", Wait.waitFor(() -> dlq.getMessageCount() > 0, 7000, 500));
+         assertTrue(Wait.waitFor(() -> dlq.getMessageCount() > 0, 7000, 500), "Message not moved to DLQ");
 
          connection.close();
 
@@ -549,12 +622,13 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testExpirationAfterDivert() throws Throwable {
-      final String FORWARDING_ADDRESS = RandomUtil.randomString();
-      server.createQueue(new QueueConfiguration(FORWARDING_ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      final String FORWARDING_ADDRESS = RandomUtil.randomUUIDString();
+      server.createQueue(QueueConfiguration.of(FORWARDING_ADDRESS).setRoutingType(RoutingType.ANYCAST));
       server.deployDivert(new DivertConfiguration()
-                             .setName(RandomUtil.randomString())
+                             .setName(RandomUtil.randomUUIDString())
                              .setAddress(getQueueName())
                              .setForwardingAddress(FORWARDING_ADDRESS)
                              .setTransformerConfiguration(new TransformerConfiguration(MyTransformer.class.getName()))
@@ -580,10 +654,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          logger.debug("*******************************************************************************************************************************");
 
          Queue forward = getProxyToQueue(FORWARDING_ADDRESS);
-         assertTrue("Message not diverted", Wait.waitFor(() -> forward.getMessageCount() > 0, 7000, 500));
+         assertTrue(Wait.waitFor(() -> forward.getMessagesAdded() > 0, 7000, 500), "Message not diverted");
 
          Queue dlq = getProxyToQueue(getDeadLetterAddress());
-         assertTrue("Message not moved to DLQ", Wait.waitFor(() -> dlq.getMessageCount() > 0, 7000, 500));
+         assertTrue(Wait.waitFor(() -> dlq.getMessageCount() > 0, 7000, 500), "Message not moved to DLQ");
 
          connection.close();
 
@@ -614,7 +688,8 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDLQdMessageCanBeRedeliveredMultipleTimes() throws Throwable {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = client.connect();
@@ -633,7 +708,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          sender.send(message);
 
          Queue dlqView = getProxyToQueue(getDeadLetterAddress());
-         assertTrue("Message not movied to DLQ", Wait.waitFor(() -> dlqView.getMessageCount() > 0, 7000, 200));
+         assertTrue(Wait.waitFor(() -> dlqView.getMessageCount() > 0, 7000, 200), "Message not moved to DLQ");
 
          // Read and Modify the message for redelivery repeatedly
          AmqpReceiver receiver = session.createReceiver(getDeadLetterAddress());
@@ -665,17 +740,19 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
-   public void testExpireThorughAddressSettings() throws Exception {
-      testExpireThorughAddressSettings(false);
+   @Test
+   @Timeout(60)
+   public void testExpireThroughAddressSettings() throws Exception {
+      testExpireThroughAddressSettings(false);
    }
 
-   @Test(timeout = 60000)
-   public void testExpireThorughAddressSettingsRebootServer() throws Exception {
-      testExpireThorughAddressSettings(true);
+   @Test
+   @Timeout(60)
+   public void testExpireThroughAddressSettingsRebootServer() throws Exception {
+      testExpireThroughAddressSettings(true);
    }
 
-   private void testExpireThorughAddressSettings(boolean reboot) throws Exception {
+   private void testExpireThroughAddressSettings(boolean reboot) throws Exception {
 
       // Address configuration
       AddressSettings addressSettings = new AddressSettings();
@@ -683,8 +760,8 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       addressSettings.setAutoCreateQueues(isAutoCreateQueues());
       addressSettings.setAutoCreateAddresses(isAutoCreateAddresses());
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
-      addressSettings.setExpiryAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
+      addressSettings.setDeadLetterAddress(SimpleString.of(getDeadLetterAddress()));
+      addressSettings.setExpiryAddress(SimpleString.of(getDeadLetterAddress()));
       addressSettings.setExpiryDelay(1000L);
 
       server.getAddressSettingsRepository().clear();
@@ -724,9 +801,9 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       try (LinkedListIterator<MessageReference> referenceIterator = serverQueue.iterator()) {
          while (referenceIterator.hasNext()) {
             MessageReference ref = referenceIterator.next();
-            Assert.assertEquals(ref.getMessage().getExpiration(), ref.getMessage().toCore().getExpiration());
-            Assert.assertTrue(ref.getMessage().getExpiration() > 0);
-            Assert.assertTrue(ref.getMessage().toCore().getExpiration() > 0);
+            assertEquals(ref.getMessage().getExpiration(), ref.getMessage().toCore().getExpiration());
+            assertTrue(ref.getMessage().getExpiration() > 0);
+            assertTrue(ref.getMessage().toCore().getExpiration() > 0);
          }
       }
 
@@ -744,8 +821,8 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       addressSettings.setAutoCreateQueues(isAutoCreateQueues());
       addressSettings.setAutoCreateAddresses(isAutoCreateAddresses());
-      addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
-      addressSettings.setExpiryAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
+      addressSettings.setDeadLetterAddress(SimpleString.of(getDeadLetterAddress()));
+      addressSettings.setExpiryAddress(SimpleString.of(getDeadLetterAddress()));
       addressSettings.setExpiryDelay(1000L);
 
       server.getAddressSettingsRepository().clear();
@@ -777,7 +854,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
 
       Wait.assertEquals(2, queueView::getMessageCount);
       LinkedListIterator<MessageReference> linkedListIterator = queueView.iterator();
-      HashMap<String, Long> dataSet = new HashMap<>();
+      Map<String, Long> dataSet = new HashMap<>();
       int count = 0;
       while (linkedListIterator.hasNext()) {
          count++;
@@ -786,7 +863,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          dataSet.put(idUsed, ref.getMessage().getExpiration());
       }
 
-      Assert.assertEquals(2, count);
+      assertEquals(2, count);
       linkedListIterator.close();
 
       server.stop();
@@ -807,13 +884,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          MessageReference ref = linkedListIterator.next();
          String idUsed = ref.getMessage().getStringProperty("id");
          long originalExpiration = dataSet.get(idUsed);
-         System.out.println("original Expiration = " + originalExpiration + " while this expiration = " + ref.getMessage().getExpiration());
-         Assert.assertEquals(originalExpiration, ref.getMessage().getExpiration());
+         logger.info("original Expiration = {} while this expiration = {}", originalExpiration, ref.getMessage().getExpiration());
+         assertEquals(originalExpiration, ref.getMessage().getExpiration());
       }
-      Assert.assertEquals(2, count);
+      assertEquals(2, count);
       linkedListIterator.close();
-
-
    }
-
 }

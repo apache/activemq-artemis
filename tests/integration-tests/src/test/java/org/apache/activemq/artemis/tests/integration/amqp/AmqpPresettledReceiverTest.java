@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
@@ -27,7 +32,8 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +44,8 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPresettledReceiverAndNonPresettledReceiverOnSameQueue() throws Exception {
       final int MSG_COUNT = 2;
       sendMessages(getQueueName(), MSG_COUNT);
@@ -88,7 +95,8 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPresettledReceiverReadsAllMessages() throws Exception {
       final int MSG_COUNT = 100;
       sendMessages(getQueueName(), MSG_COUNT);
@@ -124,7 +132,8 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPresettledReceiverReadsAllMessagesInWhenReadInBatches() throws Exception {
       final int MSG_COUNT = 100;
       sendMessages(getQueueName(), MSG_COUNT);
@@ -176,12 +185,14 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPresettledReceiverWithinBoundsOfActiveTXWithCommit() throws Exception {
       doTestPresettledReceiverWithinBoundsOfActiveTX(true);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPresettledReceiverWithinBoundsOfActiveTXWithRollback() throws Exception {
       doTestPresettledReceiverWithinBoundsOfActiveTX(false);
    }
@@ -221,7 +232,8 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testPresettledReceiverWithinBoundsOfActiveTXWithSendAndRollback() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

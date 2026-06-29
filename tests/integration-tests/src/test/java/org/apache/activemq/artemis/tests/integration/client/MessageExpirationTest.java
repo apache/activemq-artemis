@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -39,9 +43,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageExpirationTest extends ActiveMQTestBase {
 
@@ -57,10 +60,10 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testMessageExpiredWithoutExpiryAddress() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
@@ -73,7 +76,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = session.createConsumer(queue);
       ClientMessage message2 = consumer.receiveImmediate();
-      Assert.assertNull(message2);
+      assertNull(message2);
 
       consumer.close();
       session.deleteQueue(queue);
@@ -81,11 +84,11 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testAmqpJmsReloaded() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString expiry = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString expiry = RandomUtil.randomUUIDSimpleString();
 
-      server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(expiry));
+      server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(expiry));
       server.getAddressSettingsRepository().addMatch(queue.toString(), new AddressSettings().setExpiryAddress(expiry));
 
       ConnectionFactory cf = new JmsConnectionFactory("amqp://localhost:61616");
@@ -117,7 +120,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       for (int i = 0; i < 20; i++) {
          javax.jms.Message message2 = consumer.receiveNoWait();
-         Assert.assertNull(message2);
+         assertNull(message2);
       }
 
       consumer.close();
@@ -125,13 +128,13 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testMessageExpiredWithoutExpiryAddressWithExpiryDelayOverride() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.close();
 
       session = addClientSession(sf.createSession(false, false, false));
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
@@ -181,10 +184,10 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testMessageExpirationOnServer() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientConsumer consumer = session.createConsumer(queue);
@@ -198,11 +201,11 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       Thread.sleep(500);
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(queue).getBindable())));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
+      assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(queue).getBindable())));
 
       ClientMessage message2 = consumer.receiveImmediate();
-      Assert.assertNull(message2);
+      assertNull(message2);
 
       consumer.close();
       session.deleteQueue(queue);
@@ -210,10 +213,10 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testMessageExpirationOnClient() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
@@ -226,10 +229,10 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = session.createConsumer(queue);
       ClientMessage message2 = consumer.receiveImmediate();
-      Assert.assertNull(message2);
+      assertNull(message2);
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(queue).getBindable())));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
+      assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(queue).getBindable())));
 
       consumer.close();
       session.deleteQueue(queue);
@@ -237,22 +240,15 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testMessageExpiredWithExpiryAddress() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      final SimpleString expiryAddress = RandomUtil.randomSimpleString();
-      SimpleString expiryQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      final SimpleString expiryAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString expiryQueue = RandomUtil.randomUUIDSimpleString();
 
-      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings() {
-         private static final long serialVersionUID = -6476053400596299130L;
+      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setExpiryAddress(expiryAddress));
 
-         @Override
-         public SimpleString getExpiryAddress() {
-            return expiryAddress;
-         }
-      });
-
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false));
-      session.createQueue(new QueueConfiguration(expiryQueue).setAddress(expiryAddress).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
+      session.createQueue(QueueConfiguration.of(expiryQueue).setAddress(expiryAddress).setDurable(false));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
@@ -265,14 +261,14 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = session.createConsumer(queue);
       ClientMessage message2 = consumer.receiveImmediate();
-      Assert.assertNull(message2);
+      assertNull(message2);
 
       ClientConsumer expiryConsumer = session.createConsumer(expiryQueue);
       ClientMessage expiredMessage = expiryConsumer.receive(500);
-      Assert.assertNotNull(expiredMessage);
-      Assert.assertNotNull(expiredMessage.getObjectProperty(Message.HDR_ACTUAL_EXPIRY_TIME));
-      Assert.assertEquals(address, expiredMessage.getObjectProperty(Message.HDR_ORIGINAL_ADDRESS));
-      Assert.assertEquals(queue, expiredMessage.getObjectProperty(Message.HDR_ORIGINAL_QUEUE));
+      assertNotNull(expiredMessage);
+      assertNotNull(expiredMessage.getObjectProperty(Message.HDR_ACTUAL_EXPIRY_TIME));
+      assertEquals(address, expiredMessage.getObjectProperty(Message.HDR_ORIGINAL_ADDRESS));
+      assertEquals(queue, expiredMessage.getObjectProperty(Message.HDR_ORIGINAL_QUEUE));
       consumer.close();
       expiryConsumer.close();
       session.deleteQueue(queue);
@@ -282,12 +278,13 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(true);
       server.getConfiguration().addAcceptorConfiguration("amqp", "tcp://127.0.0.1:61616");
+      server.getConfiguration().setResolveProtocols(true);
       server.getConfiguration().setMessageExpiryScanPeriod(200);
       server.start();
       locator = createInVMNonHALocator();

@@ -31,26 +31,17 @@ public class DeleteEncoding implements EncodingSupport {
       this.id = id;
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.journal.EncodingSupport#getEncodeSize()
-    */
    @Override
    public int getEncodeSize() {
       return DataConstants.SIZE_BYTE + DataConstants.SIZE_LONG;
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.journal.EncodingSupport#readInto(org.apache.activemq.artemis.api.core.ActiveMQBuffer)
-    */
    @Override
    public void encode(ActiveMQBuffer buffer) {
       buffer.writeByte(recordType);
       buffer.writeLong(id);
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.journal.EncodingSupport#decode(org.apache.activemq.artemis.api.core.ActiveMQBuffer)
-    */
    @Override
    public void decode(ActiveMQBuffer buffer) {
       recordType = buffer.readByte();

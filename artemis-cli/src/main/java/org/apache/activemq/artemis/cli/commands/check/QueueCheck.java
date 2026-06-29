@@ -25,6 +25,7 @@ import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import picocli.CommandLine.Command;
@@ -79,7 +80,7 @@ public class QueueCheck extends CheckAbstract {
 
    @Override
    protected CheckTask[] getCheckTasks() {
-      ArrayList<CheckTask> checkTasks = new ArrayList<>();
+      List<CheckTask> checkTasks = new ArrayList<>();
 
       if (getName() == null) {
          name = input("--name", "Name is a mandatory property for Queue check", null);
@@ -122,7 +123,7 @@ public class QueueCheck extends CheckAbstract {
          }
       }
 
-      if (up || checkTasks.size() == 0) {
+      if (up || checkTasks.isEmpty()) {
          checkTasks.add(0, new CheckTask(String.format("the queue %s exists and is not paused",
                                                        getName()), this::checkQueueUp));
       }

@@ -16,52 +16,21 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
-import org.apache.activemq.artemis.core.management.impl.view.SessionField;
 import org.apache.activemq.artemis.core.server.ServerSession;
 
-public class SessionFilterPredicate extends ActiveMQFilterPredicate<ServerSession> {
-
-   private SessionField f;
+public class SessionFilterPredicate extends ActiveMQFilterPredicate<ServerSession, SessionPredicateFilterPart> {
 
    public SessionFilterPredicate() {
       super();
    }
 
    @Override
-   public boolean test(ServerSession session) {
-      // Using switch over enum vs string comparison is better for perf.
-      if (f == null)
-         return true;
-      switch (f) {
-         case ID:
-            return matches(session.getName());
-         case CONNECTION_ID:
-            return matches(session.getConnectionID());
-         case CONSUMER_COUNT:
-            return matches(session.getServerConsumers().size());
-         case PRODUCER_COUNT:
-            return matches(session.getServerProducers().size());
-         case PROTOCOL:
-            return matches(session.getRemotingConnection().getProtocolName());
-         case CLIENT_ID:
-            return matches(session.getRemotingConnection().getClientID());
-         case LOCAL_ADDRESS:
-            return matches(session.getRemotingConnection().getTransportConnection().getLocalAddress());
-         case REMOTE_ADDRESS:
-            return matches(session.getRemotingConnection().getTransportConnection().getRemoteAddress());
-         default: return true;
-      }
+   public SessionPredicateFilterPart createFilterPart(String field, String operation, String value) {
+      return new SessionPredicateFilterPart(field, operation, value);
    }
 
    @Override
-   public void setField(String field) {
-      if (field != null && !field.equals("")) {
-         this.f = SessionField.valueOfName(field);
-
-         //for backward compatibility
-         if (this.f == null) {
-            this.f = SessionField.valueOf(field);
-         }
-      }
+   protected boolean filter(ServerSession session, SessionPredicateFilterPart filterPart) throws Exception {
+      return filterPart.filterPart(session);
    }
 }

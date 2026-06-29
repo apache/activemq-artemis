@@ -19,7 +19,8 @@ package org.apache.activemq.artemis.spi.core.remoting.ssl;
 import java.util.ServiceLoader;
 
 /**
- * Provider that loads all registered {@link OpenSSLContextFactory} services and returns the one with the highest priority.
+ * Provider that loads all registered {@link OpenSSLContextFactory} services and returns the one with the highest
+ * priority.
  */
 public class OpenSSLContextFactoryProvider {
 
@@ -36,7 +37,7 @@ public class OpenSSLContextFactoryProvider {
    }
 
    /**
-    * @return the {@link OpenSSLContextFactory} with the higher priority.
+    * @return the {@link OpenSSLContextFactory} with the higher priority
     */
    public static OpenSSLContextFactory getOpenSSLContextFactory() {
       return FACTORY;

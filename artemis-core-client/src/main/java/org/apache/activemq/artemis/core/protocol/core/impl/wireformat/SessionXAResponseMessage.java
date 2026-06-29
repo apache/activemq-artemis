@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -74,42 +76,33 @@ public class SessionXAResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (error ? 1231 : 1237);
-      result = prime * result + ((message == null) ? 0 : message.hashCode());
-      result = prime * result + responseCode;
-      return result;
+      return Objects.hash(super.hashCode(), error, message, responseCode);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", error=" + error);
-      buff.append(", message=" + message);
-      buff.append(", responseCode=" + responseCode);
-      buff.append("]");
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", error=" + error);
+      sb.append(", message=" + message);
+      sb.append(", responseCode=" + responseCode);
+      sb.append("]");
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionXAResponseMessage))
+      }
+      if (!(obj instanceof SessionXAResponseMessage other)) {
          return false;
-      SessionXAResponseMessage other = (SessionXAResponseMessage) obj;
-      if (error != other.error)
-         return false;
-      if (message == null) {
-         if (other.message != null)
-            return false;
-      } else if (!message.equals(other.message))
-         return false;
-      if (responseCode != other.responseCode)
-         return false;
-      return true;
+      }
+
+      return error == other.error &&
+             Objects.equals(message, other.message) &&
+             responseCode == other.responseCode;
    }
 }

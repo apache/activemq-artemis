@@ -16,15 +16,16 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import org.apache.activemq.artemis.api.core.Pair;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PairTest extends Assert {
+import org.apache.activemq.artemis.api.core.Pair;
+import org.junit.jupiter.api.Test;
+
+public class PairTest {
 
    @Test
    public void testPair() {
-      Pair<Integer, Integer> p = new Pair<>(Integer.valueOf(12), Integer.valueOf(13));
+      Pair<Integer, Integer> p = new Pair<>(12, 13);
       int hash = p.hashCode();
       p.setA(null);
       assertTrue(hash != p.hashCode());

@@ -165,7 +165,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
             }
          }, wholeFileBufferRef, false, null);
 
-         if (records.size() == 0) {
+         if (records.isEmpty()) {
             // the record is damaged
             controlFile.delete();
             return null;
@@ -247,12 +247,6 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       return recordsSnapshot.contains(id);
    }
 
-
-
-   /**
-    * @throws Exception
-    */
-
    protected void openFile() throws Exception {
       flush(false);
 
@@ -286,9 +280,6 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       recordsSnapshot.add(id);
    }
 
-   /**
-    * @return the writingChannel
-    */
    protected ActiveMQBuffer getWritingChannel() {
       return writingChannel;
    }

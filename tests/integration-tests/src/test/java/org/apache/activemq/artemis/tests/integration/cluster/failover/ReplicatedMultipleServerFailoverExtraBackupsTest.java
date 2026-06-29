@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -28,30 +31,26 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq.artemis.utils.RetryMethod;
-import org.apache.activemq.artemis.utils.RetryRule;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ParameterizedTestExtension.class)
 public class ReplicatedMultipleServerFailoverExtraBackupsTest extends ReplicatedMultipleServerFailoverTest {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule();
 
    private void waitForSync(ActiveMQServer server) throws Exception {
       Wait.waitFor(server::isReplicaSync);
    }
 
-   @RetryMethod(retries = 1)
    @Override
-   @Test
-   public void testStartLiveFirst() throws Exception {
+   @TestTemplate
+   public void testStartPrimaryFirst() throws Exception {
       switch (haType()) {
          case SharedNothingReplication:
             ((ReplicaPolicyConfiguration) backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
@@ -63,21 +62,21 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
             break;
       }
 
-      startServers(liveServers);
+      startServers(primaryServers);
       backupServers.get(0).start();
       backupServers.get(1).start();
       waitForSync(backupServers.get(0).getServer());
       waitForSync(backupServers.get(1).getServer());
 
-      // wait to start the other 2 backups so the first 2 can sync with the 2 live servers
+      // wait to start the other 2 backups so the first 2 can sync with the 2 primary servers
       backupServers.get(2).start();
       backupServers.get(3).start();
 
       sendCrashReceive();
       Wait.assertTrue(backupServers.get(0)::isActive, 5000, 10);
       Wait.assertTrue(backupServers.get(1)::isActive, 5000, 10);
-      waitForTopology(backupServers.get(0).getServer(), liveServers.size(), 2);
-      waitForTopology(backupServers.get(1).getServer(), liveServers.size(), 2);
+      waitForTopology(backupServers.get(0).getServer(), primaryServers.size(), 2);
+      waitForTopology(backupServers.get(1).getServer(), primaryServers.size(), 2);
 
       sendCrashBackupReceive();
    }
@@ -95,7 +94,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
    }
 
    @Override
-   @Test
+   @TestTemplate
    public void testStartBackupFirst() throws Exception {
       switch (haType()) {
          case SharedNothingReplication:
@@ -110,21 +109,21 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
 
 
       startServers(backupServers);
-      startServers(liveServers);
+      startServers(primaryServers);
       waitForBackups();
 
-      waitForTopology(liveServers.get(0).getServer(), liveServers.size(), 2);
+      waitForTopology(primaryServers.get(0).getServer(), primaryServers.size(), 2);
       sendCrashReceive();
    }
 
    protected void sendCrashBackupReceive() throws Exception {
 
       //make sure bindings are ready before sending messages b/c we verify strict load balancing in waitForDistribution
-      this.waitForBindings( backupServers.get(0).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
-      this.waitForBindings( backupServers.get(0).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+      this.waitForBindings(backupServers.get(0).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+      this.waitForBindings(backupServers.get(0).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
 
-      this.waitForBindings( backupServers.get(1).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
-      this.waitForBindings( backupServers.get(1).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+      this.waitForBindings(backupServers.get(1).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+      this.waitForBindings(backupServers.get(1).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
 
       ServerLocator locator0 = getBackupServerLocator(0);
       ServerLocator locator1 = getBackupServerLocator(1);
@@ -161,7 +160,12 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
 
       CountDownLatch failoverHappened = new CountDownLatch(1);
 
-      session0.addFailoverListener((FailoverEventType type) -> failoverHappened.countDown());
+      session0.addFailoverListener((FailoverEventType type) -> {
+         new Exception("Type::" + type).printStackTrace();
+         if (type == FailoverEventType.FAILOVER_COMPLETED) {
+            failoverHappened.countDown();
+         }
+      });
 
       for (TestableServer testableServer : toCrash) {
          testableServer.crash().await(10, TimeUnit.SECONDS);
@@ -169,7 +173,10 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
          testableServer.stop();
       }
 
-      Assert.assertTrue(failoverHappened.await(10, TimeUnit.SECONDS));
+      assertTrue(failoverHappened.await(10, TimeUnit.SECONDS));
+
+      ((ClientSessionFactoryImpl)session0.getSessionFactory()).flushCloseExecutor(10, TimeUnit.SECONDS);
+      ((ClientSessionFactoryImpl)session1.getSessionFactory()).flushCloseExecutor(10, TimeUnit.SECONDS);
 
       ClientConsumer consumer0 = session0.createConsumer(ADDRESS);
       ClientConsumer consumer1 = session1.createConsumer(ADDRESS);
@@ -178,10 +185,10 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
 
       for (int i = 0; i < 100; i++) {
          ClientMessage message = consumer0.receive(1000);
-         assertNotNull("expecting durable msg " + i, message);
+         assertNotNull(message, "expecting durable msg " + i);
          message.acknowledge();
          message = consumer1.receive(1000);
-         assertNotNull("expecting durable msg " + i, message);
+         assertNotNull(message, "expecting durable msg " + i);
          message.acknowledge();
 
       }
@@ -191,4 +198,11 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
    public int getBackupServerCount() {
       return 4;
    }
+
+
+   @Override
+   public int getPrimaryServerCount() {
+      return 2;
+   }
+
 }

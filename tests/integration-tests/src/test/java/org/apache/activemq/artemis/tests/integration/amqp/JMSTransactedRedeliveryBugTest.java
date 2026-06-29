@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
@@ -32,15 +35,15 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JMSTransactedRedeliveryBugTest extends JMSClientTestSupport {
 
    private static final String INITIAL_QUEUE_NAME = "InitialQueue";
    private static final String FINAL_QUEUE_NAME = "FinalQueue";
 
-   private static final SimpleString INITIAL_QUEUE_SS = new SimpleString(INITIAL_QUEUE_NAME);
-   private static final SimpleString FINAL_QUEUE_SS = new SimpleString(FINAL_QUEUE_NAME);
+   private static final SimpleString INITIAL_QUEUE_SS = SimpleString.of(INITIAL_QUEUE_NAME);
+   private static final SimpleString FINAL_QUEUE_SS = SimpleString.of(FINAL_QUEUE_NAME);
 
    @Override
    protected void addConfiguration(ActiveMQServer server) {
@@ -51,9 +54,9 @@ public class JMSTransactedRedeliveryBugTest extends JMSClientTestSupport {
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       super.createAddressAndQueues(server);
       server.addAddressInfo(new AddressInfo(INITIAL_QUEUE_SS, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(INITIAL_QUEUE_SS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(INITIAL_QUEUE_SS).setRoutingType(RoutingType.ANYCAST));
       server.addAddressInfo(new AddressInfo(FINAL_QUEUE_SS, RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(FINAL_QUEUE_SS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(FINAL_QUEUE_SS).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Override

@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
@@ -26,202 +33,196 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteServerConnect;
-import org.apache.activemq.artemis.core.server.cluster.qourum.ServerConnectVote;
+import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumVoteServerConnect;
+import org.apache.activemq.artemis.core.server.cluster.quorum.ServerConnectVote;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
 
    private final int size;
    private final int trueVotes;
 
-   @Parameterized.Parameters(name = "size={0} trueVotes={1}")
+   @Parameters(name = "size={0} trueVotes={1}")
    public static Collection primeNumbers() {
       return Arrays.asList(new Object[][]{{1, 0}, {2, 1}, {3, 2}, {4, 3}, {5, 3}, {6, 4}, {7, 4}, {8, 5}, {9, 5}, {10, 6}});
    }
 
    public QuorumVoteServerConnectTest(int size, int trueVotes) {
-
       this.size = size;
       this.trueVotes = trueVotes;
    }
 
-   @Test
+   @TestTemplate
    public void testVoteOnRequestToStay() {
-      Assume.assumeThat(trueVotes, Matchers.greaterThan(0));
-      Assume.assumeThat(size, Matchers.greaterThan(trueVotes));
-      final String liveConnector = "live";
+      assumeTrue(trueVotes > 0);
+      assumeTrue(size > trueVotes);
+      final String connector = "primary";
       final String backupConnector = "backup";
-      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo", true, liveConnector);
+      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo", true, connector);
       quorum.vote(new ServerConnectVote("foo", true, backupConnector));
-      Assert.assertFalse(quorum.getDecision());
+      assertFalse(quorum.getDecision());
       for (int i = 0; i < trueVotes - 1; i++) {
-         quorum.vote(new ServerConnectVote("foo", true, liveConnector));
-         Assert.assertFalse(quorum.getDecision());
+         quorum.vote(new ServerConnectVote("foo", true, connector));
+         assertFalse(quorum.getDecision());
       }
-      quorum.vote(new ServerConnectVote("foo", true, liveConnector));
-      Assert.assertTrue(quorum.getDecision());
+      quorum.vote(new ServerConnectVote("foo", true, connector));
+      assertTrue(quorum.getDecision());
    }
 
-   @Test
+   @TestTemplate
    public void testAllVoteCastFreezeNotRequestToStayDecision() {
       QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo");
-      Assert.assertFalse(quorum.isRequestToStayLive());
+      assertFalse(quorum.isRequestToStayActive());
       final boolean decisionBeforeVoteCompleted = quorum.getDecision();
       quorum.allVotesCast(null);
       for (int i = 0; i < trueVotes; i++) {
          quorum.vote(new ServerConnectVote("foo", true, null));
       }
-      Assert.assertEquals(decisionBeforeVoteCompleted, quorum.getDecision());
+      assertEquals(decisionBeforeVoteCompleted, quorum.getDecision());
    }
 
-   @Test
+   @TestTemplate
    public void testAllVoteCastFreezeRequestToStayDecision() {
-      final String liveConnector = "live";
-      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo", true, liveConnector);
-      Assert.assertTrue(quorum.isRequestToStayLive());
+      final String connector = "primary";
+      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo", true, connector);
+      assertTrue(quorum.isRequestToStayActive());
       final boolean decisionBeforeVoteCompleted = quorum.getDecision();
       quorum.allVotesCast(null);
       for (int i = 0; i < trueVotes; i++) {
-         quorum.vote(new ServerConnectVote("foo", true, liveConnector));
+         quorum.vote(new ServerConnectVote("foo", true, connector));
       }
-      Assert.assertEquals(decisionBeforeVoteCompleted, quorum.getDecision());
+      assertEquals(decisionBeforeVoteCompleted, quorum.getDecision());
    }
 
-   @Test
+   @TestTemplate
    public void testAllVoteCastUnblockAwait() throws InterruptedException {
-      Assume.assumeThat(trueVotes, Matchers.greaterThan(0));
-      Assume.assumeThat(size, Matchers.greaterThan(trueVotes));
+      assumeTrue(trueVotes > 0);
+      assumeTrue(size > trueVotes);
       QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo");
-      Assert.assertFalse(quorum.getDecision());
+      assertFalse(quorum.getDecision());
       CountDownLatch taskStarted = new CountDownLatch(1);
       ExecutorService executor = Executors.newSingleThreadExecutor();
-      try {
-         final Future<InterruptedException> waitingTaskResult = executor.submit(() -> {
-            taskStarted.countDown();
-            try {
-               quorum.await(1, TimeUnit.DAYS);
-               return null;
-            } catch (InterruptedException e) {
-               return e;
-            }
-         });
-         // realistic expectation of the max time to start a Thread
-         Assert.assertTrue(taskStarted.await(10, TimeUnit.SECONDS));
-         Assert.assertFalse(waitingTaskResult.isDone());
-         quorum.allVotesCast(null);
+      runAfter(executor::shutdownNow);
+      final Future<InterruptedException> waitingTaskResult = executor.submit(() -> {
+         taskStarted.countDown();
          try {
-            Assert.assertNull(waitingTaskResult.get(5, TimeUnit.SECONDS));
-         } catch (TimeoutException ex) {
-            Assert.fail("allVoteCast hasn't unblocked the waiting task");
-         } catch (ExecutionException ex) {
-            Assert.fail("This shouldn't really happen: the wait task shouldn't throw any exception: " + ex);
+            quorum.await(1, TimeUnit.MINUTES);
+            return null;
+         } catch (InterruptedException e) {
+            // preserve interrupt state
+            Thread.currentThread().interrupt();
+            return e;
          }
-         Assert.assertTrue(waitingTaskResult.isDone());
-         Assert.assertFalse(quorum.getDecision());
-      } finally {
-         executor.shutdownNow();
+      });
+      // realistic expectation of the max time to start a Thread
+      assertTrue(taskStarted.await(10, TimeUnit.SECONDS));
+      assertFalse(waitingTaskResult.isDone());
+      quorum.allVotesCast(null);
+      try {
+         assertNull(waitingTaskResult.get(5, TimeUnit.SECONDS));
+      } catch (TimeoutException ex) {
+         fail("allVoteCast hasn't unblocked the waiting task");
+      } catch (ExecutionException ex) {
+         fail("This shouldn't really happen: the wait task shouldn't throw any exception: " + ex);
       }
+      assertTrue(waitingTaskResult.isDone());
+      assertFalse(quorum.getDecision());
    }
 
-   @Test
+   @TestTemplate
    public void testRequestToStayQuorumUnblockAwait() throws InterruptedException {
-      Assume.assumeThat(trueVotes, Matchers.greaterThan(0));
-      Assume.assumeThat(size, Matchers.greaterThan(trueVotes));
-      final String liveConnector = "live";
+      assumeTrue(trueVotes > 0);
+      assumeTrue(size > trueVotes);
+      final String connector = "primary";
       final String backupConnector = "backup";
-      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo", true, liveConnector);
-      Assert.assertFalse(quorum.getDecision());
+      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo", true, connector);
+      assertFalse(quorum.getDecision());
       CountDownLatch taskStarted = new CountDownLatch(1);
       ExecutorService executor = Executors.newSingleThreadExecutor();
-      try {
-         final Future<InterruptedException> waitingTaskResult = executor.submit(() -> {
-            taskStarted.countDown();
-            try {
-               quorum.await(1, TimeUnit.DAYS);
-               return null;
-            } catch (InterruptedException e) {
-               return e;
-            }
-         });
-         // realistic expectation of the max time to start a Thread
-         Assert.assertTrue(taskStarted.await(10, TimeUnit.SECONDS));
-         quorum.vote(new ServerConnectVote("foo", true, backupConnector));
-         Assert.assertFalse(waitingTaskResult.isDone());
-         Assert.assertFalse(quorum.getDecision());
-         for (int i = 0; i < trueVotes - 1; i++) {
-            quorum.vote(new ServerConnectVote("foo", true, liveConnector));
-            Assert.assertFalse(waitingTaskResult.isDone());
-            Assert.assertFalse(quorum.getDecision());
-         }
-         quorum.vote(new ServerConnectVote("foo", true, liveConnector));
-         Assert.assertTrue(quorum.getDecision());
+      runAfter(executor::shutdownNow);
+      final Future<InterruptedException> waitingTaskResult = executor.submit(() -> {
+         taskStarted.countDown();
          try {
-            Assert.assertNull(waitingTaskResult.get(5, TimeUnit.SECONDS));
-         } catch (TimeoutException ex) {
-            Assert.fail("allVoteCast hasn't unblocked the waiting task");
-         } catch (ExecutionException ex) {
-            Assert.fail("This shouldn't really happen: the wait task shouldn't throw any exception: " + ex);
+            quorum.await(1, TimeUnit.MINUTES);
+            return null;
+         } catch (InterruptedException e) {
+            // preserve interrupt state
+            Thread.currentThread().interrupt();
+            return e;
          }
-         Assert.assertTrue(waitingTaskResult.isDone());
-         Assert.assertTrue(quorum.getDecision());
-      } finally {
-         executor.shutdownNow();
+      });
+      // realistic expectation of the max time to start a Thread
+      assertTrue(taskStarted.await(10, TimeUnit.SECONDS));
+      quorum.vote(new ServerConnectVote("foo", true, backupConnector));
+      assertFalse(waitingTaskResult.isDone());
+      assertFalse(quorum.getDecision());
+      for (int i = 0; i < trueVotes - 1; i++) {
+         quorum.vote(new ServerConnectVote("foo", true, connector));
+         assertFalse(waitingTaskResult.isDone());
+         assertFalse(quorum.getDecision());
       }
+      quorum.vote(new ServerConnectVote("foo", true, connector));
+      assertTrue(quorum.getDecision());
+      try {
+         assertNull(waitingTaskResult.get(5, TimeUnit.SECONDS));
+      } catch (TimeoutException ex) {
+         fail("allVoteCast hasn't unblocked the waiting task");
+      } catch (ExecutionException ex) {
+         fail("This shouldn't really happen: the wait task shouldn't throw any exception: " + ex);
+      }
+      assertTrue(waitingTaskResult.isDone());
+      assertTrue(quorum.getDecision());
    }
 
-   @Test
+   @TestTemplate
    public void testNotRequestToStayQuorumUnblockAwait() throws InterruptedException {
-      Assume.assumeThat(trueVotes, Matchers.greaterThan(0));
-      Assume.assumeThat(size, Matchers.greaterThan(trueVotes));
+      assumeTrue(trueVotes > 0);
+      assumeTrue(size > trueVotes);
       QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo");
-      Assert.assertFalse(quorum.getDecision());
+      assertFalse(quorum.getDecision());
       CountDownLatch taskStarted = new CountDownLatch(1);
       ExecutorService executor = Executors.newSingleThreadExecutor();
-      try {
-         final Future<InterruptedException> waitingTaskResult = executor.submit(() -> {
-            taskStarted.countDown();
-            try {
-               quorum.await(1, TimeUnit.DAYS);
-               return null;
-            } catch (InterruptedException e) {
-               return e;
-            }
-         });
-         // realistic expectation of the max time to start a Thread
-         Assert.assertTrue(taskStarted.await(10, TimeUnit.SECONDS));
-         quorum.vote(new ServerConnectVote("foo", false, null));
-         Assert.assertFalse(waitingTaskResult.isDone());
-         Assert.assertFalse(quorum.getDecision());
-         for (int i = 0; i < trueVotes - 1; i++) {
-            quorum.vote(new ServerConnectVote("foo", true, null));
-            Assert.assertFalse(waitingTaskResult.isDone());
-            Assert.assertFalse(quorum.getDecision());
-         }
-         quorum.vote(new ServerConnectVote("foo", true, null));
-         Assert.assertTrue(quorum.getDecision());
+      runAfter(executor::shutdownNow);
+      final Future<InterruptedException> waitingTaskResult = executor.submit(() -> {
+         taskStarted.countDown();
          try {
-            Assert.assertNull(waitingTaskResult.get(5, TimeUnit.SECONDS));
-         } catch (TimeoutException ex) {
-            Assert.fail("allVoteCast hasn't unblocked the waiting task");
-         } catch (ExecutionException ex) {
-            Assert.fail("This shouldn't really happen: the wait task shouldn't throw any exception: " + ex);
+            quorum.await(1, TimeUnit.MINUTES);
+            return null;
+         } catch (InterruptedException e) {
+            // preserve interrupt state
+            Thread.currentThread().interrupt();
+            return e;
          }
-         Assert.assertTrue(waitingTaskResult.isDone());
-         Assert.assertTrue(quorum.getDecision());
-      } finally {
-         executor.shutdownNow();
+      });
+      // realistic expectation of the max time to start a Thread
+      assertTrue(taskStarted.await(10, TimeUnit.SECONDS));
+      quorum.vote(new ServerConnectVote("foo", false, null));
+      assertFalse(waitingTaskResult.isDone());
+      assertFalse(quorum.getDecision());
+      for (int i = 0; i < trueVotes - 1; i++) {
+         quorum.vote(new ServerConnectVote("foo", true, null));
+         assertFalse(waitingTaskResult.isDone());
+         assertFalse(quorum.getDecision());
       }
+      quorum.vote(new ServerConnectVote("foo", true, null));
+      assertTrue(quorum.getDecision());
+      try {
+         assertNull(waitingTaskResult.get(5, TimeUnit.SECONDS));
+      } catch (TimeoutException ex) {
+         fail("allVoteCast hasn't unblocked the waiting task");
+      } catch (ExecutionException ex) {
+         fail("This shouldn't really happen: the wait task shouldn't throw any exception: " + ex);
+      }
+      assertTrue(waitingTaskResult.isDone());
+      assertTrue(quorum.getDecision());
    }
 
-   @Test
+   @TestTemplate
    public void testSuccessfulVote() {
       QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo");
       for (int i = 0; i < trueVotes - 1; i++) {
@@ -238,7 +239,7 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
       assertTrue(quorum.getDecision());
    }
 
-   @Test
+   @TestTemplate
    public void testUnSuccessfulVote() {
       QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo");
       for (int i = 0; i < trueVotes - 1; i++) {

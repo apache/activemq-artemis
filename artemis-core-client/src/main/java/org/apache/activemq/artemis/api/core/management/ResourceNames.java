@@ -21,9 +21,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * Helper class used to build resource names used by management messages.
- * <br>
- * Resource's name is build by appending its <em>name</em> to its corresponding type.
- * For example, the resource name of the "foo" queue is {@code QUEUE + "foo"}.
+ * <p>
+ * Resource's name is build by appending its <em>name</em> to its corresponding type. For example, the resource name of
+ * the "foo" queue is {@code QUEUE + "foo"}.
  */
 public final class ResourceNames {
    public static final String BROKER = "broker";
@@ -33,6 +33,10 @@ public final class ResourceNames {
    public static final String QUEUE = "queue.";
 
    public static final String ADDRESS = "address.";
+
+   public static final String BROKER_CONNECTION = "brokerconnection.";
+
+   public static final String REMOTE_BROKER_CONNECTION = "remotebrokerconnection.";
 
    public static final String BRIDGE = "bridge.";
 
@@ -61,7 +65,7 @@ public final class ResourceNames {
    }
 
    private static SimpleString getRetroactiveResourceName(String prefix, String delimiter, SimpleString address, String resourceType) {
-      return SimpleString.toSimpleString(prefix.concat(address.toString()).concat(delimiter).concat(resourceType).concat(delimiter).concat(RETROACTIVE_SUFFIX));
+      return SimpleString.of(prefix.concat(address.toString()).concat(delimiter).concat(resourceType).concat(delimiter).concat(RETROACTIVE_SUFFIX));
    }
 
    public static boolean isRetroactiveResource(String prefix, SimpleString address) {
@@ -69,7 +73,7 @@ public final class ResourceNames {
    }
 
    public static String decomposeRetroactiveResourceAddressName(String prefix, String delimiter, String address) {
-      return address.substring(address.indexOf(prefix) + prefix.length(), address.indexOf(delimiter + trimLastCharacter(ADDRESS)));
+      return address.substring(prefix.length(), address.length() - (delimiter.length() + ADDRESS.length() + RETROACTIVE_SUFFIX.length()));
    }
 
    private static String trimLastCharacter(String toTrim) {

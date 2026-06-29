@@ -135,9 +135,9 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       }
 
       //client ping
-      long minPingInterval = Long.valueOf(params[0]);
+      long minPingInterval = Long.parseLong(params[0]);
       //client receive ping
-      long minAcceptInterval = Long.valueOf(params[1]);
+      long minAcceptInterval = Long.parseLong(params[1]);
 
       if (heartBeater == null) {
          heartBeater = new HeartBeater(scheduledExecutorService, executorFactory.getExecutor(), minPingInterval, minAcceptInterval);
@@ -266,9 +266,10 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
       private static final int MIN_SERVER_PING = 500;
 
+      private boolean previouslyStopped = false;
+
       long serverPingPeriod = 0;
       long clientPingResponse;
-      volatile boolean shutdown = false;
       AtomicLong lastPingTimestamp = new AtomicLong(0);
       ConnectionEntry connectionEntry;
 
@@ -286,7 +287,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
          if (connectionEntry != null) {
             String heartBeatToTtlModifierStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.HEART_BEAT_TO_CONNECTION_TTL_MODIFIER);
-            double heartBeatToTtlModifier = heartBeatToTtlModifierStr == null ? 2 : Double.valueOf(heartBeatToTtlModifierStr);
+            double heartBeatToTtlModifier = heartBeatToTtlModifierStr == null ? 2 : Double.parseDouble(heartBeatToTtlModifierStr);
 
             // the default response to the client
             clientPingResponse = (long) (connectionEntry.ttl / heartBeatToTtlModifier);
@@ -294,12 +295,13 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
             if (clientPing != 0) {
                clientPingResponse = clientPing;
                String ttlMaxStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.CONNECTION_TTL_MAX);
-               long ttlMax = ttlMaxStr == null ? Long.MAX_VALUE : Long.valueOf(ttlMaxStr);
+               long ttlMax = ttlMaxStr == null ? Long.MAX_VALUE : Long.parseLong(ttlMaxStr);
 
                String ttlMinStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.CONNECTION_TTL_MIN);
-               long ttlMin = ttlMinStr == null ? 1000 : Long.valueOf(ttlMinStr);
+               long ttlMin = ttlMinStr == null ? 1000 : Long.parseLong(ttlMinStr);
 
-               /* The connection's TTL should be one of the following:
+               /*
+                * The connection's TTL should be one of the following:
                 *   1) clientPing * heartBeatToTtlModifier
                 *   2) ttlMin
                 *   3) ttlMax
@@ -322,7 +324,14 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
       public void shutdown() {
          this.stop();
+         previouslyStopped = true;
+      }
 
+      @Override
+      public void start() {
+         if (!previouslyStopped) {
+            super.start();
+         }
       }
 
       public void pinged() {
@@ -390,15 +399,17 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                //client ping
                nextChar = false;
             } else if (workingBuffer[offset] == CR) {
-               if (nextChar)
+               if (nextChar) {
                   throw BUNDLE.invalidTwoCRs().setHandler(handler);
+               }
                nextChar = true;
             } else {
                break;
             }
             offset++;
-            if (offset == data)
+            if (offset == data) {
                return false; //no more bytes
+            }
          }
 
          if (nextChar) {
@@ -494,7 +505,6 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
                break;
             }
-            /**** added by meddy, 27 april 2011, handle header parser for reply to websocket protocol ****/
             case E: {
                if (!tryIncrement(offset + COMMAND_ERROR_LENGTH + eolLen)) {
                   return false;
@@ -515,7 +525,6 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
                break;
             }
-            /**** end ****/
             case S: {
                if (workingBuffer[offset + 1] == E) {
                   if (!tryIncrement(offset + COMMAND_SEND_LENGTH + eolLen)) {
@@ -727,12 +736,14 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
          if (content != null) {
             if (data > pos) {
-               if (workingBuffer[pos] == NEW_LINE)
+               if (workingBuffer[pos] == NEW_LINE) {
                   pos++;
+               }
 
-               if (data > pos)
+               if (data > pos) {
                   // More data still in the buffer from the next packet
                   System.arraycopy(workingBuffer, pos, workingBuffer, 0, data - pos);
+               }
             }
 
             data = data - pos;

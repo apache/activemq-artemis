@@ -17,12 +17,13 @@
 
 package org.apache.activemq.cli.test;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.io.InputStream;
 
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.messages.Producer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StreamClassPathTest {
 
@@ -36,17 +37,19 @@ public class StreamClassPathTest {
       testStream(Create.class, Create.BIN_ARTEMIS_SERVICE_EXE_CONFIG);
       testStream(Create.class, Create.BIN_ARTEMIS_SERVICE_XML);
       testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_PROFILE_CMD);
+      testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD);
       testStream(Create.class, Create.BIN_ARTEMIS);
       testStream(Create.class, Create.BIN_ARTEMIS_SERVICE);
       testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_PROFILE);
+      testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_UTILITY_PROFILE);
       testStream(Create.class, "etc/" + Create.ETC_LOG4J2_PROPERTIES);
       testStream(Create.class, "etc/" + Create.ETC_BOOTSTRAP_XML);
       testStream(Create.class, "etc/" + Create.ETC_MANAGEMENT_XML);
       testStream(Create.class, "etc/" + Create.ETC_BROKER_XML);
       testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_ROLES_PROPERTIES);
       testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_USERS_PROPERTIES);
-      testStream(Create.class, Create.ETC_REPLICATED_MASTER_SETTINGS_TXT);
-      testStream(Create.class, Create.ETC_REPLICATED_SLAVE_SETTINGS_TXT);
+      testStream(Create.class, Create.ETC_REPLICATED_PRIMARY_SETTINGS_TXT);
+      testStream(Create.class, Create.ETC_REPLICATED_BACKUP_SETTINGS_TXT);
       testStream(Create.class, Create.ETC_SHARED_STORE_SETTINGS_TXT);
       testStream(Create.class, Create.ETC_CLUSTER_SECURITY_SETTINGS_TXT);
       testStream(Create.class, Create.ETC_CLUSTER_SETTINGS_TXT);
@@ -70,7 +73,7 @@ public class StreamClassPathTest {
 
    private void testStream(Class clazz, String source) throws Exception {
       InputStream in = clazz.getResourceAsStream(source);
-      Assert.assertNotNull(source + " not found", in);
+      assertNotNull(in, source + " not found");
       in.close();
    }
 }

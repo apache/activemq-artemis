@@ -38,6 +38,17 @@ under the License.
    </module>
 
    <module name="TreeWalker">
+      <module name="AtclauseOrder"/>
+      <module name="NonEmptyAtclauseDescription"/>
+      <module name="SingleLineJavadoc">
+         <property name="ignoreInlineTags" value="false"/>
+      </module>
+      <module name="InvalidJavadocPosition"/>
+      <module name="JavadocBlockTagLocation"/>
+      <module name="JavadocContentLocation"/>
+      <module name="JavadocLeadingAsteriskAlign" />
+      <module name="JavadocMissingLeadingAsterisk"/>
+      <module name="JavadocMissingWhitespaceAfterAsterisk"/>
 
       <!-- Checks for imports -->
       <module name="AvoidStarImport"/>
@@ -79,6 +90,16 @@ under the License.
       <module name="WhitespaceAround">
          <property name="tokens" value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN, EQUAL, GE, GT, LAND, LCURLY, LE, LITERAL_ASSERT, LITERAL_CATCH, LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF, LITERAL_RETURN, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL, PLUS, PLUS_ASSIGN, QUESTION, SL, SLIST, SL_ASSIGN, SR, SR_ASSIGN, STAR, STAR_ASSIGN, TYPE_EXTENSION_AND"/>
       </module>
+      <module name="WhitespaceAfter">
+         <property name="tokens" value="COMMA"/>
+      </module>
+      <module name="GenericWhitespace"/>
+      <module name="ParenPad">
+         <property name="option" value="nospace"/>
+      </module>
+      <module name="SingleSpaceSeparator">
+         <property name="validateComments" value="false"/>
+      </module>
       <!-- Ensure there is no space between the identifier of a method definition, constructor definition, method call, or constructor invocation and the left parenthesis of the parameter list. -->
       <module name="MethodParamPad"/>
       <!-- Ensure proper indentation. -->
@@ -100,14 +121,19 @@ under the License.
          <property name="severity" value="ignore"/>
       </module>
 
-      <!-- Sevntu checks, http://sevntu-checkstyle.github.io/sevntu.checkstyle/ -->
+      <module name="UnnecessarySemicolonInTryWithResources"/>
+
+      <module name="NeedBraces">
+         <property name="tokens" value="LITERAL_IF, LITERAL_ELSE, LITERAL_FOR, LITERAL_WHILE, LITERAL_DO"/>
+         <property name="allowSingleLineStatement" value="false"/>
+      </module>
+
+      <!-- begin Sevntu checks, http://sevntu-checkstyle.github.io/sevntu.checkstyle/ -->
       <module name="DiamondOperatorForVariableDefinition"/>
       <module name="RequiredParameterForAnnotation">
          <property name="annotationName" value="Parameterized.Parameters"/>
          <property name="requiredParameters" value="name"/>
       </module>
-
-      <module name="UnnecessarySemicolonInTryWithResources"/>
-
+      <!-- end Sevntu checks -->
    </module>
 </module>

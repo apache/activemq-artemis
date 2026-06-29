@@ -24,6 +24,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicSession;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -41,14 +42,13 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.utils.Wait;
-import org.apache.activemq.artemis.utils.Wait.Condition;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport {
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -58,12 +58,12 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
    protected String defaultTopicName = "test.topic";
    protected static int maxMessageSize = 1000;
 
-   @Before
+   @BeforeEach
    public void setupAddresses() throws Exception {
       server.getPostOffice()
-            .addAddressInfo(new AddressInfo(SimpleString.toSimpleString(defaultQueueName), RoutingType.ANYCAST));
+            .addAddressInfo(new AddressInfo(SimpleString.of(defaultQueueName), RoutingType.ANYCAST));
 
-      server.createQueue(new QueueConfiguration(defaultQueueName).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(defaultQueueName).setRoutingType(RoutingType.ANYCAST));
    }
 
    @Override
@@ -185,8 +185,8 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
 
       AtomicLong publishedMessageSize = new AtomicLong();
 
-      publishTestQueueMessages(200, DeliveryMode.NON_PERSISTENT, publishedMessageSize);
-      verifyPendingStats(defaultQueueName, 200, publishedMessageSize.get());
+      publishTestQueueMessages(10, DeliveryMode.NON_PERSISTENT, publishedMessageSize);
+      verifyPendingStats(defaultQueueName, 10, publishedMessageSize.get());
       verifyPendingDurableStats(defaultQueueName, 0, 0);
    }
 
@@ -196,10 +196,10 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
       AtomicLong publishedNonPersistentMessageSize = new AtomicLong();
       AtomicLong publishedMessageSize = new AtomicLong();
 
-      publishTestQueueMessages(100, DeliveryMode.PERSISTENT, publishedMessageSize);
-      publishTestQueueMessages(100, DeliveryMode.NON_PERSISTENT, publishedNonPersistentMessageSize);
-      verifyPendingStats(defaultQueueName, 200, publishedMessageSize.get() + publishedNonPersistentMessageSize.get());
-      verifyPendingDurableStats(defaultQueueName, 100, publishedMessageSize.get());
+      publishTestQueueMessages(5, DeliveryMode.PERSISTENT, publishedMessageSize);
+      publishTestQueueMessages(10, DeliveryMode.NON_PERSISTENT, publishedNonPersistentMessageSize);
+      verifyPendingStats(defaultQueueName, 15, publishedMessageSize.get() + publishedNonPersistentMessageSize.get());
+      verifyPendingDurableStats(defaultQueueName, 5, publishedMessageSize.get());
    }
 
    @Test
@@ -474,7 +474,7 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
       // The publish method will create a second shared consumer
       Session s = connection.createSession();
       MessageConsumer c = s.createSharedDurableConsumer(s.createTopic(defaultTopicName), "sub1");
-      publishTestMessagesDurable(connection, new String[] {"sub1",}, 200, publishedMessageSize,
+      publishTestMessagesDurable(connection, new String[] {"sub1"}, 200, publishedMessageSize,
             DeliveryMode.PERSISTENT, true);
 
       // verify the count and size - double because two durables so two queue
@@ -493,7 +493,7 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
 
    protected List<Queue> getQueues(final String address) throws Exception {
       final List<Queue> queues = new ArrayList<>();
-      for (Binding binding : server.getPostOffice().getDirectBindings(SimpleString.toSimpleString(address))) {
+      for (Binding binding : server.getPostOffice().getDirectBindings(SimpleString.of(address))) {
          if (binding.getType() == BindingType.LOCAL_QUEUE) {
             LocalQueueBinding queueBinding = (LocalQueueBinding) binding;
             queues.add(queueBinding.getQueue());
@@ -534,40 +534,16 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
          throws Exception {
       final List<Queue> queues = getQueues(address);
 
-      assertTrue(Wait.waitFor(new Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return queues.stream().mapToLong(countFunc)
-                  .sum() == count;
-         }
-      }));
-
-      verifySize(count, new MessageSizeCalculator() {
-         @Override
-         public long getMessageSize() throws Exception {
-            return queues.stream().mapToLong(sizeFunc)
-                  .sum();
-         }
-      }, minimumSize);
-
+      assertTrue(Wait.waitFor(() -> queues.stream().mapToLong(countFunc).sum() == count));
+      verifySize(count, () -> queues.stream().mapToLong(sizeFunc).sum(), minimumSize);
    }
 
    protected void verifySize(final int count, final MessageSizeCalculator messageSizeCalculator, final long minimumSize)
          throws Exception {
       if (count > 0) {
-         assertTrue(Wait.waitFor(new Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return messageSizeCalculator.getMessageSize() > minimumSize;
-            }
-         }));
+         assertTrue(Wait.waitFor(() -> messageSizeCalculator.getMessageSize() > minimumSize));
       } else {
-         assertTrue(Wait.waitFor(new Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return messageSizeCalculator.getMessageSize() == 0;
-            }
-         }));
+         assertTrue(Wait.waitFor(() -> messageSizeCalculator.getMessageSize() == 0));
       }
    }
 

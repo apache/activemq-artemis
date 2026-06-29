@@ -20,7 +20,9 @@ import org.apache.qpid.proton.codec.AMQPDefinedTypes;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
 
-/** This can go away if Proton provides this feature. */
+/**
+ * This can go away if Proton provides this feature.
+ */
 public class TLSEncode {
 
    // For now Proton requires that we create a decoder to create an encoder
@@ -32,12 +34,7 @@ public class TLSEncode {
       }
    }
 
-   private static final ThreadLocal<EncoderDecoderPair> tlsCodec = new ThreadLocal<EncoderDecoderPair>() {
-      @Override
-      protected EncoderDecoderPair initialValue() {
-         return new EncoderDecoderPair();
-      }
-   };
+   private static final ThreadLocal<EncoderDecoderPair> tlsCodec = ThreadLocal.withInitial(() -> new EncoderDecoderPair());
 
    public static EncoderImpl getEncoder() {
       return tlsCodec.get().encoder;

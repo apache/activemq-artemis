@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ServerLegacyProducersImpl implements ServerProducers {
 
@@ -38,7 +39,7 @@ public class ServerLegacyProducersImpl implements ServerProducers {
 
    public ServerLegacyProducersImpl(ServerSession session) {
       this.sessionName = session.getName();
-      this.connectionID = session.getConnectionID() != null ? session.getConnectionID().toString() : null;
+      this.connectionID = Objects.toString(session.getConnectionID(), null);
    }
 
    @Override

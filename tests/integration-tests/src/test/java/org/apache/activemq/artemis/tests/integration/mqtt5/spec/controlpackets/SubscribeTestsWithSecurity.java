@@ -16,31 +16,31 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.common.MqttSubscription;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
-
-   public SubscribeTestsWithSecurity(String protocol) {
-      super(protocol);
-   }
 
    @Override
    public boolean isSecurityEnabled() {
       return true;
    }
 
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAuthorizationFailure() throws Exception {
       final String CLIENT_ID = "consumer";
       final int SUBSCRIPTION_COUNT = 10;
@@ -53,7 +53,7 @@ public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
 
       MqttSubscription[] subscriptions = new MqttSubscription[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
-         MqttSubscription subscription = new MqttSubscription(RandomUtil.randomString(), RandomUtil.randomInterval(0, 3));
+         MqttSubscription subscription = new MqttSubscription(RandomUtil.randomUUIDString(), RandomUtil.randomInterval(0, 3));
          subscriptions[i] = subscription;
       }
 
@@ -65,7 +65,8 @@ public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
       }
    }
 
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAuthorizationSuccess() throws Exception {
       final String CLIENT_ID = "consumer";
       final int SUBSCRIPTION_COUNT = 10;
@@ -80,7 +81,7 @@ public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
       int[] requestedQos = new int[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
          requestedQos[i] = RandomUtil.randomInterval(0, 3);
-         MqttSubscription subscription = new MqttSubscription(RandomUtil.randomString(), requestedQos[i]);
+         MqttSubscription subscription = new MqttSubscription(RandomUtil.randomUUIDString(), requestedQos[i]);
          subscriptions[i] = subscription;
       }
 
@@ -94,19 +95,20 @@ public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
       client.disconnect();
    }
 
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscriptionQueueRemoved() throws Exception {
-      final String CLIENT_ID = "consumer";
+      final String CONSUMER_ID = "consumer";
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
          .username(noDeleteUser)
          .password(noDeletePass.getBytes(StandardCharsets.UTF_8))
          .build();
-      MqttClient client = createPahoClient(CLIENT_ID);
+      MqttClient client = createPahoClient(CONSUMER_ID);
       client.connect(options);
 
       client.subscribe(getTopicName(), 0).waitForCompletion();
       client.disconnect();
 
-      Wait.assertTrue(() -> getSubscriptionQueue(getTopicName()) == null, 2000, 100);
+      Wait.assertTrue(() -> getSubscriptionQueue(getTopicName(), CONSUMER_ID) == null, 2000, 100);
    }
 }

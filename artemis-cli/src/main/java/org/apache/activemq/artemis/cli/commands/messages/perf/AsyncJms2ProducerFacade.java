@@ -132,8 +132,8 @@ public final class AsyncJms2ProducerFacade {
    }
 
    /**
-    * if {@code true}, a subsequent {@link #trySend} would return {@link SendAttemptResult#Success}.<br>
-    * Otherwise, a subsequent {@link #trySend} would return {@link SendAttemptResult#NotAvailable}.
+    * If {@code true}, a subsequent {@link #trySend} would return {@link SendAttemptResult#Success}. Otherwise, a
+    * subsequent {@link #trySend} would return {@link SendAttemptResult#NotAvailable}.
     */
    private boolean isAvailable() {
       if (maxPending > 0 && pending == maxPending) {

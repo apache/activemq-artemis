@@ -24,49 +24,47 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.server.NodeManager;
-import org.apache.activemq.artemis.quorum.DistributedLock;
-import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
-import org.apache.activemq.artemis.quorum.MutableLong;
-import org.apache.activemq.artemis.quorum.UnavailableStateException;
+import org.apache.activemq.artemis.lockmanager.DistributedLock;
+import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
+import org.apache.activemq.artemis.lockmanager.MutableLong;
+import org.apache.activemq.artemis.lockmanager.UnavailableStateException;
 import org.slf4j.Logger;
 
 /**
- * This class contains the activation sequence logic of the pluggable quorum vote:
- * it should be used by {@link org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation}
- * and {@link org.apache.activemq.artemis.core.server.impl.ReplicationPrimaryActivation} to coordinate
- * for replication.
+ * This class contains the activation sequence logic of the pluggable lock manager: it should be used by
+ * {@link org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation} and
+ * {@link org.apache.activemq.artemis.core.server.impl.ReplicationPrimaryActivation} to coordinate for replication.
  */
 public final class ActivationSequenceStateMachine {
 
    private static final long CHECK_ACTIVATION_SEQUENCE_WAIT_MILLIS = 200;
-   private static final long LIVE_LOCK_ACQUIRE_TIMEOUT_MILLIS = 2000;
+   private static final long PRIMARY_LOCK_ACQUIRE_TIMEOUT_MILLIS = 2000;
 
    private ActivationSequenceStateMachine() {
 
    }
 
    /**
-    * It loops if the data of the broker is still valuable, but cannot become live.
-    * It loops (temporarily) if data is in sync or can auto-repair, but cannot yet acquire the live lock.
+    * It loops if the data of the broker is still valuable, but cannot become active. It loops (temporarily) if data is
+    * in sync or can auto-repair, but cannot yet acquire the primary lock.
     * <p>
     * It stops loop and return:
-    * <p><ul>
-    * <li>{@code null}: if data is stale (and there are no rights to become live)
+    * <ul>
+    * <li>{@code null}: if data is stale (and there are no rights to become active)
     * <li>{@code !=null}: if data is in sync/repaired and the {@link DistributedLock} is correctly acquired
-    * </ul><p>
-    * <p>
+    * </ul>
     * After successfully returning from this method ie not null return value, a broker should use
-    * {@link #ensureSequentialAccessToNodeData} to complete
-    * the activation and guarantee the initial not-replicated ownership of data.
+    * {@link #ensureSequentialAccessToNodeData} to complete the activation and guarantee the initial not-replicated
+    * ownership of data.
     */
    public static DistributedLock tryActivate(final NodeManager nodeManager,
-                                             final DistributedPrimitiveManager distributedManager,
+                                             final DistributedLockManager distributedManager,
                                              final Logger logger) throws InterruptedException, ExecutionException, TimeoutException, UnavailableStateException {
       Objects.requireNonNull(nodeManager);
       Objects.requireNonNull(distributedManager);
       Objects.requireNonNull(logger);
-      final String nodeId = nodeManager.getNodeId() == null ? null : nodeManager.getNodeId().toString();
-      Objects.requireNonNull(nodeId);
+      Objects.requireNonNull(nodeManager.getNodeId());
+      final String nodeId = nodeManager.getNodeId().toString();
       final long nodeActivationSequence = nodeManager.getNodeActivationSequence();
       if (nodeActivationSequence < 0) {
          throw new IllegalArgumentException("nodeActivationSequence must be > 0");
@@ -84,7 +82,7 @@ public final class ActivationSequenceStateMachine {
                   activationLock.close();
                   return null;
                case InSync:
-                  timeout = LIVE_LOCK_ACQUIRE_TIMEOUT_MILLIS;
+                  timeout = PRIMARY_LOCK_ACQUIRE_TIMEOUT_MILLIS;
                   break;
                case SelfRepair:
                case MaybeInSync:
@@ -92,7 +90,7 @@ public final class ActivationSequenceStateMachine {
             }
             // SelfRepair, MaybeInSync, InSync
             if (!activationLock.tryLock(timeout, TimeUnit.MILLISECONDS)) {
-               logger.debug("Candidate for Node ID = {}, with local activation sequence: {}, cannot acquire live lock within {}; retrying",
+               logger.debug("Candidate for Node ID = {}, with local activation sequence: {}, cannot acquire primary lock within {}; retrying",
                              nodeId, nodeActivationSequence, timeout);
                if (timeout == 0) {
                   Thread.sleep(CHECK_ACTIVATION_SEQUENCE_WAIT_MILLIS);
@@ -105,12 +103,12 @@ public final class ActivationSequenceStateMachine {
                   activationLock.close();
                   return null;
                case InSync:
-                  // we are an in_sync_replica, good to go live as UNREPLICATED
-                  logger.info("Assuming live role for NodeID = {}, local activation sequence {} matches current coordinated activation sequence {}", nodeId, nodeActivationSequence, nodeActivationSequence);
+                  // we are an in_sync_replica, good to activate as UNREPLICATED
+                  logger.info("Assuming active role for NodeID = {}, local activation sequence {} matches current coordinated activation sequence {}", nodeId, nodeActivationSequence, nodeActivationSequence);
                   return activationLock;
                case SelfRepair:
                   // Self-repair sequence
-                  logger.info("Assuming live role for NodeID = {}: local activation sequence {} matches claimed coordinated activation sequence {}. Repairing sequence", nodeId, nodeActivationSequence, nodeActivationSequence);
+                  logger.info("Assuming active role for NodeID = {}: local activation sequence {} matches claimed coordinated activation sequence {}. Repairing sequence", nodeId, nodeActivationSequence, nodeActivationSequence);
                   try {
                      repairActivationSequence(nodeManager, coordinatedNodeSequence, nodeActivationSequence, true);
                      return activationLock;
@@ -120,7 +118,7 @@ public final class ActivationSequenceStateMachine {
                   }
                case MaybeInSync:
                   // Auto-repair sequence
-                  logger.warn("Assuming live role for NodeID = {}: repairing claimed activation sequence", nodeId);
+                  logger.warn("Assuming active role for NodeID = {}: repairing claimed activation sequence", nodeId);
                   try {
                      repairActivationSequence(nodeManager, coordinatedNodeSequence, nodeActivationSequence, false);
                      return activationLock;
@@ -147,19 +145,19 @@ public final class ActivationSequenceStateMachine {
    private enum ValidationResult {
       /**
        * coordinated activation sequence (claimed/committed) is far beyond the local one: data is not valuable anymore
-       **/
+       */
       Stale,
       /**
        * coordinated activation sequence is the same as local one: data is in sync
-       **/
+       */
       InSync,
       /**
        * next coordinated activation sequence is not committed yet: maybe data is in sync
-       **/
+       */
       MaybeInSync,
       /**
        * next coordinated activation sequence is not committed yet, but this broker can self-repair: data is in sync
-       **/
+       */
       SelfRepair
    }
 
@@ -199,7 +197,7 @@ public final class ActivationSequenceStateMachine {
    /**
     * It wait until {@code timeoutMillis ms} has passed or the coordinated activation sequence has progressed enough
     */
-   public static boolean awaitNextCommittedActivationSequence(final DistributedPrimitiveManager distributedManager,
+   public static boolean awaitNextCommittedActivationSequence(final DistributedLockManager distributedManager,
                                                               final String coordinatedLockAndNodeId,
                                                               final long activationSequence,
                                                               final long timeoutMills,
@@ -215,7 +213,7 @@ public final class ActivationSequenceStateMachine {
          throw new IllegalStateException("manager must be started");
       }
       final MutableLong coordinatedActivationSequence = distributedManager.getMutableLong(coordinatedLockAndNodeId);
-      // wait for the live to activate and run un replicated with a sequence > inSyncReplicaActivation
+      // wait for the primary to activate and run un replicated with a sequence > inSyncReplicaActivation
       // this read can be dirty b/c we are just looking for an increment.
       boolean anyNext = false;
       final long timeoutNs = TimeUnit.MILLISECONDS.toNanos(timeoutMills);
@@ -253,31 +251,31 @@ public final class ActivationSequenceStateMachine {
    }
 
    /**
-    * This is going to increment the coordinated activation sequence and the local activation sequence
-    * (using {@link NodeManager#writeNodeActivationSequence}) while holding the live lock,
-    * failing with some exception otherwise.<br>
+    * This is going to increment the coordinated activation sequence and the local activation sequence (using
+    * {@link NodeManager#writeNodeActivationSequence}) while holding the primary lock, failing with some exception
+    * otherwise.
     * <p>
-    * This must be used while holding a live lock to ensure not-exclusive ownership of data ie can be both used
-    * while loosing connectivity with a replica or after successfully {@link #tryActivate}.
+    * This must be used while holding a primary lock to ensure not-exclusive ownership of data ie can be both used while
+    * loosing connectivity with a replica or after successfully {@link #tryActivate}.
     */
    public static void ensureSequentialAccessToNodeData(final String serverDescription,
                                                        final NodeManager nodeManager,
-                                                       final DistributedPrimitiveManager distributedManager,
+                                                       final DistributedLockManager distributedManager,
                                                        final Logger logger) throws ActiveMQException, InterruptedException, UnavailableStateException, ExecutionException, TimeoutException {
 
       Objects.requireNonNull(serverDescription);
       Objects.requireNonNull(nodeManager);
       Objects.requireNonNull(distributedManager);
       Objects.requireNonNull(logger);
-      final String lockAndLongId = nodeManager.getNodeId() == null ? null : nodeManager.getNodeId().toString();
+      final String lockAndLongId = Objects.toString(nodeManager.getNodeId(), null);
       Objects.requireNonNull(lockAndLongId);
       final long nodeActivationSequence = nodeManager.getNodeActivationSequence();
       if (nodeActivationSequence < 0) {
          throw new IllegalArgumentException("nodeActivationSequence must be >= 0");
       }
-      final DistributedLock liveLock = distributedManager.getDistributedLock(lockAndLongId);
-      if (!liveLock.isHeldByCaller()) {
-         final String message = String.format("Server [%s], live lock for NodeID = %s, not held, activation sequence cannot be safely changed",
+      final DistributedLock primaryLock = distributedManager.getDistributedLock(lockAndLongId);
+      if (!primaryLock.isHeldByCaller()) {
+         final String message = String.format("Server [%s] primary lock for NodeID = %s not held. Activation sequence cannot be safely changed",
                                               serverDescription, lockAndLongId);
          logger.info(message);
          throw new UnavailableStateException(message);
@@ -287,7 +285,7 @@ public final class ActivationSequenceStateMachine {
       // UN_REPLICATED STATE ENTER: auto-repair doesn't need to claim and write locally
       // claim
       if (!coordinatedNodeActivationSequence.compareAndSet(nodeActivationSequence, -nextActivationSequence)) {
-         final String message = String.format("Server [%s], cannot assume live role for NodeID = %s, activation sequence claim failed, local activation sequence %d no longer matches current coordinated sequence %d",
+         final String message = String.format("Server [%s], cannot assume active role for NodeID = %s, activation sequence claim failed, local activation sequence %d no longer matches current coordinated sequence %d",
                                               serverDescription, lockAndLongId, nodeActivationSequence, coordinatedNodeActivationSequence.get());
          logger.info(message);
          throw new ActiveMQException(message);
@@ -304,7 +302,7 @@ public final class ActivationSequenceStateMachine {
                    serverDescription, nextActivationSequence, lockAndLongId);
       // commit
       if (!coordinatedNodeActivationSequence.compareAndSet(-nextActivationSequence, nextActivationSequence)) {
-         final String message = String.format("Server [%s], cannot assume live role for NodeID = %s, activation sequence commit failed, local activation sequence %d no longer matches current coordinated sequence %d",
+         final String message = String.format("Server [%s], cannot assume active role for NodeID = %s, activation sequence commit failed, local activation sequence %d no longer matches current coordinated sequence %d",
                                               serverDescription, lockAndLongId, nodeActivationSequence, coordinatedNodeActivationSequence.get());
          logger.info(message);
          throw new ActiveMQException(message);

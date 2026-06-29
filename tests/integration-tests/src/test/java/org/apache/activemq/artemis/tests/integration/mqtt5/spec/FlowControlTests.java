@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
-/**
+/*
  * The MQTT 5 specification discusses a "send quota," but this is really an implementation detail and therefore not explicitly tested here:
  *
  * [MQTT-4.9.0-1] The Client or Server MUST set its initial send quota to a non-zero value not exceeding the Receive Maximum.
@@ -31,10 +31,6 @@ import org.junit.Ignore;
  * [MQTT-4.9.0-3] The Client and Server MUST continue to process and respond to all other MQTT Control Packets even if the quota is zero.
  */
 
-@Ignore
+@Disabled
 public class FlowControlTests extends MQTT5TestSupport {
-
-   public FlowControlTests(String protocol) {
-      super(protocol);
-   }
 }

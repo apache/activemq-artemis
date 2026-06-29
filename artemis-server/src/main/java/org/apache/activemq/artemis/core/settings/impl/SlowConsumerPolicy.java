@@ -20,13 +20,10 @@ public enum SlowConsumerPolicy {
    KILL, NOTIFY;
 
    public static SlowConsumerPolicy getType(int type) {
-      switch (type) {
-         case 0:
-            return KILL;
-         case 1:
-            return NOTIFY;
-         default:
-            return null;
-      }
+      return switch (type) {
+         case 0 -> KILL;
+         case 1 -> NOTIFY;
+         default -> null;
+      };
    }
 }

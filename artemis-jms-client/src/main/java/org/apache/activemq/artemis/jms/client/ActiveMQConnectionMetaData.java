@@ -28,7 +28,7 @@ import java.util.Vector;
 import org.apache.activemq.artemis.core.version.Version;
 
 /**
- * ActiveMQ Artemis implementation of a JMS ConnectionMetaData.
+ * Apache Artemis implementation of a JMS ConnectionMetaData.
  */
 public class ActiveMQConnectionMetaData implements ConnectionMetaData {
    public static final String DEFAULT_PROP_FILE_NAME = "jms-version.properties";
@@ -45,8 +45,8 @@ public class ActiveMQConnectionMetaData implements ConnectionMetaData {
       } catch (IOException e) {
       }
       JMS_VERSION_NAME = versionProps.getProperty("activemq.version.implementation.versionName", "2.0");
-      JMS_MAJOR_VERSION = Integer.valueOf(versionProps.getProperty("activemq.version.implementation.majorVersion", "2"));
-      JMS_MINOR_VERSION = Integer.valueOf(versionProps.getProperty("activemq.version.implementation.minorVersion", "0"));
+      JMS_MAJOR_VERSION = Integer.parseInt(versionProps.getProperty("activemq.version.implementation.majorVersion", "2"));
+      JMS_MINOR_VERSION = Integer.parseInt(versionProps.getProperty("activemq.version.implementation.minorVersion", "0"));
    }
 
 

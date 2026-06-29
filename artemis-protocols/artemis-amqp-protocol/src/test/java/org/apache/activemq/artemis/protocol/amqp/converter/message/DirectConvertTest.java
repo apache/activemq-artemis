@@ -17,14 +17,15 @@
 
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.CoreAmqpConverter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DirectConvertTest {
 
@@ -38,7 +39,7 @@ public class DirectConvertTest {
 
       ICoreMessage coreMessage = standardMessage.toCore();
 
-      Assert.assertEquals((Long)deliveryTime, coreMessage.getScheduledDeliveryTime());
+      assertEquals((Long)deliveryTime, coreMessage.getScheduledDeliveryTime());
    }
 
 
@@ -52,7 +53,7 @@ public class DirectConvertTest {
 
       ICoreMessage coreMessage = standardMessage.toCore();
 
-      Assert.assertEquals(time, coreMessage.getExpiration());
+      assertEquals(time, coreMessage.getExpiration());
    }
 
    @Test
@@ -63,7 +64,7 @@ public class DirectConvertTest {
       coreMessage.initBuffer(1024);
 
       AMQPMessage amqpMessage = CoreAmqpConverter.fromCore(coreMessage, new NullStorageManager());
-      Assert.assertEquals((Long)deliveryTime, amqpMessage.getScheduledDeliveryTime());
+      assertEquals((Long)deliveryTime, amqpMessage.getScheduledDeliveryTime());
    }
 
    @Test
@@ -74,6 +75,6 @@ public class DirectConvertTest {
       coreMessage.initBuffer(1024);
 
       AMQPMessage amqpMessage = CoreAmqpConverter.fromCore(coreMessage, new NullStorageManager());
-      Assert.assertEquals(time, amqpMessage.getExpiration());
+      assertEquals(time, amqpMessage.getExpiration());
    }
 }

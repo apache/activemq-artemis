@@ -26,30 +26,18 @@ public class AMQProducerBrokerExchange {
    public AMQProducerBrokerExchange() {
    }
 
-   /**
-    * @return the connectionContext
-    */
    public AMQConnectionContext getConnectionContext() {
       return this.connectionContext;
    }
 
-   /**
-    * @param connectionContext the connectionContext to set
-    */
    public void setConnectionContext(AMQConnectionContext connectionContext) {
       this.connectionContext = connectionContext;
    }
 
-   /**
-    * @return the producerState
-    */
    public ProducerState getProducerState() {
       return this.producerState;
    }
 
-   /**
-    * @param producerState the producerState to set
-    */
    public void setProducerState(ProducerState producerState) {
       this.producerState = producerState;
    }

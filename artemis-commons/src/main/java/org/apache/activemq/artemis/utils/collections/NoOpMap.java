@@ -23,21 +23,21 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class implements a Map, but actually doesnt store anything, it is similar in idea to an EmptyMap,
- * but where mutation methods simply do a no op rather than UnsupportedOperationException as with EmptyMap.
- *
+ * This class implements a Map, but actually doesnt store anything, it is similar in idea to an EmptyMap, but where
+ * mutation methods simply do a no op rather than UnsupportedOperationException as with EmptyMap.
+ * <p>
  * This is used in QueueImpl when message groups is disabled.
  *
  * @param <K> the key type.
  * @param <V> the value type.
  */
-public class NoOpMap<K,V> extends AbstractMap<K,V> {
+public class NoOpMap<K, V> extends AbstractMap<K, V> {
 
    private static final Map NO_OP_MAP = new NoOpMap<>();
 
    @SuppressWarnings("unchecked")
-   public static <K,V> Map<K,V> instance() {
-      return (Map<K,V>) NO_OP_MAP;
+   public static <K, V> Map<K, V> instance() {
+      return (Map<K, V>) NO_OP_MAP;
    }
 
    private NoOpMap() {
@@ -84,13 +84,13 @@ public class NoOpMap<K,V> extends AbstractMap<K,V> {
    }
 
    @Override
-   public Set<Entry<K,V>> entrySet() {
+   public Set<Entry<K, V>> entrySet() {
       return Collections.emptySet();
    }
 
    @Override
-   public boolean equals(Object o) {
-      return (o instanceof Map) && ((Map)o).size() == 0;
+   public boolean equals(Object obj) {
+      return (obj instanceof Map other) && other.isEmpty();
    }
 
    @Override

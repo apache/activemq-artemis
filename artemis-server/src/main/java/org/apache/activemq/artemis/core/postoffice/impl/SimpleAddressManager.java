@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -59,12 +61,13 @@ public class SimpleAddressManager implements AddressManager {
 
    private final StorageManager storageManager;
 
-   /**
-    * {@code HashMap<Address, Binding>}
-    */
+   private final ConcurrentMap<Long, LocalQueueBinding> localBindingsMap = new ConcurrentHashMap<>();
+
    protected final ConcurrentMap<SimpleString, Bindings> mappings = new ConcurrentHashMap<>();
 
    private final ConcurrentMap<SimpleString, Pair<Binding, Address>> nameMap = new ConcurrentHashMap<>();
+
+   private final ConcurrentMap<SimpleString, Collection<Binding>> directBindingMap = new ConcurrentHashMap<>();
 
    private final BindingsFactory bindingsFactory;
 
@@ -72,19 +75,19 @@ public class SimpleAddressManager implements AddressManager {
 
    protected final WildcardConfiguration wildcardConfiguration;
 
-   public SimpleAddressManager(final BindingsFactory bindingsFactory, final StorageManager storageManager,
-                               final MetricsManager metricsManager) {
-      this(bindingsFactory, new WildcardConfiguration(), storageManager, metricsManager);
-   }
-
    public SimpleAddressManager(final BindingsFactory bindingsFactory,
                                final WildcardConfiguration wildcardConfiguration,
                                final StorageManager storageManager,
                                final MetricsManager metricsManager) {
-      this.wildcardConfiguration = wildcardConfiguration;
       this.bindingsFactory = bindingsFactory;
+      this.wildcardConfiguration = wildcardConfiguration;
       this.storageManager = storageManager;
       this.metricsManager = metricsManager;
+   }
+
+   @Override
+   public LocalQueueBinding findLocalBinding(long bindingID) {
+      return localBindingsMap.get(bindingID);
    }
 
    @Override
@@ -93,6 +96,11 @@ public class SimpleAddressManager implements AddressManager {
       if (nameMap.putIfAbsent(binding.getUniqueName(), bindingAddressPair) != null) {
          throw ActiveMQMessageBundle.BUNDLE.bindingAlreadyExists(binding);
       }
+      directBindingMap.compute(binding.getAddress(), (key, value) -> {
+         Collection<Binding> bindingList = Objects.requireNonNullElseGet(value, () -> new ArrayList<>());
+         bindingList.add(binding);
+         return bindingList;
+      });
 
       if (logger.isTraceEnabled()) {
          logger.trace("Adding binding {} with address = {}", binding, binding.getUniqueName(), new Exception("trace"));
@@ -109,7 +117,18 @@ public class SimpleAddressManager implements AddressManager {
          return null;
       }
 
-      removeBindingInternal(binding.getA().getAddress(), uniqueName);
+      SimpleString address = binding.getA().getAddress();
+      removeBindingInternal(address, uniqueName);
+      directBindingMap.compute(address, (key, value) -> {
+         if (value == null) {
+            return null;
+         }
+         value.remove(binding.getA());
+         if (value.isEmpty()) {
+            return null;
+         }
+         return value;
+      });
 
       return binding.getA();
    }
@@ -153,48 +172,62 @@ public class SimpleAddressManager implements AddressManager {
    @Override
    public Collection<Binding> getDirectBindings(final SimpleString address) throws Exception {
       SimpleString realAddress = CompositeAddress.extractAddressName(address);
-      Collection<Binding> bindings = new ArrayList<>();
 
-      nameMap.forEach((bindingUniqueName, bindingAddressPair) -> {
-         if (bindingAddressPair.getA().getAddress().equals(realAddress)) {
-            bindings.add(bindingAddressPair.getA());
+      List<Binding> outputList = new ArrayList<>();
+
+      directBindingMap.compute(realAddress, (key, bindings) -> {
+         if (bindings != null) {
+            outputList.addAll(bindings);
          }
+         return bindings;
       });
 
-      return bindings;
+      return Collections.unmodifiableCollection(outputList);
    }
 
+   /**
+    * This method looks at the local queue bindings of an address to find one with a matching routing type that also is
+    * not wild. A match with the same name as the input address is preferred.
+    * <p>
+    * If a match is found, the unique name of the corresponding binding is returned. If no match is found, the method
+    * returns {@code null}.
+    *
+    * @param address     the address to match against
+    * @param routingType the routing type to use for matching the binding
+    * @return the unique name of the matching binding, or {@code null} if no match is found
+    * @throws Exception if an error occurs while attempting to find a matching binding
+    */
    @Override
    public SimpleString getMatchingQueue(final SimpleString address, RoutingType routingType) throws Exception {
       SimpleString realAddress = CompositeAddress.extractAddressName(address);
-      Binding binding = getBinding(realAddress);
 
-      if (binding == null || !(binding instanceof LocalQueueBinding) || !binding.getAddress().equals(realAddress)) {
-         Bindings bindings = mappings.get(realAddress);
-         if (bindings != null) {
-            for (Binding theBinding : bindings.getBindings()) {
-               if (theBinding instanceof LocalQueueBinding) {
-                  binding = theBinding;
-                  break;
-               }
+      Binding potentialMatch = getBinding(realAddress);
+      if (checkBindingForMatch(potentialMatch, realAddress, routingType)) {
+         // a local queue binding with the same name as the input address is preferred
+         return potentialMatch.getUniqueName();
+      }
+
+      Bindings bindings = mappings.get(realAddress);
+      if (bindings != null) {
+         for (Binding b : bindings.getBindings()) {
+            if (checkBindingForMatch(b, realAddress, routingType)) {
+               return b.getUniqueName();
             }
          }
       }
 
-      return binding != null ? binding.getUniqueName() : null;
+      return null;
    }
 
-   @Override
-   public SimpleString getMatchingQueue(final SimpleString address,
-                                        final SimpleString queueName,
-                                        RoutingType routingType) throws Exception {
-      SimpleString realAddress = CompositeAddress.extractAddressName(address);
-      Binding binding = getBinding(queueName);
-
-      if (binding != null && !binding.getAddress().equals(realAddress) && !realAddress.toString().isEmpty()) {
-         throw new IllegalStateException("queue belongs to address" + binding.getAddress());
+   private boolean checkBindingForMatch(Binding binding, SimpleString address, RoutingType routingType) {
+      if (binding != null &&
+         binding instanceof LocalQueueBinding lqb &&
+         lqb.getAddress().equals(address) &&
+         lqb.getQueue().getRoutingType() == routingType &&
+         !wildcardConfiguration.isWild(binding.getUniqueName())) {
+         return true;
       }
-      return binding != null ? binding.getUniqueName() : null;
+      return false;
    }
 
    @Override
@@ -219,6 +252,10 @@ public class SimpleAddressManager implements AddressManager {
          final Binding binding = bindings.removeBindingByUniqueName(bindableQueueName);
          if (binding == null) {
             throw new IllegalStateException("Cannot find binding " + bindableName);
+         } else {
+            if (binding instanceof LocalQueueBinding) {
+               localBindingsMap.remove(binding.getID());
+            }
          }
          if (bindings.getBindings().isEmpty()) {
             mappings.remove(realAddress);
@@ -271,6 +308,10 @@ public class SimpleAddressManager implements AddressManager {
       }
 
       bindings.addBinding(binding);
+
+      if (binding instanceof LocalQueueBinding localQueueBinding) {
+         localBindingsMap.put(binding.getID(), localQueueBinding);
+      }
 
       return addedNewBindings;
    }
@@ -341,7 +382,7 @@ public class SimpleAddressManager implements AddressManager {
       Set<RoutingType> eset1 = set1 == null || set1.isEmpty() ? Collections.emptySet() : EnumSet.copyOf(set1);
       Set<RoutingType> eset2 = set2 == null || set2.isEmpty() ? Collections.emptySet() : EnumSet.copyOf(set2);
 
-      if (eset1.size() == 0 && eset2.size() == 0) {
+      if (eset1.isEmpty() && eset2.isEmpty()) {
          return true;
       }
 
@@ -356,8 +397,7 @@ public class SimpleAddressManager implements AddressManager {
       final Bindings bindings = this.mappings.get(addressName);
       if (bindings != null) {
          for (Binding binding : bindings.getBindings()) {
-            if (binding instanceof QueueBinding && binding.isLocal()) {
-               final QueueBinding queueBinding = (QueueBinding) binding;
+            if (binding instanceof QueueBinding queueBinding && binding.isLocal()) {
                final RoutingType routingType = queueBinding.getQueue().getRoutingType();
                if (!routingTypes.contains(routingType) && binding.getAddress().equals(addressName)) {
                   throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeDelete(routingType, addressName.toString());
@@ -371,7 +411,7 @@ public class SimpleAddressManager implements AddressManager {
    public boolean checkAutoRemoveAddress(AddressInfo addressInfo,
                                          AddressSettings settings,
                                          boolean ignoreDelay) throws Exception {
-      return settings.isAutoDeleteAddresses() && addressInfo != null && addressInfo.isAutoCreated() && !bindingsFactory.isAddressBound(addressInfo.getName()) && addressWasUsed(addressInfo, settings) && (ignoreDelay || delayCheck(addressInfo, settings));
+      return settings.isAutoDeleteAddresses() && addressInfo != null && addressInfo.isAutoCreated() && !bindingsFactory.isAddressBound(addressInfo.getName()) && (ignoreDelay || addressWasUsed(addressInfo, settings)) && (ignoreDelay || delayCheck(addressInfo, settings));
    }
 
    private boolean delayCheck(AddressInfo addressInfo, AddressSettings settings) {
@@ -384,7 +424,9 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
-      return addressInfoMap.remove(CompositeAddress.extractAddressName(address));
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
+      mappings.remove(realAddress);
+      return addressInfoMap.remove(realAddress);
    }
 
    @Override
@@ -401,8 +443,7 @@ public class SimpleAddressManager implements AddressManager {
          Bindings bindings = mappings.get(info.getName());
          if (bindings != null) {
             for (Binding binding : bindings.getBindings()) {
-               if (binding instanceof LocalQueueBinding) {
-                  LocalQueueBinding localQueueBinding = (LocalQueueBinding)binding;
+               if (binding instanceof LocalQueueBinding localQueueBinding) {
                   if (!localQueueBinding.getQueue().isMirrorController() && !localQueueBinding.getQueue().isInternalQueue()) {
                      mirrorController.createQueue(localQueueBinding.getQueue().getQueueConfiguration());
                   }

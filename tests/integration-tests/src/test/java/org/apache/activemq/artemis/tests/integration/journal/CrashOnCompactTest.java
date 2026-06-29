@@ -26,30 +26,30 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.AbstractJournalUpdateTask;
 import org.apache.activemq.artemis.core.journal.impl.JournalCompactor;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CrashOnCompactTest extends SpawnedTestBase {
 
    static int OK = 2;
    static int NOT_OK = 3;
 
-   @Before
+   @BeforeEach
    public void setup() throws Exception {
    }
 
    @Test
    public void testCrashCompact() throws Exception {
       Process process = SpawnedVMSupport.spawnVM(CrashOnCompactTest.class.getCanonicalName(), getTestDirfile().getAbsolutePath());
-      Assert.assertEquals(OK, process.waitFor());
+      assertEquals(OK, process.waitFor());
       checkJournalSize();
    }
 
@@ -61,16 +61,10 @@ public class CrashOnCompactTest extends SpawnedTestBase {
 
    private void checkJournalSize() throws Exception {
       JournalImpl journal = createJournal(getTestDirfile(), false);
-      ArrayList<RecordInfo> info = new ArrayList<>();
-      ArrayList<PreparedTransactionInfo> txInfo = new ArrayList<>();
-      journal.load(info, txInfo, new TransactionFailureCallback() {
-         @Override
-         public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
-
-         }
-      });
-
-      Assert.assertEquals(900, info.size());
+      List<RecordInfo> info = new ArrayList<>();
+      List<PreparedTransactionInfo> txInfo = new ArrayList<>();
+      journal.load(info, txInfo, (transactionID, records, recordsToDelete) -> { });
+      assertEquals(900, info.size());
    }
 
    private static void addJournal(File folder, boolean crash) throws Exception {

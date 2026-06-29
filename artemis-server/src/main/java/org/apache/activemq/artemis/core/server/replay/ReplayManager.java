@@ -22,8 +22,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -33,6 +35,7 @@ import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
@@ -40,6 +43,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.LargeMessagePersister;
+import org.apache.activemq.artemis.core.replication.ReplicatedJournal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -60,10 +64,6 @@ public class ReplayManager {
    private JournalImpl journal;
    private final File retentionFolder;
 
-   private final SimpleDateFormat dateFormat = newRetentionSimpleDateFormat();
-
-   private final AtomicBoolean running = new AtomicBoolean(false);
-
    public ReplayManager(ActiveMQServer server) {
       this.server = server;
       this.retentionFolder = server.getConfiguration().getJournalRetentionLocation();
@@ -72,9 +72,7 @@ public class ReplayManager {
    public void replay(Date start, Date end, String sourceAddress, String targetAddressParameter, String filterStr) throws Exception {
       logger.debug("Replay start::sourceAddress={}", sourceAddress);
 
-      if (sourceAddress == null) {
-         throw new NullPointerException("sourceAddress");
-      }
+      Objects.requireNonNull(sourceAddress, "sourceAddress");
 
       if (targetAddressParameter == null || targetAddressParameter.trim().isEmpty()) {
          targetAddressParameter = sourceAddress;
@@ -84,7 +82,14 @@ public class ReplayManager {
 
       if (journal == null) {
          // notice this routing plays single threaded. no need for any sort of synchronization here
-         journal = (JournalImpl)server.getStorageManager().getMessageJournal();
+         Journal storageManageJournal = server.getStorageManager().getMessageJournal();
+         if (storageManageJournal instanceof JournalImpl impl) {
+            journal = impl;
+         } else if (storageManageJournal instanceof ReplicatedJournal replicatedJournal) {
+            journal = (JournalImpl) replicatedJournal.getLocalJournal();
+         } else {
+            throw new IllegalStateException("could not local a valid journal to use with the ReplayManager");
+         }
       }
 
       Filter filter;
@@ -106,7 +111,7 @@ public class ReplayManager {
 
       RoutingContext context = new RoutingContextImpl(null);
 
-      HashMap<Long, LinkedHashSet<JournalFile>> largeMessageLocations = new HashMap<>();
+      Map<Long, Set<JournalFile>> largeMessageLocations = new HashMap<>();
 
       for (JournalFile file : files) {
          if (start != null || end != null) {
@@ -135,7 +140,7 @@ public class ReplayManager {
             public void onReadEventRecord(RecordInfo info) throws Exception {
                switch (info.getUserRecordType()) {
                   case JournalRecordIds.ADD_MESSAGE_BODY:
-                     LinkedHashSet<JournalFile> files = largeMessageLocations.get(info.id);
+                     Set<JournalFile> files = largeMessageLocations.get(info.id);
                      if (files == null) {
                         files = new LinkedHashSet<>();
                         largeMessageLocations.put(info.id, files);
@@ -202,7 +207,7 @@ public class ReplayManager {
    }
 
 
-   private void route(Filter filter, RoutingContext context, SequentialFileFactory messagesFF, Message message, String sourceAddress, String targetAddress, HashMap<Long, LinkedHashSet<JournalFile>> filesMap) throws Exception {
+   private void route(Filter filter, RoutingContext context, SequentialFileFactory messagesFF, Message message, String sourceAddress, String targetAddress, Map<Long, Set<JournalFile>> filesMap) throws Exception {
       if (messageMatch(filter, message, sourceAddress, targetAddress)) {
          final long originalMessageID = message.getMessageID();
          message.setMessageID(server.getStorageManager().generateID());
@@ -224,13 +229,13 @@ public class ReplayManager {
 
    private void readLargeMessageBody(SequentialFileFactory messagesFF,
                           Message message,
-                          HashMap<Long, LinkedHashSet<JournalFile>> filesMap,
+                          Map<Long, Set<JournalFile>> filesMap,
                           long originalMessageID) throws Exception {
       long newMessageID = message.getMessageID();
       SequentialFile largeMessageFile = server.getStorageManager().createFileForLargeMessage(newMessageID, true);
       largeMessageFile.open();
 
-      LinkedHashSet<JournalFile> files = filesMap.get(originalMessageID);
+      Set<JournalFile> files = filesMap.get(originalMessageID);
       if (files != null) {
          for (JournalFile file : files) {
             JournalImpl.readJournalFile(messagesFF, file, new JournalReaderCallback() {

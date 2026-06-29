@@ -16,22 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class MessageDeliveryRetryTests extends MQTT5TestSupport {
-
-   public MessageDeliveryRetryTests(String protocol) {
-      super(protocol);
-   }
 
    /*
     * [MQTT-4.4.0-1] When a Client reconnects with Clean Start set to 0 and a session is present, both the Client and
@@ -39,13 +39,14 @@ public class MessageDeliveryRetryTests extends MQTT5TestSupport {
     * Packet Identifiers. This is the only circumstance where a Client or Server is REQUIRED to resend messages.
     * Clients and Servers MUST NOT resend messages at any other time.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithReconnect() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      MqttClient producer = createPahoClient(RandomUtil.randomUUIDString());
       MqttClient consumer = createPahoClient(CONSUMER_ID);
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
          .cleanStart(false)
@@ -84,9 +85,10 @@ public class MessageDeliveryRetryTests extends MQTT5TestSupport {
     * [MQTT-4.4.0-2] If PUBACK or PUBREC is received containing a Reason Code of 0x80 or greater the corresponding
     * PUBLISH packet is treated as acknowledged, and MUST NOT be retransmitted.
     */
-   @Test(timeout = DEFAULT_TIMEOUT)
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTopicFilter() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);

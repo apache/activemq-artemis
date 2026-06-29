@@ -56,7 +56,6 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
    public static final String BOOTSTRAP_ROLE_FILE = "bootstrapRoleFile";
 
    private Map<String, String> properties;
-   private String rolePrincipalClass = RolePrincipal.class.getName();
    private StorageManager storageManager;
 
    @Override
@@ -85,7 +84,7 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
                   Subject subject = new Subject();
                   subject.getPrincipals().add(new UserPrincipal(userToAuthenticate));
                   for (String role : getRole(userToAuthenticate).getRoles()) {
-                     subject.getPrincipals().add((Principal) SecurityManagerUtil.createGroupPrincipal(role, rolePrincipalClass));
+                     subject.getPrincipals().add((Principal) SecurityManagerUtil.createGroupPrincipal(role, RolePrincipal.class));
                   }
                   return subject;
                }
@@ -108,12 +107,7 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
                             final Set<Role> roles,
                             final CheckType checkType,
                             final String address) {
-      boolean authorized = SecurityManagerUtil.authorize(subject, roles, checkType, rolePrincipalClass);
-      if (authorized) {
-         logger.trace("user is authorized");
-      } else {
-         logger.trace("user is NOT authorized");
-      }
+      boolean authorized = SecurityManagerUtil.authorize(subject, roles, checkType, RolePrincipal.class);
 
       return authorized;
    }
@@ -147,13 +141,13 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
    @Override
    public synchronized Map<String, Set<String>> listUser(String user) {
       // a null or empty user is actually valid here
-      if (user != null && user.length() != 0 && !userExists(user)) {
+      if (user != null && !user.isEmpty() && !userExists(user)) {
          throw ActiveMQMessageBundle.BUNDLE.userDoesNotExist(user);
       }
 
       Map<String, Set<String>> result = new HashMap<>();
 
-      if (user != null && user.length() > 0) {
+      if (user != null && !user.isEmpty()) {
          result.put(user, new HashSet<>(getRole(user).getRoles()));
       } else {
          for (String thisUser : storageManager.getPersistedUsers().keySet()) {

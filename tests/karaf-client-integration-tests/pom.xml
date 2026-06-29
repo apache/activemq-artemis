@@ -18,14 +18,14 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq.tests</groupId>
+      <groupId>org.apache.artemis.tests</groupId>
       <artifactId>artemis-tests-pom</artifactId>
-      <version>2.31.0-SNAPSHOT</version>
+      <version>2.56.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>karaf-client-integration-tests</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis Karaf Client Integration Tests</name>
+   <name>Apache Artemis Karaf Client Integration Tests</name>
 
    <description>
       Integration tests for the artemis client features using Apache Karaf
@@ -62,14 +62,13 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-jms-client</artifactId>
-         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
+         <groupId>org.junit.vintage</groupId>
+         <artifactId>junit-vintage-engine</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -89,7 +88,7 @@
       </dependency>
       <dependency>
          <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-slf4j-impl</artifactId>
+         <artifactId>log4j-slf4j2-impl</artifactId>
          <scope>test</scope>
       </dependency>
 
@@ -127,9 +126,8 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-features</artifactId>
-         <version>${project.version}</version>
          <classifier>features</classifier>
          <type>xml</type>
          <scope>test</scope>
@@ -143,7 +141,7 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
+         <groupId>org.apache.artemis</groupId>
          <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
@@ -155,7 +153,7 @@
          <plugin>
             <groupId>org.apache.servicemix.tooling</groupId>
             <artifactId>depends-maven-plugin</artifactId>
-            <version>1.2</version>
+            <version>1.5.0</version>
             <executions>
                <execution>
                   <id>generate-depends-file</id>
@@ -166,7 +164,7 @@
             </executions>
          </plugin>
          <plugin>
-            <groupId>org.apache.activemq</groupId>
+            <groupId>org.apache.artemis</groupId>
             <artifactId>artemis-maven-plugin</artifactId>
             <executions>
                <execution>
@@ -198,13 +196,10 @@
                   <id>stop</id>
                   <phase>post-integration-test</phase>
                   <goals>
-                     <goal>cli</goal>
+                     <goal>stop</goal>
                   </goals>
                   <configuration>
                      <ignore>${skipIntegrationTests}</ignore>
-                     <args>
-                        <param>stop</param>
-                     </args>
                   </configuration>
                </execution>
             </executions>
@@ -238,9 +233,9 @@
    <profiles>
       <profile>
          <!-- TODO: Changes so these tests can work -->
-         <id>jdk16on</id>
+         <id>jdk23on</id>
          <activation>
-            <jdk>[16,)</jdk>
+            <jdk>[23,)</jdk>
          </activation>
          <properties>
             <skipIntegrationTests>true</skipIntegrationTests>

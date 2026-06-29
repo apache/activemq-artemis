@@ -23,8 +23,6 @@ import java.util.regex.Pattern;
 
 /**
  * A filter performing a comparison of two objects
- *
- * @version $Revision: 1.2 $
  */
 public abstract class ComparisonExpression extends BinaryExpression implements BooleanExpression {
 
@@ -33,10 +31,6 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
    boolean convertStringExpressions = false;
    private static final Set<Character> REGEXP_CONTROL_CHARS = new HashSet<>();
 
-   /**
-    * @param left
-    * @param right
-    */
    public ComparisonExpression(Expression left, Expression right) {
       super(left, right);
       convertStringExpressions = CONVERT_STRING_EXPRESSIONS.get() != null;
@@ -51,38 +45,36 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
    }
 
    static {
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('.'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('\\'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('['));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf(']'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('^'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('$'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('?'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('*'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('+'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('{'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('}'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('|'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('('));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf(')'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf(':'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('&'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('<'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('>'));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('='));
-      REGEXP_CONTROL_CHARS.add(Character.valueOf('!'));
+      REGEXP_CONTROL_CHARS.add('.');
+      REGEXP_CONTROL_CHARS.add('\\');
+      REGEXP_CONTROL_CHARS.add('[');
+      REGEXP_CONTROL_CHARS.add(']');
+      REGEXP_CONTROL_CHARS.add('^');
+      REGEXP_CONTROL_CHARS.add('$');
+      REGEXP_CONTROL_CHARS.add('?');
+      REGEXP_CONTROL_CHARS.add('*');
+      REGEXP_CONTROL_CHARS.add('+');
+      REGEXP_CONTROL_CHARS.add('{');
+      REGEXP_CONTROL_CHARS.add('}');
+      REGEXP_CONTROL_CHARS.add('|');
+      REGEXP_CONTROL_CHARS.add('(');
+      REGEXP_CONTROL_CHARS.add(')');
+      REGEXP_CONTROL_CHARS.add(':');
+      REGEXP_CONTROL_CHARS.add('&');
+      REGEXP_CONTROL_CHARS.add('<');
+      REGEXP_CONTROL_CHARS.add('>');
+      REGEXP_CONTROL_CHARS.add('=');
+      REGEXP_CONTROL_CHARS.add('!');
    }
 
    static class LikeExpression extends UnaryExpression implements BooleanExpression {
 
       Pattern likePattern;
 
-      /**
-       */
       LikeExpression(Expression right, String like, int escape) {
          super(right);
 
-         StringBuffer regexp = new StringBuffer(like.length() * 2);
+         StringBuilder regexp = new StringBuilder(like.length() * 2);
          regexp.append("\\A"); // The beginning of the input
          for (int i = 0; i < like.length(); i++) {
             char c = like.charAt(i);
@@ -109,12 +101,12 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
          return false;
       }
 
-      private void append(StringBuffer regexp, char c) {
+      private void append(StringBuilder regexp, char c) {
          if (c == '%') {
             regexp.append(".*?"); // Do a non-greedy match
          } else if (c == '_') {
             regexp.append("."); // match one
-         } else if (REGEXP_CONTROL_CHARS.contains(Character.valueOf(c))) {
+         } else if (REGEXP_CONTROL_CHARS.contains(c)) {
             regexp.append("\\x");
             regexp.append(Integer.toHexString(0xFFFF & c));
          } else {
@@ -229,8 +221,8 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
             if (lv == rv || lv.equals(rv)) {
                return Boolean.TRUE;
             }
-            if (lv instanceof Comparable && rv instanceof Comparable) {
-               return compare((Comparable) lv, (Comparable) rv);
+            if (lv instanceof Comparable l && rv instanceof Comparable r) {
+               return compare(l, r);
             }
             return Boolean.FALSE;
          }
@@ -253,8 +245,8 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
                // this case happens often while comparing non equals Strings
                return false;
             }
-            if (lv instanceof Comparable && rv instanceof Comparable) {
-               Boolean compareResult = compare((Comparable) lv, (Comparable) rv);
+            if (lv instanceof Comparable<?> l && rv instanceof Comparable<?> r) {
+               Boolean compareResult = compare(l, r);
                return compareResult != null && compareResult;
             }
             return false;
@@ -341,12 +333,10 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
 
    /**
     * Only Numeric expressions can be used in {@code >}, {@code >=}, {@code <} or {@code <=} expressions.
-    *
-    * @param expr
     */
    public static void checkLessThanOperand(Expression expr) {
-      if (expr instanceof ConstantExpression) {
-         Object value = ((ConstantExpression) expr).getValue();
+      if (expr instanceof ConstantExpression constantExpression) {
+         Object value = constantExpression.getValue();
          if (value instanceof Number) {
             return;
          }
@@ -360,24 +350,18 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
    }
 
    /**
-    * Validates that the expression can be used in {@code ==} or {@code <>} expression. Cannot
-    * not be NULL TRUE or FALSE literals.
-    *
-    * @param expr
+    * Validates that the expression can be used in {@code ==} or {@code <>} expression. Cannot not be NULL TRUE or FALSE
+    * literals.
     */
    public static void checkEqualOperand(Expression expr) {
-      if (expr instanceof ConstantExpression) {
-         Object value = ((ConstantExpression) expr).getValue();
+      if (expr instanceof ConstantExpression constantExpression) {
+         Object value = constantExpression.getValue();
          if (value == null) {
             throw new RuntimeException("'" + expr + "' cannot be compared.");
          }
       }
    }
 
-   /**
-    * @param left
-    * @param right
-    */
    private static void checkEqualOperandCompatibility(Expression left, Expression right) {
       if (left instanceof ConstantExpression && right instanceof ConstantExpression) {
          if (left instanceof BooleanExpression && !(right instanceof BooleanExpression)) {

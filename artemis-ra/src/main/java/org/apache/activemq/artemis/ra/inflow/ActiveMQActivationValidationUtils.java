@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.artemis.ra.inflow;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.Topic;
 import javax.resource.spi.InvalidPropertyException;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 
@@ -49,7 +48,7 @@ public final class ActiveMQActivationValidationUtils {
       List<PropertyDescriptor> propsNotSet = new ArrayList<>();
 
       try {
-         if (destination == null || destination.trim().equals("")) {
+         if (destination == null || destination.trim().isEmpty()) {
             propsNotSet.add(new PropertyDescriptor("destination", ActiveMQActivationSpec.class));
             errorMessages.add("Destination is mandatory.");
          }
@@ -60,8 +59,8 @@ public final class ActiveMQActivationValidationUtils {
             errorMessages.add("If set, the destinationType must be either 'javax.jms.Topic' or 'javax.jms.Queue'.");
          }
 
-         if ((destinationType == null || destinationType.length() == 0 || Topic.class.getName().equals(destinationType))
-               && subscriptionDurability && (subscriptionName == null || subscriptionName.length() == 0)) {
+         if ((destinationType == null || destinationType.isEmpty() || Topic.class.getName().equals(destinationType))
+               && subscriptionDurability && (subscriptionName == null || subscriptionName.isEmpty())) {
             propsNotSet.add(new PropertyDescriptor("subscriptionName", ActiveMQActivationSpec.class));
             errorMessages.add("If subscription is durable then subscription name must be specified.");
          }
@@ -74,8 +73,8 @@ public final class ActiveMQActivationValidationUtils {
 
    private static void buildAndThrowExceptionIfNeeded(List<PropertyDescriptor> propsNotSet, List<String> errorMessages)
          throws InvalidPropertyException {
-      if (propsNotSet.size() > 0) {
-         StringBuffer b = new StringBuffer();
+      if (!propsNotSet.isEmpty()) {
+         StringBuilder b = new StringBuilder();
          b.append("Invalid settings:");
          for (String errorMessage : errorMessages) {
             b.append(" ");

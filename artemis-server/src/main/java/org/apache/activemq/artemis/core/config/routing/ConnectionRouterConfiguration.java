@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.config.routing;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class ConnectionRouterConfiguration implements Serializable {
 
@@ -91,5 +92,29 @@ public class ConnectionRouterConfiguration implements Serializable {
    public ConnectionRouterConfiguration setPoolConfiguration(PoolConfiguration poolConfiguration) {
       this.poolConfiguration = poolConfiguration;
       return this;
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(cacheConfiguration, keyFilter, keyType, localTargetFilter, name, policyConfiguration, poolConfiguration);
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+
+      if (obj instanceof ConnectionRouterConfiguration other) {
+         return Objects.equals(cacheConfiguration, other.cacheConfiguration) &&
+                Objects.equals(keyFilter, other.keyFilter) &&
+                keyType == other.keyType &&
+                Objects.equals(localTargetFilter, other.localTargetFilter) &&
+                Objects.equals(name, other.name) &&
+                Objects.equals(policyConfiguration, other.policyConfiguration) &&
+                Objects.equals(poolConfiguration, other.poolConfiguration);
+      }
+
+      return false;
    }
 }

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -39,10 +40,8 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
-import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -54,10 +53,16 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TemporaryQueueTest extends SingleServerTestBase {
 
@@ -74,10 +79,10 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testConsumeFromTemporaryQueue() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage msg = session.createMessage(false);
@@ -99,9 +104,9 @@ public class TemporaryQueueTest extends SingleServerTestBase {
    @Test
    public void testMemoryLeakOnAddressSettingForTemporaryQueue() throws Exception {
       for (int i = 0; i < 1000; i++) {
-         SimpleString queue = RandomUtil.randomSimpleString();
-         SimpleString address = RandomUtil.randomSimpleString();
-         session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
+         SimpleString queue = RandomUtil.randomUUIDSimpleString();
+         SimpleString address = RandomUtil.randomUUIDSimpleString();
+         session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 
          session.close();
          session = sf.createSession();
@@ -116,10 +121,10 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testPaginStoreIsRemovedWhenQueueIsDeleted() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage msg = session.createMessage(false);
@@ -144,10 +149,10 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testConsumeFromTemporaryQueueCreatedByOtherSession() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(false));
@@ -165,23 +170,18 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testDeleteTemporaryQueueAfterConnectionIsClosed() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
       RemotingConnectionImpl conn = (RemotingConnectionImpl) server.getRemotingService().getConnections().iterator().next();
 
       final CountDownLatch latch = new CountDownLatch(1);
-      conn.addCloseListener(new CloseListener() {
-         @Override
-         public void connectionClosed() {
-            latch.countDown();
-         }
-      });
+      conn.addCloseListener(() -> latch.countDown());
       session.close();
       sf.close();
       // wait for the closing listeners to be fired
-      assertTrue("connection close listeners not fired", latch.await(2 * TemporaryQueueTest.CONNECTION_TTL, TimeUnit.MILLISECONDS));
+      assertTrue(latch.await(2 * TemporaryQueueTest.CONNECTION_TTL, TimeUnit.MILLISECONDS), "connection close listeners not fired");
 
       sf = addSessionFactory(createSessionFactory(locator));
       session = sf.createSession(false, true, true);
@@ -201,12 +201,12 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testPreserveNonTemporaryAddressAfterConnectionIsClosed() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setAutoDeleteAddresses(false));
 
       server.addAddressInfo(new AddressInfo(address).setTemporary(false).setAutoCreated(true));
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
       assertNotNull(server.getAddressInfo(address));
       session.close();
       sf.close();
@@ -216,9 +216,9 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testQueueWithWildcard() throws Exception {
-      session.createQueue(new QueueConfiguration("queue1").setAddress("a.b"));
-      session.createQueue(new QueueConfiguration("queue2").setAddress("a.#").setDurable(false).setTemporary(true));
-      session.createQueue(new QueueConfiguration("queue3").setAddress("a.#").setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of("queue1").setAddress("a.b"));
+      session.createQueue(QueueConfiguration.of("queue2").setAddress("a.#").setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of("queue3").setAddress("a.#").setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer("a.b");
       producer.send(session.createMessage(false));
@@ -255,9 +255,9 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testQueueWithWildcard2() throws Exception {
-      session.createQueue(new QueueConfiguration("queue1").setAddress("a.b"));
-      session.createQueue(new QueueConfiguration("queue2").setAddress("a.#").setDurable(false).setTemporary(true));
-      session.createQueue(new QueueConfiguration("queue3").setAddress("a.#").setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of("queue1").setAddress("a.b"));
+      session.createQueue(QueueConfiguration.of("queue2").setAddress("a.#").setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of("queue3").setAddress("a.#").setDurable(false).setTemporary(true));
 
       ClientProducer producer = session.createProducer("a.b");
       producer.send(session.createMessage(false));
@@ -294,19 +294,19 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testQueueWithWildcard3() throws Exception {
-      session.createQueue(new QueueConfiguration("queue1").setAddress("a.b"));
-      session.createQueue(new QueueConfiguration("queue2").setAddress("a.#").setDurable(false).setTemporary(true));
-      session.createQueue(new QueueConfiguration("queue2.1").setAddress("a.#").setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of("queue1").setAddress("a.b"));
+      session.createQueue(QueueConfiguration.of("queue2").setAddress("a.#").setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of("queue2.1").setAddress("a.#").setDurable(false).setTemporary(true));
 
       session.deleteQueue("queue2");
    }
 
    @Test
    public void testDeleteTemporaryQueueAfterConnectionIsClosed_2() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address));
       assertEquals(1, server.getConnectionCount());
 
       // we create a second session. the temp queue must be present
@@ -331,7 +331,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       ClientSessionFactory reattachSF = createSessionFactory(serverWithReattach);
 
       ClientSession session = reattachSF.createSession(false, false);
-      session.createQueue(new QueueConfiguration("tmpQ").setAddress("tmpAd").setDurable(false).setTemporary(true));
+      session.createQueue(QueueConfiguration.of("tmpQ").setAddress("tmpAd").setDurable(false).setTemporary(true));
       ClientConsumer consumer = session.createConsumer("tmpQ");
 
       ClientProducer prod = session.createProducer("tmpAd");
@@ -415,14 +415,14 @@ public class TemporaryQueueTest extends SingleServerTestBase {
          String queueBlue = address + "_blue_" + (countTmpQueue++);
 
          ClientSession sessConsumerRed = clientsConnecton.createSession();
-         sessConsumerRed.createQueue(new QueueConfiguration(queueRed).setAddress(address).setFilterString("color='red'").setDurable(false).setTemporary(true));
+         sessConsumerRed.createQueue(QueueConfiguration.of(queueRed).setAddress(address).setFilterString("color='red'").setDurable(false).setTemporary(true));
          MyHandler redHandler = new MyHandler(sessConsumerRed, "red", msgs);
          ClientConsumer redClientConsumer = sessConsumerRed.createConsumer(queueRed);
          redClientConsumer.setMessageHandler(redHandler);
          sessConsumerRed.start();
 
          ClientSession sessConsumerBlue = clientsConnecton.createSession();
-         sessConsumerBlue.createQueue(new QueueConfiguration(queueBlue).setAddress(address).setFilterString("color='blue'").setDurable(false).setTemporary(true));
+         sessConsumerBlue.createQueue(QueueConfiguration.of(queueBlue).setAddress(address).setFilterString("color='blue'").setDurable(false).setTemporary(true));
          MyHandler blueHandler = new MyHandler(sessConsumerBlue, "blue", msgs);
          ClientConsumer blueClientConsumer = sessConsumerBlue.createConsumer(queueBlue);
          blueClientConsumer.setMessageHandler(blueHandler);
@@ -461,21 +461,17 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       session.close();
       sf.close();
 
-      final SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      final SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       // server must received at least one ping from the client to pass
       // so that the server connection TTL is configured with the client value
       final CountDownLatch pingOnServerLatch = new CountDownLatch(1);
-      server.getRemotingService().addIncomingInterceptor(new Interceptor() {
-
-         @Override
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
-            if (packet.getType() == PacketImpl.PING) {
-               pingOnServerLatch.countDown();
-            }
-            return true;
+      server.getRemotingService().addIncomingInterceptor((Interceptor) (packet, connection) -> {
+         if (packet.getType() == PacketImpl.PING) {
+            pingOnServerLatch.countDown();
          }
+         return true;
       });
 
       ServerLocator locator = createInVMNonHALocator();
@@ -483,23 +479,18 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       sf = addSessionFactory(createSessionFactory(locator));
       session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
-      assertTrue("server has not received any ping from the client", pingOnServerLatch.await(2 * server.getConfiguration().getConnectionTtlCheckInterval(), TimeUnit.MILLISECONDS));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
+      assertTrue(pingOnServerLatch.await(2 * server.getConfiguration().getConnectionTtlCheckInterval(), TimeUnit.MILLISECONDS), "server has not received any ping from the client");
       assertEquals(1, server.getConnectionCount());
 
       RemotingConnection remotingConnection = server.getRemotingService().getConnections().iterator().next();
       final CountDownLatch serverCloseLatch = new CountDownLatch(1);
-      remotingConnection.addCloseListener(new CloseListener() {
-         @Override
-         public void connectionClosed() {
-            serverCloseLatch.countDown();
-         }
-      });
+      remotingConnection.addCloseListener(() -> serverCloseLatch.countDown());
 
       ((ClientSessionInternal) session).getConnection().fail(new ActiveMQInternalErrorException("simulate a client failure"));
 
       // let some time for the server to clean the connections
-      assertTrue("server has not closed the connection", serverCloseLatch.await(2 * server.getConfiguration().getConnectionTtlCheckInterval() + 2 * TemporaryQueueTest.CONNECTION_TTL, TimeUnit.MILLISECONDS));
+      assertTrue(serverCloseLatch.await(2 * server.getConfiguration().getConnectionTtlCheckInterval() + 2 * TemporaryQueueTest.CONNECTION_TTL, TimeUnit.MILLISECONDS), "server has not closed the connection");
 
       // The next getCount will be asynchronously done at the end of failure. We will wait some time until it has reached there.
       for (long timeout = System.currentTimeMillis() + 5000; timeout > System.currentTimeMillis() && server.getConnectionCount() > 0; ) {
@@ -517,12 +508,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       session = sf.createSession(false, true, true);
       session.start();
 
-      ActiveMQAction activeMQAction = new ActiveMQAction() {
-         @Override
-         public void run() throws ActiveMQException {
-            session.createConsumer(queue);
-         }
-      };
+      ActiveMQAction activeMQAction = () -> session.createConsumer(queue);
 
       ActiveMQTestBase.expectActiveMQException("temp queue must not exist after the server detected the client crash", ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, activeMQAction);
 
@@ -541,7 +527,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       ClientSessionFactory consumerCF = createSessionFactory(locator);
       ClientSession consumerSession = consumerCF.createSession(true, true);
       consumerSession.addMetaData("consumer", "consumer");
-      consumerSession.createQueue(new QueueConfiguration("Q1").setAddress("TestAD").setDurable(false).setTemporary(true));
+      consumerSession.createQueue(QueueConfiguration.of("Q1").setAddress("TestAD").setDurable(false).setTemporary(true));
       consumerSession.createConsumer("Q1");
       consumerSession.start();
 
@@ -553,23 +539,20 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
       final int TOTAL_MSG = 1000;
 
-      Thread t = new Thread() {
-         @Override
-         public void run() {
-            try {
-               for (int i = 0; i < TOTAL_MSG; i++) {
-                  ClientMessage msg = session.createMessage(false);
-                  msg.getBodyBuffer().writeBytes(new byte[1024]);
-                  prod.send(msg);
-                  msgs.incrementAndGet();
-               }
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
+      Thread t = new Thread(() -> {
+         try {
+            for (int i = 0; i < TOTAL_MSG; i++) {
+               ClientMessage msg = session.createMessage(false);
+               msg.getBodyBuffer().writeBytes(new byte[1024]);
+               prod.send(msg);
+               msgs.incrementAndGet();
             }
-
+         } catch (Throwable e) {
+            e.printStackTrace();
+            errors.incrementAndGet();
          }
-      };
+
+      });
 
       t.start();
 
@@ -593,7 +576,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
       ClientSessionFactory newConsumerCF = createSessionFactory(locator);
       ClientSession newConsumerSession = newConsumerCF.createSession(true, true);
-      newConsumerSession.createQueue(new QueueConfiguration("Q2").setAddress("TestAD").setDurable(false).setTemporary(true));
+      newConsumerSession.createQueue(QueueConfiguration.of("Q2").setAddress("TestAD").setDurable(false).setTemporary(true));
       ClientConsumer newConsumer = newConsumerSession.createConsumer("Q2");
       newConsumerSession.start();
 
@@ -621,6 +604,4 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       t.join();
 
    }
-
-
 }

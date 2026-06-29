@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- * A client was disconnected from ActiveMQ Artemis server when the server has shut down.
+ * A client was disconnected from Apache Artemis server when the server has shut down.
  */
 public final class ActiveMQDisconnectedException extends ActiveMQException {
 

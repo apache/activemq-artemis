@@ -16,49 +16,51 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SelectorTranslatorTest extends ActiveMQTestBase {
 
    @Test
    public void testParseNull() {
-      Assert.assertNull(SelectorTranslator.convertToActiveMQFilterString(null));
+      assertNull(SelectorTranslator.convertToActiveMQFilterString(null));
    }
 
    @Test
    public void testParseSimple() {
       final String selector = "color = 'red'";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
    }
 
    @Test
    public void testParseMoreComplex() {
       final String selector = "color = 'red' OR cheese = 'stilton' OR (age = 3 AND shoesize = 12)";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
    }
 
    @Test
    public void testParseJMSDeliveryMode() {
       String selector = "JMSDeliveryMode='NON_PERSISTENT'";
 
-      Assert.assertEquals("AMQDurable='NON_DURABLE'", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals("AMQDurable='NON_DURABLE'", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = "JMSDeliveryMode='PERSISTENT'";
 
-      Assert.assertEquals("AMQDurable='DURABLE'", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals("AMQDurable='DURABLE'", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = "color = 'red' AND 'NON_PERSISTENT' = JMSDeliveryMode";
 
-      Assert.assertEquals("color = 'red' AND 'NON_DURABLE' = AMQDurable", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals("color = 'red' AND 'NON_DURABLE' = AMQDurable", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = "color = 'red' AND 'PERSISTENT' = JMSDeliveryMode";
 
-      Assert.assertEquals("color = 'red' AND 'DURABLE' = AMQDurable", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals("color = 'red' AND 'DURABLE' = AMQDurable", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       checkNoSubstitute("JMSDeliveryMode");
    }
@@ -67,21 +69,21 @@ public class SelectorTranslatorTest extends ActiveMQTestBase {
    public void testParseJMSPriority() {
       String selector = "JMSPriority=5";
 
-      Assert.assertEquals("AMQPriority=5", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals("AMQPriority=5", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " JMSPriority = 7";
 
-      Assert.assertEquals(" AMQPriority = 7", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(" AMQPriority = 7", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " JMSPriority = 7 OR 1 = JMSPriority AND (JMSPriority= 1 + 4)";
 
-      Assert.assertEquals(" AMQPriority = 7 OR 1 = AMQPriority AND (AMQPriority= 1 + 4)", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(" AMQPriority = 7 OR 1 = AMQPriority AND (AMQPriority= 1 + 4)", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       checkNoSubstitute("JMSPriority");
 
       selector = "animal = 'lion' JMSPriority = 321 OR animal_name = 'xyzJMSPriorityxyz'";
 
-      Assert.assertEquals("animal = 'lion' AMQPriority = 321 OR animal_name = 'xyzJMSPriorityxyz'", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals("animal = 'lion' AMQPriority = 321 OR animal_name = 'xyzJMSPriorityxyz'", SelectorTranslator.convertToActiveMQFilterString(selector));
 
    }
 
@@ -89,23 +91,23 @@ public class SelectorTranslatorTest extends ActiveMQTestBase {
    public void testParseJMSMessageID() {
       String selector = "JMSMessageID='ID:AMQ-12435678";
 
-      Assert.assertEquals("AMQUserID='ID:AMQ-12435678", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals("AMQUserID='ID:AMQ-12435678", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " JMSMessageID='ID:AMQ-12435678";
 
-      Assert.assertEquals(" AMQUserID='ID:AMQ-12435678", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(" AMQUserID='ID:AMQ-12435678", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " JMSMessageID = 'ID:AMQ-12435678";
 
-      Assert.assertEquals(" AMQUserID = 'ID:AMQ-12435678", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(" AMQUserID = 'ID:AMQ-12435678", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " myHeader = JMSMessageID";
 
-      Assert.assertEquals(" myHeader = AMQUserID", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(" myHeader = AMQUserID", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " myHeader = JMSMessageID OR (JMSMessageID = 'ID-AMQ' + '12345')";
 
-      Assert.assertEquals(" myHeader = AMQUserID OR (AMQUserID = 'ID-AMQ' + '12345')", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(" myHeader = AMQUserID OR (AMQUserID = 'ID-AMQ' + '12345')", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       checkNoSubstitute("JMSMessageID");
    }
@@ -114,21 +116,21 @@ public class SelectorTranslatorTest extends ActiveMQTestBase {
    public void testParseJMSTimestamp() {
       String selector = "JMSTimestamp=12345678";
 
-      Assert.assertEquals("AMQTimestamp=12345678", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals("AMQTimestamp=12345678", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " JMSTimestamp=12345678";
 
-      Assert.assertEquals(" AMQTimestamp=12345678", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(" AMQTimestamp=12345678", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " JMSTimestamp=12345678 OR 78766 = JMSTimestamp AND (JMSTimestamp= 1 + 4878787)";
 
-      Assert.assertEquals(" AMQTimestamp=12345678 OR 78766 = AMQTimestamp AND (AMQTimestamp= 1 + 4878787)", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(" AMQTimestamp=12345678 OR 78766 = AMQTimestamp AND (AMQTimestamp= 1 + 4878787)", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       checkNoSubstitute("JMSTimestamp");
 
       selector = "animal = 'lion' JMSTimestamp = 321 OR animal_name = 'xyzJMSTimestampxyz'";
 
-      Assert.assertEquals("animal = 'lion' AMQTimestamp = 321 OR animal_name = 'xyzJMSTimestampxyz'", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals("animal = 'lion' AMQTimestamp = 321 OR animal_name = 'xyzJMSTimestampxyz'", SelectorTranslator.convertToActiveMQFilterString(selector));
 
    }
 
@@ -136,21 +138,21 @@ public class SelectorTranslatorTest extends ActiveMQTestBase {
    public void testParseJMSExpiration() {
       String selector = "JMSExpiration=12345678";
 
-      Assert.assertEquals("AMQExpiration=12345678", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals("AMQExpiration=12345678", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " JMSExpiration=12345678";
 
-      Assert.assertEquals(" AMQExpiration=12345678", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(" AMQExpiration=12345678", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " JMSExpiration=12345678 OR 78766 = JMSExpiration AND (JMSExpiration= 1 + 4878787)";
 
-      Assert.assertEquals(" AMQExpiration=12345678 OR 78766 = AMQExpiration AND (AMQExpiration= 1 + 4878787)", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(" AMQExpiration=12345678 OR 78766 = AMQExpiration AND (AMQExpiration= 1 + 4878787)", SelectorTranslator.convertToActiveMQFilterString(selector));
 
       checkNoSubstitute("JMSExpiration");
 
       selector = "animal = 'lion' JMSExpiration = 321 OR animal_name = 'xyzJMSExpirationxyz'";
 
-      Assert.assertEquals("animal = 'lion' AMQExpiration = 321 OR animal_name = 'xyzJMSExpirationxyz'", SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals("animal = 'lion' AMQExpiration = 321 OR animal_name = 'xyzJMSExpirationxyz'", SelectorTranslator.convertToActiveMQFilterString(selector));
 
    }
 
@@ -158,23 +160,23 @@ public class SelectorTranslatorTest extends ActiveMQTestBase {
    public void testParseJMSCorrelationID() {
       String selector = "JMSCorrelationID='ID:AMQ-12435678";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " JMSCorrelationID='ID:AMQ-12435678";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " JMSCorrelationID = 'ID:AMQ-12435678";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " myHeader = JMSCorrelationID";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " myHeader = JMSCorrelationID OR (JMSCorrelationID = 'ID-AMQ' + '12345')";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       checkNoSubstitute("JMSCorrelationID");
    }
@@ -183,23 +185,23 @@ public class SelectorTranslatorTest extends ActiveMQTestBase {
    public void testParseJMSType() {
       String selector = "JMSType='aardvark'";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " JMSType='aardvark'";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " JMSType = 'aardvark'";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " myHeader = JMSType";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = " myHeader = JMSType OR (JMSType = 'aardvark' + 'sandwich')";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       checkNoSubstitute("JMSType");
    }
@@ -207,43 +209,43 @@ public class SelectorTranslatorTest extends ActiveMQTestBase {
    private void checkNoSubstitute(final String fieldName) {
       String selector = "Other" + fieldName + " = 767868";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = "cheese = 'cheddar' AND Wrong" + fieldName + " = 54";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = "fruit = 'pomegranate' AND " + fieldName + "NotThisOne = 'tuesday'";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = "animal = 'lion' AND animal_name = '" + fieldName + "'";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = "animal = 'lion' AND animal_name = ' " + fieldName + "'";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = "animal = 'lion' AND animal_name = ' " + fieldName + " '";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = "animal = 'lion' AND animal_name = 'xyz " + fieldName + "'";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = "animal = 'lion' AND animal_name = 'xyz" + fieldName + "'";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = "animal = 'lion' AND animal_name = '" + fieldName + "xyz'";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
 
       selector = "animal = 'lion' AND animal_name = 'xyz" + fieldName + "xyz'";
 
-      Assert.assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
+      assertEquals(selector, SelectorTranslator.convertToActiveMQFilterString(selector));
    }
 
 }

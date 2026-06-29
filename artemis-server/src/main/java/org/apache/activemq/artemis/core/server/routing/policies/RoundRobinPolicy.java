@@ -36,7 +36,7 @@ public class RoundRobinPolicy extends AbstractPolicy {
 
    @Override
    public Target selectTarget(List<Target> targets, String key) {
-      if (targets.size() > 0) {
+      if (!targets.isEmpty()) {
          pos = pos % targets.size();
          return targets.get(pos++);
       }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.soak.replicationflow;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -25,19 +28,22 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class ReplicationFlowControlTest extends SoakTestBase {
 
@@ -45,7 +51,29 @@ public class ReplicationFlowControlTest extends SoakTestBase {
    public static final String SERVER_NAME_0 = "replicated-static0";
    public static final String SERVER_NAME_1 = "replicated-static1";
 
-   ArrayList<Consumer> consumers = new ArrayList<>();
+   @BeforeAll
+   public static void createServers() throws Exception {
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_0);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(serverLocation);
+         cliCreateServer.setConfiguration("./src/main/resources/servers/replicated-static0");
+         cliCreateServer.createServer();
+      }
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_1);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = helperCreate();
+         cliCreateServer.setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(serverLocation);
+         cliCreateServer.setConfiguration("./src/main/resources/servers/replicated-static1");
+         cliCreateServer.createServer();
+      }
+   }
+
+   List<Consumer> consumers = new ArrayList<>();
    private static Process server0;
    private static Process server1;
 
@@ -59,27 +87,27 @@ public class ReplicationFlowControlTest extends SoakTestBase {
    static AtomicInteger totalConsumed = new AtomicInteger(0);
 
 
-   @Before
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME_0);
       cleanupData(SERVER_NAME_1);
       disableCheckThread();
    }
 
-   @After
+   @AfterEach
    @Override
    public void after() throws Exception {
       super.after();
-      cleanupData(SERVER_NAME_0);
-      cleanupData(SERVER_NAME_1);
    }
 
    @Test
+   @Timeout(value = 5, unit = TimeUnit.MINUTES, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
    public void testPageWhileSynchronizingReplica() throws Exception {
       internalTest(false);
    }
 
    @Test
+   @Timeout(value = 5, unit = TimeUnit.MINUTES, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
    public void testPageWhileSyncFailover() throws Exception {
       internalTest(true);
    }
@@ -181,7 +209,7 @@ public class ReplicationFlowControlTest extends SoakTestBase {
       System.out.println("retention folder = " + retentionFolder.getAbsolutePath());
       File[] files = retentionFolder.listFiles();
       // it should be max = 2, however I'm giving some extra due to async factors..
-      Assert.assertTrue(retentionFolder.getAbsolutePath() + " has " + (files == null ? "no files" : files.length + " elements"), files != null && files.length <= 10);
+      assertTrue(files != null && files.length <= 10, retentionFolder.getAbsolutePath() + " has " + (files == null ? "no files" : files.length + " elements"));
    }
 
    void startConsumers(boolean useAMQP) {

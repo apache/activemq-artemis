@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.config.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,8 +35,8 @@ import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
 import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorService;
 import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorServiceFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ConnectorsServiceTest extends ActiveMQTestBase {
 
@@ -41,7 +45,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
    private ServiceRegistry serviceRegistry;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       // Setup Configuration
       configuration = new ConfigurationImpl();
@@ -50,12 +54,10 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
 
    /**
     * Test that the connectors added via the service registry are added to the connectorsService,
-    *
-    * @throws Exception
     */
    @Test
    public void testConnectorsServiceUsesInjectedConnectorServiceFactory() throws Exception {
-      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(null).setParams(new HashMap<String, Object>()).setName("myfact");
+      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(null).setParams(new HashMap<>()).setName("myfact");
 
       // Creates a fake connector service factory that returns the fake connector service object
       ConnectorService connectorService = new FakeConnectorService();
@@ -65,18 +67,16 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
       ConnectorsService connectorsService = new ConnectorsService(configuration, null, null, null, serviceRegistry);
       connectorsService.start();
 
-      assertTrue(connectorsService.getConnectors().size() == 1);
+      assertEquals(1, connectorsService.getConnectors().size());
       assertTrue(connectorsService.getConnectors().values().contains(connectorServiceFactory.getConnectorService()));
    }
 
    /**
     * Test that the connectors added via the config are added to the connectors service.
-    *
-    * @throws Exception
     */
    @Test
    public void testConnectorsServiceUsesConfiguredConnectorServices() throws Exception {
-      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<String, Object>()).setName("myfact");
+      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<>()).setName("myfact");
 
       List<ConnectorServiceConfiguration> connectorServiceConfigurations = new ArrayList<>();
       connectorServiceConfigurations.add(connectorServiceConfiguration);
@@ -85,18 +85,16 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
       ConnectorsService connectorsService = new ConnectorsService(configuration, null, null, null, serviceRegistry);
       connectorsService.start();
 
-      assertTrue(connectorsService.getConnectors().size() == 1);
+      assertEquals(1, connectorsService.getConnectors().size());
    }
 
    /**
     * Test that connectors can be created and destroyed directly.
-    *
-    * @throws Exception
     */
    @Test
    public void testConnectorServiceUsedDirectly() throws Exception {
       // Initial setup with existing connector service
-      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<String, Object>()).setName("myfact");
+      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<>()).setName("myfact");
       configuration.setConnectorServiceConfigurations(Arrays.asList(connectorServiceConfiguration));
 
       ConnectorsService connectorsService = new ConnectorsService(configuration, null, null, null, serviceRegistry);
@@ -108,13 +106,13 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
       FakeConnectorServiceFactory connectorServiceFactory = new FakeConnectorServiceFactory();
       try {
          connectorsService.createService(connectorServiceConfiguration, connectorServiceFactory);
-         assertTrue("Expected exception when creating service with same name", false);
+         fail("Expected exception when creating service with same name");
       } catch (Exception e) {
       }
 
 
       // Add unique with same factory
-      ConnectorServiceConfiguration additionalServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<String, Object>()).setName("myfact2");
+      ConnectorServiceConfiguration additionalServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<>()).setName("myfact2");
       connectorsService.createService(additionalServiceConfiguration, connectorServiceFactory);
       assertEquals(2, connectorsService.getConnectors().size());
 
@@ -128,7 +126,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
       // Destroy non-existing connector service
       try {
          connectorsService.destroyService("myfact");
-         assertTrue("Expected exception when destroying non-existing service", false);
+         fail("Expected exception when destroying non-existing service");
       } catch (Exception e) {
       }
    }

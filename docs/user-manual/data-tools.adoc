@@ -1,33 +1,34 @@
 = Data Tools
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
-You can use the Artemis CLI to execute data maintenance tools:
+You can use the CLI to execute data maintenance tools.
 
-The following sub-commands are available when running the CLI data command from a particular broker instance that has already been installed using the create command:
+The following sub-commands are available when running the CLI `data` command from a particular broker instance that has already been installed using the `create` command:
 
 |===
 | Name | Description
 
-| print
+| `print`
 | Prints a report about journal records of a non-running server
 
-| exp
+| `exp`
 | Export the message data using a special and independent XML format
 
-| imp
+| `imp`
 | Imports the journal to a running broker using the output from expt
 
-| encode
+| `encode`
 | shows an internal format of the journal encoded to String
 
-| decode
+| `decode`
 | imports the internal journal format from encode
 
-| compact
+| `compact`
 | Compacts the journal of a non running server
 
-| recover
+| `recover`
 | Recover (undelete) messages from an existing journal and create a new one.
 |===
 
@@ -123,7 +124,7 @@ OPTIONS
             'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'
 ----
 
-For a full list of data tools commands available use:
+For a full list of `data` commands available use:
 
 [,console]
 ----
@@ -157,6 +158,7 @@ SYNOPSIS
                 [--bindings <binding>] [--jdbc] [--verbose]
                 [--jdbc-message-table-name <jdbcMessages>]
                 [--jdbc-node-manager-table-name <jdbcNodeManager>] [--output <output>]
+                [--queue <queue>]
         artemis data imp [--legacy-prefixes] [--password <password>]
                 [--transaction] [--verbose] [--port <port>] [--user <user>] [--sort]
                 --input <input> [--host <host>]
@@ -344,6 +346,9 @@ COMMANDS
             manager table
 
             With --output option, Output name for the file
+
+            With --queue option, Only export the specified queue(s). Repeatable.
+            When omitted, all queues are exported.
 
         imp
             Import all message-data using an XML that could be interpreted by

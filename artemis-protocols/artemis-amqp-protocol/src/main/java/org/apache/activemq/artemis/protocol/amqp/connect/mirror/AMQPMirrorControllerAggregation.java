@@ -30,7 +30,9 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-/** this will be used when there are multiple replicas in use. */
+/**
+ * this will be used when there are multiple replicas in use.
+ */
 public class AMQPMirrorControllerAggregation implements MirrorController, ActiveMQComponent {
 
 
@@ -57,7 +59,7 @@ public class AMQPMirrorControllerAggregation implements MirrorController, Active
 
    @Override
    public String getRemoteMirrorId() {
-      if (partitions != null && partitions.size() > 0) {
+      if (partitions != null && !partitions.isEmpty()) {
          return partitions.get(0).getRemoteMirrorId();
       } else {
          throw new IllegalStateException();
@@ -103,9 +105,9 @@ public class AMQPMirrorControllerAggregation implements MirrorController, Active
    }
 
    @Override
-   public void deleteQueue(SimpleString addressName, SimpleString queueName) throws Exception {
+   public void deleteQueue(SimpleString addressName, SimpleString queueName, QueueConfiguration queueConfiguration) throws Exception {
       for (MirrorController partition : partitions) {
-         partition.deleteQueue(addressName, queueName);
+         partition.deleteQueue(addressName, queueName, queueConfiguration);
       }
    }
 

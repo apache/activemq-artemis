@@ -73,8 +73,6 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
 
    private ExecutorFactory executorFactory;
 
-   private ExecutorFactory ioExecutorFactory;
-
    private JDBCSequentialFileFactory pagingFactoryFileFactory;
 
    @Override
@@ -98,12 +96,10 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
                                      final long syncTimeout,
                                      final ScheduledExecutorService scheduledExecutor,
                                      final ExecutorFactory executorFactory,
-                                     final ExecutorFactory ioExecutorFactory,
                                      final boolean syncNonTransactional,
                                      final IOCriticalErrorListener criticalErrorListener) throws Exception {
       this.storageManager = storageManager;
       this.executorFactory = executorFactory;
-      this.ioExecutorFactory = ioExecutorFactory;
       this.syncNonTransactional = syncNonTransactional;
       this.scheduledExecutor = scheduledExecutor;
       this.syncTimeout = syncTimeout;
@@ -124,7 +120,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
          if (sqlProviderFactory == null) {
             sqlProviderFactory = new PropertySQLProvider.Factory(dbConf.getConnectionProvider());
          }
-         pagingFactoryFileFactory = new JDBCSequentialFileFactory(dbConf.getConnectionProvider(), sqlProviderFactory.create(pageStoreTableNamePrefix, SQLProvider.DatabaseStoreType.PAGE), executorFactory.getExecutor(), criticalErrorListener);
+         pagingFactoryFileFactory = new JDBCSequentialFileFactory(dbConf.getConnectionProvider(), sqlProviderFactory.create(pageStoreTableNamePrefix, SQLProvider.DatabaseStoreType.PAGE), executorFactory.getExecutor(), scheduledExecutor, dbConf.getJdbcJournalSyncPeriodMillis(), criticalErrorListener);
          pagingFactoryFileFactory.start();
          started = true;
       }
@@ -153,7 +149,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
    @Override
    public synchronized PagingStore newStore(final SimpleString address, final AddressSettings settings) {
 
-      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor().setFair(true), ioExecutorFactory.getExecutor(), syncNonTransactional);
+      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor().setFair(true), syncNonTransactional);
    }
 
    @Override
@@ -177,7 +173,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
       ((JDBCSequentialFileFactory)fileFactory).destroy();
       String tableName = factoryToTableName.remove(fileFactory);
       if (tableName != null) {
-         SimpleString removeTableName = SimpleString.toSimpleString(tableName);
+         SimpleString removeTableName = SimpleString.of(tableName);
          JDBCSequentialFile directoryList = (JDBCSequentialFile) pagingFactoryFileFactory.createSequentialFile(DIRECTORY_NAME);
          directoryList.open();
 
@@ -193,7 +189,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
             }
          }
 
-         directoryList.write(writeBuffer, true, null, false);
+         directoryList.sendToDB(writeBuffer, null, false);
          directoryList.close();
       }
    }
@@ -212,7 +208,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
       int size = ((Long) directoryList.size()).intValue();
       ActiveMQBuffer buffer = readActiveMQBuffer(directoryList, size);
 
-      ArrayList<PagingStore> storesReturn = new ArrayList<>();
+      List<PagingStore> storesReturn = new ArrayList<>();
 
       while (buffer.readableBytes() > 0) {
          SimpleString table = buffer.readSimpleString();
@@ -233,7 +229,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
 
          AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
 
-         PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor().setFair(true), ioExecutorFactory.getExecutor(), syncNonTransactional);
+         PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor().setFair(true), syncNonTransactional);
 
          storesReturn.add(store);
       }
@@ -244,10 +240,12 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
    private synchronized SequentialFileFactory newFileFactory(final String directoryName, boolean writeToDirectory) throws Exception {
       JDBCSequentialFile directoryList = (JDBCSequentialFile) pagingFactoryFileFactory.createSequentialFile(DIRECTORY_NAME);
       directoryList.open();
-      SimpleString simpleString = SimpleString.toSimpleString(directoryName);
+      SimpleString simpleString = SimpleString.of(directoryName);
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(simpleString.sizeof());
       buffer.writeSimpleString(simpleString);
-      if (writeToDirectory) directoryList.write(buffer, true);
+      if (writeToDirectory) {
+         directoryList.write(buffer, true);
+      }
       directoryList.close();
 
       final SQLProvider sqlProvider;
@@ -258,7 +256,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
          sqlProviderFactory = new PropertySQLProvider.Factory(dbConf.getConnectionProvider());
       }
       sqlProvider = sqlProviderFactory.create(getTableNameForGUID(directoryName), SQLProvider.DatabaseStoreType.PAGE);
-      final JDBCSequentialFileFactory fileFactory = new JDBCSequentialFileFactory(dbConf.getConnectionProvider(), sqlProvider, executorFactory.getExecutor(), criticalErrorListener);
+      final JDBCSequentialFileFactory fileFactory = new JDBCSequentialFileFactory(dbConf.getConnectionProvider(), sqlProvider, executorFactory.getExecutor(), scheduledExecutor, dbConf.getJdbcJournalSyncPeriodMillis(), criticalErrorListener);
       factoryToTableName.put(fileFactory, directoryName);
       return fileFactory;
    }

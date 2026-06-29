@@ -16,30 +16,34 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
 import javax.jms.JMSRuntimeException;
 import javax.jms.Topic;
-import java.util.Random;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SharedConsumerTest extends JMSTestBase {
 
    private JMSContext context;
-   private final Random random = new Random();
    private Topic topic1;
    private Topic topic2;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       context = createContext();
@@ -75,9 +79,9 @@ public class SharedConsumerTest extends JMSTestBase {
       try (JMSContext context = cf.createContext("foo", "bar")) {
          context.createSharedDurableConsumer(topic1, "mySharedCon");
          boolean found = false;
-         for (Binding binding : server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(topic1.getTopicName())).getBindings()) {
+         for (Binding binding : server.getPostOffice().getBindingsForAddress(SimpleString.of(topic1.getTopicName())).getBindings()) {
             found = true;
-            assertTrue(binding instanceof LocalQueueBinding);
+            assertInstanceOf(LocalQueueBinding.class, binding);
             assertEquals("mySharedCon", ((LocalQueueBinding)binding).getQueue().getName().toString());
             assertNotNull(((LocalQueueBinding)binding).getQueue().getUser());
             assertEquals("foo", ((LocalQueueBinding)binding).getQueue().getUser().toString());
@@ -109,10 +113,10 @@ public class SharedConsumerTest extends JMSTestBase {
          JMSConsumer con1 = context.createSharedConsumer(topic1, "mySharedCon");
          JMSConsumer con2 = context.createSharedConsumer(topic1, "mySharedCon");
          con1.close();
-         Binding binding = server.getPostOffice().getBinding(new SimpleString("nonDurable.mySharedCon"));
+         Binding binding = server.getPostOffice().getBinding(SimpleString.of("nonDurable.mySharedCon"));
          assertNotNull(binding);
          con2.close();
-         Wait.assertTrue(() -> server.getPostOffice().getBinding(new SimpleString("nonDurable.mySharedCon")) == null, 2000, 100);
+         Wait.assertTrue(() -> server.getPostOffice().getBinding(SimpleString.of("nonDurable.mySharedCon")) == null, 2000, 100);
          con1 = context.createSharedConsumer(topic2, "mySharedCon");
       } finally {
          context.close();

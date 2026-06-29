@@ -16,17 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.unit;
 
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
+
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -36,11 +40,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-@RunWith(value = Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AllClassesTest {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "classInfo={0}")
+   @Parameters(name = "classInfo={0}")
    public static Collection getParameters() {
       List<Class> parameters = new ArrayList<>();
       ClassLoader classLoader = AllClassesTest.class.getClassLoader();
@@ -79,7 +83,8 @@ public class AllClassesTest {
    }
 
 
-   @Test(timeout = 3000)
+   @TestTemplate
+   @Timeout(3)
    public void testToString() {
       Object targetInstance = null;
 
@@ -89,15 +94,15 @@ public class AllClassesTest {
          logger.debug("Error creating a new instance of {}: {}", targetClass.getName(), t);
       }
 
-      Assume.assumeTrue("Cannot create " + targetClass.getName(), targetInstance != null);
+      assumeTrue(targetInstance != null, "Cannot create " + targetClass.getName());
 
       try {
          String targetOutput = targetInstance.toString();
          logger.debug("targetOutput: {}", targetOutput);
       } finally {
-         if (targetInstance instanceof AutoCloseable) {
+         if (targetInstance instanceof AutoCloseable closeable) {
             try {
-               ((AutoCloseable)targetInstance).close();
+               closeable.close();
             } catch (Throwable t) {
                logger.debug("Error closing the instance of {}: {}", targetClass.getName(), t);
             }
@@ -131,7 +136,7 @@ public class AllClassesTest {
             } else if (constructorParameter.getType().isAssignableFrom(long.class)) {
                initArg = RandomUtil.randomLong();
             } else if (constructorParameter.getType().isAssignableFrom(String.class)) {
-               initArg = RandomUtil.randomString();
+               initArg = RandomUtil.randomUUIDString();
             } else {
                initArg = null;
             }

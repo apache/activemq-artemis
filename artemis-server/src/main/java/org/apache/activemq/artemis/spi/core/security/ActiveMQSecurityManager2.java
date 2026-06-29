@@ -24,31 +24,26 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
- * Used to validate whether a user is authorized to connect to the
- * server and perform certain functions on certain destinations.
- *
- * This is an evolution of {@link ActiveMQSecurityManager} that adds
- * the ability to perform authorization taking the destination address
- * into account.
+ * This is an evolution of {@link ActiveMQSecurityManager} that adds the ability to perform authorization taking the
+ * destination address into account.
  */
 public interface ActiveMQSecurityManager2 extends ActiveMQSecurityManager {
 
    /**
     * is this a valid user.
-    *
-    * This method is called instead of
-    * {@link ActiveMQSecurityManager#validateUser(String, String)}.
+    * <p>
+    * This method is called instead of {@link ActiveMQSecurityManager#validateUser(String, String)}.
     *
     * @param user     the user
     * @param password the users password
-    * @return true if a valid user
+    * @return {@code true} if a valid user
     */
    boolean validateUser(String user, String password, X509Certificate[] certificates);
 
    /**
-    * Determine whether the given user is valid and whether they have
-    * the correct role for the given destination address.
-    *
+    * Determine whether the given user is valid and whether they have the correct role for the given destination
+    * address.
+    * <p>
     * This method is called instead of
     * {@link ActiveMQSecurityManager#validateUserAndRole(String, String, Set, CheckType)}.
     *
@@ -58,7 +53,7 @@ public interface ActiveMQSecurityManager2 extends ActiveMQSecurityManager {
     * @param checkType  which permission to validate
     * @param address    the address for which to perform authorization
     * @param connection the user's connection
-    * @return true if the user is valid and they have the correct roles for the given destination address
+    * @return {@code true} if the user is valid and they have the correct roles for the given destination address
     */
    boolean validateUserAndRole(String user,
                                String password,

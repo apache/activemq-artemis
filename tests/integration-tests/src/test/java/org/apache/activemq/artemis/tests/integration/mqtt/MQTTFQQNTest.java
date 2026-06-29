@@ -16,13 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class MQTTFQQNTest extends MQTTTestSupport {
 
@@ -34,24 +42,26 @@ public class MQTTFQQNTest extends MQTTTestSupport {
       try {
          subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
 
-         assertEquals(1, server.getPostOffice().getAllBindings().count());
-         Binding b = server.getPostOffice().getAllBindings().iterator().next();
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.of("foo.bah"));
+         assertEquals(1, bindings.size());
+         Binding b = bindings.getBindings().iterator().next();
          //check that query using bare queue name works as before
          QueueQueryResult result = server.queueQuery(b.getUniqueName());
          assertTrue(result.isExists());
-         assertEquals(result.getAddress(), new SimpleString("foo.bah"));
+         assertEquals(result.getAddress(), SimpleString.of("foo.bah"));
          assertEquals(b.getUniqueName(), result.getName());
          //check that queue query using FQQN returns FQQN
-         result = server.queueQuery(new SimpleString("foo.bah::" + b.getUniqueName()));
+         result = server.queueQuery(SimpleString.of("foo.bah::" + b.getUniqueName()));
          assertTrue(result.isExists());
-         assertEquals(new SimpleString("foo.bah"), result.getAddress());
+         assertEquals(SimpleString.of("foo.bah"), result.getAddress());
          assertEquals(b.getUniqueName(), result.getName());
       } finally {
          subscriptionProvider.disconnect();
       }
    }
 
-   @Test(timeout = 60 * 1000)
+   @Test
+   @Timeout(60)
    public void testSendAndReceiveMQTTSpecial1() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);
@@ -60,20 +70,17 @@ public class MQTTFQQNTest extends MQTTTestSupport {
 
       final CountDownLatch latch = new CountDownLatch(NUM_MESSAGES);
 
-      Thread thread = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            for (int i = 0; i < NUM_MESSAGES; i++) {
-               try {
-                  byte[] payload = subscriptionProvider.receive(10000);
-                  assertNotNull("Should get a message", payload);
-                  latch.countDown();
-               } catch (Exception e) {
-                  e.printStackTrace();
-                  break;
-               }
-
+      Thread thread = new Thread(() -> {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
+            try {
+               byte[] payload = subscriptionProvider.receive(10000);
+               assertNotNull(payload, "Should get a message");
+               latch.countDown();
+            } catch (Exception e) {
+               e.printStackTrace();
+               break;
             }
+
          }
       });
       thread.start();
@@ -92,7 +99,8 @@ public class MQTTFQQNTest extends MQTTTestSupport {
       publishProvider.disconnect();
    }
 
-   @Test(timeout = 60 * 1000)
+   @Test
+   @Timeout(60)
    public void testSendAndReceiveMQTTSpecial2() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);
@@ -126,21 +134,22 @@ public class MQTTFQQNTest extends MQTTTestSupport {
       try {
          subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
 
-         assertEquals(1, server.getPostOffice().getAllBindings().count());
-         Binding b = server.getPostOffice().getAllBindings().iterator().next();
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.of("foo.bah"));
+         assertEquals(1, bindings.size());
+         Binding b = bindings.getBindings().iterator().next();
 
          //check ::queue
-         QueueQueryResult result = server.queueQuery(new SimpleString("::" + b.getUniqueName()));
+         QueueQueryResult result = server.queueQuery(SimpleString.of("::" + b.getUniqueName()));
          assertTrue(result.isExists());
-         assertEquals(new SimpleString("foo.bah"), result.getAddress());
+         assertEquals(SimpleString.of("foo.bah"), result.getAddress());
          assertEquals(b.getUniqueName(), result.getName());
 
          //check queue::
-         result = server.queueQuery(new SimpleString(b.getUniqueName() + "::"));
+         result = server.queueQuery(SimpleString.of(b.getUniqueName() + "::"));
          assertFalse(result.isExists());
 
          //check ::
-         result = server.queueQuery(new SimpleString("::"));
+         result = server.queueQuery(SimpleString.of("::"));
          assertFalse(result.isExists());
       } finally {
          subscriptionProvider.disconnect();

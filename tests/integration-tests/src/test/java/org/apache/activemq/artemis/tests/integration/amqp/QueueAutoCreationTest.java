@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -28,11 +33,12 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +68,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
    ClientSession clientSession;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       String randomSuffix = new BigInteger(130, random).toString(32);
@@ -72,7 +78,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       testConn.close();
       super.tearDown();
@@ -88,7 +94,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
       Configuration serverConfig = server.getConfiguration();
       serverConfig.setJournalType(JournalType.NIO);
       Map<String, AddressSettings> map = serverConfig.getAddressSettings();
-      if (map.size() == 0) {
+      if (map.isEmpty()) {
          AddressSettings as = new AddressSettings();
          map.put("#", as);
       }
@@ -100,23 +106,26 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
 
 
    protected Queue createAddressOnlyAndFakeQueue(final String queueName) throws Exception {
-      SimpleString address = SimpleString.toSimpleString(queueName);
+      SimpleString address = SimpleString.of(queueName);
       clientSession.createAddress(address, RoutingType.ANYCAST, false);
       return new ActiveMQQueue(queueName);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testSmallString() throws Exception {
       sendStringOfSize(1024, false);
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    public void testHugeString() throws Exception {
       sendStringOfSize(1024 * 1024, false);
    }
 
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    // QueueAutoCreationTest was created to validate auto-creation of queues
    // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
    public void testAutoCreateOnTopic() throws Exception {
@@ -132,10 +141,11 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
          producer.send(session.createTextMessage("hello"));
       }
 
-      Assert.assertTrue(((ActiveMQDestination) topic).isCreated());
+      assertTrue(((ActiveMQDestination) topic).isCreated());
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    // QueueAutoCreationTest was created to validate auto-creation of queues
    // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
    public void testAutoCreateOnTopicManySends() throws Exception {
@@ -151,12 +161,13 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
          MessageProducer producer = session.createProducer(topic);
          producer.send(session.createTextMessage("hello"));
          producer.close();
-         Assert.assertTrue(((ActiveMQDestination) topic).isCreated());
+         assertTrue(((ActiveMQDestination) topic).isCreated());
       }
 
    }
 
-   @Test(timeout = 30000)
+   @Test
+   @Timeout(30)
    // QueueAutoCreationTest was created to validate auto-creation of queues
    // and this test was added to validate a regression: https://issues.apache.org/jira/browse/ARTEMIS-2238
    public void testAutoCreateOnTopicAndConsume() throws Exception {
@@ -178,16 +189,16 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
          MessageProducer producer = session.createProducer(topic);
          producer.send(session.createTextMessage("hello"));
          producer.close();
-         Assert.assertTrue(((ActiveMQDestination) topic).isCreated());
+         assertTrue(((ActiveMQDestination) topic).isCreated());
       }
 
       for (int i = 0; i < 10; i++) {
          TextMessage message = (TextMessage)consumer.receive(10_000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals("hello", message.getText());
+         assertNotNull(message);
+         assertEquals("hello", message.getText());
       }
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
 
    }
 
@@ -204,12 +215,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
 
          m.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
 
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < msgSize) {
-            buffer.append(UUIDGenerator.getInstance().generateStringUUID());
-         }
-
-         final String originalString = buffer.toString();
+         final String originalString = RandomUtil.randomAlphaNumericString(msgSize);
 
          m.setText(originalString);
 
@@ -230,10 +236,10 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
          conn.start();
 
          TextMessage rm = (TextMessage) cons.receive(5000);
-         Assert.assertNotNull(rm);
+         assertNotNull(rm);
 
          String str = rm.getText();
-         Assert.assertEquals(originalString, str);
+         assertEquals(originalString, str);
       } finally {
          if (conn != null) {
             conn.close();

@@ -17,7 +17,8 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- *  These methods will be called during refCount operations */
+ * These methods will be called during refCount operations
+ */
 public interface RefCountMessageListener {
 
    void durableUp(Message message, int durableCount);

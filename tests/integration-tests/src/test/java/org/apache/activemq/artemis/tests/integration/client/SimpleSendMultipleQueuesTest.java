@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -26,9 +29,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase {
 
@@ -55,7 +57,7 @@ public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase {
       for (int i = 0; i < 1000; i++) {
          ClientMessage message = session.createMessage(false);
 
-         final String body = RandomUtil.randomString();
+         final String body = RandomUtil.randomUUIDString();
 
          message.getBodyBuffer().writeString(body);
 
@@ -64,21 +66,21 @@ public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase {
          // log.debug("sent message");
 
          ClientMessage received1 = consumer1.receive(1000);
-         Assert.assertNotNull(received1);
-         Assert.assertEquals(body, received1.getBodyBuffer().readString());
+         assertNotNull(received1);
+         assertEquals(body, received1.getBodyBuffer().readString());
 
          ClientMessage received2 = consumer2.receive(1000);
-         Assert.assertNotNull(received2);
-         Assert.assertEquals(body, received2.getBodyBuffer().readString());
+         assertNotNull(received2);
+         assertEquals(body, received2.getBodyBuffer().readString());
 
          ClientMessage received3 = consumer3.receive(1000);
-         Assert.assertNotNull(received3);
-         Assert.assertEquals(body, received3.getBodyBuffer().readString());
+         assertNotNull(received3);
+         assertEquals(body, received3.getBodyBuffer().readString());
       }
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -92,9 +94,9 @@ public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase {
 
       session = cf.createSession();
 
-      session.createQueue(new QueueConfiguration("queue1").setAddress(SimpleSendMultipleQueuesTest.address));
-      session.createQueue(new QueueConfiguration("queue2").setAddress(SimpleSendMultipleQueuesTest.address));
-      session.createQueue(new QueueConfiguration("queue3").setAddress(SimpleSendMultipleQueuesTest.address));
+      session.createQueue(QueueConfiguration.of("queue1").setAddress(SimpleSendMultipleQueuesTest.address));
+      session.createQueue(QueueConfiguration.of("queue2").setAddress(SimpleSendMultipleQueuesTest.address));
+      session.createQueue(QueueConfiguration.of("queue3").setAddress(SimpleSendMultipleQueuesTest.address));
 
       producer = session.createProducer(SimpleSendMultipleQueuesTest.address);
 

@@ -26,7 +26,7 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 
-@Command(name = "auto-complete", description = "Generates the auto complete script file to be used in bash or zsh.")
+@Command(name = "auto-complete", description = "Generates the auto complete script file to be used in bash or zsh. This feature is deprecated in favor of ./artemis completion", hidden = true)
 public class AutoCompletion implements Runnable {
 
    public AutoCompletion() {
@@ -42,7 +42,7 @@ public class AutoCompletion implements Runnable {
    @Override
    public void run() {
       try {
-         CommandLine artemisCommand = Artemis.buildCommand(true, true);
+         CommandLine artemisCommand = Artemis.buildCommand(true, true, true);
          AutoComplete.bash(startScript, autoCompleteFile, null, artemisCommand);
          System.out.println("Type the following commands before you can use auto-complete:");
          System.out.println("*******************************************************************************************************************************");

@@ -20,7 +20,7 @@ import javax.jms.DeliveryMode;
 import javax.jms.Message;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JMSDeliveryModeHeaderTest extends MessageHeaderTestBase {
 

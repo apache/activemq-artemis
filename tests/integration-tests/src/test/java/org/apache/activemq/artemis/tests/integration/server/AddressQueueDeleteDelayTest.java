@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -31,9 +34,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -56,15 +58,15 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressQueueDeleteDelay() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       final long deleteQueuesDelay = 150;
       final long deleteAddressesDelay = 500;
 
       AddressSettings addressSettings = new AddressSettings().setAutoDeleteQueuesDelay(deleteQueuesDelay).setAutoDeleteAddressesDelay(deleteAddressesDelay);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setAutoCreated(true));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setAutoCreated(true));
 
       assertTrue(Wait.waitFor(() -> server.locateQueue(queue) != null, DURATION_MILLIS, SLEEP_MILLIS));
 
@@ -82,7 +84,7 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
       final AddressInfo info = server.getAddressInfo(address);
       Wait.assertTrue(() -> server.locateQueue(queue) == null, DURATION_MILLIS, 10);
-      Assert.assertNotNull(info);
+      assertNotNull(info);
       Wait.assertTrue(() -> info.getBindingRemovedTimestamp() > 0, 5000, 10);
 
 
@@ -95,20 +97,20 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
       elapsedTime = System.currentTimeMillis() - start;
       logger.debug("Elapsed time to delete address: {}", elapsedTime);
-      assertTrue("ellapsedTime=" + elapsedTime + " while delay is " + deleteAddressesDelay, elapsedTime >= (deleteAddressesDelay));
+      assertTrue(elapsedTime >= (deleteAddressesDelay), "ellapsedTime=" + elapsedTime + " while delay is " + deleteAddressesDelay);
    }
 
    @Test
    public void testAddressQueueDeleteDelayWithAdditionalAddressQueue() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       final long deleteQueuesDelay = 300;
       final long deleteAddressesDelay = 500;
 
       AddressSettings addressSettings = new AddressSettings().setAutoDeleteQueuesDelay(deleteQueuesDelay).setAutoDeleteAddressesDelay(deleteAddressesDelay);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setAutoCreated(true));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setAutoCreated(true));
 
       assertTrue(Wait.waitFor(() -> server.locateQueue(queue) != null, DURATION_MILLIS, SLEEP_MILLIS));
 
@@ -126,7 +128,7 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) != null, DURATION_MILLIS, SLEEP_MILLIS));
       assertTrue(Wait.waitFor(() -> server.locateQueue(queue) == null, DURATION_MILLIS, SLEEP_MILLIS));
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setAutoCreated(true));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setAutoCreated(true));
 
       consumer = session.createConsumer(queue);
       assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) != null, DURATION_MILLIS, SLEEP_MILLIS));
@@ -138,7 +140,7 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
       assertTrue(System.currentTimeMillis() - start >= (deleteQueuesDelay));
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setAutoCreated(true));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setAutoCreated(true));
       session.deleteQueue(queue);
 
       start = System.currentTimeMillis();
@@ -148,10 +150,10 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
    @Test
    public void testDefaultAddressQueueDeleteDelay() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
-      session.createQueue(new QueueConfiguration(queue).setAddress(address).setAutoCreated(true));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setAutoCreated(true));
 
       assertTrue(Wait.waitFor(() -> server.locateQueue(queue) != null, DURATION_MILLIS, SLEEP_MILLIS));
 
@@ -171,15 +173,15 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressDeleteDelay() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       final long deleteAddressesDelay = 500;
 
       AddressSettings addressSettings = new AddressSettings().setAutoDeleteAddressesDelay(deleteAddressesDelay);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       session.createAddress(address, RoutingType.MULTICAST, true);
-      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address));
       session.deleteQueue(queue);
 
       assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
@@ -187,8 +189,8 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressDeleteDelayNegative() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       final long deleteAddressesDelay = 500;
 
       AddressSettings addressSettings = new AddressSettings().setAutoDeleteAddressesDelay(deleteAddressesDelay);
@@ -196,17 +198,17 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
       // the address should not be deleted since it is not auto-created
       session.createAddress(address, RoutingType.MULTICAST, false);
-      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address));
       session.deleteQueue(queue);
 
       Thread.sleep(1000); // waiting some time so the delay would kick in if misconfigured
-      Assert.assertTrue(server.getAddressInfo(address) != null);
+      assertNotNull(server.getAddressInfo(address));
    }
 
    @Test
    public void testAddressDeleteDelayNegative2() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       final long deleteAddressesDelay = 500;
 
       // the address should not be deleted since autoDeleteAddresses = false
@@ -214,15 +216,15 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       session.createAddress(address, RoutingType.MULTICAST, true);
-      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address));
       session.deleteQueue(queue);
 
       Thread.sleep(1000); // waiting some time so the delay would kick in if misconfigured
-      Assert.assertTrue(server.getAddressInfo(address) != null);
+      assertNotNull(server.getAddressInfo(address));
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

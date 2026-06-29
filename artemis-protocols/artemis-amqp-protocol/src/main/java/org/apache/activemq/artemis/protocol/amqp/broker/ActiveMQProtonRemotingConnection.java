@@ -17,11 +17,11 @@
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import javax.security.auth.Subject;
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
@@ -29,11 +29,16 @@ import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
+import org.apache.qpid.proton.engine.EndpointState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * This is a Server's Connection representation used by ActiveMQ Artemis.
+ * This is a Server's Connection representation used by Apache Artemis.
  */
 public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final AMQPConnectionContext amqpConnection;
 
@@ -62,7 +67,7 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
       amqpConnection.scheduledFlush();
    }
 
-   /*
+   /**
     * This can be called concurrently by more than one thread so needs to be locked
     */
    @Override
@@ -73,17 +78,53 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
 
       destroyed = true;
 
-      //filter it like the other protocols
-      if (!(me instanceof ActiveMQRemoteDisconnectException)) {
-         ActiveMQClientLogger.LOGGER.connectionFailureDetected(amqpConnection.getConnectionCallback().getTransportConnection().getRemoteAddress(), me.getMessage(), me.getType());
+      if (logger.isDebugEnabled()) {
+         try {
+            logger.debug("Connection failure detected. amqpConnection.getHandler().getConnection().getRemoteState() = {}, remoteIP={}", amqpConnection.getHandler().getConnection().getRemoteState(), amqpConnection.getConnectionCallback().getTransportConnection().getRemoteAddress());
+         } catch (Throwable e) { // just to avoid a possible NPE from the debug statement itself
+            logger.debug(e.getMessage(), e);
+         }
       }
 
-      // Then call the listeners
-      callFailureListeners(me, scaleDownTargetNodeID);
+      try {
+         if (amqpConnection.getHandler().getConnection().getRemoteState() != EndpointState.CLOSED) {
+            // A remote close was received on the client, on that case it's just a normal operation and we don't need to log this.
+            ActiveMQClientLogger.LOGGER.connectionFailureDetected(amqpConnection.getConnectionCallback().getTransportConnection().getProtocolConnection().getProtocolName(), amqpConnection.getConnectionCallback().getTransportConnection().getRemoteAddress(), me.getMessage(), me.getType());
+         }
+      } catch (Throwable e) { // avoiding NPEs from te logging statement. I don't think this would happen, but just in case
+         logger.warn(e.getMessage(), e);
+      }
 
-      callClosingListeners();
+      amqpConnection.runNow(() -> {
+         // Then call the listeners
+         callFailureListeners(me, scaleDownTargetNodeID);
 
-      internalClose();
+         callClosingListeners();
+
+         internalClose();
+      });
+   }
+
+   @Override
+   public void close() {
+      if (destroyed) {
+         return;
+      }
+
+      destroyed = true;
+
+      if (logger.isDebugEnabled()) {
+         try {
+            logger.debug("Connection regular close. amqpConnection.getHandler().getConnection().getRemoteState() = {}, remoteIP={}", amqpConnection.getHandler().getConnection().getRemoteState(), amqpConnection.getConnectionCallback().getTransportConnection().getRemoteAddress());
+         } catch (Throwable e) { // just to avoid a possible NPE from the debug statement itself
+            logger.debug(e.getMessage(), e);
+         }
+      }
+
+      amqpConnection.runNow(() -> {
+         callClosingListeners();
+         internalClose();
+      });
    }
 
    @Override
@@ -103,6 +144,12 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
 
    @Override
    public void disconnect(boolean criticalError) {
+      if (destroyed) {
+         return;
+      }
+
+      destroyed = true;
+
       ErrorCondition errorCondition = new ErrorCondition();
       errorCondition.setCondition(AmqpSupport.CONNECTION_FORCED);
       amqpConnection.close(errorCondition);
@@ -154,9 +201,7 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    }
 
    /**
-    * Returns the name of the protocol for this Remoting Connection
-    *
-    * @return
+    * {@return the name of the protocol for this Remoting Connection}
     */
    @Override
    public String getProtocolName() {

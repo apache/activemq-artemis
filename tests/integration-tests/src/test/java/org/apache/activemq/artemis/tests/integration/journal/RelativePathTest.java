@@ -18,22 +18,23 @@
 package org.apache.activemq.artemis.tests.integration.journal;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RelativePathTest extends ActiveMQTestBase {
 
    @Test
    public void testRelativePathOnDefaultConfig() throws Exception {
       Configuration configuration = createDefaultConfig(false);
-      ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<>());
 
       server.start();
       server.stop();
@@ -61,7 +62,7 @@ public class RelativePathTest extends ActiveMQTestBase {
 
       //      configuration.setJournal
 
-      ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<>());
 
       server.start();
       server.stop();
@@ -90,7 +91,7 @@ public class RelativePathTest extends ActiveMQTestBase {
       // one folder up from instance home
       configuration.setLargeMessagesDirectory("./large");
 
-      ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<>());
 
       server.start();
       server.stop();
@@ -100,17 +101,12 @@ public class RelativePathTest extends ActiveMQTestBase {
    }
 
    public void checkData(File dataHome, final String extension) {
-      Assert.assertTrue("Folder " + dataHome + " doesn't exist", dataHome.exists());
+      assertTrue(dataHome.exists(), "Folder " + dataHome + " doesn't exist");
 
-      File[] files = dataHome.listFiles(new FileFilter() {
-         @Override
-         public boolean accept(File pathname) {
-            return (extension == null || pathname.toString().endsWith(extension));
-         }
-      });
+      File[] files = dataHome.listFiles(pathname -> (extension == null || pathname.toString().endsWith(extension)));
 
-      Assert.assertNotNull(files);
+      assertNotNull(files);
 
-      Assert.assertTrue(files.length > 0);
+      assertTrue(files.length > 0);
    }
 }

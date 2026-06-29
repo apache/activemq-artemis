@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.consumer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -47,9 +54,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +74,7 @@ public class JmsConsumerTest extends JMSTestBase {
    private javax.jms.Topic topic2;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -105,15 +111,15 @@ public class JmsConsumerTest extends JMSTestBase {
       sess.commit();
 
       TextMessage m1 = (TextMessage) cons.receive(2000);
-      Assert.assertNotNull(m1);
-      Assert.assertEquals("m1", m1.getText());
+      assertNotNull(m1);
+      assertEquals("m1", m1.getText());
 
       TextMessage m2 = (TextMessage) cons.receive(2000);
-      Assert.assertNotNull(m2);
-      Assert.assertEquals("m3", m2.getText());
+      assertNotNull(m2);
+      assertEquals("m3", m2.getText());
 
       TextMessage m3 = (TextMessage) cons.receive(2000);
-      Assert.assertNull("m3 should be null", m3);
+      assertNull(m3, "m3 should be null");
 
       logger.debug("received m1: {}", m1.getText());
       logger.debug("received m2: {}", m2.getText());
@@ -136,12 +142,12 @@ public class JmsConsumerTest extends JMSTestBase {
       conn.start();
       for (int i = 0; i < noOfMessages; i++) {
          Message m = consumer.receive(500);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
-      Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
-      Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
+      SimpleString queueName = SimpleString.of(JmsConsumerTest.Q_NAME);
+      assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
+      assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
    }
 
    @Test
@@ -161,7 +167,7 @@ public class JmsConsumerTest extends JMSTestBase {
       // Consume even numbers first
       for (int i = 0; i < noOfMessages; i++) {
          Message m = consumer.receive(500);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          if (i % 2 == 0) {
             m.acknowledge();
          }
@@ -180,16 +186,16 @@ public class JmsConsumerTest extends JMSTestBase {
          }
 
          TextMessage m = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
-         Assert.assertEquals("m" + i, m.getText());
+         assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.of(JmsConsumerTest.Q_NAME);
       conn.close();
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
+      assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
    }
 
    @Test
@@ -208,7 +214,7 @@ public class JmsConsumerTest extends JMSTestBase {
       // Consume even numbers first
       for (int i = 0; i < noOfMessages; i++) {
          Message m = consumer.receive(500);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          if (i % 2 == 0) {
             m.acknowledge();
          }
@@ -227,16 +233,16 @@ public class JmsConsumerTest extends JMSTestBase {
          }
 
          TextMessage m = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
-         Assert.assertEquals("m" + i, m.getText());
+         assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.of(JmsConsumerTest.Q_NAME);
       context.close();
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
+      assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
    }
 
    @Test
@@ -287,7 +293,7 @@ public class JmsConsumerTest extends JMSTestBase {
 
       consumer.setMessageListener(new MessageAckEven());
 
-      Assert.assertTrue(latch.await(5000));
+      assertTrue(latch.await(5000));
 
       session.close();
 
@@ -302,12 +308,12 @@ public class JmsConsumerTest extends JMSTestBase {
          }
 
          TextMessage m = (TextMessage) consumer.receive(1000);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
          m.acknowledge();
-         Assert.assertEquals("m" + i, m.getText());
+         assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.of(JmsConsumerTest.Q_NAME);
       conn.close();
 
       Queue queue = server.locateQueue(queueName);
@@ -332,11 +338,11 @@ public class JmsConsumerTest extends JMSTestBase {
       conn.start();
       for (int i = 0; i < noOfMessages; i++) {
          Message m = consumer.receive(500);
-         Assert.assertNotNull(m);
+         assertNotNull(m);
       }
 
       // Messages should all have been acked since we set pre ack on the cf
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      SimpleString queueName = SimpleString.of(JmsConsumerTest.Q_NAME);
       Queue queue = server.locateQueue(queueName);
       Wait.assertEquals(0, queue::getDeliveringCount);
       Wait.assertEquals(0, queue::getMessageCount);
@@ -361,7 +367,7 @@ public class JmsConsumerTest extends JMSTestBase {
       conn.start();
 
       Message m = consumer.receiveNoWait();
-      Assert.assertNull(m);
+      assertNull(m);
 
       // Asserting delivering count is zero is bogus since messages might still be being delivered and expired at this
       // point
@@ -388,7 +394,7 @@ public class JmsConsumerTest extends JMSTestBase {
 
       conn.start();
       Message m = consumer.receiveNoWait();
-      Assert.assertNull(m);
+      assertNull(m);
 
       // Asserting delivering count is zero is bogus since messages might still be being delivered and expired at this
       // point
@@ -418,18 +424,18 @@ public class JmsConsumerTest extends JMSTestBase {
       conn.start();
       for (int i = 0; i < noOfMessages; i++) {
          TextMessage msg = (TextMessage) enumMessages.nextElement();
-         Assert.assertNotNull(msg);
-         Assert.assertEquals(i, msg.getIntProperty("i"));
+         assertNotNull(msg);
+         assertEquals(i, msg.getIntProperty("i"));
 
          conn.start();
          TextMessage recvMessage = (TextMessage) consumer.receiveNoWait();
-         Assert.assertNotNull(recvMessage);
+         assertNotNull(recvMessage);
          conn.stop();
-         Assert.assertEquals(i, msg.getIntProperty("i"));
+         assertEquals(i, msg.getIntProperty("i"));
       }
 
-      Assert.assertNull(consumer.receiveNoWait());
-      Assert.assertFalse(enumMessages.hasMoreElements());
+      assertNull(consumer.receiveNoWait());
+      assertFalse(enumMessages.hasMoreElements());
 
       conn.close();
 
@@ -464,17 +470,17 @@ public class JmsConsumerTest extends JMSTestBase {
 
       for (int i = 0; i < noOfMessages; i++) {
          TextMessage msg = (TextMessage) enumMessages.nextElement();
-         Assert.assertNotNull(msg);
-         Assert.assertEquals(i, msg.getIntProperty("i"));
+         assertNotNull(msg);
+         assertEquals(i, msg.getIntProperty("i"));
 
          TextMessage recvMessage = (TextMessage) consumer.receiveNoWait();
-         Assert.assertNotNull(recvMessage);
-         Assert.assertEquals(i, msg.getIntProperty("i"));
+         assertNotNull(recvMessage);
+         assertEquals(i, msg.getIntProperty("i"));
       }
 
       Message m = consumer.receiveNoWait();
-      Assert.assertFalse(enumMessages.hasMoreElements());
-      Assert.assertNull(m);
+      assertFalse(enumMessages.hasMoreElements());
+      assertNull(m);
 
       conn.close();
    }
@@ -498,14 +504,14 @@ public class JmsConsumerTest extends JMSTestBase {
       Enumeration enumMessages = browser.getEnumeration();
 
       for (int i = 0; i < noOfMessages; i++) {
-         Assert.assertTrue(enumMessages.hasMoreElements());
+         assertTrue(enumMessages.hasMoreElements());
          TextMessage msg = (TextMessage) enumMessages.nextElement();
-         Assert.assertNotNull(msg);
-         Assert.assertEquals(i, msg.getIntProperty("i"));
+         assertNotNull(msg);
+         assertEquals(i, msg.getIntProperty("i"));
 
       }
 
-      Assert.assertFalse(enumMessages.hasMoreElements());
+      assertFalse(enumMessages.hasMoreElements());
 
       conn.close();
 
@@ -520,10 +526,7 @@ public class JmsConsumerTest extends JMSTestBase {
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(final Message msg) {
-         }
+      consumer.setMessageListener(msg -> {
       });
 
       consumer.setMessageListener(null);
@@ -536,15 +539,12 @@ public class JmsConsumerTest extends JMSTestBase {
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
-      consumer.setMessageListener(new MessageListener() {
-         @Override
-         public void onMessage(final Message msg) {
-         }
+      consumer.setMessageListener(msg -> {
       });
 
       try {
          consumer.receiveNoWait();
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (JMSException e) {
          // Ok
       }
@@ -565,7 +565,7 @@ public class JmsConsumerTest extends JMSTestBase {
 
       TextMessage txt = (TextMessage) cons.receive(5000);
 
-      Assert.assertNotNull(txt);
+      assertNotNull(txt);
    }
 
    @Test
@@ -583,7 +583,7 @@ public class JmsConsumerTest extends JMSTestBase {
 
       TextMessage txt = (TextMessage) cons.receive(5000);
 
-      Assert.assertNotNull(txt);
+      assertNotNull(txt);
    }
 
    @Test
@@ -607,7 +607,7 @@ public class JmsConsumerTest extends JMSTestBase {
             exception = true;
          }
 
-         Assert.assertTrue(exception);
+         assertTrue(exception);
          conn3.close();
       }
 
@@ -621,7 +621,7 @@ public class JmsConsumerTest extends JMSTestBase {
 
       TextMessage txt = (TextMessage) cons.receive(5000);
 
-      Assert.assertNotNull(txt);
+      assertNotNull(txt);
    }
 
    @Test
@@ -641,7 +641,7 @@ public class JmsConsumerTest extends JMSTestBase {
          exceptionHappened = true;
       }
 
-      Assert.assertTrue(exceptionHappened);
+      assertTrue(exceptionHappened);
 
       MessageProducer producer = session.createProducer(topic2);
 
@@ -653,7 +653,7 @@ public class JmsConsumerTest extends JMSTestBase {
       producer.send(session.createTextMessage("hello!"));
 
       TextMessage msg = (TextMessage) cons2.receive(5000);
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
 
       exceptionHappened = false;
       try {
@@ -662,7 +662,7 @@ public class JmsConsumerTest extends JMSTestBase {
          exceptionHappened = true;
       }
 
-      Assert.assertTrue(exceptionHappened);
+      assertTrue(exceptionHappened);
       cons2.close();
       conn.close();
       conn2.close();
@@ -684,7 +684,7 @@ public class JmsConsumerTest extends JMSTestBase {
          prod.send(session.createTextMessage("msg" + i));
       }
 
-      Assert.assertNotNull(cons.receive(5000));
+      assertNotNull(cons.receive(5000));
 
       cons.close();
 
@@ -693,7 +693,7 @@ public class JmsConsumerTest extends JMSTestBase {
       cons = session.createSharedDurableConsumer(topic, "c1");
 
       // it should be null since the queue was deleted through unsubscribe
-      Assert.assertNull(cons.receiveNoWait());
+      assertNull(cons.receiveNoWait());
    }
 
    @Test
@@ -715,13 +715,13 @@ public class JmsConsumerTest extends JMSTestBase {
 
       for (int i = 0; i < 50; i++) {
          Message msg = cons.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg = cons2.receive(5000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
       }
 
-      Assert.assertNull(cons.receiveNoWait());
-      Assert.assertNull(cons2.receiveNoWait());
+      assertNull(cons.receiveNoWait());
+      assertNull(cons2.receiveNoWait());
 
       cons.close();
 
@@ -733,7 +733,7 @@ public class JmsConsumerTest extends JMSTestBase {
          exceptionHappened = true;
       }
 
-      Assert.assertTrue(exceptionHappened);
+      assertTrue(exceptionHappened);
 
       cons2.close();
 
@@ -746,7 +746,7 @@ public class JmsConsumerTest extends JMSTestBase {
       cons = session.createSharedDurableConsumer(topic, "c1");
 
       // it should be null since the queue was deleted through unsubscribe
-      Assert.assertNull(cons.receiveNoWait());
+      assertNull(cons.receiveNoWait());
    }
 
    @Test
@@ -767,14 +767,14 @@ public class JmsConsumerTest extends JMSTestBase {
 
       for (int i = 0; i < 50; i++) {
          String txt = consumer.receiveBody(String.class, 5000);
-         Assert.assertNotNull(txt);
+         assertNotNull(txt);
 
          txt = consumer.receiveBody(String.class, 5000);
-         Assert.assertNotNull(txt);
+         assertNotNull(txt);
       }
 
-      Assert.assertNull(consumer.receiveNoWait());
-      Assert.assertNull(consumer2.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
+      assertNull(consumer2.receiveNoWait());
 
       boolean exceptionHappened = false;
 
@@ -785,7 +785,7 @@ public class JmsConsumerTest extends JMSTestBase {
          exceptionHappened = true;
       }
 
-      Assert.assertTrue(exceptionHappened);
+      assertTrue(exceptionHappened);
 
       consumer.close();
       consumer2.close();
@@ -810,17 +810,16 @@ public class JmsConsumerTest extends JMSTestBase {
 
       session.createConsumer(session.createQueue(queueName));
 
-      org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.toSimpleString(queueName));
+      org.apache.activemq.artemis.core.server.Queue queue = server.locateQueue(SimpleString.of(queueName));
 
       assertEquals(5, queue.getMaxConsumers());
-      assertEquals(true, queue.isPurgeOnNoConsumers());
+      assertTrue(queue.isPurgeOnNoConsumers());
 
       connection.close();
    }
 
    /**
     * Test for ARTEMIS-1610
-    * @throws Exception
     */
    @Test
    public void testConsumerAfterWildcardAddressRemoval() throws Exception {
@@ -830,15 +829,15 @@ public class JmsConsumerTest extends JMSTestBase {
 
       //Create a new address along with 1 queue for it (this cases a wildcard address to get registered
       //inside the WildcardAddressManager manager when the binding is created)
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue1), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queue1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(queue1), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queue1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       //create addresses for both topics
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic1), RoutingType.MULTICAST));
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic2), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(topic1), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(topic2), RoutingType.MULTICAST));
 
       //Remove the wildcard address associated with topic2
-      server.removeAddressInfo(SimpleString.toSimpleString(topic1), null);
+      server.removeAddressInfo(SimpleString.of(topic1), null);
 
       conn = cf.createConnection();
       conn.setClientID("clientId");
@@ -853,7 +852,6 @@ public class JmsConsumerTest extends JMSTestBase {
 
    /**
     * Test for ARTEMIS-1610
-    * @throws Exception
     */
    @Test
    public void testConsumerAfterWildcardConsumer() throws Exception {
@@ -863,12 +861,12 @@ public class JmsConsumerTest extends JMSTestBase {
 
       //Create a new address along with 1 queue for it (this cases a wildcard address to get registered
       //inside the WildcardAddressManager manager when the binding is created)
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue1), RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queue1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(queue1), RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(queue1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       //create addresses for both topics
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic1), RoutingType.MULTICAST));
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic2), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(topic1), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(topic2), RoutingType.MULTICAST));
 
       conn = cf.createConnection();
       conn.setClientID("clientId");
@@ -888,24 +886,22 @@ public class JmsConsumerTest extends JMSTestBase {
    }
 
    /**
-    * ARTEMIS-1627 - Verify that a address can be removed when there are no direct
-    * bindings on the address but does have bindings on a linked address
-    *
-    * @throws Exception
+    * ARTEMIS-1627 - Verify that a address can be removed when there are no direct bindings on the address but does have
+    * bindings on a linked address
     */
    @Test
    public void testAddressRemovalWithWildcardConsumer() throws Exception {
-      testAddressRemovalWithWithConsumers("durable.#", "durable.test");
+      testAddressRemovalWithWithConsumers("durable.test", "durable.#");
    }
 
    @Test
    public void testAddressRemovalWithNonWildcardConsumer() throws Exception {
-      testAddressRemovalWithWithConsumers("durable.test", "durable.#");
+      testAddressRemovalWithWithConsumers("durable.#", "durable.test");
    }
 
    private void testAddressRemovalWithWithConsumers(String topic1, String topic2) throws Exception {
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic1), RoutingType.MULTICAST));
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(topic2), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(topic1), RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.of(topic2), RoutingType.MULTICAST));
 
       conn = cf.createConnection();
       conn.setClientID("clientId");
@@ -916,8 +912,8 @@ public class JmsConsumerTest extends JMSTestBase {
       c1.close();
 
       // Make sure topic2 address can be removed and the bindings still exist for topic1
-      server.removeAddressInfo(SimpleString.toSimpleString(topic2), null);
-      assertEquals(1, server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString(topic1))
+      server.removeAddressInfo(SimpleString.of(topic2), null);
+      assertEquals(1, server.getPostOffice().getBindingsForAddress(SimpleString.of(topic1))
             .getBindings().size());
 
       // Re-create address by creating a consumer on the topic and make sure the

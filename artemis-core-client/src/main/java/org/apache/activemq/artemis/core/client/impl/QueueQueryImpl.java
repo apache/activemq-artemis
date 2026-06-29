@@ -103,7 +103,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final SimpleString name,
                          final boolean exists,
                          final boolean autoCreateQueues) {
-      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, -1, false, false, RoutingType.MULTICAST);
+      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, autoCreateQueues, -1, false, false, null);
    }
 
    public QueueQueryImpl(final boolean durable,

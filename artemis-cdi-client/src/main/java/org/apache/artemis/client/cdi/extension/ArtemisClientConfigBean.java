@@ -45,7 +45,8 @@ class ArtemisClientConfigBean implements Bean<ArtemisClientConfiguration> {
       return emptySet();
    }
 
-   @Override
+   // we cannot use @Override here because otherwise the build of artemis-jakarta-cdi-client fails since the method was removed in jakarta ee 9+
+   @SuppressWarnings("MissingOverride")
    public boolean isNullable() {
       return false;
    }

@@ -16,67 +16,42 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import org.apache.activemq.artemis.api.core.QueueConfiguration;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/*
+ * This is a sanity check to ensure a client can connect via WebSocket. Only basic connectivity is tested here because
+ * once the connection is established the code paths should be the same as normal TCP clients. Those code paths are
+ * tested elsewhere.
+ */
 public class StompWebSocketTest extends StompTestBase {
 
-   private ActiveMQServer server;
+   protected StompClientConnection conn;
 
-   /**
-    * to test the Stomp over Web Sockets protocol,
-    * uncomment the sleep call and run the stomp-websockets Javascript test suite
-    * from http://github.com/jmesnil/stomp-websocket
-    */
+   public StompWebSocketTest() {
+      super("ws+v10.stomp");
+   }
+
+   @Override
+   @BeforeEach
+   public void setUp() throws Exception {
+      super.setUp();
+      conn = StompClientConnectionFactory.createClientConnection(uri);
+   }
+
    @Test
    public void testConnect() throws Exception {
-      //Thread.sleep(10000000);
-   }
+      ClientStompFrame response = conn.sendFrame(conn.createFrame(Stomp.Commands.CONNECT).addHeader(Stomp.Headers.Connect.LOGIN, defUser).addHeader(Stomp.Headers.Connect.PASSCODE, defPass).addHeader(Stomp.Headers.Connect.REQUEST_ID, "1"));
 
-   // Implementation methods
-   //-------------------------------------------------------------------------
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      server = createServer();
-      server.start();
-   }
+      assertEquals(Stomp.Responses.CONNECTED, response.getCommand());
+      assertEquals("1", response.getHeader(Stomp.Headers.Connected.RESPONSE_ID));
 
-   /**
-    * @return
-    * @throws Exception
-    */
-   @Override
-   protected ActiveMQServer createServer() throws Exception {
-      Map<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
-      params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT + 1);
-      TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
-
-      Configuration config = createBasicConfig()
-         .addAcceptorConfiguration(stompTransport)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
-         .setPersistenceEnabled(isPersistenceEnabled())
-         .addQueueConfiguration(new QueueConfiguration(getQueueName())
-                                   .setDurable(false));
-
-      server = addServer(ActiveMQServers.newActiveMQServer(config));
-      return server;
-   }
-
-   protected static String getQueueName() {
-      return "/queue/test";
+      conn.disconnect();
    }
 }

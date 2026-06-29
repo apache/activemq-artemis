@@ -23,9 +23,14 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * adapted from: org.apache.activemq.JmsCreateConsumerInOnMessageTest
@@ -39,11 +44,10 @@ public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implemen
    private MessageProducer producer;
    private Topic topic;
    private final Object lock = new Object();
+   private final AtomicBoolean failed = new AtomicBoolean(false);
 
    /**
     * Tests if a consumer can be created asynchronusly
-    *
-    * @throws Exception
     */
    @Test
    public void testCreateConsumer() throws Exception {
@@ -64,13 +68,12 @@ public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implemen
             lock.wait(1000);
          }
       }
-      assertTrue(testConsumer != null);
+      assertNotNull(testConsumer);
+      assertFalse(failed.get());
    }
 
    /**
     * Use the asynchronous subscription mechanism
-    *
-    * @param message
     */
    @Override
    public void onMessage(Message message) {
@@ -82,8 +85,8 @@ public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implemen
          }
       } catch (Exception ex) {
          ex.printStackTrace();
-         assertTrue(false);
+         failed.set(true);
+         lock.notify();
       }
    }
-
 }

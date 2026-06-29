@@ -16,9 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -27,9 +30,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase {
 
@@ -42,7 +44,7 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase {
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       setupCluster();
@@ -58,12 +60,8 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase {
       }
    }
 
-   /**
-    * @param messageLoadBalancingType
-    * @throws Exception
-    */
    protected void setServer(final MessageLoadBalancingType messageLoadBalancingType, int server) throws Exception {
-      setupLiveServerWithDiscovery(server, groupAddress, groupPort, isFileStorage(), isNetty(), false);
+      setupPrimaryServerWithDiscovery(server, groupAddress, groupPort, isFileStorage(), isNetty(), false);
 
       AddressSettings setting = new AddressSettings().setRedeliveryDelay(0).setRedistributionDelay(0);
 
@@ -102,7 +100,7 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase {
 
       session0.start();
 
-      ArrayList<Xid> xids = new ArrayList<>();
+      List<Xid> xids = new ArrayList<>();
 
       for (int i = 0; i < 100; i++) {
          Xid xid = newXID();
@@ -165,7 +163,7 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase {
 
       for (int i = 0; i < 100; i++) {
          ClientMessage msg = consumer1.receive(15000);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
          msg.acknowledge();
       }
 

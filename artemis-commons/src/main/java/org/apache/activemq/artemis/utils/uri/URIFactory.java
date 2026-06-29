@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.utils.uri;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class URIFactory<T, P> {
@@ -50,23 +51,11 @@ public class URIFactory<T, P> {
    }
 
    public T newObject(URI uri, P param) throws Exception {
-      URISchema<T, P> schemaFactory = schemas.get(uri.getScheme());
-
-      if (schemaFactory == null) {
-         throw new NullPointerException("Schema " + uri.getScheme() + " not found");
-      }
-
-      return schemaFactory.newObject(uri, param);
+      return Objects.requireNonNull(schemas.get(uri.getScheme()), "Schema " + uri.getScheme() + " not found").newObject(uri, param);
    }
 
    public T newObject(URI uri, Map<String, String> overrides, P param) throws Exception {
-      URISchema<T, P> schemaFactory = schemas.get(uri.getScheme());
-
-      if (schemaFactory == null) {
-         throw new NullPointerException("Schema " + uri.getScheme() + " not found");
-      }
-
-      return schemaFactory.newObject(uri, overrides, param);
+      return Objects.requireNonNull(schemas.get(uri.getScheme()), "Schema " + uri.getScheme() + " not found").newObject(uri, overrides, param);
    }
 
    public T newObject(String uri, P param) throws Exception {
@@ -74,13 +63,7 @@ public class URIFactory<T, P> {
    }
 
    public void populateObject(URI uri, T bean) throws Exception {
-      URISchema<T, P> schemaFactory = schemas.get(uri.getScheme());
-
-      if (schemaFactory == null) {
-         throw new NullPointerException("Schema " + uri.getScheme() + " not found");
-      }
-
-      schemaFactory.populateObject(uri, bean);
+      Objects.requireNonNull(schemas.get(uri.getScheme()), "Schema " + uri.getScheme() + " not found").populateObject(uri, bean);
    }
 
    public void populateObject(String uri, T bean) throws Exception {
@@ -88,31 +71,24 @@ public class URIFactory<T, P> {
    }
 
    public URI createSchema(String scheme, T bean) throws Exception {
-      URISchema<T, P> schemaFactory = schemas.get(scheme);
-
-      if (schemaFactory == null) {
-         throw new NullPointerException("Schema " + scheme + " not found");
-      }
-      return schemaFactory.newURI(bean);
+      return Objects.requireNonNull(schemas.get(scheme), "Schema " + scheme + " not found").newURI(bean);
    }
 
-   /*
-   * this method is used to change a string with multiple URI's in it into a valid URI.
-   * for instance it is possible to have the following String
-   * (tcp://localhost:61616,tcp://localhost:5545,tcp://localhost:5555)?somequery
-   * This is an invalid URI so will be changed so that the first URI is used and the
-   * extra ones added as part of the URI fragment, like so
-   * tcp://localhost:61616?someQuery#tcp://localhost:5545,tcp://localhost:5555.
-   *
-   * It is the job of the URISchema implementation to handle these fragments as needed.
-   * */
+   /**
+    * this method is used to change a string with multiple URI's in it into a valid URI. for instance it is possible to
+    * have the following String {@literal (tcp://localhost:61616,tcp://localhost:5545,tcp://localhost:5555)?somequery}
+    * This is an invalid URI so will be changed so that the first URI is used and the extra ones added as part of the
+    * URI fragment, like so {@literal tcp://localhost:61616?someQuery#tcp://localhost:5545,tcp://localhost:5555}.
+    * <p>
+    * It is the job of the URISchema implementation to handle these fragments as needed.
+    */
    private URI normalise(String uri) throws URISyntaxException {
       if (uri.startsWith("(")) {
          String[] split = uri.split("\\)", 2);
          String[] connectorURIS = split[0].substring(split[0].indexOf('(') + 1).split(",");
          String factoryQuery = split.length > 1 ? split[1] : "";
          StringBuilder builder = new StringBuilder(connectorURIS[0]);
-         if (factoryQuery != null && factoryQuery.length() > 0) {
+         if (factoryQuery != null && !factoryQuery.isEmpty()) {
             if (connectorURIS[0].contains("?")) {
                builder.append("&").append(factoryQuery.substring(1));
             } else {

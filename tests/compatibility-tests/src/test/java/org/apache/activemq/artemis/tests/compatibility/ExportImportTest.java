@@ -17,58 +17,53 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_1_4_0;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ARTEMIS_2_44_0;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class ExportImportTest extends VersionedBase {
    private String serverScriptToUse;
    private boolean skipTearDownCleanup = false;
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
-   @Parameterized.Parameters(name = "server={0}, sender={1}, consumer={2}")
+   @Parameters(name = "sender={0}, consumer={1}")
    public static Collection getParameters() {
       // we don't need every single version ever released..
       // if we keep testing current one against 2.4 and 1.4.. we are sure the wire and API won't change over time
       List<Object[]> combinations = new ArrayList<>();
 
-      /*
-      // during development sometimes is useful to comment out the combinations
-      // and add the ones you are interested.. example:
-       */
-      //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
-      //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
-
-      combinations.add(new Object[]{null, ONE_FIVE, SNAPSHOT});
-      combinations.add(new Object[]{null, SNAPSHOT, SNAPSHOT});
+      combinations.add(new Object[]{ARTEMIS_1_4_0, SNAPSHOT});
+      combinations.add(new Object[]{ARTEMIS_2_44_0, SNAPSHOT});
+      combinations.add(new Object[]{SNAPSHOT, SNAPSHOT});
       return combinations;
    }
 
-   public ExportImportTest(String server, String sender, String receiver) throws Exception {
-      super(server, sender, receiver);
+   public ExportImportTest(String sender, String receiver) throws Exception {
+      super(sender, receiver);
    }
 
-   @Before
+   @BeforeEach
    public void removeFolder() throws Throwable {
-      FileUtil.deleteDirectory(serverFolder.getRoot());
-      serverFolder.getRoot().mkdirs();
+      FileUtil.deleteDirectory(serverFolder);
+      serverFolder.mkdirs();
    }
 
-   @After
+   @AfterEach
    public void tearDown() {
       if (skipTearDownCleanup) {
          // Skip server teardown when test is no-op, avoids a chunk of stacktrace
@@ -87,48 +82,47 @@ public class ExportImportTest extends VersionedBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceive() throws Throwable {
       internalSendReceive(false);
    }
 
-   @Test
+   @TestTemplate
    public void testSendReceivelegacy() throws Throwable {
       // makes no sense on snapshot
       boolean isSenderSnapshot = SNAPSHOT.equals(sender);
       skipTearDownCleanup = isSenderSnapshot;
-      Assume.assumeFalse("This test only applies to old version senders", isSenderSnapshot);
-
       internalSendReceive(true);
    }
 
    public void internalSendReceive(boolean legacyPrefixes) throws Throwable {
-      setVariable(senderClassloader, "legacy", false);
+      // if using 2.44.0 both producer and consumer needs to use legacyPrefixes in this case.
+      setVariable(senderClassloader, "legacy", !sender.equals(ARTEMIS_1_4_0) && legacyPrefixes);
       setVariable(senderClassloader, "persistent", true);
       if (legacyPrefixes) {
          serverScriptToUse = "exportimport/artemisServer.groovy";
       }
-      startServer(serverFolder.getRoot(), senderClassloader, "sender");
-      evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendAckMessages");
+      startServer(serverFolder, sender, senderClassloader, "sender");
+      evaluate(senderClassloader, "meshTest/sendMessages.groovy", sender, sender, "sendAckMessages");
       stopServer(senderClassloader);
 
       if (sender.startsWith("ARTEMIS-1")) {
-         evaluate(senderClassloader, "exportimport/export1X.groovy", serverFolder.getRoot().getAbsolutePath());
+         evaluate(senderClassloader, "exportimport/export1X.groovy", serverFolder.getAbsolutePath());
       } else {
-         evaluate(senderClassloader, "exportimport/export.groovy", serverFolder.getRoot().getAbsolutePath());
+         evaluate(senderClassloader, "exportimport/export.groovy", serverFolder.getAbsolutePath());
       }
 
       setVariable(receiverClassloader, "legacy", legacyPrefixes);
       try {
          setVariable(receiverClassloader, "persistent", true);
-         startServer(serverFolder.getRoot(), receiverClassloader, "receiver");
+         startServer(serverFolder, receiver, receiverClassloader, "receiver");
 
          setVariable(receiverClassloader, "sort", sender.startsWith("ARTEMIS-1"));
 
-         evaluate(receiverClassloader, "exportimport/import.groovy", serverFolder.getRoot().getAbsolutePath());
+         evaluate(receiverClassloader, "exportimport/import.groovy", serverFolder.getAbsolutePath());
 
          setVariable(receiverClassloader, "latch", null);
-         evaluate(receiverClassloader, "meshTest/sendMessages.groovy", server, receiver, "receiveMessages");
+         evaluate(receiverClassloader, "meshTest/sendMessages.groovy", receiver, receiver, "receiveMessages");
       } finally {
          setVariable(receiverClassloader, "legacy", false);
       }

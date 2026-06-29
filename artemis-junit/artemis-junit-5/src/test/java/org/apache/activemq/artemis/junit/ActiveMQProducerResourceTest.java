@@ -36,8 +36,8 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 public class ActiveMQProducerResourceTest {
 
-   static final SimpleString TEST_QUEUE = new SimpleString("test.queue");
-   static final SimpleString TEST_ADDRESS = new SimpleString("test.queue");
+   static final SimpleString TEST_QUEUE = SimpleString.of("test.queue");
+   static final SimpleString TEST_ADDRESS = SimpleString.of("test.queue");
    static final String TEST_BODY = "Test Message";
    static final Map<String, Object> TEST_PROPERTIES;
 
@@ -52,11 +52,11 @@ public class ActiveMQProducerResourceTest {
 
    @RegisterExtension
    @Order(1)
-   public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
+   public static EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
 
    @RegisterExtension
    @Order(2)
-   public ActiveMQDynamicProducerExtension producer = new ActiveMQDynamicProducerExtension(server.getVmURL(), TEST_ADDRESS);
+   public static ActiveMQDynamicProducerExtension producer = new ActiveMQDynamicProducerExtension(server.getVmURL(), TEST_ADDRESS);
 
    @Test
    public void testSendBytes() {

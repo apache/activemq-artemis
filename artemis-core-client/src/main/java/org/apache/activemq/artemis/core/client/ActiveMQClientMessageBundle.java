@@ -39,9 +39,9 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.w3c.dom.Node;
 
 /**
- * Logger Code 21
+ * Logger Codes 219000 - 219999
  */
-@LogBundle(projectCode = "AMQ", regexID = "21[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "219[0-9]{3}", retiredIDs = {219002, 219005, 219034, 219037, 219063})
 public interface ActiveMQClientMessageBundle {
 
    ActiveMQClientMessageBundle BUNDLE = BundleFactory.newBundle(ActiveMQClientMessageBundle.class);
@@ -57,9 +57,6 @@ public interface ActiveMQClientMessageBundle {
 
    @Message(id = 219004, value = "Failed to initialise session factory")
    ActiveMQInternalErrorException failedToInitialiseSessionFactory(Exception e);
-
-   @Message(id = 219005, value = "Exception in Netty transport")
-   ActiveMQInternalErrorException nettyError();
 
    @Message(id = 219006, value = "Channel disconnected")
    ActiveMQNotConnectedException channelDisconnected();
@@ -145,14 +142,8 @@ public interface ActiveMQClientMessageBundle {
    @Message(id = 219033, value = "Invalid type: {}")
    IllegalArgumentException invalidEncodeType(Object type);
 
-   @Message(id = 219034, value = "Params for management operations must be of the following type: int long double String boolean Map or array thereof but found {}")
-   IllegalArgumentException invalidManagementParam(Object type);
-
    @Message(id = 219035, value = "Invalid window size {}")
    IllegalArgumentException invalidWindowSize(Integer size);
-
-   @Message(id = 219037, value = "Invalid last Received Command ID: {}")
-   IllegalArgumentException invalidCommandID(Integer lastReceivedCommandID);
 
    @Message(id = 219038, value = "Cannot find channel with id {} to close")
    IllegalArgumentException noChannelToClose(Long id);
@@ -223,9 +214,6 @@ public interface ActiveMQClientMessageBundle {
    @Message(id = 219062, value = "Multi-packet transmission (e.g. Large Messages) interrupted because of a reconnection.")
    ActiveMQInterruptedException packetTransmissionInterrupted();
 
-   @Message(id = 219063, value = "Cannot send a packet while response cache is full.")
-   IllegalStateException cannotSendPacketWhilstResponseCacheFull();
-
    @Message(id = 219064, value = "Invalide packet: {}")
    IllegalStateException invalidPacket(byte type);
 
@@ -240,4 +228,7 @@ public interface ActiveMQClientMessageBundle {
 
    @Message(id = 219068, value = "Connection closed while receiving cluster topology. Group:{}")
    ActiveMQObjectClosedException connectionClosedOnReceiveTopology(DiscoveryGroup discoveryGroup);
+
+   @Message(id = 219069, value = "Unable to create Session. Either the ClientSessionFactory is closed or the ClientProtocolManager is dead.")
+   IllegalStateException unableToCreateSession();
 }

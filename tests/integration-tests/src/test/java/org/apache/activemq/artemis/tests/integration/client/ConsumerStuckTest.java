@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -31,8 +34,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImp
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,13 +45,13 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
+   private final SimpleString QUEUE = SimpleString.of("ConsumerTestQueue");
 
    protected boolean isNetty() {
       return true;
    }
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -68,7 +71,7 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
       RemotingConnectionImpl remotingConnection = (RemotingConnectionImpl) sf.getConnection();
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       ClientProducer producer = session.createProducer(QUEUE);
 
@@ -84,28 +87,25 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
 
       final NettyConnection nettyConnection = (NettyConnection) remotingConnection.getTransportConnection();
 
-      Thread tReceive = new Thread() {
-         @Override
-         public void run() {
-            boolean first = true;
-            try {
-               while (!Thread.interrupted()) {
-                  ClientMessage received = consumer.receive(500);
-                  logger.debug("Received {}", received);
-                  if (first) {
-                     first = false;
-                     nettyConnection.getNettyChannel().config().setAutoRead(false);
-                  }
-                  if (received != null) {
-                     received.acknowledge();
-                  }
+      Thread tReceive = new Thread(() -> {
+         boolean first = true;
+         try {
+            while (!Thread.interrupted()) {
+               ClientMessage received = consumer.receive(500);
+               logger.debug("Received {}", received);
+               if (first) {
+                  first = false;
+                  nettyConnection.getNettyChannel().config().setAutoRead(false);
                }
-            } catch (Throwable e) {
-               Thread.currentThread().interrupt();
-               e.printStackTrace();
+               if (received != null) {
+                  received.acknowledge();
+               }
             }
+         } catch (Throwable e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
          }
-      };
+      });
 
       tReceive.start();
 
@@ -159,7 +159,7 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
       RemotingConnectionImpl remotingConnection = (RemotingConnectionImpl) sf.getConnection();
       ClientSession session = sf.createSession(false, true, true, true);
 
-      session.createQueue(new QueueConfiguration(QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
 
       final int numMessages = 10000;
 
@@ -168,49 +168,43 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
 
       final NettyConnection nettyConnection = (NettyConnection) remotingConnection.getTransportConnection();
 
-      Thread tReceive = new Thread() {
-         @Override
-         public void run() {
-            boolean first = true;
-            try {
-               while (!Thread.interrupted()) {
-                  ClientMessage received = consumer.receive(500);
-                  logger.debug("Received {}", received);
-                  if (first) {
-                     first = false;
-                     nettyConnection.getNettyChannel().config().setAutoRead(false);
-                  }
-                  if (received != null) {
-                     received.acknowledge();
-                  }
+      Thread tReceive = new Thread(() -> {
+         boolean first = true;
+         try {
+            while (!Thread.interrupted()) {
+               ClientMessage received = consumer.receive(500);
+               logger.debug("Received {}", received);
+               if (first) {
+                  first = false;
+                  nettyConnection.getNettyChannel().config().setAutoRead(false);
                }
-            } catch (Throwable e) {
-               Thread.currentThread().interrupt();
-               e.printStackTrace();
+               if (received != null) {
+                  received.acknowledge();
+               }
             }
+         } catch (Throwable e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
          }
-      };
+      });
 
       tReceive.start();
 
-      Thread sender = new Thread() {
-         @Override
-         public void run() {
-            try (
-               ServerLocator locator = createNettyNonHALocator();
-               ClientSessionFactory factory = locator.createSessionFactory();
-               ClientSession session = factory.createSession(false, true, true, true);
-               ClientProducer producer = session.createProducer(QUEUE);
-            ) {
-               for (int i = 0; i < numMessages; i++) {
-                  ClientMessage message = createTextMessage(session, "m" + i);
-                  producer.send(message);
-               }
-            } catch (Exception e) {
-               e.printStackTrace();
+      Thread sender = new Thread(() -> {
+         try (
+            ServerLocator locator1 = createNettyNonHALocator();
+            ClientSessionFactory factory = locator1.createSessionFactory();
+            ClientSession session1 = factory.createSession(false, true, true, true);
+            ClientProducer producer = session1.createProducer(QUEUE);
+         ) {
+            for (int i = 0; i < numMessages; i++) {
+               ClientMessage message = createTextMessage(session1, "m" + i);
+               producer.send(message);
             }
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
+      });
 
       sender.start();
 

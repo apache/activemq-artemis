@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.ssl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.HashMap;
@@ -45,16 +48,15 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
  */
 public class DualAuthenticationTest extends ActiveMQTestBase {
 
-   public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
+   public static final SimpleString QUEUE = SimpleString.of("QueueOverSSL");
 
    static {
       String path = System.getProperty("java.security.auth.login.config");
@@ -79,7 +81,7 @@ public class DualAuthenticationTest extends ActiveMQTestBase {
 
    @Test
    public void testDualAuthentication() throws Exception {
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
@@ -91,7 +93,7 @@ public class DualAuthenticationTest extends ActiveMQTestBase {
       ServerLocator producerLocator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory producerSessionFactory = createSessionFactory(producerLocator);
       ClientSession producerSession = producerSessionFactory.createSession(false, true, true);
-      producerSession.createQueue(new QueueConfiguration(DualAuthenticationTest.QUEUE).setDurable(false));
+      producerSession.createQueue(QueueConfiguration.of(DualAuthenticationTest.QUEUE).setDurable(false));
       ClientProducer producer = producerSession.createProducer(DualAuthenticationTest.QUEUE);
 
       ClientMessage message = createTextMessage(producerSession, text);
@@ -104,12 +106,12 @@ public class DualAuthenticationTest extends ActiveMQTestBase {
       consumerSession.start();
 
       Message m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      assertNotNull(m);
+      assertEquals(text, m.getBodyBuffer().readString());
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       Map<String, Object> params = new HashMap<>();
@@ -129,8 +131,8 @@ public class DualAuthenticationTest extends ActiveMQTestBase {
       server = addServer(ActiveMQServers.newActiveMQServer(config, ManagementFactory.getPlatformMBeanServer(), securityManager, false));
 
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      Role sendRole = new Role("producers", true, false, true, false, true, false, false, false, true, false);
-      Role receiveRole = new Role("consumers", false, true, false, false, false, false, false, false, false, false);
+      Role sendRole = new Role("producers", true, false, true, false, true, false, false, false, true, false, false, false);
+      Role receiveRole = new Role("consumers", false, true, false, false, false, false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(sendRole);
       roles.add(receiveRole);

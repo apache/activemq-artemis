@@ -17,12 +17,8 @@
 package org.apache.activemq.artemis.core.server.management;
 
 
-import javax.management.NotCompliantMBeanException;
-
 import org.apache.activemq.artemis.core.config.JMXConnectorConfiguration;
-import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ServiceComponent;
-import org.apache.activemq.artemis.core.server.management.impl.HawtioSecurityControlImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 public class ManagementContext implements ServiceComponent {
@@ -31,16 +27,17 @@ public class ManagementContext implements ServiceComponent {
    private JMXAccessControlList accessControlList;
    private JMXConnectorConfiguration jmxConnectorConfiguration;
    private ManagementConnector mBeanServer;
-   private ArtemisMBeanServerGuard guardHandler;
+   private GuardInvocationHandler guard;
    private ActiveMQSecurityManager securityManager;
 
    public void init() {
       if (accessControlList != null) {
          //if we are configured then assume we want to use the guard so set the system property
          System.setProperty("javax.management.builder.initial", ArtemisMBeanServerBuilder.class.getCanonicalName());
-         guardHandler = new ArtemisMBeanServerGuard();
+         ArtemisMBeanServerGuard guardHandler = new ArtemisMBeanServerGuard();
          guardHandler.setJMXAccessControlList(accessControlList);
          ArtemisMBeanServerBuilder.setGuard(guardHandler);
+         guard = guardHandler;
       }
    }
 
@@ -101,21 +98,8 @@ public class ManagementContext implements ServiceComponent {
       this.jmxConnectorConfiguration = jmxConnectorConfiguration;
    }
 
-   public JMXConnectorConfiguration getJmxConnectorConfiguration() {
-      return jmxConnectorConfiguration;
-   }
-
-   public HawtioSecurityControl getSecurityMBean(StorageManager storageManager) {
-      try {
-         return new HawtioSecurityControlImpl(guardHandler, storageManager);
-      } catch (NotCompliantMBeanException e) {
-         e.printStackTrace();
-         return null;
-      }
-   }
-
-   public ArtemisMBeanServerGuard getArtemisMBeanServerGuard() {
-      return guardHandler;
+   public GuardInvocationHandler getArtemisMBeanServerGuard() {
+      return guard;
    }
 
    public void setSecurityManager(ActiveMQSecurityManager securityManager) {

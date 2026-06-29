@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- * ActiveMQException is the root exception for the ActiveMQ Artemis API.
+ * ActiveMQException is the root exception for the Apache Artemis API.
  */
 public class ActiveMQException extends Exception {
 
@@ -34,6 +34,11 @@ public class ActiveMQException extends Exception {
       type = ActiveMQExceptionType.GENERIC_EXCEPTION;
    }
 
+   public ActiveMQException(final String msg, Throwable t) {
+      super(msg, t);
+      type = ActiveMQExceptionType.GENERIC_EXCEPTION;
+   }
+
    public ActiveMQException(String msg, ActiveMQExceptionType t) {
       super(msg);
       type = t;
@@ -44,9 +49,9 @@ public class ActiveMQException extends Exception {
       this.type = type;
    }
 
-   /*
-   * This constructor is needed only for the native layer
-   */
+   /**
+    * This constructor is needed only for the native layer
+    */
    public ActiveMQException(int code, String msg) {
       super(msg);
 
@@ -60,6 +65,7 @@ public class ActiveMQException extends Exception {
    }
 
    public ActiveMQException(ActiveMQExceptionType type) {
+      super("");
       this.type = type;
    }
 
@@ -74,6 +80,6 @@ public class ActiveMQException extends Exception {
 
    @Override
    public String toString() {
-      return this.getClass().getSimpleName() + "[errorType=" + type + " message=" + getMessage() + "]";
+      return this.getClass().getName() + ": [errorType=" + type + " message=" + getMessage() + "]";
    }
 }

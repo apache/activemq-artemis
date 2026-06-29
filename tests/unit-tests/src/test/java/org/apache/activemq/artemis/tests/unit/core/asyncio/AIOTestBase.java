@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.asyncio;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +30,8 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * The base class for AIO Tests
@@ -41,17 +43,17 @@ public abstract class AIOTestBase extends ActiveMQTestBase {
    protected String fileName = "fileUsedOnNativeTests.log";
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
-      Assert.assertTrue(String.format("libAIO is not loaded on %s %s %s", System.getProperty("os.name"), System.getProperty("os.arch"), System.getProperty("os.version")), LibaioContext.isLoaded());
+      assertTrue(LibaioContext.isLoaded(), String.format("libAIO is not loaded on %s %s %s", System.getProperty("os.name"), System.getProperty("os.arch"), System.getProperty("os.version")));
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
-      Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
+      assertEquals(0, LibaioContext.getTotalMaxIO());
 
       super.tearDown();
    }
@@ -130,10 +132,10 @@ public abstract class AIOTestBase extends ActiveMQTestBase {
       }
 
       public static void checkResults(final int numberOfElements, final ArrayList<Integer> result) {
-         Assert.assertEquals(numberOfElements, result.size());
+         assertEquals(numberOfElements, result.size());
          int i = 0;
          for (Integer resultI : result) {
-            Assert.assertEquals(i++, resultI.intValue());
+            assertEquals(i++, resultI.intValue());
          }
       }
    }

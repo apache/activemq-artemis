@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.divert;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -30,8 +34,7 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PersistentDivertTest extends ActiveMQTestBase {
 
@@ -74,25 +77,25 @@ public class PersistentDivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, true, 0);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.of("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.of("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.of("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.of("queue4");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress1));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(forwardAddress2));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(forwardAddress3));
 
-      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress));
+      session.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress));
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.of(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -104,7 +107,7 @@ public class PersistentDivertTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.of("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
@@ -121,9 +124,9 @@ public class PersistentDivertTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          if (largeMessage) {
             checkLargeMessage(message);
@@ -132,14 +135,14 @@ public class PersistentDivertTest extends ActiveMQTestBase {
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer2.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          if (largeMessage) {
             checkLargeMessage(message);
@@ -148,14 +151,14 @@ public class PersistentDivertTest extends ActiveMQTestBase {
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer2.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer3.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          if (largeMessage) {
             checkLargeMessage(message);
@@ -164,14 +167,14 @@ public class PersistentDivertTest extends ActiveMQTestBase {
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer3.receiveImmediate());
+      assertNull(consumer3.receiveImmediate());
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer4.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          if (largeMessage) {
             checkLargeMessage(message);
@@ -180,15 +183,12 @@ public class PersistentDivertTest extends ActiveMQTestBase {
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer4.receiveImmediate());
+      assertNull(consumer4.receiveImmediate());
    }
 
-   /**
-    * @param message
-    */
    private void checkLargeMessage(final ClientMessage message) {
       for (int j = 0; j < minLargeMessageSize; j++) {
-         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), message.getBodyBuffer().readByte());
+         assertEquals(ActiveMQTestBase.getSamplebyte(j), message.getBodyBuffer().readByte());
       }
    }
 
@@ -229,27 +229,27 @@ public class PersistentDivertTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, true, 0);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.of("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.of("queue2");
 
-      final SimpleString queueName3 = new SimpleString("queue3");
+      final SimpleString queueName3 = SimpleString.of("queue3");
 
-      final SimpleString queueName4 = new SimpleString("queue4");
+      final SimpleString queueName4 = SimpleString.of("queue4");
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress1));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(forwardAddress2));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(forwardAddress3));
 
-      session.createQueue(new QueueConfiguration(queueName4).setAddress(testAddress));
+      session.createQueue(QueueConfiguration.of(queueName4).setAddress(testAddress));
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.of(testAddress));
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.of("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
@@ -291,66 +291,66 @@ public class PersistentDivertTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
          if (largeMessage) {
             checkLargeMessage(message);
          }
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer2.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
          if (largeMessage) {
             checkLargeMessage(message);
          }
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer2.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer3.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
          if (largeMessage) {
             checkLargeMessage(message);
          }
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer3.receiveImmediate());
+      assertNull(consumer3.receiveImmediate());
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer4.receive(5000);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
 
          if (largeMessage) {
             checkLargeMessage(message);
          }
 
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertEquals(i, message.getObjectProperty(propKey));
 
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer4.receiveImmediate());
+      assertNull(consumer4.receiveImmediate());
 
       session.close();
 
@@ -376,13 +376,13 @@ public class PersistentDivertTest extends ActiveMQTestBase {
 
       consumer4 = session.createConsumer(queueName4);
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
-      Assert.assertNull(consumer2.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
 
-      Assert.assertNull(consumer3.receiveImmediate());
+      assertNull(consumer3.receiveImmediate());
 
-      Assert.assertNull(consumer4.receiveImmediate());
+      assertNull(consumer4.receiveImmediate());
    }
 
 }

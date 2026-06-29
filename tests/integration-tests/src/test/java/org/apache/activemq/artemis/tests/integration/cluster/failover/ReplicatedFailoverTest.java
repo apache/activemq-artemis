@@ -16,15 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -37,25 +33,21 @@ import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
+import org.apache.activemq.artemis.tests.extensions.TestMethodNameMatchExtension;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReplicatedFailoverTest extends FailoverTest {
 
-   boolean isReplicatedFailbackTest = false;
-   @Rule
-   public TestRule watcher = new TestWatcher() {
-      @Override
-      protected void starting(Description description) {
-         isReplicatedFailbackTest = description.getMethodName().equals("testReplicatedFailback") || description.getMethodName().equals("testLoop");
-      }
+   private static final String TEST_REPLICATED_FAILBACK = "testReplicatedFailback";
+   private static final String TEST_LOOP = "testLoop";
 
-   };
+   @RegisterExtension
+   TestMethodNameMatchExtension isReplicatedFailbackTest = new TestMethodNameMatchExtension(TEST_REPLICATED_FAILBACK, TEST_LOOP);
 
    protected void beforeWaitForRemoteBackupSynchronization() {
    }
@@ -64,7 +56,8 @@ public class ReplicatedFailoverTest extends FailoverTest {
       Wait.waitFor(server::isReplicaSync);
    }
 
-   @Test(timeout = 120000)
+   @Test
+   @Timeout(120)
    /*
    * default maxSavedReplicatedJournalsSize is 2, this means the backup will fall back to replicated only twice, after this
    * it is stopped permanently
@@ -79,53 +72,49 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
          ClientSession session = createSession(sf, true, true);
 
-         session.createQueue(new QueueConfiguration(ADDRESS));
+         session.createQueue(QueueConfiguration.of(ADDRESS));
 
          crash(session);
 
-         ReplicatedPolicy haPolicy = (ReplicatedPolicy) liveServer.getServer().getHAPolicy();
+         ReplicatedPolicy haPolicy = (ReplicatedPolicy) primaryServer.getServer().getHAPolicy();
 
-         haPolicy.setCheckForLiveServer(true);
+         haPolicy.setCheckForPrimaryServer(true);
 
-         liveServer.start();
+         primaryServer.start();
 
-         waitForSync(liveServer.getServer());
+         waitForSync(primaryServer.getServer());
 
          waitForSync(backupServer.getServer());
 
-         waitForServerToStart(liveServer.getServer());
+         waitForServerToStart(primaryServer.getServer());
 
          session = createSession(sf, true, true);
 
          crash(session);
 
-         ReplicatedPolicyConfiguration replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) liveServer.getServer().getConfiguration().getHAPolicyConfiguration();
+         ReplicatedPolicyConfiguration replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) primaryServer.getServer().getConfiguration().getHAPolicyConfiguration();
 
-         replicatedPolicyConfiguration.setCheckForLiveServer(true);
+         replicatedPolicyConfiguration.setCheckForActiveServer(true);
 
-         liveServer.start();
+         primaryServer.start();
 
-         waitForSync(liveServer.getServer());
+         waitForSync(primaryServer.getServer());
 
          waitForSync(backupServer.getServer());
 
-         waitForServerToStart(liveServer.getServer());
+         waitForServerToStart(primaryServer.getServer());
 
          session = createSession(sf, true, true);
 
          crash(session);
 
-         replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) liveServer.getServer().getConfiguration().getHAPolicyConfiguration();
+         replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) primaryServer.getServer().getConfiguration().getHAPolicyConfiguration();
 
-         replicatedPolicyConfiguration.setCheckForLiveServer(true);
+         replicatedPolicyConfiguration.setCheckForActiveServer(true);
 
-         liveServer.start();
+         primaryServer.start();
 
-         waitForSync(liveServer.getServer());
-
-         backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
-
-         waitForSync(liveServer.getServer());
+         waitForSync(primaryServer.getServer());
 
          waitForServerToStart(backupServer.getServer());
 
@@ -136,40 +125,37 @@ public class ReplicatedFailoverTest extends FailoverTest {
             sf.close();
          }
          try {
-            liveServer.getServer().stop();
+            backupServer.getServer().stop();
          } catch (Throwable ignored) {
          }
          try {
-            backupServer.getServer().stop();
+            primaryServer.getServer().stop();
          } catch (Throwable ignored) {
          }
       }
    }
 
    @Test
-   public void testReplicatedFailbackBackupFromLiveBackToBackup() throws Exception {
+   public void testReplicatedFailbackBackupFromPrimaryBackToBackup() throws Exception {
 
       InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8787);
       HttpServer httpServer = HttpServer.create(address, 100);
       httpServer.start();
 
       try {
-         httpServer.createContext("/", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange t) throws IOException {
-               String response = "<html><body><b>This is a unit test</b></body></html>";
-               t.sendResponseHeaders(200, response.length());
-               OutputStream os = t.getResponseBody();
-               os.write(response.getBytes());
-               os.close();
-            }
+         httpServer.createContext("/", t -> {
+            String response = "<html><body><b>This is a unit test</b></body></html>";
+            t.sendResponseHeaders(200, response.length());
+            OutputStream os = t.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
          });
          AppDTO appDTO = new AppDTO();
          appDTO.war = "console.war";
          appDTO.url = "console";
          BindingDTO bindingDTO = new BindingDTO();
          bindingDTO.uri = "http://localhost:0";
-         bindingDTO.apps = new ArrayList<AppDTO>();
+         bindingDTO.apps = new ArrayList<>();
          bindingDTO.apps.add(appDTO);
          WebServerDTO wdto = new WebServerDTO();
          wdto.setBindings(Collections.singletonList(bindingDTO));
@@ -179,12 +165,12 @@ public class ReplicatedFailoverTest extends FailoverTest {
          webServerComponent.start();
 
          backupServer.getServer().getNetworkHealthCheck().parseURIList("http://localhost:8787");
-         Assert.assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
+         assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
          backupServer.getServer().addExternalComponent(webServerComponent, false);
-         // this is called when backup servers go from live back to backup
+         // this is called when backup servers go from primary back to backup
          backupServer.getServer().fail(true);
-         Assert.assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
-         Assert.assertTrue(backupServer.getServer().getExternalComponents().get(0).isStarted());
+         assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
+         assertTrue(backupServer.getServer().getExternalComponents().get(0).isStarted());
          ((ServiceComponent) (backupServer.getServer().getExternalComponents().get(0))).stop(true);
       } finally {
          httpServer.stop(0);
@@ -199,8 +185,8 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
    @Override
    protected void setupHAPolicyConfiguration() {
-      if (isReplicatedFailbackTest) {
-         ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setCheckForLiveServer(true);
+      if (isReplicatedFailbackTest.matches()) {
+         ((ReplicatedPolicyConfiguration) primaryConfig.getHAPolicyConfiguration()).setCheckForActiveServer(true);
          ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
          ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
       } else {

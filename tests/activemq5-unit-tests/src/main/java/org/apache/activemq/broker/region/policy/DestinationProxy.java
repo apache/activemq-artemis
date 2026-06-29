@@ -591,6 +591,11 @@ public class DestinationProxy implements Destination {
    }
 
    @Override
+   public void messageDispatched(ConnectionContext context, Subscription sub, MessageReference messageReference) {
+      throw new UnsupportedOperationException("Not implemented yet");
+   }
+
+   @Override
    public void messageDiscarded(ConnectionContext context, Subscription sub, MessageReference messageReference) {
       throw new UnsupportedOperationException("Not implemented yet");
 
@@ -681,6 +686,26 @@ public class DestinationProxy implements Destination {
 
    @Override
    public boolean iterate() {
+      throw new UnsupportedOperationException("Not implemented yet");
+   }
+
+   @Override
+   public boolean isAdvancedNetworkStatisticsEnabled() {
+      return false;
+   }
+
+   @Override
+   public void setAdvancedNetworkStatisticsEnabled(boolean advancedNetworkStatisticsEnabled) {
+      throw new UnsupportedOperationException("Not implemented yet");
+   }
+
+   @Override
+   public boolean isAdvancedMessageStatisticsEnabled() {
+      return false;
+   }
+
+   @Override
+   public void setAdvancedMessageStatisticsEnabled(boolean advancedMessageStatisticsEnabled) {
       throw new UnsupportedOperationException("Not implemented yet");
    }
 }

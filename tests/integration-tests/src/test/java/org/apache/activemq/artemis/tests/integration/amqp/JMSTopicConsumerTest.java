@@ -16,13 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.ExceptionListener;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
@@ -35,18 +30,29 @@ import javax.jms.Topic;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
-import org.apache.activemq.artemis.core.remoting.CloseListener;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JMSTopicConsumerTest extends JMSClientTestSupport {
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendAndReceiveOnTopic() throws Exception {
       Connection connection = createConnection("myClientId");
 
@@ -72,11 +78,12 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendAndReceiveOnAutoCreatedTopic() throws Exception {
       Connection connection = createConnection("myClientId");
       String topicName = UUID.randomUUID().toString();
-      SimpleString simpleTopicName = SimpleString.toSimpleString(topicName);
+      SimpleString simpleTopicName = SimpleString.of(topicName);
 
       try {
          TopicSession session = (TopicSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -112,12 +119,13 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendAndReceiveOnAutoCreatedTopicJMS2() throws Exception {
       ConnectionFactory cf = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
       JMSContext context = cf.createContext();
       String topicName = UUID.randomUUID().toString();
-      SimpleString simpleTopicName = SimpleString.toSimpleString(topicName);
+      SimpleString simpleTopicName = SimpleString.of(topicName);
 
       try {
          Topic topic = context.createTopic(topicName);
@@ -151,7 +159,8 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testSendWithMultipleReceiversOnTopic() throws Exception {
       Connection connection = createConnection();
 
@@ -184,7 +193,8 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDurableSubscriptionUnsubscribe() throws Exception {
       Connection connection = createConnection("myClientId");
 
@@ -200,9 +210,9 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          myDurSub = session.createDurableSubscriber(topic, "myDurSub");
          myDurSub.close();
 
-         Assert.assertNotNull(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")));
+         assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")));
          session.unsubscribe("myDurSub");
-         Assert.assertNull(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")));
+         assertNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")));
          session.close();
          connection.close();
       } finally {
@@ -210,7 +220,8 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDurableSharedSubscriptionUnsubscribe() throws Exception {
       Connection connection = createConnection("myClientId");
 
@@ -218,18 +229,19 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
-         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")) != null);
+         assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")));
          myDurSub.close();
          session.unsubscribe("myDurSub");
          session.close();
          connection.close();
-         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")) == null);
+         assertNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")));
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDurableMultipleSharedSubscriptionUnsubscribe() throws Exception {
       Connection connection = createConnection("myClientId");
 
@@ -239,11 +251,11 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
          MessageConsumer myDurSub2 = session2.createSharedDurableConsumer(topic, "myDurSub");
-         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")) != null);
+         assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")));
          myDurSub.close();
          try {
             session.unsubscribe("myDurSub");
-            Assert.fail("should throw exception on active durable subs");
+            fail("should throw exception on active durable subs");
          } catch (JMSException e) {
             //pass
          }
@@ -251,13 +263,14 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          session.unsubscribe("myDurSub");
          session.close();
          connection.close();
-         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")) == null);
+         assertNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")));
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDurableSharedGlobalSubscriptionUnsubscribe() throws Exception {
       Connection connection = createConnection();
 
@@ -265,18 +278,19 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
-         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) != null);
+         assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")));
          myDurSub.close();
          session.unsubscribe("myDurSub");
          session.close();
          connection.close();
-         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) == null);
+         assertNull(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")));
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDurableMultipleSharedGlobalSubscriptionUnsubscribe() throws Exception {
       Connection connection = createConnection();
       Connection connection2 = createConnection();
@@ -287,23 +301,24 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
          MessageConsumer myDurSub2 = session2.createSharedDurableConsumer(topic, "myDurSub");
-         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) != null);
+         assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")));
          myDurSub.close();
          session.unsubscribe("myDurSub");
          session.close();
          connection.close();
-         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) != null);
+         assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")));
          myDurSub2.close();
          session2.unsubscribe("myDurSub");
          session2.close();
          connection2.close();
-         Assert.assertTrue(server.getPostOffice().getBinding(new SimpleString("myDurSub:global")) == null);
+         assertNull(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")));
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testTemporarySubscriptionDeleted() throws Exception {
       Connection connection = createConnection();
 
@@ -313,28 +328,23 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          TopicSubscriber myNonDurSub = session.createSubscriber(topic);
          assertNotNull(myNonDurSub);
 
-         Bindings bindingsForAddress = server.getPostOffice().getBindingsForAddress(new SimpleString(getTopicName()));
-         Assert.assertEquals(2, bindingsForAddress.getBindings().size());
+         Bindings bindingsForAddress = server.getPostOffice().getBindingsForAddress(SimpleString.of(getTopicName()));
+         assertEquals(2, bindingsForAddress.getBindings().size());
          session.close();
 
          final CountDownLatch latch = new CountDownLatch(1);
-         server.getRemotingService().getConnections().iterator().next().addCloseListener(new CloseListener() {
-            @Override
-            public void connectionClosed() {
-               latch.countDown();
-            }
-         });
+         server.getRemotingService().getConnections().iterator().next().addCloseListener(() -> latch.countDown());
 
          connection.close();
          latch.await(5, TimeUnit.SECONDS);
-         bindingsForAddress = server.getPostOffice().getBindingsForAddress(new SimpleString(getTopicName()));
-         Assert.assertEquals(1, bindingsForAddress.getBindings().size());
+         Wait.assertEquals(1, () -> server.getPostOffice().getBindingsForAddress(SimpleString.of(getTopicName())).getBindings().size(), 2000, 20);
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMultipleDurableConsumersSendAndReceive() throws Exception {
       Connection connection = createConnection("myClientId");
 
@@ -356,21 +366,22 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
 
          for (int i = 0; i < numMessages; i++) {
             TextMessage receive = (TextMessage) sub1.receive(5000);
-            Assert.assertNotNull(receive);
-            Assert.assertEquals(receive.getText(), "message:" + i);
+            assertNotNull(receive);
+            assertEquals(receive.getText(), "message:" + i);
             receive = (TextMessage) sub2.receive(5000);
-            Assert.assertNotNull(receive);
-            Assert.assertEquals(receive.getText(), "message:" + i);
+            assertNotNull(receive);
+            assertEquals(receive.getText(), "message:" + i);
             receive = (TextMessage) sub3.receive(5000);
-            Assert.assertNotNull(receive);
-            Assert.assertEquals(receive.getText(), "message:" + i);
+            assertNotNull(receive);
+            assertEquals(receive.getText(), "message:" + i);
          }
       } finally {
          connection.close();
       }
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testDurableSubscriptionReconnection() throws Exception {
       Connection connection = createConnection("myClientId");
 
@@ -391,18 +402,13 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
 
          for (int i = 0; i < numMessages; i++) {
             TextMessage receive = (TextMessage) sub.receive(5000);
-            Assert.assertNotNull(receive);
-            Assert.assertEquals(receive.getText(), "message:" + i);
+            assertNotNull(receive);
+            assertEquals(receive.getText(), "message:" + i);
          }
 
          connection.close();
          connection = createConnection("myClientId");
-         connection.setExceptionListener(new ExceptionListener() {
-            @Override
-            public void onException(JMSException exception) {
-               exception.printStackTrace();
-            }
-         });
+         connection.setExceptionListener(exception -> exception.printStackTrace());
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          sub = session.createDurableSubscriber(topic, "myPubId");
 
@@ -414,8 +420,8 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          }
          for (int i = 0; i < numMessages; i++) {
             TextMessage receive = (TextMessage) sub.receive(5000);
-            Assert.assertNotNull(receive);
-            Assert.assertEquals(receive.getText(), "message:" + i);
+            assertNotNull(receive);
+            assertEquals(receive.getText(), "message:" + i);
          }
       } finally {
          connection.close();

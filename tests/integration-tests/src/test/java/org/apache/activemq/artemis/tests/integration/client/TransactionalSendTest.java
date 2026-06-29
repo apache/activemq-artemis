@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -26,24 +28,23 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TransactionalSendTest extends ActiveMQTestBase {
 
-   public final SimpleString addressA = new SimpleString("addressA");
+   public final SimpleString addressA = SimpleString.of("addressA");
 
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString queueA = SimpleString.of("queueA");
 
-   public final SimpleString queueB = new SimpleString("queueB");
+   public final SimpleString queueB = SimpleString.of("queueB");
 
-   public final SimpleString queueC = new SimpleString("queueC");
+   public final SimpleString queueC = SimpleString.of("queueC");
 
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
@@ -55,14 +56,14 @@ public class TransactionalSendTest extends ActiveMQTestBase {
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, false, false);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = session.createProducer(addressA);
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {
          cp.send(session.createMessage(false));
       }
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(0, getMessageCount(q));
+      assertEquals(0, getMessageCount(q));
       session.commit();
       Wait.assertEquals(numMessages, () -> getMessageCount(q));
       // now send some more
@@ -81,16 +82,16 @@ public class TransactionalSendTest extends ActiveMQTestBase {
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, false, false);
-      session.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      session.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       ClientProducer cp = session.createProducer(addressA);
       int numMessages = 100;
       for (int i = 0; i < numMessages; i++) {
          cp.send(session.createMessage(false));
       }
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(getMessageCount(q), 0);
+      assertEquals(0, getMessageCount(q));
       session.rollback();
-      Assert.assertEquals(getMessageCount(q), 0);
+      assertEquals(0, getMessageCount(q));
       // now send some more
       for (int i = 0; i < numMessages; i++) {
          cp.send(session.createMessage(false));

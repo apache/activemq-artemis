@@ -38,9 +38,6 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.objectweb.jtests.jms.admin.Admin;
 
-/**
- * AbstractAdmin.
- */
 public class AbstractAdmin implements Admin {
 
    protected ClientSession clientSession;
@@ -59,9 +56,8 @@ public class AbstractAdmin implements Admin {
    public static final boolean spawnServer = false;
 
    /**
-    * Determines whether to act or 'no-op' on serverStart() and
-    * serverStop(). This is used when testing combinations of client and
-    * servers with different versions.
+    * Determines whether to act or 'no-op' on serverStart() and serverStop(). This is used when testing combinations of
+    * client and servers with different versions.
     */
    private static final String SERVER_LIVE_CYCLE_PROPERTY = "org.apache.activemq.artemis.jms.ActiveMQAMQPAdmin.serverLifeCycle";
 
@@ -118,7 +114,6 @@ public class AbstractAdmin implements Admin {
 
    @Override
    public void createQueue(final String name) {
-      Boolean result;
       try {
          invokeSyncOperation(ResourceNames.BROKER, "createQueue", name, RoutingType.ANYCAST.toString(), name, null, true, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), true);
       } catch (Exception e) {
@@ -128,7 +123,6 @@ public class AbstractAdmin implements Admin {
 
    @Override
    public void deleteQueue(final String name) {
-      Boolean result;
       try {
          invokeSyncOperation(ResourceNames.BROKER, "destroyQueue", name, true);
       } catch (Exception e) {
@@ -157,7 +151,6 @@ public class AbstractAdmin implements Admin {
 
    @Override
    public void deleteTopic(final String name) {
-      Boolean result;
       try {
          invokeSyncOperation(ResourceNames.BROKER, "deleteAddress", name, Boolean.TRUE);
       } catch (Exception e) {
@@ -191,19 +184,16 @@ public class AbstractAdmin implements Admin {
          while ((line = br.readLine()) != null) {
             System.out.println("SERVER: " + line);
             if ("OK".equals(line.trim())) {
-               new Thread() {
-                  @Override
-                  public void run() {
-                     try {
-                        String line1 = null;
-                        while ((line1 = br.readLine()) != null) {
-                           System.out.println("SERVER: " + line1);
-                        }
-                     } catch (Exception e) {
-                        e.printStackTrace();
+               new Thread(() -> {
+                  try {
+                     String line1 = null;
+                     while ((line1 = br.readLine()) != null) {
+                        System.out.println("SERVER: " + line1);
                      }
+                  } catch (Exception e) {
+                     e.printStackTrace();
                   }
-               }.start();
+               }).start();
                return;
             } else if ("KO".equals(line.trim())) {
                // something went wrong with the server, destroy it:

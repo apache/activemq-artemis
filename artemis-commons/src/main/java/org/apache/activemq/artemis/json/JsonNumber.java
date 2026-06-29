@@ -21,7 +21,7 @@ import java.math.BigInteger;
 
 /**
  * JsonValue which represents a number.
- *
+ * <p>
  * The decimal point is defined as dot '.'.
  *
  * @see <a href="https://tools.ietf.org/html/rfc4627">RFC-4627 JSON Specification</a>
@@ -45,9 +45,6 @@ public interface JsonNumber extends JsonValue {
 
    BigDecimal bigDecimalValue();
 
-   /**
-    * @since 1.1
-    */
    default Number numberValue() {
       throw new UnsupportedOperationException();
    }

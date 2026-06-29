@@ -31,17 +31,14 @@ public class FakePagingManager implements PagingManager {
 
    @Override
    public void addBlockedStore(PagingStore store) {
-
    }
 
    @Override
    public void checkMemory(Runnable runWhenAvailable) {
-
    }
 
    @Override
    public void counterSnapshot() {
-
    }
 
    @Override
@@ -135,28 +132,16 @@ public class FakePagingManager implements PagingManager {
       return 0;
    }
 
-   /*
-    * (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.paging.PagingManager#isGlobalFull()
-    */
    @Override
    public boolean isGlobalFull() {
       return false;
    }
 
-   /*
-    * (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.paging.PagingManager#getTransactions()
-    */
    @Override
    public Map<Long, PageTransactionInfo> getTransactions() {
       return null;
    }
 
-   /*
-    * (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.paging.PagingManager#processReload()
-    */
    @Override
    public void processReload() {
    }
@@ -169,26 +154,19 @@ public class FakePagingManager implements PagingManager {
    public void resumeCleanup() {
    }
 
-   /*
-    * (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener#onChange()
-    */
    @Override
    public void onChange() {
    }
 
    @Override
    public void lock() {
-      // no-op
    }
 
    @Override
    public void unlock() {
-      // no-op
    }
 
    @Override
    public void injectMonitor(FileStoreMonitor monitor) throws Exception {
-
    }
 }

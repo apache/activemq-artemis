@@ -26,9 +26,6 @@ import javax.jms.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSendReceiveTest.class);
@@ -87,7 +84,9 @@ public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
 
       LOG.info("Closing down connection");
 
-      /** TODO we should be able to shut down properly */
+      /**
+       * TODO we should be able to shut down properly
+       */
       session.close();
       connection.close();
    }

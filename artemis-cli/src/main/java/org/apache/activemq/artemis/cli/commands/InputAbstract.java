@@ -17,21 +17,29 @@
 
 package org.apache.activemq.artemis.cli.commands;
 
-import java.util.Scanner;
-
+import org.apache.activemq.artemis.cli.commands.util.input.InputReader;
+import org.apache.activemq.artemis.cli.commands.util.input.JLineInputReader;
+import org.apache.activemq.artemis.cli.commands.util.input.SystemInputReader;
 import picocli.CommandLine.Option;
 
 public class InputAbstract extends ActionAbstract {
 
-   private Scanner scanner;
+
+   InputReader lineReader;
+
 
    private static boolean inputEnabled = false;
 
    /**
-    * Test cases validating or using the CLI cannot deal with inputs,
-    * so they are generally disabled, however the main method from the CLI will enable it back. */
+    * Test cases validating or using the CLI usually don't deal with inputs, so they are generally disabled, however
+    * the main method from the CLI will enable it back.
+    */
    public static void enableInput() {
       inputEnabled = true;
+   }
+
+   public static void disableInput() {
+      inputEnabled = false;
    }
 
    @Option(names = "--silent", description = "Disable all the inputs, and make a best guess for any required input.")
@@ -54,15 +62,11 @@ public class InputAbstract extends ActionAbstract {
       do {
          String value = input(propertyName, prompt + ", valid values are Y, N, True, False", Boolean.toString(silentDefault));
 
-         switch (value.toUpperCase().trim()) {
-            case "TRUE":
-            case "Y":
-               booleanValue = Boolean.TRUE; break;
-
-            case "FALSE":
-            case "N":
-               booleanValue = Boolean.FALSE; break;
-         }
+         booleanValue = switch (value.toUpperCase().trim()) {
+            case "TRUE", "Y" -> Boolean.TRUE;
+            case "FALSE", "N" -> Boolean.FALSE;
+            default -> booleanValue;
+         };
       }
       while (booleanValue == null);
 
@@ -74,7 +78,7 @@ public class InputAbstract extends ActionAbstract {
       Integer value = null;
       do {
          String input = input(propertyName, prompt, silentDefault);
-         if (input == null || input.trim().equals("")) {
+         if (input == null || input.trim().isEmpty()) {
             input = "0";
          }
 
@@ -99,27 +103,14 @@ public class InputAbstract extends ActionAbstract {
          return silentDefault;
       }
 
-      String inputStr;
-      boolean valid = false;
-      getActionContext().out.println();
-      do {
-         getActionContext().out.println(propertyName + ":");
-         getActionContext().out.println(prompt);
-         inputStr = scanner.nextLine();
-         if (!acceptNull && inputStr.trim().equals("")) {
-            getActionContext().out.println("Invalid Entry!");
-         } else {
-            valid = true;
-         }
-      }
-      while (!valid);
+      String inputStr = lineReader.inputLoop(propertyName, prompt, s -> s != null && !s.isEmpty());
 
       return inputStr.trim();
    }
 
-   protected String inputPassword(String propertyName, String prompt, String silentDefault) {
+   protected String inputPassword(String propertyName, String prompt) {
       if (isSilentInput()) {
-         return silentDefault;
+         throw new IllegalArgumentException("Must specify " + propertyName + " when using --silent option");
       }
 
       String inputStr = "";
@@ -127,18 +118,15 @@ public class InputAbstract extends ActionAbstract {
       getActionContext().out.println();
       do {
          getActionContext().out.println(propertyName + ": is mandatory with this configuration:");
-         getActionContext().out.println(prompt);
-         char[] chars = System.console().readPassword();
+         inputStr = lineReader.readPassword(prompt);
 
          // could be null if the user input something weird like Ctrl-d
-         if (chars == null) {
+         if (inputStr == null) {
             getActionContext().out.println("Invalid Entry!");
             continue;
          }
 
-         inputStr = new String(chars);
-
-         if (inputStr.trim().equals("")) {
+         if (inputStr.trim().isEmpty()) {
             getActionContext().out.println("Invalid Entry!");
          } else {
             valid = true;
@@ -153,8 +141,16 @@ public class InputAbstract extends ActionAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      this.scanner = new Scanner(context.in);
+      if (context.lineReader != null) {
+         this.lineReader = new JLineInputReader(context.lineReader);
+      } else {
+         this.lineReader = new SystemInputReader(context.in, context.out);
+      }
 
       return null;
+   }
+
+   public void setLineReader(InputReader lineReader) {
+      this.lineReader = lineReader;
    }
 }

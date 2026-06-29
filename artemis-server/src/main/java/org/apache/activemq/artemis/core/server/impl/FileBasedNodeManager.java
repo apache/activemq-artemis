@@ -57,9 +57,10 @@ public abstract class FileBasedNodeManager extends NodeManager {
    }
 
    /**
-    * If {@code createIfNotExists} and activation sequence file doesn't exist yet, it returns {@code null},
-    * otherwise it opens it.<br>
-    * if {@code !createIfNotExists} it just open to create it.
+    * If {@code createIfNotExists} and activation sequence file doesn't exist yet, it returns {@code null}, otherwise it
+    * opens it.
+    * <p>
+    * If {@code !createIfNotExists} it just open to create it.
     */
    private FileChannel useActivationSequenceChannel(final boolean createIfNotExists) throws IOException {
       FileChannel channel = this.activationSequenceChannel;
@@ -127,8 +128,8 @@ public abstract class FileBasedNodeManager extends NodeManager {
     * <p>
     * Roughly the different use cases are:
     * <ol>
-    * <li>old live server restarts: a server.lock file already exists and contains a nodeID.
-    * <li>new live server starting for the first time: no file exists, and we just *create* a new
+    * <li>old server restarts: a server.lock file already exists and contains a nodeID.
+    * <li>new server starting for the first time: no file exists, and we just *create* a new
     * UUID to use as nodeID
     * <li>replicated backup received its nodeID from its live: no file exists, we need to persist
     * the *current* nodeID
@@ -147,9 +148,7 @@ public abstract class FileBasedNodeManager extends NodeManager {
             ActiveMQServerLogger.LOGGER.nodeManagerCantOpenFile(serverLockFile, e);
             throw e;
          } catch (IOException e) {
-            /*
-             * on some OS's this may fail weirdly even tho the parent dir exists, retrying will work, some weird timing issue i think
-             * */
+            // on some OS's this may fail weirdly even tho the parent dir exists, retrying will work, some weird timing issue i think
             if (count < 5) {
                try {
                   Thread.sleep(100);
@@ -226,8 +225,9 @@ public abstract class FileBasedNodeManager extends NodeManager {
    public synchronized void stop() throws Exception {
       FileChannel channelCopy = channel;
       try {
-         if (channelCopy != null)
+         if (channelCopy != null) {
             channelCopy.close();
+         }
       } finally {
          try {
             setNodeActivationSequence(NULL_NODE_ACTIVATION_SEQUENCE);

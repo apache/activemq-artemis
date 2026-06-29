@@ -34,8 +34,6 @@ public class ServerMessageImpl extends MessageInternalImpl implements ServerMess
 
    private CoreMessage message;
 
-   private boolean valid = false;
-
    public boolean isValid() {
       return false;
    }
@@ -62,10 +60,8 @@ public class ServerMessageImpl extends MessageInternalImpl implements ServerMess
    }
 
    /**
-    * This will force encoding of the address, and will re-check the buffer
-    * This is to avoid setMessageTransient which set the address without changing the buffer
-    *
-    * @param address
+    * This will force encoding of the address, and will re-check the buffer. This is to avoid setMessageTransient which
+    * set the address without changing the buffer
     */
    @Override
    public void forceAddress(SimpleString address) {
@@ -138,7 +134,7 @@ public class ServerMessageImpl extends MessageInternalImpl implements ServerMess
 
          message.putLongProperty(Message.HDR_ORIG_MESSAGE_ID, other.getLongProperty(Message.HDR_ORIG_MESSAGE_ID));
       } else {
-         message.putStringProperty(Message.HDR_ORIGINAL_ADDRESS, new SimpleString(other.getAddress()));
+         message.putStringProperty(Message.HDR_ORIGINAL_ADDRESS, SimpleString.of(other.getAddress()));
 
          message.putLongProperty(Message.HDR_ORIG_MESSAGE_ID, other.getMessageID());
       }

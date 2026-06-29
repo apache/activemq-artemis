@@ -19,29 +19,50 @@ package org.apache.activemq.artemis.tests.smoke.console;
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
-import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
 
 public class ConsoleMutualSSLTest extends SmokeTestBase {
 
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
-
    protected static final String SERVER_NAME = "console-mutual-ssl";
    protected static final String SERVER_ADMIN_USERNAME = "admin";
    protected static final String SERVER_ADMIN_PASSWORD = "admin";
 
-   @Before
+   @BeforeAll
+   public static void createServers() throws Exception {
+      File server0Location = getFileServerLocation(SERVER_NAME);
+      deleteDirectory(server0Location);
+      HelperCreate cliCreateServer = helperCreate();
+      cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(false).setConfiguration("./src/main/resources/servers/console-mutual-ssl").
+         setNoWeb(false).setArtemisInstance(server0Location).setArgs("--http-host",
+                     "localhost",
+                     "--http-port",
+                     "8443",
+                     "--ssl-key",
+                     new File("./target/test-classes/server-keystore.p12").getAbsolutePath(),
+                     "--ssl-key-password",
+                     "securepass",
+                     "--use-client-auth",
+                     "--ssl-trust",
+                     new File("./target/test-classes/client-ca-truststore.p12").getAbsolutePath(),
+                     "--ssl-trust-password",
+                     "securepass");
+
+
+      cliCreateServer.createServer();
+   }
+
+   @BeforeEach
    public void before() throws Exception {
       cleanupData(SERVER_NAME);
       disableCheckThread();
@@ -53,10 +74,7 @@ public class ConsoleMutualSSLTest extends SmokeTestBase {
    public void testLoginWithValidCertificate() throws Exception {
       File keyStoreFile = new File(this.getClass().getClassLoader().getResource("client-keystore.p12").getFile());
       File trustStoreFile = new File(this.getClass().getClassLoader().getResource("server-ca-truststore.p12").getFile());
-      SSLContext sslContext = SSLContexts.custom()
-         .loadKeyMaterial(keyStoreFile, "securepass".toCharArray(), "securepass".toCharArray())
-         .loadTrustMaterial(trustStoreFile, "securepass".toCharArray())
-         .build();
+      SSLContext sslContext = SSLContexts.custom().loadKeyMaterial(keyStoreFile, "securepass".toCharArray(), "securepass".toCharArray()).loadTrustMaterial(trustStoreFile, "securepass".toCharArray()).build();
       try (CloseableHttpClient httpClient = HttpClients.custom().disableRedirectHandling().setSSLContext(sslContext).build()) {
          Wait.assertTrue(() -> {
             try {
@@ -74,16 +92,12 @@ public class ConsoleMutualSSLTest extends SmokeTestBase {
    public void testLoginWithInvalidCertificate() throws Exception {
       File keyStoreFile = new File(this.getClass().getClassLoader().getResource("other-client-keystore.p12").getFile());
       File trustStoreFile = new File(this.getClass().getClassLoader().getResource("server-ca-truststore.p12").getFile());
-      SSLContext sslContext = SSLContexts.custom()
-         .loadKeyMaterial(keyStoreFile, "securepass".toCharArray(), "securepass".toCharArray())
-         .loadTrustMaterial(trustStoreFile, "securepass".toCharArray())
-         .build();
+      SSLContext sslContext = SSLContexts.custom().loadKeyMaterial(keyStoreFile, "securepass".toCharArray(), "securepass".toCharArray()).loadTrustMaterial(trustStoreFile, "securepass".toCharArray()).build();
       try (CloseableHttpClient httpClient = HttpClients.custom().disableRedirectHandling().setSSLContext(sslContext).build()) {
          Wait.assertTrue(() -> {
             try {
                try (CloseableHttpResponse response = httpClient.execute(new HttpGet("https://localhost:8443/console/"))) {
-                  return response.getStatusLine().getStatusCode() == 302 &&
-                     response.getFirstHeader("Location").getValue().endsWith("auth/login");
+                  return response.getStatusLine().getStatusCode() == 302 && response.getFirstHeader("Location").getValue().endsWith("/console/login#noauth");
                }
             } catch (Exception ignore) {
                return false;

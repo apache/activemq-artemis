@@ -67,9 +67,25 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
 
    private List<LateDelivery> lateDeliveries;
 
+   /**
+    * To be used during by the RebuildManager. When reading transactions not found transactions are marked as done.
+    */
+   private boolean orphaned;
+
    public PageTransactionInfoImpl(final long transactionID) {
       this();
       this.transactionID = transactionID;
+   }
+
+   @Override
+   public boolean isOrphaned() {
+      return orphaned;
+   }
+
+   @Override
+   public PageTransactionInfoImpl setOrphaned(boolean orphaned) {
+      this.orphaned = orphaned;
+      return this;
    }
 
    public PageTransactionInfoImpl() {
@@ -178,9 +194,8 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
    }
 
    /*
-    * This is to be used after paging. We will update the PageTransactions until they get all the messages delivered. On that case we will delete the page TX
-    * (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.paging.PageTransactionInfo#storeUpdate(org.apache.activemq.artemis.core.persistence.StorageManager, org.apache.activemq.artemis.core.transaction.Transaction, int)
+    * This is to be used after paging. We will update the PageTransactions until they get all the messages delivered. On
+    * that case we will delete the page TX
     */
    @Override
    public void storeUpdate(final StorageManager storageManager,
@@ -198,11 +213,6 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
       updt.setStored();
    }
 
-   /**
-    * @param storageManager
-    * @param pagingManager
-    * @param tx
-    */
    protected UpdatePageTXOperation internalUpdatePageManager(final StorageManager storageManager,
                                                              final PagingManager pagingManager,
                                                              final Transaction tx,
@@ -304,10 +314,8 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
    }
 
    /**
-    * a Message shouldn't be delivered until it's committed
-    * For that reason the page-reference will be written right away
-    * But in certain cases we can only deliver after the commit
-    * For that reason we will perform a late delivery
+    * a Message shouldn't be delivered until it's committed For that reason the page-reference will be written right
+    * away But in certain cases we can only deliver after the commit For that reason we will perform a late delivery
     * through the method redeliver.
     */
    private static class LateDelivery {
@@ -337,7 +345,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
 
    private static class UpdatePageTXOperation extends TransactionOperationAbstract {
 
-      private final HashMap<PageTransactionInfo, AtomicInteger> countsToUpdate = new HashMap<>();
+      private final Map<PageTransactionInfo, AtomicInteger> countsToUpdate = new HashMap<>();
 
       private boolean stored = false;
 

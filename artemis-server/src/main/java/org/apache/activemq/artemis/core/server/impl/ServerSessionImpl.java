@@ -28,13 +28,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
+import org.apache.activemq.artemis.api.core.ActiveMQAddressHasBindingsException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
@@ -46,6 +49,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
@@ -60,13 +64,10 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
-import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
-import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -85,7 +86,7 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
-import org.apache.activemq.artemis.core.server.TempQueueObserver;
+import org.apache.activemq.artemis.core.server.TempResourceObserver;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
@@ -103,19 +104,25 @@ import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.CertificateUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
+import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
+import org.apache.activemq.artemis.utils.runnables.RunnableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Server side Session implementation
  */
-public class ServerSessionImpl implements ServerSession, FailureListener {
+public class ServerSessionImpl extends CriticalComponentImpl implements ServerSession, FailureListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   private static final int CRITICAL_PATH_CLOSE = 0;
 
    private boolean securityEnabled = true;
 
@@ -141,12 +148,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected final Map<Long, ServerConsumer> consumers = new ConcurrentHashMap<>();
 
+   private final RunnableList blockedRunnables = new RunnableList();
+
    protected final ServerProducers serverProducers;
 
-   protected Transaction tx;
+   protected volatile Transaction tx;
 
-   /** This will store the Transaction between xaEnd and xaPrepare or xaCommit.
-    *  in a failure scenario (client is gone), this will be held between xaEnd and xaCommit. */
+   /**
+    * This will store the Transaction between xaEnd and xaPrepare or xaCommit. In a failure scenario (client is gone),
+    * this will be held between xaEnd and xaCommit.
+    */
    protected volatile Transaction pendingTX;
 
    protected boolean xa;
@@ -165,7 +176,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected volatile boolean started = false;
 
-   protected final Map<SimpleString, TempQueueCleanerUpper> tempQueueCleannerUppers = new HashMap<>();
+   protected final Map<SimpleString, TempResourceCleanerUpper> tempQueueCleanerUppers = new HashMap<>();
+
+   protected final Map<SimpleString, TempResourceCleanerUpper> tempAddressCleanerUppers = new HashMap<>();
 
    protected final String name;
 
@@ -193,6 +206,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    // server. Both the request and failure listener will
    // try to close one session from different threads
    // concurrently.
+   private volatile boolean closing = false;
+
+   // When the doClose is called, we will make it actually closed
    private volatile boolean closed = false;
 
    private boolean prefixEnabled = false;
@@ -214,20 +230,15 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final boolean strictUpdateDeliveryCount,
                             final boolean xa,
                             final RemotingConnection remotingConnection,
-                            final StorageManager storageManager,
-                            final PostOffice postOffice,
-                            final ResourceManager resourceManager,
-                            final SecurityStore securityStore,
-                            final ManagementService managementService,
                             final ActiveMQServer server,
-                            final SimpleString managementAddress,
                             final SimpleString defaultAddress,
                             final SessionCallback callback,
                             final OperationContext context,
-                            final PagingManager pagingManager,
                             final Map<SimpleString, RoutingType> prefixes,
                             final String securityDomain,
                             boolean isLegacyProducer) throws Exception {
+      super(server.getCriticalAnalyzer(), 1);
+
       this.username = username;
 
       this.password = password;
@@ -244,22 +255,22 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       this.remotingConnection = remotingConnection;
 
-      this.storageManager = storageManager;
+      this.storageManager = server.getStorageManager();
 
-      this.postOffice = postOffice;
+      this.postOffice = server.getPostOffice();
 
-      this.resourceManager = resourceManager;
+      this.resourceManager = server.getResourceManager();
 
-      this.securityStore = securityStore;
+      this.securityStore = server.getSecurityStore();
 
-      this.pagingManager = pagingManager;
+      this.pagingManager = server.getPagingManager();
 
       timeoutSeconds = resourceManager.getTimeoutSeconds();
       this.xa = xa;
 
       this.strictUpdateDeliveryCount = strictUpdateDeliveryCount;
 
-      this.managementService = managementService;
+      this.managementService = server.getManagementService();
 
       this.name = name;
 
@@ -270,13 +281,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          prefixEnabled = true;
       }
 
-      this.managementAddress = managementAddress;
+      this.managementAddress = managementService.getManagementAddress();
 
       this.callback = callback;
 
       this.defaultAddress = defaultAddress;
 
-      remotingConnection.addFailureListener(this);
       this.context = context;
 
       this.sessionExecutor = server.getExecutorFactory().getExecutor();
@@ -314,8 +324,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return closeables;
    }
 
-   public Map<SimpleString, TempQueueCleanerUpper> getTempQueueCleanUppers() {
-      return tempQueueCleannerUppers;
+   public Map<SimpleString, TempResourceCleanerUpper> getTempQueueCleanUppers() {
+      return tempQueueCleanerUppers;
    }
 
    @Override
@@ -330,12 +340,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public boolean isClosed() {
-      return closed;
+      return closing;
    }
 
-   /**
-    * @return the sessionContext
-    */
    @Override
    public OperationContext getSessionContext() {
       return context;
@@ -376,8 +383,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public void markTXFailed(Throwable e) {
       Transaction currentTX = this.tx;
       if (currentTX != null) {
-         if (e instanceof ActiveMQException) {
-            currentTX.markAsRollbackOnly((ActiveMQException) e);
+         if (e instanceof ActiveMQException activeMQException) {
+            currentTX.markAsRollbackOnly(activeMQException);
          } else {
             ActiveMQException exception = new ActiveMQException(e.getMessage());
             exception.initCause(e);
@@ -392,19 +399,20 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    protected void doClose(final boolean failed) throws Exception {
+      blockedRunnables.cancel();
+
       if (callback != null) {
          callback.close(failed);
       }
       synchronized (this) {
-         if (!closed) {
-            if (server.hasBrokerSessionPlugins()) {
-               server.callBrokerSessionPlugins(plugin -> plugin.beforeCloseSession(this, failed));
-            }
+         if (closed) {
+            return;
+         }
+         closed = true;
+         if (server.hasBrokerSessionPlugins()) {
+            server.callBrokerSessionPlugins(plugin -> plugin.beforeCloseSession(this, failed));
          }
          this.setStarted(false);
-         if (closed)
-            return;
-
          if (failed) {
 
             Transaction txToRollback = tx;
@@ -433,11 +441,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                }
             }
          }
-         closed = true;
       }
 
       //putting closing of consumers outside the sync block
-      //https://issues.jboss.org/browse/HORNETQ-1141
       Set<ServerConsumer> consumersClone = new HashSet<>(consumers.values());
 
       for (ServerConsumer consumer : consumersClone) {
@@ -453,8 +459,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          }
       }
 
-      consumers.clear();
-      serverProducers.clear();
+      try {
+         if (consumers != null) {
+            consumers.clear();
+         }
+         if (serverProducers != null) {
+            serverProducers.clear();
+         }
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
+      }
+
 
       if (closeables != null) {
          for (Closeable closeable : closeables) {
@@ -484,18 +499,26 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (server.getConfiguration().isSuppressSessionNotifications()) {
          return;
       }
-      final TypedProperties props = new TypedProperties();
-      if (this.getConnectionID() != null) {
-         props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.toSimpleString(this.getConnectionID().toString()));
-      }
-      props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(this.getUsername()));
-      props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.toSimpleString(this.getName()));
+      // Send notification in a new thread to avoid blocking and potentially soft dead-locking during heavy session open/close
+      final RemotingConnection stableRemotingConnection = remotingConnection;
+      sessionExecutor.execute(() -> {
+         final TypedProperties props = new TypedProperties();
+         if (stableRemotingConnection.getID() != null) {
+            props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.of(stableRemotingConnection.getID().toString()));
+         }
+         props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.of(this.getUsername()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.of(this.getName()));
 
-      props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.toSimpleString(this.remotingConnection.getClientID()));
-      props.putSimpleStringProperty(ManagementHelper.HDR_PROTOCOL_NAME, SimpleString.toSimpleString(this.remotingConnection.getProtocolName()));
-      props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, managementService.getManagementNotificationAddress());
-      props.putIntProperty(ManagementHelper.HDR_DISTANCE, 0);
-      managementService.sendNotification(new Notification(null, type, props));
+         props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.of(stableRemotingConnection.getClientID()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_PROTOCOL_NAME, SimpleString.of(stableRemotingConnection.getProtocolName()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, managementService.getManagementNotificationAddress());
+         props.putIntProperty(ManagementHelper.HDR_DISTANCE, 0);
+         try {
+            managementService.sendNotification(new Notification(null, type, props));
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.failedToSendNotification(e);
+         }
+      });
    }
 
    private void securityCheck(SimpleString address, CheckType checkType, SecurityAuth auth) throws Exception {
@@ -536,6 +559,22 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                         final boolean browseOnly,
                                         final boolean supportLargeMessage,
                                         final Integer credits) throws Exception {
+      return this.createConsumer(consumerID, queueName, filterString, priority, browseOnly, supportLargeMessage, credits, true);
+   }
+
+   public ServerConsumer createInternalConsumer(final SimpleString queueName) throws Exception {
+      return this.createConsumer(storageManager.generateID(), queueName, null, ActiveMQDefaultConfiguration.getDefaultConsumerPriority(), false, false, -1, false);
+   }
+
+   @Override
+   public ServerConsumer createConsumer(final long consumerID,
+                                        final SimpleString queueName,
+                                        final SimpleString filterString,
+                                        final int priority,
+                                        final boolean browseOnly,
+                                        final boolean supportLargeMessage,
+                                        final Integer credits,
+                                        final boolean enforceSecurity) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.createCoreConsumer(this, remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), consumerID, queueName, filterString, priority, browseOnly, supportLargeMessage, credits);
       }
@@ -548,19 +587,21 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       SimpleString address = removePrefix(binding.getAddress());
-      try {
-         securityCheck(address, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
-      } catch (Exception e) {
-         /*
-          * This is here for backwards compatibility with the pre-FQQN syntax from ARTEMIS-592.
-          * We only want to do this check if an exact match exists in the security-settings.
-          * This code is deprecated and should be removed at the release of the next major version.
-          */
-         SimpleString exactMatch = address.concat(".").concat(unPrefixedQueueName);
-         if (server.getSecurityRepository().containsExactMatch(exactMatch.toString())) {
-            securityCheck(exactMatch, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
-         } else {
-            throw e;
+      if (enforceSecurity) {
+         try {
+            securityCheck(address, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
+         } catch (Exception e) {
+            /*
+             * This is here for backwards compatibility with the pre-FQQN syntax from ARTEMIS-592.
+             * We only want to do this check if an exact match exists in the security-settings.
+             * This code is deprecated and should be removed at the release of the next major version.
+             */
+            SimpleString exactMatch = address.concat(".").concat(unPrefixedQueueName);
+            if (server.getSecurityRepository().containsExactMatch(exactMatch.toString())) {
+               securityCheck(exactMatch, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
+            } else {
+               throw e;
+            }
          }
       }
 
@@ -573,7 +614,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       ServerConsumer consumer;
       synchronized (this) {
-         if (closed) {
+         if (closing) {
             throw ActiveMQMessageBundle.BUNDLE.cannotCreateConsumerOnClosedSession(queueName);
          }
          consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, priority, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
@@ -599,10 +640,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          props.putIntProperty(ManagementHelper.HDR_CONSUMER_COUNT, theQueue.getConsumerCount());
 
-         // HORNETQ-946
-         props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(username));
+         props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.of(username));
 
-         props.putSimpleStringProperty(ManagementHelper.HDR_VALIDATED_USER, SimpleString.toSimpleString(validatedUser));
+         props.putSimpleStringProperty(ManagementHelper.HDR_VALIDATED_USER, SimpleString.of(validatedUser));
 
          String certSubjectDN = "unavailable";
          X509Certificate[] certs = CertificateUtil.getCertsFromConnection(this.remotingConnection);
@@ -610,18 +650,18 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             certSubjectDN = certs[0].getSubjectDN().getName();
          }
 
-         props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.toSimpleString(certSubjectDN));
+         props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.of(certSubjectDN));
 
-         props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(this.remotingConnection.getRemoteAddress()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.of(this.remotingConnection.getRemoteAddress()));
 
-         props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.toSimpleString(name));
+         props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.of(name));
 
          if (filter != null) {
             props.putSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING, filter.getFilterString());
          }
 
          if (remotingConnection.getClientID() != null) {
-            props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.toSimpleString(remotingConnection.getClientID()));
+            props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.of(remotingConnection.getClientID()));
          }
 
          props.putLongProperty(ManagementHelper.HDR_CONSUMER_NAME, consumer.getID());
@@ -640,12 +680,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    /**
-    * Some protocols may chose to hold their transactions outside of the ServerSession.
-    * This can be used to replace the transaction.
-    * Notice that we set autoCommitACK and autoCommitSends to true if tx == null
+    * Some protocols may chose to hold their transactions outside of the ServerSession. This can be used to replace the
+    * transaction. Notice that we set autoCommitACK and autoCommitSends to true if tx == null
     */
    @Override
-   public void resetTX(Transaction transaction) {
+   public synchronized void resetTX(Transaction transaction) {
       this.tx = transaction;
       this.autoCommitAcks = transaction == null;
       this.autoCommitSends = transaction == null;
@@ -703,7 +742,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final long autoDeleteMessageCount,
                             final boolean autoCreated,
                             final long ringSize) throws Exception {
-      return createQueue(new QueueConfiguration(name)
+      return createQueue(QueueConfiguration.of(name)
                             .setAddress(addressInfo.getName())
                             .setRoutingType(addressInfo.getRoutingType())
                             .setFilterString(filterString)
@@ -748,7 +787,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       AddressSettings as = server.getAddressSettingsRepository().getMatch(queueConfiguration.getAddress().toString());
 
-      if (as.isAutoCreateAddresses() && server.getAddressInfo(queueConfiguration.getAddress()) == null) {
+      AddressInfo addressInfo = server.getAddressInfo(queueConfiguration.getAddress());
+
+      if (as.isAutoCreateAddresses() && (addressInfo == null || !addressInfo.getRoutingTypes().contains(queueConfiguration.getRoutingType()))) {
          securityCheck(queueConfiguration.getAddress(), queueConfiguration.getName(), CheckType.CREATE_ADDRESS, this);
       }
 
@@ -757,21 +798,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       Queue queue = server.createQueue(queueConfiguration.setUser(getValidatedUser()));
 
       if (queueConfiguration.isTemporary()) {
-         // Temporary queue in core simply means the queue will be deleted if
-         // the remoting connection
-         // dies. It does not mean it will get deleted automatically when the
-         // session is closed.
-         // It is up to the user to delete the queue when finished with it
-
-         TempQueueCleanerUpper cleaner = new TempQueueCleanerUpper(server, queueConfiguration.getName());
-         if (remotingConnection instanceof TempQueueObserver) {
-            cleaner.setObserver((TempQueueObserver) remotingConnection);
-         }
-
-         remotingConnection.addCloseListener(cleaner);
-         remotingConnection.addFailureListener(cleaner);
-
-         tempQueueCleannerUppers.put(queueConfiguration.getName(), cleaner);
+         handleTempResource(queueConfiguration.getName(), true);
       }
 
       if (logger.isDebugEnabled()) {
@@ -781,6 +808,26 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       return queue;
+   }
+
+   private void handleTempResource(SimpleString name, boolean queue) {
+      // Temporary resource in core simply means the resource will be deleted if the remoting connection dies. It does
+      // not mean it will get deleted automatically when the session is closed. It is up to the user to delete the
+      // resource when finished with it
+
+      TempResourceCleanerUpper cleaner = new TempResourceCleanerUpper(server, name, sessionExecutor);
+      if (remotingConnection instanceof TempResourceObserver observer) {
+         cleaner.setObserver(observer);
+      }
+
+      remotingConnection.addCloseListener(cleaner);
+      remotingConnection.addFailureListener(cleaner);
+
+      if (queue) {
+         tempQueueCleanerUppers.put(name, cleaner);
+      } else {
+         tempAddressCleanerUppers.put(name, cleaner);
+      }
    }
 
    @Deprecated
@@ -892,20 +939,20 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (exclusive == null || groupRebalance == null || groupBuckets == null || groupFirstKey == null || lastValue == null || lastValueKey == null || nonDestructive == null || consumersBeforeDispatch == null || delayBeforeDispatch == null || autoDelete == null || autoDeleteDelay == null || autoDeleteMessageCount == null || ringSize == null) {
          AddressSettings as = server.getAddressSettingsRepository().getMatch(address.toString());
          return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers,
-                 exclusive == null ? as.isDefaultExclusiveQueue() : exclusive,
-                 groupRebalance == null ? as.isDefaultGroupRebalance() : groupRebalance,
-                 groupBuckets == null ? as.getDefaultGroupBuckets() : groupBuckets,
-                 groupFirstKey == null ? as.getDefaultGroupFirstKey() : groupFirstKey,
-                 lastValue == null ? as.isDefaultLastValueQueue() : lastValue,
-                 lastValueKey == null ? as.getDefaultLastValueKey() : lastValueKey,
-                 nonDestructive == null ? as.isDefaultNonDestructive() : nonDestructive,
-                 consumersBeforeDispatch == null ? as.getDefaultConsumersBeforeDispatch() : consumersBeforeDispatch,
-                 delayBeforeDispatch == null ? as.getDefaultDelayBeforeDispatch() : delayBeforeDispatch,
-                 autoDelete == null ? ActiveMQServerImpl.isAutoDelete(autoCreated, as) : autoDelete,
-                 autoDeleteDelay == null ? as.getAutoDeleteQueuesDelay() : autoDeleteDelay,
-                 autoDeleteMessageCount == null ? as.getAutoDeleteQueuesMessageCount() : autoDeleteMessageCount,
+                 Objects.requireNonNullElse(exclusive, as.isDefaultExclusiveQueue()),
+                 Objects.requireNonNullElse(groupRebalance, as.isDefaultGroupRebalance()),
+                 Objects.requireNonNullElse(groupBuckets, as.getDefaultGroupBuckets()),
+                 Objects.requireNonNullElse(groupFirstKey, as.getDefaultGroupFirstKey()),
+                 Objects.requireNonNullElse(lastValue, as.isDefaultLastValueQueue()),
+                 Objects.requireNonNullElse(lastValueKey, as.getDefaultLastValueKey()),
+                 Objects.requireNonNullElse(nonDestructive, as.isDefaultNonDestructive()),
+                 Objects.requireNonNullElse(consumersBeforeDispatch, as.getDefaultConsumersBeforeDispatch()),
+                 Objects.requireNonNullElse(delayBeforeDispatch, as.getDefaultDelayBeforeDispatch()),
+                 Objects.requireNonNullElse(autoDelete, ActiveMQServerImpl.isAutoDelete(autoCreated, as)),
+                 Objects.requireNonNullElse(autoDeleteDelay, as.getAutoDeleteQueuesDelay()),
+                 Objects.requireNonNullElse(autoDeleteMessageCount, as.getAutoDeleteQueuesMessageCount()),
                  autoCreated,
-                 ringSize == null ? as.getDefaultRingSize() : ringSize);
+                 Objects.requireNonNullElse(ringSize, as.getDefaultRingSize()));
       } else {
          return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers,
                  exclusive, groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreated, ringSize);
@@ -944,15 +991,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public AddressInfo createAddress(final SimpleString address,
                                     EnumSet<RoutingType> routingTypes,
                                     final boolean autoCreated) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.serverSessionCreateAddress(this.getName(), remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), address, routingTypes, autoCreated);
-      }
-
-      SimpleString realAddress = CompositeAddress.extractAddressName(address);
-      Pair<SimpleString, EnumSet<RoutingType>> art = getAddressAndRoutingTypes(realAddress, routingTypes);
-      securityCheck(art.getA(), CheckType.CREATE_ADDRESS, this);
-      server.addOrUpdateAddressInfo(new AddressInfo(art.getA(), art.getB()).setAutoCreated(autoCreated));
-      return server.getAddressInfo(art.getA());
+      return createAddress(new AddressInfo(address, routingTypes), autoCreated);
    }
 
    @Override
@@ -971,6 +1010,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       AddressInfo art = getAddressAndRoutingType(addressInfo);
       securityCheck(art.getName(), CheckType.CREATE_ADDRESS, this);
       server.addOrUpdateAddressInfo(art.setAutoCreated(autoCreated));
+      if (art.isTemporary()) {
+         handleTempResource(addressInfo.getName(), false);
+      }
       return server.getAddressInfo(art.getName());
    }
 
@@ -1032,7 +1074,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                  Boolean autoDelete,
                                  Long autoDeleteDelay,
                                  Long autoDeleteMessageCount) throws Exception {
-      createSharedQueue(new QueueConfiguration(name)
+      createSharedQueue(QueueConfiguration.of(name)
                                   .setAddress(address)
                                   .setFilterString(filterString)
                                   .setUser(getUsername())
@@ -1096,7 +1138,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       synchronized (this) {
          // Remove failure listeners from old connection
          remotingConnection.removeFailureListener(this);
-         tempQueueCleannerUppers.values()
+         tempQueueCleanerUppers.values()
                  .forEach(cleanerUpper -> {
                     remotingConnection.removeCloseListener(cleanerUpper);
                     remotingConnection.removeFailureListener(cleanerUpper);
@@ -1107,7 +1149,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          // Add failure listeners to new connection
          newConnection.addFailureListener(this);
-         tempQueueCleannerUppers.values()
+         tempQueueCleanerUppers.values()
                  .forEach(cleanerUpper -> {
                     newConnection.addCloseListener(cleanerUpper);
                     newConnection.addFailureListener(cleanerUpper);
@@ -1120,39 +1162,84 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return securityDomain;
    }
 
-   public static class TempQueueCleanerUpper implements CloseListener, FailureListener {
+   public static class TempResourceCleanerUpper implements CloseListener, FailureListener {
 
-      private final SimpleString bindingName;
+      private int retry = 0;
+
+      private final int MAX_RETRY = 5;
+
+      private final SimpleString resourceName;
 
       private final ActiveMQServer server;
 
-      private TempQueueObserver observer;
+      private TempResourceObserver observer;
 
-      public TempQueueCleanerUpper(final ActiveMQServer server, final SimpleString bindingName) {
+      private Executor sessionExecutor;
+
+      public TempResourceCleanerUpper(final ActiveMQServer server, final SimpleString resourceName, Executor sessionExecutor) {
          this.server = server;
-
-         this.bindingName = bindingName;
+         this.resourceName = resourceName;
+         this.sessionExecutor = sessionExecutor;
       }
 
-      public void setObserver(TempQueueObserver observer) {
+      public void setObserver(TempResourceObserver observer) {
          this.observer = observer;
       }
 
       private void run() {
+         sessionExecutor.execute(() -> {
+            // this needs to use the same executor as TransientQueueManagerImpl
+            // even though we retry failed executions
+            // we still use the same executor as the TransientQueueManagerImpl to minimize the number of retries
+            server.getTransientQueueExecutor().execute(this::done);
+         });
+      }
+
+      private void done() {
          try {
-            Binding binding = server.getPostOffice().getBinding(bindingName);
-            if (binding == null) {
-               // the queue may have already been deleted
-               return;
+            logger.debug("deleting temporary resource {}", resourceName);
+            try {
+               Queue q = server.locateQueue(resourceName);
+               logger.debug("deleting queue {}", resourceName);
+               if (q != null && q.isTemporary()) {
+                  AddressInfo a = server.getAddressInfo(q.getAddress());
+                  server.destroyQueue(resourceName, null, false, false, a == null || a.isTemporary());
+                  if (observer != null) {
+                     observer.tempQueueDeleted(resourceName);
+                  }
+               }
+            } catch (ActiveMQException e) {
+               // that's fine.. it can happen due to resource already been deleted
+               logger.debug(e.getMessage(), e);
             }
-            logger.debug("deleting temporary queue {}", bindingName);
-            AddressInfo addressInfo = server.getAddressInfo(binding.getAddress());
-            server.destroyQueue(bindingName, null, false, false, addressInfo == null || addressInfo.isTemporary());
-            if (observer != null) {
-               observer.tempQueueDeleted(bindingName);
+            try {
+               AddressInfo a = server.getAddressInfo(resourceName);
+               logger.debug("deleting address with resource={}, address={}", resourceName, a);
+               if (a != null && a.isTemporary()) {
+                  server.removeAddressInfo(resourceName, null);
+                  if (observer != null) {
+                     observer.tempAddressDeleted(resourceName);
+                  }
+               }
+            } catch (ActiveMQAddressHasBindingsException e) {
+               // in a scenario where the consumer on a temporary and connection is being closed as part of the same event
+               // we could get on a situation where the remove of the queue is already scheduled in the executors
+               // but have not yet reached.
+               // It is not possible to serialize the calls on  org.apache.activemq.artemis.core.server.impl.TransientQueueManagerImpl
+               // as that could lead to starvations and deadlocks.
+               // for that reason we can only retry in the executor's line
+               if (retry++ < MAX_RETRY) {
+                  logger.debug("retrying deleteResource {}, retry={}", resourceName, retry);
+                  TempResourceCleanerUpper.this.run();
+               } else {
+                  logger.warn(e.getMessage(), e);
+               }
+            } catch (ActiveMQException e) {
+               // that's fine.. it can happen due to resource already been deleted
+               logger.debug(e.getMessage(), e);
             }
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(bindingName, e);
+            ActiveMQServerLogger.LOGGER.errorRemovingTempResource(resourceName, e);
          }
       }
 
@@ -1173,7 +1260,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       @Override
       public String toString() {
-         return "Temporary Cleaner for queue " + bindingName;
+         return "Temporary Cleaner for resource " + resourceName;
       }
 
    }
@@ -1198,7 +1285,31 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       server.destroyQueue(unPrefixedQueueName, enforceSecurity ? this : null, true, false, true);
 
-      TempQueueCleanerUpper cleaner = this.tempQueueCleannerUppers.remove(unPrefixedQueueName);
+      TempResourceCleanerUpper cleaner = this.tempQueueCleanerUppers.remove(unPrefixedQueueName);
+
+      if (cleaner != null) {
+         remotingConnection.removeCloseListener(cleaner);
+
+         remotingConnection.removeFailureListener(cleaner);
+      }
+   }
+
+   @Override
+   public void deleteAddress(final SimpleString addressToDelete) throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.destroyAddress(this, remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), addressToDelete);
+      }
+      final SimpleString unPrefixedAddressName = removePrefix(addressToDelete);
+
+      AddressInfo addressInfo = server.getAddressInfo(unPrefixedAddressName);
+
+      if (addressInfo == null) {
+         throw new ActiveMQAddressDoesNotExistException();
+      }
+
+      server.removeAddressInfo(unPrefixedAddressName, this);
+
+      TempResourceCleanerUpper cleaner = this.tempAddressCleanerUppers.remove(unPrefixedAddressName);
 
       if (cleaner != null) {
          remotingConnection.removeCloseListener(cleaner);
@@ -1224,8 +1335,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       // remotingConnection could be null on UnitTests
       // that's why I'm checking for null here, and it's best to do so
-      if (remotingConnection != null && remotingConnection instanceof CoreRemotingConnection) {
-         newFQQN = ((CoreRemotingConnection) remotingConnection).isVersionNewFQQN();
+      if (remotingConnection != null && remotingConnection instanceof CoreRemotingConnection coreRemotingConnection) {
+         newFQQN = coreRemotingConnection.isVersionNewFQQN();
       }
 
       return server.bindingQuery(removePrefix(address), newFQQN);
@@ -1247,9 +1358,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       List<Long> ackedRefs = null;
 
       if (tx != null && tx.getState() == State.ROLLEDBACK) {
-         // JBPAPP-8845 - if we let stuff to be acked on a rolled back TX, we will just
-         // have these messages to be stuck on the limbo until the server is restarted
-         // The tx has already timed out, so we need to ack and rollback immediately
+         // If we let stuff to be acked on a rolled back TX, we will just have these messages to be stuck on the limbo
+         // until the server is restarted. The tx has already timed out, so we need to ack and rollback immediately.
          Transaction newTX = newTransaction();
          try {
             ackedRefs = consumer.acknowledge(newTX, messageID);
@@ -1292,9 +1402,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       ServerConsumer consumer = findConsumer(consumerID);
 
       if (tx != null && tx.getState() == State.ROLLEDBACK) {
-         // JBPAPP-8845 - if we let stuff to be acked on a rolled back TX, we will just
-         // have these messages to be stuck on the limbo until the server is restarted
-         // The tx has already timed out, so we need to ack and rollback immediately
+         // If we let stuff to be acked on a rolled back TX, we will just have these messages to be stuck on the limbo
+         // until the server is restarted. The tx has already timed out, so we need to ack and rollback immediately.
          Transaction newTX = newTransaction();
          consumer.individualAcknowledge(tx, messageID);
          newTX.rollback();
@@ -1347,9 +1456,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    /**
-    * @param clientFailed                   If the client has failed, we can't decrease the delivery-counts, and the close may issue a rollback
-    * @param considerLastMessageAsDelivered
-    * @throws Exception
+    * @param clientFailed If the client has failed, we can't decrease the delivery-counts, and the close may issue a
+    *                     rollback
     */
    private synchronized void rollback(final boolean clientFailed,
                                       final boolean considerLastMessageAsDelivered) throws Exception {
@@ -1368,18 +1476,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
-   /**
-    * @return
-    */
    @Override
    public Transaction newTransaction() {
       return new TransactionImpl(null, storageManager, timeoutSeconds);
    }
 
-   /**
-    * @param xid
-    * @return
-    */
    private Transaction newTransaction(final Xid xid) {
       return new TransactionImpl(xid, storageManager, timeoutSeconds);
    }
@@ -1550,17 +1651,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                // checked heuristic rolled back transactions
                throw new ActiveMQXAException(XAException.XA_HEURRB, "transaction has ben heuristically rolled back: " + xid);
             } else {
-               logger.trace("xarollback into {}, xid={} forcing a rollback regular", theTx, xid);
-
-               try {
-                  // jbpapp-8845
-                  // This could have happened because the TX timed out,
-                  // at this point we would be better on rolling back this session as a way to prevent consumers from holding their messages
-                  this.rollback(false);
-               } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.unableToRollbackOnTxTimedOut(e);
-               }
-
                throw new ActiveMQXAException(XAException.XAER_NOTA, "Cannot find xid in resource manager: " + xid);
             }
          } else {
@@ -1712,27 +1802,46 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void close(final boolean failed, final boolean force) {
-      if (closed)
-         return;
+      synchronized (this) {
+         if (closing) {
+            return;
+         }
+         closing = true;
+      }
 
       if (force) {
-         context.clear();
+         context.reset();
       }
+
+      // We only add the session as component on the critical analyzer
+      // while the close is happening between the user's thread and the context's thread.
+      // Once finishClose is called to complete the operation, leaveCritical is called
+      // and the session is removed from the component's list on the critical analyzer.
+      enterCritical(CRITICAL_PATH_CLOSE);
+      getCriticalAnalyzer().add(this);
 
       context.executeOnCompletion(new IOCallback() {
          @Override
          public void onError(int errorCode, String errorMessage) {
+            finishClose(failed);
          }
 
          @Override
          public void done() {
-            try {
-               doClose(failed);
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorClosingSession(e);
-            }
+            finishClose(failed);
          }
       });
+   }
+
+   private void finishClose(boolean failed) {
+      try {
+         doClose(failed);
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.errorClosingSession(e);
+      } finally {
+         leaveCritical(CRITICAL_PATH_CLOSE);
+         getCriticalAnalyzer().remove(this);
+      }
    }
 
    @Override
@@ -1769,7 +1878,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       AutoCreateResult result;
       SimpleString unPrefixedAddress = removePrefix(queueConfig.getAddress());
       SimpleString unPrefixedQueue = removePrefix(queueConfig.getName());
-      AddressSettings addressSettings =  server.getAddressSettingsRepository().getMatch(unPrefixedAddress.toString());
+      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(unPrefixedAddress.toString());
 
       if (unPrefixedAddress.equals(server.getManagementService().getManagementAddress())) {
          return AutoCreateResult.EXISTED;
@@ -1791,7 +1900,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          if (addressSettings.isAutoCreateAddresses() || queueConfig.isTemporary()) {
             // Try to create the address if possible.
             try {
-               createAddress(queueConfig.getAddress(), queueConfig.getRoutingType(), true).setTemporary(queueConfig.isTemporary());
+               createAddress(new AddressInfo(queueConfig.getAddress()).addRoutingType(queueConfig.getRoutingType()).setTemporary(queueConfig.isTemporary()), true);
             } catch (ActiveMQAddressExistsException e) {
                // The address may have been created by another thread in the mean time. Catch and do nothing.
             }
@@ -1810,7 +1919,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             if (addressSettings.isAutoCreateAddresses() || queueConfig.isTemporary()) {
                // Try to update the address with the new routing-type if possible.
                try {
-                  createAddress(addressInfo.addRoutingType(queueConfig.getRoutingType()), true);
+                  createAddress(new AddressInfo(addressInfo.getName(), EnumSet.copyOf(addressInfo.getRoutingTypes())).addRoutingType(queueConfig.getRoutingType()).setTemporary(addressInfo.isTemporary()), true);
                } catch (ActiveMQAddressExistsException e) {
                   // The address may have been created by another thread in the mean-time. Catch and do nothing.
                }
@@ -1823,16 +1932,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       if (queueConfig.getRoutingType() == RoutingType.ANYCAST || queueConfig.isFqqn()) {
-         if (server.locateQueue(unPrefixedQueue) == null) {
+         Queue q = server.locateQueue(unPrefixedQueue);
+         if (q == null) {
             // The queue doesn't exist.
-            Bindings bindings = server.getPostOffice().lookupBindingsForAddress(unPrefixedAddress);
-            if (bindings != null && bindings.contains(LocalQueueBinding.class) && !queueConfig.isFqqn()) {
-               // The address has another queue with a different name, which is fine. Just ignore it.
+            if (!queueConfig.isFqqn() && getMatchingQueue(unPrefixedAddress, queueConfig.getRoutingType()) != null) {
+               // The address has a local, non-wildcard queue with a different name, which is fine. Just ignore it.
                result = AutoCreateResult.EXISTED;
             } else if (addressSettings.isAutoCreateQueues() || queueConfig.isTemporary()) {
                // Try to create the queue.
                try {
-                  createQueue(new QueueConfiguration(queueConfig).setAutoCreated(true));
+                  createQueue(QueueConfiguration.of(queueConfig).setAutoCreated(true));
                } catch (ActiveMQQueueExistsException e) {
                   // The queue may have been created by another thread in the mean-time. Catch and do nothing.
                }
@@ -1843,7 +1952,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             }
          } else {
             // The queue exists.
-            result = AutoCreateResult.EXISTED;
+            if (q.getRoutingType() != RoutingType.ANYCAST && !queueConfig.isFqqn()) {
+               // The queue exists, but it does not support the requested routing type, and it's not FQQN.
+               return AutoCreateResult.NOT_FOUND;
+            } else {
+               // The queue exists, and it supports the requested routing type or it's FQQN so it doesn't matter.
+               result = AutoCreateResult.EXISTED;
+            }
          }
       }
 
@@ -1853,7 +1968,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public RoutingStatus send(final Message message, final boolean direct, final String senderName) throws Exception {
-      return send(message, direct, senderName,false);
+      return send(message, direct, senderName, false);
    }
 
    @Override
@@ -1866,24 +1981,36 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public synchronized RoutingStatus send(Transaction tx,
-                                          Message msg,
+                                          Message message,
                                           final boolean direct,
                                           final String senderName,
                                           boolean noAutoCreateQueue) throws Exception {
-      return send(tx, msg, direct, senderName, noAutoCreateQueue, routingContext);
+      return send(tx, message, direct, senderName, noAutoCreateQueue, routingContext);
    }
 
    @Override
    public synchronized RoutingStatus send(Transaction tx,
-                                          Message messageParameter,
+                                          Message message,
                                           final boolean direct,
                                           final String senderName,
                                           boolean noAutoCreateQueue,
                                           RoutingContext routingContext) throws Exception {
-      final Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, storageManager);
+      return send(tx, message.getAddressSimpleString(), message.getRoutingType(), message, direct, senderName, noAutoCreateQueue, routingContext);
+   }
+
+   @Override
+   public synchronized RoutingStatus send(Transaction tx,
+                                          SimpleString address,
+                                          RoutingType routingType,
+                                          Message msg,
+                                          final boolean direct,
+                                          final String senderName,
+                                          boolean noAutoCreateQueue,
+                                          RoutingContext routingContext) throws Exception {
+      final Message theMessage = LargeServerMessageImpl.checkLargeMessage(msg, storageManager);
 
       if (server.hasBrokerMessagePlugins()) {
-         server.callBrokerMessagePlugins(plugin -> plugin.beforeSend(this, tx, message, direct, noAutoCreateQueue));
+         server.callBrokerMessagePlugins(plugin -> plugin.beforeSend(this, tx, theMessage, direct, noAutoCreateQueue));
       }
 
       final RoutingStatus result;
@@ -1899,13 +2026,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          //large message may come from StompSession directly, in which
          //case the id header already generated.
-         if (!message.isLargeMessage()) {
+         if (!theMessage.isLargeMessage()) {
             long id = storageManager.generateID();
             // This will re-encode the message
-            message.setMessageID(id);
+            theMessage.setMessageID(id);
          }
-
-         SimpleString address = message.getAddressSimpleString();
 
          if (defaultAddress == null && address != null) {
             defaultAddress = address;
@@ -1913,31 +2038,34 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          if (address == null) {
             // We don't want to force a re-encode when the message gets sent to the consumer
-            message.setAddress(defaultAddress);
+            theMessage.setAddress(defaultAddress);
+         } else {
+            // We need to carry forward the chosen address from the caller to the later send stages.
+            theMessage.setAddress(address);
          }
 
          if (logger.isTraceEnabled()) {
-            logger.trace("send(message={}, direct={}) being called", message, direct);
+            logger.trace("send(message={}, direct={}) being called", theMessage, direct);
          }
 
-         if (message.getAddress() == null) {
+         if (theMessage.getAddress() == null) {
             // This could happen with some tests that are ignoring messages
             throw ActiveMQMessageBundle.BUNDLE.noAddress();
          }
 
-         if (message.getAddressSimpleString().equals(managementAddress)) {
+         if (theMessage.getAddressSimpleString().equals(managementAddress)) {
             // It's a management message
 
-            result = handleManagementMessage(tx, message, direct);
+            result = handleManagementMessage(tx, theMessage, direct);
          } else {
             try {
-               result = doSend(tx, message, address, direct, senderName, noAutoCreateQueue, routingContext);
+               result = doSend(tx, routingType, theMessage, address, direct, senderName, noAutoCreateQueue, routingContext);
             } catch (ActiveMQIOErrorException e) {
                if (tx != null) {
                   tx.markAsRollbackOnly(e);
                }
-               if (message.isLargeMessage()) {
-                  ((LargeServerMessage)message).deleteFile();
+               if (theMessage.isLargeMessage()) {
+                  ((LargeServerMessage)theMessage).deleteFile();
                }
                throw e;
             }
@@ -1945,37 +2073,37 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          if (AuditLogger.isMessageLoggingEnabled()) {
             if (tx != null && !autoCommitSends) {
-               AuditLogger.addSendToTransaction(remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), message.toString(), tx.toString());
+               AuditLogger.addSendToTransaction(remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), theMessage.toString(), tx.toString());
                tx.addOperation(new TransactionOperationAbstract() {
                   @Override
                   public void afterCommit(Transaction tx) {
-                     auditLogSend(message, tx);
+                     auditLogSend(theMessage, tx);
                   }
 
                   @Override
                   public void afterRollback(Transaction tx) {
-                     AuditLogger.rolledBackTransaction(remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), tx.toString(), message.toString());
+                     AuditLogger.rolledBackTransaction(remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), tx.toString(), theMessage.toString());
                   }
                });
             } else {
-               auditLogSend(message, null);
+               auditLogSend(theMessage, null);
             }
          }
 
       } catch (Exception e) {
          if (server.hasBrokerMessagePlugins()) {
-            server.callBrokerMessagePlugins(plugin -> plugin.onSendException(this, tx, message, direct, noAutoCreateQueue, e));
+            server.callBrokerMessagePlugins(plugin -> plugin.onSendException(this, tx, theMessage, direct, noAutoCreateQueue, e));
          }
          throw e;
       }
       if (server.hasBrokerMessagePlugins()) {
-         server.callBrokerMessagePlugins(plugin -> plugin.afterSend(this, autoCommitSends ? null : tx, message, direct, noAutoCreateQueue, result));
+         server.callBrokerMessagePlugins(plugin -> plugin.afterSend(this, autoCommitSends ? null : tx, theMessage, direct, noAutoCreateQueue, result));
       }
       return result;
    }
 
    private void auditLogSend(Message message, Transaction tx) {
-      AuditLogger.coreSendMessage(remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), message.toString(), routingContext, tx == null ? null : tx.toString());
+      AuditLogger.coreSendMessage(remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), message.toString(), routingContext, Objects.toString(tx, null));
    }
 
    @Override
@@ -1985,12 +2113,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       if (store == null) {
          callback.sendProducerCreditsMessage(credits, address);
-      } else if (!store.checkMemory(new Runnable() {
+      } else if (!store.checkMemory(new AtomicRunnable() {
          @Override
-         public void run() {
+         public void atomicRun() {
             callback.sendProducerCreditsMessage(credits, address);
          }
-      })) {
+      }, blockedRunnables::add)) {
          callback.sendProducerCreditsFailMessage(credits, address);
       }
    }
@@ -2031,6 +2159,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          return false;
       } else {
          addMetaData(key, data);
+         if (key.equals(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY)) {
+            remotingConnection.setClientID(data);
+         }
          return true;
       }
    }
@@ -2060,7 +2191,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public void describeProducersInfo(JsonArrayBuilder array) throws Exception {
+   public void describeProducersInfo(JsonArrayBuilder array) {
       Map<String, ServerProducer> targetCopy = cloneProducers();
       for (Map.Entry<String, ServerProducer> entry : targetCopy.entrySet()) {
          String uuid = null;
@@ -2075,7 +2206,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                .add(ProducerField.CREATION_TIME.getName(), String.valueOf(entry.getValue().getCreationTime()))
                .add(ProducerField.ADDRESS.getAlternativeName(), entry.getValue().getAddress())
                .add(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName(), uuid, JsonValue.NULL)
-               .add(ProducerField.MESSAGE_SENT.getName(),  entry.getValue().getMessagesSent())
+               .add(ProducerField.MESSAGE_SENT.getName(), entry.getValue().getMessagesSent())
                .add(ProducerField.MESSAGE_SENT_SIZE.getName(), entry.getValue().getMessagesSentSize());
          array.add(producerInfo);
       }
@@ -2096,41 +2227,51 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public SimpleString getMatchingQueue(SimpleString address,
-                                        SimpleString queueName,
-                                        RoutingType routingType) throws Exception {
-      return server.getPostOffice().getMatchingQueue(address, queueName, routingType);
-   }
-
-   @Override
    public AddressInfo getAddress(SimpleString address) {
       return server.getPostOffice().getAddressInfo(removePrefix(address));
    }
 
    @Override
    public String toString() {
-      StringBuffer buffer = new StringBuffer();
-      if (this.metaData != null) {
-         for (Map.Entry<String, String> value : metaData.entrySet()) {
-            if (buffer.length() != 0) {
-               buffer.append(",");
-            }
-            Object tmpValue = value.getValue();
-            if (tmpValue == null || tmpValue.toString().isEmpty()) {
-               buffer.append(value.getKey() + "=*N/A*");
-            } else {
-               buffer.append(value.getKey() + "=" + tmpValue);
-            }
+      StringBuilder sb = new StringBuilder();
+      try {
+         long txID;
+         if (tx != null) {
+            txID = tx.getID();
+         } else {
+            txID = -1L;
          }
+         sb.append("name=").append(name).append(",");
+         sb.append("consumers=").append(consumers.size()).append(",");
+         sb.append("txID=").append(txID).append(",");
+         sb.append("remotingConnection=").append(remotingConnection);
+      } catch (Throwable justLogit) {
+         logger.debug(justLogit.getMessage(), justLogit);
       }
+
+      insertMetadata(sb);
+
       // This will actually appear on some management operations
       // so please don't clog this with debug objects
       // unless you provide a special way for management to translate sessions
-      return "ServerSessionImpl(" + buffer.toString() + ")";
+      return "ServerSessionImpl(" + sb + ")";
    }
 
-   // FailureListener implementation
-   // --------------------------------------------------------------------
+   private void insertMetadata(StringBuilder sb) {
+      if (this.metaData != null) {
+         for (Map.Entry<String, String> value : metaData.entrySet()) {
+            if (!sb.isEmpty()) {
+               sb.append(",");
+            }
+            Object tmpValue = value.getValue();
+            if (tmpValue == null || tmpValue.toString().isEmpty()) {
+               sb.append(value.getKey() + "=*N/A*");
+            } else {
+               sb.append(value.getKey() + "=" + tmpValue);
+            }
+         }
+      }
+   }
 
    @Override
    public void connectionFailed(final ActiveMQException me, boolean failedOver) {
@@ -2138,8 +2279,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
        * This can be invoked from Netty (via channelInactive) when the connection has already been closed causing
        * spurious logging about clearing up resources for failed client connections.
        */
-      if (closed)
+      if (closing) {
          return;
+      }
 
       try {
          ActiveMQServerLogger.LOGGER.clientConnectionFailed(name);
@@ -2186,16 +2328,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw e;
       }
 
-      Message reply = managementService.handleMessage(message);
+      Message reply = managementService.handleMessage(this, message);
 
       SimpleString replyTo = message.getReplyTo();
 
       if (replyTo != null) {
          // TODO: move this check somewhere else? this is a JMS-specific bit of logic in the core impl
          if (replyTo.toString().startsWith("queue://") || replyTo.toString().startsWith("topic://")) {
-            replyTo = SimpleString.toSimpleString(replyTo.toString().substring(8));
+            replyTo = SimpleString.of(replyTo.toString().substring(8));
          } else if (replyTo.toString().startsWith("temp-queue://") || replyTo.toString().startsWith("temp-topic://")) {
-            replyTo = SimpleString.toSimpleString(replyTo.toString().substring(13));
+            replyTo = SimpleString.of(replyTo.toString().substring(13));
          }
          reply.setAddress(replyTo);
 
@@ -2266,7 +2408,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return doSend(tx, msg, originalAddress, direct, senderName, noAutoCreateQueue, routingContext);
    }
 
-
    @Override
    public synchronized RoutingStatus doSend(final Transaction tx,
                                             final Message msg,
@@ -2275,30 +2416,34 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                             final String senderName,
                                             final boolean noAutoCreateQueue,
                                             final RoutingContext routingContext) throws Exception {
+      return doSend(tx, msg.getRoutingType(), msg, originalAddress, direct, senderName, noAutoCreateQueue, routingContext);
+   }
+
+   @Override
+   public synchronized RoutingStatus doSend(final Transaction tx,
+                                            final RoutingType routingType,
+                                            final Message message,
+                                            final SimpleString originalAddress,
+                                            final boolean direct,
+                                            final String senderName,
+                                            final boolean noAutoCreateQueue,
+                                            final RoutingContext routingContext) throws Exception {
 
       RoutingStatus result = RoutingStatus.OK;
 
-      RoutingType routingType = msg.getRoutingType();
+      final AddressInfo targetFromMessage = new AddressInfo(message.getAddressSimpleString(), routingType);
+      final AddressInfo art = getAddressAndRoutingType(targetFromMessage);
 
-         /* TODO-now: How to address here with AMQP?
-         if (originalAddress != null) {
-            if (originalAddress.toString().startsWith("anycast:")) {
-               routingType = RoutingType.ANYCAST;
-            } else if (originalAddress.toString().startsWith("multicast:")) {
-               routingType = RoutingType.MULTICAST;
-            }
-         } */
-
-      final AddressInfo targetFromMessage = new AddressInfo(msg.getAddressSimpleString(), routingType);
-      AddressInfo art = getAddressAndRoutingType(targetFromMessage);
       if (art != targetFromMessage) {
          // remove the prefix from the message, with the address model change, only non prefixed addresses exist on the broker
-         msg.setAddress(art.getName());
+         message.setAddress(art.getName());
       }
 
-      // check the user has write access to this address.
+      final SimpleString messageAddress = message.getAddressSimpleString();
+
+      // check the user has write access to this address (and potentially queue).
       try {
-         securityCheck(CompositeAddress.extractAddressName(art.getName()), CompositeAddress.isFullyQualified(art.getName()) ? CompositeAddress.extractQueueName(art.getName()) : null, CheckType.SEND, this);
+         securityCheck(CompositeAddress.extractAddressName(messageAddress), CompositeAddress.isFullyQualified(messageAddress) ? CompositeAddress.extractQueueName(messageAddress) : null, CheckType.SEND, this);
       } catch (ActiveMQException e) {
          if (!autoCommitSends && tx != null) {
             tx.markAsRollbackOnly(e);
@@ -2307,16 +2452,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       if (server.getConfiguration().isPopulateValidatedUser() && validatedUser != null) {
-         msg.setValidatedUserID(validatedUser);
+         message.setValidatedUserID(validatedUser);
       }
 
-      if (server.getConfiguration().isRejectEmptyValidatedUser() && msg.getValidatedUserID() == null) {
+      if (server.getConfiguration().isRejectEmptyValidatedUser() && message.getValidatedUserID() == null) {
          throw ActiveMQMessageBundle.BUNDLE.rejectEmptyValidatedUser();
       }
 
-      if (server.getAddressSettingsRepository().getMatch(msg.getAddress()).isEnableIngressTimestamp()) {
-         msg.setIngressTimestamp();
-         msg.reencode();
+      if (server.getAddressSettingsRepository().getMatch(message.getAddress()).isEnableIngressTimestamp()) {
+         message.setIngressTimestamp();
+         message.reencode();
       }
 
       if (tx == null || autoCommitSends) {
@@ -2329,11 +2474,15 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          routingContext.setAddress(art.getName());
          routingContext.setRoutingType(art.getRoutingType());
 
-         result = postOffice.route(msg, routingContext, direct);
+         // Retrieve message size for metrics update before routing,
+         // since large message backing files may be closed once routing completes
+         int mSize = message instanceof LargeServerMessageImpl lsmi ? lsmi.getBodyBufferSize() : message.getEncodeSize();
 
-         logger.debug("Routing result for {} = {}", msg, result);
+         result = postOffice.route(message, routingContext, direct);
 
-         updateProducerMetrics(msg, senderName);
+         logger.debug("Routing result for {} = {}", message, result);
+
+         updateProducerMetrics(message, senderName, mSize);
       } finally {
          if (!routingContext.isReusable()) {
             routingContext.clear();
@@ -2450,9 +2599,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void addProducer(String name, String protocol, String address) {
-      ServerProducer producer = new ServerProducerImpl(name, protocol, address != null ? address : ServerProducer.ANONYMOUS);
+      ServerProducer producer = new ServerProducerImpl(name, protocol, Objects.requireNonNullElse(address, ServerProducer.ANONYMOUS));
       producer.setSessionID(getName());
-      producer.setConnectionID(getConnectionID() != null ? getConnectionID().toString() : null);
+      producer.setConnectionID(Objects.toString(getConnectionID(), null));
       serverProducers.put(name, producer);
    }
 
@@ -2462,13 +2611,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public Collection<ServerProducer>   getServerProducers() {
+   public Collection<ServerProducer> getServerProducers() {
       return serverProducers.getServerProducers();
    }
 
    @Override
    public String getDefaultAddress() {
-      return defaultAddress != null ? defaultAddress.toString() : null;
+      return Objects.toString(defaultAddress, null);
    }
 
    @Override
@@ -2492,10 +2641,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return "ServerSession [id=" + getConnectionID() + ":" + getName() + "]";
    }
 
-   private void updateProducerMetrics(Message msg, String senderName) {
+   private void updateProducerMetrics(Message msg, String senderName, int mSize) {
       ServerProducer serverProducer = serverProducers.getServerProducer(senderName, msg, this);
       if (serverProducer != null) {
-         serverProducer.updateMetrics(msg.getUserID(), msg instanceof LargeServerMessageImpl ? ((LargeServerMessageImpl)msg).getBodyBufferSize() : msg.getEncodeSize());
+         serverProducer.updateMetrics(msg.getUserID(), mSize);
       }
    }
 

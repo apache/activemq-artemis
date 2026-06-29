@@ -22,7 +22,9 @@ import picocli.CommandLine.Command;
 
 /**
  * Remove a user, example:
+ * <pre>{@code
  * ./artemis user rm --user guest
+ * }</pre>
  */
 @Command(name = "rm", description = "Remove an existing user.")
 public class RemoveUser extends UserAction {

@@ -21,6 +21,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -83,6 +84,10 @@ public final class ClusterConnectionConfiguration implements Serializable {
 
    private int clusterNotificationAttempts = ActiveMQDefaultConfiguration.getDefaultClusterNotificationAttempts();
 
+   private String clientId;
+
+   private int topologyScannerAttempts = ActiveMQDefaultConfiguration.getClusterTopologyScannerAttempts();
+
    public ClusterConnectionConfiguration() {
    }
 
@@ -118,91 +123,55 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return this;
    }
 
-   /**
-    * @return the clientFailureCheckPeriod
-    */
    public long getClientFailureCheckPeriod() {
       return clientFailureCheckPeriod;
    }
 
-   /**
-    * @param clientFailureCheckPeriod the clientFailureCheckPeriod to set
-    */
    public ClusterConnectionConfiguration setClientFailureCheckPeriod(long clientFailureCheckPeriod) {
       this.clientFailureCheckPeriod = clientFailureCheckPeriod;
       return this;
    }
 
-   /**
-    * @return the connectionTTL
-    */
    public long getConnectionTTL() {
       return connectionTTL;
    }
 
-   /**
-    * @param connectionTTL the connectionTTL to set
-    */
    public ClusterConnectionConfiguration setConnectionTTL(long connectionTTL) {
       this.connectionTTL = connectionTTL;
       return this;
    }
 
-   /**
-    * @return the retryIntervalMultiplier
-    */
    public double getRetryIntervalMultiplier() {
       return retryIntervalMultiplier;
    }
 
-   /**
-    * @param retryIntervalMultiplier the retryIntervalMultiplier to set
-    */
    public ClusterConnectionConfiguration setRetryIntervalMultiplier(double retryIntervalMultiplier) {
       this.retryIntervalMultiplier = retryIntervalMultiplier;
       return this;
    }
 
-   /**
-    * @return the maxRetryInterval
-    */
    public long getMaxRetryInterval() {
       return maxRetryInterval;
    }
 
-   /**
-    * @param maxRetryInterval the maxRetryInterval to set
-    */
    public ClusterConnectionConfiguration setMaxRetryInterval(long maxRetryInterval) {
       this.maxRetryInterval = maxRetryInterval;
       return this;
    }
 
-   /**
-    * @return the initialConnectAttempts
-    */
    public int getInitialConnectAttempts() {
       return initialConnectAttempts;
    }
 
-   /**
-    * @param initialConnectAttempts the reconnectAttempts to set
-    */
    public ClusterConnectionConfiguration setInitialConnectAttempts(int initialConnectAttempts) {
       this.initialConnectAttempts = initialConnectAttempts;
       return this;
    }
 
-   /**
-    * @return the reconnectAttempts
-    */
    public int getReconnectAttempts() {
       return reconnectAttempts;
    }
 
-   /**
-    * @param reconnectAttempts the reconnectAttempts to set
-    */
    public ClusterConnectionConfiguration setReconnectAttempts(int reconnectAttempts) {
       this.reconnectAttempts = reconnectAttempts;
       return this;
@@ -212,9 +181,6 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return callTimeout;
    }
 
-   /**
-    * @param callTimeout the callTimeout to set
-    */
    public ClusterConnectionConfiguration setCallTimeout(long callTimeout) {
       this.callTimeout = callTimeout;
       return this;
@@ -224,9 +190,6 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return callFailoverTimeout;
    }
 
-   /**
-    * @param callFailoverTimeout the callTimeout to set
-    */
    public ClusterConnectionConfiguration setCallFailoverTimeout(long callFailoverTimeout) {
       this.callFailoverTimeout = callFailoverTimeout;
       return this;
@@ -245,9 +208,6 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return duplicateDetection;
    }
 
-   /**
-    * @param duplicateDetection the duplicateDetection to set
-    */
    public ClusterConnectionConfiguration setDuplicateDetection(boolean duplicateDetection) {
       this.duplicateDetection = duplicateDetection;
       return this;
@@ -257,10 +217,6 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return messageLoadBalancingType;
    }
 
-   /**
-    * @param messageLoadBalancingType
-    * @return
-    */
    public ClusterConnectionConfiguration setMessageLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType) {
       this.messageLoadBalancingType = messageLoadBalancingType;
       return this;
@@ -315,9 +271,6 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return retryInterval;
    }
 
-   /**
-    * @param retryInterval the retryInterval to set
-    */
    public ClusterConnectionConfiguration setRetryInterval(long retryInterval) {
       this.retryInterval = retryInterval;
       return this;
@@ -332,24 +285,15 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return this;
    }
 
-   /**
-    * @return the minLargeMessageSize
-    */
    public int getMinLargeMessageSize() {
       return minLargeMessageSize;
    }
 
-   /**
-    * @param minLargeMessageSize the minLargeMessageSize to set
-    */
    public ClusterConnectionConfiguration setMinLargeMessageSize(final int minLargeMessageSize) {
       this.minLargeMessageSize = minLargeMessageSize;
       return this;
    }
 
-   /*
-   * returns the cluster update interval
-   * */
    public long getClusterNotificationInterval() {
       return clusterNotificationInterval;
    }
@@ -365,6 +309,24 @@ public final class ClusterConnectionConfiguration implements Serializable {
 
    public ClusterConnectionConfiguration setClusterNotificationAttempts(int clusterNotificationAttempts) {
       this.clusterNotificationAttempts = clusterNotificationAttempts;
+      return this;
+   }
+
+   public String getClientId() {
+      return clientId;
+   }
+
+   public ClusterConnectionConfiguration setClientId(String clientId) {
+      this.clientId = clientId;
+      return this;
+   }
+
+   public int getTopologyScannerAttempts() {
+      return topologyScannerAttempts;
+   }
+
+   public ClusterConnectionConfiguration setTopologyScannerAttempts(int topologyScannerAttempts) {
+      this.topologyScannerAttempts = topologyScannerAttempts;
       return this;
    }
 
@@ -425,33 +387,12 @@ public final class ClusterConnectionConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + (allowDirectConnectionsOnly ? 1231 : 1237);
-      result = prime * result + (int) (callFailoverTimeout ^ (callFailoverTimeout >>> 32));
-      result = prime * result + (int) (callTimeout ^ (callTimeout >>> 32));
-      result = prime * result + (int) (clientFailureCheckPeriod ^ (clientFailureCheckPeriod >>> 32));
-      result = prime * result + clusterNotificationAttempts;
-      result = prime * result + (int) (clusterNotificationInterval ^ (clusterNotificationInterval >>> 32));
-      result = prime * result + confirmationWindowSize;
-      result = prime * result + (int) (connectionTTL ^ (connectionTTL >>> 32));
-      result = prime * result + ((connectorName == null) ? 0 : connectorName.hashCode());
-      result = prime * result + ((discoveryGroupName == null) ? 0 : discoveryGroupName.hashCode());
-      result = prime * result + (duplicateDetection ? 1231 : 1237);
-      result = prime * result + (messageLoadBalancingType == null ? 0 : messageLoadBalancingType.hashCode());
-      result = prime * result + maxHops;
-      result = prime * result + (int) (maxRetryInterval ^ (maxRetryInterval >>> 32));
-      result = prime * result + minLargeMessageSize;
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + initialConnectAttempts;
-      result = prime * result + reconnectAttempts;
-      result = prime * result + (int) (retryInterval ^ (retryInterval >>> 32));
-      long temp;
-      temp = Double.doubleToLongBits(retryIntervalMultiplier);
-      result = prime * result + (int) (temp ^ (temp >>> 32));
-      result = prime * result + ((staticConnectors == null) ? 0 : staticConnectors.hashCode());
-      return result;
+      return Objects.hash(address, allowDirectConnectionsOnly, callFailoverTimeout, callTimeout,
+                          clientFailureCheckPeriod, clusterNotificationAttempts, clusterNotificationInterval,
+                          confirmationWindowSize, connectionTTL, connectorName, discoveryGroupName, duplicateDetection,
+                          messageLoadBalancingType, maxHops, maxRetryInterval, minLargeMessageSize, name,
+                          initialConnectAttempts, reconnectAttempts, retryInterval, retryIntervalMultiplier,
+                          staticConnectors, clientId, topologyScannerAttempts);
    }
 
    @Override
@@ -459,100 +400,33 @@ public final class ClusterConnectionConfiguration implements Serializable {
       if (this == obj) {
          return true;
       }
-      if (obj == null) {
+      if (!(obj instanceof ClusterConnectionConfiguration other)) {
          return false;
       }
-      if (getClass() != obj.getClass()) {
-         return false;
-      }
-      ClusterConnectionConfiguration other = (ClusterConnectionConfiguration) obj;
-      if (address == null) {
-         if (other.address != null) {
-            return false;
-         }
-      } else if (!address.equals(other.address)) {
-         return false;
-      }
-      if (allowDirectConnectionsOnly != other.allowDirectConnectionsOnly) {
-         return false;
-      }
-      if (callFailoverTimeout != other.callFailoverTimeout) {
-         return false;
-      }
-      if (callTimeout != other.callTimeout) {
-         return false;
-      }
-      if (clientFailureCheckPeriod != other.clientFailureCheckPeriod) {
-         return false;
-      }
-      if (clusterNotificationAttempts != other.clusterNotificationAttempts) {
-         return false;
-      }
-      if (clusterNotificationInterval != other.clusterNotificationInterval) {
-         return false;
-      }
-      if (confirmationWindowSize != other.confirmationWindowSize) {
-         return false;
-      }
-      if (connectionTTL != other.connectionTTL) {
-         return false;
-      }
-      if (connectorName == null) {
-         if (other.connectorName != null) {
-            return false;
-         }
-      } else if (!connectorName.equals(other.connectorName)) {
-         return false;
-      }
-      if (discoveryGroupName == null) {
-         if (other.discoveryGroupName != null) {
-            return false;
-         }
-      } else if (!discoveryGroupName.equals(other.discoveryGroupName)) {
-         return false;
-      }
-      if (duplicateDetection != other.duplicateDetection) {
-         return false;
-      }
-      if (messageLoadBalancingType != other.messageLoadBalancingType) {
-         return false;
-      }
-      if (maxHops != other.maxHops) {
-         return false;
-      }
-      if (maxRetryInterval != other.maxRetryInterval) {
-         return false;
-      }
-      if (minLargeMessageSize != other.minLargeMessageSize) {
-         return false;
-      }
-      if (name == null) {
-         if (other.name != null) {
-            return false;
-         }
-      } else if (!name.equals(other.name)) {
-         return false;
-      }
-      if (initialConnectAttempts != other.initialConnectAttempts) {
-         return false;
-      }
-      if (reconnectAttempts != other.reconnectAttempts) {
-         return false;
-      }
-      if (retryInterval != other.retryInterval) {
-         return false;
-      }
-      if (Double.doubleToLongBits(retryIntervalMultiplier) != Double.doubleToLongBits(other.retryIntervalMultiplier)) {
-         return false;
-      }
-      if (staticConnectors == null) {
-         if (other.staticConnectors != null) {
-            return false;
-         }
-      } else if (!staticConnectors.equals(other.staticConnectors)) {
-         return false;
-      }
-      return true;
+      return Objects.equals(address, other.address) &&
+             allowDirectConnectionsOnly == other.allowDirectConnectionsOnly &&
+             callFailoverTimeout == other.callFailoverTimeout &&
+             callTimeout == other.callTimeout &&
+             clientFailureCheckPeriod == other.clientFailureCheckPeriod &&
+             clusterNotificationAttempts == other.clusterNotificationAttempts &&
+             clusterNotificationInterval == other.clusterNotificationInterval &&
+             confirmationWindowSize == other.confirmationWindowSize &&
+             connectionTTL == other.connectionTTL &&
+             Objects.equals(connectorName, other.connectorName) &&
+             Objects.equals(discoveryGroupName, other.discoveryGroupName) &&
+             duplicateDetection == other.duplicateDetection &&
+             messageLoadBalancingType == other.messageLoadBalancingType &&
+             maxHops == other.maxHops &&
+             maxRetryInterval == other.maxRetryInterval &&
+             minLargeMessageSize == other.minLargeMessageSize &&
+             Objects.equals(name, other.name) &&
+             initialConnectAttempts == other.initialConnectAttempts &&
+             reconnectAttempts == other.reconnectAttempts &&
+             retryInterval == other.retryInterval &&
+             Double.doubleToLongBits(retryIntervalMultiplier) == Double.doubleToLongBits(other.retryIntervalMultiplier) &&
+             Objects.equals(staticConnectors, other.staticConnectors) &&
+             Objects.equals(clientId, other.clientId) &&
+             topologyScannerAttempts == other.topologyScannerAttempts;
    }
 
    @Override
@@ -581,6 +455,8 @@ public final class ClusterConnectionConfiguration implements Serializable {
          ", minLargeMessageSize=" + minLargeMessageSize +
          ", clusterNotificationInterval=" + clusterNotificationInterval +
          ", clusterNotificationAttempts=" + clusterNotificationAttempts +
+         ", clientId=" + clientId +
+         ", topologyScannerInterval=" + topologyScannerAttempts +
          '}';
    }
 }

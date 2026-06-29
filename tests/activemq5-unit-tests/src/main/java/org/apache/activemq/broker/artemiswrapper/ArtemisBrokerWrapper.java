@@ -44,6 +44,8 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.ConnectionContext;
+import org.apache.activemq.broker.region.MessageReference;
+import org.apache.activemq.broker.region.Subscription;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
 import org.apache.activemq.broker.region.virtual.VirtualDestination;
@@ -89,7 +91,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
          commonSettings = new AddressSettings();
          addressSettingsMap.put(match, commonSettings);
       }
-      SimpleString dla = new SimpleString("ActiveMQ.DLQ");
+      SimpleString dla = SimpleString.of("ActiveMQ.DLQ");
       commonSettings.setDeadLetterAddress(dla);
       commonSettings.setExpiryAddress(dla);
       commonSettings.setAutoCreateQueues(true);
@@ -176,6 +178,11 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
 
    }
 
+   @Override
+   public void messageDispatched(ConnectionContext context, Subscription sub, MessageReference messageReference) {
+
+   }
+
    private void addServerAcceptor(Configuration serverConfig, BrokerService.ConnectorInfo info) throws Exception {
       serverConfig.addAcceptorConfiguration("homePort" + info.uri.getPort(), info.uri.toString());
    }
@@ -253,9 +260,9 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       synchronized (testQueues) {
          SimpleString coreQ = testQueues.get(qname);
          if (coreQ == null) {
-            coreQ = new SimpleString(qname);
+            coreQ = SimpleString.of(qname);
             try {
-               this.server.createQueue(new QueueConfiguration(coreQ).setDurable(false));
+               this.server.createQueue(QueueConfiguration.of(coreQ).setDurable(false));
                testQueues.put(qname, coreQ);
             } catch (ActiveMQQueueExistsException e) {
                //ignore
@@ -269,13 +276,8 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
          throw new IllegalArgumentException("Method only accept queue type parameter.");
       }
       long count = 0;
-      String qname = null;
-      if (amq5Dest.isTemporary()) {
-         qname = amq5Dest.getPhysicalName();
-      } else {
-         qname = amq5Dest.getPhysicalName();
-      }
-      Binding binding = server.getPostOffice().getBinding(new SimpleString(qname));
+      String qname = amq5Dest.getPhysicalName();
+      Binding binding = server.getPostOffice().getBinding(SimpleString.of(qname));
       if (binding != null) {
          QueueImpl q = (QueueImpl) binding.getBindable();
          count = q.getMessageCount();

@@ -16,11 +16,9 @@
  */
 
 /**
- * The SimpleQueueReceiver class consists only of a main method,
- * which fetches one or more messages from a queue using
- * synchronous message delivery.  Run this program in conjunction
- * with SimpleQueueSender.  Specify a queue name on the command
- * line when you run the program.
+ * The SimpleQueueReceiver class consists only of a main method, which fetches one or more messages from a queue using
+ * synchronous message delivery.  Run this program in conjunction with SimpleQueueSender.  Specify a queue name on the
+ * command line when you run the program.
  */
 package org.apache.activemq.demo;
 
@@ -37,8 +35,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 /**
- * A simple polymorphic JMS consumer which can work with Queues or Topics which
- * uses JNDI to lookup the JMS connection factory and destination
+ * A simple polymorphic JMS consumer which can work with Queues or Topics which uses JNDI to lookup the JMS connection
+ * factory and destination
  */
 public final class SimpleConsumer {
 
@@ -59,9 +57,7 @@ public final class SimpleConsumer {
       Destination destination = null;
       MessageConsumer consumer = null;
 
-        /*
-         * Read destination name from command line and display it.
-         */
+      // Read destination name from command line and display it.
       if (args.length != 1) {
          LOG.info("Usage: java SimpleConsumer <destination-name>");
          System.exit(1);
@@ -69,9 +65,7 @@ public final class SimpleConsumer {
       destinationName = args[0];
       LOG.info("Destination name is " + destinationName);
 
-        /*
-         * Create a JNDI API InitialContext object
-         */
+      // Create a JNDI API InitialContext object
       try {
          jndiContext = new InitialContext();
       } catch (NamingException e) {
@@ -79,9 +73,7 @@ public final class SimpleConsumer {
          System.exit(1);
       }
 
-        /*
-         * Look up connection factory and destination.
-         */
+      // Look up connection factory and destination.
       try {
          connectionFactory = (ConnectionFactory) jndiContext.lookup("ConnectionFactory");
          destination = (Destination) jndiContext.lookup(destinationName);
@@ -90,13 +82,11 @@ public final class SimpleConsumer {
          System.exit(1);
       }
 
-        /*
-         * Create connection. Create session from connection; false means
-         * session is not transacted. Create receiver, then start message
-         * delivery. Receive all text messages from destination until a non-text
-         * message is received indicating end of message stream. Close
-         * connection.
-         */
+      /*
+       * Create connection. Create session from connection; false means session is not transacted. Create receiver, then
+       * start message delivery. Receive all text messages from destination until a non-text message is received
+       * indicating end of message stream. Close connection.
+       */
       try {
          connection = connectionFactory.createConnection();
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

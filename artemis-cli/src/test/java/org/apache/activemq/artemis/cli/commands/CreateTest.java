@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
@@ -23,16 +25,17 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.XmlProvider;
 import org.apache.activemq.cli.test.CliTestBase;
 import org.apache.activemq.cli.test.TestActionContext;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.xml.sax.SAXException;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class CreateTest extends CliTestBase {
 
    private final String testName;
@@ -45,7 +48,7 @@ public class CreateTest extends CliTestBase {
       this.relaxJolokia = relaxJolokia;
    }
 
-   @Parameterized.Parameters(name = "{0}")
+   @Parameters(name = "{0}")
    public static Collection<Object[]> testData() {
       return Arrays.asList(new Object[][]{
          {"Happy path + relaxJolokia", "sampledomain.com", true},
@@ -61,19 +64,20 @@ public class CreateTest extends CliTestBase {
       });
    }
 
-   @Test
+   @TestTemplate
    public void testWriteJolokiaAccessXmlCreatesValidXml() throws Exception {
       TestActionContext context = new TestActionContext();
-      File testInstance = new File(temporaryFolder.getRoot(), "test-instance");
+      File testInstance = new File(temporaryFolder, "test-instance");
 
       Create c = new Create();
       c.setNoAutoTune(true);
       c.setInstance(testInstance);
       c.setHttpHost(httpHost);
       c.setRelaxJolokia(relaxJolokia);
+      c.setPassword(RandomUtil.randomUUIDString());
       c.execute(context);
 
-      Assert.assertTrue(isXmlValid(new File(testInstance, "etc/" + Create.ETC_JOLOKIA_ACCESS_XML)));
+      assertTrue(isXmlValid(new File(testInstance, "etc/" + Create.ETC_JOLOKIA_ACCESS_XML)));
    }
 
    /**
@@ -82,7 +86,7 @@ public class CreateTest extends CliTestBase {
     * If it parses, the xml is assumed to be valid. If any exceptions occur, the xml is not valid.
     *
     * @param xml The xml file to check for validity.
-    * @return whether the xml file represents a valid xml document.
+    * @return whether the xml file represents a valid xml document
     */
    private boolean isXmlValid(File xml) {
       try {

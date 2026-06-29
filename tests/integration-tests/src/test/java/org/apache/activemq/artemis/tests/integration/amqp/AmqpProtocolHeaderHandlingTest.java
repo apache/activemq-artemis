@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,7 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.hawtbuf.Buffer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
 
@@ -33,7 +38,8 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
       return true;
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testNonSaslHeaderRejectedOnConnect() throws Exception {
       final AmqpHeader header = new AmqpHeader();
 
@@ -51,18 +57,14 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
       assertEquals(3, response.getProtocolId());
 
       // pump some bytes down the wire until broker closes the connection
-      assertTrue("Broker should have closed client connection", Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisfied() throws Exception {
-            try {
-               connection.send(header);
-               return false;
-            } catch (Exception e) {
-               return true;
-            }
+      assertTrue(Wait.waitFor(() -> {
+         try {
+            connection.send(header);
+            return false;
+         } catch (Exception e) {
+            return true;
          }
-      }, TimeUnit.SECONDS.toMillis(15), TimeUnit.MILLISECONDS.toMillis(250)));
+      }, TimeUnit.SECONDS.toMillis(15), TimeUnit.MILLISECONDS.toMillis(250)), "Broker should have closed client connection");
    }
 
    private class ClientConnection {
@@ -167,17 +169,17 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
 
       @Override
       public String toString() {
-         StringBuilder builder = new StringBuilder();
+         StringBuilder sb = new StringBuilder();
          for (int i = 0; i < buffer.length(); ++i) {
             char value = (char) buffer.get(i);
             if (Character.isLetter(value)) {
-               builder.append(value);
+               sb.append(value);
             } else {
-               builder.append(",");
-               builder.append((int) value);
+               sb.append(",");
+               sb.append((int) value);
             }
          }
-         return builder.toString();
+         return sb.toString();
       }
    }
 }

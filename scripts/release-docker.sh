@@ -20,7 +20,7 @@ set -e
 
 if [ $# -ne 2 ]
   then
-    echo "Please supply version and repository name as parameters, e.g. ./release-docker 2.30.0 apache"
+    echo "Please supply version and repository name as parameters, e.g. ./release-docker 2.50.0 apache"
     exit
 fi
 
@@ -28,17 +28,11 @@ VERSION=$1
 REPO=$2
 
 cd ../artemis-docker
-rm -Rf _TMP_/
+rm -Rf target/
 ./prepare-docker.sh --from-release --artemis-version ${VERSION}
-cd _TMP_/artemis/${VERSION}
-docker pull eclipse-temurin:11-jre-alpine
-docker pull eclipse-temurin:11-jre
-docker build -f ./docker/Dockerfile-alpine-11-jre -t ${REPO}/activemq-artemis:${VERSION}-alpine .
-docker tag ${REPO}/activemq-artemis:${VERSION}-alpine ${REPO}/activemq-artemis:latest-alpine
-docker build -f ./docker/Dockerfile-ubuntu-11-jre -t ${REPO}/activemq-artemis:${VERSION} .
-docker tag ${REPO}/activemq-artemis:${VERSION} ${REPO}/activemq-artemis:latest
+cd target/artemis/${VERSION}
+docker pull eclipse-temurin:25-jre-alpine
+docker pull eclipse-temurin:25-jre
 docker login
-docker push ${REPO}/activemq-artemis:${VERSION}-alpine
-docker push ${REPO}/activemq-artemis:${VERSION}
-docker push ${REPO}/activemq-artemis:latest-alpine
-docker push ${REPO}/activemq-artemis:latest
+docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile-alpine-25-jre -t ${REPO}/artemis:${VERSION}-alpine -t ${REPO}/artemis:latest-alpine --push .
+docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile-ubuntu-25-jre -t ${REPO}/artemis:${VERSION} -t ${REPO}/artemis:latest --push .

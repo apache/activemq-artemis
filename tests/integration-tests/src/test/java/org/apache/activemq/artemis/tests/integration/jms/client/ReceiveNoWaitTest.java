@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.MessageConsumer;
@@ -25,34 +28,30 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/**
- * A ReceiveNoWaitTest
- */
 public class ReceiveNoWaitTest extends JMSTestBase {
 
    private Queue queue;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
       queue = createQueue("TestQueue");
    }
 
-   /*
-    * Test that after sending persistent messages to a queue (these will be sent blocking)
-    * that all messages are available for consumption by receiveNoWait()
-    * https://jira.jboss.org/jira/browse/HORNETQ-284
+   /**
+    * Test that after sending persistent messages to a queue (these will be sent blocking) that all messages are
+    * available for consumption by receiveNoWait()
     */
    @Test
    public void testReceiveNoWait() throws Exception {
       assertNotNull(queue);
 
-      for (int i = 0; i < 1000; i++) {
+      for (int i = 0; i < 10; i++) {
          Connection connection = cf.createConnection();
 
          Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);

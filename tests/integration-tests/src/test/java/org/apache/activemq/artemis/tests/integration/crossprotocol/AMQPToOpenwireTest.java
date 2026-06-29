@@ -47,9 +47,13 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.Header;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AMQPToOpenwireTest extends ActiveMQTestBase {
 
@@ -65,7 +69,7 @@ public class AMQPToOpenwireTest extends ActiveMQTestBase {
    private SimpleString coreQueue;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
@@ -73,15 +77,15 @@ public class AMQPToOpenwireTest extends ActiveMQTestBase {
       server.waitForActivation(10, TimeUnit.SECONDS);
 
       Configuration serverConfig = server.getConfiguration();
-      serverConfig.getAddressSettings().put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
+      serverConfig.getAddressSettings().put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
-      coreQueue = new SimpleString(queueName);
-      server.createQueue(new QueueConfiguration(coreQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      coreQueue = SimpleString.of(queueName);
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       qpidfactory = new JmsConnectionFactory("amqp://localhost:61616");
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       server.stop();
    }
@@ -108,7 +112,7 @@ public class AMQPToOpenwireTest extends ActiveMQTestBase {
          ObjectMessage receive = (ObjectMessage) consumer.receive(5000);
          assertNotNull(receive);
          list = (ArrayList)receive.getObject();
-         assertEquals(list.get(0), "aString");
+         assertEquals("aString", list.get(0));
          connection.close();
       } finally {
          if (connection != null) {
@@ -175,7 +179,7 @@ public class AMQPToOpenwireTest extends ActiveMQTestBase {
          connection.start();
          Message receive = consumer.receive(5000);
          assertNotNull(receive);
-         assertTrue(receive.getObjectProperty(binaryPropertyName) instanceof String);
+         assertInstanceOf(String.class, receive.getObjectProperty(binaryPropertyName));
       } finally {
          if (connection != null) {
             connection.close();

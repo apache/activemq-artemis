@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -26,8 +30,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -52,18 +55,18 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
 
       ClientSession coreSession = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName1 = SimpleString.of("queue1");
 
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName2 = SimpleString.of("queue2");
 
-      coreSession.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setDurable(false));
 
-      coreSession.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setDurable(false));
 
-      ClientProducer producer = coreSession.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = coreSession.createProducer(SimpleString.of(testAddress));
       final int numMessages = 1;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.of("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = coreSession.createMessage(false);
@@ -93,26 +96,26 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
          for (int i = 0; i < numMessages; i++) {
             Message message = consumer1.receive(TIMEOUT);
 
-            Assert.assertNotNull(message);
+            assertNotNull(message);
 
-            Assert.assertEquals(i, message.getObjectProperty(propKey.toString()));
+            assertEquals(i, message.getObjectProperty(propKey.toString()));
 
             message.acknowledge();
          }
 
-         Assert.assertNull(consumer1.receive(50));
+         assertNull(consumer1.receive(50));
 
          for (int i = 0; i < numMessages; i++) {
             Message message = consumer2.receive(TIMEOUT);
 
-            Assert.assertNotNull(message);
+            assertNotNull(message);
 
-            Assert.assertEquals(i, message.getObjectProperty(propKey.toString()));
+            assertEquals(i, message.getObjectProperty(propKey.toString()));
 
             message.acknowledge();
          }
 
-         Assert.assertNull(consumer2.receive(50));
+         assertNull(consumer2.receive(50));
       } finally {
          if (openwireConnection != null) {
             openwireConnection.close();
@@ -127,11 +130,11 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession coreSession = sf.createSession(false, true, true);
 
-      final SimpleString queueName1 = new SimpleString("queue1");
-      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName1 = SimpleString.of("queue1");
+      final SimpleString queueName2 = SimpleString.of("queue2");
 
-      coreSession.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
-      coreSession.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName1).setAddress(forwardAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      coreSession.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       coreSession.close();
 
       //use openwire to receive
@@ -161,21 +164,21 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
 
          for (int i = 0; i < numMessages; i++) {
             Message message = consumer1.receive(TIMEOUT);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(i, message.getObjectProperty(propKey.toString()));
+            assertNotNull(message);
+            assertEquals(i, message.getObjectProperty(propKey));
             message.acknowledge();
          }
 
-         Assert.assertNull(consumer1.receive(50));
+         assertNull(consumer1.receive(50));
 
          for (int i = 0; i < numMessages; i++) {
             Message message = consumer2.receive(TIMEOUT);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(i, message.getObjectProperty(propKey.toString()));
+            assertNotNull(message);
+            assertEquals(i, message.getObjectProperty(propKey));
             message.acknowledge();
          }
 
-         Assert.assertNull(consumer2.receive(50));
+         assertNull(consumer2.receive(50));
       } finally {
          if (openwireConnection != null) {
             openwireConnection.close();

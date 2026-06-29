@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server.management;
 
 
 import org.apache.activemq.artemis.logs.AuditLogger;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -32,14 +33,11 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.security.Principal;
 import java.util.List;
 
-public class ArtemisMBeanServerGuard implements InvocationHandler {
+public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -51,11 +49,13 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
 
    @Override
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      if (method.getParameterTypes().length == 0)
+      if (method.getParameterTypes().length == 0) {
          return null;
+      }
 
-      if (!ObjectName.class.isAssignableFrom(method.getParameterTypes()[0]))
+      if (!ObjectName.class.isAssignableFrom(method.getParameterTypes()[0])) {
          return null;
+      }
 
       ObjectName objectName = (ObjectName) args[0];
       if ("getAttribute".equals(method.getName())) {
@@ -108,8 +108,9 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
          }
       }
 
-      if (dataType == null)
+      if (dataType == null) {
          throw new IllegalStateException("Attribute data type can not be found");
+      }
 
       handleInvoke(objectName, "set" + attribute.getName());
    }
@@ -124,6 +125,7 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
       return jmxAccessControlList.isInAllowList(objectName);
    }
 
+   @Override
    public boolean canInvoke(String object, String operationName) {
       ObjectName objectName = null;
       try {
@@ -132,9 +134,24 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
          logger.debug("can't check invoke rights as object name invalid: {}", object, e);
          return false;
       }
-      if (canBypassRBAC(objectName)) {
+      /*
+       * HawtIO calls this with a null operationName as a coarse grained way of authenticating against all the
+       * operations on an mbean. Until this addition this was throwing a null pointer on operationName later in this
+       * call which was swallowed by HawtIO. Since fine grained checks are carried out against every operation this was
+       * never an issue however the new console based on HawtIO 4 passes this exception back to the console which breaks
+       * it. Since it is just an optimisation it is fine to always return true. Note that the alternative
+       * ArtemisRbacInvocationHandler does allow the ability to restrict a whole mbean.
+       */
+      if (operationName == null || canBypassRBAC(objectName)) {
          return true;
       }
+
+      // Strip the parameter list from operationName.
+      int paramListIndex = operationName.indexOf('(');
+      if (paramListIndex > 0) {
+         operationName = operationName.substring(0, paramListIndex);
+      }
+
       List<String> requiredRoles = getRequiredRoles(objectName, operationName);
       for (String role : requiredRoles) {
          if (currentUserHasRole(role)) {
@@ -151,8 +168,9 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
       }
       List<String> requiredRoles = getRequiredRoles(objectName, operationName);
       for (String role : requiredRoles) {
-         if (currentUserHasRole(role))
+         if (currentUserHasRole(role)) {
             return;
+         }
       }
       if (AuditLogger.isResourceLoggingEnabled()) {
          AuditLogger.objectInvokedFailure(objectName, operationName);
@@ -180,11 +198,8 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
          clazz = "org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal";
          role = requestedRole;
       }
-      AccessControlContext acc = AccessController.getContext();
-      if (acc == null) {
-         return false;
-      }
-      Subject subject = Subject.getSubject(acc);
+
+      Subject subject = SecurityManagerShim.currentSubject();
       if (subject == null) {
          return false;
       }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -28,14 +31,14 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class OrderTest extends ActiveMQTestBase {
 
    private boolean persistent;
@@ -48,13 +51,13 @@ public class OrderTest extends ActiveMQTestBase {
       this.persistent = persistent;
    }
 
-   @Parameterized.Parameters(name = "persistent={0}")
+   @Parameters(name = "persistent={0}")
    public static Collection<Object[]> getParams() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createNettyNonHALocator();
@@ -62,7 +65,7 @@ public class OrderTest extends ActiveMQTestBase {
 
 
 
-   @Test
+   @TestTemplate
    public void testSimpleStorage() throws Exception {
       server = createServer(persistent, true);
       server.start();
@@ -73,7 +76,7 @@ public class OrderTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(true, true, 0);
 
-      session.createQueue(new QueueConfiguration("queue"));
+      session.createQueue(QueueConfiguration.of("queue"));
 
       ClientProducer prod = session.createProducer("queue");
 
@@ -106,7 +109,7 @@ public class OrderTest extends ActiveMQTestBase {
             if (!started || started && i % 2 == 0) {
                ClientMessage msg = cons.receive(10000);
 
-               Assert.assertEquals(i, msg.getIntProperty("id").intValue());
+               assertEquals(i, msg.getIntProperty("id").intValue());
             }
          }
 
@@ -118,7 +121,7 @@ public class OrderTest extends ActiveMQTestBase {
             if (!started || started && i % 2 == 0) {
                ClientMessage msg = cons.receive(10000);
 
-               Assert.assertEquals(i, msg.getIntProperty("id").intValue());
+               assertEquals(i, msg.getIntProperty("id").intValue());
             }
          }
 
@@ -126,7 +129,7 @@ public class OrderTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOrderOverSessionClose() throws Exception {
       server = createServer(persistent, true);
 
@@ -138,7 +141,7 @@ public class OrderTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(true, true, 0);
 
       int numberOfMessages = 500;
-      session.createQueue(new QueueConfiguration("queue"));
+      session.createQueue(QueueConfiguration.of("queue"));
 
       ClientProducer prod = session.createProducer("queue");
 
@@ -164,7 +167,7 @@ public class OrderTest extends ActiveMQTestBase {
 
             msg.acknowledge();
 
-            Assert.assertEquals(i, msg.getIntProperty("id").intValue());
+            assertEquals(i, msg.getIntProperty("id").intValue());
          }
 
          // Receive a few more messages but don't consume them
@@ -179,7 +182,7 @@ public class OrderTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testOrderOverSessionCloseWithRedeliveryDelay() throws Exception {
       server = createServer(persistent, true);
 
@@ -196,7 +199,7 @@ public class OrderTest extends ActiveMQTestBase {
 
       int numberOfMessages = 500;
 
-      session.createQueue(new QueueConfiguration("queue"));
+      session.createQueue(QueueConfiguration.of("queue"));
 
       ClientProducer prod = session.createProducer("queue");
 

@@ -27,14 +27,20 @@ import javax.jms.TextMessage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
 public class ProducerThread extends Thread {
 
    protected final Session session;
+   protected final ActionContext context;
 
    boolean verbose;
    long messageCount = 1000;
@@ -52,6 +58,7 @@ public class ProducerThread extends Thread {
    int transactions = 0;
    final AtomicLong sentCount = new AtomicLong(0);
    String message = null;
+   String properties = null;
    String messageText = null;
    String payloadUrl = null;
    byte[] payload = null;
@@ -59,10 +66,11 @@ public class ProducerThread extends Thread {
    final ReusableLatch finished = new ReusableLatch(1);
    final ReusableLatch paused = new ReusableLatch(0);
 
-   public ProducerThread(Session session, Destination destination, int threadNr) {
+   public ProducerThread(Session session, Destination destination, int threadNr, ActionContext context) {
       super("Producer " + destination.toString() + ", thread=" + threadNr);
       this.destination = destination;
       this.session = session;
+      this.context = context;
    }
 
    @Override
@@ -76,7 +84,7 @@ public class ProducerThread extends Thread {
          initPayLoad();
          running = true;
 
-         System.out.println(threadName + " Started to calculate elapsed time ...\n");
+         context.out.println(threadName + " Started to calculate elapsed time ...\n");
          long tStart = System.currentTimeMillis();
 
          if (runIndefinitely) {
@@ -97,11 +105,11 @@ public class ProducerThread extends Thread {
          } catch (Throwable ignored) {
          }
 
-         System.out.println(threadName + " Produced: " + this.getSentCount() + " messages");
+         context.out.println(threadName + " Produced: " + this.getSentCount() + " messages");
          long tEnd = System.currentTimeMillis();
          long elapsed = (tEnd - tStart) / 1000;
-         System.out.println(threadName + " Elapsed time in second : " + elapsed + " s");
-         System.out.println(threadName + " Elapsed time in milli second : " + (tEnd - tStart) + " milli seconds");
+         context.out.println(threadName + " Elapsed time in second : " + elapsed + " s");
+         context.out.println(threadName + " Elapsed time in milli second : " + (tEnd - tStart) + " milli seconds");
 
       } catch (Exception e) {
          e.printStackTrace();
@@ -124,11 +132,11 @@ public class ProducerThread extends Thread {
 
       producer.send(message);
       if (verbose) {
-         System.out.println(threadName + " Sent: " + (message instanceof TextMessage ? ((TextMessage) message).getText() : message.getJMSMessageID()));
+         context.out.println(threadName + " Sent: " + (message instanceof TextMessage tm ? tm.getText() : message.getJMSMessageID()));
       }
 
       if (transactionBatchSize > 0 && sentCount.get() > 0 && sentCount.get() % transactionBatchSize == 0) {
-         System.out.println(threadName + " Committing transaction: " + transactions++);
+         context.out.println(threadName + " Committing transaction: " + transactions++);
          session.commit();
       }
 
@@ -162,7 +170,7 @@ public class ProducerThread extends Thread {
                if (read.length() == textMessageSize) {
                   messageText = read;
                } else {
-                  StringBuffer buffer = new StringBuffer(read);
+                  StringBuilder buffer = new StringBuilder(read);
                   while (buffer.length() < textMessageSize) {
                      buffer.append(read);
                   }
@@ -190,7 +198,50 @@ public class ProducerThread extends Thread {
 
       answer.setLongProperty("count", i);
       answer.setStringProperty("ThreadSent", threadName);
+
+      if (properties != null && !properties.isEmpty()) {
+         applyProperties(answer);
+      }
+
       return answer;
+   }
+
+   protected void applyProperties(Message message) throws JMSException {
+      JsonArray propertyArray = JsonLoader.readArray(new StringReader(properties));
+      for (int j = 0; j < propertyArray.size(); j++) {
+         JsonObject propertyEntry = propertyArray.getJsonObject(j);
+         String type = propertyEntry.getString("type");
+         String key = propertyEntry.getString("key");
+         String value = propertyEntry.getString("value");
+         switch (type.toLowerCase()) {
+            case "boolean":
+               message.setBooleanProperty(key, Boolean.parseBoolean(value));
+               break;
+            case "int":
+               message.setIntProperty(key, Integer.parseInt(value));
+               break;
+            case "long":
+               message.setLongProperty(key, Long.parseLong(value));
+               break;
+            case "byte":
+               message.setByteProperty(key, Byte.parseByte(value));
+               break;
+            case "short":
+               message.setShortProperty(key, Short.parseShort(value));
+               break;
+            case "float":
+               message.setFloatProperty(key, Float.parseFloat(value));
+               break;
+            case "double":
+               message.setDoubleProperty(key, Double.parseDouble(value));
+               break;
+            case "string":
+               message.setStringProperty(key, value);
+               break;
+            default:
+               context.err.println("Unable to set property: " + key + ". Did not recognize type: " + type + ". Supported types are: boolean, int, long, byte, short, float, double, string.");
+         }
+      }
    }
 
    private String readInputStream(InputStream is, int size, long messageNumber) throws IOException {
@@ -205,8 +256,9 @@ public class ProducerThread extends Thread {
          StringBuilder builder = new StringBuilder();
          while ((count = reader.read(buffer)) != -1) {
             builder.append(buffer, 0, count);
-            if (size > 0)
+            if (size > 0) {
                break;
+            }
          }
          return builder.toString();
       } catch (IOException ioe) {
@@ -327,6 +379,11 @@ public class ProducerThread extends Thread {
 
    public ProducerThread setMessage(String message) {
       this.message = message;
+      return this;
+   }
+
+   public ProducerThread setProperties(String properties) {
+      this.properties = properties;
       return this;
    }
 

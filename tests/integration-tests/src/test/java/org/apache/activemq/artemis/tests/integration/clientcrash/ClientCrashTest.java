@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -29,27 +34,25 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.artemis.tests.util.SpawnedVMCheck;
+import org.apache.activemq.artemis.tests.extensions.SpawnedVMCheckExtension;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
- * A test that makes sure that an ActiveMQ Artemis server cleans up the associated
- * resources when one of its client crashes.
+ * A test that makes sure that an Apache Artemis server cleans up the associated resources when one of its client
+ * crashes.
  */
 public class ClientCrashTest extends ClientTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Rule
-   public SpawnedVMCheck spawnedVMCheck = new SpawnedVMCheck();
+   @RegisterExtension
+   public SpawnedVMCheckExtension spawnedVMCheck = new SpawnedVMCheckExtension();
 
    // using short values so this test can run fast
    static final int PING_PERIOD = 100;
@@ -58,8 +61,8 @@ public class ClientCrashTest extends ClientTestBase {
    static final int CONNECTION_TTL = 1000;
 
 
-   public static final SimpleString QUEUE = new SimpleString("ClientCrashTestQueue");
-   public static final SimpleString QUEUE2 = new SimpleString("ClientCrashTestQueue2");
+   public static final SimpleString QUEUE = SimpleString.of("ClientCrashTestQueue");
+   public static final SimpleString QUEUE2 = SimpleString.of("ClientCrashTestQueue2");
 
    public static final String MESSAGE_TEXT_FROM_SERVER = "ClientCrashTest from server";
 
@@ -72,7 +75,7 @@ public class ClientCrashTest extends ClientTestBase {
 
    Process p;
 
-   @After
+   @AfterEach
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
@@ -91,16 +94,16 @@ public class ClientCrashTest extends ClientTestBase {
       assertActiveConnections(1);
 
       ClientSession session = sf.createSession(false, true, true);
-      session.createQueue(new QueueConfiguration(ClientCrashTest.QUEUE).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ClientCrashTest.QUEUE).setDurable(false));
 
       // spawn a JVM that creates a Core client, which sends a message
       // It has to be spawned after the queue was created.
       // if the client is too fast you race the send before the queue was created, missing a message
       p = SpawnedVMSupport.spawnVM(CrashClient.class.getName());
 
-      Assert.assertTrue(p.waitFor(1, TimeUnit.MINUTES));
+      assertTrue(p.waitFor(1, TimeUnit.MINUTES));
 
-      Assert.assertEquals(CrashClient.OK, p.exitValue());
+      assertEquals(CrashClient.OK, p.exitValue());
 
       ClientConsumer consumer = session.createConsumer(ClientCrashTest.QUEUE);
       ClientProducer producer = session.createProducer(ClientCrashTest.QUEUE);
@@ -109,10 +112,10 @@ public class ClientCrashTest extends ClientTestBase {
 
       // receive a message from the queue
       Message messageFromClient = consumer.receive(5000);
-      assertNotNull("no message received", messageFromClient);
+      assertNotNull(messageFromClient, "no message received");
       assertEquals(ClientCrashTest.MESSAGE_TEXT_FROM_CLIENT, messageFromClient.getBodyBuffer().readString());
 
-      assertActiveConnections( 1); // One local and one from the other vm
+      assertActiveConnections(1); // One local and one from the other vm
       assertActiveSession(1);
 
       ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
@@ -143,13 +146,13 @@ public class ClientCrashTest extends ClientTestBase {
 
       ClientSession session = sf.createSession(false, true, true);
 
-      session.createQueue(new QueueConfiguration(ClientCrashTest.QUEUE2).setDurable(false));
+      session.createQueue(QueueConfiguration.of(ClientCrashTest.QUEUE2).setDurable(false));
 
       // spawn a JVM that creates a Core client, which sends a message
       p = SpawnedVMSupport.spawnVM(CrashClient2.class.getName());
 
       ClientCrashTest.logger.debug("waiting for the client VM to crash ...");
-      Assert.assertTrue(p.waitFor(1, TimeUnit.MINUTES));
+      assertTrue(p.waitFor(1, TimeUnit.MINUTES));
 
       assertEquals(CrashClient2.OK, p.exitValue());
 
@@ -164,17 +167,17 @@ public class ClientCrashTest extends ClientTestBase {
 
       // receive a message from the queue
       ClientMessage messageFromClient = consumer.receive(timeout);
-      assertNotNull("no message received", messageFromClient);
+      assertNotNull(messageFromClient, "no message received");
       assertEquals(ClientCrashTest.MESSAGE_TEXT_FROM_CLIENT, messageFromClient.getBodyBuffer().readString());
 
-      assertEquals("delivery count", 2, messageFromClient.getDeliveryCount());
+      assertEquals(2, messageFromClient.getDeliveryCount(), "delivery count");
 
       consumer.close();
       session.close();
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

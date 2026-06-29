@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.HashMap;
@@ -45,14 +47,13 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class InvalidCoreClientTest extends ActiveMQTestBase {
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
-   private final SimpleString atestq = new SimpleString("BasicXaTestq");
+   private final SimpleString atestq = SimpleString.of("BasicXaTestq");
    private ActiveMQServer messagingService;
    private ClientSession clientSession;
    private ClientSessionFactory sessionFactory;
@@ -60,7 +61,7 @@ public class InvalidCoreClientTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -78,7 +79,7 @@ public class InvalidCoreClientTest extends ActiveMQTestBase {
 
       clientSession = addClientSession(sessionFactory.createSession(true, false, false));
 
-      clientSession.createQueue(new QueueConfiguration(atestq));
+      clientSession.createQueue(QueueConfiguration.of(atestq));
    }
 
    @Test
@@ -147,7 +148,7 @@ public class InvalidCoreClientTest extends ActiveMQTestBase {
 
       try {
          channel.sendBlocking(packet, PacketImpl.SESS_XA_RESP);
-         Assert.fail("Failure expected");
+         fail("Failure expected");
       } catch (Exception failed) {
       }
 

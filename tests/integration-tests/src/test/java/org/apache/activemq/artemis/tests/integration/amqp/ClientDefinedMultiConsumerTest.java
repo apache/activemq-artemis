@@ -17,6 +17,10 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.TOPIC_CAPABILITY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.TimeUnit;
 
@@ -33,13 +37,15 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
+public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport {
 
-   SimpleString address = new SimpleString("testAddress");
+   SimpleString address = SimpleString.of("testAddress");
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void test2ConsumersOnSharedVolatileAddress() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -58,26 +64,22 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")).getBindable()).getConsumerCount());
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")));
       receiver2.close();
       //check its been deleted
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")) == null;
-         }
-      }, 1000);
+      Wait.waitFor(() -> server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")) == null, 1000);
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void test2ConsumersOnSharedVolatileAddressBrokerDefined() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
       server.addAddressInfo(addressInfo);
-      server.createQueue(new QueueConfiguration("myClientId.mySub:shared-volatile").setAddress(address).setAutoCreateAddress(false));
+      server.createQueue(QueueConfiguration.of("myClientId.mySub:shared-volatile").setAddress(address).setAutoCreateAddress(false));
       AmqpClient client = createAmqpClient();
 
       AmqpConnection connection = addConnection(client.connect("myClientId"));
@@ -92,16 +94,17 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")).getBindable()).getConsumerCount());
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")));
       receiver2.close();
       //check its **Hasn't** been deleted
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")));
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void test2ConsumersOnSharedVolatileAddressNoReceiverClose() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -120,19 +123,15 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")).getBindable()).getConsumerCount());
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")));
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")).getBindable()).getConsumerCount());
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")));
       //check its been deleted
       connection.close();
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub:shared-volatile")) == null;
-         }
-      }, 1000);
+      Wait.waitFor(() -> server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub:shared-volatile")) == null, 1000);
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void test2ConsumersOnSharedVolatileAddressGlobal() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -151,21 +150,17 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("mySub:shared-volatile:global")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("mySub:shared-volatile:global")).getBindable()).getConsumerCount());
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("mySub:shared-volatile:global")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("mySub:shared-volatile:global")));
       receiver2.close();
       //check its been deleted
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return server.getPostOffice().getBinding(SimpleString.toSimpleString("mySub:shared-volatile:global")) == null;
-         }
-      }, 1000);
+      Wait.waitFor(() -> server.getPostOffice().getBinding(SimpleString.of("mySub:shared-volatile:global")) == null, 1000);
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void test2ConsumersOnSharedDurableAddress() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -184,16 +179,17 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")).getBindable()).getConsumerCount());
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       receiver2.close();
       //check its been deleted
-      assertNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void test2ConsumersOnSharedDurableAddressReconnect() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -212,26 +208,27 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")).getBindable()).getConsumerCount());
 
       connection.close();
 
       connection = addConnection(client.connect("myClientId"));
       session = connection.createSession();
 
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       receiver = session.createMulticastReceiver(source, "myReceiverID", "mySub");
       receiver2 = session.createMulticastReceiver(source, "myReceiverID", "mySub|2");
 
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       receiver2.close();
       //check its been deleted
-      assertNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void test2ConsumersOnSharedDurableAddressReconnectwithNull() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -250,26 +247,27 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")).getBindable()).getConsumerCount());
 
       connection.close();
 
       connection = addConnection(client.connect("myClientId"));
       session = connection.createSession();
 
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       receiver = session.createDurableReceiver(null, "mySub");
       receiver2 = session.createDurableReceiver(null, "mySub|2");
 
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       receiver2.close();
       //check its been deleted
-      assertNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("myClientId.mySub")));
+      assertNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.mySub")));
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void test2ConsumersOnSharedDurableAddressGlobal() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -288,16 +286,17 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.toSimpleString("mySub:global")).getBindable()).getConsumerCount());
+      assertEquals(2, ((QueueImpl)server.getPostOffice().getBinding(SimpleString.of("mySub:global")).getBindable()).getConsumerCount());
       receiver.close();
-      assertNotNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("mySub:global")));
+      assertNotNull(server.getPostOffice().getBinding(SimpleString.of("mySub:global")));
       receiver2.close();
       //check its been deleted
-      assertNull(server.getPostOffice().getBinding(SimpleString.toSimpleString("mySub:global")));
+      assertNull(server.getPostOffice().getBinding(SimpleString.of("mySub:global")));
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void test2ConsumersOnNonSharedDurableAddress() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
@@ -321,7 +320,8 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testAddressDoesntExist() throws Exception {
       AmqpClient client = createAmqpClient();
 

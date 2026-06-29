@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.stress.client;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -25,8 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SendStressTest extends ActiveMQTestBase {
 
@@ -60,7 +61,7 @@ public class SendStressTest extends ActiveMQTestBase {
 
          session = sf.createSession(false, false);
 
-         session.createQueue(new QueueConfiguration("queue").setAddress("address"));
+         session.createQueue(QueueConfiguration.of("queue").setAddress("address"));
 
          ClientProducer producer = session.createProducer("address");
 
@@ -88,7 +89,7 @@ public class SendStressTest extends ActiveMQTestBase {
 
          for (int i = 0; i < numberOfMessages; i++) {
             ClientMessage msg = consumer.receive(5000);
-            Assert.assertNotNull(msg);
+            assertNotNull(msg);
             msg.acknowledge();
 
             if (i % batchSize == 0) {

@@ -22,7 +22,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 
 public class Sender extends ClientAbstract {
 
-
    protected ClientProducer producer;
 
    protected String queue;
@@ -65,9 +64,6 @@ public class Sender extends ClientAbstract {
       }
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.jms.example.ClientAbstract#onCommit()
-    */
    @Override
    protected void onCommit() {
       this.msgs += pendingMsgs;
@@ -78,9 +74,6 @@ public class Sender extends ClientAbstract {
       pendingMsgs = 0;
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.jms.example.ClientAbstract#onRollback()
-    */
    @Override
    protected void onRollback() {
       pendingMsgs = 0;
@@ -89,7 +82,5 @@ public class Sender extends ClientAbstract {
    @Override
    public String toString() {
       return "Sender, msgs=" + msgs + ", pending=" + pendingMsgs;
-
    }
-
 }

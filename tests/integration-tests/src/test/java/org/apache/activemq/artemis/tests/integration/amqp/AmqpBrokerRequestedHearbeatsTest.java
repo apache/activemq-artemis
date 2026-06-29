@@ -23,32 +23,39 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
-import org.apache.activemq.transport.amqp.client.AmqpConnectionListener;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.engine.Connection;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test handling of heartbeats requested by the broker.
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
 
    private final int TEST_IDLE_TIMEOUT = 1000;
 
-   @Parameterized.Parameters(name = "useOverride={0}")
+   @Parameters(name = "useOverride={0}")
    public static Collection<Object[]> parameters() {
       return Arrays.asList(new Object[][] {
          {true}, {false}
       });
    }
 
-   @Parameterized.Parameter(0)
+   @Parameter(index = 0)
    public boolean useOverride;
 
    @Override
@@ -67,7 +74,8 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testBrokerSendsHalfConfiguredIdleTimeout() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -76,7 +84,7 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectOpenedResource(Connection connection) {
-            assertEquals("Broker did not send half the idle timeout", TEST_IDLE_TIMEOUT / 2, connection.getTransport().getRemoteIdleTimeout());
+            assertEquals(TEST_IDLE_TIMEOUT / 2, connection.getTransport().getRemoteIdleTimeout(), "Broker did not send half the idle timeout");
          }
       });
 
@@ -87,7 +95,8 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testBrokerSendsHalfConfiguredIdleTimeoutWhenClientSendsTimeout() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -96,7 +105,7 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectOpenedResource(Connection connection) {
-            assertEquals("Broker did not send half the idle timeout", TEST_IDLE_TIMEOUT / 2, connection.getTransport().getRemoteIdleTimeout());
+            assertEquals(TEST_IDLE_TIMEOUT / 2, connection.getTransport().getRemoteIdleTimeout(), "Broker did not send half the idle timeout");
          }
       });
 
@@ -109,7 +118,8 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testClientWithoutHeartbeatsGetsDropped() throws Exception {
 
       final CountDownLatch disconnected = new CountDownLatch(1);
@@ -121,13 +131,7 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
       assertNotNull(connection);
 
       connection.setIdleProcessingDisabled(true);
-      connection.setListener(new AmqpConnectionListener() {
-
-         @Override
-         public void onException(Throwable ex) {
-            disconnected.countDown();
-         }
-      });
+      connection.setListener(ex -> disconnected.countDown());
 
       connection.connect();
 
@@ -139,7 +143,8 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
       Wait.assertEquals(0, server::getConnectionCount);
    }
 
-   @Test(timeout = 60000)
+   @TestTemplate
+   @Timeout(60)
    public void testClientWithHeartbeatsStaysAlive() throws Exception {
 
       final CountDownLatch disconnected = new CountDownLatch(1);
@@ -150,13 +155,7 @@ public class AmqpBrokerRequestedHearbeatsTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.createConnection());
       assertNotNull(connection);
 
-      connection.setListener(new AmqpConnectionListener() {
-
-         @Override
-         public void onException(Throwable ex) {
-            disconnected.countDown();
-         }
-      });
+      connection.setListener(ex -> disconnected.countDown());
 
       connection.connect();
 

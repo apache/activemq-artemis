@@ -18,7 +18,7 @@
 
 if [ -z "$ARTEMIS_INSTANCE" ] ; then
 
-  ## resolve links - $0 may be a link to ActiveMQ's home
+  ## resolve links - $0 may be a link to Artemis' home
   PRG="$0"
   progname=`basename "$0"`
   saveddir=`pwd`
@@ -44,11 +44,30 @@ if [ -z "$ARTEMIS_INSTANCE" ] ; then
   ARTEMIS_INSTANCE=`cd "$ARTEMIS_INSTANCE/.." && pwd`
 fi
 
-HAWTIO_ROLE="NO_HAWTIO_ROLE"
+HAWTIO_ROLES="NO_HAWTIO_ROLES"
 
 # Load Profile Data
 ARTEMIS_INSTANCE_ETC='${artemis.instance.etc}'
-. "$ARTEMIS_INSTANCE_ETC/artemis.profile"
+
+if [ -z "$ARTEMIS_PROFILE" ] ; then
+  if [ "$1" = "run" ]; then
+    ARTEMIS_PROFILE='artemis.profile'
+  else
+    ARTEMIS_PROFILE="artemis-utility.profile"
+  fi
+fi
+
+if ! test -f "$ARTEMIS_INSTANCE_ETC/${ARTEMIS_PROFILE}"; then
+   echo "********************************************************************************"
+   echo Error: "$ARTEMIS_INSTANCE_ETC/${ARTEMIS_PROFILE}" does not exist.
+   echo
+   echo "This file should have been created as part of you upgrading from a previous version"
+   echo "Please use 'artemis upgrade' or make sure you create the file."
+   echo "********************************************************************************"
+   exit 1
+fi
+
+. "$ARTEMIS_INSTANCE_ETC/${ARTEMIS_PROFILE}"
 
 
 CLASSPATH="$ARTEMIS_HOME/lib/artemis-boot.jar"
@@ -100,9 +119,15 @@ if [ -f "$ARTEMIS_OOME_DUMP" ] ; then
   mv $ARTEMIS_OOME_DUMP $ARTEMIS_OOME_DUMP.bkp
 fi
 
+# Set shell history argument if ARTEMIS_SHELL_HISTORY is defined
+if [ -n "$ARTEMIS_SHELL_HISTORY" ]; then
+  SHELL_HISTORY_ARG="-Dartemis.shell.history=${ARTEMIS_SHELL_HISTORY}"
+fi
+
 exec "$JAVACMD" \
+    $LOGGING_ARGS \
     $JAVA_ARGS \
-    -Dhawtio.role="$HAWTIO_ROLE" \
+    -Dhawtio.roles="$HAWTIO_ROLES" \
     -Djava.security.auth.login.config="$ARTEMIS_INSTANCE_ETC/login.config" \
     $ARTEMIS_CLUSTER_PROPS \
     -classpath "$CLASSPATH" \
@@ -112,6 +137,7 @@ exec "$JAVACMD" \
     -Djava.io.tmpdir="$ARTEMIS_INSTANCE/tmp" \
     -Ddata.dir="$ARTEMIS_DATA_DIR" \
     -Dartemis.instance.etc="$ARTEMIS_INSTANCE_ETC" \
+    $SHELL_HISTORY_ARG \
     $DEBUG_ARGS \
     $JAVA_ARGS_APPEND \
     org.apache.activemq.artemis.boot.Artemis "$@"

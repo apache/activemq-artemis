@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.cli.commands.messages.perf;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedTransferQueue;
@@ -30,6 +31,7 @@ import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionProtocol;
+import org.apache.activemq.artemis.cli.factory.ConnectionFactoryClosable;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -95,9 +97,8 @@ public class PerfClientCommand extends PerfCommand {
 
    @Override
    protected void onExecuteBenchmark(final ConnectionFactory producerConnectionFactory, final Destination[] jmsDestinations, final ActionContext context) throws Exception {
-      final ConnectionProtocol listenerProtocol = this.consumerProtocol != null ? this.consumerProtocol : protocol;
-      final String listenerUrl = this.consumerUrl != null ? this.consumerUrl : brokerURL;
-      final ConnectionFactory consumerConnectionFactory = createConnectionFactory(listenerUrl, user, password, null, listenerProtocol);
+      final ConnectionProtocol listenerProtocol = Objects.requireNonNullElse(this.consumerProtocol, protocol);
+      final String listenerUrl = Objects.requireNonNullElse(this.consumerUrl, brokerURL);
       if (consumerConnections == 0) {
          if (sharedSubscription > 0) {
             if (getClientID() == null) {
@@ -121,17 +122,18 @@ public class PerfClientCommand extends PerfCommand {
       boolean warmingUp = warmup != 0;
       final LiveStatistics statistics;
       final StringBuilder skratchBuffer = new StringBuilder();
-      try (MessageListenerBenchmark consumerBenchmark = new MessageListenerBenchmarkBuilder()
-         .setClientID(getClientID())
-         .setDestinations(consumerProtocol != null ? lookupDestinations(consumerConnectionFactory) : jmsDestinations)
-         .setFactory(consumerConnectionFactory)
-         .setTransacted(transaction)
-         .setConsumers(consumersPerDestination)
-         .setConnections(consumerConnections)
-         .setTimeProvider(() -> TimeUnit.NANOSECONDS.toMicros(System.nanoTime()))
-         .setCanDelayMessageCount(true)
-         .setSharedSubscription(sharedSubscription)
-         .setDurableSubscription(durableSubscription)
+      try (ConnectionFactoryClosable consumerConnectionFactory = createConnectionFactory(listenerUrl, user, password, null, listenerProtocol);
+           MessageListenerBenchmark consumerBenchmark = new MessageListenerBenchmarkBuilder()
+            .setClientID(getClientID())
+            .setDestinations(consumerProtocol != null ? lookupDestinations(consumerConnectionFactory) : jmsDestinations)
+            .setFactory(consumerConnectionFactory)
+            .setTransacted(transaction)
+            .setConsumers(consumersPerDestination)
+            .setConnections(consumerConnections)
+            .setTimeProvider(() -> TimeUnit.NANOSECONDS.toMicros(System.nanoTime()))
+            .setCanDelayMessageCount(true)
+            .setSharedSubscription(sharedSubscription)
+            .setDurableSubscription(durableSubscription)
             .createMessageListenerBenchmark()) {
 
          final DefaultEventLoopGroup eventLoopGroup = new DefaultEventLoopGroup(threads) {

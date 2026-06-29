@@ -44,8 +44,8 @@ public class MultipleEmbeddedJMSResourcesTest {
 
    @Test
    public void testMultipleServers() throws Exception {
-      jmsServerOne.getJmsServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
-      jmsServerTwo.getJmsServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("DLA")).setExpiryAddress(SimpleString.toSimpleString("Expiry")));
+      jmsServerOne.getJmsServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("DLA")).setExpiryAddress(SimpleString.of("Expiry")));
+      jmsServerTwo.getJmsServer().getActiveMQServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setDeadLetterAddress(SimpleString.of("DLA")).setExpiryAddress(SimpleString.of("Expiry")));
 
       Message pushedOne = jmsServerOne.pushMessage(TEST_QUEUE_ONE, TEST_BODY);
       assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_QUEUE_ONE), pushedOne);

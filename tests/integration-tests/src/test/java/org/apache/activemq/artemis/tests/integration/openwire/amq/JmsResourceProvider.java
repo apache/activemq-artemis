@@ -29,6 +29,7 @@ import javax.jms.Session;
 import javax.jms.Topic;
 
 import org.apache.activemq.command.ActiveMQDestination;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * adapted from: org.apache.activemq.test.JmsResourceProvider
@@ -63,8 +64,7 @@ public class JmsResourceProvider {
    }
 
    /**
-    * @see org.apache.activemq.test.JmsResourceProvider#createConsumer(javax.jms.Session,
-    * javax.jms.Destination)
+    * @see org.apache.activemq.test.JmsResourceProvider#createConsumer(javax.jms.Session, javax.jms.Destination)
     */
    public MessageConsumer createConsumer(Session session, Destination destination) throws JMSException {
       if (isDurableSubscriber()) {
@@ -88,8 +88,7 @@ public class JmsResourceProvider {
    /**
     * Creates a producer.
     *
-    * @see org.apache.activemq.test.JmsResourceProvider#createProducer(javax.jms.Session,
-    * javax.jms.Destination)
+    * @see org.apache.activemq.test.JmsResourceProvider#createProducer(javax.jms.Session, javax.jms.Destination)
     */
    public MessageProducer createProducer(Session session, Destination destination) throws JMSException {
       MessageProducer producer = session.createProducer(destination);
@@ -100,8 +99,7 @@ public class JmsResourceProvider {
    /**
     * Creates a destination, which can either a topic or a queue.
     *
-    * @see org.apache.activemq.test.JmsResourceProvider#createDestination(javax.jms.Session,
-    * java.lang.String)
+    * @see Assertions#createDestination(javax.jms.Session, java.lang.String)
     */
    public Destination createDestination(Session session, JmsTransactionTestSupport support) throws JMSException {
       if (isTopic) {
@@ -111,64 +109,30 @@ public class JmsResourceProvider {
       }
    }
 
-   /**
-    * Returns true if the subscriber is durable.
-    *
-    * @return isDurableSubscriber
-    */
    public boolean isDurableSubscriber() {
       return isTopic && durableName != null;
    }
 
-   /**
-    * Returns the acknowledgement mode.
-    *
-    * @return Returns the ackMode.
-    */
    public int getAckMode() {
       return ackMode;
    }
 
-   /**
-    * Sets the acnknowledgement mode.
-    *
-    * @param ackMode The ackMode to set.
-    */
    public void setAckMode(int ackMode) {
       this.ackMode = ackMode;
    }
 
-   /**
-    * Returns true if the destination is a topic, false if the destination is a
-    * queue.
-    *
-    * @return Returns the isTopic.
-    */
    public boolean isTopic() {
       return isTopic;
    }
 
-   /**
-    * @param isTopic The isTopic to set.
-    */
    public void setTopic(boolean isTopic) {
       this.isTopic = isTopic;
    }
 
-   /**
-    * Return true if the session is transacted.
-    *
-    * @return Returns the transacted.
-    */
    public boolean isTransacted() {
       return transacted;
    }
 
-   /**
-    * Sets the session to be transacted.
-    *
-    * @param transacted
-    */
    public void setTransacted(boolean transacted) {
       this.transacted = transacted;
       if (transacted) {
@@ -176,56 +140,26 @@ public class JmsResourceProvider {
       }
    }
 
-   /**
-    * Returns the delivery mode.
-    *
-    * @return deliveryMode
-    */
    public int getDeliveryMode() {
       return deliveryMode;
    }
 
-   /**
-    * Sets the delivery mode.
-    *
-    * @param deliveryMode
-    */
    public void setDeliveryMode(int deliveryMode) {
       this.deliveryMode = deliveryMode;
    }
 
-   /**
-    * Returns the client id.
-    *
-    * @return clientID
-    */
    public String getClientID() {
       return clientID;
    }
 
-   /**
-    * Sets the client id.
-    *
-    * @param clientID
-    */
    public void setClientID(String clientID) {
       this.clientID = clientID;
    }
 
-   /**
-    * Returns the durable name of the provider.
-    *
-    * @return durableName
-    */
    public String getDurableName() {
       return durableName;
    }
 
-   /**
-    * Sets the durable name of the provider.
-    *
-    * @param durableName
-    */
    public void setDurableName(String durableName) {
       this.durableName = durableName;
    }

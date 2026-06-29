@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,19 +37,18 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DeliveryOrderTest extends ActiveMQTestBase {
 
-   public final SimpleString addressA = new SimpleString("addressA");
+   public final SimpleString addressA = SimpleString.of("addressA");
 
-   public final SimpleString queueA = new SimpleString("queueA");
+   public final SimpleString queueA = SimpleString.of("queueA");
 
-   public final SimpleString queueB = new SimpleString("queueB");
+   public final SimpleString queueB = SimpleString.of("queueB");
 
-   public final SimpleString queueC = new SimpleString("queueC");
+   public final SimpleString queueC = SimpleString.of("queueC");
 
    private ServerLocator locator;
 
@@ -53,7 +57,7 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
    private ClientSessionFactory cf;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
@@ -67,7 +71,7 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, false, true);
       ClientProducer cp = sendSession.createProducer(addressA);
       int numMessages = 1000;
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = sendSession.createMessage(false);
          cm.getBodyBuffer().writeInt(i);
@@ -81,8 +85,8 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
       sendSession.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = c.receive(5000);
-         Assert.assertNotNull(cm);
-         Assert.assertEquals(i, cm.getBodyBuffer().readInt());
+         assertNotNull(cm);
+         assertEquals(i, cm.getBodyBuffer().readInt());
       }
       sendSession.close();
    }
@@ -92,7 +96,7 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, true, false);
       ClientProducer cp = sendSession.createProducer(addressA);
       int numMessages = 1000;
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = sendSession.createMessage(false);
          cm.getBodyBuffer().writeInt(i);
@@ -102,16 +106,16 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
       sendSession.start();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = c.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
-         Assert.assertEquals(i, cm.getBodyBuffer().readInt());
+         assertEquals(i, cm.getBodyBuffer().readInt());
       }
       sendSession.rollback();
       for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = c.receive(5000);
-         Assert.assertNotNull(cm);
+         assertNotNull(cm);
          cm.acknowledge();
-         Assert.assertEquals(i, cm.getBodyBuffer().readInt());
+         assertEquals(i, cm.getBodyBuffer().readInt());
       }
       sendSession.close();
    }
@@ -120,7 +124,7 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
    public void testMultipleConsumersMessageOrder() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession recSession = cf.createSession(false, true, true);
-      sendSession.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setDurable(false));
+      sendSession.createQueue(QueueConfiguration.of(queueA).setAddress(addressA).setDurable(false));
       int numReceivers = 100;
       AtomicInteger count = new AtomicInteger(0);
       int numMessage = 10000;
@@ -139,9 +143,9 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
          cm.getBodyBuffer().writeInt(count.getAndIncrement());
          clientProducer.send(cm);
       }
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
       for (Receiver receiver : receivers) {
-         Assert.assertFalse("" + receiver.lastMessage, receiver.failed);
+         assertFalse(receiver.failed, "" + receiver.lastMessage);
       }
       sendSession.close();
       recSession.close();

@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
+import org.apache.activemq.artemis.core.config.ha.DistributedLockManagerConfiguration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ReplicationPrimaryActivation;
-import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
+import org.apache.activemq.artemis.lockmanager.DistributedLockManager;
 
 public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActivation> {
 
@@ -32,7 +32,7 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
    private final String clusterName;
    private final String groupName;
    private final long initialReplicationSyncTimeout;
-   private final DistributedPrimitiveManagerConfiguration distributedManagerConfiguration;
+   private final DistributedLockManagerConfiguration distributedManagerConfiguration;
    private final boolean allowAutoFailBack;
    private final String coordinationId;
 
@@ -70,7 +70,7 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
                                                   String clusterName,
                                                   ReplicationBackupPolicy replicaPolicy,
                                                   boolean allowAutoFailback,
-                                                  DistributedPrimitiveManagerConfiguration distributedManagerConfiguration) {
+                                                  DistributedLockManagerConfiguration distributedManagerConfiguration) {
       return new ReplicationPrimaryPolicy(ReplicationPrimaryPolicyConfiguration.withDefault()
                                              .setInitialReplicationSyncTimeout(initialReplicationSyncTimeout)
                                              .setGroupName(groupName)
@@ -80,7 +80,8 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
    }
 
    /**
-    * It creates a primary policy that never allow auto fail-back.<br>
+    * It creates a primary policy that never allow auto fail-back.
+    * <p>
     * It's meant to be used for natural-born primary brokers: its backup policy is set to always try to fail-back.
     */
    public static ReplicationPrimaryPolicy with(ReplicationPrimaryPolicyConfiguration configuration) {
@@ -93,11 +94,11 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
 
    @Override
    public ReplicationPrimaryActivation createActivation(ActiveMQServerImpl server,
-                                                        boolean wasLive,
+                                                        boolean wasPrimary,
                                                         Map<String, Object> activationParams,
                                                         IOCriticalErrorListener shutdownOnCriticalIO) throws Exception {
       return new ReplicationPrimaryActivation(server,
-                                              DistributedPrimitiveManager.newInstanceOf(
+                                              DistributedLockManager.newInstanceOf(
                                                  distributedManagerConfiguration.getClassName(),
                                                  distributedManagerConfiguration.getProperties()), this);
    }
@@ -125,16 +126,6 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
    @Override
    public String getBackupGroupName() {
       return groupName;
-   }
-
-   @Override
-   public String getScaleDownGroupName() {
-      return null;
-   }
-
-   @Override
-   public String getScaleDownClustername() {
-      return null;
    }
 
    public boolean isAllowAutoFailBack() {

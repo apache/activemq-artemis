@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
-import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
-import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getPeerPrincipalFromConnection;
+import static org.apache.activemq.artemis.utils.CertificateUtil.getCertsFromConnection;
+import static org.apache.activemq.artemis.utils.CertificateUtil.getPeerPrincipalFromConnection;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -51,14 +51,16 @@ public class JaasCallbackHandler implements CallbackHandler {
    @Override
    public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
       for (Callback callback : callbacks) {
-         if (callback instanceof PasswordCallback) {
-            ((PasswordCallback) callback).setPassword(password != null ? password.toCharArray() : null);
-         } else if (callback instanceof NameCallback) {
-            ((NameCallback) callback).setName(username);
-         } else if (callback instanceof CertificateCallback) {
-            ((CertificateCallback) callback).setCertificates(getCertsFromConnection(remotingConnection));
-         } else if (callback instanceof PrincipalsCallback) {
-            PrincipalsCallback principalsCallback = (PrincipalsCallback) callback;
+         if (callback instanceof PasswordCallback passwordCallback) {
+            passwordCallback.setPassword(password != null ? password.toCharArray() : null);
+         } else if (callback instanceof NameCallback nameCallback) {
+            nameCallback.setName(username);
+         } else if (callback instanceof CertificateCallback certificateCallback) {
+            certificateCallback.setCertificates(getCertsFromConnection(remotingConnection));
+         } else if (callback instanceof JwtCallback jwtCallback) {
+            // TODO: switch to obtaining the token from RemotingConnection and protocol-specific implementation (SASL frames)
+            jwtCallback.setJwtToken(password);
+         } else if (callback instanceof PrincipalsCallback principalsCallback) {
 
             Subject peerSubject = remotingConnection.getSubject();
             if (peerSubject != null) {
@@ -77,8 +79,8 @@ public class JaasCallbackHandler implements CallbackHandler {
             if (peerPrincipalFromConnection != null) {
                principalsCallback.setPeerPrincipals(new Principal[] {peerPrincipalFromConnection});
             }
-         } else if (callback instanceof ClientIDCallback) {
-            ((ClientIDCallback) callback).setClientID(remotingConnection.getClientID());
+         } else if (callback instanceof ClientIDCallback clientIDCallback) {
+            clientIDCallback.setClientID(remotingConnection.getClientID());
          } else {
             throw new UnsupportedCallbackException(callback);
          }

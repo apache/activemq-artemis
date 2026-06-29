@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -56,13 +58,13 @@ public class CreateSharedQueueMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", address=" + address);
-      buff.append(", queueName=" + queueName);
-      buff.append(", filterString=" + filterString);
-      buff.append(", durable=" + durable);
-      buff.append(", requiresResponse=" + requiresResponse);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", address=" + address);
+      sb.append(", queueName=" + queueName);
+      sb.append(", filterString=" + filterString);
+      sb.append(", durable=" + durable);
+      sb.append(", requiresResponse=" + requiresResponse);
+      return sb.toString();
    }
 
    public SimpleString getAddress() {
@@ -118,44 +120,25 @@ public class CreateSharedQueueMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
-      result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
-      result = prime * result + (durable ? 1231 : 1237);
-      result = prime * result + (requiresResponse ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), address, filterString, queueName, durable, requiresResponse);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof CreateSharedQueueMessage))
+      }
+      if (!(obj instanceof CreateSharedQueueMessage other)) {
          return false;
-      CreateSharedQueueMessage other = (CreateSharedQueueMessage) obj;
-      if (address == null) {
-         if (other.address != null)
-            return false;
-      } else if (!address.equals(other.address))
-         return false;
-      if (filterString == null) {
-         if (other.filterString != null)
-            return false;
-      } else if (!filterString.equals(other.filterString))
-         return false;
-      if (queueName == null) {
-         if (other.queueName != null)
-            return false;
-      } else if (!queueName.equals(other.queueName))
-         return false;
-      if (durable != other.durable)
-         return false;
-      if (requiresResponse != other.requiresResponse)
-         return false;
-      return true;
+      }
+
+      return durable == other.durable &&
+             requiresResponse == other.requiresResponse &&
+             Objects.equals(address, other.address) &&
+             Objects.equals(filterString, other.filterString) &&
+             Objects.equals(queueName, other.queueName);
    }
 }

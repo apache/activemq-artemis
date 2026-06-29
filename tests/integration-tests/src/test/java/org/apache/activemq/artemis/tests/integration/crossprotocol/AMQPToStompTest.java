@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
@@ -35,18 +38,17 @@ import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AMQPToStompTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
    protected String queueName = "amqpToStompTestQueue1";
-   private SimpleString coreQueue;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
@@ -56,14 +58,13 @@ public class AMQPToStompTest extends ActiveMQTestBase {
       Configuration serverConfig = server.getConfiguration();
       serverConfig.getAddressSettings().put("#", new AddressSettings().setAutoCreateQueues(false)
                                                                         .setAutoCreateAddresses(false)
-                                                                        .setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
+                                                                        .setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
-      coreQueue = new SimpleString(queueName);
-      server.createQueue(new QueueConfiguration(coreQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setDurable(false));
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       server.stop();
       super.tearDown();

@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +40,8 @@ import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +52,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
    private Configuration configuration = null;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       configuration = createDefaultInVMConfig();
@@ -64,11 +68,11 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final String queueName3 = "queue3";
 
-      QueueConfiguration queue1 = new QueueConfiguration(queueName1).setAddress(testAddress);
+      QueueConfiguration queue1 = QueueConfiguration.of(queueName1).setAddress(testAddress);
 
-      QueueConfiguration queue2 = new QueueConfiguration(queueName2).setAddress(testAddress);
+      QueueConfiguration queue2 = QueueConfiguration.of(queueName2).setAddress(testAddress);
 
-      QueueConfiguration queue3 = new QueueConfiguration(queueName3).setAddress(testAddress);
+      QueueConfiguration queue3 = QueueConfiguration.of(queueName3).setAddress(testAddress);
 
       List<QueueConfiguration> queueConfs = new ArrayList<>();
 
@@ -89,27 +93,27 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
       try {
-         session.createQueue(new QueueConfiguration(queueName1).setAddress(testAddress).setFilterString("").setDurable(false));
+         session.createQueue(QueueConfiguration.of(queueName1).setAddress(testAddress).setFilterString("").setDurable(false));
 
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (ActiveMQQueueExistsException se) {
          //ok
       } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       try {
-         session.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress).setDurable(false));
+         session.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress).setDurable(false));
 
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (ActiveMQQueueExistsException se) {
          //ok
       } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       try {
-         session.createQueue(new QueueConfiguration(queueName3).setAddress(testAddress).setDurable(false));
+         session.createQueue(QueueConfiguration.of(queueName3).setAddress(testAddress).setDurable(false));
 
-         Assert.fail("Should throw exception");
+         fail("Should throw exception");
       } catch (ActiveMQQueueExistsException se) {
          //ok
       } catch (ActiveMQException e) {
@@ -125,9 +129,9 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final String queueName2 = "queue2";
 
-      QueueConfiguration queue1 = new QueueConfiguration(queueName1).setAddress(testAddress);
+      QueueConfiguration queue1 = QueueConfiguration.of(queueName1).setAddress(testAddress);
 
-      QueueConfiguration queue2 = new QueueConfiguration(queueName2).setAddress(testAddress);
+      QueueConfiguration queue2 = QueueConfiguration.of(queueName2).setAddress(testAddress);
 
       configuration.addQueueConfiguration(queue1).addQueueConfiguration(queue2);
 
@@ -135,9 +139,9 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       server.start();
 
-      Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(testAddress));
+      Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.of(testAddress));
 
-      Assert.assertEquals(2, bindings.getBindings().size());
+      assertEquals(2, bindings.getBindings().size());
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -147,7 +151,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       session.start();
 
-      ClientProducer producer = addClientProducer(session.createProducer(new SimpleString(testAddress)));
+      ClientProducer producer = addClientProducer(session.createProducer(SimpleString.of(testAddress)));
 
       ClientConsumer consumer1 = addClientConsumer(session.createConsumer(queueName1));
 
@@ -155,7 +159,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.of("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -167,18 +171,18 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
 
          message = consumer2.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
-      Assert.assertNull(consumer2.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
    }
 
    @Test
@@ -201,11 +205,11 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
-      session.createQueue(new QueueConfiguration(queueName1).setAddress(testAddress));
+      session.createQueue(QueueConfiguration.of(queueName1).setAddress(testAddress));
 
-      session.createQueue(new QueueConfiguration(queueName2).setAddress(testAddress));
+      session.createQueue(QueueConfiguration.of(queueName2).setAddress(testAddress));
 
-      session.createQueue(new QueueConfiguration(queueName3).setAddress(testAddress));
+      session.createQueue(QueueConfiguration.of(queueName3).setAddress(testAddress));
 
       session.close();
 
@@ -213,11 +217,11 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       server.stop();
 
-      QueueConfiguration queue1 = new QueueConfiguration(queueName1).setAddress(testAddress);
+      QueueConfiguration queue1 = QueueConfiguration.of(queueName1).setAddress(testAddress);
 
-      QueueConfiguration queue2 = new QueueConfiguration(queueName2).setAddress(testAddress);
+      QueueConfiguration queue2 = QueueConfiguration.of(queueName2).setAddress(testAddress);
 
-      QueueConfiguration queue3 = new QueueConfiguration(queueName3).setAddress(testAddress);
+      QueueConfiguration queue3 = QueueConfiguration.of(queueName3).setAddress(testAddress);
 
       configuration.addQueueConfiguration(queue1).addQueueConfiguration(queue2).addQueueConfiguration(queue3);
 
@@ -229,7 +233,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.of(testAddress));
 
       ClientConsumer consumer1 = session.createConsumer(queueName1);
 
@@ -239,7 +243,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.of("testkey");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
@@ -251,24 +255,24 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
 
          message = consumer2.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
 
          message = consumer3.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
-      Assert.assertNull(consumer2.receiveImmediate());
-      Assert.assertNull(consumer3.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
+      assertNull(consumer3.receiveImmediate());
    }
 
    @Test
@@ -279,9 +283,9 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final String queueName2 = "queue2";
 
-      QueueConfiguration queue1 = new QueueConfiguration(queueName1).setAddress(testAddress).setDurable(false);
+      QueueConfiguration queue1 = QueueConfiguration.of(queueName1).setAddress(testAddress).setDurable(false);
 
-      QueueConfiguration queue2 = new QueueConfiguration(queueName2).setAddress(testAddress);
+      QueueConfiguration queue2 = QueueConfiguration.of(queueName2).setAddress(testAddress);
 
       List<QueueConfiguration> queueConfs = new ArrayList<>();
 
@@ -300,9 +304,9 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.of(testAddress));
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.of("testkey");
 
       final int numMessages = 1;
 
@@ -338,17 +342,17 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       ClientMessage message = consumer1.receiveImmediate();
 
-      Assert.assertNull(message);
+      assertNull(message);
 
       for (int i = 0; i < numMessages; i++) {
          message = consumer2.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
-      Assert.assertNull(consumer2.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
    }
 
    @Test
@@ -359,7 +363,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final String filter = "cheese='camembert'";
 
-      QueueConfiguration queue1 = new QueueConfiguration(queueName1).setAddress(testAddress).setFilterString(filter).setDurable(false);
+      QueueConfiguration queue1 = QueueConfiguration.of(queueName1).setAddress(testAddress).setFilterString(filter).setDurable(false);
 
       configuration.addQueueConfiguration(queue1);
 
@@ -373,9 +377,9 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = session.createProducer(SimpleString.of(testAddress));
 
-      final SimpleString propKey = new SimpleString("testkey");
+      final SimpleString propKey = SimpleString.of("testkey");
 
       final int numMessages = 1;
 
@@ -384,7 +388,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
 
-         message.putStringProperty(new SimpleString("cheese"), new SimpleString("camembert"));
+         message.putStringProperty(SimpleString.of("cheese"), SimpleString.of("camembert"));
 
          message.putIntProperty(propKey, i);
 
@@ -397,24 +401,24 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(200);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(i, message.getObjectProperty(propKey));
+         assertNotNull(message);
+         assertEquals(i, message.getObjectProperty(propKey));
          message.acknowledge();
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
 
-         message.putStringProperty(new SimpleString("cheese"), new SimpleString("roquefort"));
+         message.putStringProperty(SimpleString.of("cheese"), SimpleString.of("roquefort"));
 
          message.putIntProperty(propKey, i);
 
          producer.send(message);
       }
 
-      Assert.assertNull(consumer1.receiveImmediate());
+      assertNull(consumer1.receiveImmediate());
    }
 
 }

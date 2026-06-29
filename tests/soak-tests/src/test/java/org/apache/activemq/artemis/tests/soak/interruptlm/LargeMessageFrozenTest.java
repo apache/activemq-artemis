@@ -17,6 +17,11 @@
 
 package org.apache.activemq.artemis.tests.soak.interruptlm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,6 +31,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -38,15 +44,17 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.TcpProxy;
-import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Test various scenarios with broker communication in large message */
+/**
+ * Test various scenarios with broker communication in large message
+ */
 public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -55,7 +63,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
-   @Before
+   @BeforeEach
    public void startServer() throws Exception {
       server = createServer(true, true);
       server.getConfiguration().addAcceptorConfiguration("alternate", "tcp://localhost:44444?amqpIdleTimeout=100");
@@ -83,59 +91,43 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
    public void testFreeze(String protocol) throws Exception {
       startProxy();
 
-      ConnectionFactory factory;
-      switch (protocol.toUpperCase(Locale.ROOT)) {
-         case "CORE":
-            ActiveMQConnectionFactory artemisfactory = new ActiveMQConnectionFactory("tcp://localhost:33333?connectionTTL=1000&clientFailureCheckPeriod=100&consumerWindowSize=1000");
-            Assert.assertEquals(100, artemisfactory.getServerLocator().getClientFailureCheckPeriod());
-            Assert.assertEquals(1000, artemisfactory.getServerLocator().getConnectionTTL());
-            Assert.assertEquals(1000, artemisfactory.getServerLocator().getConsumerWindowSize());
-            factory = artemisfactory;
-            break;
-         case "AMQP":
-            JmsConnectionFactory qpidFactory = new JmsConnectionFactory("amqp://localhost:33333?amqp.idleTimeout=1000&jms.prefetchPolicy.all=2");
-            factory = qpidFactory;
-            break;
-         default:
-            factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:33333");
+      int NUMBER_OF_MESSAGES = 10;
+
+      ConnectionFactory proxiedFactory = createProxiedFactory(protocol);
+      ConnectionFactory regularfactory = createRegularCF(protocol);
+
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+
+      String body = RandomUtil.randomAlphaNumericString(10 * 1024 * 1024);
+
+      try (Connection connection = regularfactory.createConnection()) {
+         runAfter(connection::close);
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         Queue queue = session.createQueue(getName());
+
+         MessageProducer producer = session.createProducer(queue);
+         for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+            producer.send(session.createTextMessage(body));
+         }
+         session.commit();
+
       }
 
-      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
-
-      Connection connection = factory.createConnection();
-      runAfter(connection::close);
+      Connection connection = proxiedFactory.createConnection();
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       Queue queue = session.createQueue(getName());
 
-      Assert.assertEquals(1, proxy.getInboundHandlers().size());
-      Assert.assertEquals(1, proxy.getOutbounddHandlers().size());
-
-      String body;
-      {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < 10 * 1024 * 1024) {
-            buffer.append("Not so big, but big!!");
-         }
-         body = buffer.toString();
-      }
-
-      int NUMBER_OF_MESSAGES = 10;
-
-      MessageProducer producer = session.createProducer(queue);
-      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
-         producer.send(session.createTextMessage(body));
-      }
-      session.commit();
+      assertEquals(1, proxy.getInboundHandlers().size());
+      assertEquals(1, proxy.getOutbounddHandlers().size());
 
       MessageConsumer consumer = session.createConsumer(queue);
       connection.start();
-
       boolean failed = false;
 
       for (int repeat = 0; repeat < 5; repeat++) {
          try {
             for (int i = 0; i < 1; i++) {
-               Assert.assertNotNull(consumer.receive(1000));
+               assertNotNull(consumer.receive(1000));
             }
             proxy.stopAllHandlers();
             consumer.receive(100);
@@ -145,10 +137,10 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
             failed = true;
          }
 
-         Assert.assertTrue(failed);
+         assertTrue(failed);
          server.getRemotingService().getConnections().forEach(r -> r.fail(new ActiveMQException("forced failure")));
 
-         connection = factory.createConnection();
+         connection = proxiedFactory.createConnection();
          connection.start();
          runAfter(connection::close);
          session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -157,13 +149,12 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          TextMessage message = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(body, message.getText());
+         assertNotNull(message);
+         assertEquals(body, message.getText());
          session.commit();
       }
 
       Wait.assertEquals(0, () -> {
-         System.gc();
          return server.getConfiguration().getLargeMessagesLocation().listFiles().length;
       });
    }
@@ -185,40 +176,17 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
    public void testRemoveConsumer(String protocol) throws Exception {
 
-      ConnectionFactory factory;
-      switch (protocol.toUpperCase(Locale.ROOT)) {
-         case "CORE":
-            ActiveMQConnectionFactory artemisfactory = new ActiveMQConnectionFactory("tcp://localhost:44444?connectionTTL=1000&clientFailureCheckPeriod=100&consumerWindowSize=1000");
-            Assert.assertEquals(100, artemisfactory.getServerLocator().getClientFailureCheckPeriod());
-            Assert.assertEquals(1000, artemisfactory.getServerLocator().getConnectionTTL());
-            Assert.assertEquals(1000, artemisfactory.getServerLocator().getConsumerWindowSize());
-            factory = artemisfactory;
-            break;
-         case "AMQP":
-            JmsConnectionFactory qpidFactory = new JmsConnectionFactory("amqp://localhost:44444?amqp.idleTimeout=300&jms.prefetchPolicy.all=10");
-            factory = qpidFactory;
-            break;
-         default:
-            factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:44444");
-      }
+      int NUMBER_OF_MESSAGES = 10;
 
-      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      ConnectionFactory regularCF = createRegularCF(protocol);
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
-      Connection connection = factory.createConnection();
+      Connection connection = regularCF.createConnection();
       runAfter(connection::close);
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       Queue queue = session.createQueue(getName());
 
-      String body;
-      {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < 300 * 1024) {
-            buffer.append("Not so big, but big!!");
-         }
-         body = buffer.toString();
-      }
-
-      int NUMBER_OF_MESSAGES = 10;
+      String body = RandomUtil.randomAlphaNumericString(300 * 1024);
 
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
@@ -226,7 +194,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
       }
       session.commit();
 
-      ArrayList<MessageReference> queueMessages = new ArrayList<>();
+      List<MessageReference> queueMessages = new ArrayList<>();
 
       Wait.assertEquals(NUMBER_OF_MESSAGES, serverQueue::getMessageCount);
 
@@ -235,13 +203,13 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
       MessageConsumer consumer = session.createConsumer(queue);
       connection.start();
 
-      Assert.assertEquals(1, serverQueue.getConsumers().size());
+      assertEquals(1, serverQueue.getConsumers().size());
       ServerConsumerImpl serverConsumer = (ServerConsumerImpl) serverQueue.getConsumers().iterator().next();
 
 
       TextMessage message = (TextMessage) consumer.receive(100);
-      Assert.assertNotNull(message);
-      Assert.assertEquals(body, message.getText());
+      assertNotNull(message);
+      assertEquals(body, message.getText());
 
       serverConsumer.errorProcessing(new Exception("Dumb error"), queueMessages.get(0));
 
@@ -252,7 +220,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
       }
       server.getRemotingService().getConnections().forEach(r -> r.fail(new ActiveMQException("forced failure")));
 
-      connection = factory.createConnection();
+      connection = regularCF.createConnection();
       runAfter(connection::close);
 
       session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -263,16 +231,16 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
       for (int i = 0; i < recCount; i++) {
          TextMessage recMessage = (TextMessage)consumer.receive(5000);
-         Assert.assertNotNull(recMessage);
-         Assert.assertEquals(body, recMessage.getText());
+         assertNotNull(recMessage);
+         assertEquals(body, recMessage.getText());
          session.commit();
       }
 
-      Assert.assertNull(consumer.receiveNoWait());
+      assertNull(consumer.receiveNoWait());
 
       // I could have done this assert before the loop
       // but I also wanted to see a condition where messages get damaged
-      Assert.assertEquals(NUMBER_OF_MESSAGES, recCount);
+      assertEquals(NUMBER_OF_MESSAGES, recCount);
 
       Wait.assertEquals(0, serverQueue::getMessageCount);
 
@@ -290,58 +258,38 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
    public void testFreezeAutoAck(String protocol) throws Exception {
 
       startProxy();
-      ConnectionFactory factory;
-      switch (protocol.toUpperCase(Locale.ROOT)) {
-         case "CORE":
-            ActiveMQConnectionFactory artemisfactory = new ActiveMQConnectionFactory("tcp://localhost:33333?connectionTTL=1000&clientFailureCheckPeriod=100&consumerWindowSize=1000");
-            Assert.assertEquals(100, artemisfactory.getServerLocator().getClientFailureCheckPeriod());
-            Assert.assertEquals(1000, artemisfactory.getServerLocator().getConnectionTTL());
-            Assert.assertEquals(1000, artemisfactory.getServerLocator().getConsumerWindowSize());
-            factory = artemisfactory;
-            break;
-         case "AMQP":
-            JmsConnectionFactory qpidFactory = new JmsConnectionFactory("amqp://localhost:33333?amqp.idleTimeout=1000&jms.prefetchPolicy.all=2");
-            factory = qpidFactory;
-            break;
-         default:
-            factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:33333");
-      }
+      ConnectionFactory proxiedFactory = createProxiedFactory(protocol);
+      ConnectionFactory regularCF = createRegularCF(protocol);
 
-      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
-      Connection connection = factory.createConnection();
-      runAfter(connection::close);
-      Session sessionConsumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Queue queue = sessionConsumer.createQueue(getName());
+      String body = RandomUtil.randomAlphaNumericString(10 * 1024 * 1024);
 
-      Assert.assertEquals(1, proxy.getInboundHandlers().size());
-      Assert.assertEquals(1, proxy.getOutbounddHandlers().size());
+      try (Connection connection = regularCF.createConnection()) {
+         runAfter(connection::close);
 
-      String body;
-      {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < 10 * 1024 * 1024) {
-            buffer.append("Not so big, but big!!");
+         int NUMBER_OF_MESSAGES = 40;
+
+         try (Session sessionProducer = connection.createSession(true, Session.AUTO_ACKNOWLEDGE)) {
+            Queue queue = sessionProducer.createQueue(getName());
+            MessageProducer producer = sessionProducer.createProducer(queue);
+            for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+               producer.send(sessionProducer.createTextMessage(body));
+            }
+            sessionProducer.commit();
          }
-         body = buffer.toString();
       }
-
-      int NUMBER_OF_MESSAGES = 40;
-
-      try (Session sessionProducer = connection.createSession(true, Session.AUTO_ACKNOWLEDGE)) {
-         MessageProducer producer = sessionProducer.createProducer(queue);
-         for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
-            producer.send(sessionConsumer.createTextMessage(body));
-         }
-         sessionProducer.commit();
-      }
-
-      MessageConsumer consumer = sessionConsumer.createConsumer(queue);
-      connection.start();
 
       boolean failed = false;
+      try (Connection connection = proxiedFactory.createConnection()) {
+         Session sessionConsumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = sessionConsumer.createQueue(getName());
+         MessageConsumer consumer = sessionConsumer.createConsumer(queue);
+         connection.start();
 
-      try {
+         assertEquals(1, proxy.getInboundHandlers().size());
+         assertEquals(1, proxy.getOutbounddHandlers().size());
+
          for (int i = 0; i < 10; i++) {
             consumer.receive(5000);
          }
@@ -357,28 +305,53 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
       long numberOfMessages = serverQueue.getMessageCount();
 
-      Assert.assertTrue(failed);
+      assertTrue(failed);
 
-      connection = factory.createConnection();
-      connection.start();
-      runAfter(connection::close);
-      sessionConsumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      queue = sessionConsumer.createQueue(getName());
-      consumer = sessionConsumer.createConsumer(queue);
+      try (Connection connection = regularCF.createConnection()) {
+         connection.start();
+         runAfter(connection::close);
+         Session sessionConsumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = sessionConsumer.createQueue(getName());
+         MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
-      for (int i = 0; i < numberOfMessages; i++) {
-         TextMessage message = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals(body, message.getText());
+         for (int i = 0; i < numberOfMessages; i++) {
+            TextMessage message = (TextMessage) consumer.receive(5000);
+            assertNotNull(message);
+            assertEquals(body, message.getText());
+         }
+
+         assertNull(consumer.receiveNoWait());
       }
 
-      Assert.assertNull(consumer.receiveNoWait());
-
-      Assert.assertEquals(0L, serverQueue.getMessageCount());
+      Wait.assertEquals(0L, serverQueue::getMessageCount, 5000, 100);
 
       Wait.assertEquals(0, () -> {
          System.gc();
          return server.getConfiguration().getLargeMessagesLocation().listFiles().length;
       });
+   }
+
+   private static ConnectionFactory createRegularCF(String protocol) {
+      return CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+   }
+
+   private static ConnectionFactory createProxiedFactory(String protocol) {
+      ConnectionFactory factory;
+      switch (protocol.toUpperCase(Locale.ROOT)) {
+         case "CORE":
+            ActiveMQConnectionFactory artemisfactory = new ActiveMQConnectionFactory("tcp://localhost:33333?connectionTTL=1000&clientFailureCheckPeriod=100&consumerWindowSize=1000");
+            assertEquals(100, artemisfactory.getServerLocator().getClientFailureCheckPeriod());
+            assertEquals(1000, artemisfactory.getServerLocator().getConnectionTTL());
+            assertEquals(1000, artemisfactory.getServerLocator().getConsumerWindowSize());
+            factory = artemisfactory;
+            break;
+         case "AMQP":
+            JmsConnectionFactory qpidFactory = new JmsConnectionFactory("amqp://localhost:33333?amqp.idleTimeout=1000&jms.prefetchPolicy.all=2");
+            factory = qpidFactory;
+            break;
+         default:
+            factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:33333");
+      }
+      return factory;
    }
 }

@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -42,33 +48,34 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Verify FQQN queues work with openwire/artemis JMS API
  */
-@RunWith(Parameterized.class)
+@ExtendWith(ParameterizedTestExtension.class)
 public class FQQNOpenWireTest extends OpenWireTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Parameterized.Parameters(name = "{0}")
+   @Parameters(name = "{0}")
    public static Collection<Object[]> params() {
       return Arrays.asList(new Object[][]{{"OpenWire"}, {"Artemis"}});
    }
 
-   private SimpleString anycastAddress = new SimpleString("address.anycast");
-   private SimpleString multicastAddress = new SimpleString("address.multicast");
+   private SimpleString anycastAddress = SimpleString.of("address.anycast");
+   private SimpleString multicastAddress = SimpleString.of("address.multicast");
 
-   private SimpleString anycastQ1 = new SimpleString("q1");
-   private SimpleString anycastQ2 = new SimpleString("q2");
-   private SimpleString anycastQ3 = new SimpleString("q3");
+   private SimpleString anycastQ1 = SimpleString.of("q1");
+   private SimpleString anycastQ2 = SimpleString.of("q2");
+   private SimpleString anycastQ3 = SimpleString.of("q3");
 
    private ConnectionFactory factory;
 
@@ -82,7 +89,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    //there isn't much use of FQQN for topics
    //however we can test query functionality
    public void testTopic() throws Exception {
@@ -128,12 +135,12 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testTopicFQQNSendAndConsumeAutoCreate() throws Exception {
       internalTopicFQQNSendAndConsume(true);
    }
 
-   @Test
+   @TestTemplate
    public void testTopicFQQNSendAndConsumeManualCreate() throws Exception {
       internalTopicFQQNSendAndConsume(false);
    }
@@ -142,7 +149,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       if (autocreate) {
          server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(true).setAutoCreateQueues(true));
       } else {
-         server.createQueue(new QueueConfiguration(anycastQ1).setAddress(multicastAddress).setDurable(false));
+         server.createQueue(QueueConfiguration.of(anycastQ1).setAddress(multicastAddress).setDurable(false));
       }
 
       try (Connection connection = factory.createConnection()) {
@@ -169,13 +176,13 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testQueueConsumerReceiveTopicUsingFQQN() throws Exception {
 
-      SimpleString queueName1 = new SimpleString("sub.queue1");
-      SimpleString queueName2 = new SimpleString("sub.queue2");
-      server.createQueue(new QueueConfiguration(queueName1).setAddress(multicastAddress).setDurable(false));
-      server.createQueue(new QueueConfiguration(queueName2).setAddress(multicastAddress).setDurable(false));
+      SimpleString queueName1 = SimpleString.of("sub.queue1");
+      SimpleString queueName2 = SimpleString.of("sub.queue2");
+      server.createQueue(QueueConfiguration.of(queueName1).setAddress(multicastAddress).setDurable(false));
+      server.createQueue(QueueConfiguration.of(queueName2).setAddress(multicastAddress).setDurable(false));
       Connection connection = factory.createConnection();
 
       try {
@@ -203,7 +210,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    //jms queues know no addresses, this test only shows
    //that it is possible for jms clients to receive from
    //core queues by its FQQN.
@@ -277,12 +284,12 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testFQNConsumer() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("myqueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      SimpleString durableQueue = SimpleString.of("myqueue");
+      this.server.createQueue(QueueConfiguration.of(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -315,12 +322,12 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testSpecialFQQNCase() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("myqueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      SimpleString durableQueue = SimpleString.of("myqueue");
+      this.server.createQueue(QueueConfiguration.of(durableQueue).setRoutingType(RoutingType.ANYCAST));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -363,15 +370,15 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testVirtualTopicFQQN() throws Exception {
       Connection exConn = null;
 
-      SimpleString topic = new SimpleString("VirtualTopic.Orders");
-      SimpleString subscriptionQ = new SimpleString("Consumer.A");
+      SimpleString topic = SimpleString.of("VirtualTopic.Orders");
+      SimpleString subscriptionQ = SimpleString.of("Consumer.A");
 
       this.server.addAddressInfo(new AddressInfo(topic, RoutingType.MULTICAST));
-      this.server.createQueue(new QueueConfiguration(subscriptionQ).setAddress(topic));
+      this.server.createQueue(QueueConfiguration.of(subscriptionQ).setAddress(topic));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -408,12 +415,12 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testVirtualTopicFQQNAutoCreateQueue() throws Exception {
       Connection exConn = null;
 
-      SimpleString topic = new SimpleString("VirtualTopic.Orders");
-      SimpleString subscriptionQ = new SimpleString("Consumer.A");
+      SimpleString topic = SimpleString.of("VirtualTopic.Orders");
+      SimpleString subscriptionQ = SimpleString.of("Consumer.A");
 
       // defaults are false via test setUp
       this.server.addAddressInfo(new AddressInfo(topic, RoutingType.MULTICAST));
@@ -455,12 +462,12 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testVirtualTopicFQQNAutoCreateQAndAddress() throws Exception {
       Connection exConn = null;
 
-      SimpleString topic = new SimpleString("VirtualTopic.Orders");
-      SimpleString subscriptionQ = new SimpleString("Consumer.A");
+      SimpleString topic = SimpleString.of("VirtualTopic.Orders");
+      SimpleString subscriptionQ = SimpleString.of("Consumer.A");
 
       // defaults are false via test setUp
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateQueues(true);
@@ -502,12 +509,12 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testVirtualTopicFQQNConsumerAutoCreateQAndAddress() throws Exception {
       Connection exConn = null;
 
-      SimpleString topic = new SimpleString("VirtualTopic.Orders");
-      SimpleString subscriptionQ = new SimpleString("Consumer.A");
+      SimpleString topic = SimpleString.of("VirtualTopic.Orders");
+      SimpleString subscriptionQ = SimpleString.of("Consumer.A");
 
       // defaults are false via test setUp
       this.server.getAddressSettingsRepository().getMatch("VirtualTopic.#").setAutoCreateQueues(true);
@@ -548,12 +555,12 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
       }
    }
 
-   @Test
+   @TestTemplate
    public void testVirtualTopicFQQNAutoCreateQWithExistingAddressWithAnyCastDefault() throws Exception {
       Connection exConn = null;
 
-      SimpleString topic = new SimpleString("VirtualTopic.Orders");
-      SimpleString subscriptionQ = new SimpleString("Consumer.A");
+      SimpleString topic = SimpleString.of("VirtualTopic.Orders");
+      SimpleString subscriptionQ = SimpleString.of("Consumer.A");
 
       // defaults are false via test setUp
       this.server.addAddressInfo(new AddressInfo(topic, RoutingType.MULTICAST));

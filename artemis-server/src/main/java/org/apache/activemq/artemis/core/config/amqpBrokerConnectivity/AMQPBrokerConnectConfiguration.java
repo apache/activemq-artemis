@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.config.amqpBrokerConnectivity;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
@@ -26,8 +27,10 @@ import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
 
 /**
  * This is a specific AMQP Broker Connection Configuration
- * */
+ */
 public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
+
+   private static final long serialVersionUID = 8827214279279810938L;
 
    List<TransportConfiguration> transportConfigurations;
 
@@ -43,7 +46,6 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
 
    public AMQPBrokerConnectConfiguration addElement(AMQPBrokerConnectionElement amqpBrokerConnectionElement) {
       amqpBrokerConnectionElement.setParent(this);
-
 
       if (amqpBrokerConnectionElement.getType() == AMQPBrokerConnectionAddressType.MIRROR && !(amqpBrokerConnectionElement instanceof AMQPMirrorBrokerConnectionElement)) {
          throw new IllegalArgumentException("must be an AMQPMirrorConnectionElement");
@@ -61,6 +63,61 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
    public List<AMQPBrokerConnectionElement> getConnectionElements() {
       return connectionElements;
    }
+
+   public AMQPBrokerConnectConfiguration addFederation(AMQPFederatedBrokerConnectionElement amqpFederationElement) {
+      return addElement(amqpFederationElement);
+   }
+
+   public List<AMQPBrokerConnectionElement> getFederations() {
+      // This returns all elements not just federation elements, broker properties relies on being able
+      // to modify the collection from the getter...it does not actually call the add method, it only
+      // uses the method to infer the type.
+      return connectionElements;
+   }
+
+   public AMQPBrokerConnectConfiguration addBridge(AMQPBridgeBrokerConnectionElement amqpBridgeElement) {
+      return addElement(amqpBridgeElement);
+   }
+
+   public List<AMQPBrokerConnectionElement> getBridges() {
+      // This returns all elements not just bridge elements, broker properties relies on being able
+      // to modify the collection from the getter...it does not actually call the add method, it only
+      // uses the method to infer the type.
+      return connectionElements;
+   }
+
+   public AMQPBrokerConnectConfiguration addMirror(AMQPMirrorBrokerConnectionElement amqpMirrorBrokerConnectionElement) {
+      return addElement(amqpMirrorBrokerConnectionElement);
+   }
+
+   public List<AMQPBrokerConnectionElement> getMirrors() {
+      return connectionElements;
+   }
+
+   public AMQPBrokerConnectConfiguration addPeer(AMQPPeerBrokerConnectionElement element) {
+      return addElement(element);
+   }
+
+   public List<AMQPBrokerConnectionElement> getPeers() {
+      return connectionElements;
+   }
+
+   public AMQPBrokerConnectConfiguration addSender(AMQPSenderBrokerConnectionElement element) {
+      return addElement(element);
+   }
+
+   public List<AMQPBrokerConnectionElement> getSenders() {
+      return connectionElements;
+   }
+
+   public AMQPBrokerConnectConfiguration addReceiver(AMQPReceiverBrokerConnectionElement element) {
+      return addElement(element);
+   }
+
+   public List<AMQPBrokerConnectionElement> getReceivers() {
+      return connectionElements;
+   }
+
 
    @Override
    public void parseURI() throws Exception {
@@ -118,4 +175,24 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
       return this;
    }
 
+   @Override
+   public int hashCode() {
+      return Objects.hash(super.hashCode(), connectionElements, transportConfigurations);
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!super.equals(obj)) {
+         return false;
+      }
+      if (!(obj instanceof AMQPBrokerConnectConfiguration other)) {
+         return false;
+      }
+
+      return Objects.equals(connectionElements, other.connectionElements) &&
+             Objects.equals(transportConfigurations, other.transportConfigurations);
+   }
 }

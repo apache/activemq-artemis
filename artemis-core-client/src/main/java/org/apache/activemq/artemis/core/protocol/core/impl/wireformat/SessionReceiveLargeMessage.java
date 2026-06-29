@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -26,7 +28,7 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
    private Message message;
 
    /**
-    * Since we receive the message before the entire message was received,
+    * Since we receive the message before the entire message was received
     */
    private long largeMessageSize;
 
@@ -78,9 +80,6 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
       return deliveryCount;
    }
 
-   /**
-    * @return the largeMessageSize
-    */
    public long getLargeMessageSize() {
       return largeMessageSize;
    }
@@ -105,46 +104,34 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
-      result = prime * result + deliveryCount;
-      result = prime * result + (int) (largeMessageSize ^ (largeMessageSize >>> 32));
-      result = prime * result + ((message == null) ? 0 : message.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), consumerID, deliveryCount, largeMessageSize, message);
    }
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", consumerID=" + consumerID);
-      buff.append(", deliveryCount=" + deliveryCount);
-      buff.append(", largeMessageSize=" + largeMessageSize);
-      buff.append(", message=" + message);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", consumerID=" + consumerID);
+      sb.append(", deliveryCount=" + deliveryCount);
+      sb.append(", largeMessageSize=" + largeMessageSize);
+      sb.append(", message=" + message);
+      return sb.toString();
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionReceiveLargeMessage))
+      }
+      if (!(obj instanceof SessionReceiveLargeMessage other)) {
          return false;
-      SessionReceiveLargeMessage other = (SessionReceiveLargeMessage) obj;
-      if (consumerID != other.consumerID)
-         return false;
-      if (deliveryCount != other.deliveryCount)
-         return false;
-      if (largeMessageSize != other.largeMessageSize)
-         return false;
-      if (message == null) {
-         if (other.message != null)
-            return false;
-      } else if (!message.equals(other.message))
-         return false;
-      return true;
-   }
+      }
 
+      return consumerID == other.consumerID &&
+             deliveryCount == other.deliveryCount &&
+             largeMessageSize == other.largeMessageSize &&
+             Objects.equals(message, other.message);
+   }
 }

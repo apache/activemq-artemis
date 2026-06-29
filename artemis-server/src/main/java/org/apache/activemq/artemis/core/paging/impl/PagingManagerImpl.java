@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.paging.impl;
 
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -27,7 +30,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.BiConsumer;
 
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -37,6 +43,7 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageCounterRebuildManager;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -48,22 +55,24 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import java.util.function.BiConsumer;
+
+import static org.apache.activemq.artemis.core.server.files.FileStoreMonitor.FileStoreMonitorType;
+import static org.apache.activemq.artemis.core.server.files.FileStoreMonitor.FileStoreMonitorType.MaxDiskUsage;
 
 public final class PagingManagerImpl implements PagingManager {
 
-   private static final int ARTEMIS_PAGING_COUNTER_SNAPSHOT_INTERVAL = Integer.valueOf(System.getProperty("artemis.paging.counter.snapshot.interval", "60"));
+   private static final int PAGE_TX_CLEANUP_PRINT_LIMIT = 1000;
+
+   private static final int ARTEMIS_PAGING_COUNTER_SNAPSHOT_INTERVAL = Integer.parseInt(System.getProperty("artemis.paging.counter.snapshot.interval", "60"));
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private volatile boolean started = false;
 
    /**
-    * Lock used at the start of synchronization between a live server and its backup.
-    * Synchronization will lock all {@link PagingStore} instances, and so any operation here that
-    * requires a lock on a {@link PagingStore} instance needs to take a read-lock on
-    * {@link #syncLock} to avoid dead-locks.
+    * Lock used at the start of synchronization between a primary server and its backup. Synchronization will lock all
+    * {@link PagingStore} instances, and so any operation here that requires a lock on a {@link PagingStore} instance
+    * needs to take a read-lock on {@link #syncLock} to avoid dead-locks.
     */
    private final ReentrantReadWriteLock syncLock = new ReentrantReadWriteLock();
 
@@ -72,6 +81,8 @@ public final class PagingManagerImpl implements PagingManager {
    private final ConcurrentMap<SimpleString, PagingStore> stores = new ConcurrentHashMap<>();
 
    private final HierarchicalRepository<AddressSettings> addressSettingsRepository;
+
+   private final ActiveMQServer server;
 
    private PagingStoreFactory pagingStoreFactory;
 
@@ -122,27 +133,28 @@ public final class PagingManagerImpl implements PagingManager {
                             final HierarchicalRepository<AddressSettings> addressSettingsRepository,
                             final long maxSize,
                             final long maxMessages,
-                            final SimpleString managementAddress) {
+                            final SimpleString managementAddress,
+                            final ActiveMQServer server) {
       pagingStoreFactory = pagingSPI;
       this.addressSettingsRepository = addressSettingsRepository;
       addressSettingsRepository.registerListener(this);
       this.maxSize = maxSize;
       this.maxMessages = maxMessages;
       this.globalSizeMetric = new SizeAwareMetric(maxSize, maxSize, maxMessages, maxMessages);
-      globalSizeMetric.setSizeEnabled(maxSize >= 0);
-      globalSizeMetric.setElementsEnabled(maxMessages >= 0);
       globalSizeMetric.setOverCallback(() -> setGlobalFull(true));
       globalSizeMetric.setUnderCallback(() -> setGlobalFull(false));
       this.managerExecutor = pagingSPI.newExecutor();
       this.managementAddress = managementAddress;
+      this.server = server;
    }
 
    SizeAwareMetric getSizeAwareMetric() {
       return globalSizeMetric;
    }
 
-
-   /** To be used in tests only called through PagingManagerTestAccessor */
+   /**
+    * To be used in tests only called through PagingManagerTestAccessor
+    */
    void resetMaxSize(long maxSize, long maxMessages) {
       this.maxSize = maxSize;
       this.maxMessages = maxMessages;
@@ -161,18 +173,22 @@ public final class PagingManagerImpl implements PagingManager {
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
                             final HierarchicalRepository<AddressSettings> addressSettingsRepository) {
-      this(pagingSPI, addressSettingsRepository, -1, -1, null);
+      this(pagingSPI, addressSettingsRepository, -1, -1, null, null);
    }
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
                             final HierarchicalRepository<AddressSettings> addressSettingsRepository,
                             final SimpleString managementAddress) {
-      this(pagingSPI, addressSettingsRepository, -1, -1, managementAddress);
+      this(pagingSPI, addressSettingsRepository, -1, -1, managementAddress, null);
    }
 
    @Override
    public void addBlockedStore(PagingStore store) {
       blockedStored.add(store);
+   }
+
+   public Set<PagingStore> getBlockedSet() {
+      return new HashSet<>(blockedStored);
    }
 
    @Override
@@ -237,38 +253,39 @@ public final class PagingManagerImpl implements PagingManager {
       private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
       @Override
-      public void tick(long usableSpace, long totalSpace) {
+      public void tick(long usableSpace, long totalSpace, boolean withinLimit, FileStoreMonitorType type) {
          diskUsableSpace = usableSpace;
          diskTotalSpace = totalSpace;
          if (logger.isTraceEnabled()) {
             logger.trace("Tick:: usable space at {}, total space at {}", ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace));
          }
-      }
-
-      @Override
-      public void over(long usableSpace, long totalSpace) {
-         if (!diskFull) {
-            ActiveMQServerLogger.LOGGER.diskBeyondCapacity(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
-            diskFull = true;
-         }
-      }
-
-      @Override
-      public void under(long usableSpace, long totalSpace) {
-         final boolean diskFull = PagingManagerImpl.this.diskFull;
-         if (diskFull || !blockedStored.isEmpty() || !memoryCallback.isEmpty()) {
-            if (diskFull) {
-               ActiveMQServerLogger.LOGGER.diskCapacityRestored(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
-               PagingManagerImpl.this.diskFull = false;
+         if (withinLimit) {
+            final boolean diskFull = PagingManagerImpl.this.diskFull;
+            if (diskFull || !blockedStored.isEmpty() || !memoryCallback.isEmpty()) {
+               if (diskFull) {
+                  if (type == MaxDiskUsage) {
+                     ActiveMQServerLogger.LOGGER.maxDiskUsageRestored(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
+                  } else {
+                     ActiveMQServerLogger.LOGGER.minDiskFreeRestored(ByteUtil.getHumanReadableByteCount(usableSpace));
+                  }
+                  PagingManagerImpl.this.diskFull = false;
+               }
+               checkMemoryRelease();
             }
-            checkMemoryRelease();
+         } else {
+            if (!diskFull) {
+               if (type == MaxDiskUsage) {
+                  ActiveMQServerLogger.LOGGER.maxDiskUsageReached(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
+               } else {
+                  ActiveMQServerLogger.LOGGER.minDiskFreeReached(ByteUtil.getHumanReadableByteCount(usableSpace));
+               }
+               diskFull = true;
+            }
          }
       }
    }
 
-   /*
-    * For tests only!
-    */
+   // For tests only!
    protected void setDiskFull(boolean diskFull) {
       this.diskFull = diskFull;
    }
@@ -295,7 +312,6 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public void checkMemory(final Runnable runWhenAvailable) {
-
       if (isGlobalFull()) {
          memoryCallback.add(AtomicRunnable.checkAtomic(runWhenAvailable));
          return;
@@ -319,8 +335,6 @@ public final class PagingManagerImpl implements PagingManager {
          runnable.run();
       }
    }
-
-
 
    @Override
    public boolean isGlobalFull() {
@@ -367,40 +381,44 @@ public final class PagingManagerImpl implements PagingManager {
       return names.toArray(new SimpleString[names.size()]);
    }
 
+   private void stopStore(SimpleString storeName, PagingStore store) {
+      try {
+         store.stop();
+      } catch (Throwable ok) {
+         logger.debug(ok.getMessage(), ok);
+      }
+   }
+
    @Override
    public void reloadStores() throws Exception {
       lock();
       try {
-         List<PagingStore> reloadedStores = pagingStoreFactory.reloadStores(addressSettingsRepository);
+         stores.forEach(this::stopStore);
+         stores.clear();
 
+         List<PagingStore> reloadedStores = pagingStoreFactory.reloadStores(addressSettingsRepository);
          for (PagingStore store : reloadedStores) {
-            // when reloading, we need to close the previously loaded version of this
-            // store
-            PagingStore oldStore = stores.remove(store.getStoreName());
-            if (oldStore != null) {
-               oldStore.stop();
-            }
-            store.getCursorProvider().counterRebuildStarted(); // TODO-NOW-DONT-MERGE maybe this should be removed
+            store.getCursorProvider().counterRebuildStarted();
             store.start();
             stores.put(store.getStoreName(), store);
          }
       } finally {
          unlock();
       }
-
    }
 
    @Override
    public void deletePageStore(final SimpleString storeName) throws Exception {
+      PagingStore store;
       syncLock.readLock().lock();
       try {
-         PagingStore store = stores.remove(CompositeAddress.extractAddressName(storeName));
-         if (store != null) {
-            store.stop();
-            store.destroy();
-         }
+         store = stores.remove(CompositeAddress.extractAddressName(storeName));
       } finally {
          syncLock.readLock().unlock();
+      }
+
+      if (store != null) {
+         store.destroy();
       }
    }
 
@@ -466,6 +484,14 @@ public final class PagingManagerImpl implements PagingManager {
       return started;
    }
 
+   private volatile boolean rebuildingPageCounters;
+
+
+   @Override
+   public boolean isRebuildingCounters() {
+      return rebuildingPageCounters;
+   }
+
    @Override
    public void start() throws Exception {
       lock();
@@ -508,7 +534,6 @@ public final class PagingManagerImpl implements PagingManager {
          store.counterSnapshot();
       }
    }
-
 
    @Override
    public synchronized void stop() throws Exception {
@@ -577,24 +602,86 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public Future<Object> rebuildCounters(Set<Long> storedLargeMessages) {
+      if (rebuildingPageCounters) {
+         logger.debug("Rebuild page counters is already underway, ignoring call");
+      }
       Map<Long, PageTransactionInfo> transactionsSet = new LongObjectHashMap();
       // making a copy
-      transactions.forEach(transactionsSet::put);
+      transactions.forEach((a, b) -> {
+         transactionsSet.put(a, b);
+         b.setOrphaned(true);
+      });
+      AtomicLong minLargeMessageID = new AtomicLong(Long.MAX_VALUE);
+
+      // make a copy of the stores
+      Map<SimpleString, PagingStore> currentStoreMap = new HashMap<>();
+      stores.forEach(currentStoreMap::put);
 
       if (logger.isDebugEnabled()) {
          logger.debug("Page Transactions during rebuildCounters:");
          transactionsSet.forEach((a, b) -> logger.debug("{} = {}", a, b));
       }
 
-      stores.forEach((address, pgStore) -> {
-         PageCounterRebuildManager rebuildManager = new PageCounterRebuildManager(this, pgStore, transactionsSet, storedLargeMessages);
+      currentStoreMap.forEach((address, pgStore) -> {
+         PageCounterRebuildManager rebuildManager = new PageCounterRebuildManager(this, pgStore, transactionsSet, storedLargeMessages, minLargeMessageID);
          logger.debug("Setting destination {} to rebuild counters", address);
          managerExecutor.execute(rebuildManager);
       });
 
+      managerExecutor.execute(() -> cleanupPageTransactions(transactionsSet, currentStoreMap));
+
       FutureTask<Object> task = new FutureTask<>(() -> null);
       managerExecutor.execute(task);
 
+      managerExecutor.execute(() -> rebuildingPageCounters = false);
+
       return task;
+   }
+
+   private void cleanupPageTransactions(Map<Long, PageTransactionInfo> transactionSet, Map<SimpleString, PagingStore> currentStoreMap) {
+      if (server == null) {
+         logger.warn("Server attribute was not set, cannot proceed with page transaction cleanup");
+      }
+      AtomicBoolean proceed = new AtomicBoolean(true);
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // I'm now checking if all pagingStore have finished rebuilding the page counter.
+      // this would be only false if some exception happened on previous executions on the rebuild manager.
+      // so if any exception happened, the cleanup is not going to be done
+      currentStoreMap.forEach((a, b) -> {
+         if (!b.getCursorProvider().isRebuildDone()) {
+            logger.warn("cannot proceed on cleaning up page transactions as page cursor for {} is not done rebuilding it", b.getAddress());
+            proceed.set(false);
+         }
+      });
+
+      if (!proceed.get()) {
+         return;
+      }
+
+      AtomicLong txRemoved = new AtomicLong(0);
+
+      transactionSet.forEach((a, b) -> {
+         if (b.isOrphaned()) {
+            b.onUpdate(b.getNumberOfMessages(), server.getStorageManager(), this);
+            txRemoved.incrementAndGet();
+
+            // I'm pringing up to 1000 records, id by ID..
+            if (txRemoved.get() < PAGE_TX_CLEANUP_PRINT_LIMIT) {
+               ActiveMQServerLogger.LOGGER.removeOrphanedPageTransaction(a);
+            } else {
+               // after a while, I start just printing counters to speed up things a bit
+               if (txRemoved.get() % PAGE_TX_CLEANUP_PRINT_LIMIT == 0) {
+                  ActiveMQServerLogger.LOGGER.cleaningOrphanedTXCleanup(txRemoved.get());
+               }
+
+            }
+         }
+      });
+
+      if (txRemoved.get() > 0) {
+         ActiveMQServerLogger.LOGGER.completeOrphanedTXCleanup(txRemoved.get());
+      } else {
+         logger.debug("Complete cleanupPageTransactions with no orphaned records found");
+      }
    }
 }

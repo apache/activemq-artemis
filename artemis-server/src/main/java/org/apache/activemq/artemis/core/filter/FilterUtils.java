@@ -23,10 +23,10 @@ public final class FilterUtils {
    }
 
    /**
-    * Returns {@code true} if {@code filter} is a {@link org.apache.activemq.artemis.core.filter.Filter#GENERIC_IGNORED_FILTER}.
+    * {@return {@code true} if {@code filter} is not {@code null} and is a {@link
+    * org.apache.activemq.artemis.core.filter.Filter#GENERIC_IGNORED_FILTER}}
     *
     * @param filter a subscription filter
-    * @return {@code true} if {@code filter} is not {@code null} and is a {@link org.apache.activemq.artemis.core.filter.Filter#GENERIC_IGNORED_FILTER}
     */
    public static boolean isTopicIdentification(final Filter filter) {
       return filter != null && filter.getFilterString() != null && filter.getFilterString().toString().equals(Filter.GENERIC_IGNORED_FILTER);

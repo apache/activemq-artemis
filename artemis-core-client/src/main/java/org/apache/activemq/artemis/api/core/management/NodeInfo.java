@@ -22,20 +22,20 @@ import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 
 /**
- * Helper class to create Java Objects from the
- * JSON serialization returned by {@link ActiveMQServerControl#listNetworkTopology()}.
+ * Helper class to create Java Objects from the JSON serialization returned by
+ * {@link ActiveMQServerControl#listNetworkTopology()}.
  */
 public class NodeInfo {
    private final String id;
-   private final String live;
+   private final String primary;
    private final String backup;
 
    public String getId() {
       return id;
    }
 
-   public String getLive() {
-      return live;
+   public String getPrimary() {
+      return primary;
    }
 
    public String getBackup() {
@@ -43,23 +43,23 @@ public class NodeInfo {
    }
 
    /**
-    * Returns an array of NodeInfo corresponding to the JSON serialization returned
-    * by {@link ActiveMQServerControl#listNetworkTopology()}.
+    * {@return an array of NodeInfo corresponding to the JSON serialization returned by {@link
+    * ActiveMQServerControl#listNetworkTopology()}}
     */
    public static NodeInfo[] from(final String jsonString) throws Exception {
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       NodeInfo[] nodes = new NodeInfo[array.size()];
       for (int i = 0; i < array.size(); i++) {
          JsonObject nodeObject = array.getJsonObject(i);
-         NodeInfo role = new NodeInfo(nodeObject.getString("nodeID"), nodeObject.getString("live", null), nodeObject.getString("backup", null));
+         NodeInfo role = new NodeInfo(nodeObject.getString("nodeID"), nodeObject.getString("primary", null), nodeObject.getString("backup", null));
          nodes[i] = role;
       }
       return nodes;
    }
 
-   public NodeInfo(String id, String live, String backup) {
+   public NodeInfo(String id, String primary, String backup) {
       this.id = id;
-      this.live = live;
+      this.primary = primary;
       this.backup = backup;
    }
 }

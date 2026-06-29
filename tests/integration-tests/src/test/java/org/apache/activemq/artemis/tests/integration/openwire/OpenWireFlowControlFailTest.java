@@ -16,8 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -32,8 +37,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class OpenWireFlowControlFailTest extends OpenWireTestBase {
 
@@ -45,21 +50,20 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
    @Override
    protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {
       addressSettingsMap.put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).
-         setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL).setMaxSizeBytes(10000));
+         setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")).setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL).setMaxSizeBytes(10000));
    }
 
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testMessagesNotSent() throws Exception {
 
-      AddressInfo addressInfo = new AddressInfo(SimpleString.toSimpleString("Test"), RoutingType.ANYCAST);
+      AddressInfo addressInfo = new AddressInfo(SimpleString.of("Test"), RoutingType.ANYCAST);
       server.addAddressInfo(addressInfo);
-      server.createQueue(new QueueConfiguration(addressInfo.getName()).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(addressInfo.getName()).setRoutingType(RoutingType.ANYCAST));
 
-      StringBuffer textBody = new StringBuffer();
-      for (int i = 0; i < 10; i++) {
-         textBody.append(" ");
-      }
-      ConnectionFactory factory = new ActiveMQConnectionFactory(urlString);
+      String textBody = " ".repeat(10);
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(urlString);
+      factory.setWatchTopicAdvisories(false);
       int numberOfMessage = 0;
       try (Connection connection = factory.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -68,7 +72,7 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
          boolean failed = false;
          try {
             for (int i = 0; i < 1000; i++) {
-               TextMessage message = session.createTextMessage(textBody.toString());
+               TextMessage message = session.createTextMessage(textBody);
                message.setIntProperty("i", i);
 
                producer.send(message);
@@ -78,17 +82,18 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
             e.printStackTrace(System.out);
             failed = true;
             try {
-               producer.send(session.createTextMessage(textBody.toString()));
-               Assert.fail("Exception expected");
+               producer.send(session.createTextMessage(textBody));
+               fail("Exception expected");
             } catch (JMSException expected) {
                expected.printStackTrace();
 
             }
          }
-         Assert.assertTrue(failed);
+         assertTrue(failed);
       }
 
       factory = new ActiveMQConnectionFactory(urlString);
+      factory.setWatchTopicAdvisories(false);
       try (Connection connection2 = factory.createConnection()) {
          Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          javax.jms.Queue queue = session2.createQueue(addressInfo.getName().toString());
@@ -97,12 +102,12 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
          connection2.start();
          for (int i = 0; i < numberOfMessage; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals(textBody.toString(), message.getText());
+            assertNotNull(message);
+            assertEquals(textBody, message.getText());
          }
 
          TextMessage msg = (TextMessage)consumer.receive(500);
-         Assert.assertNull(msg);
+         assertNull(msg);
       }
    }
 }

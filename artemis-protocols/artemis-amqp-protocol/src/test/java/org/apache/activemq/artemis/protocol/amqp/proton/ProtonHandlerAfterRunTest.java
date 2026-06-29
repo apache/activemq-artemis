@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -36,8 +38,7 @@ import io.netty.util.concurrent.ProgressivePromise;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.ScheduledFuture;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ProtonHandlerAfterRunTest {
 
@@ -222,18 +223,18 @@ public class ProtonHandlerAfterRunTest {
       handler.afterFlush(run);
 
       handler.runAfterFlush();
-      Assert.assertEquals(1, value.get());
-      Assert.assertEquals(0, value2.get());
+      assertEquals(1, value.get());
+      assertEquals(0, value2.get());
 
       handler.runAfterFlush();
-      Assert.assertEquals(1, value.get());
-      Assert.assertEquals(0, value2.get());
+      assertEquals(1, value.get());
+      assertEquals(0, value2.get());
 
 
       handler.afterFlush(run);
       handler.runAfterFlush();
-      Assert.assertEquals(2, value.get());
-      Assert.assertEquals(0, value2.get());
+      assertEquals(2, value.get());
+      assertEquals(0, value2.get());
 
       handler.afterFlush(run);
       handler.afterFlush(run);
@@ -247,21 +248,21 @@ public class ProtonHandlerAfterRunTest {
       handler.afterFlush(run);
 
       handler.runAfterFlush();
-      Assert.assertEquals(3, value.get());
-      Assert.assertEquals(1, value2.get());
+      assertEquals(3, value.get());
+      assertEquals(1, value2.get());
 
       handler.runAfterFlush();
-      Assert.assertEquals(3, value.get());
-      Assert.assertEquals(1, value2.get());
+      assertEquals(3, value.get());
+      assertEquals(1, value2.get());
 
       handler.afterFlush(run2);
       handler.runAfterFlush();
-      Assert.assertEquals(3, value.get());
-      Assert.assertEquals(2, value2.get());
+      assertEquals(3, value.get());
+      assertEquals(2, value2.get());
 
       handler.runAfterFlush();
-      Assert.assertEquals(3, value.get());
-      Assert.assertEquals(2, value2.get());
+      assertEquals(3, value.get());
+      assertEquals(2, value2.get());
    }
 
    @Test

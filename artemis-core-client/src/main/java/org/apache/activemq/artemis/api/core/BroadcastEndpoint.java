@@ -39,29 +39,21 @@ import java.util.concurrent.TimeUnit;
 public interface BroadcastEndpoint {
 
    /**
-    * This method initializes a BroadcastEndpoint as
-    * a receiving end for broadcasts. After that data can be
-    * received using one of its receiveBroadcast() methods.
-    *
-    * @throws Exception
+    * This method initializes a BroadcastEndpoint as a receiving end for broadcasts. After that data can be received
+    * using one of its receiveBroadcast() methods.
     */
    void openClient() throws Exception;
 
    /**
-    * This method initializes a BroadcastEndpint as
-    * a broadcaster. After that data can be sent
-    * via its broadcast() method.
-    *
-    * @throws Exception
+    * This method initializes a BroadcastEndpint as a broadcaster. After that data can be sent via its broadcast()
+    * method.
     */
    void openBroadcaster() throws Exception;
 
    /**
-    * Close the endpoint. Any related resources should
-    * be cleaned up in this method.
+    * Close the endpoint. Any related resources should be cleaned up in this method.
     *
     * @param isBroadcast : indicates whether this endpoint serves as a broadcast or not.
-    * @throws Exception
     */
    void close(boolean isBroadcast) throws Exception;
 
@@ -69,7 +61,6 @@ public interface BroadcastEndpoint {
     * Broadcasting data to the cluster.
     *
     * @param data : a byte array containing the data.
-    * @throws Exception
     */
    void broadcast(byte[] data) throws Exception;
 
@@ -77,20 +68,17 @@ public interface BroadcastEndpoint {
     * Receives the broadcast data. It blocks until data is
     * available.
     *
-    * @return the received data as byte array.
-    * @throws Exception
+    * @return the received data as byte array
     */
    byte[] receiveBroadcast() throws Exception;
 
    /**
-    * Receives the broadcast data with a timeout. It blocks until either
-    * the data is available or the timeout is reached, whichever comes first.
+    * Receives the broadcast data with a timeout. It blocks until either the data is available or the timeout is
+    * reached, whichever comes first.
     *
     * @param time : how long the method should wait for the data to arrive.
     * @param unit : unit of the time.
-    * @return a byte array if data is arrived within the timeout, or null if no data
-    * is available after the timeout.
-    * @throws Exception
+    * @return a byte array if data is arrived within the timeout, or null if no data is available after the timeout.
     */
    byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception;
 }

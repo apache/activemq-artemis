@@ -71,9 +71,6 @@ public class StompDecoder {
 
    public static final int COMMAND_UNSUBSCRIBE_LENGTH = COMMAND_UNSUBSCRIBE.length();
 
-   /**
-    * * added by meddy, 27 april 2011, handle header parser for reply to websocket protocol ***
-    */
    public static final String COMMAND_CONNECTED = Stomp.Responses.CONNECTED;
 
    public static final int COMMAND_CONNECTED_LENGTH = COMMAND_CONNECTED.length();
@@ -89,9 +86,6 @@ public class StompDecoder {
    public static final String COMMAND_RECEIPT = Stomp.Responses.RECEIPT;
 
    public static final int COMMAND_RECEIPT_LENGTH = COMMAND_RECEIPT.length();
-   /**
-    * * end  ***
-    */
 
    public static final byte A = (byte) 'A';
 
@@ -248,12 +242,14 @@ public class StompDecoder {
 
       if (content != null) {
          if (data > pos) {
-            if (workingBuffer[pos] == NEW_LINE)
+            if (workingBuffer[pos] == NEW_LINE) {
                pos++;
+            }
 
-            if (data > pos)
+            if (data > pos) {
                // More data still in the buffer from the next packet
                System.arraycopy(workingBuffer, pos, workingBuffer, 0, data - pos);
+            }
          }
 
          data = data - pos;
@@ -331,7 +327,7 @@ public class StompDecoder {
                   // trim off leading whitespace from header values.
                   // The STOMP spec examples seem to imply that whitespace should be trimmed although it is not
                   // explicit in the spec
-                  // ActiveMQ Artemis + StompConnect also seem to trim whitespace from header values.
+                  // Apache Artemis + StompConnect also seem to trim whitespace from header values.
                   // Trimming is problematic though if the user has set a header with a value which deliberately
                   // has
                   // leading whitespace since
@@ -369,8 +365,9 @@ public class StompDecoder {
          if (workingBuffer[offset] == NEW_LINE) {
             nextChar = false;
          } else if (workingBuffer[offset] == CR) {
-            if (nextChar)
+            if (nextChar) {
                throw BUNDLE.invalidTwoCRs().setHandler(handler);
+            }
             nextChar = true;
          } else {
             break;
@@ -464,7 +461,6 @@ public class StompDecoder {
 
             break;
          }
-         /**** added by meddy, 27 april 2011, handle header parser for reply to websocket protocol ****/
          case E: {
             if (!tryIncrement(offset + COMMAND_ERROR_LENGTH + 1)) {
                return false;
@@ -485,7 +481,6 @@ public class StompDecoder {
 
             break;
          }
-         /**** end ****/
          case S: {
             if (workingBuffer[offset + 1] == E) {
                if (!tryIncrement(offset + COMMAND_SEND_LENGTH + 1)) {

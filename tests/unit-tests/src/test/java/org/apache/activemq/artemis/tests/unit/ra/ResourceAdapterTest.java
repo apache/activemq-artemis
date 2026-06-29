@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.unit.ra;
 import javax.jms.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -41,42 +42,45 @@ import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ResourceAdapterTest extends ActiveMQTestBase {
-
-
 
    @Test
    public void testDefaultConnectionFactory() throws Exception {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
-      Assert.assertEquals(factory.getCallTimeout(), ActiveMQClient.DEFAULT_CALL_TIMEOUT);
-      Assert.assertEquals(factory.getClientFailureCheckPeriod(), ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD);
-      Assert.assertEquals(factory.getClientID(), null);
-      Assert.assertEquals(factory.getConnectionLoadBalancingPolicyClassName(), ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME);
-      Assert.assertEquals(factory.getConnectionTTL(), ActiveMQClient.DEFAULT_CONNECTION_TTL);
-      Assert.assertEquals(factory.getConsumerMaxRate(), ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE);
-      Assert.assertEquals(factory.getConsumerWindowSize(), ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE);
-      Assert.assertEquals(factory.getDupsOKBatchSize(), ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
-      Assert.assertEquals(factory.getMinLargeMessageSize(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
-      Assert.assertEquals(factory.getProducerMaxRate(), ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE);
-      Assert.assertEquals(factory.getConfirmationWindowSize(), ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE);
+      assertEquals(ActiveMQClient.DEFAULT_CALL_TIMEOUT, factory.getCallTimeout());
+      assertEquals(ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, factory.getClientFailureCheckPeriod());
+      assertNull(factory.getClientID());
+      assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, factory.getConnectionLoadBalancingPolicyClassName());
+      assertEquals(ActiveMQClient.DEFAULT_CONNECTION_TTL, factory.getConnectionTTL());
+      assertEquals(ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, factory.getConsumerMaxRate());
+      assertEquals(ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, factory.getConsumerWindowSize());
+      assertEquals(ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, factory.getDupsOKBatchSize());
+      assertEquals(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, factory.getMinLargeMessageSize());
+      assertEquals(ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, factory.getProducerMaxRate());
+      assertEquals(ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, factory.getConfirmationWindowSize());
       // by default, reconnect attempts is set to -1
-      Assert.assertEquals(-1, factory.getReconnectAttempts());
-      Assert.assertEquals(factory.getRetryInterval(), ActiveMQClient.DEFAULT_RETRY_INTERVAL);
-      Assert.assertEquals(factory.getRetryIntervalMultiplier(), ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, 0.00001);
-      Assert.assertEquals(factory.getScheduledThreadPoolMaxSize(), ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE);
-      Assert.assertEquals(factory.getThreadPoolMaxSize(), ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE);
-      Assert.assertEquals(factory.getTransactionBatchSize(), ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
-      Assert.assertEquals(factory.isAutoGroup(), ActiveMQClient.DEFAULT_AUTO_GROUP);
-      Assert.assertEquals(factory.isBlockOnAcknowledge(), ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isBlockOnNonDurableSend(), ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
-      Assert.assertEquals(factory.isBlockOnDurableSend(), ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
-      Assert.assertEquals(factory.isPreAcknowledge(), ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isUseGlobalPools(), ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
+      assertEquals(-1, factory.getReconnectAttempts());
+      assertEquals(ActiveMQClient.DEFAULT_RETRY_INTERVAL, factory.getRetryInterval());
+      assertEquals(ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, factory.getRetryIntervalMultiplier(), 0.00001);
+      assertEquals(ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, factory.getScheduledThreadPoolMaxSize());
+      assertEquals(ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, factory.getThreadPoolMaxSize());
+      assertEquals(ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, factory.getTransactionBatchSize());
+      assertEquals(ActiveMQClient.DEFAULT_AUTO_GROUP, factory.isAutoGroup());
+      assertEquals(ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, factory.isBlockOnAcknowledge());
+      assertEquals(ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, factory.isBlockOnNonDurableSend());
+      assertEquals(ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, factory.isBlockOnDurableSend());
+      assertEquals(ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, factory.isPreAcknowledge());
+      assertEquals(ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, factory.isUseGlobalPools());
    }
 
    @Test
@@ -85,7 +89,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
       ActiveMQConnectionFactory factory2 = ra.getDefaultActiveMQConnectionFactory();
-      Assert.assertEquals(factory, factory2);
+      assertEquals(factory, factory2);
    }
 
    @Test
@@ -93,30 +97,30 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ActiveMQConnectionFactory factory = ra.getConnectionFactory(new ConnectionFactoryProperties());
-      Assert.assertEquals(factory.getCallTimeout(), ActiveMQClient.DEFAULT_CALL_TIMEOUT);
-      Assert.assertEquals(factory.getClientFailureCheckPeriod(), ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD);
-      Assert.assertEquals(factory.getClientID(), null);
-      Assert.assertEquals(factory.getConnectionLoadBalancingPolicyClassName(), ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME);
-      Assert.assertEquals(factory.getConnectionTTL(), ActiveMQClient.DEFAULT_CONNECTION_TTL);
-      Assert.assertEquals(factory.getConsumerMaxRate(), ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE);
-      Assert.assertEquals(factory.getConsumerWindowSize(), ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE);
-      Assert.assertEquals(factory.getDupsOKBatchSize(), ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
-      Assert.assertEquals(factory.getMinLargeMessageSize(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
-      Assert.assertEquals(factory.getProducerMaxRate(), ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE);
-      Assert.assertEquals(factory.getConfirmationWindowSize(), ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE);
+      assertEquals(ActiveMQClient.DEFAULT_CALL_TIMEOUT, factory.getCallTimeout());
+      assertEquals(ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, factory.getClientFailureCheckPeriod());
+      assertNull(factory.getClientID());
+      assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, factory.getConnectionLoadBalancingPolicyClassName());
+      assertEquals(ActiveMQClient.DEFAULT_CONNECTION_TTL, factory.getConnectionTTL());
+      assertEquals(ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, factory.getConsumerMaxRate());
+      assertEquals(ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, factory.getConsumerWindowSize());
+      assertEquals(ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, factory.getDupsOKBatchSize());
+      assertEquals(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, factory.getMinLargeMessageSize());
+      assertEquals(ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, factory.getProducerMaxRate());
+      assertEquals(ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, factory.getConfirmationWindowSize());
       // by default, reconnect attempts is set to -1
-      Assert.assertEquals(-1, factory.getReconnectAttempts());
-      Assert.assertEquals(factory.getRetryInterval(), ActiveMQClient.DEFAULT_RETRY_INTERVAL);
-      Assert.assertEquals(factory.getRetryIntervalMultiplier(), ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, 0.000001);
-      Assert.assertEquals(factory.getScheduledThreadPoolMaxSize(), ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE);
-      Assert.assertEquals(factory.getThreadPoolMaxSize(), ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE);
-      Assert.assertEquals(factory.getTransactionBatchSize(), ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
-      Assert.assertEquals(factory.isAutoGroup(), ActiveMQClient.DEFAULT_AUTO_GROUP);
-      Assert.assertEquals(factory.isBlockOnAcknowledge(), ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isBlockOnNonDurableSend(), ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
-      Assert.assertEquals(factory.isBlockOnDurableSend(), ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
-      Assert.assertEquals(factory.isPreAcknowledge(), ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isUseGlobalPools(), ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
+      assertEquals(-1, factory.getReconnectAttempts());
+      assertEquals(ActiveMQClient.DEFAULT_RETRY_INTERVAL, factory.getRetryInterval());
+      assertEquals(ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, factory.getRetryIntervalMultiplier(), 0.000001);
+      assertEquals(ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, factory.getScheduledThreadPoolMaxSize());
+      assertEquals(ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, factory.getThreadPoolMaxSize());
+      assertEquals(ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, factory.getTransactionBatchSize());
+      assertEquals(ActiveMQClient.DEFAULT_AUTO_GROUP, factory.isAutoGroup());
+      assertEquals(ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, factory.isBlockOnAcknowledge());
+      assertEquals(ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, factory.isBlockOnNonDurableSend());
+      assertEquals(ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, factory.isBlockOnDurableSend());
+      assertEquals(ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, factory.isPreAcknowledge());
+      assertEquals(ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, factory.isUseGlobalPools());
    }
 
    @Test
@@ -149,29 +153,29 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ra.setTransactionBatchSize(18);
       ra.setUseGlobalPools(!ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
       ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
-      Assert.assertEquals(factory.getCallTimeout(), 1);
-      Assert.assertEquals(factory.getClientFailureCheckPeriod(), 2);
-      Assert.assertEquals(factory.getClientID(), "myid");
-      Assert.assertEquals(factory.getConnectionLoadBalancingPolicyClassName(), "mlbcn");
-      Assert.assertEquals(factory.getConnectionTTL(), 3);
-      Assert.assertEquals(factory.getConsumerMaxRate(), 4);
-      Assert.assertEquals(factory.getConsumerWindowSize(), 5);
-      Assert.assertEquals(factory.getDupsOKBatchSize(), 8);
-      Assert.assertEquals(factory.getMinLargeMessageSize(), 10);
-      Assert.assertEquals(factory.getProducerMaxRate(), 11);
-      Assert.assertEquals(factory.getConfirmationWindowSize(), 12);
-      Assert.assertEquals(factory.getReconnectAttempts(), 13);
-      Assert.assertEquals(factory.getRetryInterval(), 14);
-      Assert.assertEquals(factory.getRetryIntervalMultiplier(), 15d, 0.00001);
-      Assert.assertEquals(factory.getScheduledThreadPoolMaxSize(), 16);
-      Assert.assertEquals(factory.getThreadPoolMaxSize(), 17);
-      Assert.assertEquals(factory.getTransactionBatchSize(), 18);
-      Assert.assertEquals(factory.isAutoGroup(), !ActiveMQClient.DEFAULT_AUTO_GROUP);
-      Assert.assertEquals(factory.isBlockOnAcknowledge(), !ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isBlockOnNonDurableSend(), !ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
-      Assert.assertEquals(factory.isBlockOnDurableSend(), !ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
-      Assert.assertEquals(factory.isPreAcknowledge(), !ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isUseGlobalPools(), !ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
+      assertEquals(1, factory.getCallTimeout());
+      assertEquals(2, factory.getClientFailureCheckPeriod());
+      assertEquals("myid", factory.getClientID());
+      assertEquals("mlbcn", factory.getConnectionLoadBalancingPolicyClassName());
+      assertEquals(3, factory.getConnectionTTL());
+      assertEquals(4, factory.getConsumerMaxRate());
+      assertEquals(5, factory.getConsumerWindowSize());
+      assertEquals(8, factory.getDupsOKBatchSize());
+      assertEquals(10, factory.getMinLargeMessageSize());
+      assertEquals(11, factory.getProducerMaxRate());
+      assertEquals(12, factory.getConfirmationWindowSize());
+      assertEquals(13, factory.getReconnectAttempts());
+      assertEquals(14, factory.getRetryInterval());
+      assertEquals(15d, factory.getRetryIntervalMultiplier(), 0.00001);
+      assertEquals(16, factory.getScheduledThreadPoolMaxSize());
+      assertEquals(17, factory.getThreadPoolMaxSize());
+      assertEquals(18, factory.getTransactionBatchSize());
+      assertEquals(!ActiveMQClient.DEFAULT_AUTO_GROUP, factory.isAutoGroup());
+      assertEquals(!ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, factory.isBlockOnAcknowledge());
+      assertEquals(!ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, factory.isBlockOnNonDurableSend());
+      assertEquals(!ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, factory.isBlockOnDurableSend());
+      assertEquals(!ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, factory.isPreAcknowledge());
+      assertEquals(!ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, factory.isUseGlobalPools());
    }
 
    @Test
@@ -205,29 +209,29 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       connectionFactoryProperties.setTransactionBatchSize(18);
       connectionFactoryProperties.setUseGlobalPools(!ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
       ActiveMQConnectionFactory factory = ra.getConnectionFactory(connectionFactoryProperties);
-      Assert.assertEquals(factory.getCallTimeout(), 1);
-      Assert.assertEquals(factory.getClientFailureCheckPeriod(), 2);
-      Assert.assertEquals(factory.getClientID(), "myid");
-      Assert.assertEquals(factory.getConnectionLoadBalancingPolicyClassName(), "mlbcn");
-      Assert.assertEquals(factory.getConnectionTTL(), 3);
-      Assert.assertEquals(factory.getConsumerMaxRate(), 4);
-      Assert.assertEquals(factory.getConsumerWindowSize(), 5);
-      Assert.assertEquals(factory.getDupsOKBatchSize(), 8);
-      Assert.assertEquals(factory.getMinLargeMessageSize(), 10);
-      Assert.assertEquals(factory.getProducerMaxRate(), 11);
-      Assert.assertEquals(factory.getConfirmationWindowSize(), 12);
-      Assert.assertEquals(factory.getReconnectAttempts(), 13);
-      Assert.assertEquals(factory.getRetryInterval(), 14);
-      Assert.assertEquals(factory.getRetryIntervalMultiplier(), 15d, 0.000001);
-      Assert.assertEquals(factory.getScheduledThreadPoolMaxSize(), 16);
-      Assert.assertEquals(factory.getThreadPoolMaxSize(), 17);
-      Assert.assertEquals(factory.getTransactionBatchSize(), 18);
-      Assert.assertEquals(factory.isAutoGroup(), !ActiveMQClient.DEFAULT_AUTO_GROUP);
-      Assert.assertEquals(factory.isBlockOnAcknowledge(), !ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isBlockOnNonDurableSend(), !ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
-      Assert.assertEquals(factory.isBlockOnDurableSend(), !ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
-      Assert.assertEquals(factory.isPreAcknowledge(), !ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isUseGlobalPools(), !ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
+      assertEquals(1, factory.getCallTimeout());
+      assertEquals(2, factory.getClientFailureCheckPeriod());
+      assertEquals("myid", factory.getClientID());
+      assertEquals("mlbcn", factory.getConnectionLoadBalancingPolicyClassName());
+      assertEquals(3, factory.getConnectionTTL());
+      assertEquals(4, factory.getConsumerMaxRate());
+      assertEquals(5, factory.getConsumerWindowSize());
+      assertEquals(8, factory.getDupsOKBatchSize());
+      assertEquals(10, factory.getMinLargeMessageSize());
+      assertEquals(11, factory.getProducerMaxRate());
+      assertEquals(12, factory.getConfirmationWindowSize());
+      assertEquals(13, factory.getReconnectAttempts());
+      assertEquals(14, factory.getRetryInterval());
+      assertEquals(15d, factory.getRetryIntervalMultiplier(), 0.000001);
+      assertEquals(16, factory.getScheduledThreadPoolMaxSize());
+      assertEquals(17, factory.getThreadPoolMaxSize());
+      assertEquals(18, factory.getTransactionBatchSize());
+      assertEquals(!ActiveMQClient.DEFAULT_AUTO_GROUP, factory.isAutoGroup());
+      assertEquals(!ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, factory.isBlockOnAcknowledge());
+      assertEquals(!ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, factory.isBlockOnNonDurableSend());
+      assertEquals(!ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, factory.isBlockOnDurableSend());
+      assertEquals(!ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, factory.isPreAcknowledge());
+      assertEquals(!ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, factory.isUseGlobalPools());
    }
 
    @Test
@@ -235,12 +239,12 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ConnectionFactoryProperties connectionFactoryProperties = new ConnectionFactoryProperties();
-      ArrayList<String> value = new ArrayList<>();
+      List<String> value = new ArrayList<>();
       value.add(NettyConnectorFactory.class.getName());
       connectionFactoryProperties.setParsedConnectorClassNames(value);
       ActiveMQConnectionFactory factory = ra.getConnectionFactory(connectionFactoryProperties);
       ActiveMQConnectionFactory defaultFactory = ra.getDefaultActiveMQConnectionFactory();
-      Assert.assertNotSame(factory, defaultFactory);
+      assertNotSame(factory, defaultFactory);
    }
 
    @Test
@@ -253,12 +257,12 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       connectionFactoryProperties.setDiscoveryLocalBindAddress("newAddress");
       ActiveMQConnectionFactory factory = ra.getConnectionFactory(connectionFactoryProperties);
       ActiveMQConnectionFactory defaultFactory = ra.getDefaultActiveMQConnectionFactory();
-      Assert.assertNotSame(factory, defaultFactory);
+      assertNotSame(factory, defaultFactory);
       DiscoveryGroupConfiguration dc = factory.getServerLocator().getDiscoveryGroupConfiguration();
       UDPBroadcastEndpointFactory udpDg = (UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory();
-      Assert.assertEquals(udpDg.getLocalBindAddress(), "newAddress");
-      Assert.assertEquals(udpDg.getGroupAddress(), "myhost");
-      Assert.assertEquals(udpDg.getGroupPort(), 5678);
+      assertEquals("newAddress", udpDg.getLocalBindAddress());
+      assertEquals("myhost", udpDg.getGroupAddress());
+      assertEquals(5678, udpDg.getGroupPort());
    }
 
    @Test
@@ -304,7 +308,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
       ConnectionFactoryProperties overrideProperties = new ConnectionFactoryProperties();
-      ArrayList<String> value = new ArrayList<>();
+      List<String> value = new ArrayList<>();
       value.add(INVM_CONNECTOR_FACTORY);
       value.add(NETTY_CONNECTOR_FACTORY);
       value.add(INVM_CONNECTOR_FACTORY);
@@ -327,12 +331,12 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
       ra.setConnectionParameters("host=host1;port=61616, serverid=0, host=host2;port=61617");
       ConnectionFactoryProperties overrideProperties = new ConnectionFactoryProperties();
-      ArrayList<String> value = new ArrayList<>();
+      List<String> value = new ArrayList<>();
       value.add(INVM_CONNECTOR_FACTORY);
       value.add(NETTY_CONNECTOR_FACTORY);
       value.add(INVM_CONNECTOR_FACTORY);
       overrideProperties.setParsedConnectorClassNames(value);
-      ArrayList<Map<String, Object>> connectionParameters = new ArrayList<>();
+      List<Map<String, Object>> connectionParameters = new ArrayList<>();
       Map<String, Object> map1 = new HashMap<>();
       map1.put("serverid", "0");
       connectionParameters.add(map1);
@@ -366,7 +370,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ConnectionFactoryProperties connectionFactoryProperties = new ConnectionFactoryProperties();
       try {
          ra.getConnectionFactory(connectionFactoryProperties);
-         Assert.fail("should throw exception");
+         fail("should throw exception");
       } catch (IllegalArgumentException e) {
          // pass
       }
@@ -381,20 +385,20 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
 
       spec.setAcknowledgeMode("DUPS_OK_ACKNOWLEDGE");
-      Assert.assertEquals("Dups-ok-acknowledge", spec.getAcknowledgeMode());
+      assertEquals("Dups-ok-acknowledge", spec.getAcknowledgeMode());
 
       spec.setSubscriptionDurability("Durable");
-      Assert.assertEquals("Durable", spec.getSubscriptionDurability());
+      assertEquals("Durable", spec.getSubscriptionDurability());
 
       spec.setSubscriptionDurability("NonDurable");
-      Assert.assertEquals("NonDurable", spec.getSubscriptionDurability());
+      assertEquals("NonDurable", spec.getSubscriptionDurability());
 
       final int validMaxSessionValue = 110;
       spec.setMaxSession(validMaxSessionValue);
-      Assert.assertTrue(validMaxSessionValue == spec.getMaxSession());
+      assertEquals(validMaxSessionValue, (int) spec.getMaxSession());
 
       spec.setMaxSession(-3);
-      Assert.assertTrue(spec.getMaxSession() == 1);
+      assertEquals(1, (int) spec.getMaxSession());
 
       spec = new ActiveMQActivationSpec();
       ActiveMQResourceAdapter adapter = new ActiveMQResourceAdapter();
@@ -405,16 +409,16 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
 
       spec.setResourceAdapter(adapter);
 
-      Assert.assertEquals("us1", spec.getUser());
-      Assert.assertEquals("ps1", spec.getPassword());
+      assertEquals("us1", spec.getUser());
+      assertEquals("ps1", spec.getPassword());
 
       spec.setUser("us2");
       spec.setPassword("ps2");
       spec.setClientID("cl2");
 
-      Assert.assertEquals("us2", spec.getUser());
-      Assert.assertEquals("ps2", spec.getPassword());
-      Assert.assertEquals("cl2", spec.getClientID());
+      assertEquals("us2", spec.getUser());
+      assertEquals("ps2", spec.getPassword());
+      assertEquals("cl2", spec.getClientID());
 
    }
 
@@ -429,7 +433,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
          ClientSessionFactory factory = createSessionFactory(locator);
          ClientSession session = factory.createSession(false, false, false);
          ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
-         session.createQueue(new QueueConfiguration(queue.getSimpleAddress()));
+         session.createQueue(QueueConfiguration.of(queue.getSimpleAddress()));
          session.close();
 
          ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
@@ -461,7 +465,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
          ActiveMQActivation activation = new ActiveMQActivation(ra, new MessageEndpointFactory(), spec);
 
          activation.start();
-         Assert.assertEquals("wrong connection count ", server.getConnectionCount(), 11);
+         assertEquals(11, server.getConnectionCount(), "wrong connection count ");
          activation.stop();
 
          ra.stop();
@@ -484,7 +488,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
          ClientSessionFactory factory = createSessionFactory(locator);
          ClientSession session = factory.createSession(false, false, false);
          ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
-         session.createQueue(new QueueConfiguration(queue.getSimpleAddress()));
+         session.createQueue(QueueConfiguration.of(queue.getSimpleAddress()));
          session.close();
 
          ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
@@ -517,7 +521,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
          ActiveMQActivation activation = new ActiveMQActivation(ra, new MessageEndpointFactory(), spec);
 
          activation.start();
-         Assert.assertEquals("wrong connection count ", server.getConnectionCount(), 2);
+         assertEquals(2, server.getConnectionCount(), "wrong connection count ");
          activation.stop();
 
          ra.stop();
@@ -530,7 +534,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testActivationDeserializationParameters() throws Exception {
+   public void testDeprecatedActivationDeserializationParameters() throws Exception {
       ActiveMQServer server = createServer(false);
 
       try {
@@ -557,6 +561,42 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
          factory = ra.newConnectionFactory(overrides);
          assertEquals("k.l.m.n", factory.getDeserializationWhiteList());
          assertEquals("o.p.q.r", factory.getDeserializationBlackList());
+
+         ra.stop();
+
+      } finally {
+         server.stop();
+      }
+   }
+
+   @Test
+   public void testActivationDeserializationParameters() throws Exception {
+      ActiveMQServer server = createServer(false);
+
+      try {
+
+         server.start();
+
+         ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
+
+         ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+         ra.setUserName("userGlobal");
+         ra.setPassword("passwordGlobal");
+         ra.setDeserializationAllowList("a.b.c.d.e");
+         ra.setDeserializationDenyList("f.g.h.i.j");
+         ra.start(new BootstrapContext());
+
+         ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
+         assertEquals("a.b.c.d.e", factory.getDeserializationAllowList());
+         assertEquals("f.g.h.i.j", factory.getDeserializationDenyList());
+
+         ConnectionFactoryProperties overrides = new ConnectionFactoryProperties();
+         overrides.setDeserializationAllowList("k.l.m.n");
+         overrides.setDeserializationDenyList("o.p.q.r");
+
+         factory = ra.newConnectionFactory(overrides);
+         assertEquals("k.l.m.n", factory.getDeserializationAllowList());
+         assertEquals("o.p.q.r", factory.getDeserializationDenyList());
 
          ra.stop();
 
@@ -608,11 +648,32 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
 
          assertEquals(0, server.getRemotingService().getConnections().size());
       } finally {
-         if (activation != null)
+         if (activation != null) {
             activation.stop();
-         if (ra != null)
+         }
+         if (ra != null) {
             ra.stop();
+         }
          server.stop();
+      }
+   }
+   @Test
+   public void testCloseConnectionFactoryMultipleTimesDoesNotThrow() throws Exception {
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
+      ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+
+      ConnectionFactoryProperties properties = new ConnectionFactoryProperties();
+      properties.setClientID("test-client");
+
+      ActiveMQConnectionFactory factory = ra.getConnectionFactory(properties);
+      assertNotNull(factory);
+
+      ra.closeConnectionFactory(properties);
+
+      try {
+         ra.closeConnectionFactory(properties);
+      } catch (NullPointerException e) {
+         fail("NullPointerException was thrown when closing connection factory multiple times");
       }
    }
 }

@@ -30,6 +30,9 @@ public class MetricsConfiguration implements Serializable {
    private boolean fileDescriptors = ActiveMQDefaultConfiguration.getDefaultFileDescriptorsMetrics();
    private boolean processor = ActiveMQDefaultConfiguration.getDefaultProcessorMetrics();
    private boolean uptime = ActiveMQDefaultConfiguration.getDefaultUptimeMetrics();
+   private boolean logging = ActiveMQDefaultConfiguration.getDefaultLoggingMetrics();
+   private boolean securityCaches = ActiveMQDefaultConfiguration.getDefaultSecurityCacheMetrics();
+   private boolean executorServices = ActiveMQDefaultConfiguration.getDefaultExecutorServiceMetrics();
    private ActiveMQMetricsPlugin plugin;
 
    public boolean isJvmMemory() {
@@ -95,12 +98,39 @@ public class MetricsConfiguration implements Serializable {
       return this;
    }
 
+   public boolean isLogging() {
+      return logging;
+   }
+
+   public MetricsConfiguration setLogging(boolean logging) {
+      this.logging = logging;
+      return this;
+   }
+
    public ActiveMQMetricsPlugin getPlugin() {
       return plugin;
    }
 
    public MetricsConfiguration setPlugin(ActiveMQMetricsPlugin plugin) {
       this.plugin = plugin;
+      return this;
+   }
+
+   public boolean isSecurityCaches() {
+      return securityCaches;
+   }
+
+   public MetricsConfiguration setSecurityCaches(boolean securityCaches) {
+      this.securityCaches = securityCaches;
+      return this;
+   }
+
+   public boolean isExecutorServices() {
+      return executorServices;
+   }
+
+   public MetricsConfiguration setExecutorServices(boolean executorServices) {
+      this.executorServices = executorServices;
       return this;
    }
 }

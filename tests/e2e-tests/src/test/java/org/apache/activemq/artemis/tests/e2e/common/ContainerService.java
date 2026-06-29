@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.e2e.common;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.ConnectionFactory;
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +27,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.junit.Assert;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
@@ -36,8 +38,8 @@ import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 /**
- * I am intentionally not depending directly into TestContainer
- * I intend in a near future to support kubernetes and podman and I would like to keep an interface between our tests and the Container provider.
+ * I am intentionally not depending directly into TestContainer. I intend in a near future to support kubernetes and
+ * podman and I would like to keep an interface between our tests and the Container provider.
  */
 public abstract class ContainerService {
 
@@ -50,7 +52,7 @@ public abstract class ContainerService {
          if (providerName == null) {
             loadingService = new TestContainerImpl();
          } else {
-            loadingService = (ContainerService) Class.forName(providerName).newInstance();
+            loadingService = (ContainerService) Class.forName(providerName).getDeclaredConstructor().newInstance();
          }
       } catch (Throwable e) {
          e.printStackTrace();
@@ -98,7 +100,9 @@ public abstract class ContainerService {
 
    public abstract void exposeHosts(Object container, String... hosts);
 
-   /** prepare the instance folder to run inside the docker image */
+   /**
+    * prepare the instance folder to run inside the docker image
+    */
    public abstract void prepareInstance(String home) throws Exception;
 
    public abstract String getHost(Object container);
@@ -116,8 +120,8 @@ public abstract class ContainerService {
          try {
             ConnectionFactory cf = createCF(container, "core");
             cf.createConnection(username, password).close();
-            if (cf instanceof AutoCloseable) {
-               ((AutoCloseable)cf).close();
+            if (cf instanceof AutoCloseable autoCloseable) {
+               autoCloseable.close();
             }
             System.out.println("server started");
          } catch (Exception e) {
@@ -153,8 +157,8 @@ public abstract class ContainerService {
       @Override
       public void prepareInstance(String home) throws Exception {
          File homeFile = new File(home);
-         Assert.assertTrue(homeFile.exists());
-         Assert.assertTrue(homeFile.isDirectory());
+         assertTrue(homeFile.exists());
+         assertTrue(homeFile.isDirectory());
 
          copyFile("artemis", home + "/bin/artemis");
          copyFile("artemis.profile", home + "/etc/artemis.profile");
@@ -210,24 +214,24 @@ public abstract class ContainerService {
       @Override
       public void exposeFile(Object container, String hostPath, String containerPath) {
          File file = new File(hostPath);
-         Assert.assertTrue(file.exists());
-         Assert.assertFalse(file.isDirectory());
+         assertTrue(file.exists());
+         assertFalse(file.isDirectory());
          ((GenericContainer)container).addFileSystemBind(hostPath, containerPath, BindMode.READ_WRITE, SelinuxContext.SHARED);
       }
 
       @Override
       public void exposeFolder(Object container, String hostPath, String containerPath) {
          File file = new File(hostPath);
-         Assert.assertTrue(file.exists());
-         Assert.assertTrue(file.isDirectory());
+         assertTrue(file.exists());
+         assertTrue(file.isDirectory());
          ((GenericContainer)container).addFileSystemBind(hostPath, containerPath, BindMode.READ_WRITE, SelinuxContext.SHARED);
       }
 
       @Override
       public void copyFileToContainer(Object container, String hostPath, String containerPath) {
          File file = new File(hostPath);
-         Assert.assertTrue(file.exists());
-         Assert.assertFalse(file.isDirectory());
+         assertTrue(file.exists());
+         assertFalse(file.isDirectory());
          ((GenericContainer)container).withCopyFileToContainer(MountableFile.forHostPath(hostPath), containerPath);
       }
 
@@ -281,12 +285,7 @@ public abstract class ContainerService {
 
       @Override
       public void startLogging(Object container, String prefix) {
-         ((GenericContainer)container).withLogConsumer(new Consumer<OutputFrame>() {
-            @Override
-            public void accept(OutputFrame outputFrame) {
-               System.out.print(prefix + outputFrame.getUtf8String());
-            }
-         });
+         ((GenericContainer)container).withLogConsumer((Consumer<OutputFrame>) outputFrame -> System.out.print(prefix + outputFrame.getUtf8String()));
       }
 
       @Override

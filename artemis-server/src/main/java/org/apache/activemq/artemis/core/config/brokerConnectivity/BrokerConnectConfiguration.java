@@ -17,14 +17,19 @@
 package org.apache.activemq.artemis.core.config.brokerConnectivity;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-/** This is an extension point for outgoing broker configuration.
- *  This is a new feature that at the time we introduced, is only being used for AMQP.
- *  Where the broker will create a connection towards another broker using a specific protocol.
- *  */
+/**
+ * This is base class for outgoing broker configuration types.
+ * <p>
+ * This is a new feature that at the time we introduced, is only being used for AMQP. Where the broker will create a
+ * connection towards another broker using a specific protocol.
+ */
 public abstract class BrokerConnectConfiguration implements Serializable {
+
    private static final long serialVersionUID = 8026604526022462048L;
 
+   private String lockCoordinator;
    private String name;
    private String uri;
    private String user;
@@ -38,9 +43,16 @@ public abstract class BrokerConnectConfiguration implements Serializable {
       this.uri = uri;
    }
 
+   public String getLockCoordinator() {
+      return lockCoordinator;
+   }
+
+   public BrokerConnectConfiguration setLockCoordinator(String lockCoordinator) {
+      this.lockCoordinator = lockCoordinator;
+      return this;
+   }
+
    public abstract void parseURI() throws Exception;
-
-
 
    public int getReconnectAttempts() {
       return reconnectAttempts;
@@ -51,7 +63,6 @@ public abstract class BrokerConnectConfiguration implements Serializable {
       return this;
    }
 
-
    public String getUser() {
       return user;
    }
@@ -60,7 +71,6 @@ public abstract class BrokerConnectConfiguration implements Serializable {
       this.user = user;
       return this;
    }
-
 
    public String getPassword() {
       return password;
@@ -89,7 +99,6 @@ public abstract class BrokerConnectConfiguration implements Serializable {
       return this;
    }
 
-
    public String getName() {
       return name;
    }
@@ -106,5 +115,28 @@ public abstract class BrokerConnectConfiguration implements Serializable {
    public BrokerConnectConfiguration setAutostart(boolean autostart) {
       this.autostart = autostart;
       return this;
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(autostart, name, password, reconnectAttempts, retryInterval, uri, user);
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof BrokerConnectConfiguration other)) {
+         return false;
+      }
+
+      return Objects.equals(name, other.name) &&
+             Objects.equals(autostart, other.autostart) &&
+             Objects.equals(password, other.password) &&
+             Objects.equals(reconnectAttempts, other.reconnectAttempts) &&
+             Objects.equals(retryInterval, other.retryInterval) &&
+             Objects.equals(uri, other.uri) &&
+             Objects.equals(user, other.user);
    }
 }

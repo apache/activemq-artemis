@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * There are a few properties that were changed between HornetQ and Artemis.
- * When sending topology updates to clients, if these properties are used we need to convert them properly
+ * There are a few properties that were changed between HornetQ and Artemis. When sending topology updates to clients,
+ * if these properties are used we need to convert them properly
  */
 public class BackwardsCompatibilityUtils {
 
@@ -146,8 +146,8 @@ public class BackwardsCompatibilityUtils {
 
    /**
     * Translates V3 strings to V2 strings.
-    * <p>
-    * Returns the string as if it's not found in the conversion map.
+    *
+    * @return the string as if it's not found in the conversion map.
     */
    public static String convertParameter(String name) {
       String oldParameter = OLD_PARAMETERS_MAP.get(name);
@@ -163,9 +163,9 @@ public class BackwardsCompatibilityUtils {
    public static Pair<TransportConfiguration, TransportConfiguration> checkTCPPairConversion(int clientIncrementingVersion,
                                                                                              TopologyMember member) {
       if (clientIncrementingVersion < INITIAL_ACTIVEMQ_INCREMENTING_VERSION) {
-         return new Pair<>(convertTransport(member.getLive()), convertTransport(member.getBackup()));
+         return new Pair<>(convertTransport(member.getPrimary()), convertTransport(member.getBackup()));
       }
-      return new Pair<>(member.getLive(), member.getBackup());
+      return new Pair<>(member.getPrimary(), member.getBackup());
    }
 
    /**

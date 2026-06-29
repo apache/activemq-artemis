@@ -16,8 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
@@ -37,9 +42,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class OpenWireToAMQPTest extends ActiveMQTestBase {
 
@@ -55,21 +61,21 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
    private SimpleString coreQueue;
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
       Configuration serverConfig = server.getConfiguration();
-      serverConfig.getAddressSettings().put("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
+      serverConfig.getAddressSettings().put("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(SimpleString.of("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
       server.start();
-      coreQueue = new SimpleString(queueName);
-      server.createQueue(new QueueConfiguration(coreQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
+      coreQueue = SimpleString.of(queueName);
+      server.createQueue(QueueConfiguration.of(coreQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       qpidfactory = new JmsConnectionFactory("amqp://localhost:61616");
    }
 
    @Override
-   @After
+   @AfterEach
    public void tearDown() throws Exception {
       if (server != null) {
          server.stop();
@@ -78,7 +84,8 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
    }
 
    @SuppressWarnings("unchecked")
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testObjectMessage() throws Exception {
       Connection connection = null;
       try {
@@ -108,8 +115,8 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
          connection.start();
          ObjectMessage receive = (ObjectMessage) consumer.receive(5000);
          assertNotNull(receive);
-         ArrayList<String> list = (ArrayList<String>) receive.getObject();
-         assertEquals(list.get(0), "aString");
+         List<String> list = (ArrayList<String>) receive.getObject();
+         assertEquals("aString", list.get(0));
          connection.close();
       } catch (Exception e) {
          e.printStackTrace();
@@ -122,7 +129,8 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
    }
 
    @SuppressWarnings("unchecked")
-   @Test(timeout = 60000)
+   @Test
+   @Timeout(60)
    public void testByteArrayProperties() throws Exception {
       Connection connection = null;
       try {
@@ -153,9 +161,7 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
          ObjectMessage receive = (ObjectMessage) consumer.receive(5000);
          assertNotNull(receive);
 
-         /*
-          * As noted in section 3.5.4 of the JMS 2 specification all properties can be converted to String
-          */
+         // As noted in section 3.5.4 of the JMS 2 specification all properties can be converted to String
          Enumeration<String> propertyNames = receive.getPropertyNames();
          while (propertyNames.hasMoreElements()) {
             receive.getStringProperty(propertyNames.nextElement());

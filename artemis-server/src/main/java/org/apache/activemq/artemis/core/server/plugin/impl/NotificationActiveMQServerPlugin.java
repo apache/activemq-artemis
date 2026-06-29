@@ -23,7 +23,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -32,14 +31,12 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.CertificateUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/**
- *
- */
 public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -59,8 +56,6 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
 
    /**
     * used to pass configured properties to Plugin
-    *
-    * @param properties
     */
    @Override
    public void init(Map<String, String> properties) {
@@ -175,9 +170,9 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
          try {
             String certSubjectDN = CertificateUtil.getCertSubjectDN(connection);
             final TypedProperties props = new TypedProperties();
-            props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.toSimpleString(connection.getID().toString()));
-            props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.toSimpleString(certSubjectDN));
-            props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(connection.getRemoteAddress()));
+            props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.of(connection.getID().toString()));
+            props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.of(certSubjectDN));
+            props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.of(connection.getRemoteAddress()));
 
             managementService.sendNotification(new Notification(null, type, props));
          } catch (Exception e) {
@@ -186,58 +181,34 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
       }
    }
 
-   /**
-    * @return the sendConnectionNotifications
-    */
    public boolean isSendConnectionNotifications() {
       return sendConnectionNotifications;
    }
 
-   /**
-    * @param sendConnectionNotifications the sendConnectionNotifications to set
-    */
    public void setSendConnectionNotifications(boolean sendConnectionNotifications) {
       this.sendConnectionNotifications = sendConnectionNotifications;
    }
 
-   /**
-    * @return the sendDeliveredNotifications
-    */
    public boolean isSendDeliveredNotifications() {
       return sendDeliveredNotifications;
    }
 
-   /**
-    * @param sendDeliveredNotifications the sendDeliveredNotifications to set
-    */
    public void setSendDeliveredNotifications(boolean sendDeliveredNotifications) {
       this.sendDeliveredNotifications = sendDeliveredNotifications;
    }
 
-   /**
-    * @return the sendExpiredNotifications
-    */
    public boolean isSendExpiredNotifications() {
       return sendExpiredNotifications;
    }
 
-   /**
-    * @param sendExpiredNotifications the sendExpiredNotifications to set
-    */
    public void setSendExpiredNotifications(boolean sendExpiredNotifications) {
       this.sendExpiredNotifications = sendExpiredNotifications;
    }
 
-   /**
-    * @return the sendAddressNotifications
-    */
    public boolean isSendAddressNotifications() {
       return sendAddressNotifications;
    }
 
-   /**
-    * @param sendAddressNotifications the sendAddressNotifications to set
-    */
    public void setSendAddressNotifications(boolean sendAddressNotifications) {
       this.sendAddressNotifications = sendAddressNotifications;
    }

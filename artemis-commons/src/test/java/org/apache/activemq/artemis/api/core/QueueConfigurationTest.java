@@ -16,59 +16,68 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class QueueConfigurationTest {
 
    @Test
    public void testSetGroupRebalancePauseDispatch() {
-      QueueConfiguration queueConfiguration = new QueueConfiguration("TEST");
+      QueueConfiguration queueConfiguration = QueueConfiguration.of("TEST");
 
-      Assert.assertEquals(null, queueConfiguration.isGroupRebalancePauseDispatch());
+      assertNull(queueConfiguration.isGroupRebalancePauseDispatch());
 
       queueConfiguration.setGroupRebalancePauseDispatch(true);
-      Assert.assertEquals(true, queueConfiguration.isGroupRebalancePauseDispatch());
+      assertNotNull(queueConfiguration.isGroupRebalancePauseDispatch());
+      assertTrue(queueConfiguration.isGroupRebalancePauseDispatch());
 
       queueConfiguration.setGroupRebalancePauseDispatch(false);
-      Assert.assertEquals(false, queueConfiguration.isGroupRebalancePauseDispatch());
+      assertNotNull(queueConfiguration.isGroupRebalancePauseDispatch());
+      assertFalse(queueConfiguration.isGroupRebalancePauseDispatch());
 
       queueConfiguration.set(QueueConfiguration.GROUP_REBALANCE_PAUSE_DISPATCH, Boolean.toString(true));
-      Assert.assertEquals(true, queueConfiguration.isGroupRebalancePauseDispatch());
+      assertNotNull(queueConfiguration.isGroupRebalancePauseDispatch());
+      assertTrue(queueConfiguration.isGroupRebalancePauseDispatch());
 
       queueConfiguration.set(QueueConfiguration.GROUP_REBALANCE_PAUSE_DISPATCH, Boolean.toString(false));
-      Assert.assertEquals(false, queueConfiguration.isGroupRebalancePauseDispatch());
+      assertNotNull(queueConfiguration.isGroupRebalancePauseDispatch());
+      assertFalse(queueConfiguration.isGroupRebalancePauseDispatch());
    }
 
    @Test
    public void testFqqn() {
-      final SimpleString ADDRESS = RandomUtil.randomSimpleString();
-      final SimpleString QUEUE = RandomUtil.randomSimpleString();
-      QueueConfiguration queueConfiguration = new QueueConfiguration(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
-      Assert.assertEquals(ADDRESS, queueConfiguration.getAddress());
-      Assert.assertEquals(QUEUE, queueConfiguration.getName());
-      Assert.assertTrue(queueConfiguration.isFqqn());
+      final SimpleString ADDRESS = RandomUtil.randomUUIDSimpleString();
+      final SimpleString QUEUE = RandomUtil.randomUUIDSimpleString();
+      QueueConfiguration queueConfiguration = QueueConfiguration.of(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
+      assertEquals(ADDRESS, queueConfiguration.getAddress());
+      assertEquals(QUEUE, queueConfiguration.getName());
+      assertTrue(queueConfiguration.isFqqn());
    }
 
    @Test
    public void testFqqnNegative() {
-      final SimpleString ADDRESS = RandomUtil.randomSimpleString();
-      final SimpleString QUEUE = RandomUtil.randomSimpleString();
-      QueueConfiguration queueConfiguration = new QueueConfiguration(QUEUE).setAddress(ADDRESS);
-      Assert.assertEquals(ADDRESS, queueConfiguration.getAddress());
-      Assert.assertEquals(QUEUE, queueConfiguration.getName());
-      Assert.assertFalse(queueConfiguration.isFqqn());
+      final SimpleString ADDRESS = RandomUtil.randomUUIDSimpleString();
+      final SimpleString QUEUE = RandomUtil.randomUUIDSimpleString();
+      QueueConfiguration queueConfiguration = QueueConfiguration.of(QUEUE).setAddress(ADDRESS);
+      assertEquals(ADDRESS, queueConfiguration.getAddress());
+      assertEquals(QUEUE, queueConfiguration.getName());
+      assertFalse(queueConfiguration.isFqqn());
    }
 
    @Test
    public void testFqqnViaAddress() {
-      final SimpleString ADDRESS = RandomUtil.randomSimpleString();
-      final SimpleString QUEUE = RandomUtil.randomSimpleString();
-      QueueConfiguration queueConfiguration = new QueueConfiguration(RandomUtil.randomSimpleString()).setAddress(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
-      Assert.assertEquals(ADDRESS, queueConfiguration.getAddress());
-      Assert.assertEquals(QUEUE, queueConfiguration.getName());
-      Assert.assertTrue(queueConfiguration.isFqqn());
+      final SimpleString ADDRESS = RandomUtil.randomUUIDSimpleString();
+      final SimpleString QUEUE = RandomUtil.randomUUIDSimpleString();
+      QueueConfiguration queueConfiguration = QueueConfiguration.of(RandomUtil.randomUUIDSimpleString()).setAddress(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
+      assertEquals(ADDRESS, queueConfiguration.getAddress());
+      assertEquals(QUEUE, queueConfiguration.getName());
+      assertTrue(queueConfiguration.isFqqn());
    }
 }

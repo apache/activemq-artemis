@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.uri;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,11 +25,11 @@ import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import org.junit.Assert;
-import org.junit.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AcceptorParserTest {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -39,7 +40,7 @@ public class AcceptorParserTest {
 
       for (TransportConfiguration config : configs) {
          logger.debug("config: {}", config);
-         Assert.assertTrue(config.getExtraParams().get("banana").equals("x"));
+         assertEquals("x", config.getExtraParams().get("banana"));
       }
    }
 
@@ -47,15 +48,15 @@ public class AcceptorParserTest {
    public void testAcceptorShutdownTimeout() {
       List<TransportConfiguration> configs = ConfigurationUtils.parseAcceptorURI("test", "tcp://localhost:8080?quietPeriod=33;shutdownTimeout=55");
 
-      Assert.assertEquals(1, configs.size());
+      assertEquals(1, configs.size());
 
-      Assert.assertEquals(33, ConfigurationHelper.getIntProperty(TransportConstants.QUIET_PERIOD, -1, configs.get(0).getParams()));
-      Assert.assertEquals(55, ConfigurationHelper.getIntProperty(TransportConstants.SHUTDOWN_TIMEOUT, -1, configs.get(0).getParams()));
+      assertEquals(33, ConfigurationHelper.getIntProperty(TransportConstants.QUIET_PERIOD, -1, configs.get(0).getParams()));
+      assertEquals(55, ConfigurationHelper.getIntProperty(TransportConstants.SHUTDOWN_TIMEOUT, -1, configs.get(0).getParams()));
 
-      NettyAcceptor nettyAcceptor = new NettyAcceptor("name", null, configs.get(0).getParams(), null, null, null, null, new HashMap<>());
+      NettyAcceptor nettyAcceptor = new NettyAcceptor("name", null, configs.get(0).getParams(), null, null, null, null, new HashMap<>(), "threadFactoryGroupName", null);
 
-      Assert.assertEquals(33, nettyAcceptor.getQuietPeriod());
-      Assert.assertEquals(55, nettyAcceptor.getShutdownTimeout());
+      assertEquals(33, nettyAcceptor.getQuietPeriod());
+      assertEquals(55, nettyAcceptor.getShutdownTimeout());
    }
 
    @Test
@@ -65,7 +66,7 @@ public class AcceptorParserTest {
       for (TransportConfiguration config : configs) {
          logger.debug("config: {}", config);
          logger.debug("{}", config.getExtraParams().get("virtualTopicConsumerWildcards"));
-         Assert.assertTrue(config.getExtraParams().get("virtualTopicConsumerWildcards").equals("Consumer.*.>;2"));
+         assertEquals("Consumer.*.>;2", config.getExtraParams().get("virtualTopicConsumerWildcards"));
       }
    }
 }

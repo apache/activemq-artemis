@@ -17,27 +17,24 @@
 package org.apache.activemq.artemis.core.persistence.config;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
-public class PersistedAddressSetting implements EncodingSupport {
-
-
-   private long storeId;
-
-   private SimpleString addressMatch;
-
-   private AddressSettings setting;
+/**
+ * This class is only kept for compatibility reasons. The encode method should be dead code at this point and only the
+ * decode should be used when versioning is at play.
+ *
+ * @deprecated Use PersistedAddressSettingJSON instead
+ */
+@Deprecated
+public class PersistedAddressSetting extends AbstractPersistedAddressSetting implements EncodingSupport {
 
 
    public PersistedAddressSetting() {
       super();
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "PersistedAddressSetting [storeId=" + storeId +
@@ -46,39 +43,6 @@ public class PersistedAddressSetting implements EncodingSupport {
          ", setting=" +
          setting +
          "]";
-   }
-
-   /**
-    * @param addressMatch
-    * @param setting
-    */
-   public PersistedAddressSetting(SimpleString addressMatch, AddressSettings setting) {
-      super();
-      this.addressMatch = addressMatch;
-      this.setting = setting;
-   }
-
-
-   public void setStoreId(long id) {
-      this.storeId = id;
-   }
-
-   public long getStoreId() {
-      return storeId;
-   }
-
-   /**
-    * @return the addressMatch
-    */
-   public SimpleString getAddressMatch() {
-      return addressMatch;
-   }
-
-   /**
-    * @return the setting
-    */
-   public AddressSettings getSetting() {
-      return setting;
    }
 
    @Override
@@ -91,9 +55,8 @@ public class PersistedAddressSetting implements EncodingSupport {
 
    @Override
    public void encode(ActiveMQBuffer buffer) {
-      buffer.writeSimpleString(addressMatch);
-
-      setting.encode(buffer);
+      // no encode, this class is supposed to be for compatibility and reading old records only.
+      throw new UnsupportedOperationException("PersistedAddressSetting should not be in use. Use PersistedAddressSettingJSON instead");
    }
 
    @Override
@@ -101,4 +64,8 @@ public class PersistedAddressSetting implements EncodingSupport {
       return addressMatch.sizeof() + setting.getEncodeSize();
    }
 
+   @Override
+   public byte getRecordType() {
+      return JournalRecordIds.ADDRESS_SETTING_RECORD;
+   }
 }

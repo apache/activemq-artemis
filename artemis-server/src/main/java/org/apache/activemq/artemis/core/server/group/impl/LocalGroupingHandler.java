@@ -67,9 +67,8 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
    private final Condition awaitCondition = lock.newCondition();
 
    /**
-    * This contains a list of expected bindings to be loaded
-    * when the group is waiting for them.
-    * During a small window between the server is started and the wait wasn't called yet, this will contain bindings that were already added
+    * This contains a list of expected bindings to be loaded when the group is waiting for them. During a small window
+    * between the server is started and the wait wasn't called yet, this will contain bindings that were already added
     */
    private List<SimpleString> expectedBindings = new LinkedList<>();
 
@@ -241,7 +240,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
    public void awaitBindings() throws Exception {
       lock.lock();
       try {
-         if (groupMap.size() > 0) {
+         if (!groupMap.isEmpty()) {
             waitingForBindings = true;
 
             //make a copy of the bindings added so far from the cluster via onNotification()
@@ -260,7 +259,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
             //received via onNotification
             expectedBindings.removeAll(bindingsAlreadyAdded);
 
-            if (expectedBindings.size() > 0) {
+            if (!expectedBindings.isEmpty()) {
                logger.debug("Waiting remote group bindings to arrive before starting the server. timeout={} milliseconds", timeout);
                //now we wait here for the rest to be received in onNotification, it will signal once all have been received.
                //if we aren't signaled then bindingsAdded still has some groupids we need to remove.
@@ -278,8 +277,9 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
 
    @Override
    public void onNotification(final Notification notification) {
-      if (!(notification.getType() instanceof CoreNotificationType))
+      if (!(notification.getType() instanceof CoreNotificationType)) {
          return;
+      }
 
       if (notification.getType() == CoreNotificationType.BINDING_REMOVED) {
          SimpleString clusterName = notification.getProperties().getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
@@ -307,7 +307,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
                   }
                }
 
-               if (expectedBindings.size() == 0) {
+               if (expectedBindings.isEmpty()) {
                   awaitCondition.signal();
                }
             }
@@ -319,12 +319,19 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
 
    @Override
    public synchronized void start() throws Exception {
-      if (started)
+      if (started) {
          return;
+      }
 
-      if (expectedBindings == null) {
-         // just in case the component is restarted
-         expectedBindings = new LinkedList<>();
+      lock.lock();
+
+      try {
+         if (expectedBindings == null) {
+            // just in case the component is restarted
+            expectedBindings = new LinkedList<>();
+         }
+      } finally {
+         lock.unlock();
       }
 
       if (reaperPeriod > 0 && groupTimeout > 0) {
@@ -355,35 +362,32 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
    private void removeGrouping(final SimpleString clusterName) {
       final List<GroupBinding> list = groupMap.remove(clusterName);
       if (list != null) {
-         executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               long txID = -1;
+         executor.execute(() -> {
+            long txID = -1;
 
-               for (GroupBinding val : list) {
-                  if (val != null) {
-                     fireUnproposed(val.getGroupId());
-                     map.remove(val.getGroupId());
+            for (GroupBinding val : list) {
+               if (val != null) {
+                  fireUnproposed(val.getGroupId());
+                  map.remove(val.getGroupId());
 
-                     sendUnproposal(val.getGroupId(), clusterName, 0);
+                  sendUnproposal(val.getGroupId(), clusterName, 0);
 
-                     try {
-                        if (txID < 0) {
-                           txID = storageManager.generateID();
-                        }
-                        storageManager.deleteGrouping(txID, val);
-                     } catch (Exception e) {
-                        ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(val.getGroupId(), e);
+                  try {
+                     if (txID < 0) {
+                        txID = storageManager.generateID();
                      }
+                     storageManager.deleteGrouping(txID, val);
+                  } catch (Exception e) {
+                     ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(val.getGroupId(), e);
                   }
                }
+            }
 
-               if (txID >= 0) {
-                  try {
-                     storageManager.commitBindings(txID);
-                  } catch (Exception e) {
-                     ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(SimpleString.toSimpleString("TX:" + txID), e);
-                  }
+            if (txID >= 0) {
+               try {
+                  storageManager.commitBindings(txID);
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(SimpleString.of("TX:" + txID), e);
                }
             }
          });
@@ -446,7 +450,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
                try {
                   storageManager.commitBindings(txID);
                } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(SimpleString.toSimpleString("TX:" + txID), e);
+                  ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(SimpleString.of("TX:" + txID), e);
                }
             }
          }

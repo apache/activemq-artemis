@@ -1,13 +1,14 @@
 = OpenWire
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
-Apache ActiveMQ Artemis supports the http://activemq.apache.org/openwire.html[OpenWire] protocol so that an Apache ActiveMQ "Classic" JMS client can talk directly to an Apache ActiveMQ Artemis server.
+{project-name-full} supports the http://activemq.apache.org/openwire.html[OpenWire] protocol so that an Apache ActiveMQ Classic JMS client can talk directly to an {project-name-full} server.
 By default there is an `acceptor` configured to accept OpenWire connections on port `61616`.
 
 See the general xref:protocols-interoperability.adoc#protocols-and-interoperability[Protocols and Interoperability] chapter for details on configuring an `acceptor` for OpenWire.
 
-Refer to the OpenWire examples for a look at this functionality in action.
+Refer to the OpenWire xref:examples.adoc[examples] for a look at this functionality in action.
 
 == Connection Monitoring
 
@@ -109,3 +110,11 @@ The mappings support an optional parameter, `selectorAware` which when true, tra
 NOTE: the selector/filter is persisted with the queue binding in the normal way, such that it works independent of connected consumers.
 
 Please see Virtual Topic Mapping example contained in the OpenWire xref:examples.adoc#examples[examples].
+
+== Logging
+
+Incoming and outgoing OpenWire commands can be logged by enabling `TRACE` for `org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection`.
+This can be extremely useful for debugging or simply monitoring client activity.
+Along with the OpenWire command itself the remote IP address of the client is logged as well as the internal connection ID so that commands from the same client can be correlated.
+
+Follow xref:logging.adoc#configuring-a-specific-level-for-a-logger[these steps] to configure logging appropriately.

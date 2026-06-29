@@ -24,16 +24,13 @@ import org.apache.activemq.artemis.boot.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-@Mojo(name = "cli", defaultPhase = LifecyclePhase.VERIFY)
+@Mojo(name = "cli", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
-
-   private PluginDescriptor descriptor;
 
    @Parameter(defaultValue = "${noServer}")
    boolean ignore;
@@ -89,28 +86,12 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
 
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
-      if (!isArtemisHome(home.toPath())) {
-         if (isArtemisHome(alternateHome.toPath())) {
-            home = alternateHome;
-         } else {
-            getLog().error("********************************************************************************************");
-            getLog().error("Could not locate suitable Artemis.home on either " + home + " or " + alternateHome);
-            getLog().error("Use the binary distribution or build the distribution before running the examples");
-            getLog().error("********************************************************************************************");
-
-            throw new MojoExecutionException("Couldn't find artemis.home");
-         }
-      }
+      home = findArtemisHome(home, alternateHome);
 
       try {
          if (spawn) {
             final Process process = org.apache.activemq.artemis.cli.process.ProcessBuilder.build(name, location, true, args);
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-               @Override
-               public void run() {
-                  process.destroy();
-               }
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> process.destroy()));
 
             if (testURI != null) {
                long timeout = System.currentTimeMillis() + spawnTimeout;
@@ -131,7 +112,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
                }
             }
          } else {
-            Artemis.execute(home, location, etc, useSystemOutput, args);
+            Artemis.execute(home, location, etc, useSystemOutput, false, args);
          }
 
          Thread.sleep(600);

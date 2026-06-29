@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -24,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
@@ -36,15 +40,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class QueueImplTest {
 
    @Test
    public void deleteAllPagedReferencesTest() throws Exception {
-      SimpleString address = new SimpleString("test");
+      SimpleString address = SimpleString.of("test");
       AtomicInteger pageIteratorIndex = new AtomicInteger(0);
       PageIterator pageIterator = Mockito.mock(PageIterator.class);
       PageSubscription pageSubscription = Mockito.mock(PageSubscription.class);
@@ -69,8 +72,8 @@ public class QueueImplTest {
 
       //Mock storageManager.
       Mockito.doAnswer(invocationOnMock -> {
-         Assert.assertTrue("Too transactions locked on afterCommit.",
-                           availableTransactions.tryAcquire(3000, TimeUnit.MILLISECONDS));
+         assertTrue(availableTransactions.tryAcquire(3000, TimeUnit.MILLISECONDS),
+                           "Too transactions locked on afterCommit.");
          executorService.execute(() -> {
             ((IOCallback) invocationOnMock.getArgument(0)).done();
             availableTransactions.release();
@@ -81,14 +84,13 @@ public class QueueImplTest {
       // Mock server
       Mockito.doReturn(executorFactory).when(server).getExecutorFactory();
 
-      QueueImpl queue = new QueueImpl(0, address, address, null, null, pageSubscription, null, false,
-                                      false, false, Mockito.mock(ScheduledExecutorService.class),
-                                      Mockito.mock(PostOffice.class), storageManager, null,
-                                      Mockito.mock(ArtemisExecutor.class), server,
-                                      Mockito.mock(QueueFactory.class));
+      QueueImpl queue = new QueueImpl(QueueConfiguration.of(address).setId(0L).setDurable(false), null, null,
+                                      pageSubscription, Mockito.mock(ScheduledExecutorService.class), Mockito.mock(PostOffice.class),
+                                      storageManager, null, Mockito.mock(ArtemisExecutor.class),
+                                      server, Mockito.mock(QueueFactory.class));
 
       Mockito.doReturn(queue).when(pageSubscription).getQueue();
 
-      Assert.assertEquals(pagedReferences, queue.deleteAllReferences(flushLimit));
+      assertEquals(pagedReferences, queue.deleteAllReferences(flushLimit));
    }
 }

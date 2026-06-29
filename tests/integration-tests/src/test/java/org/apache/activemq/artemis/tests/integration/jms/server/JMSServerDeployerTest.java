@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import javax.jms.Queue;
 import javax.jms.Topic;
 import javax.naming.Context;
@@ -31,9 +34,8 @@ import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JMSServerDeployerTest extends ActiveMQTestBase {
 
@@ -46,60 +48,60 @@ public class JMSServerDeployerTest extends ActiveMQTestBase {
 
    @Test
    public void testDeployUnusualQueueNames() throws Exception {
-      doTestDeployQueuesWithUnusualNames("queue.with.dots.in.name", "/myqueue");
+      doTestDeployQueuesWithUnusualNames("/myqueue", "queue.with.dots.in.name");
 
-      doTestDeployQueuesWithUnusualNames("queue with spaces in name", "/myqueue2");
+      doTestDeployQueuesWithUnusualNames("/myqueue2", "queue with spaces in name");
 
-      doTestDeployQueuesWithUnusualNames("queue/with/slashes/in/name", "/myqueue3");
+      doTestDeployQueuesWithUnusualNames("/myqueue3", "queue/with/slashes/in/name");
 
-      doTestDeployQueuesWithUnusualNames("queue\\with\\backslashes\\in\\name", "/myqueue4");
+      doTestDeployQueuesWithUnusualNames("/myqueue4", "queue\\with\\backslashes\\in\\name");
 
-      doTestDeployQueuesWithUnusualNames("queue with # chars and * chars in name", "/myqueue5");
+      doTestDeployQueuesWithUnusualNames("/myqueue5", "queue with # chars and * chars in name");
    }
 
    @Test
    public void testDeployUnusualTopicNames() throws Exception {
-      doTestDeployTopicsWithUnusualNames("topic.with.dots.in.name", "/mytopic");
+      doTestDeployTopicsWithUnusualNames("/mytopic", "topic.with.dots.in.name");
 
-      doTestDeployTopicsWithUnusualNames("topic with spaces in name", "/mytopic2");
+      doTestDeployTopicsWithUnusualNames("/mytopic2", "topic with spaces in name");
 
-      doTestDeployTopicsWithUnusualNames("topic/with/slashes/in/name", "/mytopic3");
+      doTestDeployTopicsWithUnusualNames("/mytopic3", "topic/with/slashes/in/name");
 
-      doTestDeployTopicsWithUnusualNames("topic\\with\\backslashes\\in\\name", "/mytopic4");
+      doTestDeployTopicsWithUnusualNames("/mytopic4", "topic\\with\\backslashes\\in\\name");
 
-      doTestDeployTopicsWithUnusualNames("topic with # chars and * chars in name", "/mytopic5");
+      doTestDeployTopicsWithUnusualNames("/mytopic5", "topic with # chars and * chars in name");
 
-      doTestDeployTopicsWithUnusualNames("jms.topic.myTopic", "/mytopic6", "myTopic");
+      doTestDeployTopicsWithUnusualNames("/mytopic6", "myTopic", "jms.topic.myTopic");
    }
 
    private void doTestDeployQueuesWithUnusualNames(final String queueName, final String jndiName) throws Exception {
       jmsServer.createQueue(false, queueName, null, false, jndiName);
 
       Queue queue = (Queue) context.lookup(jndiName);
-      Assert.assertNotNull(queue);
-      Assert.assertEquals(queueName, queue.getQueueName());
+      assertNotNull(queue);
+      assertEquals(queueName, queue.getQueueName());
    }
 
    private void doTestDeployTopicsWithUnusualNames(final String topicName, final String jndiName) throws Exception {
       jmsServer.createTopic(false, topicName, jndiName);
 
       Topic topic = (Topic) context.lookup(jndiName);
-      Assert.assertNotNull(topic);
-      Assert.assertEquals(topicName, topic.getTopicName());
+      assertNotNull(topic);
+      assertEquals(topicName, topic.getTopicName());
    }
 
    private void doTestDeployTopicsWithUnusualNames(final String topicName, final String jndiName, final String jmsTopicName) throws Exception {
       jmsServer.createTopic(topicName, false, jmsTopicName, jndiName);
 
       Topic topic = (Topic) context.lookup(jndiName);
-      Assert.assertNotNull(topic);
-      Assert.assertEquals(jmsTopicName, topic.getTopicName());
+      assertNotNull(topic);
+      assertEquals(jmsTopicName, topic.getTopicName());
    }
 
 
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 

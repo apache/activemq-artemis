@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -44,9 +49,8 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +68,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
 
 
 
-   @Before
+   @BeforeEach
    @Override
    public void setUp() throws Exception {
       super.setUp();
@@ -85,7 +89,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
 
 
       server.addAddressInfo(new AddressInfo(ADDRESS).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
    }
 
@@ -141,7 +145,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
 
       Xid xid = newXID();
 
-      try (XAConnection connection = (XAConnection) ((XAConnectionFactory)cf).createXAConnection();
+      try (XAConnection connection = ((XAConnectionFactory)cf).createXAConnection();
            XASession session = connection.createXASession()) {
          Queue queue = session.createQueue(ADDRESS);
          MessageProducer producer = session.createProducer(queue);
@@ -168,7 +172,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
 
       Wait.assertEquals(INITIAL_NUMBER_OF_MESSAGES, serverQueue::getMessageCount, 2000);
 
-      try (XAConnection connection = (XAConnection) ((XAConnectionFactory)cf).createXAConnection();
+      try (XAConnection connection = ((XAConnectionFactory)cf).createXAConnection();
            XASession session = connection.createXASession()) {
          if (rollback) {
             session.getXAResource().rollback(xid);
@@ -187,12 +191,12 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
 
          for (int i = 0; i < TOTAL_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("hello " + i, message.getText());
-            Assert.assertEquals(i, message.getIntProperty("i"));
+            assertNotNull(message);
+            assertEquals("hello " + i, message.getText());
+            assertEquals(i, message.getIntProperty("i"));
          }
 
-         Assert.assertTrue(serverQueue.getMessageCount() >= 0);
+         assertTrue(serverQueue.getMessageCount() >= 0);
       }
 
       Wait.assertEquals(0, serverQueue::getMessageCount, 2000);
@@ -239,6 +243,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             Message message = session.createTextMessage("hello " + i);
             message.setIntProperty("i", i);
+            message.setStringProperty("text", "hello " + i);
             producer.send(message);
          }
       }
@@ -257,7 +262,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
          int startPosition = 5 * repeat;
          int endPosition = startPosition + 5;
 
-         try (XAConnection connection = (XAConnection) ((XAConnectionFactory) cf).createXAConnection(); XASession session = connection.createXASession()) {
+         try (XAConnection connection = ((XAConnectionFactory) cf).createXAConnection(); XASession session = connection.createXASession()) {
             Queue queue = session.createQueue(ADDRESS);
             MessageConsumer consumer = session.createConsumer(queue);
             connection.start();
@@ -265,8 +270,8 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
 
             for (int i = startPosition; i < endPosition; i++) {
                TextMessage message = (TextMessage) consumer.receive(1000);
-               Assert.assertEquals("hello " + i, message.getText());
-               Assert.assertEquals(i, message.getIntProperty("i"));
+               assertEquals("hello " + i, message.getText());
+               assertEquals(i, message.getIntProperty("i"));
             }
 
             session.getXAResource().end(xid, XAResource.TMSUCCESS);
@@ -287,12 +292,12 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
          MessageConsumer consumer = session.createConsumer(queue);
          for (int i = 10; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
+            assertNotNull(message);
             logger.info("Received {}", message.getText());
-            Assert.assertEquals("hello " + i, message.getText());
-            Assert.assertEquals(i, message.getIntProperty("i"));
+            assertEquals("hello " + i, message.getText());
+            assertEquals(i, message.getIntProperty("i"));
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
          session.rollback();
       }
 
@@ -310,7 +315,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
 
       logger.info("Before tx = {}", serverQueue.getMessageCount());
 
-      try (XAConnection connection = (XAConnection) ((XAConnectionFactory)cf).createXAConnection();
+      try (XAConnection connection = ((XAConnectionFactory)cf).createXAConnection();
            XASession session = connection.createXASession()) {
          if (rollback) {
             session.getXAResource().rollback(xid2);
@@ -332,16 +337,18 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
          connection.start();
 
          int start = rollback ? 5 : 10;
+         logger.debug("start is at {}, since rollback={}", start, rollback);
 
          for (int i = start; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
-            Assert.assertNotNull(message);
-            Assert.assertEquals("hello " + i, message.getText());
-            Assert.assertEquals(i, message.getIntProperty("i"));
+            assertNotNull(message);
+            logger.debug("Received message {}", message.getText());
+            assertEquals("hello " + i, message.getText());
+            assertEquals(i, message.getIntProperty("i"));
          }
-         Assert.assertNull(consumer.receiveNoWait());
+         assertNull(consumer.receiveNoWait());
 
-         Assert.assertTrue(serverQueue.getMessageCount() >= 0);
+         assertTrue(serverQueue.getMessageCount() >= 0);
       }
 
       Wait.assertEquals(0, serverQueue::getMessageCount, 2000);

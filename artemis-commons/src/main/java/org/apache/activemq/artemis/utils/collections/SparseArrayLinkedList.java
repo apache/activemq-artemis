@@ -24,13 +24,14 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * This list share the same motivation and structure of https://en.wikipedia.org/wiki/Unrolled_linked_list:
- * it's a linked list of arrays/chunks of {@code T}.<br>
+ * This list share the same motivation and structure of https://en.wikipedia.org/wiki/Unrolled_linked_list: it's a
+ * linked list of arrays/chunks of {@code T}.
+ * <p>
  * Differently from an {@code UnrolledLinkedList} this list doesn't optimize addition and removal to achieve a balanced
- * utilization among chunks ie a chunk is removed only if empty and chunks can't be merged.
- * This list has been optimized for small-sized chunks (ideally &lt;= 32 elements): this allow search/removal to
- * be performed with a greedy approach despite a sparse chunk utilization (ie chunks contains few sparse elements).<br>
- *
+ * utilization among chunks ie a chunk is removed only if empty and chunks can't be merged. This list has been optimized
+ * for small-sized chunks (ideally &lt;= 32 elements): this allow search/removal to be performed with a greedy approach
+ * despite a sparse chunk utilization (ie chunks contains few sparse elements).
+ * <p>
  * From the memory footprint's point of view, this list won't remove the last remaining array although empty to optimize
  * the case where its capacity would be enough to hold incoming elements, hence saving a new array allocation.
  */
@@ -231,21 +232,21 @@ public final class SparseArrayLinkedList<E> {
    }
 
    /**
-    * Returns the number of elements of this list.
+    * {@return the number of elements of this list}
     */
    public long size() {
       return size;
    }
 
    /**
-    * Returns the configured capacity of each sparse array/chunk.
+    * {@return the configured capacity of each sparse array/chunk}
     */
    public int sparseArrayCapacity() {
       return sparseArrayCapacity;
    }
 
    /**
-    * Returns the number of sparse arrays/chunks of this list.
+    * {@return the number of sparse arrays/chunks of this list}
     */
    public int sparseArraysCount() {
       return list.size();

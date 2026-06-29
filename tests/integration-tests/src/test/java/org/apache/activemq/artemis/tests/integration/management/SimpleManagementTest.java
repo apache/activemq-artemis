@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
@@ -34,11 +36,10 @@ import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SimpleManagementTest extends ActiveMQTestBase {
 
@@ -46,7 +47,7 @@ public class SimpleManagementTest extends ActiveMQTestBase {
    private ActiveMQServer server;
    SimpleManagement simpleManagement = new SimpleManagement(LOCALHOST, "admin", "admin");
 
-   @Before
+   @BeforeEach
    public void setupServer() throws Exception {
       server = createServer(false, createDefaultConfig(0, true));
 
@@ -63,9 +64,9 @@ public class SimpleManagementTest extends ActiveMQTestBase {
    @Test
    public void testQueues() throws Exception {
       server.start();
-      String queueName = RandomUtil.randomString();
+      String queueName = RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));
-      server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setAddress(queueName).setDurable(true));
+      server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setAddress(queueName).setDurable(true));
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("CORE", LOCALHOST);
 
@@ -82,18 +83,18 @@ public class SimpleManagementTest extends ActiveMQTestBase {
       Wait.assertEquals(33, serverQueue::getMessageCount);
 
       Map<String, Long> queues = simpleManagement.getQueueCounts(100);
-      Assert.assertEquals((Long)33L, queues.get(queueName));
-      Assert.assertEquals(33L, simpleManagement.getMessageCountOnQueue(queueName));
+      assertEquals((Long)33L, queues.get(queueName));
+      assertEquals(33L, simpleManagement.getMessageCountOnQueue(queueName));
    }
 
    @Test
    public void testListTopology() throws Exception {
       JsonArray topology = simpleManagement.listNetworkTopology();
       String nodeId = simpleManagement.getNodeID();
-      Assert.assertEquals(1, topology.size());
+      assertEquals(1, topology.size());
       JsonObject node = topology.getJsonObject(0);
-      Assert.assertEquals("localhost:61616", node.getString("live"));
-      Assert.assertEquals(nodeId, node.getString("nodeID"));
+      assertEquals("localhost:61616", node.getString("live"));
+      assertEquals(nodeId, node.getString("nodeID"));
    }
 
 }

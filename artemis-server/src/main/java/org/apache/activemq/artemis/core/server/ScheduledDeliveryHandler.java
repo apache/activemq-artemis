@@ -28,11 +28,21 @@ public interface ScheduledDeliveryHandler {
 
    int getScheduledCount();
 
+   int getNonPagedScheduledCount();
+
    long getScheduledSize();
+
+   long getNonPagedScheduledSize();
 
    int getDurableScheduledCount();
 
+   int getNonPagedDurableScheduledCount();
+
    long getDurableScheduledSize();
+
+   long getNonPagedDurableScheduledSize();
+
+   MessageReference peekFirstScheduledMessage();
 
    List<MessageReference> getScheduledReferences();
 

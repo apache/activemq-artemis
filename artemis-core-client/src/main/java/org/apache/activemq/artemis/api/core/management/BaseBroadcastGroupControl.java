@@ -22,25 +22,25 @@ package org.apache.activemq.artemis.api.core.management;
 public interface BaseBroadcastGroupControl extends ActiveMQComponentControl {
 
    /**
-    * Returns the configuration name of this broadcast group.
+    * {@return the configuration name of this broadcast group}
     */
    @Attribute(desc = "name of this broadcast group")
    String getName();
 
    /**
-    * Returns the period used by this broadcast group.
+    * {@return the period used by this broadcast group}
     */
    @Attribute(desc = "period used by this broadcast group")
    long getBroadcastPeriod();
 
    /**
-    * Returns the pairs of live-backup connectors that are broadcasted by this broadcast group.
+    * {@return the pairs of live-backup connectors that are broadcasted by this broadcast group}
     */
    @Attribute(desc = "pairs of live-backup connectors that are broadcasted by this broadcast group")
    Object[] getConnectorPairs();
 
    /**
-    * Returns the pairs of live-backup connectors that are broadcasted by this broadcast group
+    * {@return the pairs of live-backup connectors that are broadcasted by this broadcast group}
     * using JSON serialization.
     */
    @Attribute(desc = "pairs of live-backup connectors that are broadcasted by this broadcast group using JSON serialization")

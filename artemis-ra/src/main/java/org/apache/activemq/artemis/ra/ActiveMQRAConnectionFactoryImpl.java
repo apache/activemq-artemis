@@ -41,39 +41,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/**
- * The connection factory
- */
 public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFactory {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Serial version UID
-    */
    static final long serialVersionUID = 7981708919479859360L;
 
-   /**
-    * The managed connection factory
-    */
    private final ActiveMQRAManagedConnectionFactory mcf;
 
-   /**
-    * The connection manager
-    */
    private ConnectionManager cm;
 
-   /**
-    * Naming reference
-    */
    private Reference reference;
 
-   /**
-    * Constructor
-    *
-    * @param mcf The managed connection factory
-    * @param cm  The connection manager
-    */
    public ActiveMQRAConnectionFactoryImpl(final ActiveMQRAManagedConnectionFactory mcf, final ConnectionManager cm) {
       logger.trace("constructor({}, {})", mcf, cm);
 
@@ -91,9 +70,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Set the reference
-    *
-    * @param reference The reference
+    * {@inheritDoc}
     */
    @Override
    public void setReference(final Reference reference) {
@@ -103,9 +80,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Get the reference
-    *
-    * @return The reference
+    * {@inheritDoc}
     */
    @Override
    public Reference getReference() {
@@ -124,10 +99,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Create a queue connection
-    *
-    * @return The connection
-    * @throws JMSException Thrown if the operation fails
+    * {@inheritDoc}
     */
    @Override
    public QueueConnection createQueueConnection() throws JMSException {
@@ -141,12 +113,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Create a queue connection
-    *
-    * @param userName The user name
-    * @param password The password
-    * @return The connection
-    * @throws JMSException Thrown if the operation fails
+    * {@inheritDoc}
     */
    @Override
    public QueueConnection createQueueConnection(final String userName, final String password) throws JMSException {
@@ -164,10 +131,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Create a topic connection
-    *
-    * @return The connection
-    * @throws JMSException Thrown if the operation fails
+    * {@inheritDoc}
     */
    @Override
    public TopicConnection createTopicConnection() throws JMSException {
@@ -181,12 +145,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Create a topic connection
-    *
-    * @param userName The user name
-    * @param password The password
-    * @return The connection
-    * @throws JMSException Thrown if the operation fails
+    * {@inheritDoc}
     */
    @Override
    public TopicConnection createTopicConnection(final String userName, final String password) throws JMSException {
@@ -203,10 +162,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Create a connection
-    *
-    * @return The connection
-    * @throws JMSException Thrown if the operation fails
+    * {@inheritDoc}
     */
    @Override
    public Connection createConnection() throws JMSException {
@@ -220,12 +176,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Create a connection
-    *
-    * @param userName The user name
-    * @param password The password
-    * @return The connection
-    * @throws JMSException Thrown if the operation fails
+    * {@inheritDoc}
     */
    @Override
    public Connection createConnection(final String userName, final String password) throws JMSException {
@@ -243,10 +194,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Create a XA queue connection
-    *
-    * @return The connection
-    * @throws JMSException Thrown if the operation fails
+    * {@inheritDoc}
     */
    @Override
    public XAQueueConnection createXAQueueConnection() throws JMSException {
@@ -260,12 +208,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Create a XA  queue connection
-    *
-    * @param userName The user name
-    * @param password The password
-    * @return The connection
-    * @throws JMSException Thrown if the operation fails
+    * {@inheritDoc}
     */
    @Override
    public XAQueueConnection createXAQueueConnection(final String userName, final String password) throws JMSException {
@@ -282,10 +225,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Create a XA topic connection
-    *
-    * @return The connection
-    * @throws JMSException Thrown if the operation fails
+    * {@inheritDoc}
     */
    @Override
    public XATopicConnection createXATopicConnection() throws JMSException {
@@ -299,12 +239,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Create a XA topic connection
-    *
-    * @param userName The user name
-    * @param password The password
-    * @return The connection
-    * @throws JMSException Thrown if the operation fails
+    * {@inheritDoc}
     */
    @Override
    public XATopicConnection createXATopicConnection(final String userName, final String password) throws JMSException {
@@ -321,10 +256,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Create a XA connection
-    *
-    * @return The connection
-    * @throws JMSException Thrown if the operation fails
+    * {@inheritDoc}
     */
    @Override
    public XAConnection createXAConnection() throws JMSException {
@@ -338,12 +270,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    }
 
    /**
-    * Create a XA connection
-    *
-    * @param userName The user name
-    * @param password The password
-    * @return The connection
-    * @throws JMSException Thrown if the operation fails
+    * {@inheritDoc}
     */
    @Override
    public XAConnection createXAConnection(final String userName, final String password) throws JMSException {
@@ -359,16 +286,25 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
       return s;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public JMSContext createContext() {
       return createContext(null, null);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public JMSContext createContext(String userName, String password) {
       return createContext(userName, password, Session.AUTO_ACKNOWLEDGE);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public JMSContext createContext(String userName, String password, int sessionMode) {
       @SuppressWarnings("resource")
@@ -389,16 +325,25 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
       return conn.createContext(sessionMode);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public JMSContext createContext(int sessionMode) {
       return createContext(null, null, sessionMode);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public XAJMSContext createXAContext() {
       return createXAContext(null, null);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public XAJMSContext createXAContext(String userName, String password) {
       ActiveMQRASessionFactoryImpl conn = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.XA_CONNECTION);
@@ -423,11 +368,17 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
       session.close();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public ActiveMQConnectionFactory getDefaultFactory() throws ResourceException {
       return ((ActiveMQResourceAdapter) mcf.getResourceAdapter()).getDefaultActiveMQConnectionFactory();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public ActiveMQResourceAdapter getResourceAdapter() {
       return (ActiveMQResourceAdapter) mcf.getResourceAdapter();

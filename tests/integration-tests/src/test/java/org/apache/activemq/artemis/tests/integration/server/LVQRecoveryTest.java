@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
@@ -33,9 +37,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LVQRecoveryTest extends ActiveMQTestBase {
 
@@ -43,9 +46,9 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
 
    private ClientSession clientSession;
 
-   private final SimpleString address = new SimpleString("LVQTestAddress");
+   private final SimpleString address = SimpleString.of("LVQTestAddress");
 
-   private final SimpleString qName1 = new SimpleString("LVQTestQ1");
+   private final SimpleString qName1 = SimpleString.of("LVQTestQ1");
 
    private ClientSession clientSessionXa;
 
@@ -58,8 +61,8 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
    public void testMultipleMessagesAfterRecovery() throws Exception {
       Xid xid = new XidImpl("bq1".getBytes(), 4, "gtid1".getBytes());
       ClientProducer producer = clientSessionXa.createProducer(address);
-      SimpleString messageId1 = new SimpleString("SMID1");
-      SimpleString messageId2 = new SimpleString("SMID2");
+      SimpleString messageId1 = SimpleString.of("SMID1");
+      SimpleString messageId2 = SimpleString.of("SMID2");
       clientSessionXa.start(xid, XAResource.TMNOFLAGS);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, messageId1);
@@ -84,13 +87,13 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       clientSession.start();
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -99,7 +102,7 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSessionXa.createConsumer(qName1);
 
-      SimpleString rh = new SimpleString("SMID1");
+      SimpleString rh = SimpleString.of("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       m1.setDurable(true);
@@ -122,28 +125,28 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
       clientSessionXa.start();
       producer.send(m1);
       ClientMessage m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertNotNull(m);
+      assertEquals("m1", m.getBodyBuffer().readString());
       producer.send(m2);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertNotNull(m);
+      assertEquals("m2", m.getBodyBuffer().readString());
       producer.send(m3);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertNotNull(m);
+      assertEquals("m3", m.getBodyBuffer().readString());
       producer.send(m4);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNotNull(m);
+      assertEquals("m4", m.getBodyBuffer().readString());
       producer.send(m5);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertNotNull(m);
+      assertEquals("m5", m.getBodyBuffer().readString());
       producer.send(m6);
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertNotNull(m);
+      assertEquals("m6", m.getBodyBuffer().readString());
       clientSessionXa.end(xid, XAResource.TMSUCCESS);
       clientSessionXa.prepare(xid);
 
@@ -155,15 +158,15 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
       consumer = clientSession.createConsumer(qName1);
       clientSession.start();
       m = consumer.receive(1000);
-      Assert.assertNotNull(m);
+      assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals("m6", m.getBodyBuffer().readString());
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = consumer.receiveImmediate();
-      Assert.assertNull(m);
+      assertNull(m);
    }
 
    @Override
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
 
@@ -178,7 +181,7 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(false, true, true);
       clientSessionXa = sessionFactory.createSession(true, false, false);
-      clientSession.createQueue(new QueueConfiguration(qName1).setAddress(address));
+      clientSession.createQueue(QueueConfiguration.of(qName1).setAddress(address));
    }
 
    private void restartServer() throws Exception {

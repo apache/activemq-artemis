@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.journal;
 
+import java.util.Objects;
+
 /**
  * This is a POJO containing information about the journal during load time.
  */
@@ -29,51 +31,31 @@ public class JournalLoadInformation {
       super();
    }
 
-   /**
-    * @param numberOfRecords
-    * @param maxID
-    */
    public JournalLoadInformation(final int numberOfRecords, final long maxID) {
       super();
       this.numberOfRecords = numberOfRecords;
       this.maxID = maxID;
    }
 
-   /**
-    * @return the numberOfRecords
-    */
    public int getNumberOfRecords() {
       return numberOfRecords;
    }
 
-   /**
-    * @param numberOfRecords the numberOfRecords to set
-    */
    public void setNumberOfRecords(final int numberOfRecords) {
       this.numberOfRecords = numberOfRecords;
    }
 
-   /**
-    * @return the maxID
-    */
    public long getMaxID() {
       return maxID;
    }
 
-   /**
-    * @param maxID the maxID to set
-    */
    public void setMaxID(final long maxID) {
       this.maxID = maxID;
    }
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + (int) (maxID ^ maxID >>> 32);
-      result = prime * result + numberOfRecords;
-      return result;
+      return Objects.hash(maxID, numberOfRecords);
    }
 
    @Override
@@ -81,20 +63,12 @@ public class JournalLoadInformation {
       if (this == obj) {
          return true;
       }
-      if (obj == null) {
+      if (!(obj instanceof JournalLoadInformation other)) {
          return false;
       }
-      if (getClass() != obj.getClass()) {
-         return false;
-      }
-      JournalLoadInformation other = (JournalLoadInformation) obj;
-      if (maxID != other.maxID) {
-         return false;
-      }
-      if (numberOfRecords != other.numberOfRecords) {
-         return false;
-      }
-      return true;
+
+      return maxID == other.maxID &&
+             numberOfRecords == other.numberOfRecords;
    }
 
    @Override

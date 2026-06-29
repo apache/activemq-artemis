@@ -21,13 +21,9 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public abstract class VersionedBase extends ClasspathBase {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final String server;
    protected final String sender;
@@ -37,10 +33,19 @@ public abstract class VersionedBase extends ClasspathBase {
    protected final ClassLoader senderClassloader;
    protected final ClassLoader receiverClassloader;
 
+   // for tests that don't use a server classLoader
+   public VersionedBase(String sender, String receiver) throws Exception {
+      this.sender = sender;
+      this.receiver = receiver;
+      this.senderClassloader = getClasspath(sender);
+      this.receiverClassloader = getClasspath(receiver);
+      clearGroovy(senderClassloader);
+      clearGroovy(receiverClassloader);
+      this.server = null;
+      this.serverClassloader = null;
+   }
+
    public VersionedBase(String server, String sender, String receiver) throws Exception {
-      if (server == null) {
-         server = sender;
-      }
       this.server = server;
       this.sender = sender;
       this.receiver = receiver;
@@ -52,8 +57,17 @@ public abstract class VersionedBase extends ClasspathBase {
       clearGroovy(serverClassloader);
    }
 
-   protected static List<Object[]> combinatory(Object[] rootSide, Object[] sideLeft, Object[] sideRight) {
-      return combinatory(null, rootSide, sideLeft, sideRight);
+
+   protected static List<Object[]> combinatory2(Object required, Object[] sideLeft, Object[] sideRight) {
+      LinkedList<Object[]> combinations = new LinkedList<>();
+      for (Object left : sideLeft) {
+         for (Object right : sideRight) {
+            if (left.equals(required) || right.equals(required)) {
+               combinations.add(new Object[]{left, right});
+            }
+         }
+      }
+      return combinations;
    }
 
    protected static List<Object[]> combinatory(Object required,
@@ -72,10 +86,13 @@ public abstract class VersionedBase extends ClasspathBase {
                                        Object[] rootSide,
                                        Object[] sideLeft,
                                        Object[] sideRight) {
+
+      assertNotNull(required);
+
       for (Object root : rootSide) {
          for (Object left : sideLeft) {
             for (Object right : sideRight) {
-               if (required == null || root.equals(required) || left.equals(required) || right.equals(required)) {
+               if (root.equals(required) || left.equals(required) || right.equals(required)) {
                   combinations.add(new Object[]{root, left, right});
                }
             }
@@ -83,16 +100,17 @@ public abstract class VersionedBase extends ClasspathBase {
       }
    }
 
-   public void startServer(File folder, ClassLoader loader, String serverName) throws Throwable {
-      startServer(folder, loader, serverName, null);
+   public void startServer(File folder, String serverVersion, ClassLoader loader, String serverName) throws Throwable {
+      startServer(folder, serverVersion, loader, serverName, null);
    }
 
-   public void startServer(File folder, ClassLoader loader, String serverName, String globalMaxSize) throws Throwable {
-      startServer(folder, loader, serverName, globalMaxSize, false);
+   public void startServer(File folder, String serverVersion, ClassLoader loader, String serverName, String globalMaxSize) throws Throwable {
+      startServer(folder, serverVersion, loader, serverName, globalMaxSize, false);
 
    }
 
    public void startServer(File folder,
+                           String serverVersion,
                            ClassLoader loader,
                            String serverName,
                            String globalMaxSize,
@@ -100,15 +118,15 @@ public abstract class VersionedBase extends ClasspathBase {
       folder.mkdirs();
 
       String scriptToUse;
-      if (getServerScriptToUse() != null && getServerScriptToUse().length() != 0) {
+      if (getServerScriptToUse() != null && !getServerScriptToUse().isEmpty()) {
          scriptToUse = getServerScriptToUse();
-      } else if (server.startsWith("ARTEMIS")) {
+      } else if (serverVersion.startsWith("ARTEMIS")) {
          scriptToUse = "servers/artemisServer.groovy";
       } else {
          scriptToUse = "servers/hornetqServer.groovy";
       }
 
-      startServer(folder, loader, serverName, globalMaxSize, setAddressSettings, scriptToUse, server, sender, receiver);
+      startServer(folder, loader, serverName, globalMaxSize, setAddressSettings, scriptToUse, serverVersion, sender, receiver);
    }
 
    public String getServerScriptToUse() {
