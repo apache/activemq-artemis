@@ -53,27 +53,15 @@ public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
 
    @Override
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      if (method.getParameterTypes().length == 0) {
-         return null;
-      }
-
-      if (!ObjectName.class.isAssignableFrom(method.getParameterTypes()[0])) {
-         return null;
-      }
-
       ObjectName objectName = (ObjectName) args[0];
-      if ("getAttribute".equals(method.getName())) {
-         handleGetAttribute((MBeanServer) proxy, objectName, (String) args[1]);
-      } else if ("getAttributes".equals(method.getName())) {
-         handleGetAttributes((MBeanServer) proxy, objectName, (String[]) args[1]);
-      } else if ("setAttribute".equals(method.getName())) {
-         handleSetAttribute((MBeanServer) proxy, objectName, (Attribute) args[1]);
-      } else if ("setAttributes".equals(method.getName())) {
-         handleSetAttributes((MBeanServer) proxy, objectName, (AttributeList) args[1]);
-      } else if ("invoke".equals(method.getName())) {
-         handleInvoke(objectName, (String) args[1]);
+      switch (method.getName()) {
+         case "getAttribute" -> handleGetAttribute((MBeanServer) proxy, objectName, (String) args[1]);
+         case "getAttributes" -> handleGetAttributes((MBeanServer) proxy, objectName, (String[]) args[1]);
+         case "setAttribute" -> handleSetAttribute((MBeanServer) proxy, objectName, (Attribute) args[1]);
+         case "setAttributes" -> handleSetAttributes((MBeanServer) proxy, objectName, (AttributeList) args[1]);
+         case "invoke" -> handleInvoke(objectName, (String) args[1]);
+         default -> { }
       }
-
       return null;
    }
 
