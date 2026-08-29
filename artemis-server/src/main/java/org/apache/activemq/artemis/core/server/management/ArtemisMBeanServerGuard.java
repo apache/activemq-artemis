@@ -49,6 +49,7 @@ public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
 
    private static final String defaultRoleClass = "org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal";
    private final Cache<ObjectName, Boolean> bypassRBACCache = Caffeine.newBuilder().maximumSize(10000).build();
+   private static final Cache<String, ObjectName> objectNameCache = Caffeine.newBuilder().maximumSize(10000).build();
 
    public void init() {
       ArtemisMBeanServerBuilder.setGuard(this);
@@ -143,11 +144,16 @@ public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
          return true;
       }
 
-      ObjectName objectName = null;
-      try {
-         objectName = ObjectName.getInstance(object);
-      } catch (MalformedObjectNameException e) {
-         logger.debug("can't check invoke rights as object name invalid: {}", object, e);
+      ObjectName objectName = objectNameCache.get(object, key -> {
+         try {
+            return ObjectName.getInstance(key);
+         } catch (MalformedObjectNameException e) {
+            logger.debug("can't check invoke rights as object name invalid: {}", key, e);
+            return null;
+         }
+      });
+
+      if (objectName == null) {
          return false;
       }
 
