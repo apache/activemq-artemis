@@ -229,4 +229,170 @@ public class JMXAccessControlListTest {
       assertTrue(roles.containsAll(Set.of("amq")));
 
    }
+
+   @Test
+   public void testAuthorize_BasicRole() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain", null, "listSomething", "admin");
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:*"), "listSomething", Set.of("admin")));
+      assertFalse(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:*"), "listSomething", Set.of("view")));
+   }
+
+   @Test
+   public void testAuthorize_BasicRoleWithKey() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain", "type=foo", "listSomething", "admin");
+      controlList.addToRoleAccess("org.myDomain", null, "listSomething", "view");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:type=foo"), "listSomething", Set.of("admin")));
+      assertFalse(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:type=foo"), "listSomething", Set.of("view")));
+   }
+
+   @Test
+   public void testAuthorize_BasicRoleWithKeyContainingQuotes() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain", "type=foo", "listSomething", "admin");
+      controlList.addToRoleAccess("org.myDomain", null, "listSomething", "view");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:type=\"foo\""), "listSomething", Set.of("admin")));
+      assertFalse(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:type=\"foo\""), "listSomething", Set.of("view")));
+   }
+
+   @Test
+   public void testAuthorize_BasicRoleWithWildcardKey() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain", "type=*", "listSomething", "admin");
+      controlList.addToRoleAccess("org.myDomain", null, "listSomething", "view");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:type=foo"), "listSomething", Set.of("admin")));
+      assertFalse(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:type=foo"), "listSomething", Set.of("view")));
+   }
+
+   @Test
+   public void testAuthorize_BasicRoleWithWildcardInKey() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain", "type=foo*", "listSomething", "update");
+      controlList.addToRoleAccess("org.myDomain", "type=bar*", "listSomething", "browse");
+      controlList.addToRoleAccess("org.myDomain", "type=foo.bar*", "listSomething", "admin");
+      controlList.addToRoleAccess("org.myDomain", null, "listSomething", "view");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:type=foo.bar.test"), "listSomething", Set.of("admin")));
+      assertFalse(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:type=foo.bar.test"), "listSomething", Set.of("view", "update", "browse")));
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:type=bar.test"), "listSomething", Set.of("browse")));
+      assertFalse(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:type=bar.test"), "listSomething", Set.of("view", "update", "admin")));
+   }
+
+   @Test
+   public void testAuthorize_MutipleBasicRoles() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain", null, "listSomething", "admin", "view", "update");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:*"), "listSomething", Set.of("view", "update", "admin")));
+   }
+
+   @Test
+   public void testAuthorize_BasicRoleWithPrefix() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain", null, "list*", "admin");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:*"), "listSomething", Set.of("admin")));
+   }
+
+   @Test
+   public void testAuthorize_BasicRoleWithBoth() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain", null, "listSomething", "admin");
+      controlList.addToRoleAccess("org.myDomain", null, "list*", "view");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:*"), "listSomething", Set.of("admin")));
+      assertFalse(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:*"), "listSomething", Set.of("view")));
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:*"), "listSomethingMore", Set.of("view")));
+      assertFalse(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:*"), "listSomethingMore", Set.of("admin")));
+   }
+
+   @Test
+   public void testAuthorize_BasicRoleWithDefaultsPrefix() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToDefaultAccess("setSomething", "admin");
+      controlList.addToRoleAccess("org.myDomain", null, "list*", "view");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain.foo:*"), "setSomething", Set.of("admin")));
+      assertFalse(controlList.authorizeUserForMethod(new ObjectName("org.myDomain.foo:*"), "setSomething", Set.of("view")));
+   }
+
+   @Test
+   public void testAuthorize_BasicRoleWithDefaultsWildcardPrefix() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToDefaultAccess("setSomething", "admin");
+      controlList.addToDefaultAccess("set*", "admin");
+      controlList.addToRoleAccess("org.myDomain", null, "list*", "view");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain.foo:*"), "setSomethingMore", Set.of("admin")));
+      assertFalse(controlList.authorizeUserForMethod(new ObjectName("org.myDomain.foo:*"), "setSomethingMore", Set.of("view")));
+   }
+
+   @Test
+   public void testAuthorize_BasicRoleWithDefaultscatchAllPrefix() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToDefaultAccess("setSomething", "admin");
+      controlList.addToDefaultAccess("*", "admin");
+      controlList.addToRoleAccess("org.myDomain", null, "list*", "view");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain.foo:*"), "setSomethingMore", Set.of("admin")));
+      assertFalse(controlList.authorizeUserForMethod(new ObjectName("org.myDomain.foo:*"), "setSomethingMore", Set.of("view")));
+   }
+
+   @Test
+   public void testAuthorize_KeylessDomain() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain.foo", null, "list*", "amq", "monitor");
+      controlList.addToRoleAccess("org.myDomain.foo", null, "get*", "amq", "monitor");
+      controlList.addToRoleAccess("org.myDomain.foo", null, "is*", "amq", "monitor");
+      controlList.addToRoleAccess("org.myDomain.foo", null, "set*", "amq");
+      controlList.addToRoleAccess("org.myDomain.foo", null, "*", "amq");
+
+      ObjectName withProperty = new ObjectName("org.myDomain.foo:foo=bar");
+
+      assertTrue(controlList.authorizeUserForMethod(withProperty, "listFoo", Set.of("monitor")));
+      assertTrue(controlList.authorizeUserForMethod(withProperty, "getFoo", Set.of("monitor")));
+      assertTrue(controlList.authorizeUserForMethod(withProperty, "isFoo", Set.of("monitor")));
+
+      assertTrue(controlList.authorizeUserForMethod(withProperty, "setFoo", Set.of("amq")));
+      assertFalse(controlList.authorizeUserForMethod(withProperty, "setFoo", Set.of("monitor")));
+
+      assertTrue(controlList.authorizeUserForMethod(withProperty, "createFoo", Set.of("amq")));
+      assertFalse(controlList.authorizeUserForMethod(withProperty, "createFoo", Set.of("monitor")));
+   }
+
+   @Test
+   public void testAuthorize_BareWildcardKey() throws MalformedObjectNameException {
+      // no "=" in the pattern
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain", "*", "listSomething", "admin");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:foo=bar"), "listSomething", Set.of("admin")));
+   }
+
+   @Test
+   public void testAuthorize_WildcardInKeyName() throws MalformedObjectNameException {
+      // wildcard in the part before equal sign
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain", "*=bar", "listSomething", "admin");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:foo=bar"), "listSomething", Set.of("admin")));
+   }
+
+   @Test
+   public void testAuthorize_LongerWildcardInKeyNameTakesPriority() throws MalformedObjectNameException {
+      // longer wildcard matches should have higher priority than the shorter wildcard matches.
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToRoleAccess("org.myDomain", "type=*", "listSomething", "roleA");
+      controlList.addToRoleAccess("org.myDomain", "*=verylongvalue", "listSomething", "roleB");
+
+      assertTrue(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:type=verylongvalue"), "listSomething", Set.of("roleB")));
+      assertFalse(controlList.authorizeUserForMethod(new ObjectName("org.myDomain:type=verylongvalue"), "listSomething", Set.of("roleA")));
+   }
+
 }
