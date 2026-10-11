@@ -1142,6 +1142,12 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
                afterConnect();
 
+               // stop()/pause() may have been invoked by another thread while the blocking calls above were in progress
+               if (state == State.STOPPING || state == State.PAUSING) {
+                  logger.debug("Bridge {} state is {}. Not completing connection.", configuration.getName(), state);
+                  return;
+               }
+
                state = State.STARTED;
 
                queue.addConsumer(BridgeImpl.this);
