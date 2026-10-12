@@ -4611,6 +4611,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             if (queueRate < queueThreshold && queueMessages < queueThreshold) {
                logger.debug("Insufficient messages received on queue \"{}\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.", queueConfiguration.getName());
+               for (ConsumerHolder consumerHolder : consumers) {
+                  Consumer consumer = consumerHolder.consumer();
+                  if (consumer instanceof ServerConsumerImpl serverConsumer) {
+                     serverConsumer.getRate();
+                  }
+               }
                return;
             }
          }

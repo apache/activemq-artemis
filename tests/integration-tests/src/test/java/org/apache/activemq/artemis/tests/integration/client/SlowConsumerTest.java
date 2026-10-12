@@ -894,4 +894,37 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testSlowConsumerSparedAfterIdleThenBurst() throws Exception {
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession session = addClientSession(sf.createSession(false, true, true, false));
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(QUEUE));
+      session.start();
+
+      Queue queue = server.locateQueue(QUEUE);
+
+      Thread.sleep(5 * checkPeriod * 1000);
+
+      ClientProducer producer = addClientProducer(session.createProducer(QUEUE));
+
+      final int numMessages = 3 * threshold + 1;
+
+      for (int i = 0; i < numMessages; i++) {
+         producer.send(createTextMessage(session, "m" + i));
+      }
+
+      Wait.assertTrue(() -> queue.getDeliveringCount() >= 3 * threshold);
+
+      for (int i = 0; i < numMessages - 1; i++) {
+         ClientMessage msg = consumer.receiveImmediate();
+         assertNotNull(msg, "Should receive message " + i);
+         msg.individualAcknowledge();
+      }
+
+      Thread.sleep(3 * checkPeriod * 1000);
+
+      assertNotNull(consumer.receiveImmediate());
+   }
+
 }
