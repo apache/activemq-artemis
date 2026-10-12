@@ -181,7 +181,7 @@
       <exec-maven-plugin.version>3.6.4</exec-maven-plugin.version>
       <apache.httpcore.version>4.4.16</apache.httpcore.version>
       <apache.httpclient.version>4.5.14</apache.httpclient.version>
-      <shrinkwrap-api.version>1.2.6</shrinkwrap-api.version>
+      <shrinkwrap-api.version>2.0.0.Final</shrinkwrap-api.version>
 
       <!-- for JakartaEE -->
       <version.batavia>1.0.16.Final</version.batavia>
