@@ -247,7 +247,7 @@ public class FederationConnectionConfiguration implements Serializable {
       buffer.writeLong(connectionTTL);
       buffer.writeLong(retryInterval);
       buffer.writeDouble(retryIntervalMultiplier);
-      buffer.writeLong(retryInterval);
+      buffer.writeLong(maxRetryInterval);
       buffer.writeInt(initialConnectAttempts);
       buffer.writeInt(reconnectAttempts);
       buffer.writeLong(callTimeout);
