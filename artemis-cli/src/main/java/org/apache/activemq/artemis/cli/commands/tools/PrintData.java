@@ -131,13 +131,13 @@ public class PrintData extends DBOption {
 
       printBanner(out, BINDINGS_BANNER);
 
-      DescribeJournal bindings = DescribeJournal.printSurvivingRecords(storageManager.getBindingsJournal(), out, safe, ascii);
+      DescribeJournal bindings = DescribeJournal.printSurvivingRecords(storageManager.getBindingsJournal(), out, safe, ascii, Long.MAX_VALUE);
 
       printBanner(out, MESSAGES_BANNER);
 
-      DescribeJournal describeJournal = DescribeJournal.printSurvivingRecords(storageManager.getMessageJournal(), out, safe, ascii);
+      DescribeJournal describeJournal = DescribeJournal.printSurvivingRecords(storageManager.getMessageJournal(), out, safe, ascii, Long.MAX_VALUE);
 
-      printPages(describeJournal, storageManager, pagingmanager, out, safe, maxPages, bindings, ascii);
+      printPages(describeJournal, storageManager, pagingmanager, out, safe, maxPages, bindings, ascii, Long.MAX_VALUE);
 
       cleanup();
 
@@ -180,6 +180,8 @@ public class PrintData extends DBOption {
          }
       }
 
+      long maxID = DescribeJournal.loadMaxID(bindingsDirectory);
+
       printBanner(out, BINDINGS_BANNER);
       DescribeJournal bindingsDescribe;
       if (skipBindings) {
@@ -187,7 +189,7 @@ public class PrintData extends DBOption {
          out.println();
          bindingsDescribe = null;
       } else {
-         bindingsDescribe = printBindings(bindingsDirectory, out, safe, true, true, reclaimed, ascii);
+         bindingsDescribe = printBindings(bindingsDirectory, out, safe, true, true, reclaimed, ascii, maxID);
       }
 
       printBanner(out, MESSAGES_BANNER);
@@ -196,7 +198,7 @@ public class PrintData extends DBOption {
          out.println();
       }
       DescribeJournal describeJournal = null;
-      describeJournal = printMessages(messagesDirectory, out, safe, !skipJournal, !skipJournal, reclaimed, ascii);
+      describeJournal = printMessages(messagesDirectory, out, safe, !skipJournal, !skipJournal, reclaimed, ascii, maxID);
 
       if (describeJournal == null) {
          return;
@@ -208,7 +210,7 @@ public class PrintData extends DBOption {
             out.println(".... skipping");
             out.println();
          } else {
-            printPages(pagingDirectory, describeJournal, out, safe, maxPages, bindingsDescribe, ascii);
+            printPages(pagingDirectory, describeJournal, out, safe, maxPages, bindingsDescribe, ascii, maxID);
          }
       } catch (Exception e) {
          e.printStackTrace();
@@ -222,9 +224,13 @@ public class PrintData extends DBOption {
    }
 
    public static DescribeJournal printMessages(File messagesDirectory, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving, boolean reclaimed, boolean ascii) {
+      return printMessages(messagesDirectory, out, safe, printRecords, printSurviving, reclaimed, ascii, 0);
+   }
+
+   public static DescribeJournal printMessages(File messagesDirectory, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving, boolean reclaimed, boolean ascii, long maxID) {
       DescribeJournal describeJournal;
       try {
-         describeJournal = DescribeJournal.describeMessagesJournal(messagesDirectory, out, safe, printRecords, printSurviving, reclaimed, ascii);
+         describeJournal = DescribeJournal.describeMessagesJournal(messagesDirectory, out, safe, printRecords, printSurviving, reclaimed, ascii, maxID);
       } catch (Exception e) {
          e.printStackTrace();
          return null;
@@ -237,8 +243,12 @@ public class PrintData extends DBOption {
    }
 
    public static DescribeJournal printBindings(File bindingsDirectory, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving, boolean reclaimed, boolean ascii) {
+      return printBindings(bindingsDirectory, out, safe, printRecords, printSurviving, reclaimed, ascii, 0);
+   }
+
+   public static DescribeJournal printBindings(File bindingsDirectory, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving, boolean reclaimed, boolean ascii, long maxID) {
       try {
-         return DescribeJournal.describeBindingsJournal(bindingsDirectory, out, safe, printRecords, printSurviving, reclaimed, ascii);
+         return DescribeJournal.describeBindingsJournal(bindingsDirectory, out, safe, printRecords, printSurviving, reclaimed, ascii, maxID);
       } catch (Exception e) {
          e.printStackTrace();
          return null;
@@ -252,7 +262,7 @@ public class PrintData extends DBOption {
       out.println("********************************************");
    }
 
-   private static void printPages(File pageDirectory, DescribeJournal describeJournal, PrintStream out, boolean safe, int maxPages, DescribeJournal bindingsDescribe, boolean ascii) {
+   private static void printPages(File pageDirectory, DescribeJournal describeJournal, PrintStream out, boolean safe, int maxPages, DescribeJournal bindingsDescribe, boolean ascii, long maxID) {
       ActiveMQThreadFactory daemonFactory = new ActiveMQThreadFactory("cli", true, PrintData.class.getClassLoader());
       final ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, daemonFactory);
       final ExecutorService executor = Executors.newFixedThreadPool(10, daemonFactory);
@@ -265,7 +275,7 @@ public class PrintData extends DBOption {
          addressSettingsRepository.setDefault(new AddressSettings());
          PagingManager manager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository);
 
-         printPages(describeJournal, sm, manager, out, safe, maxPages, bindingsDescribe, ascii);
+         printPages(describeJournal, sm, manager, out, safe, maxPages, bindingsDescribe, ascii, maxID);
       } catch (Exception e) {
          e.printStackTrace();
       } finally {
@@ -280,7 +290,8 @@ public class PrintData extends DBOption {
                                   PrintStream out,
                                   boolean safe, int maxPages,
                                   DescribeJournal bindingsDescribe,
-                                  boolean ascii) throws Exception {
+                                  boolean ascii,
+                                  long maxID) throws Exception {
       PageCursorsInfo cursorACKs = calculateCursorsInfo(describeJournal.getRecords());
 
       Set<Long> existingQueues = new HashSet<>();
@@ -294,7 +305,8 @@ public class PrintData extends DBOption {
 
       SimpleString[] stores = manager.getStoreNames();
 
-      int[] pageColumnSizes = {10, 10, 12, safe ? 10 : 100, 10};
+      int idColumnSize = maxID > 0 ? Math.max(4, String.valueOf(maxID).length()) : 8;
+      int[] pageColumnSizes = {10, idColumnSize, idColumnSize, safe ? 10 : 100, 10};
       TableOut pageTable = ascii ? null : new TableOut("|", 2, pageColumnSizes);
 
       for (SimpleString store : stores) {
