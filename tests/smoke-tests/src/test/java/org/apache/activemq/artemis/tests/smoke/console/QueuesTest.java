@@ -131,7 +131,7 @@ public class QueuesTest extends ArtemisTest {
          "\"foo\",\"foo\",\"ANYCAST\"").toString().contains("\"status\":200"));
       assertTrue(statusPage.postJolokiaExecRequest(activeMQServerObjectName.getCanonicalName(),
          "addAddressSettings(java.lang.String,java.lang.String,java.lang.String,long,boolean,int,long,int,int,long,double,long,long,boolean,java.lang.String,long,long,java.lang.String,boolean,boolean,boolean,boolean)",
-         "\"bar\",\"DLA\",\"foo\",-1,false,0,0,0,0,0,\"0\",0,0,false,\"\",-1,0,\"\",false,false,false,false").toString().contains("\"status\":200"));
+         "\"bar\",\"DLA\",\"foo\",-1,false,0,-1,-1,0,0,\"0\",0,0,false,\"\",-1,0,\"\",false,false,false,false").toString().contains("\"status\":200"));
 
       statusPage.logout(DEFAULT_TIMEOUT);
 
