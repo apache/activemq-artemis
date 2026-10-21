@@ -686,6 +686,67 @@ public class PublishTests extends MQTT5TestSupport {
    }
 
    /**
+    * [MQTT-3.3.1-13] as above, for a subscription whose topic filter is not the topic name of the message.
+    */
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testRetainAsPublishedOneOnEstablishedWildcardSubscription() throws Exception {
+      testRetainAsPublishedOnEstablishedSubscription(this.getTopicName() + "/#", true);
+   }
+
+   /**
+    * [MQTT-3.3.1-12] as above, for a subscription whose topic filter is not the topic name of the message.
+    */
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testRetainAsPublishedZeroOnEstablishedWildcardSubscription() throws Exception {
+      testRetainAsPublishedOnEstablishedSubscription(this.getTopicName() + "/#", false);
+   }
+
+   /**
+    * [MQTT-3.3.1-13] as above, for a shared subscription.
+    */
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testRetainAsPublishedOneOnEstablishedSharedSubscription() throws Exception {
+      testRetainAsPublishedOnEstablishedSubscription("$share/group/" + this.getTopicName() + "/a", true);
+   }
+
+   private void testRetainAsPublishedOnEstablishedSubscription(String topicFilter, boolean retainAsPublished) throws Exception {
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
+      final String TOPIC = this.getTopicName() + "/a";
+
+      // create consumer
+      final CountDownLatch latch = new CountDownLatch(1);
+      final AtomicBoolean retained = new AtomicBoolean(!retainAsPublished);
+      MqttClient consumer = createPahoClient(CONSUMER_ID);
+      consumer.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) throws Exception {
+            assertEqualsByteArrays("retained".getBytes(StandardCharsets.UTF_8), message.getPayload());
+            retained.set(message.isRetained());
+            latch.countDown();
+         }
+      });
+      consumer.connect();
+      MqttSubscription subscription = new MqttSubscription(topicFilter, 1);
+      subscription.setRetainAsPublished(retainAsPublished);
+      consumer.subscribe(new MqttSubscription[]{subscription});
+
+      // send retained message
+      MqttClient producer = createPahoClient("producer");
+      producer.connect();
+      producer.publish(TOPIC, "retained".getBytes(), 1, true);
+      producer.disconnect();
+      producer.close();
+
+      assertTrue(latch.await(2, TimeUnit.SECONDS));
+      assertEquals(retainAsPublished, retained.get());
+      consumer.disconnect();
+      consumer.close();
+   }
+
+   /**
     * [MQTT-3.3.2-3] The Topic Name in a PUBLISH packet sent by a Server to a subscribing Client MUST match the
     * Subscription’s Topic Filter.
     */
