@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.impl.AddressImpl;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -222,6 +223,19 @@ public class MQTTSessionState {
 
    public SubscriptionItem getSubscriptionItem(String topicFilter) {
       return subscriptionItems.get(topicFilter);
+   }
+
+   /**
+    * {@return the subscription whose consumer has the given ID, or {@code null} if none does}
+    */
+   public SubscriptionItem getSubscriptionItemForConsumer(long consumerId) {
+      for (SubscriptionItem item : subscriptionItems.values()) {
+         ServerConsumer consumer = item.getConsumer();
+         if (consumer != null && consumer.getID() == consumerId) {
+            return item;
+         }
+      }
+      return null;
    }
 
    public List<Integer> getMatchingSubscriptionIdentifiers(String address) {

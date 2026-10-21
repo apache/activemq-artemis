@@ -31,7 +31,6 @@ import io.netty.handler.codec.mqtt.MqttProperties;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
 import io.netty.handler.codec.mqtt.MqttQoS;
-import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -109,7 +108,7 @@ public class MQTTPublishManager {
       if (qos == 0) {
          // [MQTT-2.2.1-2] Hard-code the packet ID to 0 as QoS0 PUBLISH packets don't have a packet ID
          // [MQTT-3.3.1-2] The DUP flag MUST be set to 0 for all QoS 0 messages.
-         if (publishToClient(0, message, false, qos)) {
+         if (publishToClient(0, message, consumer.getID(), false, qos)) {
             consumer.individualAcknowledge(null, message.getMessageID());
          }
       } else if (qos == 1 || qos == 2) {
@@ -131,7 +130,7 @@ public class MQTTPublishManager {
             state.putCoreDeliveryInfo(packetIdToUse, CoreDeliveryInfo.of(consumer.getID(), correlationKey));
             state.incrementSendQuota();
          }
-         publishToClient(packetIdToUse, message, redelivery, qos);
+         publishToClient(packetIdToUse, message, consumer.getID(), redelivery, qos);
       } else {
          // Client must have disconnected and it's Subscription QoS cleared
          consumer.individualCancel(message.getMessageID(), false);
@@ -417,7 +416,7 @@ public class MQTTPublishManager {
       }
    }
 
-   private boolean publishToClient(int packetId, ICoreMessage coreMessage, boolean redelivery, int qos) throws Exception {
+   private boolean publishToClient(int packetId, ICoreMessage coreMessage, long consumerId, boolean redelivery, int qos) throws Exception {
       String topic = MQTTUtil.getMqttTopicFromCoreAddress(Objects.requireNonNullElse(coreMessage.getAddress(), ""), session.getWildcardConfiguration());
 
       ByteBuf payload;
@@ -442,8 +441,9 @@ public class MQTTPublishManager {
       if (session.getVersion() == MQTTVersion.MQTT_5) {
          mqttProperties = getPublishProperties(coreMessage);
          if (!isRetain && coreMessage.getBooleanProperty(MQTT_MESSAGE_RETAIN_KEY)) {
-            MqttTopicSubscription sub = session.getState().getSubscriptionItem(topic).getSubscription();
-            if (sub != null && sub.option().isRetainAsPublished()) {
+            // the subscription this consumer serves, whose topic filter need not be the message's topic
+            SubscriptionItem item = session.getState().getSubscriptionItemForConsumer(consumerId);
+            if (item != null && item.getSubscription().option().isRetainAsPublished()) {
                isRetain = true;
             }
          }
