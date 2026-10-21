@@ -192,6 +192,11 @@ When using replication, the primary and the backup servers do not share the same
 All data synchronization is done over the network.
 Therefore, all (durable) data received by the primary server will be duplicated to the backup.
 
+This duplication is synchronous with respect to the client.
+A durable message is not acknowledged to the sending client until it has been written to the primary's journal *and* the backup has confirmed that it received the corresponding data.
+The same applies to other durable journal operations (e.g. transaction commits).
+This guarantees that any durable data acknowledged to a client is already present on both the primary and the backup, and will therefore survive a failover.
+
 Note that upon start-up the backup server will first need to synchronize all existing data from the primary server before becoming capable of replacing the primary server should it fail.
 Therefore, unlike when using shared storage, a backup will not be _fully operational_ until after it finishes synchronizing the data with its primary server.
 The time it takes for this to happen depends on the amount of data to be synchronized and the connection speed.
