@@ -198,7 +198,7 @@ public class AmqpCoreConverter {
             try {
                TLSEncode.getEncoder().setByteBuffer(new NettyWritable(buf));
                TLSEncode.getEncoder().writeObject(body);
-               result = createBytesMessage(messageId, buf.array(), 0, buf.writerIndex(), coreMessageObjectPools);
+               result = createBytesMessage(messageId, buf.array(), buf.arrayOffset(), buf.writerIndex(), coreMessageObjectPools);
             } finally {
                buf.release();
                TLSEncode.getEncoder().setByteBuffer((WritableBuffer)null);

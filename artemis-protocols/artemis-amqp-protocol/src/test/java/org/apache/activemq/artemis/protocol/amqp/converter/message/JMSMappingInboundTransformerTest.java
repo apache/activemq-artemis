@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
@@ -48,6 +50,7 @@ import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -430,6 +433,33 @@ public class JMSMappingInboundTransformerTest {
 
       assertNotNull(jmsMessage, "Message should not be null");
       assertEquals(CoreBytesMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
+   }
+
+   /**
+    * Test that an amqp-value body containing a value which can't be categorized results in a BytesMessage whose
+    * body is the encoded amqp-value section.
+    *
+    * @throws Exception if an error occurs during the test.
+    */
+   @Test
+   public void testCreateBytesMessageFromAmqpValueWithUncategorisedContentHasEncodedBody() throws Exception {
+      MessageImpl message = (MessageImpl) Message.Factory.create();
+      message.setBody(new AmqpValue(42));
+
+      // hold a pooled buffer so that the converter's pooled buffer does not start at the beginning of its array
+      ByteBuf held = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
+      CoreBytesMessageWrapper jmsMessage;
+      try {
+         jmsMessage = (CoreBytesMessageWrapper) CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
+      } finally {
+         held.release();
+      }
+
+      // descriptor 0x77 (amqp-value), then smallint 42
+      byte[] expected = new byte[] {0x00, 0x53, 0x77, 0x54, 0x2a};
+      byte[] body = new byte[(int) jmsMessage.getBodyLength()];
+      jmsMessage.readBytes(body);
+      assertArrayEquals(expected, body);
    }
 
    @Test
