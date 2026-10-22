@@ -18,12 +18,14 @@
 package org.apache.activemq.artemis.core.server.management;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import javax.management.Attribute;
 import javax.management.JMX;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerDelegate;
@@ -74,6 +76,24 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       underTest = new ArtemisRbacMBeanServerBuilder();
       mbeanServer = Mockito.mock(MBeanServer.class);
       mBeanServerDelegate = Mockito.mock(MBeanServerDelegate.class);
+   }
+
+   @Test
+   public void testEqualsIsReflexiveBecauseItUnwrapsItselfToCompareRealDelegates() throws Exception {
+      MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
+
+      // without unwrapping args[0], this would compare the real wrapped MBeanServer against the proxy object
+      // itself and always return false, breaking basic equals reflexivity
+      assertTrue(proxy.equals(proxy));
+   }
+
+   @Test
+   public void testEqualsOfTwoDistinctProxiesIsFalse() throws Exception {
+      MBeanServer proxyOne = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
+      MBeanServer proxyTwo = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
+
+      // each call to newMBeanServer() creates its own fresh underlying MBeanServer, even with identical arguments
+      assertFalse(proxyOne.equals(proxyTwo));
    }
 
    @Test
@@ -834,5 +854,127 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       assertEquals(serverObjectName.toString(), cd.get("ObjectName"));
       assertEquals("deleteAddress()", cd.get("Method"));
       assertEquals(true, cd.get("CanInvoke"));
+   }
+
+   @Test
+   public void testPermissionSetAttr() throws Exception {
+
+      MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
+
+      final ActiveMQServer server = createServer(false);
+      server.setMBeanServer(proxy);
+      server.getConfiguration().setJMXManagementEnabled(true).setSecurityEnabled(true);
+
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("updaters", false, false, false, false, false, false, false, false, false, false, false, true));
+      server.getConfiguration().putSecurityRoles("mops.broker.setMessageCounterSamplePeriod", roles);
+
+      server.start();
+
+      final ActiveMQServerControl serverControl = JMX.newMBeanProxy(
+         proxy, ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
+
+      Subject noPermSubject = new Subject();
+      noPermSubject.getPrincipals().add(new UserPrincipal("dud"));
+      noPermSubject.getPrincipals().add(new RolePrincipal("dud"));
+
+      Object deniedResult = SecurityManagerShim.callAs(noPermSubject, (Callable<Object>) () -> {
+         try {
+            serverControl.setMessageCounterSamplePeriod(5000L);
+            return "ok";
+         } catch (Exception e1) {
+            return e1;
+         }
+      });
+      assertInstanceOf(SecurityException.class, deniedResult);
+
+      Subject updateSubject = new Subject();
+      updateSubject.getPrincipals().add(new UserPrincipal("u"));
+      updateSubject.getPrincipals().add(new RolePrincipal("updaters"));
+
+      Object allowedResult = SecurityManagerShim.callAs(updateSubject, (Callable<Object>) () -> {
+         try {
+            serverControl.setMessageCounterSamplePeriod(5000L);
+            return "ok";
+         } catch (Exception e1) {
+            return e1;
+         }
+      });
+      assertEquals("ok", allowedResult);
+   }
+
+   @Test
+   public void testSetAttributeWithUndeclaredAttributeSurfacesAsSecurityException() throws Exception {
+
+      MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
+
+      final ActiveMQServer server = createServer(false);
+      server.setMBeanServer(proxy);
+      server.getConfiguration().setJMXManagementEnabled(true).setSecurityEnabled(true);
+
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("updaters", false, false, false, false, false, false, false, false, false, false, false, true));
+      server.getConfiguration().putSecurityRoles("mops.broker.#", roles);
+
+      server.start();
+
+      ObjectName objectName = ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName();
+
+      Subject updateSubject = new Subject();
+      updateSubject.getPrincipals().add(new UserPrincipal("u"));
+      updateSubject.getPrincipals().add(new RolePrincipal("updaters"));
+
+      // ArtemisRbacInvocationHandler.invoke() wraps every failure from securityCheck() - not just permission
+      // denials - in a SecurityException, so the IllegalStateException thrown by handleSetAttribute for an
+      // attribute that isn't declared on the MBean surfaces here as a SecurityException instead
+      Object result = SecurityManagerShim.callAs(updateSubject, (Callable<Object>) () -> {
+         try {
+            proxy.setAttribute(objectName, new Attribute("ThereIsNoSuchAttribute", "x"));
+            return "ok";
+         } catch (Exception e1) {
+            return e1;
+         }
+      });
+
+      assertInstanceOf(SecurityException.class, result);
+      assertTrue(((Exception) result).getMessage().contains("Attribute data type can not be found"));
+   }
+
+   @Test
+   public void testQueryMBeansWithStar() throws Exception {
+
+      MBeanServer proxy = underTest.newMBeanServer("d", mbeanServer, mBeanServerDelegate);
+
+      final ActiveMQServer server = createServer(false);
+      server.setMBeanServer(proxy);
+      server.getConfiguration().setJMXManagementEnabled(true).setSecurityEnabled(true);
+
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("viewers", false, false, false, false, false, false, false, false, false, false, true, false));
+      server.getConfiguration().putSecurityRoles("mops.mbeanserver.queryMBeans", roles);
+
+      server.start();
+
+      Hashtable<String, String> attrs = new Hashtable<>();
+      attrs.put("broker", "bb");
+      attrs.put("type", "security");
+      attrs.put("area", "jmx");
+      attrs.put("name", "*");
+
+      final ObjectName queryName = new ObjectName("*", attrs);
+
+      Subject viewSubject = new Subject();
+      viewSubject.getPrincipals().add(new UserPrincipal("v"));
+      viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
+
+      Object result = SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
+         try {
+            return proxy.queryMBeans(queryName, null);
+         } catch (Exception e1) {
+            return e1;
+         }
+      });
+      assertNotNull(result);
+      assertInstanceOf(Set.class, result);
    }
 }
