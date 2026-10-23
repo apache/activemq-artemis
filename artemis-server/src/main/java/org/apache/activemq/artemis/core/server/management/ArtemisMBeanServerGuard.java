@@ -23,29 +23,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.JMException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.List;
 
-public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
+public class ArtemisMBeanServerGuard extends AbstractGuardInvocationHandler {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private JMXAccessControlList jmxAccessControlList = JMXAccessControlList.createDefaultList();
-
-   public void init() {
-      ArtemisMBeanServerBuilder.setGuard(this);
-   }
 
    @Override
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -57,76 +47,14 @@ public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
          return null;
       }
 
-      ObjectName objectName = (ObjectName) args[0];
-      if ("getAttribute".equals(method.getName())) {
-         handleGetAttribute((MBeanServer) proxy, objectName, (String) args[1]);
-      } else if ("getAttributes".equals(method.getName())) {
-         handleGetAttributes((MBeanServer) proxy, objectName, (String[]) args[1]);
-      } else if ("setAttribute".equals(method.getName())) {
-         handleSetAttribute((MBeanServer) proxy, objectName, (Attribute) args[1]);
-      } else if ("setAttributes".equals(method.getName())) {
-         handleSetAttributes((MBeanServer) proxy, objectName, (AttributeList) args[1]);
-      } else if ("invoke".equals(method.getName())) {
-         handleInvoke(objectName, (String) args[1]);
-      }
+      securityCheck((MBeanServer) proxy, method, args);
 
       return null;
    }
 
-   private void handleGetAttribute(MBeanServer proxy, ObjectName objectName, String attributeName) throws JMException, IOException {
-      handleGetAttribute(proxy.getMBeanInfo(objectName), objectName, attributeName);
-   }
-
-   private void handleGetAttribute(MBeanInfo info, ObjectName objectName, String attributeName) throws JMException, IOException {
-      String prefix = null;
-      for (MBeanAttributeInfo attr : info.getAttributes()) {
-         if (attr.getName().equals(attributeName)) {
-            prefix = attr.isIs() ? "is" : "get";
-         }
-      }
-
-      if (prefix != null) {
-         try {
-            handleInvoke(objectName, prefix + attributeName);
-         } catch (SecurityException e) {
-            // The security exception message is shown in the attributes tab of the console.
-            throw new SecurityException("User not authorized to access attribute: " + attributeName, e);
-         }
-      }
-   }
-
-   private void handleGetAttributes(MBeanServer proxy, ObjectName objectName, String[] attributeNames) throws JMException, IOException {
-      MBeanInfo info = proxy.getMBeanInfo(objectName);
-      for (String attr : attributeNames) {
-         handleGetAttribute(info, objectName, attr);
-      }
-   }
-
-   private void handleSetAttribute(MBeanServer proxy, ObjectName objectName, Attribute attribute) throws JMException, IOException {
-      handleSetAttribute(proxy.getMBeanInfo(objectName), objectName, attribute);
-   }
-
-   private void handleSetAttribute(MBeanInfo info, ObjectName objectName, Attribute attribute) throws JMException, IOException {
-      String dataType = null;
-      for (MBeanAttributeInfo attr : info.getAttributes()) {
-         if (attr.getName().equals(attribute.getName())) {
-            dataType = attr.getType();
-            break;
-         }
-      }
-
-      if (dataType == null) {
-         throw new IllegalStateException("Attribute data type can not be found");
-      }
-
-      handleInvoke(objectName, "set" + attribute.getName());
-   }
-
-   private void handleSetAttributes(MBeanServer proxy, ObjectName objectName, AttributeList attributes) throws JMException, IOException {
-      MBeanInfo info = proxy.getMBeanInfo(objectName);
-      for (Attribute attr : attributes.asList()) {
-         handleSetAttribute(info, objectName, attr);
-      }
+   @Override
+   public void handleQuery(String methodName) throws Exception {
+      // management.xml has no way to limit the execution of queryNames() or queryMBeans() on the underlying MBeanServer
    }
 
    private boolean canBypassRBAC(ObjectName objectName) {
@@ -154,11 +82,7 @@ public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
          return true;
       }
 
-      // Strip the parameter list from operationName.
-      int paramListIndex = operationName.indexOf('(');
-      if (paramListIndex > 0) {
-         operationName = operationName.substring(0, paramListIndex);
-      }
+      operationName = stripParameterList(operationName);
 
       List<String> requiredRoles = getRequiredRoles(objectName, operationName);
       for (String role : requiredRoles) {
@@ -170,7 +94,8 @@ public class ArtemisMBeanServerGuard implements GuardInvocationHandler {
       return false;
    }
 
-   void handleInvoke(ObjectName objectName, String operationName) throws IOException {
+   @Override
+   public void handleInvoke(ObjectName objectName, String operationName) {
       if (canBypassRBAC(objectName)) {
          return;
       }

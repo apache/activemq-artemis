@@ -18,15 +18,10 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
@@ -39,16 +34,14 @@ import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
-public class ArtemisRbacInvocationHandler implements GuardInvocationHandler {
+public class ArtemisRbacInvocationHandler extends AbstractGuardInvocationHandler implements MBeanServerWrapper {
 
-   private final List<String> mBeanServerCheckedMethods = List.of("invoke", "getAttribute", "getAttributes", "setAttribute", "setAttributes", "queryMBeans", "queryNames");
    private final List<String> uncheckedDomains = List.of("hawtio");
 
-   private final MBeanServer delegate;
+   private final MBeanServer wrapped;
    private volatile ActiveMQServer activeMQServer;
    String brokerDomain;
    Pattern viewPermissionMatcher;
@@ -57,28 +50,33 @@ public class ArtemisRbacInvocationHandler implements GuardInvocationHandler {
    char addressDelimiter;
 
    ArtemisRbacInvocationHandler(MBeanServer mbeanServer) {
-      delegate = mbeanServer;
+      wrapped = mbeanServer;
+   }
+
+   @Override
+   public MBeanServer unwrap() {
+      return wrapped;
    }
 
    @Override
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
       initAuditLoggerContext();
-
       if (mBeanServerCheckedMethods.contains(method.getName())) {
-
          if (activeMQServer != null) {
             // happily initialised, do our check
-            securityCheck(method, args);
-
+            try {
+               if (!isUncheckedDomain(args)) {
+                  securityCheck(wrapped, method, args);
+               }
+            } catch (Exception e) {
+               throw new SecurityException(e.getMessage());
+            }
          } else {
             // initialisation pending registration of broker control with a check operation
-
             if (method.getName().startsWith("query")) {
                // restrict result in favour of an exception
                return null;
             }
-
             if (!isUncheckedDomain(args)) {
                throw new IllegalStateException("initialisation pending");
             }
@@ -86,13 +84,8 @@ public class ArtemisRbacInvocationHandler implements GuardInvocationHandler {
       } else {
          initializeFromFirstServerMBeanRegistration(method, args);
       }
-
-      Object result;
-      try {
-         result = method.invoke(delegate, args);
-      } catch (InvocationTargetException ite) {
-         throw ite.getCause();
-      }
+      handleEquals(method, args);
+      Object result = invokeAndUnwrap(method, wrapped, args);
 
       // filter query results based on RBAC
       if (method.getName().startsWith("query") && result instanceof Collection<?> collection) {
@@ -180,83 +173,14 @@ public class ArtemisRbacInvocationHandler implements GuardInvocationHandler {
       }
    }
 
-   private void initAuditLoggerContext() {
-      //if this is invoked via jolokia the address will be set by the filter
-      //if not we can deduct it from RMI, or it must be internal
-      if (AuditLogger.isAnyLoggingEnabled() && AuditLogger.getRemoteAddress() == null) {
-         String url = "internal";
-         final String name = Thread.currentThread().getName();
-         if (name.startsWith("RMI TCP Connection")) {
-            url = name.substring(name.indexOf('-') + 1);
-         }
-         AuditLogger.setRemoteAddress(url);
-      }
+   @Override
+   public void handleQuery(String methodName) throws Exception {
+      securityStoreCheck(mBeanServerRbacAddressPrefix.concat(methodName), permissionFrom(methodName));
    }
 
-   // derive address to check from the method and args and then check relevant permission
-   void securityCheck(Method method, Object[] args) {
-
-      if (isUncheckedDomain(args)) {
-         return;
-      }
-
-      try {
-
-         final String methodName = method.getName();
-
-         if ("getAttribute".equals(methodName)) {
-            handleGetAttribute(delegate, (ObjectName) args[0], (String) args[1]);
-         } else if ("getAttributes".equals(methodName)) {
-            handleGetAttributes(delegate, (ObjectName) args[0], (String[]) args[1]);
-         } else if ("setAttribute".equals(methodName)) {
-            handleSetAttribute(delegate, (ObjectName) args[0], (Attribute) args[1]);
-         } else if ("setAttributes".equals(methodName)) {
-            handleSetAttributes(delegate, (ObjectName) args[0], (AttributeList) args[1]);
-         } else if ("invoke".equals(methodName)) {
-            handleInvoke((ObjectName) args[0], (String) args[1]);
-         } else if (method.getName().startsWith("query")) {
-
-            final SimpleString rbacAddress = mBeanServerRbacAddressPrefix.concat(methodName);
-            securityStoreCheck(rbacAddress, permissionFrom(methodName));
-         }
-
-      } catch (Exception e) {
-         throw new SecurityException(e.getMessage());
-      }
-   }
-
-   private void handleSetAttributes(MBeanServer delegate, ObjectName objectName, AttributeList attributeList) throws Exception {
-      for (Attribute attributeName : attributeList.asList()) {
-         handleSetAttribute(delegate, objectName, attributeName);
-      }
-   }
-
-   private void handleSetAttribute(MBeanServer delegate, ObjectName objectName, Attribute attributeName) throws Exception {
-      handleInvoke(objectName, "set" + attributeName);
-   }
-
-   private void handleGetAttributes(MBeanServer delegate, ObjectName objectName, String[] attributes) throws Exception {
-      for (String attribute : attributes) {
-         handleGetAttribute(delegate, objectName, attribute);
-      }
-   }
-
-   private void handleGetAttribute(MBeanServer delegate, ObjectName objectName, String attributeName) throws Exception {
-      MBeanInfo info = delegate.getMBeanInfo(objectName);
-      String prefix = "get";
-      for (MBeanAttributeInfo attr : info.getAttributes()) {
-         if (attr.getName().equals(attributeName)) {
-            prefix = attr.isIs() ? "is" : "get";
-            break;
-         }
-      }
-      handleInvoke(objectName, prefix + attributeName);
-   }
-
-   private void handleInvoke(ObjectName objectName, String operationName) throws Exception {
-      final SimpleString rbacAddress = addressFrom(objectName, operationName);
-      final CheckType permission = permissionFrom(operationName);
-      securityStoreCheck(rbacAddress, permission);
+   @Override
+   public void handleInvoke(ObjectName objectName, String operationName) throws Exception {
+      securityStoreCheck(addressFrom(objectName, operationName), permissionFrom(operationName));
    }
 
    CheckType permissionFrom(String methodName) {

@@ -16,19 +16,18 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
-import org.apache.activemq.artemis.logs.AuditLogger;
-
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerBuilder;
 import javax.management.MBeanServerDelegate;
+
+import static org.apache.activemq.artemis.core.server.management.AbstractGuardInvocationHandler.initAuditLoggerContext;
+import static org.apache.activemq.artemis.core.server.management.AbstractGuardInvocationHandler.invokeAndUnwrap;
+import static org.apache.activemq.artemis.core.server.management.AbstractGuardInvocationHandler.mBeanServerCheckedMethods;
+import static org.apache.activemq.artemis.core.server.management.AbstractGuardInvocationHandler.handleEquals;
 
 public class ArtemisMBeanServerBuilder extends MBeanServerBuilder {
 
@@ -48,52 +47,30 @@ public class ArtemisMBeanServerBuilder extends MBeanServerBuilder {
       return (MBeanServer) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{MBeanServer.class}, handler);
    }
 
-   private static final class MBeanInvocationHandler implements InvocationHandler {
+   private static final class MBeanInvocationHandler implements InvocationHandler, MBeanServerWrapper {
 
       private final MBeanServer wrapped;
-      private final List<String> guarded = Collections.unmodifiableList(Arrays.asList("invoke", "getAttribute", "getAttributes", "setAttribute", "setAttributes", "queryMBeans"));
 
       MBeanInvocationHandler(MBeanServer mbeanServer) {
          wrapped = mbeanServer;
       }
 
       @Override
+      public MBeanServer unwrap() {
+         return wrapped;
+      }
+
+      @Override
       public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-         //if this is invoked via jolokia the address will be set by the filter
-         //if not we can deduct it from RMI or it must be internal
-         if (AuditLogger.isAnyLoggingEnabled() && AuditLogger.getRemoteAddress() == null) {
-            String name = Thread.currentThread().getName();
-            String url = "internal";
-            if (name.startsWith("RMI TCP Connection")) {
-               url = name.substring(name.indexOf('-') + 1);
-            }
-            AuditLogger.setRemoteAddress(url);
-         }
-         if (guarded.contains(method.getName())) {
+         initAuditLoggerContext();
+         if (mBeanServerCheckedMethods.contains(method.getName())) {
             if (ArtemisMBeanServerBuilder.guard == null) {
                throw new IllegalStateException("ArtemisMBeanServerBuilder not initialized");
             }
             guard.invoke(proxy, method, args);
          }
-         if (method.getName().equals("equals")
-               && method.getParameterTypes().length == 1
-               && method.getParameterTypes()[0] == Object.class) {
-            Object target = args[0];
-            if (target != null && Proxy.isProxyClass(target.getClass())) {
-               InvocationHandler handler = Proxy.getInvocationHandler(target);
-               if (handler instanceof MBeanInvocationHandler invocationHandler) {
-                  args[0] = invocationHandler.wrapped;
-               }
-            }
-         } else if (method.getName().equals("finalize") && method.getParameterTypes().length == 0) {
-            // special case finalize, don't route through to delegate because that will get its own call
-            return null;
-         }
-         try {
-            return method.invoke(wrapped, args);
-         } catch (InvocationTargetException ite) {
-            throw ite.getCause();
-         }
+         handleEquals(method, args);
+         return invokeAndUnwrap(method, wrapped, args);
       }
    }
 }
