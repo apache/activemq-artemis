@@ -101,7 +101,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.lock.LockCoordinator;
 import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
-import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.server.routing.policies.PolicyFactoryResolver;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -1050,18 +1050,18 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          Element node = (Element) brokerPlugins.item(0);
          NodeList list = node.getElementsByTagName(BROKER_PLUGIN_ELEMENT_NAME);
          for (int i = 0; i < list.getLength(); i++) {
-            ActiveMQServerPlugin plugin = parseActiveMQServerPlugin(list.item(i));
+            ActiveMQServerBasePlugin plugin = parseActiveMQServerPlugin(list.item(i));
             config.registerBrokerPlugin(plugin);
          }
       }
    }
 
-   private ActiveMQServerPlugin parseActiveMQServerPlugin(Node item) {
+   private ActiveMQServerBasePlugin parseActiveMQServerPlugin(Node item) {
       final String clazz = item.getAttributes().getNamedItem("class-name").getNodeValue();
 
       Map<String, String> properties = getMapOfChildPropertyElements(item);
 
-      ActiveMQServerPlugin serverPlugin = SecurityManagerShim.doPrivileged((PrivilegedAction<ActiveMQServerPlugin>) () -> (ActiveMQServerPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, ActiveMQServerPlugin.class));
+      ActiveMQServerBasePlugin serverPlugin = SecurityManagerShim.doPrivileged((PrivilegedAction<ActiveMQServerBasePlugin>) () -> (ActiveMQServerBasePlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, ActiveMQServerBasePlugin.class));
 
       serverPlugin.init(properties);
 

@@ -79,6 +79,7 @@ import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
 import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
+import org.apache.activemq.artemis.core.server.plugin.impl.ConnectionPeriodicExpiryPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DiskFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
@@ -921,9 +922,11 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       deploymentManager.readConfiguration();
 
       List<ActiveMQServerBasePlugin> brokerPlugins = fc.getBrokerPlugins();
-      assertEquals(2, brokerPlugins.size());
+      assertEquals(3, brokerPlugins.size());
       assertInstanceOf(EmptyPlugin1.class, brokerPlugins.get(0));
       assertInstanceOf(EmptyPlugin2.class, brokerPlugins.get(1));
+      ConnectionPeriodicExpiryPlugin expiryPlugin = assertInstanceOf(ConnectionPeriodicExpiryPlugin.class, brokerPlugins.get(2));
+      assertEquals("netty-client-acceptor", expiryPlugin.getAcceptorMatchRegex());
    }
 
    @TestTemplate
