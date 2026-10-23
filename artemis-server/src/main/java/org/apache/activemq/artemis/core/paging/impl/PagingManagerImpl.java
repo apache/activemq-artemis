@@ -536,6 +536,8 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public synchronized void stop() throws Exception {
+      addressSettingsRepository.unRegisterListener(this);
+
       if (!started) {
          return;
       }

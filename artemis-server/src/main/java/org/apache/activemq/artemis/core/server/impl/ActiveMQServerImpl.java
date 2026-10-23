@@ -3431,6 +3431,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       queueFactory = new QueueFactoryImpl(executorFactory, scheduledPool, addressSettingsRepository, storageManager, this);
 
+      if (pagingManager != null) {
+         try {
+            pagingManager.stop();
+         } catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingComponent(pagingManager.getClass().getName(), t);
+         }
+      }
+
       pagingManager = createPagingManager();
 
       resourceManager = new ResourceManagerImpl(this, (int) (configuration.getTransactionTimeout() / 1000), configuration.getTransactionTimeoutScanPeriod(), scheduledPool);
