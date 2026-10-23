@@ -247,6 +247,8 @@ public abstract class AbstractConfigurationFullTest {
       assertEquals("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory", nettyAcceptor.getFactoryClassName());
       assertEquals("0.0.0.0", nettyAcceptor.getParams().get("HOST"));
       assertEquals("61616", nettyAcceptor.getParams().get("PORT"));
+      assertEquals("TLS_AES_256_GCM_SHA384,TLS_AES_128_GCM_SHA256", nettyAcceptor.getParams().get("enabledCipherSuites"));
+      assertEquals("TLSv1.2,TLSv1.3", nettyAcceptor.getParams().get("enabledProtocols"));
       assertEquals("false", nettyAcceptor.getExtraParams().get("supportAdvisory"));
 
       TransportConfiguration invmAcceptor = configuration.getAcceptorConfigurations().stream()
