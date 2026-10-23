@@ -16,13 +16,25 @@
  */
 package org.apache.activemq.artemis.tests.leak;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
 import io.github.checkleak.core.CheckLeak;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
+import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
+import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -68,5 +80,72 @@ public class StartStopLeakTest extends ActiveMQTestBase {
 
       MemoryAssertions.assertMemory(checkLeak, 0, PostOfficeImpl.class.getName());
       MemoryAssertions.assertMemory(checkLeak, 0, AckManager.class.getName());
+   }
+
+   @Test
+   public void testPagingManagerLeak() throws Throwable {
+      CheckLeak checkLeak = new CheckLeak();
+      HierarchicalRepository<AddressSettings> addressSettings = new HierarchicalObjectRepository<>();
+      OrderedExecutorFactory orderedExecutorFactory = getOrderedExecutor();
+      final StorageManager storageManager = new NullStorageManager().setContextSupplier(() -> OperationContextImpl.getContext(orderedExecutorFactory));
+      ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+      runAfter(scheduledExecutorService::shutdownNow);
+
+      for (int i = 0; i < 10; i++) {
+         PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, getPageDirFile(), 100, scheduledExecutorService, orderedExecutorFactory, true, null);
+         PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings, -1, -1, null, null);
+         managerImpl.start();
+         managerImpl.stop();
+      }
+
+      MemoryAssertions.assertMemory(checkLeak, 0, PagingManagerImpl.class.getName());
+   }
+
+   @Test
+   public void testPagingManagerLeakThroughServer() throws Throwable {
+      CheckLeak checkLeak = new CheckLeak();
+      internalTestPagingManagerLeakThroughServer(checkLeak);
+      clearServers();
+      MemoryAssertions.assertMemory(checkLeak, 0, PagingManagerImpl.class.getName());
+   }
+
+   private void internalTestPagingManagerLeakThroughServer(CheckLeak checkLeak) throws Exception {
+      // Start stop many different servers.
+      for (int i = 0; i < 5; i++) {
+         clearServers();
+         ActiveMQServer server = createServer(true, true);
+         server.start();
+         server.stop(false);
+      }
+      MemoryAssertions.assertMemory(checkLeak, 1, PagingManagerImpl.class.getName());
+
+      // Start stop same server
+      clearServers();
+      ActiveMQServer server = createServer(true, true);
+      for (int i = 0; i < 5; i++) {
+         server.start();
+         server.stop(false);
+      }
+      MemoryAssertions.assertMemory(checkLeak, 1, PagingManagerImpl.class.getName());
+   }
+
+   @Test
+   public void testPagingManagerLeakOnServerReinitialization() throws Throwable {
+      CheckLeak checkLeak = new CheckLeak();
+      // creating a sub method to make sure the method reference is gone from the JVM.
+      internalPagingManagerLeak(checkLeak);
+      clearServers();
+      MemoryAssertions.assertMemory(checkLeak, 0, PagingManagerImpl.class.getName());
+      MemoryAssertions.assertMemory(checkLeak, 0, ActiveMQServerImpl.class.getName());
+   }
+
+   private void internalPagingManagerLeak(CheckLeak checkLeak) throws Exception {
+      ActiveMQServerImpl server = (ActiveMQServerImpl) createServer(true, true);
+
+      for (int i = 0; i < 3; i++) {
+         server.start();
+         server.stop(false);
+      }
+      MemoryAssertions.assertMemory(checkLeak, 1, PagingManagerImpl.class.getName());
    }
 }

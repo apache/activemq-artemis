@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -335,6 +336,10 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    @Override
    public void unRegisterListener(final HierarchicalRepositoryChangeListener listener) {
       listeners.remove(listener);
+   }
+
+   Set<HierarchicalRepositoryChangeListener> getListeners() {
+      return Collections.unmodifiableSet(listeners);
    }
 
    /**

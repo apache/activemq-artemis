@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +39,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
+import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepositoryTestAccessor;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
@@ -143,5 +145,26 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
     */
    protected Page depageOnExecutor(final PagingStore store) throws Exception {
       return callOnExecutor(store.getExecutor(), () -> store.depage(), 10, TimeUnit.SECONDS);
+   }
+
+   @Test
+   public void testPagingManagerListenerCleanup() throws Exception {
+      HierarchicalRepository<AddressSettings> addressSettings = new HierarchicalObjectRepository<>();
+      OrderedExecutorFactory orderedExecutorFactory = getOrderedExecutor();
+      final StorageManager storageManager = new NullStorageManager().setContextSupplier(() -> OperationContextImpl.getContext(orderedExecutorFactory));
+      ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+      runAfter(scheduledExecutorService::shutdownNow);
+
+      PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, getPageDirFile(), 100, scheduledExecutorService, orderedExecutorFactory, true, null);
+
+      PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings);
+
+      Set<?> listeners = HierarchicalObjectRepositoryTestAccessor.getListeners(addressSettings);
+
+      assertTrue(listeners.contains(managerImpl));
+
+      managerImpl.stop();
+
+      assertFalse(listeners.contains(managerImpl));
    }
 }

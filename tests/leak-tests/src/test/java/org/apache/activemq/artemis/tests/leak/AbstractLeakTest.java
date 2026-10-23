@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.leak;
 
 import io.github.checkleak.core.CheckLeak;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -34,6 +35,7 @@ public abstract class AbstractLeakTest extends ActiveMQTestBase {
       CheckLeak checkLeak = new CheckLeak();
       MemoryAssertions.assertMemory(checkLeak, 0, JournalImpl.class.getName());
       MemoryAssertions.assertMemory(checkLeak, 0, ActiveMQServerImpl.class.getName());
+      MemoryAssertions.assertMemory(checkLeak, 0, PagingManagerImpl.class.getName());
       MemoryAssertions.assertMemory(checkLeak, 0, OrderedExecutor.class.getName());
       MemoryAssertions.assertNoInnerInstances(OrderedExecutor.class, checkLeak);
    }
