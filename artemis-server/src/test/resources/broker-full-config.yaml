@@ -119,6 +119,8 @@ acceptorConfigurations:
     params:
       HOST: "0.0.0.0"
       PORT: "61616"
+      enabledCipherSuites: "TLS_AES_256_GCM_SHA384,TLS_AES_128_GCM_SHA256"
+      enabledProtocols: "TLSv1.2,TLSv1.3"
     extraParams:
       supportAdvisory: "false"
   invm-acceptor:
