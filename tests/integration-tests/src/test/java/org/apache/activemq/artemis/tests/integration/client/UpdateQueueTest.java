@@ -202,6 +202,43 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
    }
 
+   @Test
+   public void testUpdateQueueFilter() throws Exception {
+      ActiveMQServer server = createServer(true, false);
+
+      server.start();
+
+      SimpleString ADDRESS = SimpleString.of("queue.0");
+
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST).setFilterString("color='red'"));
+
+      server.updateQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST).setFilterString("color='blue'"));
+
+      assertEquals("color='blue'", server.locateQueue(ADDRESS).getFilter().getFilterString().toString());
+      assertEquals("color='blue'", server.locateQueue(ADDRESS).getQueueConfiguration().getFilterString().toString());
+      assertEquals("color='blue'", server.queueQuery(ADDRESS).getFilterString().toString());
+
+      server.stop();
+      server.start();
+
+      assertEquals("color='blue'", server.locateQueue(ADDRESS).getFilter().getFilterString().toString());
+      assertEquals("color='blue'", server.queueQuery(ADDRESS).getFilterString().toString());
+
+      // removing the filter
+      server.updateQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST).setFilterString(""));
+
+      assertNull(server.locateQueue(ADDRESS).getFilter());
+      assertNull(server.queueQuery(ADDRESS).getFilterString());
+
+      server.stop();
+      server.start();
+
+      assertNull(server.locateQueue(ADDRESS).getFilter());
+      assertNull(server.queueQuery(ADDRESS).getFilterString());
+
+      server.stop();
+   }
+
    private void validateBindingRecords(ActiveMQServer server, byte type, int expected) throws Exception {
       Map<Integer, AtomicInteger> counts = countBindingJournal(server.getConfiguration());
       // if this fails, don't ignore it.. it means something is sending a new record on the journal
